@@ -1,0 +1,17 @@
+[
+{
+  "modid": "overwatch",
+  "name": "Overwatch",
+  "description": "Overwatch characters in Minecraft.",
+  "version": "1.0",
+  "mcversion": "1.11",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["2piradians"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "requiredMods": ["Forge"],
+  "dependencies": []
+}
+]

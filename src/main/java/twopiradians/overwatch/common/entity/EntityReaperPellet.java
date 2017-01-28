@@ -1,15 +1,18 @@
 package twopiradians.overwatch.common.entity;
 
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.overwatch.common.item.weapon.ModWeapons;
 
 public class EntityReaperPellet extends EntityThrowable
 {
 	private static final int LIFETIME = 5;
+    private EntityLivingBase thrower;
 	
 	public EntityReaperPellet(World worldIn) {
 		super(worldIn);
@@ -17,16 +20,17 @@ public class EntityReaperPellet extends EntityThrowable
 		this.setSize(0.1f, 0.1f);
 	}
 	
-	public EntityReaperPellet(World worldIn, EntityPlayer shooter) {
+	//Client doesn't read here
+	public EntityReaperPellet(World worldIn, EntityLivingBase throwerIn) {
 		this(worldIn);
 		//TODO adjust for which gun fires
-		double velX = Math.cos(shooter.rotationPitch*Math.PI/180) * Math.cos(shooter.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
-		double velY = - Math.sin(shooter.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
-		double velZ = Math.cos(shooter.rotationPitch*Math.PI/180) * Math.sin(shooter.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
-		double x = shooter.posX + Math.cos(shooter.rotationPitch*Math.PI/180)*Math.cos(shooter.rotationYawHead*Math.PI/180 + Math.PI/2)*2;
-		double y = shooter.posY + 1 - Math.sin(shooter.rotationPitch*Math.PI/180)*2;
-		double z = shooter.posZ + Math.cos(shooter.rotationPitch*Math.PI/180)*Math.sin(shooter.rotationYawHead*Math.PI/180 + Math.PI/2)*2;
-		setPositionAndRotationDirect(x, y, z, shooter.rotationYawHead, shooter.rotationPitch, 0, false);
+		double velX = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
+		double velY = - Math.sin(throwerIn.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
+		double velZ = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
+		double x = throwerIn.posX + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
+		double y = throwerIn.posY + 1.5d - Math.sin(throwerIn.rotationPitch*Math.PI/180);
+		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
+		this.setPositionAndRotationDirect(x, y, z, 0, 0, 0, false);
 		double speed = 3.0d;
 		double speedNormalize = Math.sqrt(velX*velX + velY*velY + velZ*velZ);
 		velX *= speed/speedNormalize;
@@ -40,15 +44,28 @@ public class EntityReaperPellet extends EntityThrowable
 		super.onUpdate();
 		if (this.ticksExisted > LIFETIME)
 			this.setDead();
+		
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
-		if (result.entityHit instanceof EntityLiving) {
+		if (result.entityHit != null && result.entityHit == this.thrower)
+			return;
+		else if (result.entityHit instanceof EntityLiving) {
 			float damage = 7 - (7 - 2) * (this.ticksExisted / LIFETIME);
-			((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.magic, damage);
+			((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.magic, damage/ModWeapons.damageScale);
 			((EntityLiving)result.entityHit).hurtResistantTime = 0;
 		}
 		this.setDead();
 	}
+	
+    public void writeEntityToNBT(NBTTagCompound compound)
+    {
+    	
+    }
+	
+    public void readEntityFromNBT(NBTTagCompound compound)
+    {
+        this.thrower = this.worldObj.getPlayerEntityByName(compound.getString("ownerName"));
+    }
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 
 public class ModWeapons extends Item
 {
+	public static float damageScale = 10f;
 
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));

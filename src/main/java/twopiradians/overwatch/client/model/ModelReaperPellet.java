@@ -13,7 +13,7 @@ public class ModelReaperPellet extends ModelBase {
 		this.textureHeight = 16;
 		
 		this.pellet = new ModelRenderer(this);
-		this.pellet.addBox(0f, 0f, 0f, 1, 1, 1);
+		this.pellet.addBox(0f, 0f, 0f, 1, 1, 2);
 		this.pellet.setRotationPoint(0f, 0f, 0f);
 	}
 	

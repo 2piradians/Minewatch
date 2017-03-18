@@ -1,7 +1,7 @@
 [
 {
-  "modid": "overwatch",
-  "name": "Overwatch",
+  "modid": "minewatch",
+  "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
   "version": "1.0",
   "mcversion": "1.11",

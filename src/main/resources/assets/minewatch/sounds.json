@@ -1,0 +1,10 @@
+{
+    "reaper_shotguns":
+    {
+        "category": "player",
+        "sounds":
+        [
+            "minewatch:reaper_shotguns"
+        ]
+    }
+}

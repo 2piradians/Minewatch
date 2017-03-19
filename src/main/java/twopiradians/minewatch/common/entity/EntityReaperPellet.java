@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.item.weapon.ModWeapons;
+import twopiradians.minewatch.common.item.weapon.ModWeapon;
 
 public class EntityReaperPellet extends EntityThrowable
 {
@@ -53,7 +53,7 @@ public class EntityReaperPellet extends EntityThrowable
 			return;
 		else if (result.entityHit instanceof EntityLiving) {
 			float damage = 7 - (7 - 2) * (this.ticksExisted / LIFETIME);
-			((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.MAGIC, damage/ModWeapons.damageScale);
+			((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.MAGIC, damage/ModWeapon.DAMAGE_SCALE);
 			((EntityLiving)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}

@@ -7,3 +7,11 @@ item.reaper_boots.name=Reaper Boots
 item.reaper_shotgun.name=Reaper Shotgun
 
 entity.reaper_pellet.name=Reaper Shotgun Pellet
+
+item.hanzo_helmet.name=Hanzo Helmet
+item.hanzo_chestplate.name=Hanzo Chestplate
+item.hanzo_leggings.name=Hanzo Leggings
+item.hanzo_boots.name=Hanzo Boots
+item.hanzo_bow.name=Hanzo Bow
+
+entity.hanzo_arrow.name=Hanzo Arrow

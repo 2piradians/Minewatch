@@ -7,6 +7,8 @@ import twopiradians.minewatch.common.Minewatch;
 public class ModEntities 
 {
 	public static void registerEntities() {
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reaper_pellet"), EntityReaperPellet.class, "reaper_pellet", 0, Minewatch.instance, 16, 1, true);
+		int id = 0;
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reaper_pellet"), EntityReaperPellet.class, "reaper_pellet", id++, Minewatch.instance, 16, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoArrow.class, "hanzo_arrow", id++, Minewatch.instance, 16, 1, true);
 	}
 }

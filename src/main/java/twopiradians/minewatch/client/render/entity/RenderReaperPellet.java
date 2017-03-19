@@ -15,6 +15,11 @@ public class RenderReaperPellet extends Render<EntityReaperPellet>
 	public RenderReaperPellet(RenderManager renderManager) {
 		super(renderManager);
 	}
+
+	@Override
+	protected ResourceLocation getEntityTexture(EntityReaperPellet entity) {
+		return new ResourceLocation(Minewatch.MODID, "textures/entity/reaper_pellet.png");
+	}
 	
 	@Override
 	public void doRender(EntityReaperPellet entity, double x, double y, double z, float entityYaw, float partialTicks) {
@@ -48,9 +53,4 @@ public class RenderReaperPellet extends Render<EntityReaperPellet>
 		
 		super.doRender((EntityReaperPellet)entity, x, y, z, entityYaw, partialTicks);
     }
-
-	@Override
-	protected ResourceLocation getEntityTexture(EntityReaperPellet entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/reaper_pellet.png");
-	}
 }

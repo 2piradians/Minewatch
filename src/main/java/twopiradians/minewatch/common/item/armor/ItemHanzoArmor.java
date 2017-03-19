@@ -2,9 +2,9 @@ package twopiradians.minewatch.common.item.armor;
 
 import net.minecraft.inventory.EntityEquipmentSlot;
 
-public class ItemReaperArmor extends ModArmor
+public class ItemHanzoArmor extends ModArmor 
 {
-	public ItemReaperArmor(ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
+	public ItemHanzoArmor(ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 	}
 }

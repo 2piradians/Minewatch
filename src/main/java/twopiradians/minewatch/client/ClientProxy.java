@@ -1,8 +1,10 @@
 package twopiradians.minewatch.client;
 
+import net.minecraft.client.renderer.entity.RenderTippedArrow;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import twopiradians.minewatch.client.render.entity.RenderReaperPellet;
 import twopiradians.minewatch.common.CommonProxy;
+import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityReaperPellet;
 import twopiradians.minewatch.common.item.ModItems;
 
@@ -27,5 +29,6 @@ public class ClientProxy extends CommonProxy
 	
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperPellet.class, RenderReaperPellet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, RenderTippedArrow::new);
 	}
 }

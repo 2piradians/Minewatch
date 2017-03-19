@@ -11,7 +11,9 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
+import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
 public class ModItems 
@@ -25,13 +27,25 @@ public class ModItems
 	public static Item reaper_boots;
 	public static Item reaper_shotgun;
 	
-	public static void init () {
+	public static ArmorMaterial hanzo = EnumHelper.addArmorMaterial("hanzo", "minewatch:hanzo", 0, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item hanzo_helmet;
+	public static Item hanzo_chestplate;
+	public static Item hanzo_leggings;
+	public static Item hanzo_boots;
+	public static Item hanzo_bow;
+	
+	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet");
 		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate");
 		reaper_leggings = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.LEGS), "reaper_leggings");
 		reaper_boots = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.FEET), "reaper_boots");
-		
 		reaper_shotgun = registerItem(new ItemReaperShotgun(), "reaper_shotgun");
+		
+		hanzo_helmet = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.HEAD), "hanzo_helmet");
+		hanzo_chestplate = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.CHEST), "hanzo_chestplate");
+		hanzo_leggings = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.LEGS), "hanzo_leggings");
+		hanzo_boots = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.FEET), "hanzo_boots");
+		hanzo_bow = registerItem(new ItemHanzoBow(), "hanzo_bow");
 	}
 	
 	private static Item registerItem(Item item, String unlocalizedName) {

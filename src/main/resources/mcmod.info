@@ -4,7 +4,7 @@
   "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
   "version": "1.0",
-  "mcversion": "1.11",
+  "mcversion": "1.11.2",
   "url": "",
   "updateUrl": "",
   "authorList": ["2piradians"],

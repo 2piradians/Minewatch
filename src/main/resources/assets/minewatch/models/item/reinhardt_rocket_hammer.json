@@ -1,17 +1,17 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/reaper_shotgun"
+        "layer0": "minewatch:items/reinhardt_rocket_hammer"
     },
 	"display": {
 		 "thirdperson_righthand": {
-            "rotation": [ 70, -90, 0 ],
-			"translation": [ 0, 5, 2 ],
+            "rotation": [ 45, -90, 0 ],
+			"translation": [ 0, 8, 2.5 ],
 			"scale": [ 1, 1, 1 ]
         },
         "thirdperson_lefthand": {
-			"rotation": [ 70, 90, 0 ],
-			"translation": [ 0, 5, 2 ],
+			"rotation": [ 45, 90, 0 ],
+			"translation": [ 0, 8, 2.5],
 			"scale": [ 1, 1, 1 ]
         },
 		 "firstperson_righthand": {

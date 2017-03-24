@@ -23,7 +23,8 @@ public class EntityHanzoArrow extends EntityTippedArrow {
 	public EntityHanzoArrow(World worldIn, EntityLivingBase shooter) {
 		this(worldIn, shooter.posX, shooter.posY + (double)shooter.getEyeHeight() - 0.10000000149011612D, shooter.posZ);
 		this.shootingEntity = shooter;
-		if (shooter instanceof EntityPlayer && ModArmor.isSet((EntityPlayer)shooter, ModItems.hanzo))
+		if (shooter instanceof EntityPlayer 
+				&& (ModArmor.isSet((EntityPlayer)shooter, ModItems.hanzo) || ((EntityPlayer)shooter).capabilities.isCreativeMode))
 			this.pickupStatus = EntityTippedArrow.PickupStatus.DISALLOWED;
 		else
 			this.pickupStatus = EntityTippedArrow.PickupStatus.ALLOWED;

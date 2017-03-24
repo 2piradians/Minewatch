@@ -11,10 +11,14 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.item.armor.ItemAnaArmor;
 import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
+import twopiradians.minewatch.common.item.armor.ItemReinhardtArmor;
+import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.item.weapon.ItemReinhardtRocketHammer;
 
 public class ModItems 
 {
@@ -34,6 +38,20 @@ public class ModItems
 	public static Item hanzo_boots;
 	public static Item hanzo_bow;
 	
+	public static ArmorMaterial reinhardt = EnumHelper.addArmorMaterial("reinhardt", "minewatch:reinhardt", 0, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item reinhardt_helmet;
+	public static Item reinhardt_chestplate;
+	public static Item reinhardt_leggings;
+	public static Item reinhardt_boots;
+	public static Item reinhardt_rocket_hammer;
+	
+	public static ArmorMaterial ana = EnumHelper.addArmorMaterial("ana", "minewatch:ana", 0, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item ana_helmet;
+	public static Item ana_chestplate;
+	public static Item ana_leggings;
+	public static Item ana_boots;
+	public static Item ana_bow;
+	
 	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet");
 		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate");
@@ -46,6 +64,18 @@ public class ModItems
 		hanzo_leggings = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.LEGS), "hanzo_leggings");
 		hanzo_boots = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.FEET), "hanzo_boots");
 		hanzo_bow = registerItem(new ItemHanzoBow(), "hanzo_bow");
+		
+		reinhardt_helmet = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.HEAD), "reinhardt_helmet");
+		reinhardt_chestplate = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.CHEST), "reinhardt_chestplate");
+		reinhardt_leggings = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.LEGS), "reinhardt_leggings");
+		reinhardt_boots = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.FEET), "reinhardt_boots");
+		reinhardt_rocket_hammer = registerItem(new ItemReinhardtRocketHammer(), "reinhardt_rocket_hammer");
+		
+		ana_helmet = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.HEAD), "ana_helmet");
+		ana_chestplate = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.CHEST), "ana_chestplate");
+		ana_leggings = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.LEGS), "ana_leggings");
+		ana_boots = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.FEET), "ana_boots");
+		ana_bow = registerItem(new ItemAnaRifle(), "ana_rifle");
 	}
 	
 	private static Item registerItem(Item item, String unlocalizedName) {

@@ -4,14 +4,26 @@ item.reaper_helmet.name=Reaper Helmet
 item.reaper_chestplate.name=Reaper Chestplate
 item.reaper_leggings.name=Reaper Leggings
 item.reaper_boots.name=Reaper Boots
-item.reaper_shotgun.name=Reaper Shotgun
-
-entity.reaper_pellet.name=Reaper Shotgun Pellet
+item.reaper_shotgun.name=Reaper's Hellfire Shotgun
 
 item.hanzo_helmet.name=Hanzo Helmet
 item.hanzo_chestplate.name=Hanzo Chestplate
 item.hanzo_leggings.name=Hanzo Leggings
 item.hanzo_boots.name=Hanzo Boots
-item.hanzo_bow.name=Hanzo Bow
+item.hanzo_bow.name=Hanzo's Bow
+
+item.reinhardt_helmet.name=Reinhardt Helmet
+item.reinhardt_chestplate.name=Reinhardt Chestplate
+item.reinhardt_leggings.name=Reinhardt Leggings
+item.reinhardt_boots.name=Reinhardt Boots
+item.reinhardt_rocket_hammer.name=Reinhardt's Rocket Hammer
+
+item.ana_helmet.name=Ana Helmet
+item.ana_chestplate.name=Ana Chestplate
+item.ana_leggings.name=Ana Leggings
+item.ana_boots.name=Ana Boots
+item.ana_rifle.name=Ana's Rifle
 
 entity.hanzo_arrow.name=Hanzo Arrow
+entity.reaper_pellet.name=Reaper Shotgun Pellet
+entity.ana_bullet.name=Ana Bullet

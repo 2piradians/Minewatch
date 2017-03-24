@@ -44,7 +44,6 @@ public class EntityReaperPellet extends EntityThrowable
 		super.onUpdate();
 		if (this.ticksExisted > LIFETIME)
 			this.setDead();
-		
 	}
 
 	@Override
@@ -61,9 +60,7 @@ public class EntityReaperPellet extends EntityThrowable
 			this.setDead();
 	}
 	
-    public void writeEntityToNBT(NBTTagCompound compound) {
-    	
-    }
+    public void writeEntityToNBT(NBTTagCompound compound) {}
 	
     public void readEntityFromNBT(NBTTagCompound compound) {
         this.thrower = this.world.getPlayerEntityByName(compound.getString("ownerName"));

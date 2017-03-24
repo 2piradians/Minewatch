@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/reaper_shotgun"
+        "layer0": "minewatch:items/ana_rifle"
     },
 	"display": {
 		 "thirdperson_righthand": {

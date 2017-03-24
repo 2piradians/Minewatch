@@ -25,5 +25,4 @@ public class ModArmor extends ItemArmor
 		}
 		return true;
 	}
-
 }

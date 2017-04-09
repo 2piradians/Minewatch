@@ -21,9 +21,9 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemReinhardtRocketHammer extends ModWeapon 
+public class ItemReinhardtHammer extends ModWeapon 
 {
-	public ItemReinhardtRocketHammer() {
+	public ItemReinhardtHammer() {
 		super();
 		this.material = ModItems.reinhardt;
 		this.setMaxDamage(100);
@@ -42,7 +42,7 @@ public class ItemReinhardtRocketHammer extends ModWeapon
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (!player.world.isRemote && player.getHeldItemMainhand() != null && 
-				player.getHeldItemMainhand().getItem() instanceof ItemReinhardtRocketHammer) {
+				player.getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
 			if (player.getCooldownTracker().hasCooldown(this))
 				return true;
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(2);
@@ -66,7 +66,7 @@ public class ItemReinhardtRocketHammer extends ModWeapon
 	@SubscribeEvent
 	public void onEvent(PlayerInteractEvent.LeftClickEmpty event) {
 		if (event.getWorld() != null && event.getEntityPlayer().getHeldItemMainhand() != null 
-				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtRocketHammer) {
+				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
 			EntityPlayer player = event.getEntityPlayer();
 			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
 				player.world.playSound(player, player.posX, player.posY, player.posZ, 

@@ -25,7 +25,7 @@ public class ModItems
 	public static ArrayList<Item> allItems  = new ArrayList<Item>();
 	public static ArrayList<Item> tokens = new ArrayList<Item>();
 	
-	public static ArmorMaterial reaper = EnumHelper.addArmorMaterial("reaper", "minewatch:reaper", 20, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static ArmorMaterial reaper = EnumHelper.addArmorMaterial("reaper", "minewatch:reaper", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 	public static Item reaper_helmet;
 	public static Item reaper_chestplate;
 	public static Item reaper_leggings;
@@ -33,7 +33,7 @@ public class ModItems
 	public static Item reaper_shotgun;
 	public static Item reaper_token;
 	
-	public static ArmorMaterial hanzo = EnumHelper.addArmorMaterial("hanzo", "minewatch:hanzo", 20, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static ArmorMaterial hanzo = EnumHelper.addArmorMaterial("hanzo", "minewatch:hanzo", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 	public static Item hanzo_helmet;
 	public static Item hanzo_chestplate;
 	public static Item hanzo_leggings;
@@ -41,7 +41,7 @@ public class ModItems
 	public static Item hanzo_bow;
 	public static Item hanzo_token;
 	
-	public static ArmorMaterial reinhardt = EnumHelper.addArmorMaterial("reinhardt", "minewatch:reinhardt", 20, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static ArmorMaterial reinhardt = EnumHelper.addArmorMaterial("reinhardt", "minewatch:reinhardt", 20, new int[] {4,6,6,4}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 	public static Item reinhardt_helmet;
 	public static Item reinhardt_chestplate;
 	public static Item reinhardt_leggings;
@@ -49,7 +49,7 @@ public class ModItems
 	public static Item reinhardt_hammer;
 	public static Item reinhardt_token;
 	
-	public static ArmorMaterial ana = EnumHelper.addArmorMaterial("ana", "minewatch:ana", 20, new int[] {1,1,1,1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static ArmorMaterial ana = EnumHelper.addArmorMaterial("ana", "minewatch:ana", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 	public static Item ana_helmet;
 	public static Item ana_chestplate;
 	public static Item ana_leggings;

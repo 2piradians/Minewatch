@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -93,8 +92,8 @@ public class ModWeapon extends Item
 			if (stack.getTagCompound().getInteger("cooldown") > 0)
 				stack.getTagCompound().setInteger("cooldown", --cooldown);
 		}
-		if (entityIn != null && entityIn instanceof AbstractClientPlayer && ((EntityPlayer)entityIn).getHeldItemMainhand() != null) {
-			AbstractClientPlayer player = (AbstractClientPlayer)entityIn;
+		if (entityIn != null && entityIn instanceof EntityPlayer && ((EntityPlayer)entityIn).getHeldItemMainhand() != null) {
+			EntityPlayer player = (EntityPlayer)entityIn;
 			if (player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
 					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
 				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
@@ -127,10 +126,6 @@ public class ModWeapon extends Item
 
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
-	}
-
-	public int getItemEnchantability() {
-		return 0;
 	}
 
 	public EnumHand getInactiveHand(EntityPlayer player) {

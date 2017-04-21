@@ -1,7 +1,5 @@
 package twopiradians.minewatch.common.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.DamageSource;
@@ -13,7 +11,6 @@ import twopiradians.minewatch.common.item.weapon.ModWeapon;
 public class EntityReaperBullet extends EntityThrowable
 {
 	private static final int LIFETIME = 5;
-    private EntityLivingBase thrower;
 	
 	public EntityReaperBullet(World worldIn) {
 		super(worldIn);
@@ -23,7 +20,7 @@ public class EntityReaperBullet extends EntityThrowable
 	
 	//Client doesn't read here
 	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn) {
-		this(worldIn);
+		super(worldIn, throwerIn);
 		//TODO adjust for which gun fires
 		double velX = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
 		double velY = - Math.sin(throwerIn.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
@@ -31,30 +28,17 @@ public class EntityReaperBullet extends EntityThrowable
 		double x = throwerIn.posX + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		double y = throwerIn.posY + 1.5d - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
-		this.setPositionAndRotationDirect(x, y, z, 0, 0, 0, false);
+		this.setPosition(x, y, z);
+        this.setRotation(0, 0);
 		double speed = 3.0d;
 		double speedNormalize = Math.sqrt(velX*velX + velY*velY + velZ*velZ);
 		velX *= speed/speedNormalize;
 		velY *= speed/speedNormalize;
 		velZ *= speed/speedNormalize;
-		setVelocity(velX, velY, velZ);
-	}
-
-	/**Copied from EntityArrow*/
-	public void setAim(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy) {
-		float f = -MathHelper.sin(yaw * 0.017453292F) * MathHelper.cos(pitch * 0.017453292F);
-		float f1 = -MathHelper.sin(pitch * 0.017453292F);
-		float f2 = MathHelper.cos(yaw * 0.017453292F) * MathHelper.cos(pitch * 0.017453292F);
-		this.setThrowableHeading((double)f, (double)f1, (double)f2, velocity, inaccuracy);
-		this.motionX += shooter.motionX;
-		this.motionZ += shooter.motionZ;
-		this.prevRotationPitch = pitch;
-		this.prevRotationYaw = yaw;
-		this.setRotation(yaw, pitch);
-
-		if (!shooter.onGround) {
-			this.motionY += shooter.motionY;
-		}
+		this.motionX = velX;
+        this.motionY = velY;
+        this.motionZ = velZ;
+		//setVelocity(velX, velY, velZ);
 	}
 
 	@Override
@@ -73,12 +57,12 @@ public class EntityReaperBullet extends EntityThrowable
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
-		if (result.entityHit != null && result.entityHit == this.thrower)
+		if (result.entityHit != null && result.entityHit == this.getThrower())
 			return;
-		else if (result.entityHit instanceof EntityLiving) {
+		else if (result.entityHit instanceof EntityLivingBase) {
 			float damage = 7 - (7 - 2) * (this.ticksExisted / LIFETIME);
-			((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.MAGIC, damage/ModWeapon.DAMAGE_SCALE);
-			((EntityLiving)result.entityHit).hurtResistantTime = 0;
+			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.MAGIC, damage/ModWeapon.DAMAGE_SCALE);
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}
 		else if (result.typeOfHit == RayTraceResult.Type.BLOCK)

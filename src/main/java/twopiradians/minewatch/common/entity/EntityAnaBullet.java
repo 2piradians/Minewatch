@@ -1,9 +1,7 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
@@ -19,7 +17,6 @@ public class EntityAnaBullet extends EntityThrowable
 {
 	private static final int LIFETIME = 40;
 	private boolean heal = false;
-	private EntityPlayer owner;
 
 	public EntityAnaBullet(World worldIn) {
 		super(worldIn);
@@ -29,10 +26,8 @@ public class EntityAnaBullet extends EntityThrowable
 
 	//Client doesn't read here
 	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, boolean heal) {
-		this(worldIn);
+		super(worldIn, throwerIn);
 		this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
-		if (throwerIn != null && throwerIn instanceof EntityPlayer)
-			this.owner = (EntityPlayer) throwerIn;
 		this.heal = heal;
 	}
 
@@ -68,20 +63,20 @@ public class EntityAnaBullet extends EntityThrowable
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
-		if (result.entityHit instanceof EntityLiving) {
+		if (result.entityHit instanceof EntityLivingBase && result.entityHit != this.getThrower()) {
 			if (this.heal) {
-				((EntityLiving)result.entityHit).heal(75/ModWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).heal(75/ModWeapon.DAMAGE_SCALE);
 				((WorldServer)result.entityHit.world).spawnParticle(EnumParticleTypes.HEART, 
 						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
-				if (this.owner != null)
-					result.entityHit.world.playSound(null, this.owner.posX, this.owner.posY, this.owner.posZ, 
+				if (this.getThrower() != null)
+					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
 							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
 			}
 			else {
-				((EntityLiving)result.entityHit).attackEntityFrom(DamageSource.MAGIC, 60F/ModWeapon.DAMAGE_SCALE);
-				if (this.owner != null)
-					result.entityHit.world.playSound(null, this.owner.posX, this.owner.posY, this.owner.posZ, 
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.MAGIC, 60F/ModWeapon.DAMAGE_SCALE);
+				if (this.getThrower() != null)
+					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
 							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
 			this.setDead();

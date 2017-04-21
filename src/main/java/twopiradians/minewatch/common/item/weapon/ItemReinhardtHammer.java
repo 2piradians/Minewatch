@@ -14,9 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -27,7 +24,6 @@ public class ItemReinhardtHammer extends ModWeapon
 		super();
 		this.material = ModItems.reinhardt;
 		this.setMaxDamage(100);
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -61,17 +57,5 @@ public class ItemReinhardtHammer extends ModWeapon
 					ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
 		}
 		return false;
-	}
-
-	@SubscribeEvent
-	public void onEvent(PlayerInteractEvent.LeftClickEmpty event) {
-		if (event.getWorld() != null && event.getEntityPlayer().getHeldItemMainhand() != null 
-				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
-			EntityPlayer player = event.getEntityPlayer();
-			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
-				player.world.playSound(player, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
-			}
-		}
 	}
 }

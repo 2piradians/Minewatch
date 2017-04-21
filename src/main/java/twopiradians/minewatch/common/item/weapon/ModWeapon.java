@@ -18,17 +18,19 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ModWeapon extends Item
 {
@@ -42,11 +44,6 @@ public class ModWeapon extends Item
 	/**Will give shooting hand MC cooldown = cooldown/2 if true*/
 	protected boolean hasOffhand;
 	protected ResourceLocation scope;
-
-	protected ModWeapon() {
-		if (scope != null)
-			MinecraftForge.EVENT_BUS.register(this);
-	}
 
 	/**Called on server when right click is held and cooldown is not active*/
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
@@ -136,6 +133,7 @@ public class ModWeapon extends Item
 	}
 
 	/**Change the FOV when scoped*/
+	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onEvent(FOVModifier event) {
 		if (event.getEntity() != null && event.getEntity() instanceof EntityPlayer && event.getEntity().isSneaking()
@@ -147,6 +145,19 @@ public class ModWeapon extends Item
 		}
 	}
 
+	/**Reinhardt Hammer attack*/
+	@SubscribeEvent
+	public void onEvent(PlayerInteractEvent.LeftClickEmpty event) {
+		if (event.getWorld() != null && event.getEntityPlayer().getHeldItemMainhand() != null 
+				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
+			EntityPlayer player = event.getEntityPlayer();
+			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
+				player.world.playSound(player, player.posX, player.posY, player.posZ, 
+						ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
+			}
+		}
+	}
+	
 	/**Rendering the scopes for rifles*/
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent

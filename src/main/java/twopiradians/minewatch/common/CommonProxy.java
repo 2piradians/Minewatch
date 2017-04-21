@@ -10,9 +10,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.RecipeSorter;
+import net.minecraftforge.oredict.RecipeSorter.Category;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.ModTokens;
+import twopiradians.minewatch.common.item.weapon.ModWeapon;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketToggleMode;
@@ -42,10 +45,11 @@ public class CommonProxy
 
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(new ModTokens());
+		MinecraftForge.EVENT_BUS.register(new ModWeapon());
 	}
 	
 	private void registerCraftingRecipes() {
-		//TODO damaged armor to damage set
+		RecipeSorter.register("Matching Damage Recipe", ShapelessMatchingDamageRecipe.class, Category.SHAPELESS, "");
 
 		//Ana
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.ana_helmet), new ItemStack(ModItems.ana_token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));

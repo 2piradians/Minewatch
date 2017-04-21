@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
@@ -27,6 +28,8 @@ public class EntityAnaBullet extends EntityThrowable
 	//Client doesn't read here
 	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, boolean heal) {
 		super(worldIn, throwerIn);
+		this.setNoGravity(true);
+		this.setSize(0.1f, 0.1f);
 		this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		this.heal = heal;
 	}
@@ -74,7 +77,11 @@ public class EntityAnaBullet extends EntityThrowable
 							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
 			}
 			else {
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.MAGIC, 60F/ModWeapon.DAMAGE_SCALE);
+				if (this.getThrower() instanceof EntityPlayer)
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
+				else 
+					if (this.getThrower() instanceof EntityPlayer)
+						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
 				if (this.getThrower() != null)
 					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
 							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);

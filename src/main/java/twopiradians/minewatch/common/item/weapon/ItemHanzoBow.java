@@ -88,6 +88,8 @@ public class ItemHanzoBow extends ModWeapon
 
 					if (!worldIn.isRemote) {
 						EntityHanzoArrow entityarrow = new EntityHanzoArrow(worldIn, entityplayer);
+						if (itemstack.getItem() instanceof ItemArrow)
+							entityarrow.setPotionEffect(itemstack);
 						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 2.0F, 1.0F);
 						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
 						if (!ModArmor.isSet(entityplayer, ModItems.hanzo))

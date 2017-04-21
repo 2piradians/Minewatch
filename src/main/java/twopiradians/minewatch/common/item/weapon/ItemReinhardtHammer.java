@@ -47,7 +47,7 @@ public class ItemReinhardtHammer extends ModWeapon
 				Iterator<Entity> iterator = list.iterator();            
 				while (iterator.hasNext()) {
 					Entity entityInArea = iterator.next();
-					entityInArea.attackEntityFrom(DamageSource.GENERIC, 75/DAMAGE_SCALE);
+					entityInArea.attackEntityFrom(DamageSource.causePlayerDamage(player), 75/DAMAGE_SCALE);
 				}
 			}
 			if (!ModArmor.isSet(player, material))

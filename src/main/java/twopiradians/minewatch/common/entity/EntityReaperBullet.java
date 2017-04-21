@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
@@ -11,16 +12,18 @@ import twopiradians.minewatch.common.item.weapon.ModWeapon;
 public class EntityReaperBullet extends EntityThrowable
 {
 	private static final int LIFETIME = 5;
-	
+
 	public EntityReaperBullet(World worldIn) {
 		super(worldIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 	}
-	
+
 	//Client doesn't read here
 	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setNoGravity(true);
+		this.setSize(0.1f, 0.1f);
 		//TODO adjust for which gun fires
 		double velX = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
 		double velY = - Math.sin(throwerIn.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
@@ -29,15 +32,15 @@ public class EntityReaperBullet extends EntityThrowable
 		double y = throwerIn.posY + 1.5d - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		this.setPosition(x, y, z);
-        this.setRotation(0, 0);
+		this.setRotation(0, 0);
 		double speed = 3.0d;
 		double speedNormalize = Math.sqrt(velX*velX + velY*velY + velZ*velZ);
 		velX *= speed/speedNormalize;
 		velY *= speed/speedNormalize;
 		velZ *= speed/speedNormalize;
 		this.motionX = velX;
-        this.motionY = velY;
-        this.motionZ = velZ;
+		this.motionY = velY;
+		this.motionZ = velZ;
 		//setVelocity(velX, velY, velZ);
 	}
 
@@ -50,7 +53,7 @@ public class EntityReaperBullet extends EntityThrowable
 		this.prevRotationPitch = this.rotationPitch;
 
 		super.onUpdate();
-				
+
 		if (this.ticksExisted > LIFETIME)
 			this.setDead();
 	}
@@ -61,7 +64,10 @@ public class EntityReaperBullet extends EntityThrowable
 			return;
 		else if (result.entityHit instanceof EntityLivingBase) {
 			float damage = 7 - (7 - 2) * (this.ticksExisted / LIFETIME);
-			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.MAGIC, damage/ModWeapon.DAMAGE_SCALE);
+			if (this.getThrower() instanceof EntityPlayer)
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ModWeapon.DAMAGE_SCALE);
+			else
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), damage/ModWeapon.DAMAGE_SCALE);
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}

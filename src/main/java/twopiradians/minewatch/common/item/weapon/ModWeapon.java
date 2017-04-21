@@ -161,7 +161,7 @@ public class ModWeapon extends Item
 	/**Rendering the scopes for rifles*/
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onEvent(RenderGameOverlayEvent.Pre event) {
+	public void onEvent(RenderGameOverlayEvent.Post event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		boolean offhand = false;
 		boolean mainhand = false;

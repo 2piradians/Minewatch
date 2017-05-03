@@ -38,7 +38,7 @@ public class PacketToggleMode implements IMessage
 	public static class Handler implements IMessageHandler<PacketToggleMode, IMessage> {
 		@Override
 		public IMessage onMessage(final PacketToggleMode packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() 
 			{
 				@Override

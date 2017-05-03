@@ -46,7 +46,7 @@ public class EntityReaperBullet extends EntityThrowable
 
 	@Override
 	public void onUpdate() {		
-		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		float f = MathHelper.sqrt_float((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
 		this.prevRotationYaw = this.rotationYaw;

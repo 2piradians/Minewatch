@@ -25,7 +25,7 @@ public class ItemAnaRifle extends ModWeapon
 		if (!worldIn.isRemote) {
 			EntityAnaBullet bullet = new EntityAnaBullet(worldIn, playerIn, Minewatch.keyMode.isKeyDown(playerIn));
 			bullet.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 5.0F, 1.0F);
-			worldIn.spawnEntity(bullet);
+			worldIn.spawnEntityInWorld(bullet);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
 					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
 		}

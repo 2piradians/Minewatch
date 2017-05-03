@@ -11,11 +11,11 @@ public class ModTokens extends Item
 {
 	@SubscribeEvent
 	public void onEvent(LivingDropsEvent event) {
-		if (!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityLiving 
+		if (!event.getEntityLiving().worldObj.isRemote && event.getEntityLiving() instanceof EntityLiving 
 				&& event.getEntityLiving().getEntityWorld().rand.nextDouble() < 0.01d * (1+event.getLootingLevel())) {
-			int i = event.getEntityLiving().world.rand.nextInt(4);
+			int i = event.getEntityLiving().worldObj.rand.nextInt(4);
 			ItemStack stack = new ItemStack(ModItems.tokens.get(i));
-			EntityItem drop = new EntityItem(event.getEntityLiving().world, event.getEntityLiving().posX, 
+			EntityItem drop = new EntityItem(event.getEntityLiving().worldObj, event.getEntityLiving().posX, 
 					event.getEntityLiving().posY, event.getEntityLiving().posZ, stack);
 			event.getDrops().add(drop);
 		}

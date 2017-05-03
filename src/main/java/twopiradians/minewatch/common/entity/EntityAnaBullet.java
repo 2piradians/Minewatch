@@ -53,7 +53,7 @@ public class EntityAnaBullet extends EntityThrowable
 
 	@Override
 	public void onUpdate() {		
-		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		float f = MathHelper.sqrt_float((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
 		this.prevRotationYaw = this.rotationYaw;
@@ -69,12 +69,12 @@ public class EntityAnaBullet extends EntityThrowable
 		if (result.entityHit instanceof EntityLivingBase && result.entityHit != this.getThrower()) {
 			if (this.heal) {
 				((EntityLivingBase)result.entityHit).heal(75/ModWeapon.DAMAGE_SCALE);
-				((WorldServer)result.entityHit.world).spawnParticle(EnumParticleTypes.HEART, 
+				((WorldServer)result.entityHit.worldObj).spawnParticle(EnumParticleTypes.HEART, 
 						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
 				if (this.getThrower() != null)
-					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
+					result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f);	
 			}
 			else {
 				if (this.getThrower() instanceof EntityPlayer)
@@ -83,8 +83,8 @@ public class EntityAnaBullet extends EntityThrowable
 					if (this.getThrower() instanceof EntityPlayer)
 						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
 				if (this.getThrower() != null)
-					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+					result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
 			}
 			this.setDead();
 		}

@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
@@ -49,19 +48,18 @@ public class ModWeapon extends Item
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		// check that item does not have MC cooldown (and nbt cooldown if it hasOffhand)
 		if (cooldown >= 0 && playerIn != null && playerIn.getHeldItem(hand) != null 
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
 				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() 
 						&& playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
 			if (playerIn.getHeldItem(hand).getItem() instanceof ItemReinhardtHammer)
-				return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
+				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 			if (!worldIn.isRemote) {
 				onShoot(worldIn, playerIn, hand);
 				// set MC cooldown/2 and nbt cooldown if hasOffhand, otherwise just set MC cooldown
-				if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null 
-						&& playerIn.getHeldItem(getInactiveHand(playerIn)).getItem() != Items.AIR
+				if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null
 						&& playerIn.getHeldItem(hand).getItem() != playerIn.getHeldItem(getInactiveHand(playerIn)).getItem())
 					playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(getInactiveHand(playerIn)).getItem(), cooldown+1);
 				if (hasOffhand) {
@@ -74,10 +72,10 @@ public class ModWeapon extends Item
 				if (!ModArmor.isSet(playerIn, material))
 					playerIn.getHeldItem(hand).damageItem(1, playerIn);
 			}
-			return new ActionResult(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
 		}
 		else
-			return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 	}
 
 	@Override
@@ -94,7 +92,7 @@ public class ModWeapon extends Item
 			if (player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
 					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
 				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
-				List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
+				List<Entity> list = entityIn.worldObj.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            
 					while (iterator.hasNext()) {
@@ -102,11 +100,11 @@ public class ModWeapon extends Item
 						if (entityInArea != null && entityInArea instanceof EntityPlayer 
 								&& ((EntityPlayer)entityInArea).isOnSameTeam(player) 
 								&& ((EntityPlayer)entityInArea).getHealth() < ((EntityPlayer)entityInArea).getMaxHealth()) {
-							Minewatch.proxy.spawnParticlesHealthPlus(player.world, entityInArea.posX, 
+							Minewatch.proxy.spawnParticlesHealthPlus(player.worldObj, entityInArea.posX, 
 									entityInArea.posY+2.5d, entityInArea.posZ, 0, 0, 0, 3);
 						}
 						else if (entityInArea != null && entityInArea instanceof EntityLiving) {
-							entityInArea.world.spawnParticle(EnumParticleTypes.HEART, entityInArea.posX, 
+							entityInArea.worldObj.spawnParticle(EnumParticleTypes.HEART, entityInArea.posX, 
 									entityInArea.posY+2d, entityInArea.posZ, 0, 1, 0, new int[0]);
 						}
 					}
@@ -152,7 +150,7 @@ public class ModWeapon extends Item
 				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
 			EntityPlayer player = event.getEntityPlayer();
 			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
-				player.world.playSound(player, player.posX, player.posY, player.posZ, 
+				player.worldObj.playSound(player, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
 			}
 		}
@@ -162,7 +160,7 @@ public class ModWeapon extends Item
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onEvent(RenderGameOverlayEvent.Post event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		boolean offhand = false;
 		boolean mainhand = false;
 		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ModWeapon

@@ -33,8 +33,8 @@ public class KeyToggleMode {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void playerTick(ClientTickEvent event) {
-		if (event.phase == Phase.END && Minecraft.getMinecraft().player != null) {
-			UUID player = Minecraft.getMinecraft().player.getPersistentID();
+		if (event.phase == Phase.END && Minecraft.getMinecraft().thePlayer != null) {
+			UUID player = Minecraft.getMinecraft().thePlayer.getPersistentID();
 			if (!isKeyDown.containsKey(player) || TOGGLE_MODE.isKeyDown() != isKeyDown.get(player)) {
 				isKeyDown.put(player, TOGGLE_MODE.isKeyDown());
 				Minewatch.network.sendToServer(new PacketToggleMode(TOGGLE_MODE.isKeyDown(), player));

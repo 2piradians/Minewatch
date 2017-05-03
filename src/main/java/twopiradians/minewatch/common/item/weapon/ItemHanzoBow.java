@@ -56,7 +56,7 @@ public class ItemHanzoBow extends ModWeapon
 				if (this.isArrow(itemstack))
 					return itemstack;
 			}
-			return ItemStack.EMPTY;
+			return null;
 		}
 	}
 
@@ -73,11 +73,11 @@ public class ItemHanzoBow extends ModWeapon
 			ItemStack itemstack = this.findAmmo(entityplayer);
 
 			int i = Math.min(this.getMaxItemUseDuration(stack) - timeLeft,20);
-			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, entityplayer, i, !itemstack.isEmpty() || flag);
+			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, entityplayer, i, itemstack != null || flag);
 			if (i < 0) return;
 
-			if (!itemstack.isEmpty() || flag) {
-				if (itemstack.isEmpty())
+			if (itemstack != null || flag) {
+				if (itemstack == null)
 					itemstack = new ItemStack(Items.ARROW);
 
 				float f = (float)i/10;
@@ -94,17 +94,17 @@ public class ItemHanzoBow extends ModWeapon
 						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
 						if (!ModArmor.isSet(entityplayer, ModItems.hanzo))
 							stack.damageItem(1, entityplayer);
-						worldIn.spawnEntity(entityarrow);
+						worldIn.spawnEntityInWorld(entityarrow);
 					}
 
 					worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, 
 							ModSoundEvents.hanzoBowShoot, SoundCategory.PLAYERS, 1.0F, worldIn.rand.nextFloat()/2+0.75f);
 
 					if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
-						itemstack.shrink(1);
+						--itemstack.stackSize;
 
-						if (itemstack.isEmpty())
-							entityplayer.inventory.deleteStack(itemstack);
+						if (itemstack.stackSize == 0)
+							entityplayer.inventory.deleteStack(itemstack);	                   
 					}
 				}
 			}
@@ -124,21 +124,21 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand handIn) {
 		ItemStack itemstack = playerIn.getHeldItem(handIn);
-		boolean flag = !this.findAmmo(playerIn).isEmpty();
+        boolean flag = this.findAmmo(playerIn) != null;
 
 		ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, worldIn, playerIn, handIn, flag);
 		if (ret != null) return ret;
 
 		if (!playerIn.capabilities.isCreativeMode && !flag) {
-			return flag ? new ActionResult(EnumActionResult.PASS, itemstack) : new ActionResult(EnumActionResult.FAIL, itemstack);
+			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
 		else {
 			playerIn.setActiveHand(handIn);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
 					ModSoundEvents.hanzoBowDraw, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);
-			return new ActionResult(EnumActionResult.SUCCESS, itemstack);
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 	}
 }

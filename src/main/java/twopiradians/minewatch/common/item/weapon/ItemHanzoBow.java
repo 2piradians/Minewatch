@@ -60,8 +60,8 @@ public class ItemHanzoBow extends ModWeapon
 		}
 	}
 
-	private boolean isArrow(ItemStack stack) {
-		return stack.getItem() instanceof ItemArrow;
+	private boolean isArrow(@Nullable ItemStack stack) {
+        return stack != null && stack.getItem() instanceof ItemArrow;
 	}
 
 	/**Called when the player stops using an Item (stops holding the right mouse button).*/

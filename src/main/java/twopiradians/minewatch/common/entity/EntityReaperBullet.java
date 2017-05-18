@@ -1,5 +1,8 @@
 package twopiradians.minewatch.common.entity;
 
+import java.util.Arrays;
+
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -29,7 +32,7 @@ public class EntityReaperBullet extends EntityThrowable
 		double velY = - Math.sin(throwerIn.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
 		double velZ = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
 		double x = throwerIn.posX + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
-		double y = throwerIn.posY + 1.5d - Math.sin(throwerIn.rotationPitch*Math.PI/180);
+		double y = throwerIn.posY + throwerIn.getEyeHeight() - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		this.setPosition(x, y, z);
 		this.setRotation(0, 0);
@@ -62,7 +65,7 @@ public class EntityReaperBullet extends EntityThrowable
 	protected void onImpact(RayTraceResult result) {
 		if (result.entityHit != null && result.entityHit == this.getThrower())
 			return;
-		else if (result.entityHit instanceof EntityLivingBase) {
+		else if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null) {
 			float damage = 7 - (7 - 2) * (this.ticksExisted / LIFETIME);
 			if (this.getThrower() instanceof EntityPlayer)
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ModWeapon.DAMAGE_SCALE);
@@ -71,7 +74,11 @@ public class EntityReaperBullet extends EntityThrowable
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}
-		else if (result.typeOfHit == RayTraceResult.Type.BLOCK)
-			this.setDead();
+		else if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+			Block block = this.worldObj.getBlockState(result.getBlockPos()).getBlock();
+
+			if (!Arrays.asList(ModEntities.ENTITY_PASSES_THROUGH).contains(block))
+				this.setDead();
+		}
 	}
 }

@@ -13,7 +13,7 @@ public class ModTokens extends Item
 	public void onEvent(LivingDropsEvent event) {
 		if (!event.getEntityLiving().worldObj.isRemote && event.getEntityLiving() instanceof EntityLiving 
 				&& event.getEntityLiving().getEntityWorld().rand.nextDouble() < 0.01d * (1+event.getLootingLevel())) {
-			int i = event.getEntityLiving().worldObj.rand.nextInt(4);
+			int i = event.getEntityLiving().worldObj.rand.nextInt(ModItems.tokens.size());
 			ItemStack stack = new ItemStack(ModItems.tokens.get(i));
 			EntityItem drop = new EntityItem(event.getEntityLiving().worldObj, event.getEntityLiving().posX, 
 					event.getEntityLiving().posY, event.getEntityLiving().posZ, stack);
@@ -28,4 +28,6 @@ public class ModTokens extends Item
 	public static class ItemAnaToken extends ModTokens {}
 
 	public static class ItemHanzoToken extends ModTokens {}
+	
+	public static class ItemGenjiToken extends ModTokens {}
 }

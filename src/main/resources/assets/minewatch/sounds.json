@@ -30,5 +30,13 @@
         [
             "minewatch:reinhardt_rocket_hammer"
         ]
+    },
+     "genji_shuriken":
+    {
+        "category": "player",
+        "sounds":
+        [
+            "minewatch:genji_shuriken"
+        ]
     }
 }

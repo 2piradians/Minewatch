@@ -14,5 +14,5 @@ public class MinewatchTab extends CreativeTabs
 	@Override
 	public Item getTabIconItem() {
 		return new ItemStack(ModItems.reaper_token).getItem();
-	}
+}
 }

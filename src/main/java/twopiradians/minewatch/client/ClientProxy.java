@@ -17,10 +17,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.KeyToggleMode;
 import twopiradians.minewatch.client.particle.ParticleHealthPlus;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
+import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.item.ModItems;
@@ -46,24 +48,25 @@ public class ClientProxy extends CommonProxy
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 	}
-	
+
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, RenderTippedArrow::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, RenderAnaBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 	}
-	
+
 	@Override
 	protected void registerEventListeners() {
 		super.registerEventListeners();
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-	
+
 	@SubscribeEvent
 	public void stitcherEventPre(TextureStitchEvent.Pre event) {
 		event.getMap().registerSprite(ParticleHealthPlus.TEXTURE);
 	}
-	
+
 	@Override
 	public void spawnParticlesHealthPlus(World worldIn, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {
 		ParticleHealthPlus particle = new ParticleHealthPlus(worldIn, x, y, z, motionX, motionY, motionZ, scale);

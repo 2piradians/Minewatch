@@ -12,10 +12,12 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.armor.ItemAnaArmor;
+import twopiradians.minewatch.common.item.armor.ItemGenjiArmor;
 import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
 import twopiradians.minewatch.common.item.armor.ItemReinhardtArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
@@ -57,6 +59,14 @@ public class ModItems
 	public static Item ana_rifle;
 	public static Item ana_token;
 	
+	public static ArmorMaterial genji = EnumHelper.addArmorMaterial("genji", "minewatch:genji", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item genji_helmet;
+	public static Item genji_chestplate;
+	public static Item genji_leggings;
+	public static Item genji_boots;
+	public static Item genji_shuriken;
+	public static Item genji_token;
+	
 	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet");
 		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate");
@@ -85,6 +95,13 @@ public class ModItems
 		ana_boots = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.FEET), "ana_boots");
 		ana_rifle = registerItem(new ItemAnaRifle(), "ana_rifle");
 		ana_token = registerItem(new ModTokens.ItemAnaToken(), "ana_token");
+		
+		genji_helmet = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.HEAD), "genji_helmet");
+		genji_chestplate = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.CHEST), "genji_chestplate");
+		genji_leggings = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.LEGS), "genji_leggings");
+		genji_boots = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.FEET), "genji_boots");
+		genji_shuriken = registerItem(new ItemGenjiShuriken(), "genji_shuriken");
+		genji_token = registerItem(new ModTokens.ItemGenjiToken(), "genji_token");
 	}
 	
 	private static Item registerItem(Item item, String unlocalizedName) {

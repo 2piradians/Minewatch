@@ -28,6 +28,14 @@ item.ana_leggings.name=Ana Leggings
 item.ana_boots.name=Ana Boots
 item.ana_rifle.name=Ana's Biotic Rifle
 
+item.genji_token.name=Genji Token
+item.genji_helmet.name=Genji Helmet
+item.genji_chestplate.name=Genji Chestplate
+item.genji_leggings.name=Genji Leggings
+item.genji_boots.name=Genji Boots
+item.genji_shuriken.name=Genji's Shuriken
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
+entity.genji_shuriken.name=Genji Shuriken

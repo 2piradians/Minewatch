@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -47,6 +48,9 @@ public class ModWeapon extends Item
 
 	/**Called on server when right click is held and cooldown is not active*/
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
+	
+	@Override
+    public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
@@ -55,10 +59,16 @@ public class ModWeapon extends Item
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
 				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() 
 						&& playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
+			if (!worldIn.isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)) {
+				((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).onUsingTick(playerIn.getHeldItem(hand), playerIn, ++((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot);
+				if (((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot <= 2)
+					return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
+			}
 			if (playerIn.getHeldItem(hand).getItem() instanceof ItemReinhardtHammer)
-				return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
+				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 			if (!worldIn.isRemote) {
-				onShoot(worldIn, playerIn, hand);
+				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)))
+					onShoot(worldIn, playerIn, hand);
 				// set MC cooldown/2 and nbt cooldown if hasOffhand, otherwise just set MC cooldown
 				if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null 
 						&& playerIn.getHeldItem(getInactiveHand(playerIn)).getItem() != Items.AIR
@@ -74,10 +84,10 @@ public class ModWeapon extends Item
 				if (!ModArmor.isSet(playerIn, material))
 					playerIn.getHeldItem(hand).damageItem(1, playerIn);
 			}
-			return new ActionResult(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
 		}
 		else
-			return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 	}
 
 	@Override
@@ -139,8 +149,8 @@ public class ModWeapon extends Item
 		if (event.getEntity() != null && event.getEntity() instanceof EntityPlayer && event.getEntity().isSneaking()
 				&& ((((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
 				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() instanceof ItemAnaRifle)
-				|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null 
-				&& ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemAnaRifle))) {
+						|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null 
+						&& ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemAnaRifle))) {
 			event.setFOV(20f);
 		}
 	}
@@ -157,7 +167,7 @@ public class ModWeapon extends Item
 			}
 		}
 	}
-	
+
 	/**Rendering the scopes for rifles*/
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent

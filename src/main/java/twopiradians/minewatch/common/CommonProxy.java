@@ -47,7 +47,7 @@ public class CommonProxy
 		MinecraftForge.EVENT_BUS.register(new ModTokens());
 		MinecraftForge.EVENT_BUS.register(new ModWeapon());
 	}
-	
+
 	private void registerCraftingRecipes() {
 		RecipeSorter.register("Matching Damage Recipe", ShapelessMatchingDamageRecipe.class, Category.SHAPELESS, "");
 
@@ -57,7 +57,7 @@ public class CommonProxy
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.ana_leggings), new ItemStack(ModItems.ana_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.ana_boots), new ItemStack(ModItems.ana_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.ana_rifle), new ItemStack(ModItems.ana_token));
-		
+
 		//Hanzo
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.hanzo_helmet), new ItemStack(ModItems.hanzo_token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.hanzo_chestplate), new ItemStack(ModItems.hanzo_token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
@@ -78,5 +78,12 @@ public class CommonProxy
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.reinhardt_leggings), new ItemStack(ModItems.reinhardt_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.reinhardt_boots), new ItemStack(ModItems.reinhardt_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.reinhardt_hammer), new ItemStack(ModItems.reinhardt_token));
+
+		//Genji
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_helmet), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_chestplate), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_leggings), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_boots), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.genji_shuriken), new ItemStack(ModItems.genji_token));
 	}
 }

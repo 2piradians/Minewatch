@@ -132,13 +132,13 @@ public class ItemHanzoBow extends ModWeapon
 		if (ret != null) return ret;
 
 		if (!playerIn.capabilities.isCreativeMode && !flag) {
-			return flag ? new ActionResult(EnumActionResult.PASS, itemstack) : new ActionResult(EnumActionResult.FAIL, itemstack);
+			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
 		else {
 			playerIn.setActiveHand(handIn);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
 					ModSoundEvents.hanzoBowDraw, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);
-			return new ActionResult(EnumActionResult.SUCCESS, itemstack);
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 	}
 }

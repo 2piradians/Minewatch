@@ -9,32 +9,28 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import twopiradians.minewatch.common.item.weapon.ModWeapon;
 
-public class EntityAnaBullet extends EntityThrowable
+public class EntityGenjiShuriken extends EntityThrowable
 {
 	private static final int LIFETIME = 40;
-	private boolean heal = false;
 
-	public EntityAnaBullet(World worldIn) {
+	public EntityGenjiShuriken(World worldIn) {
 		super(worldIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 	}
 
 	//Client doesn't read here
-	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, boolean heal) {
+	public EntityGenjiShuriken(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 		this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight(), throwerIn.posZ);
-		this.heal = heal;
 	}
 
 	/**Copied from EntityArrow*/
@@ -70,30 +66,20 @@ public class EntityAnaBullet extends EntityThrowable
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null && result.entityHit != this.getThrower()) {
-			if (this.heal) {
-				((EntityLivingBase)result.entityHit).heal(75/ModWeapon.DAMAGE_SCALE);
-				((WorldServer)result.entityHit.world).spawnParticle(EnumParticleTypes.HEART, 
-						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
-						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
-				if (this.getThrower() != null)
-					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
-			}
-			else {
+			if (this.getThrower() instanceof EntityPlayer)
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 28F/ModWeapon.DAMAGE_SCALE);
+			else 
 				if (this.getThrower() instanceof EntityPlayer)
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
-				else 
-					if (this.getThrower() instanceof EntityPlayer)
-						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
-				if (this.getThrower() != null)
-					result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			}
+					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 28F/ModWeapon.DAMAGE_SCALE);
+			if (this.getThrower() != null)
+				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+						SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}
 		else if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			Block block = this.world.getBlockState(result.getBlockPos()).getBlock();
-
+			
 			if (!Arrays.asList(ModEntities.ENTITY_PASSES_THROUGH).contains(block))
 				this.setDead();
 		}

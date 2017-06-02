@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.RenderTippedArrow;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -34,6 +35,8 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
+		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
+		ModItems.registerObjRenders();
 		registerEntityRenders();
 		KeyToggleMode.TOGGLE_MODE = new KeyBinding("Activate Set Effect", Keyboard.KEY_Z, Minewatch.MODNAME);
 	}

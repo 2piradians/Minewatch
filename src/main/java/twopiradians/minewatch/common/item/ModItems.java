@@ -8,6 +8,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
@@ -26,7 +27,8 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 
 public class ModItems 
 {
-	public static ArrayList<Item> allItems  = new ArrayList<Item>();
+	public static ArrayList<Item> jsonModelItems  = new ArrayList<Item>();
+	public static ArrayList<Item> objModelItems  = new ArrayList<Item>();
 	public static ArrayList<Item> tokens = new ArrayList<Item>();
 	
 	public static ArmorMaterial reaper = EnumHelper.addArmorMaterial("reaper", "minewatch:reaper", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
@@ -78,51 +80,54 @@ public class ModItems
 	public static Item tracer_token;
 	
 	public static void preInit () {
-		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet");
-		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate");
-		reaper_leggings = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.LEGS), "reaper_leggings");
-		reaper_boots = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.FEET), "reaper_boots");
-		reaper_shotgun = registerItem(new ItemReaperShotgun(), "reaper_shotgun");
-		reaper_token = registerItem(new ModTokens.ItemReaperToken(), "reaper_token");
+		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet", false);
+		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate", false);
+		reaper_leggings = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.LEGS), "reaper_leggings", false);
+		reaper_boots = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.FEET), "reaper_boots", false);
+		reaper_shotgun = registerItem(new ItemReaperShotgun(), "reaper_shotgun", true);
+		reaper_token = registerItem(new ModTokens.ItemReaperToken(), "reaper_token", false);
 		
-		hanzo_helmet = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.HEAD), "hanzo_helmet");
-		hanzo_chestplate = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.CHEST), "hanzo_chestplate");
-		hanzo_leggings = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.LEGS), "hanzo_leggings");
-		hanzo_boots = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.FEET), "hanzo_boots");
-		hanzo_bow = registerItem(new ItemHanzoBow(), "hanzo_bow");
-		hanzo_token = registerItem(new ModTokens.ItemHanzoToken(), "hanzo_token");
+		hanzo_helmet = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.HEAD), "hanzo_helmet", false);
+		hanzo_chestplate = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.CHEST), "hanzo_chestplate", false);
+		hanzo_leggings = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.LEGS), "hanzo_leggings", false);
+		hanzo_boots = registerItem(new ItemHanzoArmor(hanzo, 0, EntityEquipmentSlot.FEET), "hanzo_boots", false);
+		hanzo_bow = registerItem(new ItemHanzoBow(), "hanzo_bow", false);
+		hanzo_token = registerItem(new ModTokens.ItemHanzoToken(), "hanzo_token", false);
 
-		reinhardt_helmet = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.HEAD), "reinhardt_helmet");
-		reinhardt_chestplate = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.CHEST), "reinhardt_chestplate");
-		reinhardt_leggings = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.LEGS), "reinhardt_leggings");
-		reinhardt_boots = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.FEET), "reinhardt_boots");
-		reinhardt_hammer = registerItem(new ItemReinhardtHammer(), "reinhardt_hammer");
-		reinhardt_token = registerItem(new ModTokens.ItemReinhardtToken(), "reinhardt_token");
+		reinhardt_helmet = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.HEAD), "reinhardt_helmet", false);
+		reinhardt_chestplate = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.CHEST), "reinhardt_chestplate", false);
+		reinhardt_leggings = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.LEGS), "reinhardt_leggings", false);
+		reinhardt_boots = registerItem(new ItemReinhardtArmor(reinhardt, 0, EntityEquipmentSlot.FEET), "reinhardt_boots", false);
+		reinhardt_hammer = registerItem(new ItemReinhardtHammer(), "reinhardt_hammer", false);
+		reinhardt_token = registerItem(new ModTokens.ItemReinhardtToken(), "reinhardt_token", false);
 
-		ana_helmet = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.HEAD), "ana_helmet");
-		ana_chestplate = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.CHEST), "ana_chestplate");
-		ana_leggings = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.LEGS), "ana_leggings");
-		ana_boots = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.FEET), "ana_boots");
-		ana_rifle = registerItem(new ItemAnaRifle(), "ana_rifle");
-		ana_token = registerItem(new ModTokens.ItemAnaToken(), "ana_token");
+		ana_helmet = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.HEAD), "ana_helmet", false);
+		ana_chestplate = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.CHEST), "ana_chestplate", false);
+		ana_leggings = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.LEGS), "ana_leggings", false);
+		ana_boots = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.FEET), "ana_boots", false);
+		ana_rifle = registerItem(new ItemAnaRifle(), "ana_rifle", false);
+		ana_token = registerItem(new ModTokens.ItemAnaToken(), "ana_token", false);
 		
-		genji_helmet = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.HEAD), "genji_helmet");
-		genji_chestplate = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.CHEST), "genji_chestplate");
-		genji_leggings = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.LEGS), "genji_leggings");
-		genji_boots = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.FEET), "genji_boots");
-		genji_shuriken = registerItem(new ItemGenjiShuriken(), "genji_shuriken");
-		genji_token = registerItem(new ModTokens.ItemGenjiToken(), "genji_token");
+		genji_helmet = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.HEAD), "genji_helmet", false);
+		genji_chestplate = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.CHEST), "genji_chestplate", false);
+		genji_leggings = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.LEGS), "genji_leggings", false);
+		genji_boots = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.FEET), "genji_boots", false);
+		genji_shuriken = registerItem(new ItemGenjiShuriken(), "genji_shuriken", false);
+		genji_token = registerItem(new ModTokens.ItemGenjiToken(), "genji_token", false);
 		
-		tracer_helmet = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.HEAD), "tracer_helmet");
-		tracer_chestplate = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.CHEST), "tracer_chestplate");
-		tracer_leggings = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.LEGS), "tracer_leggings");
-		tracer_boots = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.FEET), "tracer_boots");
-		tracer_pistol = registerItem(new ItemTracerPistol(), "tracer_pistol");
-		tracer_token = registerItem(new ModTokens.ItemTracerToken(), "tracer_token");
+		tracer_helmet = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.HEAD), "tracer_helmet", false);
+		tracer_chestplate = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.CHEST), "tracer_chestplate", false);
+		tracer_leggings = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.LEGS), "tracer_leggings", false);
+		tracer_boots = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.FEET), "tracer_boots", false);
+		tracer_pistol = registerItem(new ItemTracerPistol(), "tracer_pistol", false);
+		tracer_token = registerItem(new ModTokens.ItemTracerToken(), "tracer_token", false);
 	}
 	
-	private static Item registerItem(Item item, String unlocalizedName) {
-		allItems.add(item);
+	private static Item registerItem(Item item, String unlocalizedName, boolean usesObjModel) {
+		if (usesObjModel)
+			objModelItems.add(item);
+		else
+			jsonModelItems.add(item);
 		if (item instanceof ModTokens)
 			tokens.add(item);
 		item.setUnlocalizedName(unlocalizedName);
@@ -133,11 +138,12 @@ public class ModItems
 	}
 	
 	public static void registerRenders() {
-		for (Item item : allItems)
-			registerRender(item);
+		for (Item item : jsonModelItems)
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
+	
+	public static void registerObjRenders() {
+		for (Item item : objModelItems)
+			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));	}
 
-	private static void registerRender(Item item) {		
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
-	}
 }

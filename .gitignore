@@ -19,7 +19,6 @@ build
 
 # other
 libs/
-update.json
 eclipse
 run
 saves/

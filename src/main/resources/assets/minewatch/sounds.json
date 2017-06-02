@@ -38,5 +38,13 @@
         [
             "minewatch:genji_shuriken"
         ]
+    },
+     "tracer_pistol":
+    {
+        "category": "player",
+        "sounds":
+        [
+            "minewatch:tracer_pistol"
+        ]
     }
 }

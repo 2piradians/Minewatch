@@ -48,38 +48,35 @@ public class ModWeapon extends Item
 
 	/**Called on server when right click is held and cooldown is not active*/
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
-	
+
 	@Override
-    public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {}
+	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+		System.out.println(player.ticksExisted+"hi");
+	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		// check that item does not have MC cooldown (and nbt cooldown if it hasOffhand)
 		if (cooldown >= 0 && playerIn != null && playerIn.getHeldItem(hand) != null 
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
-				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() 
-						&& playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
+				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() && playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
+
+			//Genji Shuriken onUsingTick
 			if (!worldIn.isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)) {
 				((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).onUsingTick(playerIn.getHeldItem(hand), playerIn, ++((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot);
 				if (((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot <= 2)
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 			}
+
 			if (playerIn.getHeldItem(hand).getItem() instanceof ItemReinhardtHammer)
 				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
-			if (!worldIn.isRemote) {
-				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)))
+			if (!worldIn.isRemote) 
+			{
+				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemTracerPistol) && !(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)))
 					onShoot(worldIn, playerIn, hand);
-				// set MC cooldown/2 and nbt cooldown if hasOffhand, otherwise just set MC cooldown
-				if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null 
-						&& playerIn.getHeldItem(getInactiveHand(playerIn)).getItem() != Items.AIR
-						&& playerIn.getHeldItem(hand).getItem() != playerIn.getHeldItem(getInactiveHand(playerIn)).getItem())
-					playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(getInactiveHand(playerIn)).getItem(), cooldown+1);
-				if (hasOffhand) {
-					playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown/2);
-					playerIn.getHeldItem(hand).getTagCompound().setInteger("cooldown", cooldown);
-				}
-				else 
-					playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown);
+				
+				doCooldown(playerIn, hand);
+				
 				// only damage item if 
 				if (!ModArmor.isSet(playerIn, material))
 					playerIn.getHeldItem(hand).damageItem(1, playerIn);
@@ -99,9 +96,11 @@ public class ModWeapon extends Item
 			if (stack.getTagCompound().getInteger("cooldown") > 0)
 				stack.getTagCompound().setInteger("cooldown", --cooldown);
 		}
-		if (entityIn != null && entityIn instanceof EntityPlayer && ((EntityPlayer)entityIn).getHeldItemMainhand() != null) {
+		if (entityIn != null && entityIn instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entityIn;
-			if (player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
+
+			//Ana's Rifle
+			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
 					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
 				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
 				List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
@@ -141,7 +140,24 @@ public class ModWeapon extends Item
 		else
 			return EnumHand.OFF_HAND;
 	}
+	
+	public void doCooldown(EntityPlayer playerIn, EnumHand hand) {
+		// set MC cooldown/2 and nbt cooldown if hasOffhand, otherwise just set MC cooldown
+		if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null 
+				&& playerIn.getHeldItem(getInactiveHand(playerIn)).getItem() != Items.AIR
+				&& playerIn.getHeldItem(hand).getItem() != playerIn.getHeldItem(getInactiveHand(playerIn)).getItem())
+			playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(getInactiveHand(playerIn)).getItem(), cooldown+1);
+		if (hasOffhand) {
+			playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown/2);
+			playerIn.getHeldItem(hand).getTagCompound().setInteger("cooldown", cooldown);
+		}
+		else 
+			playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown);
+	}
 
+	
+	//Events
+	
 	/**Change the FOV when scoped*/
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -175,11 +191,9 @@ public class ModWeapon extends Item
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		boolean offhand = false;
 		boolean mainhand = false;
-		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ModWeapon
-				&& ((ModWeapon)player.getHeldItemMainhand().getItem()).scope != null)
+		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemMainhand().getItem()).scope != null)
 			mainhand = true;
-		else if (player != null && player.getHeldItemOffhand() != null  && player.getHeldItemOffhand().getItem() instanceof ModWeapon
-				&& ((ModWeapon)player.getHeldItemOffhand().getItem()).scope != null)
+		else if (player != null && player.getHeldItemOffhand() != null  && player.getHeldItemOffhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemOffhand().getItem()).scope != null)
 			offhand = true;
 		else
 			return;
@@ -188,8 +202,7 @@ public class ModWeapon extends Item
 			int width = event.getResolution().getScaledWidth();
 			int imageSize = 256;
 			GlStateManager.pushMatrix();
-			Minecraft.getMinecraft().getTextureManager().bindTexture(mainhand ? ((ModWeapon)player.getHeldItemMainhand().getItem()).scope 
-					: ((ModWeapon)player.getHeldItemOffhand().getItem()).scope);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(mainhand ? ((ModWeapon)player.getHeldItemMainhand().getItem()).scope : ((ModWeapon)player.getHeldItemOffhand().getItem()).scope);
 			GlStateManager.color(1, 1, 1, 0.165f);
 			GlStateManager.enableBlend();
 			GlStateManager.enableDepth();

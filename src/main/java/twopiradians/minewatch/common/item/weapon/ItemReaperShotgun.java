@@ -22,7 +22,7 @@ public class ItemReaperShotgun extends ModWeapon
 	public void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		if (!worldIn.isRemote) {
 			for (int i=0; i<20; i++)
-				worldIn.spawnEntity(new EntityReaperBullet(worldIn, playerIn));
+				worldIn.spawnEntity(new EntityReaperBullet(worldIn, playerIn, hand));
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
 					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
 		}

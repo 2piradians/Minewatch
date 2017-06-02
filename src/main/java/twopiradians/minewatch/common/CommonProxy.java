@@ -85,5 +85,12 @@ public class CommonProxy
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_leggings), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.genji_boots), new ItemStack(ModItems.genji_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.genji_shuriken), new ItemStack(ModItems.genji_token));
+
+		//Tracer
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_helmet), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_chestplate), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_leggings), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_boots), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.tracer_pistol, 2), new ItemStack(ModItems.tracer_token));
 	}
 }

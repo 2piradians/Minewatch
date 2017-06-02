@@ -16,11 +16,13 @@ import twopiradians.minewatch.common.item.armor.ItemGenjiArmor;
 import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
 import twopiradians.minewatch.common.item.armor.ItemReinhardtArmor;
+import twopiradians.minewatch.common.item.armor.ItemTracerArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 
 public class ModItems 
 {
@@ -67,6 +69,14 @@ public class ModItems
 	public static Item genji_shuriken;
 	public static Item genji_token;
 	
+	public static ArmorMaterial tracer = EnumHelper.addArmorMaterial("tracer", "minewatch:tracer", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item tracer_helmet;
+	public static Item tracer_chestplate;
+	public static Item tracer_leggings;
+	public static Item tracer_boots;
+	public static Item tracer_pistol;
+	public static Item tracer_token;
+	
 	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet");
 		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate");
@@ -102,6 +112,13 @@ public class ModItems
 		genji_boots = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.FEET), "genji_boots");
 		genji_shuriken = registerItem(new ItemGenjiShuriken(), "genji_shuriken");
 		genji_token = registerItem(new ModTokens.ItemGenjiToken(), "genji_token");
+		
+		tracer_helmet = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.HEAD), "tracer_helmet");
+		tracer_chestplate = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.CHEST), "tracer_chestplate");
+		tracer_leggings = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.LEGS), "tracer_leggings");
+		tracer_boots = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.FEET), "tracer_boots");
+		tracer_pistol = registerItem(new ItemTracerPistol(), "tracer_pistol");
+		tracer_token = registerItem(new ModTokens.ItemTracerToken(), "tracer_token");
 	}
 	
 	private static Item registerItem(Item item, String unlocalizedName) {

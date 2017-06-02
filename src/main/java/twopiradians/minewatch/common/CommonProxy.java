@@ -91,6 +91,6 @@ public class CommonProxy
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_chestplate), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_leggings), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.tracer_boots), new ItemStack(ModItems.tracer_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
-		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.tracer_pistol), new ItemStack(ModItems.tracer_token));
+		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.tracer_pistol, 2), new ItemStack(ModItems.tracer_token));
 	}
 }

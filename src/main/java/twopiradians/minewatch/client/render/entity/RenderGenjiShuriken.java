@@ -22,7 +22,7 @@ public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
 	}
 
 	public ItemStack getStackToRender(EntityGenjiShuriken entityIn) {
-		return new ItemStack(ModItems.genji_shuriken);
+		return new ItemStack(ModItems.genji_shuriken_single);
 	}
 
 	protected ResourceLocation getEntityTexture(EntityGenjiShuriken entity) {

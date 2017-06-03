@@ -34,6 +34,7 @@ item.genji_chestplate.name=Genji Chestplate
 item.genji_leggings.name=Genji Leggings
 item.genji_boots.name=Genji Boots
 item.genji_shuriken.name=Genji's Shuriken
+item.genji_shuriken_single.name=Genji's Shuriken
 
 item.tracer_token.name=Tracer Token
 item.tracer_helmet.name=Tracer Helmet
@@ -46,5 +47,6 @@ entity.hanzo_arrow.name=Hanzo Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
 entity.genji_shuriken.name=Genji Shuriken
+entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet
 

@@ -1,0 +1,49 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minewatch:genji_shuriken.obj"
+  },
+  "variants": {
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson_lefthand": {
+            "rotation": [ { "x": -108 }, { "y": 0 }, { "z": 180 } ],
+        	"translation": [ 0.09, -0.11, -0.02 ],
+        	"scale": [ 0.07, 0.07, 0.07 ]
+          },
+          "thirdperson_righthand": {
+            "rotation": [ { "x": -108 }, { "y": 0 }, { "z": 180 } ],
+        	"translation": [ -0.025, -0.11, -0.0375 ],
+        	"scale": [ 0.07, 0.07, 0.07 ]
+          },
+          "gui": {
+            "rotation": [ { "x": 191 }, { "y": 251 }, { "z": 0 } ],
+     		"translation": [ -0.06, -0.06, 0.00 ],
+        	"scale": [ 0.10, 0.10, 0.10 ]
+          },
+          "firstperson_righthand": {
+            "rotation": [ { "x": 274 }, { "y": 0 }, { "z": 160 } ],
+        	"translation": [ 0.1, 0.275, 0.125 ],
+        	"scale": [ 0.05, 0.05, 0.05 ]
+          },
+          "firstperson_lefthand": {
+            "rotation": [ { "x": 274 }, { "y": 0 }, { "z": 160 } ],
+        	"translation": [ 0.22, 0.29, 0.09 ],
+        	"scale": [ 0.05, 0.05, 0.05 ]
+          },
+          "ground": {
+            "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
+       		"translation": [ 0.03, 0.37, 0.06 ],
+       		"scale": [ 0.08, 0.08, 0.08 ]
+          },
+          "fixed": {
+            "rotation": [ { "x": 0 }, { "y": 90 }, { "z": 0 } ],
+       		"translation": [ 0, 0, -0.08 ],
+       		"scale": [ 0.1, 0.1, 0.1 ]
+          }
+        }
+      }
+    ]
+  }
+}

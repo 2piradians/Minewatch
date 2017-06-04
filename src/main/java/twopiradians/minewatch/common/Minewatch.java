@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common;
 
+import java.io.File;
+
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -11,7 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import twopiradians.minewatch.client.key.KeyToggleMode;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.11.2/update.json")
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.11.2/update.json")
 public class Minewatch
 {
     public static final String MODNAME = "Minewatch";
@@ -24,6 +26,7 @@ public class Minewatch
 	public static CommonProxy proxy;
     public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static KeyToggleMode keyMode = new KeyToggleMode();
+	public static File configFile;
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

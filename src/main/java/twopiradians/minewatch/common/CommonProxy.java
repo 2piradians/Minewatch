@@ -12,6 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.ModTokens;
@@ -23,6 +24,8 @@ import twopiradians.minewatch.packet.PacketToggleMode;
 public class CommonProxy 
 {
 	public void preInit(FMLPreInitializationEvent event) {
+		Minewatch.configFile = event.getSuggestedConfigurationFile();
+		Config.preInit(Minewatch.configFile);
 		registerPackets();
 		ModEntities.registerEntities();
 		ModItems.preInit();
@@ -44,6 +47,7 @@ public class CommonProxy
 	public void spawnParticlesHealthPlus(World worldIn, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {}
 
 	protected void registerEventListeners() {
+		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ModTokens());
 		MinecraftForge.EVENT_BUS.register(new ModWeapon());
 	}

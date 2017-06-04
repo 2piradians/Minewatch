@@ -12,6 +12,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.armor.ItemAnaArmor;
 import twopiradians.minewatch.common.item.armor.ItemGenjiArmor;
 import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
@@ -126,7 +127,7 @@ public class ModItems {
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {
-		if (usesObjModel)
+		if (usesObjModel && Config.useObjModels)
 			objModelItems.add(item);
 		else
 			jsonModelItems.add(item);

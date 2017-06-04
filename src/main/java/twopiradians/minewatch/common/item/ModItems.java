@@ -106,7 +106,7 @@ public class ModItems {
 		ana_chestplate = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.CHEST), "ana_chestplate", true, false);
 		ana_leggings = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.LEGS), "ana_leggings", true, false);
 		ana_boots = registerItem(new ItemAnaArmor(ana, 0, EntityEquipmentSlot.FEET), "ana_boots", true, false);
-		ana_rifle = registerItem(new ItemAnaRifle(), "ana_rifle", true, false);
+		ana_rifle = registerItem(new ItemAnaRifle(), "ana_rifle", true, true);
 		ana_token = registerItem(new ModTokens.ItemAnaToken(), "ana_token", true, false);
 
 		genji_helmet = registerItem(new ItemGenjiArmor(genji, 0, EntityEquipmentSlot.HEAD), "genji_helmet", true, false);

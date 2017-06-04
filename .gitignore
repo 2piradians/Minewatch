@@ -18,11 +18,11 @@ build
 .gradle
 
 # other
-libs/
 eclipse
 run
+screenshots/
 saves/
-config/
+/config/
 world/
 options.txt
 banned-ips.json

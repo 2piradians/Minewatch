@@ -35,12 +35,12 @@ public class EntityTracerBullet extends EntityThrowable
 		double y = throwerIn.posY + throwerIn.getEyeHeight() - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		if (hand == EnumHand.MAIN_HAND) {
-			x -= Math.cos(throwerIn.rotationYawHead*Math.PI/180)/3;
+			x -= Math.cos(throwerIn.rotationYawHead*Math.PI/180)/2;
 			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
 			z -= Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
 		}
 		else {
-			x += Math.cos(throwerIn.rotationYawHead*Math.PI/180)/3;
+			x += Math.cos(throwerIn.rotationYawHead*Math.PI/180)/2;
 			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
 			z += Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
 		}

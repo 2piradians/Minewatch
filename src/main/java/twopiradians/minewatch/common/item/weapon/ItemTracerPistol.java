@@ -98,7 +98,10 @@ public class ItemTracerPistol extends ModWeapon
 		if (event.getEntity() != null && event.getEntity() instanceof EntityPlayer
 				&& ((((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null && ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() instanceof ItemTracerPistol)
 						|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null && ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemTracerPistol))) {
-			event.setFOV(Minecraft.getMinecraft().gameSettings.fovSetting);
+			if (event.getEntity().isSprinting() && ((EntityPlayer)event.getEntity()).getActiveItemStack() != null && ((EntityPlayer)event.getEntity()).getActiveItemStack().getItem() instanceof ItemTracerPistol)
+				event.setFOV(Minecraft.getMinecraft().gameSettings.fovSetting-10f);
+			else
+				event.setFOV(Minecraft.getMinecraft().gameSettings.fovSetting);
 		}
 	}
 }

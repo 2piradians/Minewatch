@@ -1,5 +1,26 @@
-# Blender MTL File: 'hanzo_bow2.blend'
-# Material Count: 7
+# Blender MTL File: 'None'
+# Material Count: 10
+
+newmtl Tex_1924_2.dds.001
+Ka 0.000000 0.000000 0.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/hanzo_bow_3d
+
+newmtl Tex_2422_0.dds.001
+Ka 0.000000 0.000000 0.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/hanzo_bow_3d
+
+newmtl Tex_2422_0.dds.002
+Ka 0.000000 0.000000 0.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/hanzo_bow_3d
 
 newmtl blinn1
 Ka 0.500000 0.500000 0.500000

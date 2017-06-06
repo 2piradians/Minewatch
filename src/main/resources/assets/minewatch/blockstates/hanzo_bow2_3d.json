@@ -1,0 +1,49 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minewatch:hanzo_bow2.obj"
+  },
+  "variants": {
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson_lefthand": {
+            "rotation": [ { "x": 0 }, { "y": 28 }, { "z": 0 } ],
+       		"translation": [ -0.2, 0.4, 0.58 ],
+       		"scale": [ 0.75, 0.75, 0.75 ]
+          },
+          "thirdperson_righthand": {
+            "rotation": [ { "x": 0 }, { "y": 336 }, { "z": 0 } ],
+       		"translation": [ 0.23, 0.4, 0.58 ],
+       		"scale": [ 0.75, 0.75, 0.75 ]
+          },
+          "gui": {
+            "rotation": [ { "x": 325 }, { "y": 141 }, { "z": 226 } ],
+            "translation": [ 0.2, -0.20, 0 ],
+       		"scale": [ 0.4, 0.4, 0.4 ]
+          },
+          "firstperson_righthand": {
+            "rotation": [ { "x": 14 }, { "y": 22 }, { "z": 0 } ],
+            "translation": [ 0.38, -0.133, -0.05 ],
+       		"scale": [ 0.75, 0.75, 0.75 ]
+          },
+          "firstperson_lefthand": {
+            "rotation": [ { "x": 16 }, { "y": 346 }, { "z": 0 } ],
+            "translation": [ 1.05, -0.04, -0.05 ],
+       		"scale": [ 0.75, 0.75, 0.75 ]
+          },
+          "ground": {
+            "rotation": [ { "x": 90 }, { "y": 330 }, { "z": 0 } ],
+       		"translation": [ 0.25, -0.0, 0.125 ],
+       		"scale": [ 0.75, 0.75, 0.75 ]
+          },
+          "fixed": {
+            "rotation": [ { "x": 216 }, { "y": 242 }, { "z": 42 } ],
+       		"translation": [ -0.34, -0.156, -0.28 ],
+       		"scale": [ 0.65, 0.65, 0.65 ]
+          }
+        }
+      }
+    ]
+  }
+}

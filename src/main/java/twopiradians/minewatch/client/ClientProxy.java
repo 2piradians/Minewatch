@@ -84,8 +84,6 @@ public class ClientProxy extends CommonProxy
 									model = 4;
 							}
 						}
-						//System.out.println(model);
-
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + model + "_3d", "inventory");
 					}
 				});

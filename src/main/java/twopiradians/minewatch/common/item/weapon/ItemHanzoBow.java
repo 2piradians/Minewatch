@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.item.weapon;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -9,6 +10,7 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -61,7 +63,7 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	private boolean isArrow(@Nullable ItemStack stack) {
-        return stack != null && stack.getItem() instanceof ItemArrow;
+		return stack != null && stack.getItem() instanceof ItemArrow;
 	}
 
 	/**Called when the player stops using an Item (stops holding the right mouse button).*/
@@ -124,9 +126,28 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	@Override
+	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {	
+		super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
+
+		// set player in nbt for model changer (in ModItems) to reference
+		if (entityIn instanceof EntityPlayer && !entityIn.worldObj.isRemote && 
+				stack != null && stack.getItem() instanceof ItemHanzoBow) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+
+			NBTTagCompound nbt = stack.getTagCompound();
+
+			if (!nbt.hasKey("player") || !nbt.getUniqueId("player").equals(entityIn.getPersistentID())) {
+				nbt.setUniqueId("player", entityIn.getPersistentID());
+				stack.setTagCompound(nbt);
+			}
+		}
+	}
+
+	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand handIn) {
 		ItemStack itemstack = playerIn.getHeldItem(handIn);
-        boolean flag = this.findAmmo(playerIn) != null;
+		boolean flag = this.findAmmo(playerIn) != null;
 
 		ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, worldIn, playerIn, handIn, flag);
 		if (ret != null) return ret;

@@ -78,7 +78,7 @@ public class ClientProxy extends CommonProxy
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							if (player != null) {
 								model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
-								if (!player.getActiveItemStack().equals(stack))
+								if (player.getActiveItemStack() != null || !player.getActiveItemStack().equals(stack))
 									model = 0;
 								else if (model > 4)
 									model = 4;

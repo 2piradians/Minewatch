@@ -35,14 +35,14 @@ public class EntityReaperBullet extends EntityThrowable
 		double y = throwerIn.posY + throwerIn.getEyeHeight() - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		if (hand == EnumHand.MAIN_HAND) {
-			x -= 0.8d;
-			y -= 0.4d;
-			z -= 0.1d;
+			x -= Math.cos(throwerIn.rotationYawHead*Math.PI/180)/3;
+			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
+			z -= Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
 		}
 		else {
-			x += 0.45d;
-			y -= 0.2d;
-			z += 0.3d;
+			x += Math.cos(throwerIn.rotationYawHead*Math.PI/180)/3;
+			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
+			z += Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
 		}
 		this.setPosition(x, y, z);
 		this.setRotation(0, 0);

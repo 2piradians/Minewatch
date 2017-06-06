@@ -1,12 +1,8 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -16,21 +12,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.armor.ModArmor;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ModWeapon extends Item
 {
@@ -49,12 +40,10 @@ public class ModWeapon extends Item
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
 
 	@Override
-	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		System.out.println(player.ticksExisted+"hi");
-	}
+	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) { 		
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		// check that item does not have MC cooldown (and nbt cooldown if it hasOffhand)
 		if (cooldown >= 0 && playerIn != null && playerIn.getHeldItem(hand) != null 
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
@@ -95,32 +84,6 @@ public class ModWeapon extends Item
 			if (stack.getTagCompound().getInteger("cooldown") > 0)
 				stack.getTagCompound().setInteger("cooldown", --cooldown);
 		}
-		if (entityIn != null && entityIn instanceof EntityPlayer) {
-			EntityPlayer player = (EntityPlayer)entityIn;
-
-			//Ana's Rifle
-			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
-					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
-				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
-				List<Entity> list = entityIn.worldObj.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
-				if (!list.isEmpty()) {
-					Iterator<Entity> iterator = list.iterator();            
-					while (iterator.hasNext()) {
-						Entity entityInArea = iterator.next();
-						if (entityInArea != null && entityInArea instanceof EntityPlayer 
-								&& ((EntityPlayer)entityInArea).isOnSameTeam(player) 
-								&& ((EntityPlayer)entityInArea).getHealth() < ((EntityPlayer)entityInArea).getMaxHealth()) {
-							Minewatch.proxy.spawnParticlesHealthPlus(player.worldObj, entityInArea.posX, 
-									entityInArea.posY+2.5d, entityInArea.posZ, 0, 0, 0, 3);
-						}
-						else if (entityInArea != null && entityInArea instanceof EntityLiving) {
-							entityInArea.worldObj.spawnParticle(EnumParticleTypes.HEART, entityInArea.posX, 
-									entityInArea.posY+2d, entityInArea.posZ, 0, 1, 0, new int[0]);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
@@ -133,6 +96,8 @@ public class ModWeapon extends Item
 		return 1;
 	}
 
+	//Custom ------------------------------------------------------------------------
+	
 	public EnumHand getInactiveHand(EntityPlayer player) {
 		if (!(player.getHeldItemMainhand().getItem() instanceof ModWeapon))
 			return EnumHand.MAIN_HAND;
@@ -152,9 +117,8 @@ public class ModWeapon extends Item
 		else 
 			playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown);
 	}
-
 	
-	//Events
+	//Events ------------------------------------------------------------------------
 	
 	/**Change the FOV when scoped*/
 	@SideOnly(Side.CLIENT)
@@ -166,19 +130,6 @@ public class ModWeapon extends Item
 						|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null 
 						&& ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemAnaRifle))) {
 			event.setFOV(20f);
-		}
-	}
-
-	/**Reinhardt Hammer attack*/
-	@SubscribeEvent
-	public void onEvent(PlayerInteractEvent.LeftClickEmpty event) {
-		if (event.getWorld() != null && event.getEntityPlayer().getHeldItemMainhand() != null 
-				&& event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
-			EntityPlayer player = event.getEntityPlayer();
-			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
-				player.worldObj.playSound(player, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
-			}
 		}
 	}
 

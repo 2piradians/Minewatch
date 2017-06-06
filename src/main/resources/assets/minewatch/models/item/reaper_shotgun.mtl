@@ -1,0 +1,9 @@
+# Blender MTL File: 'reaper_shotgun.blend'
+# Material Count: 2
+
+newmtl Tex_1886_0.dds.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/reaper_shotgun_3d

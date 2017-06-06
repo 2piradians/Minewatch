@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -23,17 +24,26 @@ public class EntityTracerBullet extends EntityThrowable
 	}
 
 	//Client doesn't read here
-	public EntityTracerBullet(World worldIn, EntityLivingBase throwerIn) {
+	public EntityTracerBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
-		//TODO adjust for which gun fires
 		double velX = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.1d;
 		double velY = - Math.sin(throwerIn.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.1d;
 		double velZ = Math.cos(throwerIn.rotationPitch*Math.PI/180) * Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.1d;
 		double x = throwerIn.posX + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.cos(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
 		double y = throwerIn.posY + throwerIn.getEyeHeight() - Math.sin(throwerIn.rotationPitch*Math.PI/180);
 		double z = throwerIn.posZ + Math.cos(throwerIn.rotationPitch*Math.PI/180)*Math.sin(throwerIn.rotationYawHead*Math.PI/180 + Math.PI/2);
+		if (hand == EnumHand.MAIN_HAND) {
+			x -= Math.cos(throwerIn.rotationYawHead*Math.PI/180)/2;
+			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
+			z -= Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
+		}
+		else {
+			x += Math.cos(throwerIn.rotationYawHead*Math.PI/180)/2;
+			y -= 0.15d - Math.sin(throwerIn.rotationPitch*Math.PI/180)/2;
+			z += Math.sin(throwerIn.rotationYawHead*Math.PI/180)/3;
+		}
 		this.setPosition(x, y, z);
 		this.setRotation(0, 0);
 		double speed = 5.0d;
@@ -44,7 +54,6 @@ public class EntityTracerBullet extends EntityThrowable
 		this.motionX = velX;
 		this.motionY = velY;
 		this.motionZ = velZ;
-		//setVelocity(velX, velY, velZ);
 	}
 
 	@Override

@@ -13,12 +13,14 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.armor.ItemAnaArmor;
 import twopiradians.minewatch.common.item.armor.ItemGenjiArmor;
 import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
+import twopiradians.minewatch.common.item.armor.ItemMcCreeArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
 import twopiradians.minewatch.common.item.armor.ItemReinhardtArmor;
 import twopiradians.minewatch.common.item.armor.ItemTracerArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
+import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
@@ -77,6 +79,14 @@ public class ModItems {
 	public static Item tracer_boots;
 	public static Item tracer_pistol;
 	public static Item tracer_token;
+	
+	public static ArmorMaterial mccree = EnumHelper.addArmorMaterial("mccree", "minewatch:mccree", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item mccree_helmet;
+	public static Item mccree_chestplate;
+	public static Item mccree_leggings;
+	public static Item mccree_boots;
+	public static Item mccree_gun;
+	public static Item mccree_token;
 
 	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet", true, false);
@@ -121,6 +131,13 @@ public class ModItems {
 		tracer_boots = registerItem(new ItemTracerArmor(tracer, 0, EntityEquipmentSlot.FEET), "tracer_boots", true, false);
 		tracer_pistol = registerItem(new ItemTracerPistol(), "tracer_pistol", true, true);
 		tracer_token = registerItem(new ModTokens.ItemTracerToken(), "tracer_token", true, false);
+		
+		mccree_helmet = registerItem(new ItemMcCreeArmor(mccree, 0, EntityEquipmentSlot.HEAD), "mccree_helmet", true, false);
+		mccree_chestplate = registerItem(new ItemMcCreeArmor(mccree, 0, EntityEquipmentSlot.CHEST), "mccree_chestplate", true, false);
+		mccree_leggings = registerItem(new ItemMcCreeArmor(mccree, 0, EntityEquipmentSlot.LEGS), "mccree_leggings", true, false);
+		mccree_boots = registerItem(new ItemMcCreeArmor(mccree, 0, EntityEquipmentSlot.FEET), "mccree_boots", true, false);
+		mccree_gun = registerItem(new ItemMcCreeGun(), "mccree_gun", true, true);
+		mccree_token = registerItem(new ModTokens.ItemMcCreeToken(), "mccree_token", true, false);
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {

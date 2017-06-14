@@ -1,0 +1,16 @@
+# Blender MTL File: 'mccree_gun.blend'
+# Material Count: 2
+
+newmtl Tex_1953_0.dds
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/mccree_gun_3d
+
+newmtl Tex_1953_0.dds.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+map_Kd minewatch:items/mccree_gun_3d

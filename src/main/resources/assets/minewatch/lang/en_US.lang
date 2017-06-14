@@ -43,10 +43,18 @@ item.tracer_leggings.name=Tracer Leggings
 item.tracer_boots.name=Tracer Boots
 item.tracer_pistol.name=Tracer's Pulse Pistol
 
+item.mccree_token.name=McCree Token
+item.mccree_helmet.name=McCree Helmet
+item.mccree_chestplate.name=McCree Chestplate
+item.mccree_leggings.name=McCree Leggings
+item.mccree_boots.name=McCree Boots
+item.mccree_gun.name=McCree's Peacekeeper
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
 entity.genji_shuriken.name=Genji Shuriken
 entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet
+entity.mccree_bullet.name=McCree Bullet
 

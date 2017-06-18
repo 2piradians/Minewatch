@@ -46,5 +46,13 @@
         [
             "minewatch:tracer_pistol"
         ]
+    },
+     "mccree_gun":
+    {
+        "category": "player",
+        "sounds":
+        [
+            "minewatch:mccree_gun"
+        ]
     }
 }

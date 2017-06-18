@@ -49,6 +49,12 @@ public class ModWeapon extends Item
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
 				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() && playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
 
+			//McCree
+			if (playerIn.getHeldItem(hand).getItem() instanceof ItemMcCreeGun && Minewatch.keyMode.isKeyDown( playerIn)) {
+				playerIn.setActiveHand(hand);
+				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));
+			}
+			
 			//Genji Shuriken onUsingTick
 			if (!worldIn.isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)) {
 				((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).onUsingTick(playerIn.getHeldItem(hand), playerIn, ++((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot);

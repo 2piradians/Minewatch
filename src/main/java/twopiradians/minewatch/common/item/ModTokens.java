@@ -32,4 +32,6 @@ public class ModTokens extends Item
 	public static class ItemGenjiToken extends ModTokens {}
 	
 	public static class ItemTracerToken extends ModTokens {}
+	
+	public static class ItemMcCreeToken extends ModTokens {}
 }

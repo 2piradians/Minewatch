@@ -54,5 +54,13 @@
         [
             "minewatch:mccree_gun"
         ]
+    },
+      "soldier_gun":
+    {
+        "category": "player",
+        "sounds":
+        [
+            "minewatch:soldier_gun"
+        ]
     }
 }

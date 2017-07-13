@@ -50,6 +50,13 @@ item.mccree_leggings.name=McCree Leggings
 item.mccree_boots.name=McCree Boots
 item.mccree_gun.name=McCree's Peacekeeper
 
+item.soldier_token.name=Soldier 76 Token
+item.soldier_helmet.name=Soldier 76 Helmet
+item.soldier_chestplate.name=Soldier 76 Chestplate
+item.soldier_leggings.name=Soldier 76 Leggings
+item.soldier_boots.name=Soldier 76 Boots
+item.soldier_gun.name=Soldier 76's Pulse Rifle
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
@@ -57,4 +64,4 @@ entity.genji_shuriken.name=Genji Shuriken
 entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet
 entity.mccree_bullet.name=McCree Bullet
-
+entity.soldier_bullet.name=Soldier 76 Bullet

@@ -103,5 +103,12 @@ public class CommonProxy
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.mccree_leggings), new ItemStack(ModItems.mccree_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.mccree_boots), new ItemStack(ModItems.mccree_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
 		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.mccree_gun), new ItemStack(ModItems.mccree_token));
+
+		//Soldier
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.soldier_helmet), new ItemStack(ModItems.soldier_token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.soldier_chestplate), new ItemStack(ModItems.soldier_token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.soldier_leggings), new ItemStack(ModItems.soldier_token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(ModItems.soldier_boots), new ItemStack(ModItems.soldier_token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
+		GameRegistry.addShapelessRecipe(new ItemStack(ModItems.soldier_gun), new ItemStack(ModItems.soldier_token));
 	}
 }

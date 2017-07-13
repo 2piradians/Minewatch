@@ -20,5 +20,6 @@ public class ModEntities
 		EntityRegistry.registerModEntity(EntityGenjiShuriken.class, "genji_shuriken", id++, Minewatch.instance, 32, 1, true);
 		EntityRegistry.registerModEntity(EntityTracerBullet.class, "tracer_bullet", id++, Minewatch.instance, 16, 1, true);
 		EntityRegistry.registerModEntity(EntityMcCreeBullet.class, "mccree_bullet", id++, Minewatch.instance, 16, 1, true);
+		EntityRegistry.registerModEntity(EntitySoldierBullet.class, "soldier_bullet", id++, Minewatch.instance, 16, 1, true);
 	}
 }

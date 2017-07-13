@@ -16,6 +16,7 @@ import twopiradians.minewatch.common.item.armor.ItemHanzoArmor;
 import twopiradians.minewatch.common.item.armor.ItemMcCreeArmor;
 import twopiradians.minewatch.common.item.armor.ItemReaperArmor;
 import twopiradians.minewatch.common.item.armor.ItemReinhardtArmor;
+import twopiradians.minewatch.common.item.armor.ItemSoldierArmor;
 import twopiradians.minewatch.common.item.armor.ItemTracerArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -23,6 +24,7 @@ import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.common.item.weapon.ItemSoldierGun;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 
 public class ModItems {
@@ -72,7 +74,7 @@ public class ModItems {
 	public static Item genji_shuriken_single; // used for projectile
 	public static Item genji_token;
 
-	public static ArmorMaterial tracer = EnumHelper.addArmorMaterial("tracer", "minewatch:tracer", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static ArmorMaterial tracer = EnumHelper.addArmorMaterial("tracer", "minewatch:tracer", 20, new int[] {2,2,2,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 	public static Item tracer_helmet;
 	public static Item tracer_chestplate;
 	public static Item tracer_leggings;
@@ -88,6 +90,14 @@ public class ModItems {
 	public static Item mccree_gun;
 	public static Item mccree_token;
 
+	public static ArmorMaterial soldier = EnumHelper.addArmorMaterial("soldier", "minewatch:soldier", 20, new int[] {2,3,3,2}, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+	public static Item soldier_helmet;
+	public static Item soldier_chestplate;
+	public static Item soldier_leggings;
+	public static Item soldier_boots;
+	public static Item soldier_gun;
+	public static Item soldier_token;
+	
 	public static void preInit () {
 		reaper_helmet = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet", true, false);
 		reaper_chestplate = registerItem(new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate", true, false);
@@ -138,6 +148,13 @@ public class ModItems {
 		mccree_boots = registerItem(new ItemMcCreeArmor(mccree, 0, EntityEquipmentSlot.FEET), "mccree_boots", true, false);
 		mccree_gun = registerItem(new ItemMcCreeGun(), "mccree_gun", true, true);
 		mccree_token = registerItem(new ModTokens.ItemMcCreeToken(), "mccree_token", true, false);
+		
+		soldier_helmet = registerItem(new ItemSoldierArmor(soldier, 0, EntityEquipmentSlot.HEAD), "soldier_helmet", true, false);
+		soldier_chestplate = registerItem(new ItemSoldierArmor(soldier, 0, EntityEquipmentSlot.CHEST), "soldier_chestplate", true, false);
+		soldier_leggings = registerItem(new ItemSoldierArmor(soldier, 0, EntityEquipmentSlot.LEGS), "soldier_leggings", true, false);
+		soldier_boots = registerItem(new ItemSoldierArmor(soldier, 0, EntityEquipmentSlot.FEET), "soldier_boots", true, false);
+		soldier_gun = registerItem(new ItemSoldierGun(), "soldier_gun", true, true);
+		soldier_token = registerItem(new ModTokens.ItemMcCreeToken(), "soldier_token", true, false);
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {

@@ -14,6 +14,7 @@ public class ModSoundEvents {
 	public static SoundEvent genjiShuriken;
 	public static SoundEvent tracerPistol;
 	public static SoundEvent mccreeGun;
+	public static SoundEvent soldierGun;
 
 	public static void preInit() {
 		reaperShotgun = registerSound("reaper_shotguns");
@@ -23,7 +24,7 @@ public class ModSoundEvents {
 		genjiShuriken = registerSound("genji_shuriken");
 		tracerPistol = registerSound("tracer_pistol");
 		mccreeGun = registerSound("mccree_gun");
-
+		soldierGun = registerSound("soldier_gun");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

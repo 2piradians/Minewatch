@@ -28,6 +28,7 @@ import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
+import twopiradians.minewatch.client.render.entity.RenderSoldierBullet;
 import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
@@ -36,6 +37,7 @@ import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.EntitySoldierBullet;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.item.ModItems;
 
@@ -106,6 +108,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldierBullet.class, RenderSoldierBullet::new);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "minewatch:reaper_shotgun.obj"
+    "model": "minewatch:soldier_gun.obj"
   },
   "variants": {
     "inventory": [
@@ -9,13 +9,13 @@
         "transform": {
           "thirdperson_lefthand": {
             "rotation": [ { "x": 252 }, { "y": 0 }, { "z": 180 } ],
-       		"translation": [ 0.2, 0.3, 0.25 ],
-       		"scale": [ 0.4, 0.4, 0.4 ]
+       		"translation": [ 0.35, 0.3, 0.5 ],
+       		"scale": [ 0.7, 0.7, 0.7 ]
           },
           "thirdperson_righthand": {
             "rotation": [ { "x": 252 }, { "y": 0 }, { "z": 180 } ],
-       		"translation": [ -0.2, 0.3, 0.25 ],
-       		"scale": [ 0.4, 0.4, 0.4 ]
+       		"translation": [ -0.35, 0.3, 0.5 ],
+       		"scale": [ 0.7, 0.7, 0.7 ]
           },
           "gui": {
             "rotation": [ { "x": -167 }, { "y": -90 }, { "z": -180 } ],
@@ -24,13 +24,13 @@
           },
           "firstperson_righthand": {
             "rotation": [ { "x": 0 }, { "y": 180 }, { "z": 0 } ],
-            "translation": [ 0.1, 0.4, 0 ],
-       		"scale": [ 0.75, 0.75, 0.75 ]
+            "translation": [ 0.1, 0.5, -0.35 ],
+       		"scale": [ 1, 1, 1 ]
           },
           "firstperson_lefthand": {
             "rotation": [ { "x": 0 }, { "y": 180 }, { "z": 0 } ],
-            "translation": [ 0.8, 0.4, 0 ],
-       		"scale": [ 0.75, 0.75, 0.75 ]
+            "translation": [ 1, 0.5, -0.35 ],
+       		"scale": [ 1, 1, 1 ]
           },
           "ground": {
             "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
@@ -39,8 +39,8 @@
           },
           "fixed": {
             "rotation": [ { "x": 0 }, { "y": 90 }, { "z": 0 } ],
-       		"translation": [ -0.48, 0.27, -0.48 ],
-       		"scale": [ 0.75, 0.75, 0.75 ]
+       		"translation": [ -0.1, 0.27, -0.48 ],
+       		"scale": [ 0.5, 0.5, 0.5 ]
           }
         }
       }

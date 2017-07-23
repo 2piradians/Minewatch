@@ -20,15 +20,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemHanzoBow extends ModWeapon
 {
 	public ItemHanzoBow() {
-		super();
-		this.material = ModItems.hanzo;
+		super(Hero.HANZO);
 		this.setMaxDamage(100);
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
@@ -46,7 +45,7 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
-		if (ModArmor.isSet(player, ModItems.hanzo))
+		if (ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
 			return new ItemStack(Items.ARROW);
 		else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
 			return player.getHeldItem(EnumHand.OFF_HAND);
@@ -71,7 +70,8 @@ public class ItemHanzoBow extends ModWeapon
 	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
 		if (entityLiving instanceof EntityPlayer) {
 			EntityPlayer entityplayer = (EntityPlayer)entityLiving;
-			boolean flag = entityplayer.capabilities.isCreativeMode || ModArmor.isSet(entityplayer, ModItems.hanzo);
+			boolean flag = entityplayer.capabilities.isCreativeMode || 
+					ModArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) == hero;
 			ItemStack itemstack = this.findAmmo(entityplayer);
 
 			int i = Math.min(this.getMaxItemUseDuration(stack) - timeLeft,20);
@@ -94,7 +94,7 @@ public class ItemHanzoBow extends ModWeapon
 							entityarrow.setPotionEffect(itemstack);
 						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 2.0F, 1.0F);
 						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
-						if (!ModArmor.isSet(entityplayer, ModItems.hanzo))
+						if (ModArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) != hero)
 							stack.damageItem(1, entityplayer);
 						worldIn.spawnEntity(entityarrow);
 					}

@@ -5,16 +5,15 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemReaperShotgun extends ModWeapon
 {
 	public ItemReaperShotgun() {
-		super();
+		super(Hero.REAPER);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
-		this.material = ModItems.reaper;
 		this.cooldown = 20;
 	}
 

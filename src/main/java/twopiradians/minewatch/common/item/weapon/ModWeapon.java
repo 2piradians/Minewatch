@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -21,21 +20,25 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 
 public class ModWeapon extends Item
 {
+	public Hero hero;
+
 	/**Used to uniformly scale damage for all weapons/abilities*/
 	public static final float DAMAGE_SCALE = 10f;
 
 	/**Cooldown in ticks for MC cooldown and nbt cooldown (if hasOffhand)*/
 	protected int cooldown;
-	/**ArmorMaterial that determines which set this belongs to*/
-	protected ArmorMaterial material;
 	/**Will give shooting hand MC cooldown = cooldown/2 if true*/
 	protected boolean hasOffhand;
 	protected ResourceLocation scope;
+
+	public ModWeapon(Hero hero) {
+		this.hero = hero;
+	}
 
 	/**Called on server when right click is held and cooldown is not active*/
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
@@ -50,14 +53,16 @@ public class ModWeapon extends Item
 				&& !playerIn.getCooldownTracker().hasCooldown(playerIn.getHeldItem(hand).getItem()) 
 				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() && playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
 
+			//TODO get this stuff outta here and into individual classes
+			
 			//McCree
-			if (playerIn.getHeldItem(hand).getItem() instanceof ItemMcCreeGun && Minewatch.keyMode.isKeyDown( playerIn)) {
+			if (playerIn.getHeldItem(hand).getItem() instanceof ItemMcCreeGun/* && Minewatch.keyMode.isKeyDown(playerIn)*/) { //TODO
 				playerIn.setActiveHand(hand);
 				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));
 			}
 
 			//Genji Shuriken onUsingTick
-			if (!worldIn.isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)) {
+			if (!worldIn.isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken/* && !Minewatch.keyMode.isKeyDown(playerIn)*/) {//TODO
 				((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).onUsingTick(playerIn.getHeldItem(hand), playerIn, ++((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot);
 				if (((ItemGenjiShuriken)playerIn.getHeldItem(hand).getItem()).multiShot <= 2)
 					return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
@@ -67,13 +72,13 @@ public class ModWeapon extends Item
 				return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(hand));	
 			if (!worldIn.isRemote) 
 			{
-				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemTracerPistol) && !(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken && !Minewatch.keyMode.isKeyDown(playerIn)))
+				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemTracerPistol) && !(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken/* && !Minewatch.keyMode.isKeyDown(playerIn)*/)) //TODO
 					onShoot(worldIn, playerIn, hand);
 				
 				doCooldown(playerIn, hand);
 				
 				// only damage item if 
-				if (!ModArmor.isSet(playerIn, material))
+				if (ModArmor.SetManager.playersWearingSets.get(playerIn.getPersistentID()) != hero)
 					playerIn.getHeldItem(hand).damageItem(1, playerIn);
 			}
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));

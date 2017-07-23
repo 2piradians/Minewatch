@@ -1,11 +1,12 @@
 package twopiradians.minewatch.common.item.armor;
 
 import net.minecraft.inventory.EntityEquipmentSlot;
+import twopiradians.minewatch.common.hero.Hero;
 
 public class ItemReinhardtArmor extends ModArmor {
 
 	public ItemReinhardtArmor(ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
-		super(materialIn, renderIndexIn, equipmentSlotIn);
+		super(Hero.REINHARDT, materialIn, renderIndexIn, equipmentSlotIn);
 	}
 
 }

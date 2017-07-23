@@ -19,7 +19,7 @@ import twopiradians.minewatch.common.item.ModTokens;
 import twopiradians.minewatch.common.item.weapon.ModWeapon;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketToggleMode;
+import twopiradians.minewatch.packet.PacketSyncKeys;
 
 public class CommonProxy 
 {
@@ -41,7 +41,7 @@ public class CommonProxy
 
 	private void registerPackets() { // Side is where the packets goes TO
 		int id = 0;
-		Minewatch.network.registerMessage(PacketToggleMode.Handler.class, PacketToggleMode.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
 	}
 
 	public void spawnParticlesHealthPlus(World worldIn, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {}
@@ -49,7 +49,7 @@ public class CommonProxy
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ModTokens());
-		MinecraftForge.EVENT_BUS.register(new ModWeapon());
+		MinecraftForge.EVENT_BUS.register(new ModWeapon(null));
 	}
 
 	private void registerCraftingRecipes() {

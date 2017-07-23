@@ -15,15 +15,14 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemAnaRifle extends ModWeapon 
 {
 	public ItemAnaRifle() {
-		super();
+		super(Hero.ANA);
 		this.setMaxDamage(100);
-		this.material = ModItems.ana;
 		this.cooldown = 30;
 		this.scope = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");
 	}
@@ -31,7 +30,7 @@ public class ItemAnaRifle extends ModWeapon
 	@Override
 	public void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		if (!worldIn.isRemote) {
-			EntityAnaBullet bullet = new EntityAnaBullet(worldIn, playerIn, Minewatch.keyMode.isKeyDown(playerIn));
+			EntityAnaBullet bullet = new EntityAnaBullet(worldIn, playerIn, false);//TODO have as scroll wheel change like torb/mercy
 			bullet.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 5.0F, 0.3F);
 			worldIn.spawnEntity(bullet);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
@@ -45,9 +44,19 @@ public class ItemAnaRifle extends ModWeapon
 		if (entityIn != null && entityIn instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entityIn;
 
+			// sleep dart
+			if (isSelected && Minewatch.keys.ability1(player)) {
+				
+			}
+			
+			// biotic grenade
+			if (isSelected && Minewatch.keys.ability2(player)) {
+				
+			}
+			
 			//Ana's Rifle
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
-					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
+					&& false && entityIn.ticksExisted % 10 == 0) {//TODO have as scroll wheel change like torb/mercy
 				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
 				List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 				if (!list.isEmpty()) {

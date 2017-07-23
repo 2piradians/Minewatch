@@ -17,17 +17,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemTracerPistol extends ModWeapon
 {	
 	public ItemTracerPistol() {
-		super();
+		super(Hero.TRACER);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
-		this.material = ModItems.tracer;
 		this.cooldown = 40;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -45,14 +44,14 @@ public class ItemTracerPistol extends ModWeapon
 				for (int i=0; i<2; i++)
 					player.world.spawnEntity(new EntityTracerBullet(player.world, player, EnumHand.MAIN_HAND));
 				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerPistol, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (count == 20 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
+				if (count == 20 && ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 					player.getHeldItemMainhand().damageItem(1, player);
 			}
 			if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemTracerPistol) {
 				for (int i=0; i<2; i++)
 					player.world.spawnEntity(new EntityTracerBullet(player.world, player, EnumHand.OFF_HAND));
 				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerPistol, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
-				if (count == 20 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
+				if (count == 20 && ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 					player.getHeldItemOffhand().damageItem(1, player);
 			}
 

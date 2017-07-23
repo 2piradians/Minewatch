@@ -7,19 +7,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemMcCreeGun extends ModWeapon
 {
 	public ItemMcCreeGun() {
-		super();
+		super(Hero.MCCREE);
 		this.setMaxDamage(100);
 		this.hasOffhand = false;
-		this.material = ModItems.mccree;
 		this.cooldown = 10;
 	}
 	
@@ -43,20 +41,20 @@ public class ItemMcCreeGun extends ModWeapon
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
 		if (!player.world.isRemote && player instanceof EntityPlayer) {
-			if (Minewatch.keyMode.isKeyDown((EntityPlayer) player) && count % 3 == 0 && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() != Items.AIR && player.getHeldItemMainhand().getItem() instanceof ItemMcCreeGun) {
+			if (/*Minewatch.keyMode.isKeyDown((EntityPlayer) player) && */count % 3 == 0 && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() != Items.AIR && player.getHeldItemMainhand().getItem() instanceof ItemMcCreeGun) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
 				player.world.spawnEntity(bullet);				
 				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
+				if (ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 					player.getHeldItemMainhand().damageItem(1, player);
-			}
-			else if (Minewatch.keyMode.isKeyDown((EntityPlayer) player) && count % 3 == 0 && player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemMcCreeGun) {
+			}//TODO change to RMB
+			else if (/*Minewatch.keyMode.isKeyDown((EntityPlayer) player) &&*/ count % 3 == 0 && player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemMcCreeGun) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
 				player.world.spawnEntity(bullet);				
 				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
-				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
+				if (ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 					player.getHeldItemOffhand().damageItem(1, player);
 			}
 

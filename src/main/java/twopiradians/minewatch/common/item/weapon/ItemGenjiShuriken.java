@@ -7,7 +7,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemGenjiShuriken extends ModWeapon
@@ -15,10 +15,9 @@ public class ItemGenjiShuriken extends ModWeapon
 	int multiShot = 0;
 
 	public ItemGenjiShuriken() {
-		super();
+		super(Hero.GENJI);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
-		this.material = ModItems.genji;
 		this.cooldown = 20;
 	}
 

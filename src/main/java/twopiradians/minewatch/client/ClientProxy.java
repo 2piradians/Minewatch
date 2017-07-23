@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import twopiradians.minewatch.client.key.KeyToggleMode;
+import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleHealthPlus;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
@@ -49,15 +49,22 @@ public class ClientProxy extends CommonProxy
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
 		registerObjRenders();
 		registerEntityRenders();
-		KeyToggleMode.TOGGLE_MODE = new KeyBinding("Activate Set Effect", Keyboard.KEY_Z, Minewatch.MODNAME);
+		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);
 	}
 
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
 		registerRenders();
-		MinecraftForge.EVENT_BUS.register(Minewatch.keyMode);
-		ClientRegistry.registerKeyBinding(KeyToggleMode.TOGGLE_MODE);
+		ClientRegistry.registerKeyBinding(Keys.HERO_INFORMATION);
+		ClientRegistry.registerKeyBinding(Keys.RELOAD);
+		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
+		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
+		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
 	}
 
 	@Override

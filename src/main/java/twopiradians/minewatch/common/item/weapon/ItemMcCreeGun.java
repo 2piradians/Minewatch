@@ -36,7 +36,7 @@ public class ItemMcCreeGun extends ModWeapon
 			bullet.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 2.0F, 0.3F);
 			worldIn.spawnEntity(bullet);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.MCCREE_GUN, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
 		}
 	}
 
@@ -47,7 +47,7 @@ public class ItemMcCreeGun extends ModWeapon
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
 				player.world.spawnEntity(bullet);				
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.MCCREE_GUN, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
 					player.getHeldItemMainhand().damageItem(1, player);
 			}
@@ -55,7 +55,7 @@ public class ItemMcCreeGun extends ModWeapon
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
 				player.world.spawnEntity(bullet);				
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.MCCREE_GUN, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
 				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
 					player.getHeldItemOffhand().damageItem(1, player);
 			}

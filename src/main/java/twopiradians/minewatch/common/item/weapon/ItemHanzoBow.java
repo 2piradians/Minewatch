@@ -100,7 +100,7 @@ public class ItemHanzoBow extends ModWeapon
 					}
 
 					worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, 
-							ModSoundEvents.hanzoBowShoot, SoundCategory.PLAYERS, 1.0F, worldIn.rand.nextFloat()/2+0.75f);
+							ModSoundEvents.HANZO_BOW_SHOOT, SoundCategory.PLAYERS, 1.0F, worldIn.rand.nextFloat()/2+0.75f);
 
 					if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
 						itemstack.shrink(1);
@@ -158,7 +158,7 @@ public class ItemHanzoBow extends ModWeapon
 		else {
 			playerIn.setActiveHand(handIn);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.hanzoBowDraw, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);
+					ModSoundEvents.HANZO_BOW_DRAW, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 	}

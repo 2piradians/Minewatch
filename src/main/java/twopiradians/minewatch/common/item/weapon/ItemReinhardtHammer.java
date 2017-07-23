@@ -45,7 +45,7 @@ public class ItemReinhardtHammer extends ModWeapon
 				player.getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
 			if (player.getCooldownTracker().hasCooldown(this))
 				return true;
-			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(2);
+			AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(2, 2, 2);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 			if (!list.isEmpty()) {
 				Iterator<Entity> iterator = list.iterator();            
@@ -58,7 +58,7 @@ public class ItemReinhardtHammer extends ModWeapon
 				player.getHeldItemMainhand().damageItem(1, player);
 			player.getCooldownTracker().setCooldown(this, 20);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
+					ModSoundEvents.REINHARDT_ROCKET_HAMMER, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
 		}
 		return false;
 	}
@@ -71,7 +71,7 @@ public class ItemReinhardtHammer extends ModWeapon
 			EntityPlayer player = event.getEntityPlayer();
 			if (player.getCooldownTracker().hasCooldown(player.getHeldItemMainhand().getItem())) {
 				player.world.playSound(player, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
+						ModSoundEvents.REINHARDT_ROCKET_HAMMER, SoundCategory.PLAYERS, 1.0f, event.getWorld().rand.nextFloat()/2+0.75f);
 			}
 		}
 	}

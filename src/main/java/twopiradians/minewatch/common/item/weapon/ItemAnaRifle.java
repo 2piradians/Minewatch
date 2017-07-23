@@ -35,7 +35,7 @@ public class ItemAnaRifle extends ModWeapon
 			bullet.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 5.0F, 0.3F);
 			worldIn.spawnEntity(bullet);
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.REAPER_SHOTGUN, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class ItemAnaRifle extends ModWeapon
 			//Ana's Rifle
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemAnaRifle 
 					&& Minewatch.keyMode.isKeyDown(player) && entityIn.ticksExisted % 10 == 0) {
-				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().expandXyz(30);
+				AxisAlignedBB aabb = entityIn.getEntityBoundingBox().grow(30, 30, 30);
 				List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            

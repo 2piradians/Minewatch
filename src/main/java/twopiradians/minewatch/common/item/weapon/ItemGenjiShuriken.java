@@ -31,7 +31,7 @@ public class ItemGenjiShuriken extends ModWeapon
 				playerIn.world.spawnEntity(shuriken);
 			}
 			playerIn.world.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, playerIn.world.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.GENJI_SHURIKEN, SoundCategory.PLAYERS, 1.0f, playerIn.world.rand.nextFloat()/2+0.75f);	
 		}
 	}
 
@@ -42,7 +42,7 @@ public class ItemGenjiShuriken extends ModWeapon
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.GENJI_SHURIKEN, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);	
 		}
 		else if (count > 2)
 			this.multiShot = 0;

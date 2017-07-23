@@ -44,14 +44,14 @@ public class ItemTracerPistol extends ModWeapon
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() != Items.AIR && player.getHeldItemMainhand().getItem() instanceof ItemTracerPistol) {
 				for (int i=0; i<2; i++)
 					player.world.spawnEntity(new EntityTracerBullet(player.world, player, EnumHand.MAIN_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerPistol, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.TRACER_PISTOL, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 				if (count == 20 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
 					player.getHeldItemMainhand().damageItem(1, player);
 			}
 			if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemTracerPistol) {
 				for (int i=0; i<2; i++)
 					player.world.spawnEntity(new EntityTracerBullet(player.world, player, EnumHand.OFF_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerPistol, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.TRACER_PISTOL, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);
 				if (count == 20 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
 					player.getHeldItemOffhand().damageItem(1, player);
 			}
@@ -81,7 +81,7 @@ public class ItemTracerPistol extends ModWeapon
 			player.motionX *= slow;
 			player.motionY *= slow;
 			player.motionZ *= slow;
-			player.moveRelative(player.moveStrafing*5f, player.moveForward*5f, friction);
+			player.moveRelative(player.moveStrafing*5f, 0, player.moveForward*5f, friction);
 		}
 	}
 

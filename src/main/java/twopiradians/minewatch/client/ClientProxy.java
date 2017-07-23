@@ -47,7 +47,6 @@ public class ClientProxy extends CommonProxy
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
-		registerObjRenders();
 		registerEntityRenders();
 		KeyToggleMode.TOGGLE_MODE = new KeyBinding("Activate Set Effect", Keyboard.KEY_Z, Minewatch.MODNAME);
 	}
@@ -55,7 +54,8 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
-		registerRenders();
+		registerObjRenders();
+		registerRenders();		
 		MinecraftForge.EVENT_BUS.register(Minewatch.keyMode);
 		ClientRegistry.registerKeyBinding(KeyToggleMode.TOGGLE_MODE);
 	}
@@ -64,7 +64,7 @@ public class ClientProxy extends CommonProxy
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 	}
-	
+
 	private static void registerRenders() {
 		for (Item item : ModItems.jsonModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
@@ -99,7 +99,7 @@ public class ClientProxy extends CommonProxy
 			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-		}
+	}
 
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);

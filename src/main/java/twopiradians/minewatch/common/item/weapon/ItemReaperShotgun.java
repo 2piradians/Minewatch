@@ -24,7 +24,7 @@ public class ItemReaperShotgun extends ModWeapon
 			for (int i=0; i<20; i++)
 				worldIn.spawnEntity(new EntityReaperBullet(worldIn, playerIn, hand));
 			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.REAPER_SHOTGUN, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
 		}
 	}
 }

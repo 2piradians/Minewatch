@@ -38,15 +38,15 @@ public class ItemSoldierGun extends ModWeapon
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() != Items.AIR && player.getHeldItemMainhand().getItem() instanceof ItemSoldierGun
 					&& player.ticksExisted % 2 == 0) {
 				player.world.spawnEntity(new EntitySoldierBullet(player.world, player, EnumHand.MAIN_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (count == 50 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.SOLDIER_GUN, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+				if (count == 50 && !ModArmor.isSet((EntityPlayer)player, ModItems.soldier))
 					player.getHeldItemMainhand().damageItem(1, player);
 			}
 			else if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemSoldierGun
 					&& player.ticksExisted % 2 == 0) {
 				player.world.spawnEntity(new EntitySoldierBullet(player.world, player, EnumHand.OFF_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (count == 50 && !ModArmor.isSet((EntityPlayer)player, ModItems.tracer))
+				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.SOLDIER_GUN, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+				if (count == 50 && !ModArmor.isSet((EntityPlayer)player, ModItems.soldier))
 					player.getHeldItemOffhand().damageItem(1, player);
 			}
 			

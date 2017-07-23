@@ -33,7 +33,7 @@ public class ParticleHealthPlus extends ParticleSimpleAnimated {
 	}
 
 	@Override
-	public boolean isTransparent() {
+	public boolean shouldDisableDepth() {
 		return true;
 	}
 

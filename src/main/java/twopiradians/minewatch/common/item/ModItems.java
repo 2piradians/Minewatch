@@ -9,7 +9,6 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.minewatch.common.Minewatch;
@@ -105,8 +104,8 @@ public class ModItems {
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 
-		@SubscribeEvent(priority=EventPriority.NORMAL)
-		public static void registerItems(RegistryEvent.Register<Item> event)	  {
+		@SubscribeEvent
+		public static void registerItems(RegistryEvent.Register<Item> event) {
 			reaper_helmet = registerItem(event.getRegistry(), new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.HEAD), "reaper_helmet", true, false);
 			reaper_chestplate = registerItem(event.getRegistry(), new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.CHEST), "reaper_chestplate", true, false);
 			reaper_leggings = registerItem(event.getRegistry(), new ItemReaperArmor(reaper, 0, EntityEquipmentSlot.LEGS), "reaper_leggings", true, false);

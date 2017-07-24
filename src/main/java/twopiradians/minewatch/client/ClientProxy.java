@@ -12,12 +12,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -54,8 +56,7 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
-		registerObjRenders();
-		registerRenders();		
+		registerRenders();
 		MinecraftForge.EVENT_BUS.register(Minewatch.keyMode);
 		ClientRegistry.registerKeyBinding(KeyToggleMode.TOGGLE_MODE);
 	}
@@ -64,41 +65,47 @@ public class ClientProxy extends CommonProxy
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 	}
+	
+	@Mod.EventBusSubscriber
+	public static class RegistrationHandler {
+
+		@SubscribeEvent
+		public static void registerObjRenders(ModelRegistryEvent event) {
+			for (Item item : ModItems.objModelItems)
+				// change bow model while pulling
+				if (item == ModItems.hanzo_bow) {
+					ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+						@Override
+						public ModelResourceLocation getModelLocation(ItemStack stack) {
+							int model = 0;
+							if (stack.hasTagCompound()) {
+								EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+								if (player != null) {
+									model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
+									if (player.getActiveItemStack() == null || !player.getActiveItemStack().equals(stack))
+										model = 0;
+									else if (model > 4)
+										model = 4;
+								}
+							}
+							return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + model + "_3d", "inventory");
+						}
+					});
+					ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "0_3d", "inventory"));	
+					ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "1_3d", "inventory"));	
+					ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "2_3d", "inventory"));	
+					ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "3_3d", "inventory"));	
+					ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "4_3d", "inventory"));	
+				}
+				else
+					ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+		}
+		
+	}
 
 	private static void registerRenders() {
 		for (Item item : ModItems.jsonModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
-	}
-
-	private static void registerObjRenders() {
-		for (Item item : ModItems.objModelItems)
-			// change bow model while pulling
-			if (item == ModItems.hanzo_bow) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						int model = 0;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							if (player != null) {
-								model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
-								if (player.getActiveItemStack() == null || !player.getActiveItemStack().equals(stack))
-									model = 0;
-								else if (model > 4)
-									model = 4;
-							}
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + model + "_3d", "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "0_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "1_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "2_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "3_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "4_3d", "inventory"));	
-			}
-			else
-				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}
 
 	private void registerEntityRenders() {

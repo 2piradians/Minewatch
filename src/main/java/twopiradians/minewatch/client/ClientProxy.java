@@ -24,6 +24,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.minewatch.client.key.KeyToggleMode;
 import twopiradians.minewatch.client.particle.ParticleHealthPlus;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
@@ -66,7 +67,7 @@ public class ClientProxy extends CommonProxy
 		super.postInit(event);
 	}
 	
-	@Mod.EventBusSubscriber
+	@Mod.EventBusSubscriber(Side.CLIENT)
 	public static class RegistrationHandler {
 
 		@SubscribeEvent

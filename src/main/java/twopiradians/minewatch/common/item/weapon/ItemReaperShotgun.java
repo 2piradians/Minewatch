@@ -11,7 +11,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemReaperShotgun extends ModWeapon
 {
 	public ItemReaperShotgun() {
-		super(Hero.REAPER);
+		super(Hero.REAPER, 30);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
 		this.cooldown = 20;

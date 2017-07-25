@@ -15,7 +15,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemMcCreeGun extends ModWeapon
 {
 	public ItemMcCreeGun() {
-		super(Hero.MCCREE);
+		super(Hero.MCCREE, 30);
 		this.setMaxDamage(100);
 		this.hasOffhand = false;
 		this.cooldown = 10;

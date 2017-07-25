@@ -18,7 +18,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemSoldierGun extends ModWeapon
 {	
 	public ItemSoldierGun() {
-		super(Hero.SOLDIER76);
+		super(Hero.SOLDIER76, 30);
 		this.setMaxDamage(100);
 		this.hasOffhand = false;
 		this.cooldown = 30;
@@ -32,25 +32,28 @@ public class ItemSoldierGun extends ModWeapon
 	}
 
 	@Override
-	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		if (!player.world.isRemote && player instanceof EntityPlayer) {
-			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() != Items.AIR && player.getHeldItemMainhand().getItem() instanceof ItemSoldierGun
-					&& player.ticksExisted % 2 == 0) {
-				player.world.spawnEntity(new EntitySoldierBullet(player.world, player, EnumHand.MAIN_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (count == 50 && !(ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-					player.getHeldItemMainhand().damageItem(1, player);
+	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {		
+		if (!entity.world.isRemote && entity instanceof EntityPlayer && !((EntityPlayer)entity).getCooldownTracker().hasCooldown(this)) {
+			if (entity.getHeldItemMainhand() != null && entity.getHeldItemMainhand().getItem() != Items.AIR && entity.getHeldItemMainhand().getItem() instanceof ItemSoldierGun
+					&& entity.ticksExisted % 2 == 0) {
+				entity.world.spawnEntity(new EntitySoldierBullet(entity.world, entity, EnumHand.MAIN_HAND));
+				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, entity.world.rand.nextFloat()/20+0.95f);	
+				System.out.println(((EntityPlayer)entity).getCooldownTracker().getCooldown(this, 0));
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
+				if (count == 50 && !(ModArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) == hero))
+					entity.getHeldItemMainhand().damageItem(1, entity);
 			}
-			else if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() != Items.AIR && player.getHeldItemOffhand().getItem() instanceof ItemSoldierGun
-					&& player.ticksExisted % 2 == 0) {
-				player.world.spawnEntity(new EntitySoldierBullet(player.world, player, EnumHand.OFF_HAND));
-				player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
-				if (count == 50 && !(ModArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-					player.getHeldItemOffhand().damageItem(1, player);
+			else if (entity.getHeldItemOffhand() != null && entity.getHeldItemOffhand().getItem() != Items.AIR && entity.getHeldItemOffhand().getItem() instanceof ItemSoldierGun
+					&& entity.ticksExisted % 2 == 0) {
+				entity.world.spawnEntity(new EntitySoldierBullet(entity.world, entity, EnumHand.OFF_HAND));
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
+				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.soldierGun, SoundCategory.PLAYERS, 1.0f, entity.world.rand.nextFloat()/20+0.95f);	
+				if (count == 50 && !(ModArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) == hero))
+					entity.getHeldItemOffhand().damageItem(1, entity);
 			}
 			
 			if (count <= 1)
-				doCooldown((EntityPlayer)player, player.getActiveHand());
+				doCooldown((EntityPlayer)entity, entity.getActiveHand());
 		}
 
 	}

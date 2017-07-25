@@ -13,6 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -21,6 +22,63 @@ import twopiradians.minewatch.common.item.armor.ModArmor;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 
 public class Keys {
+
+	// The keys that will display underneath the icon
+	public static enum KeyBind {
+		NONE, ABILITY_1, ABILITY_2, RMB;
+
+		private HashMap<UUID, Integer> cooldowns = Maps.newHashMap();
+
+		private KeyBind() {
+			MinecraftForge.EVENT_BUS.register(this);
+		}
+
+		@SubscribeEvent
+		public void onPlayerTick(WorldTickEvent event) {
+			if (event.phase == Phase.END && event.world.getTotalWorldTime() % 3 == 0)
+				for (UUID uuid : cooldowns.keySet())
+					if (cooldowns.get(uuid) != 0)
+						cooldowns.put(uuid, Math.max(cooldowns.get(uuid)-1, 0));
+		}
+
+		public int getCooldown(EntityPlayer player) {
+			if (player != null && cooldowns.containsKey(player.getPersistentID()))
+				return cooldowns.get(player.getPersistentID());
+			else
+				return 0;
+		}
+
+		public void setCooldown(EntityPlayer player, int cooldown) {
+			if (player != null)
+				cooldowns.put(player.getPersistentID(), cooldown);
+		}
+
+		@SideOnly(Side.CLIENT)
+		public String getKeyName() {
+			switch (this) {
+			case ABILITY_1:
+				return Keys.ABILITY_1.getDisplayName();
+			case ABILITY_2:
+				return Keys.ABILITY_2.getDisplayName();
+			default:
+				return "";
+			}
+		}
+
+		@SideOnly(Side.CLIENT)
+		public boolean isKeyDown(EntityPlayer player) {
+			switch (this) {
+			case ABILITY_1:
+				return Minewatch.keys.ability1(player);
+			case ABILITY_2:
+				return Minewatch.keys.ability2(player);
+			case RMB:
+				return Minewatch.keys.rmb(player);
+			default:
+				return false;
+			}
+		}
+	}
 
 	@SideOnly(Side.CLIENT)
 	public static KeyBinding HERO_INFORMATION;
@@ -41,6 +99,7 @@ public class Keys {
 	public HashMap<UUID, Boolean> ultimate = Maps.newHashMap();
 	public HashMap<UUID, Boolean> weapon1 = Maps.newHashMap();
 	public HashMap<UUID, Boolean> weapon2 = Maps.newHashMap();
+	public HashMap<UUID, Boolean> rmb = Maps.newHashMap();
 
 	public Keys() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -88,11 +147,22 @@ public class Keys {
 			return false;
 	}
 
+	public boolean rmb(EntityPlayer player) {
+		if (player != null)
+			return rmb.containsKey(player.getPersistentID()) ? rmb.get(player.getPersistentID()) : false;
+			return false;
+	}
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void updateAltWeapon(MouseEvent event) {
 		UUID player = Minecraft.getMinecraft().player.getPersistentID();
 		Hero hero = ModArmor.SetManager.playersWearingSets.get(player);
+
+		if (hero != null && event.getButton() == 1) {
+			rmb.put(player, event.isButtonstate());
+			Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), player));
+		}
 
 		if (hero != null && Minecraft.getMinecraft().player.isSneaking() && event.getDwheel() != 0) {
 			hero.playersUsingAlt.put(player, 

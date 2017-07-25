@@ -16,7 +16,6 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.ModTokens;
-import twopiradians.minewatch.common.item.weapon.ModWeapon;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketSyncKeys;
@@ -49,7 +48,6 @@ public class CommonProxy
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ModTokens());
-		MinecraftForge.EVENT_BUS.register(new ModWeapon(null));
 	}
 
 	private void registerCraftingRecipes() {

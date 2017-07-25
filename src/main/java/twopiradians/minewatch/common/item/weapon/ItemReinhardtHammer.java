@@ -24,7 +24,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemReinhardtHammer extends ModWeapon 
 {
 	public ItemReinhardtHammer() {
-		super(Hero.REINHARDT);
+		super(Hero.REINHARDT, 0);
 		this.setMaxDamage(100);
 		MinecraftForge.EVENT_BUS.register(this);
 	}

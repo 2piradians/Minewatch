@@ -64,6 +64,8 @@ public class PacketSyncKeys implements IMessage
 							if (hero != null)
 								hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
 					}
+					else if (packet.keyName.equals("RMB"))
+						Minewatch.keys.rmb.put(packet.player, packet.isKeyPressed);
 				}
 			});
 			return null;

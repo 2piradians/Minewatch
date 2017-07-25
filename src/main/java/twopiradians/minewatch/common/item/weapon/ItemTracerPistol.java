@@ -24,7 +24,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemTracerPistol extends ModWeapon
 {	
 	public ItemTracerPistol() {
-		super(Hero.TRACER);
+		super(Hero.TRACER, 20);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
 		this.cooldown = 40;

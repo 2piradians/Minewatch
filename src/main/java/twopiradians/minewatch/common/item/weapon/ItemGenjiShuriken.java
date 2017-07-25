@@ -15,7 +15,7 @@ public class ItemGenjiShuriken extends ModWeapon
 	int multiShot = 0;
 
 	public ItemGenjiShuriken() {
-		super(Hero.GENJI);
+		super(Hero.GENJI, 20);
 		this.setMaxDamage(100);
 		this.hasOffhand = true;
 		this.cooldown = 20;

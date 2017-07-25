@@ -1,5 +1,10 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.HashMap;
+import java.util.UUID;
+
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -17,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,21 +36,55 @@ public class ModWeapon extends Item
 	/**Used to uniformly scale damage for all weapons/abilities*/
 	public static final float DAMAGE_SCALE = 10f;
 
+	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	/**Cooldown in ticks for MC cooldown and nbt cooldown (if hasOffhand)*/
 	protected int cooldown;
 	/**Will give shooting hand MC cooldown = cooldown/2 if true*/
 	protected boolean hasOffhand;
 	protected ResourceLocation scope;
+	private int reloadTime;
 
-	public ModWeapon(Hero hero) {
+	public ModWeapon(Hero hero, int reloadTime) {
 		this.hero = hero;
+		this.reloadTime = reloadTime;
+	}
+
+	public int getMaxAmmo(EntityPlayer player) {
+		if (hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
+				hero.playersUsingAlt.get(player.getPersistentID()))
+			return hero.altAmmo;
+		else
+			return hero.mainAmmo;
+	}
+	
+	public int getCurrentAmmo(EntityPlayer player) {
+		if (player != null && currentAmmo.containsKey(player.getPersistentID()))
+			return currentAmmo.get(player.getPersistentID());
+		else 
+			return getMaxAmmo(player);
+	}
+
+	public void subtractFromCurrentAmmo(EntityPlayer player, int amount) {
+		int ammo = getCurrentAmmo(player);
+		if (ammo - amount > 0)
+			currentAmmo.put(player.getPersistentID(), ammo-amount);
+		else {
+			currentAmmo.put(player.getPersistentID(), 0);
+			reload(player);
+		}
+	}
+
+	public void reload(EntityPlayer player) {
+		//TODO add sound?
+		if (player != null && getCurrentAmmo(player) < getMaxAmmo(player))
+			player.getCooldownTracker().setCooldown(this, reloadTime);
 	}
 
 	/**Called on server when right click is held and cooldown is not active*/
 	protected void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {}
 
 	@Override
-	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {}
+	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
@@ -54,7 +94,7 @@ public class ModWeapon extends Item
 				&& (!hasOffhand || (playerIn.getHeldItem(hand).hasTagCompound() && playerIn.getHeldItem(hand).getTagCompound().getInteger("cooldown") <= 0))) {	
 
 			//TODO get this stuff outta here and into individual classes
-			
+
 			//McCree
 			if (playerIn.getHeldItem(hand).getItem() instanceof ItemMcCreeGun/* && Minewatch.keyMode.isKeyDown(playerIn)*/) { //TODO
 				playerIn.setActiveHand(hand);
@@ -74,9 +114,9 @@ public class ModWeapon extends Item
 			{
 				if (!(playerIn.getHeldItem(hand).getItem() instanceof ItemTracerPistol) && !(playerIn.getHeldItem(hand).getItem() instanceof ItemGenjiShuriken/* && !Minewatch.keyMode.isKeyDown(playerIn)*/)) //TODO
 					onShoot(worldIn, playerIn, hand);
-				
+
 				doCooldown(playerIn, hand);
-				
+
 				// only damage item if 
 				if (ModArmor.SetManager.playersWearingSets.get(playerIn.getPersistentID()) != hero)
 					playerIn.getHeldItem(hand).damageItem(1, playerIn);
@@ -89,6 +129,12 @@ public class ModWeapon extends Item
 
 	@Override
 	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {	
+		if (entityIn instanceof EntityPlayer && isSelected && 
+				!((EntityPlayer)entityIn).getCooldownTracker().hasCooldown(this) && 
+				this.getCurrentAmmo((EntityPlayer) entityIn) == 0) {
+			this.currentAmmo.put(entityIn.getPersistentID(), this.getMaxAmmo((EntityPlayer) entityIn));
+		}
+		
 		if (cooldown > 0 && hasOffhand && !worldIn.isRemote) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
@@ -109,14 +155,15 @@ public class ModWeapon extends Item
 	}
 
 	//Custom ------------------------------------------------------------------------
-	
+
 	public EnumHand getInactiveHand(EntityPlayer player) {
 		if (!(player.getHeldItemMainhand().getItem() instanceof ModWeapon))
 			return EnumHand.MAIN_HAND;
 		else
 			return EnumHand.OFF_HAND;
 	}
-	
+
+	/**Cooldown to force alternating attacks with dual wielding*/
 	public void doCooldown(EntityPlayer playerIn, EnumHand hand) {
 		// set MC cooldown/2 and nbt cooldown if hasOffhand, otherwise just set MC cooldown
 		if (playerIn.getHeldItem(getInactiveHand(playerIn)) != null 
@@ -130,47 +177,51 @@ public class ModWeapon extends Item
 		else 
 			playerIn.getCooldownTracker().setCooldown(playerIn.getHeldItem(hand).getItem(), cooldown);
 	}
-	
-	//Events ------------------------------------------------------------------------
-	
-	/**Change the FOV when scoped*/
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onEvent(FOVModifier event) {
-		if (event.getEntity() != null && event.getEntity() instanceof EntityPlayer && event.getEntity().isSneaking()
-				&& ((((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
-				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() instanceof ItemAnaRifle)
-						|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null 
-						&& ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemAnaRifle))) {
-			event.setFOV(20f);
-		}
-	}
 
-	/**Rendering the scopes for rifles*/
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onEvent(RenderGameOverlayEvent.Post event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		boolean offhand = false;
-		boolean mainhand = false;
-		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemMainhand().getItem()).scope != null)
-			mainhand = true;
-		else if (player != null && player.getHeldItemOffhand() != null  && player.getHeldItemOffhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemOffhand().getItem()).scope != null)
-			offhand = true;
-		else
-			return;
-		if (player != null && player.isSneaking() && (mainhand || offhand)) {
-			int height = event.getResolution().getScaledHeight();
-			int width = event.getResolution().getScaledWidth();
-			int imageSize = 256;
-			GlStateManager.pushMatrix();
-			Minecraft.getMinecraft().getTextureManager().bindTexture(mainhand ? ((ModWeapon)player.getHeldItemMainhand().getItem()).scope : ((ModWeapon)player.getHeldItemOffhand().getItem()).scope);
-			GlStateManager.color(1, 1, 1, 0.165f);
-			GlStateManager.enableBlend();
-			GlStateManager.enableDepth();
-			GuiUtils.drawTexturedModalRect(width/2-imageSize/2, height/2-imageSize/2, 0, 0, imageSize, imageSize, 0);
-			GlStateManager.disableDepth();
-			GlStateManager.popMatrix();
+	//Events ------------------------------------------------------------------------
+	@Mod.EventBusSubscriber
+	public static class Events {
+
+		/**Change the FOV when scoped*/
+		@SideOnly(Side.CLIENT)
+		@SubscribeEvent
+		public void onEvent(FOVModifier event) {
+			if (event.getEntity() != null && event.getEntity() instanceof EntityPlayer && event.getEntity().isSneaking()
+					&& ((((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
+					&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() instanceof ItemAnaRifle)
+							|| (((EntityPlayer)event.getEntity()).getHeldItemOffhand() != null 
+							&& ((EntityPlayer)event.getEntity()).getHeldItemOffhand().getItem() instanceof ItemAnaRifle))) {
+				event.setFOV(20f);
+			}
 		}
+
+		/**Rendering the scopes for rifles*/
+		@SideOnly(Side.CLIENT)
+		@SubscribeEvent
+		public void onEvent(RenderGameOverlayEvent.Post event) {
+			EntityPlayer player = Minecraft.getMinecraft().player;
+			boolean offhand = false;
+			boolean mainhand = false;
+			if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemMainhand().getItem()).scope != null)
+				mainhand = true;
+			else if (player != null && player.getHeldItemOffhand() != null  && player.getHeldItemOffhand().getItem() instanceof ModWeapon && ((ModWeapon)player.getHeldItemOffhand().getItem()).scope != null)
+				offhand = true;
+			else
+				return;
+			if (player != null && player.isSneaking() && (mainhand || offhand)) {
+				int height = event.getResolution().getScaledHeight();
+				int width = event.getResolution().getScaledWidth();
+				int imageSize = 256;
+				GlStateManager.pushMatrix();
+				Minecraft.getMinecraft().getTextureManager().bindTexture(mainhand ? ((ModWeapon)player.getHeldItemMainhand().getItem()).scope : ((ModWeapon)player.getHeldItemOffhand().getItem()).scope);
+				GlStateManager.color(1, 1, 1, 0.165f);
+				GlStateManager.enableBlend();
+				GlStateManager.enableDepth();
+				GuiUtils.drawTexturedModalRect(width/2-imageSize/2, height/2-imageSize/2, 0, 0, imageSize, imageSize, 0);
+				GlStateManager.disableDepth();
+				GlStateManager.popMatrix();
+			}
+		}
+
 	}
 }

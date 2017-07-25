@@ -21,7 +21,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemAnaRifle extends ModWeapon 
 {
 	public ItemAnaRifle() {
-		super(Hero.ANA);
+		super(Hero.ANA, 30);
 		this.setMaxDamage(100);
 		this.cooldown = 30;
 		this.scope = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");

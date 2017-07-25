@@ -27,7 +27,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemHanzoBow extends ModWeapon
 {
 	public ItemHanzoBow() {
-		super(Hero.HANZO);
+		super(Hero.HANZO, 0);
 		this.setMaxDamage(100);
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)

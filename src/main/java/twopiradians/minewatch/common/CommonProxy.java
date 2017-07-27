@@ -27,10 +27,10 @@ public class CommonProxy
 		Config.preInit(Minewatch.configFile);
 		registerPackets();
 		ModEntities.registerEntities();
+		registerEventListeners();
 	}
 
 	public void init(FMLInitializationEvent event) {
-		registerEventListeners();
 		registerCraftingRecipes();
 	}
 

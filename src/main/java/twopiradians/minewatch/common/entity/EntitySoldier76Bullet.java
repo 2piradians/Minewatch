@@ -13,18 +13,18 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
-public class EntitySoldierBullet extends EntityThrowable
+public class EntitySoldier76Bullet extends EntityThrowable
 {
 	private static final int LIFETIME = 5;
 
-	public EntitySoldierBullet(World worldIn) {
+	public EntitySoldier76Bullet(World worldIn) {
 		super(worldIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 	}
 
 	//Client doesn't read here
-	public EntitySoldierBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
+	public EntitySoldier76Bullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);

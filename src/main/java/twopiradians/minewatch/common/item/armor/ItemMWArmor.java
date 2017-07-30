@@ -15,16 +15,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWArmor extends ItemArmor 
 {
-	public Hero hero;
-	
+	public EnumHero hero;
+
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-	
-	public ItemMWArmor(Hero hero, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
+
+	public ItemMWArmor(EnumHero hero, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		this.hero = hero;
 	}
@@ -33,15 +33,13 @@ public class ItemMWArmor extends ItemArmor
 	@SideOnly(Side.CLIENT)
 	public void renderHelmetOverlay(ItemStack stack, EntityPlayer player, ScaledResolution resolution, float partialTicks) {		
 		// overlay
-		Hero hero = SetManager.playersWearingSets.get(player.getPersistentID());
-		if (hero != null) 
-			hero.renderOverlay(player, resolution);
+		hero.renderOverlay(player, resolution);
 	}
 
 	@Mod.EventBusSubscriber
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
-		public static HashMap<UUID, Hero> playersWearingSets = Maps.newHashMap();	
+		public static HashMap<UUID, EnumHero> playersWearingSets = Maps.newHashMap();	
 
 		/**Update playersWearingSets each tick
 		 * This way it's only checked once per tick, no matter what:
@@ -51,7 +49,7 @@ public class ItemMWArmor extends ItemArmor
 			if (event.phase == TickEvent.Phase.START) {
 				//detect if player is wearing a set
 				ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-				Hero hero = null;
+				EnumHero hero = null;
 				boolean fullSet = helm != null && helm.getItem() instanceof ItemMWArmor;
 				if (fullSet) {
 					hero = ((ItemMWArmor)helm.getItem()).hero;

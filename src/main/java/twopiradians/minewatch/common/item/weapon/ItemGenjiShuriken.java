@@ -8,7 +8,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -17,7 +17,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 
 	public ItemGenjiShuriken() {
 		super(40);
-		this.hero = Hero.GENJI;
+		this.hero = EnumHero.GENJI;
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					player.world.rand.nextFloat()/2+0.75f);	
 			this.subtractFromCurrentAmmo(player, 1);
 			if (!player.getCooldownTracker().hasCooldown(this) && this.getCurrentAmmo(player) % 3 == 0)
@@ -46,7 +46,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 				player.world.spawnEntity(shuriken);
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
+					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 3);
 			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
 				player.getHeldItemMainhand().damageItem(1, player);

@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -17,13 +18,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.hero.Hero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 
 public class Keys {
-	// TODO add melee attack
-	
 	// The keys that will display underneath the icon
 	public static enum KeyBind {
 		NONE, ABILITY_1, ABILITY_2, RMB;
@@ -154,7 +153,7 @@ public class Keys {
 			return lmb.containsKey(player.getPersistentID()) ? lmb.get(player.getPersistentID()) : false;
 			return false;
 	}
-	
+
 	public boolean rmb(EntityPlayer player) {
 		if (player != null)
 			return rmb.containsKey(player.getPersistentID()) ? rmb.get(player.getPersistentID()) : false;
@@ -165,23 +164,26 @@ public class Keys {
 	@SideOnly(Side.CLIENT)
 	public void updateAltWeapon(MouseEvent event) {
 		UUID player = Minecraft.getMinecraft().player.getPersistentID();
-		Hero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
+		ItemStack main = Minecraft.getMinecraft().player.getHeldItemMainhand();
 
-		if (hero != null && event.getButton() == 0) {
-			lmb.put(player, event.isButtonstate());
-			Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), player));
-		}
-		
-		if (hero != null && event.getButton() == 1) {
-			rmb.put(player, event.isButtonstate());
-			Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), player));
-		}
+		if (main != null && main.getItem() instanceof ItemMWWeapon) {
+			if (event.getButton() == 0) {
+				lmb.put(player, event.isButtonstate());
+				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), player));
+			}
 
-		if (hero != null && Minecraft.getMinecraft().player.isSneaking() && event.getDwheel() != 0) {
-			hero.playersUsingAlt.put(player, 
-					hero.playersUsingAlt.containsKey(player) ? !hero.playersUsingAlt.get(player) : true);
-			Minewatch.network.sendToServer(new PacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(player), player));
-			event.setCanceled(true);
+			if (event.getButton() == 1) {
+				rmb.put(player, event.isButtonstate());
+				Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), player));
+			}
+
+			if (Minecraft.getMinecraft().player.isSneaking() && event.getDwheel() != 0) {
+				EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
+				hero.playersUsingAlt.put(player, 
+						hero.playersUsingAlt.containsKey(player) ? !hero.playersUsingAlt.get(player) : true);
+				Minewatch.network.sendToServer(new PacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(player), player));
+				event.setCanceled(true);
+			}
 		}
 	}
 

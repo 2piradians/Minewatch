@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/reinhardt_hammer"
+        "layer0": "minewatch:items/reinhardt_weapon"
     },
 	"display": {
 		 "thirdperson_righthand": {

@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -22,7 +22,7 @@ public class ModItems {
 	public static Item genji_shuriken_single; // used for projectile
 
 	public static void preInit () {
-		for (Hero hero : Hero.values()) {
+		for (EnumHero hero : EnumHero.values()) {
 			hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), 
 					Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, hero.armorReductionAmounts, 0, 
 					SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 

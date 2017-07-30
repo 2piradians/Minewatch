@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
 public class PacketSyncKeys implements IMessage
@@ -60,7 +60,7 @@ public class PacketSyncKeys implements IMessage
 					else if (packet.keyName.equals("Ultimate"))
 						Minewatch.keys.ultimate.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Alt Weapon")) {
-							Hero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
+							EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
 							if (hero != null)
 								hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
 					}

@@ -21,7 +21,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true)) {
 			for (int i=0; i<2; i++)
 				player.world.spawnEntity(new EntityTracerBullet(player.world, player, hand));
-			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerPistol, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 				player.getHeldItem(hand).damageItem(1, player);

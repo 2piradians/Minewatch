@@ -30,7 +30,7 @@ public class ItemMcCreeGun extends ItemMWWeapon
 			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+					ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					world.rand.nextFloat()/2+0.75f);	
 			
 			this.subtractFromCurrentAmmo(player, 1);
@@ -54,7 +54,7 @@ public class ItemMcCreeGun extends ItemMWWeapon
 			EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
 			bullet.setAim(entity, entity.rotationPitch, entity.rotationYaw, 2.0F, 0.3F);
 			entity.world.spawnEntity(bullet);				
-			entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeGun, 
+			entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
 					SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
 			this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
 			if (entity.world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)

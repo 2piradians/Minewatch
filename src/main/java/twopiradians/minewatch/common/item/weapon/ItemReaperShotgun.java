@@ -22,7 +22,7 @@ public class ItemReaperShotgun extends ItemMWWeapon
 			for (int i=0; i<20; i++)
 				world.spawnEntity(new EntityReaperBullet(world, player, hand));
 			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 
+					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 			
 			this.subtractFromCurrentAmmo(player, 1);

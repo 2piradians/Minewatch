@@ -31,7 +31,7 @@ import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
-import twopiradians.minewatch.client.render.entity.RenderSoldierBullet;
+import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
@@ -40,9 +40,9 @@ import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.entity.EntitySoldierBullet;
+import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 
 public class ClientProxy extends CommonProxy
@@ -86,7 +86,7 @@ public class ClientProxy extends CommonProxy
 	private static void registerObjRenders() {
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
-			if (item == Hero.HANZO.weapon) {
+			if (item == EnumHero.HANZO.weapon) {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
@@ -121,7 +121,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntitySoldierBullet.class, RenderSoldierBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, RenderSoldier76Bullet::new);
 	}
 
 	@Override

@@ -12,20 +12,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 
 public abstract class ItemMWWeapon extends Item
 {
 	/**Used to uniformly scale damage for all weapons/abilities*/
 	public static final float DAMAGE_SCALE = 10f;
 
-	public Hero hero;
+	public EnumHero hero;
 	
-	protected boolean hasOffhand;
+	public boolean hasOffhand;
 	protected ResourceLocation scope;
 	
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
@@ -64,10 +65,13 @@ public abstract class ItemMWWeapon extends Item
 	}
 
 	public void reload(EntityPlayer player) {
-		//TODO add sound?
 		if (player != null && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			player.getCooldownTracker().setCooldown(this, reloadTime);
 			this.currentAmmo.put(player.getPersistentID(), 0);
+			if (hero.reloadSound != null)
+				player.world.playSound(null, player.posX, player.posY, player.posZ, 
+						hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
+						player.world.rand.nextFloat()/2+0.75f);
 		}
 	}
 

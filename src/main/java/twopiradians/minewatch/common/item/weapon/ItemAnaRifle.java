@@ -44,7 +44,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, // TODO change sound
+					ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 			this.subtractFromCurrentAmmo(player, 1);
 			if (!player.getCooldownTracker().hasCooldown(this))

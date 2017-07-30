@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
 @SideOnly(Side.CLIENT)
@@ -42,7 +42,7 @@ public class ParticleHealthPlus extends ParticleSimpleAnimated {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (entity.isDead || entity.getHealth() >= entity.getMaxHealth() || 
 				!ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ||
-				player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != Hero.ANA.weapon) {
+				player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon) {
 			ClientProxy.healthParticleEntities.remove(entity.getPersistentID());
 			this.setExpired();
 		}

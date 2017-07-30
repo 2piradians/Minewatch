@@ -30,21 +30,21 @@
             "predicate": {
                 "pulling": 1
             },
-            "model": "minewatch:item/hanzo_bow_pulling_0"
+            "model": "minewatch:item/hanzo_weapon_pulling_0"
         },
         {
             "predicate": {
                 "pulling": 1,
                 "pull": 0.6
             },
-            "model": "minewatch:item/hanzo_bow_pulling_1"
+            "model": "minewatch:item/hanzo_weapon_pulling_1"
         },
         {
             "predicate": {
                 "pulling": 1,
                 "pull": 1.2
             },
-            "model": "minewatch:item/hanzo_bow_pulling_2"
+            "model": "minewatch:item/hanzo_weapon_pulling_2"
         }
     ]
 }

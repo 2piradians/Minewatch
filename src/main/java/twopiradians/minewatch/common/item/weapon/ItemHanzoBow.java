@@ -1,18 +1,24 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -21,6 +27,19 @@ public class ItemHanzoBow extends ItemMWWeapon
 {
 	public ItemHanzoBow() {
 		super(0);
+		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn == null ? 0.0F : (!(entityIn.getActiveItemStack().getItem() instanceof ItemHanzoBow) ? 0.0F :
+					(float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 10.0F);
+			}
+		});
+		this.addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return  entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+			}
+		});
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
@@ -84,7 +103,7 @@ public class ItemHanzoBow extends ItemMWWeapon
 					}
 
 					worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, 
-							ModSoundEvents.hanzoBowShoot, SoundCategory.PLAYERS, 
+							ModSoundEvents.hanzoShoot, SoundCategory.PLAYERS, 
 							worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
 					if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
@@ -143,7 +162,7 @@ public class ItemHanzoBow extends ItemMWWeapon
 		else if (this.canUse(player, true)) {
 			player.setActiveHand(handIn);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.hanzoBowDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);
+					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 		else

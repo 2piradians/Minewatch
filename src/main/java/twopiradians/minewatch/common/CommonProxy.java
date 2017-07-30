@@ -14,7 +14,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
@@ -54,7 +54,7 @@ public class CommonProxy
 	private void registerCraftingRecipes() {
 		RecipeSorter.register("Matching Damage Recipe", ShapelessMatchingDamageRecipe.class, Category.SHAPELESS, "");
 		
-		for (Hero hero : Hero.values()) {
+		for (EnumHero hero : EnumHero.values()) {
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.helmet), new ItemStack(hero.token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.chestplate), new ItemStack(hero.token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.leggings), new ItemStack(hero.token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));

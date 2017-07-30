@@ -1,49 +1,60 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.hero.Hero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemGenjiShuriken extends ModWeapon
+public class ItemGenjiShuriken extends ItemMWWeapon
 {
-	int multiShot = 0;
 
 	public ItemGenjiShuriken() {
-		super(Hero.GENJI, 20);
-		this.setMaxDamage(100);
-		this.hasOffhand = true;
-		this.cooldown = 20;
+		super(40);
+		this.hero = Hero.GENJI;
 	}
 
 	@Override
-	public void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		if (!playerIn.world.isRemote) {
-			for (int i = 0; i < 3; i++) {
-				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(playerIn.world, playerIn);
-				shuriken.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw + (1 - i)*15, 3F, 1.0F);
-				playerIn.world.spawnEntity(shuriken);
-			}
-			playerIn.world.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, playerIn.world.rand.nextFloat()/2+0.75f);	
-		}
-	}
-
-	@Override
-	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		if (!player.world.isRemote && count < 4) {
+	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+		if (!player.world.isRemote && this.canUse(player, true) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+					player.world.rand.nextFloat()/2+0.75f);	
+			this.subtractFromCurrentAmmo(player, 1);
+			if (!player.getCooldownTracker().hasCooldown(this) && this.getCurrentAmmo(player) % 3 == 0)
+				player.getCooldownTracker().setCooldown(this, 15);
+			if (player.world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				player.getHeldItem(hand).damageItem(1, player);
 		}
-		else if (count > 2)
-			this.multiShot = 0;
 	}
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		if (!player.world.isRemote && this.canUse(player, true)) {
+			for (int i = 0; i < 3; i++) {
+				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
+				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*15, 3F, 1.0F);
+				player.world.spawnEntity(shuriken);
+			}
+			player.world.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.genjiShuriken, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
+			this.subtractFromCurrentAmmo(player, 3);
+			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				player.getHeldItemMainhand().damageItem(1, player);
+			if (!player.getCooldownTracker().hasCooldown(this))
+				player.getCooldownTracker().setCooldown(this, 15);
+		}
+
+		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+	}
+
 }

@@ -7,7 +7,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.hero.Hero;
-import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
 public class EntityHanzoArrow extends EntityTippedArrow {
 
@@ -24,7 +24,7 @@ public class EntityHanzoArrow extends EntityTippedArrow {
 		this(worldIn, shooter.posX, shooter.posY + (double)shooter.getEyeHeight() - 0.10000000149011612D, shooter.posZ);
 		this.shootingEntity = shooter;
 		if (shooter instanceof EntityPlayer 
-				&& (ModArmor.SetManager.playersWearingSets.get(shooter.getPersistentID()) == Hero.HANZO || 
+				&& (ItemMWArmor.SetManager.playersWearingSets.get(shooter.getPersistentID()) == Hero.HANZO || 
 						((EntityPlayer)shooter).capabilities.isCreativeMode))
 			this.pickupStatus = EntityTippedArrow.PickupStatus.DISALLOWED;
 		else

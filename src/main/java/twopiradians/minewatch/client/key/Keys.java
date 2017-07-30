@@ -18,11 +18,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Hero;
-import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 
 public class Keys {
-
+	// TODO add melee attack
+	
 	// The keys that will display underneath the icon
 	public static enum KeyBind {
 		NONE, ABILITY_1, ABILITY_2, RMB;
@@ -99,6 +100,7 @@ public class Keys {
 	public HashMap<UUID, Boolean> ultimate = Maps.newHashMap();
 	public HashMap<UUID, Boolean> weapon1 = Maps.newHashMap();
 	public HashMap<UUID, Boolean> weapon2 = Maps.newHashMap();
+	public HashMap<UUID, Boolean> lmb = Maps.newHashMap();
 	public HashMap<UUID, Boolean> rmb = Maps.newHashMap();
 
 	public Keys() {
@@ -147,6 +149,12 @@ public class Keys {
 			return false;
 	}
 
+	public boolean lmb(EntityPlayer player) {
+		if (player != null)
+			return lmb.containsKey(player.getPersistentID()) ? lmb.get(player.getPersistentID()) : false;
+			return false;
+	}
+	
 	public boolean rmb(EntityPlayer player) {
 		if (player != null)
 			return rmb.containsKey(player.getPersistentID()) ? rmb.get(player.getPersistentID()) : false;
@@ -157,8 +165,13 @@ public class Keys {
 	@SideOnly(Side.CLIENT)
 	public void updateAltWeapon(MouseEvent event) {
 		UUID player = Minecraft.getMinecraft().player.getPersistentID();
-		Hero hero = ModArmor.SetManager.playersWearingSets.get(player);
+		Hero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
 
+		if (hero != null && event.getButton() == 0) {
+			lmb.put(player, event.isButtonstate());
+			Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), player));
+		}
+		
 		if (hero != null && event.getButton() == 1) {
 			rmb.put(player, event.isButtonstate());
 			Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), player));

@@ -11,7 +11,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.item.weapon.ModWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityMcCreeBullet extends EntityThrowable
 {
@@ -68,9 +68,9 @@ public class EntityMcCreeBullet extends EntityThrowable
 		else if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null) {
 			float damage = 70 - (70 - 21) * (this.ticksExisted / LIFETIME);
 			if (this.getThrower() instanceof EntityPlayer)
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ModWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
 			else
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), damage/ModWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			this.setDead();
 		}

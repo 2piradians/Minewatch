@@ -1,5 +1,8 @@
 package twopiradians.minewatch.client;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -8,10 +11,10 @@ import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.RenderTippedArrow;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -39,10 +42,13 @@ import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldierBullet;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
+import twopiradians.minewatch.common.hero.Hero;
 import twopiradians.minewatch.common.item.ModItems;
 
 public class ClientProxy extends CommonProxy
 {
+	public static ArrayList<UUID> healthParticleEntities = new ArrayList<UUID>();
+
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
@@ -71,7 +77,7 @@ public class ClientProxy extends CommonProxy
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 	}
-	
+
 	private static void registerRenders() {
 		for (Item item : ModItems.jsonModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
@@ -80,7 +86,7 @@ public class ClientProxy extends CommonProxy
 	private static void registerObjRenders() {
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
-			if (item == ModItems.hanzo_bow) {
+			if (item == Hero.HANZO.weapon) {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
@@ -106,7 +112,7 @@ public class ClientProxy extends CommonProxy
 			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-		}
+	}
 
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);
@@ -130,8 +136,11 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesHealthPlus(World worldIn, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {
-		ParticleHealthPlus particle = new ParticleHealthPlus(worldIn, x, y, z, motionX, motionY, motionZ, scale);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	public void spawnParticlesHealthPlus(EntityLivingBase entity) {
+		if (!healthParticleEntities .contains(entity.getPersistentID())) {
+			ParticleHealthPlus particle = new ParticleHealthPlus(entity);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+			healthParticleEntities.add(entity.getPersistentID());
+		}
 	}
 }

@@ -2,7 +2,7 @@ package twopiradians.minewatch.creativetab;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.hero.Hero;
 
 public class MinewatchTab extends CreativeTabs
 {
@@ -12,6 +12,6 @@ public class MinewatchTab extends CreativeTabs
 	
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(ModItems.reaper_token);
+		return new ItemStack(Hero.REAPER.token);
 	}
 }

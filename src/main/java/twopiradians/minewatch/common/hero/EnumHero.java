@@ -126,11 +126,11 @@ public enum EnumHero {
 				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == this && Minewatch.keys.heroInformation(player)) {
 			GlStateManager.pushMatrix();
 			GlStateManager.disableDepth();
-			
+
 			GlStateManager.scale(resolution.getScaledWidth_double()/256d, resolution.getScaledHeight_double()/256d, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+name+"_info.png"));
 			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
-			
+
 			GlStateManager.popMatrix();
 		}		
 		else {

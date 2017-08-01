@@ -40,7 +40,7 @@ public abstract class ItemMWWeapon extends Item
 	}
 
 	public int getMaxAmmo(EntityPlayer player) {
-		if (player != null && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
+		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 				hero.playersUsingAlt.get(player.getPersistentID()))
 			return hero.altAmmo;
 		else

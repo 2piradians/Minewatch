@@ -144,11 +144,9 @@ public enum EnumHero {
 				GlStateManager.scale(scale, scale, 1);
 				GlStateManager.translate(60, (int) ((resolution.getScaledHeight() - 256*scale) / scale) - 50, 0);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+this.name+"_icon.png"));
-				if (player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon) 
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+this.name+"_icon.png"));
-				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
 				GlStateManager.popMatrix();
 			}

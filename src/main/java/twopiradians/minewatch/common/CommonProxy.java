@@ -61,7 +61,7 @@ public class CommonProxy
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.chestplate), new ItemStack(hero.token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.leggings), new ItemStack(hero.token), new ItemStack(Items.IRON_LEGGINGS, 1, OreDictionary.WILDCARD_VALUE)));
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.boots), new ItemStack(hero.token), new ItemStack(Items.IRON_BOOTS, 1, OreDictionary.WILDCARD_VALUE)));
-			GameRegistry.addShapelessRecipe(new ItemStack(hero.weapon), new ItemStack(hero.token));
+			GameRegistry.addShapelessRecipe(new ItemStack(hero.weapon, hero.weapon.hasOffhand ? 2 : 1), new ItemStack(hero.token));
 		}
 	}
 

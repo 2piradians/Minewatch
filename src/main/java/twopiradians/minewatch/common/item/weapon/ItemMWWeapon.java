@@ -126,6 +126,16 @@ public abstract class ItemMWWeapon extends Item
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {	
+		// reloading
+		if (!world.isRemote && entity instanceof EntityPlayer && isSelected && 
+				!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
+			// automatic reload
+			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0) 
+				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity));
+		// manual reload
+			else if (Minewatch.keys.reload((EntityPlayer) entity))
+				this.reload((EntityPlayer) entity);
+		
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
@@ -139,16 +149,6 @@ public abstract class ItemMWWeapon extends Item
 		for (UUID uuid : warningCooldown.keySet())
 			if (warningCooldown.get(uuid) != 0)
 				warningCooldown.put(uuid, Math.max(warningCooldown.get(uuid)-1, 0));
-
-		// reloading
-		if (!world.isRemote && entity instanceof EntityPlayer && isSelected && 
-				!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
-			// automatic reload
-			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0) 
-				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity));
-		// manual reload
-			else if (Minewatch.keys.reload((EntityPlayer) entity))
-				this.reload((EntityPlayer) entity);
 	}
 
 	@Override

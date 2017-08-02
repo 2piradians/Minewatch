@@ -284,5 +284,4 @@ public enum EnumHero {
 			}
 		}
 	}
-
 }

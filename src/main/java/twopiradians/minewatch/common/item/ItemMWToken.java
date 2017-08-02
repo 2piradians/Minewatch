@@ -21,5 +21,4 @@ public class ItemMWToken extends Item {
 			event.getDrops().add(drop);
 		}
 	}
-	
 }

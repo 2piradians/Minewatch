@@ -9,13 +9,13 @@
         "transform": {
           "thirdperson_lefthand": {
             "rotation": [ { "x": 75 }, { "y": 180 }, { "z": 0 } ],
-        	"translation": [ 0.3, 0.3, 0.4 ],
-        	"scale": [ 0.6, 0.6, 0.6 ]
+        	"translation": [ 0.4, 0.475, 0.5 ],
+        	"scale": [ 0.8, 0.8, 0.8 ]
           },
           "thirdperson_righthand": {
             "rotation": [ { "x": 75 }, { "y": 180 }, { "z": 0 } ],
-        	"translation": [ -0.3, 0.3, 0.4 ],
-        	"scale": [ 0.6, 0.6, 0.6 ]
+        	"translation": [ -0.4, 0.475, 0.5 ],
+        	"scale": [ 0.8, 0.8, 0.8 ]
           },
           "gui": {
             "rotation": [ { "x": -167 }, { "y": -90 }, { "z": -180 } ],

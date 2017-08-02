@@ -23,7 +23,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class GuiDisplay extends GuiScreen
 {
 	/**Should display be opened on chat event?*/
-	public static boolean display_gui = true;//TODO
+	public static boolean display_gui = false;//TODO
 	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
 	public static final int GUI_MODE = 0;
 
@@ -129,7 +129,5 @@ public class GuiDisplay extends GuiScreen
 			if (GuiDisplay.display_gui) 
 				Minecraft.getMinecraft().displayGuiScreen(new GuiDisplay());
 		}
-
 	}
-
 }

@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -18,6 +19,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.packet.PacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item
 {
@@ -25,12 +27,13 @@ public abstract class ItemMWWeapon extends Item
 	public static final float DAMAGE_SCALE = 10f;
 
 	public EnumHero hero;
-	
+
 	public boolean hasOffhand;
 	protected ResourceLocation scope;
-	
+
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
 	private HashMap<UUID, Integer> warningCooldown = Maps.newHashMap();
+	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
 
@@ -53,21 +56,27 @@ public abstract class ItemMWWeapon extends Item
 		else 
 			return getMaxAmmo(player);
 	}
+	
+	public void setCurrentAmmo(EntityPlayer player, int amount) {
+		if (player != null && player instanceof EntityPlayerMP)
+			Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount), (EntityPlayerMP) player);
+		currentAmmo.put(player.getPersistentID(), amount);
+	}
 
 	public void subtractFromCurrentAmmo(EntityPlayer player, int amount) {
 		int ammo = getCurrentAmmo(player);
 		if (ammo - amount > 0)
-			currentAmmo.put(player.getPersistentID(), ammo-amount);
+			this.setCurrentAmmo(player, ammo-amount);
 		else {
-			currentAmmo.put(player.getPersistentID(), 0);
+			this.setCurrentAmmo(player, 0);
 			reload(player);
 		}
 	}
 
 	public void reload(EntityPlayer player) {
-		if (player != null && getCurrentAmmo(player) < getMaxAmmo(player)) {
+		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			player.getCooldownTracker().setCooldown(this, reloadTime);
-			this.currentAmmo.put(player.getPersistentID(), 0);
+			this.setCurrentAmmo(player, 0);
 			if (hero.reloadSound != null)
 				player.world.playSound(null, player.posX, player.posY, player.posZ, 
 						hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
@@ -90,7 +99,8 @@ public abstract class ItemMWWeapon extends Item
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
 						new ItemStack(this).getDisplayName()+" must be held in the main-hand and off-hand to work."));
-		} else if (main == null || main.getItem() != this) {
+		} 
+		else if (main == null || main.getItem() != this) {
 			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
@@ -131,11 +141,11 @@ public abstract class ItemMWWeapon extends Item
 				warningCooldown.put(uuid, Math.max(warningCooldown.get(uuid)-1, 0));
 
 		// reloading
-		if (entity instanceof EntityPlayer && isSelected && 
+		if (!world.isRemote && entity instanceof EntityPlayer && isSelected && 
 				!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
 			// automatic reload
-			if (this.getCurrentAmmo((EntityPlayer) entity) == 0) 
-				this.currentAmmo.put(entity.getPersistentID(), this.getMaxAmmo((EntityPlayer) entity));
+			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0) 
+				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity));
 		// manual reload
 			else if (Minewatch.keys.reload((EntityPlayer) entity))
 				this.reload((EntityPlayer) entity);
@@ -143,7 +153,7 @@ public abstract class ItemMWWeapon extends Item
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-			return oldStack.getItem() != newStack.getItem();
+		return oldStack.getItem() != newStack.getItem();
 	}
 
 	@Override

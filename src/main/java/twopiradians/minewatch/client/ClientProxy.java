@@ -137,7 +137,7 @@ public class ClientProxy extends CommonProxy
 
 	@Override
 	public void spawnParticlesHealthPlus(EntityLivingBase entity) {
-		if (!healthParticleEntities .contains(entity.getPersistentID())) {
+		if (!healthParticleEntities.contains(entity.getPersistentID())) {
 			ParticleHealthPlus particle = new ParticleHealthPlus(entity);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 			healthParticleEntities.add(entity.getPersistentID());

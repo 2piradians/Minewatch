@@ -162,7 +162,7 @@ public class Keys {
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void updateAltWeapon(MouseEvent event) {
+	public void mouseEvents(MouseEvent event) {
 		UUID player = Minecraft.getMinecraft().player.getPersistentID();
 		ItemStack main = Minecraft.getMinecraft().player.getHeldItemMainhand();
 

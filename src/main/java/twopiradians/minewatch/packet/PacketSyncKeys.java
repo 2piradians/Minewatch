@@ -3,6 +3,7 @@ package twopiradians.minewatch.packet;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -11,7 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class PacketSyncKeys implements IMessage
 {
@@ -60,9 +61,11 @@ public class PacketSyncKeys implements IMessage
 					else if (packet.keyName.equals("Ultimate"))
 						Minewatch.keys.ultimate.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Alt Weapon")) {
-							EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
-							if (hero != null)
-								hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
+						ItemStack main = ctx.getServerHandler().playerEntity.getHeldItemMainhand();
+						if (main != null && main.getItem() instanceof ItemMWWeapon) {
+							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
+							hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
+						}
 					}
 					else if (packet.keyName.equals("LMB"))
 						Minewatch.keys.lmb.put(packet.player, packet.isKeyPressed);

@@ -5,16 +5,12 @@ import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWArmor extends ItemArmor 
@@ -27,13 +23,6 @@ public class ItemMWArmor extends ItemArmor
 	public ItemMWArmor(EnumHero hero, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		this.hero = hero;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void renderHelmetOverlay(ItemStack stack, EntityPlayer player, ScaledResolution resolution, float partialTicks) {		
-		// overlay
-		hero.renderOverlay(player, resolution);
 	}
 
 	@Mod.EventBusSubscriber

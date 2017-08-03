@@ -1,12 +1,14 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -17,7 +19,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 
@@ -126,7 +131,15 @@ public abstract class ItemMWWeapon extends Item
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {	
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+			return;
+		}
+		
 		// reloading
 		if (!world.isRemote && entity instanceof EntityPlayer && isSelected && 
 				!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
@@ -160,6 +173,29 @@ public abstract class ItemMWWeapon extends Item
 	@Override
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
+	}
+	
+	// DEV SPAWN ARMOR ===============================================
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
+			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
+		super.addInformation(stack, player, tooltip, advanced);
+	}
+	
+	/**Delete dev spawned dropped items*/
+	@Override
+	public boolean onEntityItemUpdate(EntityItem entityItem) {
+		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+				entityItem.getEntityItem().hasTagCompound() && 
+				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+			entityItem.setDead();
+			return true;
+		}
+		return false;
 	}
 
 }

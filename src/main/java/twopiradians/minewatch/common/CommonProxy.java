@@ -4,14 +4,17 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
+import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -49,6 +52,7 @@ public class CommonProxy
 	public void spawnParticlesHealthPlus(EntityLivingBase entity) { }
 
 	protected void registerEventListeners() {
+		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ItemMWToken());
 	}
@@ -65,4 +69,15 @@ public class CommonProxy
 		}
 	}
 
+	@SubscribeEvent(receiveCanceled=true)
+	public void commandDev(CommandEvent event) {
+		try {
+		if (event.getCommand().getName().equalsIgnoreCase("dev") && 
+				event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
+				CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
+			event.setCanceled(true);
+		}
+		catch (Exception e) {}
+	}
+	
 }

@@ -95,7 +95,7 @@ public class ItemHanzoBow extends ItemMWWeapon
 						EntityHanzoArrow entityarrow = new EntityHanzoArrow(worldIn, entityplayer);
 						if (itemstack.getItem() instanceof ItemArrow)
 							entityarrow.setPotionEffect(itemstack);
-						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 2.0F, 1.0F);
+						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3F, 1.0F);
 						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
 						if (ItemMWArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) != hero)
 							stack.damageItem(1, entityplayer);

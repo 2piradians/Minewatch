@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
@@ -48,5 +49,6 @@ public class Minewatch
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandMinewatch());
+		event.registerServerCommand(new CommandDev());
 	}
 }

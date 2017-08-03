@@ -40,7 +40,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		if (!player.world.isRemote && this.canUse(player, true)) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*15, 3F, 1.0F);
 				player.world.spawnEntity(shuriken);

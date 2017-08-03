@@ -88,7 +88,8 @@ public abstract class ItemMWWeapon extends Item
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityPlayer player, boolean shouldWarn) {
-		if (player == null || player.getCooldownTracker().hasCooldown(this))
+		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
+				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();

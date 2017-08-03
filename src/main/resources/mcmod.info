@@ -11,13 +11,22 @@
   "credits": "Blizzard Entertainment, Battle.net, and Overwatch for the main content of this mod.
   
 Model Credits:
--Reaper Shotgun and Reinhardt Hammer: https://www.reddit.com/user/Kamyflex ,
--Genji Shuriken: overwatch-Genji by LeoZack is licensed under CC Attribution https://skfb.ly/6pJrD ,
--Tracer Pistol Low poly | Tracer Overwatch Gun by Franz Perez is licensed under CC Attribution,
--Hanzo Bow: Hanzo Bow by backer is licensed under CC Attribution,
+-Reaper Shotgun and Reinhardt Hammer: https://www.reddit.com/user/Kamyflex
+-Genji Shuriken: overwatch-Genji by LeoZack is licensed under CC Attribution https://skfb.ly/6pJrD
+-Tracer Pistol Low poly | Tracer Overwatch Gun by Franz Perez is licensed under CC Attribution
+-Hanzo Bow: Hanzo Bow by backer is licensed under CC Attribution
 -Hanzo Arrow: Overwatch - Hanzo's Arrow by beyondmatter is licensed under CC Attribution
+-McCree Pistol and Soldier Rifle by Rexx Art
+
+Armor Texture Credits:
+-Tracer, Genji, and Hanzo textures: Ringoster, https://www.planetminecraft.com/member/ringoster/
+-Soldier texture: sixfootblue, https://www.planetminecraft.com/member/sixfootblue/
+-Reaper texture: Aegeah, https://www.planetminecraft.com/member/aegeah/
+-Reinhardt texture: Kohicup, https://www.planetminecraft.com/member/kohicup/
+-Ana texture: Drzzter, https://www.planetminecraft.com/member/drzzter/
+-McCree texture: PlantyBox, https://www.planetminecraft.com/member/plantybox/
 ",
-  "logoFile": "",
+  "logoFile": "logo.png",
   "screenshots": [],
   "requiredMods": ["Forge"],
   "dependencies": []

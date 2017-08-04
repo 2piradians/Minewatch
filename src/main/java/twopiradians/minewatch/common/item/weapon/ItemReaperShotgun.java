@@ -25,7 +25,7 @@ public class ItemReaperShotgun extends ItemMWWeapon
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 			
-			this.subtractFromCurrentAmmo(player, 1);
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (!player.getCooldownTracker().hasCooldown(this))
 				player.getCooldownTracker().setCooldown(this, 11);
 			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)

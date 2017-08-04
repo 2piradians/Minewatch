@@ -32,8 +32,8 @@ public class ItemMcCreeGun extends ItemMWWeapon
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					world.rand.nextFloat()/2+0.75f);	
-			
-			this.subtractFromCurrentAmmo(player, 1);
+
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (!player.getCooldownTracker().hasCooldown(this))
 				player.getCooldownTracker().setCooldown(this, 10);
 			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
@@ -56,7 +56,10 @@ public class ItemMcCreeGun extends ItemMWWeapon
 			entity.world.spawnEntity(bullet);				
 			entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
 					SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
-			this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
+			if (count == this.getMaxItemUseDuration(stack))
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, EnumHand.MAIN_HAND);
+			else
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
 			if (entity.world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)
 				entity.getHeldItemMainhand().damageItem(1, entity);
 		}

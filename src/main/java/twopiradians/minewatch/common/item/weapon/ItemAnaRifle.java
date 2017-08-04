@@ -46,7 +46,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
-			this.subtractFromCurrentAmmo(player, 1);
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (!player.getCooldownTracker().hasCooldown(this))
 				player.getCooldownTracker().setCooldown(this, 20);
 			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))

@@ -29,7 +29,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					player.world.rand.nextFloat()/2+0.75f);	
-			this.subtractFromCurrentAmmo(player, 1);
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (!player.getCooldownTracker().hasCooldown(this) && this.getCurrentAmmo(player) % 3 == 0)
 				player.getCooldownTracker().setCooldown(this, 15);
 			if (player.world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
@@ -47,7 +47,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
-			this.subtractFromCurrentAmmo(player, 3);
+			this.subtractFromCurrentAmmo(player, 3, hand);
 			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
 				player.getHeldItemMainhand().damageItem(1, player);
 			if (!player.getCooldownTracker().hasCooldown(this))

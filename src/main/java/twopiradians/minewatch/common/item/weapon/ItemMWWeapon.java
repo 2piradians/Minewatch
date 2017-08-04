@@ -36,6 +36,7 @@ public abstract class ItemMWWeapon extends Item
 	public boolean hasOffhand;
 	protected ResourceLocation scope;
 
+	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
 	private HashMap<UUID, Integer> warningCooldown = Maps.newHashMap();
 	/**Do not interact with directly - use the getter / setter*/
@@ -61,19 +62,25 @@ public abstract class ItemMWWeapon extends Item
 		else 
 			return getMaxAmmo(player);
 	}
-	
-	public void setCurrentAmmo(EntityPlayer player, int amount) {
-		if (player != null && player instanceof EntityPlayerMP)
-			Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount), (EntityPlayerMP) player);
-		currentAmmo.put(player.getPersistentID(), amount);
+
+	public void setCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
+		if (player != null) {
+			if (player instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount, hands), (EntityPlayerMP) player);
+			if (player.world.isRemote)
+				for (EnumHand hand : hands)
+					if (player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == this)
+						this.reequipAnimation.put(player.getHeldItem(hand), 2);
+			currentAmmo.put(player.getPersistentID(), amount);
+		}
 	}
 
-	public void subtractFromCurrentAmmo(EntityPlayer player, int amount) {
+	public void subtractFromCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
 		int ammo = getCurrentAmmo(player);
 		if (ammo - amount > 0)
-			this.setCurrentAmmo(player, ammo-amount);
+			this.setCurrentAmmo(player, ammo-amount, hands);
 		else {
-			this.setCurrentAmmo(player, 0);
+			this.setCurrentAmmo(player, 0, hands);
 			reload(player);
 		}
 	}
@@ -81,7 +88,7 @@ public abstract class ItemMWWeapon extends Item
 	public void reload(EntityPlayer player) {
 		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			player.getCooldownTracker().setCooldown(this, reloadTime);
-			this.setCurrentAmmo(player, 0);
+			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null)
 				player.world.playSound(null, player.posX, player.posY, player.posZ, 
 						hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
@@ -134,22 +141,22 @@ public abstract class ItemMWWeapon extends Item
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
-						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
-		
+
 		// reloading
-		if (!world.isRemote && entity instanceof EntityPlayer && isSelected && 
-				!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
+		if (!world.isRemote && entity instanceof EntityPlayer && isSelected)
 			// automatic reload
-			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0) 
-				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity));
+			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
+					!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this)) 
+				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity), EnumHand.values());
 		// manual reload
-			else if (Minewatch.keys.reload((EntityPlayer) entity))
+			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && Minewatch.keys.reload((EntityPlayer) entity))
 				this.reload((EntityPlayer) entity);
-		
+
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
@@ -167,14 +174,22 @@ public abstract class ItemMWWeapon extends Item
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return oldStack.getItem() != newStack.getItem();
+		if (this.reequipAnimation.containsKey(oldStack)) {
+			if (this.reequipAnimation.get(oldStack) - 1 <= 0)
+				this.reequipAnimation.remove(oldStack);
+			else
+				this.reequipAnimation.put(oldStack, this.reequipAnimation.get(oldStack)-1);
+			return true;
+		}
+		else
+			return oldStack.getItem() != newStack.getItem();
 	}
 
 	@Override
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
 	}
-	
+
 	// DEV SPAWN ARMOR ===============================================
 
 	@Override
@@ -184,7 +199,7 @@ public abstract class ItemMWWeapon extends Item
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 		super.addInformation(stack, player, tooltip, advanced);
 	}
-	
+
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {

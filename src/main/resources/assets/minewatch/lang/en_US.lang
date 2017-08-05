@@ -5,35 +5,35 @@ item.reaper_helmet.name=Reaper Helmet
 item.reaper_chestplate.name=Reaper Chestplate
 item.reaper_leggings.name=Reaper Leggings
 item.reaper_boots.name=Reaper Boots
-item.reaper_shotgun.name=Reaper's Hellfire Shotgun
+item.reaper_weapon.name=Reaper's Hellfire Shotgun
 
 item.hanzo_token.name=Hanzo Token
 item.hanzo_helmet.name=Hanzo Helmet
 item.hanzo_chestplate.name=Hanzo Chestplate
 item.hanzo_leggings.name=Hanzo Leggings
 item.hanzo_boots.name=Hanzo Boots
-item.hanzo_bow.name=Hanzo's Storm Bow
+item.hanzo_weapon.name=Hanzo's Storm Bow
 
 item.reinhardt_token.name=Reinhardt Token
 item.reinhardt_helmet.name=Reinhardt Helmet
 item.reinhardt_chestplate.name=Reinhardt Chestplate
 item.reinhardt_leggings.name=Reinhardt Leggings
 item.reinhardt_boots.name=Reinhardt Boots
-item.reinhardt_hammer.name=Reinhardt's Rocket Hammer
+item.reinhardt_weapon.name=Reinhardt's Rocket Hammer
 
 item.ana_token.name=Ana Token
 item.ana_helmet.name=Ana Helmet
 item.ana_chestplate.name=Ana Chestplate
 item.ana_leggings.name=Ana Leggings
 item.ana_boots.name=Ana Boots
-item.ana_rifle.name=Ana's Biotic Rifle
+item.ana_weapon.name=Ana's Biotic Rifle
 
 item.genji_token.name=Genji Token
 item.genji_helmet.name=Genji Helmet
 item.genji_chestplate.name=Genji Chestplate
 item.genji_leggings.name=Genji Leggings
 item.genji_boots.name=Genji Boots
-item.genji_shuriken.name=Genji's Shuriken
+item.genji_weapon.name=Genji's Shuriken
 item.genji_shuriken_single.name=Genji's Shuriken
 
 item.tracer_token.name=Tracer Token
@@ -41,21 +41,21 @@ item.tracer_helmet.name=Tracer Helmet
 item.tracer_chestplate.name=Tracer Chestplate
 item.tracer_leggings.name=Tracer Leggings
 item.tracer_boots.name=Tracer Boots
-item.tracer_pistol.name=Tracer's Pulse Pistol
+item.tracer_weapon.name=Tracer's Pulse Pistol
 
 item.mccree_token.name=McCree Token
 item.mccree_helmet.name=McCree Helmet
 item.mccree_chestplate.name=McCree Chestplate
 item.mccree_leggings.name=McCree Leggings
 item.mccree_boots.name=McCree Boots
-item.mccree_gun.name=McCree's Peacekeeper
+item.mccree_weapon.name=McCree's Peacekeeper
 
-item.soldier_token.name=Soldier 76 Token
-item.soldier_helmet.name=Soldier 76 Helmet
-item.soldier_chestplate.name=Soldier 76 Chestplate
-item.soldier_leggings.name=Soldier 76 Leggings
-item.soldier_boots.name=Soldier 76 Boots
-item.soldier_gun.name=Soldier 76's Pulse Rifle
+item.soldier76_token.name=Soldier 76 Token
+item.soldier76_helmet.name=Soldier 76 Helmet
+item.soldier76_chestplate.name=Soldier 76 Chestplate
+item.soldier76_leggings.name=Soldier 76 Leggings
+item.soldier76_boots.name=Soldier 76 Boots
+item.soldier76_weapon.name=Soldier 76's Pulse Rifle
 
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.reaper_bullet.name=Reaper Bullet

@@ -1,74 +1,92 @@
 {
-    "reaper_shotguns":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.reaperShotguns",
-        "sounds":
-        [
-            "minewatch:reaper_shotguns"
-        ]
-    },
-	 "hanzo_bow_shoot":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.hanzoBowShoot",
-        "sounds":
-        [
-            "minewatch:hanzo_bow_shoot"
-        ]
-    },
-	 "hanzo_bow_draw":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.hanzoBowDraw",
-        "sounds":
-        [
-            "minewatch:hanzo_bow_draw"
-        ]
-    },
-	 "reinhardt_rocket_hammer":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.reinhardtRocketHammer", 
-        "sounds":
-        [
-            "minewatch:reinhardt_rocket_hammer"
-        ]
-    },
-     "genji_shuriken":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.genjiShuriken",
-        "sounds":
-        [
-            "minewatch:genji_shuriken"
-        ]
-    },
-     "tracer_pistol":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.tracerPistol",
-        "sounds":
-        [
-            "minewatch:tracer_pistol"
-        ]
-    },
-     "mccree_gun":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.mccreeGun",
-        "sounds":
-        [
-            "minewatch:mccree_gun"
-        ]
-    },
-      "soldier_gun":
-    {
-        "category": "player",
-        "subtitle": "minewatch.subtitle.soldierGun",
-        "sounds":
-        [
-            "minewatch:soldier_gun"
-        ]
-    }
+	"ana_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_shoot"
+		]
+	},
+	"ana_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_reload"
+		]
+	},
+	"reaper_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_shoot"
+		]
+	},
+	"reaper_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_reload"
+		]
+	},
+	"hanzo_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hanzo_shoot"
+		]
+	},
+	"hanzo_draw": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hanzo_draw"
+		]
+	},
+	"reinhardt_rocket_hammer": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_rocket_hammer"
+		]
+	},
+	"genji_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_shoot"
+		]
+	},
+	"genji_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_reload"
+		]
+	},
+	"tracer_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:tracer_shoot"
+		]
+	},
+	"tracer_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:tracer_reload"
+		]
+	},
+	"mccree_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_shoot"
+		]
+	},
+	"mccree_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_reload"
+		]
+	},
+	"soldier76_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:soldier76_shoot"
+		]
+	},
+	"soldier76_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:soldier76_reload"
+		]
+	}
 }

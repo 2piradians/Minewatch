@@ -21,6 +21,6 @@ public class ModEntities
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "genji_shuriken"), EntityGenjiShuriken.class, "genji_shuriken", id++, Minewatch.instance, 32, 1, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "tracer_bullet"), EntityTracerBullet.class, "tracer_bullet", id++, Minewatch.instance, 16, 1, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mccree_bullet"), EntityMcCreeBullet.class, "mccree_bullet", id++, Minewatch.instance, 16, 1, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "soldier_bullet"), EntitySoldierBullet.class, "soldier_bullet", id++, Minewatch.instance, 16, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "soldier_bullet"), EntitySoldier76Bullet.class, "soldier_bullet", id++, Minewatch.instance, 16, 1, true);
 	}
 }

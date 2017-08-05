@@ -1,0 +1,6 @@
+{
+    "parent": "item/bow",
+    "textures": {
+        "layer0": "minewatch:items/hanzo_weapon_pulling_2"
+    }
+}

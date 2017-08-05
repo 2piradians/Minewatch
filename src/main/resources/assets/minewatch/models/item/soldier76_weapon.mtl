@@ -1,0 +1,8 @@
+# Blender MTL File: 'soldier_gun.blend'
+# Material Count: 1
+
+newmtl Tex_1866_0.dds
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/soldier76_weapon_3d

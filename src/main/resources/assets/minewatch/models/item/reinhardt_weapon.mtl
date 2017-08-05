@@ -1,0 +1,20 @@
+# Blender MTL File: 'Reinhardt.blend'
+# Material Count: 3
+
+newmtl Tex_1997_0.dds
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/reinhardt_weapon_3d
+
+newmtl Tex_2003_0.dds
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/reinhardt_weapon_3d
+
+newmtl Tex_2015_0.dds.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/reinhardt_weapon_3d

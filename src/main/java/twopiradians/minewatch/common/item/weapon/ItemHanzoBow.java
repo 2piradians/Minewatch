@@ -20,16 +20,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
-import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemHanzoBow extends ModWeapon
+public class ItemHanzoBow extends ItemMWWeapon
 {
 	public ItemHanzoBow() {
-		super();
-		this.material = ModItems.hanzo;
-		this.setMaxDamage(100);
+		super(0);
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -46,7 +43,7 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
-		if (ModArmor.isSet(player, ModItems.hanzo))
+		if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
 			return new ItemStack(Items.ARROW);
 		else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
 			return player.getHeldItem(EnumHand.OFF_HAND);
@@ -63,7 +60,12 @@ public class ItemHanzoBow extends ModWeapon
 	}
 
 	private boolean isArrow(ItemStack stack) {
-		return stack.getItem() instanceof ItemArrow;
+		return stack != null && stack.getItem() instanceof ItemArrow;
+	}
+
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return !oldStack.equals(newStack);
 	}
 
 	/**Called when the player stops using an Item (stops holding the right mouse button).*/
@@ -71,7 +73,8 @@ public class ItemHanzoBow extends ModWeapon
 	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
 		if (entityLiving instanceof EntityPlayer) {
 			EntityPlayer entityplayer = (EntityPlayer)entityLiving;
-			boolean flag = entityplayer.capabilities.isCreativeMode || ModArmor.isSet(entityplayer, ModItems.hanzo);
+			boolean flag = entityplayer.capabilities.isCreativeMode || 
+					ItemMWArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) == hero;
 			ItemStack itemstack = this.findAmmo(entityplayer);
 
 			int i = Math.min(this.getMaxItemUseDuration(stack) - timeLeft,20);
@@ -92,15 +95,16 @@ public class ItemHanzoBow extends ModWeapon
 						EntityHanzoArrow entityarrow = new EntityHanzoArrow(worldIn, entityplayer);
 						if (itemstack.getItem() instanceof ItemArrow)
 							entityarrow.setPotionEffect(itemstack);
-						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 2.0F, 1.0F);
+						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3F, 1.0F);
 						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
-						if (!ModArmor.isSet(entityplayer, ModItems.hanzo))
+						if (ItemMWArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) != hero)
 							stack.damageItem(1, entityplayer);
 						worldIn.spawnEntity(entityarrow);
 					}
 
 					worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, 
-							ModSoundEvents.HANZO_BOW_SHOOT, SoundCategory.PLAYERS, 1.0F, worldIn.rand.nextFloat()/2+0.75f);
+							ModSoundEvents.hanzoShoot, SoundCategory.PLAYERS, 
+							worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
 					if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
 						itemstack.shrink(1);
@@ -124,42 +128,44 @@ public class ItemHanzoBow extends ModWeapon
 	public EnumAction getItemUseAction(ItemStack stack)	{
 		return EnumAction.BOW;
 	}
-	
+
 	@Override
 	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {	
 		super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
-				
+
 		// set player in nbt for model changer (in ModItems) to reference
 		if (entityIn instanceof EntityPlayer && !entityIn.world.isRemote && 
 				stack != null && stack.getItem() instanceof ItemHanzoBow) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
-			
+
 			NBTTagCompound nbt = stack.getTagCompound();
-			
+
 			if (!nbt.hasKey("player") || !nbt.getUniqueId("player").equals(entityIn.getPersistentID())) {
 				nbt.setUniqueId("player", entityIn.getPersistentID());
 				stack.setTagCompound(nbt);
 			}
 		}
 	}
-	
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
-		ItemStack itemstack = playerIn.getHeldItem(handIn);	
-		boolean flag = !this.findAmmo(playerIn).isEmpty();
 
-		ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, worldIn, playerIn, handIn, flag);
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand handIn) {
+		ItemStack itemstack = player.getHeldItem(handIn);	
+		boolean flag = !this.findAmmo(player).isEmpty();
+
+		ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, world, player, handIn, flag);
 		if (ret != null) return ret;
 
-		if (!playerIn.capabilities.isCreativeMode && !flag) {
+		if (!player.capabilities.isCreativeMode && !flag) {
 			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
-		else {
-			playerIn.setActiveHand(handIn);
-			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.HANZO_BOW_DRAW, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);
+		else if (this.canUse(player, true)) {
+			player.setActiveHand(handIn);
+			world.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
+		else
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
 	}
 }

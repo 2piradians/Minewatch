@@ -60,7 +60,8 @@ public class CommandMinewatch implements ICommand {
 					ItemStack stack = player.getItemStackFromSlot(slot);
 					if (stack == null || stack.getItem() instanceof ItemMWArmor ||
 							stack.getItem() instanceof ItemMWWeapon)
-						player.setItemStackToSlot(slot, new ItemStack(hero.getEquipment(slot)));
+						player.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
+								null : new ItemStack(hero.getEquipment(slot)));
 					else if (hero.getEquipment(slot) != null)
 						player.inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
 				}

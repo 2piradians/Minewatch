@@ -64,7 +64,8 @@ public class CommandDev implements ICommand {
 				EntityPlayer player = (EntityPlayer) sender;
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = player.getItemStackFromSlot(slot);
-					ItemStack newStack = new ItemStack(hero.getEquipment(slot));	
+					ItemStack newStack = hero.getEquipment(slot) == null ? 
+							null : new ItemStack(hero.getEquipment(slot));
 					if (newStack != null) {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setBoolean("devSpawned", true);

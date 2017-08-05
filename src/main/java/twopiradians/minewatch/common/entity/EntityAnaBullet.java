@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import twopiradians.minewatch.common.item.weapon.ModWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityAnaBullet extends EntityThrowable
 {
@@ -71,7 +71,7 @@ public class EntityAnaBullet extends EntityThrowable
 	protected void onImpact(RayTraceResult result) {
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null && result.entityHit != this.getThrower()) {
 			if (this.heal) {
-				((EntityLivingBase)result.entityHit).heal(75/ModWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).heal(75/ItemMWWeapon.DAMAGE_SCALE);
 				((WorldServer)result.entityHit.worldObj).spawnParticle(EnumParticleTypes.HEART, 
 						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
@@ -81,10 +81,10 @@ public class EntityAnaBullet extends EntityThrowable
 			}
 			else {
 				if (this.getThrower() instanceof EntityPlayer)
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
+					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
 				else 
 					if (this.getThrower() instanceof EntityPlayer)
-						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ModWeapon.DAMAGE_SCALE);
+						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
 				if (this.getThrower() != null)
 					result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
 							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);

@@ -1,11 +1,11 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Multimap;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,16 +17,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemReinhardtHammer extends ModWeapon 
+public class ItemReinhardtHammer extends ItemMWWeapon 
 {
 	public ItemReinhardtHammer() {
-		super();
-		this.material = ModItems.reinhardt;
-		this.setMaxDamage(100);
+		super(0);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -40,30 +37,28 @@ public class ItemReinhardtHammer extends ModWeapon
 	}
 
 	@Override
+	public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
+		return false;
+	}
+
+	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.worldObj.isRemote && player.getHeldItemMainhand() != null && 
-				player.getHeldItemMainhand().getItem() instanceof ItemReinhardtHammer) {
-			if (player.getCooldownTracker().hasCooldown(this))
-				return true;
+		if (!player.worldObj.isRemote && this.canUse(player, true)) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(2);
 			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
-			if (!list.isEmpty()) {
-				Iterator<Entity> iterator = list.iterator();            
-				while (iterator.hasNext()) {
-					Entity entityInArea = iterator.next();
-					entityInArea.attackEntityFrom(DamageSource.causePlayerDamage(player), 75/DAMAGE_SCALE);
-				}
-			}
-			if (!ModArmor.isSet(player, material))
+			for (Entity entity2 : list)
+				entity2.attackEntityFrom(DamageSource.causePlayerDamage(player), 75/DAMAGE_SCALE);
+			if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 				player.getHeldItemMainhand().damageItem(1, player);
 			player.getCooldownTracker().setCooldown(this, 20);
 			player.worldObj.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 1.0f, player.worldObj.rand.nextFloat()/2+0.75f);
+					ModSoundEvents.reinhardtRocketHammer, SoundCategory.PLAYERS, 
+					1.0F, player.worldObj.rand.nextFloat()/2+0.75f);
 		}
 		return false;
 	}
-	
-	/**Reinhardt Hammer attack*/
+
+	/**delay attacking sound so it's more audible*/
 	@SubscribeEvent
 	public void onEvent(PlayerInteractEvent.LeftClickEmpty event) {
 		if (event.getWorld() != null && event.getEntityPlayer().getHeldItemMainhand() != null 

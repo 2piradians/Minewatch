@@ -1,0 +1,8 @@
+# Blender MTL File: 'genji_shuriken.blend'
+# Material Count: 1
+
+newmtl 02_-_Default
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/genji_weapon_3d

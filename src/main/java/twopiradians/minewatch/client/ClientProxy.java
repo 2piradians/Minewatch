@@ -1,5 +1,8 @@
 package twopiradians.minewatch.client;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -8,10 +11,10 @@ import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.RenderTippedArrow;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -22,13 +25,13 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import twopiradians.minewatch.client.key.KeyToggleMode;
+import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleHealthPlus;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
-import twopiradians.minewatch.client.render.entity.RenderSoldierBullet;
+import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
@@ -37,34 +40,44 @@ import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.entity.EntitySoldierBullet;
+import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 
 public class ClientProxy extends CommonProxy
 {
+	public static ArrayList<UUID> healthParticleEntities = new ArrayList<UUID>();
+
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
 		registerObjRenders();
 		registerEntityRenders();
-		KeyToggleMode.TOGGLE_MODE = new KeyBinding("Activate Set Effect", Keyboard.KEY_Z, Minewatch.MODNAME);
+		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);
 	}
 
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
 		registerRenders();
-		MinecraftForge.EVENT_BUS.register(Minewatch.keyMode);
-		ClientRegistry.registerKeyBinding(KeyToggleMode.TOGGLE_MODE);
+		ClientRegistry.registerKeyBinding(Keys.HERO_INFORMATION);
+		ClientRegistry.registerKeyBinding(Keys.RELOAD);
+		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
+		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
+		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
 	}
 
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 	}
-	
+
 	private static void registerRenders() {
 		for (Item item : ModItems.jsonModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
@@ -73,7 +86,7 @@ public class ClientProxy extends CommonProxy
 	private static void registerObjRenders() {
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
-			if (item == ModItems.hanzo_bow) {
+			if (item == EnumHero.HANZO.weapon) {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
@@ -99,7 +112,7 @@ public class ClientProxy extends CommonProxy
 			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-		}
+	}
 
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);
@@ -108,7 +121,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntitySoldierBullet.class, RenderSoldierBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, RenderSoldier76Bullet::new);
 	}
 
 	@Override
@@ -123,8 +136,11 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesHealthPlus(World worldIn, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {
-		ParticleHealthPlus particle = new ParticleHealthPlus(worldIn, x, y, z, motionX, motionY, motionZ, scale);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	public void spawnParticlesHealthPlus(EntityLivingBase entity) {
+		if (!healthParticleEntities.contains(entity.getPersistentID())) {
+			ParticleHealthPlus particle = new ParticleHealthPlus(entity);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+			healthParticleEntities.add(entity.getPersistentID());
+		}
 	}
 }

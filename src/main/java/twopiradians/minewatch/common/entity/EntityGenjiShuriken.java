@@ -13,7 +13,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.item.weapon.ModWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityGenjiShuriken extends EntityThrowable
 {
@@ -67,10 +67,10 @@ public class EntityGenjiShuriken extends EntityThrowable
 	protected void onImpact(RayTraceResult result) {
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null && result.entityHit != this.getThrower()) {
 			if (this.getThrower() instanceof EntityPlayer)
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 28F/ModWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 28F/ItemMWWeapon.DAMAGE_SCALE);
 			else 
 				if (this.getThrower() instanceof EntityPlayer)
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 28F/ModWeapon.DAMAGE_SCALE);
+					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 28F/ItemMWWeapon.DAMAGE_SCALE);
 			if (this.getThrower() != null)
 				result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
 						SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);

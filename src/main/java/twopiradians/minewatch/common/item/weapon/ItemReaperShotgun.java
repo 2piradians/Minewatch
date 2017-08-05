@@ -1,30 +1,36 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemReaperShotgun extends ModWeapon
+public class ItemReaperShotgun extends ItemMWWeapon
 {
 	public ItemReaperShotgun() {
-		super();
-		this.setMaxDamage(100);
+		super(30);
 		this.hasOffhand = true;
-		this.material = ModItems.reaper;
-		this.cooldown = 20;
 	}
-
+	
 	@Override
-	public void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		if (!worldIn.isRemote) {
+	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+		if (!world.isRemote && this.canUse(player, true)) {
 			for (int i=0; i<20; i++)
-				worldIn.spawnEntityInWorld(new EntityReaperBullet(worldIn, playerIn, hand));
-			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.reaperShotgun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
+				world.spawnEntityInWorld(new EntityReaperBullet(world, player, hand));
+			world.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
+					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+			
+			this.subtractFromCurrentAmmo(player, 1, hand);
+			if (!player.getCooldownTracker().hasCooldown(this))
+				player.getCooldownTracker().setCooldown(this, 11);
+			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
+
 }

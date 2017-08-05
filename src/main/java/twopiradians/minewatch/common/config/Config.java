@@ -12,6 +12,7 @@ public class Config {
 	
 	public static Configuration config;
 	public static boolean useObjModels;
+	public static int tokenDropRate;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file);
@@ -24,11 +25,16 @@ public class Config {
 		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models");
 		prop.setRequiresMcRestart(true);
 		useObjModels = prop.getBoolean();
+		
+		Property tokenDropRateProp = config.get(Configuration.CATEGORY_GENERAL, "Token Drop Rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
+		tokenDropRate = tokenDropRateProp.getInt();
 	}
 
 	@SubscribeEvent(receiveCanceled=true)
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(Minewatch.MODID)) 
+		if (event.getModID().equals(Minewatch.MODID)) {
+			syncConfig();
 			config.save();
+		}
 	}
 }

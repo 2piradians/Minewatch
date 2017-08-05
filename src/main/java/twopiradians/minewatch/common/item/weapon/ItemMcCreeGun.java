@@ -3,64 +3,65 @@ package twopiradians.minewatch.common.item.weapon;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
-import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.armor.ModArmor;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemMcCreeGun extends ModWeapon
+public class ItemMcCreeGun extends ItemMWWeapon
 {
 	public ItemMcCreeGun() {
-		super();
-		this.setMaxDamage(100);
-		this.hasOffhand = false;
-		this.material = ModItems.mccree;
-		this.cooldown = 10;
+		super(30);
 	}
-	
-	/** How long it takes to use or consume an item*/
+
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
 		return 20;
 	}
-	
+
 	@Override
-	public void onShoot(World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		if (!worldIn.isRemote) {
-			EntityMcCreeBullet bullet = new EntityMcCreeBullet(worldIn, playerIn);
-			bullet.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 2.0F, 0.3F);
-			worldIn.spawnEntityInWorld(bullet);
-			worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, worldIn.rand.nextFloat()/2+0.75f);	
+	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+		if (!world.isRemote && this.canUse(player, true)) {
+			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player);
+			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
+			world.spawnEntityInWorld(bullet);
+			world.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+					world.rand.nextFloat()/2+0.75f);	
+
+			this.subtractFromCurrentAmmo(player, 1, hand);
+			if (!player.getCooldownTracker().hasCooldown(this))
+				player.getCooldownTracker().setCooldown(this, 10);
+			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
 
 	@Override
-	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		if (!player.worldObj.isRemote && player instanceof EntityPlayer) {
-			if (Minewatch.keyMode.isKeyDown((EntityPlayer) player) && count % 3 == 0 && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMcCreeGun) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.worldObj, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
-				player.worldObj.spawnEntityInWorld(bullet);				
-				player.worldObj.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.worldObj.rand.nextFloat()/20+0.95f);	
-				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
-					player.getHeldItemMainhand().damageItem(1, player);
-			}
-			else if (Minewatch.keyMode.isKeyDown((EntityPlayer) player) && count % 3 == 0 && player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof ItemMcCreeGun) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(player.worldObj, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F);
-				player.worldObj.spawnEntityInWorld(bullet);				
-				player.worldObj.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.mccreeGun, SoundCategory.PLAYERS, 1.0f, player.worldObj.rand.nextFloat()/20+0.95f);
-				if (!ModArmor.isSet((EntityPlayer)player, ModItems.mccree))
-					player.getHeldItemOffhand().damageItem(1, player);
-			}
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player, EnumHand hand) {
+		player.setActiveHand(hand);
+		return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
+	}
 
-			if (count <= 1)
-				doCooldown((EntityPlayer)player, player.getActiveHand());
+	@Override
+	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {
+		if (!entity.worldObj.isRemote && entity instanceof EntityPlayer && count % 2 == 0 && 
+				this.canUse((EntityPlayer) entity, true)) {
+			EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.worldObj, entity);
+			bullet.setAim(entity, entity.rotationPitch, entity.rotationYaw, 2.0F, 0.3F);
+			entity.worldObj.spawnEntityInWorld(bullet);				
+			entity.worldObj.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
+					SoundCategory.PLAYERS, entity.worldObj.rand.nextFloat()+0.5F, entity.worldObj.rand.nextFloat()/20+0.95f);	
+			if (count == this.getMaxItemUseDuration(stack))
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, EnumHand.MAIN_HAND);
+			else
+				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);			
+			if (entity.worldObj.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)
+					entity.getHeldItemMainhand().damageItem(1, entity);
 		}
 	}
 }

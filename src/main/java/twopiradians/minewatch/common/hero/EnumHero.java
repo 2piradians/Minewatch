@@ -37,20 +37,23 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle()), 
-	GENJI("Genji", false, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken()),
-	HANZO("Hanzo", false, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow()),
-	MCCREE("McCree", false, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun()),
-	REAPER("Reaper", false, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
-	REINHARDT("Reinhardt", false, KeyBind.RMB, KeyBind.ABILITY_2, KeyBind.ABILITY_1, 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
-	SOLDIER76("Soldier76", false, KeyBind.RMB, KeyBind.ABILITY_2, KeyBind.ABILITY_1, 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
-	TRACER("Tracer", false, KeyBind.ABILITY_2, KeyBind.ABILITY_1, KeyBind.NONE, 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol());
+	ANA("Ana", true, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle()), 
+	GENJI("Genji", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken()),
+	HANZO("Hanzo", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow()),
+	MCCREE("McCree", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun()),
+	REAPER("Reaper", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
+	REINHARDT("Reinhardt", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
+	SOLDIER76("Soldier76", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
+	TRACER("Tracer", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol());
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
 	private KeyBind slot1;
 	private KeyBind slot2;
 	private KeyBind slot3;
+	private boolean slot1Enabled;
+	private boolean slot2Enabled;
+	private boolean slot3Enabled;
 
 	public String name;
 	/**index from top of ability_overlay.png for this hero*/
@@ -75,6 +78,7 @@ public enum EnumHero {
 
 	public SoundEvent reloadSound;
 
+
 	private static final class IndexCounter {
 		/**used to calculate overlayIndex*/
 		public static int index;
@@ -86,7 +90,8 @@ public enum EnumHero {
 
 	}
 
-	private EnumHero(String name, boolean hasAltWeapon, KeyBind slot1, KeyBind slot2, KeyBind slot3, 
+	private EnumHero(String name, boolean hasAltWeapon, KeyBind slot1, boolean slot1Enabled, 
+			KeyBind slot2, boolean slot2Enabled, KeyBind slot3, boolean slot3Enabled,
 			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon) {
 		this.overlayIndex = IndexCounter.index++;
 		this.name = name;
@@ -96,6 +101,9 @@ public enum EnumHero {
 		this.slot1 = slot1;
 		this.slot2 = slot2;
 		this.slot3 = slot3;
+		this.slot1Enabled = slot1Enabled;
+		this.slot2Enabled = slot2Enabled;
+		this.slot3Enabled = slot3Enabled;
 		this.mainAmmo = mainAmmo;
 		this.altAmmo = altAmmo;
 		this.armorReductionAmounts = armorReductionAmounts;
@@ -141,6 +149,7 @@ public enum EnumHero {
 					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_info.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
 
+					GlStateManager.enableDepth();
 					GlStateManager.popMatrix();
 				}		
 				else {
@@ -188,6 +197,8 @@ public enum EnumHero {
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-50, -2, 124, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.slot1Enabled && hero.slot1 != KeyBind.NONE) 
+								GuiUtils.drawTexturedModalRect(-28, 0, 65, 1015, 12, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							if (hero.slot1.getCooldown(player) <= 0 && hero.slot1.isKeyDown(player)) 
 								GlStateManager.translate(-1, -1, 0);
@@ -199,6 +210,11 @@ public enum EnumHero {
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-87, -2, 165, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.slot2Enabled && hero.slot2 != KeyBind.NONE) {
+								GlStateManager.translate(0, 0.3f, 0);
+								GuiUtils.drawTexturedModalRect(-65, -1, 65, 1015, 12, 9, 0);
+								GlStateManager.translate(0, -0.3f, 0);
+							}
 							GlStateManager.color(1, 1, 1);
 							if (hero.slot2.getCooldown(player) <= 0 && hero.slot2.isKeyDown(player)) 
 								GlStateManager.translate(-1, -1, 0);
@@ -210,6 +226,11 @@ public enum EnumHero {
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-124, -2, 206, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.slot3Enabled && hero.slot3 != KeyBind.NONE) {
+								GlStateManager.translate(0, 0.5f, 0);
+								GuiUtils.drawTexturedModalRect(-102, -2, 65, 1015, 12, 9, 0);
+								GlStateManager.translate(0, -0.5f, 0);
+							}
 							GlStateManager.color(1, 1, 1);
 							if (hero.slot3.getCooldown(player) <= 0 && hero.slot3.isKeyDown(player)) 
 								GlStateManager.translate(-1, -1, 0);

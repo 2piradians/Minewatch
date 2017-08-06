@@ -72,7 +72,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 			}
 
 			// health particles
-			if (world.isRemote && entity.ticksExisted % 10 == 0) {
+			if (world.isRemote && entity.ticksExisted % 5 == 0) {
 				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 				List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 				for (Entity entity2 : list) 

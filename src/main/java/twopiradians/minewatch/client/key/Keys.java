@@ -166,7 +166,8 @@ public class Keys {
 		UUID player = Minecraft.getMinecraft().thePlayer.getPersistentID();
 		ItemStack main = Minecraft.getMinecraft().thePlayer.getHeldItemMainhand();
 
-		if (main != null && main.getItem() instanceof ItemMWWeapon) {
+		if ((event.isButtonstate() && main != null && main.getItem() instanceof ItemMWWeapon) || 
+				!event.isButtonstate()) {
 			if (event.getButton() == 0) {
 				lmb.put(player, event.isButtonstate());
 				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), player));
@@ -176,14 +177,16 @@ public class Keys {
 				rmb.put(player, event.isButtonstate());
 				Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), player));
 			}
+		}
 
-			if (Minecraft.getMinecraft().thePlayer.isSneaking() && event.getDwheel() != 0) {
-				EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-				hero.playersUsingAlt.put(player, 
-						hero.playersUsingAlt.containsKey(player) ? !hero.playersUsingAlt.get(player) : true);
-				Minewatch.network.sendToServer(new PacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(player), player));
-				event.setCanceled(true);
-			}
+		if (main != null && main.getItem() instanceof ItemMWWeapon &&
+				Minecraft.getMinecraft().thePlayer.isSneaking() && event.getDwheel() != 0 && 
+				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon) {
+			EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
+			hero.playersUsingAlt.put(player, 
+					hero.playersUsingAlt.containsKey(player) ? !hero.playersUsingAlt.get(player) : true);
+			Minewatch.network.sendToServer(new PacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(player), player));
+			event.setCanceled(true);
 		}
 	}
 

@@ -146,7 +146,7 @@ public enum EnumHero {
 					GlStateManager.disableDepth();
 
 					GlStateManager.scale(event.getResolution().getScaledWidth_double()/256d, event.getResolution().getScaledHeight_double()/256d, 1);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_info.png"));
+					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_info.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
 
 					GlStateManager.enableDepth();
@@ -165,7 +165,7 @@ public enum EnumHero {
 						GlStateManager.translate(60, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 50, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
 						GlStateManager.popMatrix();

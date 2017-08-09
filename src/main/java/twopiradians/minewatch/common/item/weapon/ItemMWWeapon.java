@@ -69,8 +69,9 @@ public abstract class ItemMWWeapon extends Item
 				Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount, hands), (EntityPlayerMP) player);
 			if (player.world.isRemote)
 				for (EnumHand hand : hands)
-					if (player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == this)
+					if (player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == this) {
 						this.reequipAnimation.put(player.getHeldItem(hand), 2);
+					}
 			currentAmmo.put(player.getPersistentID(), amount);
 		}
 	}
@@ -151,7 +152,7 @@ public abstract class ItemMWWeapon extends Item
 		if (!world.isRemote && entity instanceof EntityPlayer && isSelected)
 			// automatic reload
 			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
-					!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this)) 
+			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this)) 
 				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity), EnumHand.values());
 		// manual reload
 			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && Minewatch.keys.reload((EntityPlayer) entity))
@@ -174,15 +175,17 @@ public abstract class ItemMWWeapon extends Item
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		if (this.reequipAnimation.containsKey(oldStack)) {
-			if (this.reequipAnimation.get(oldStack) - 1 <= 0)
-				this.reequipAnimation.remove(oldStack);
-			else
-				this.reequipAnimation.put(oldStack, this.reequipAnimation.get(oldStack)-1);
-			return true;
+		for (ItemStack stack : this.reequipAnimation.keySet()) {
+			if (newStack != null && newStack == stack) {
+				if (this.reequipAnimation.get(stack) - 1 <= 0)
+					this.reequipAnimation.remove(stack);
+				else
+					this.reequipAnimation.put(stack, this.reequipAnimation.get(stack)-1);
+				return true;
+			}
 		}
-		else
-			return oldStack.getItem() != newStack.getItem();
+
+		return oldStack.getItem() != newStack.getItem();
 	}
 
 	@Override

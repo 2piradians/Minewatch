@@ -35,6 +35,19 @@
 			"minewatch:hanzo_draw"
 		]
 	},
+	"hanzo_sonic_arrow": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hanzo_sonic_arrow_1",
+			"minewatch:hanzo_sonic_arrow_2"
+		]
+	},
+	"hanzo_scatter_arrow": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hanzo_scatter_arrow"
+		]
+	},
 	"reinhardt_rocket_hammer": {
 		"category": "player",
 		"sounds": [

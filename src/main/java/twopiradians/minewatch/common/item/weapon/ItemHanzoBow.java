@@ -19,7 +19,11 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
+import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -72,45 +76,70 @@ public class ItemHanzoBow extends ItemMWWeapon
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
 		if (entityLiving instanceof EntityPlayer) {
-			EntityPlayer entityplayer = (EntityPlayer)entityLiving;
-			boolean flag = entityplayer.capabilities.isCreativeMode || 
-					ItemMWArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) == hero;
-			ItemStack itemstack = this.findAmmo(entityplayer);
+			EntityPlayer player = (EntityPlayer)entityLiving;
+			boolean flag = player.capabilities.isCreativeMode || 
+					ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero;
+			ItemStack itemstack = this.findAmmo(player);
 
-			int i = Math.min(this.getMaxItemUseDuration(stack) - timeLeft,20);
-			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, entityplayer, i, !itemstack.isEmpty() || flag);
-			if (i < 0) return;
+            int i = this.getMaxItemUseDuration(stack) - timeLeft;
+            i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, player, i, !itemstack.isEmpty() || flag);
+            if (i < 0) return;
 
 			if (!itemstack.isEmpty() || flag) {
 				if (itemstack.isEmpty())
 					itemstack = new ItemStack(Items.ARROW);
 
-				float f = (float)i/10;
-
-				if (f >= 0.1f) {
+		        float f = (float)i / 20.0F;
+		        f = (f * f + f * 2.0F) / 3.0F;
+		        if (f > 1.0F)
+		            f = 1.0F;
+		        
+				if (f >= 0.2f) {
 					boolean flag1 = flag || (itemstack.getItem() instanceof ItemArrow 
-							&& ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, entityplayer));
+							&& ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, player));
 
 					if (!worldIn.isRemote) {
-						EntityHanzoArrow entityarrow = new EntityHanzoArrow(worldIn, entityplayer);
-						if (itemstack.getItem() instanceof ItemArrow)
-							entityarrow.setPotionEffect(itemstack);
-						entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3F, 1.0F);
-						entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
-						if (ItemMWArmor.SetManager.playersWearingSets.get(entityplayer.getPersistentID()) != hero)
-							stack.damageItem(1, entityplayer);
+						EntityHanzoArrow entityarrow = null;
+						// sonic arrow
+						if (Minewatch.keys.ability1(player) && KeyBind.ABILITY_1.getCooldown(player) == 0) {
+							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
+							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+							//KeyBind.ABILITY_1.setCooldown(player, 400); 
+
+							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
+									SoundCategory.PLAYERS, 1.0f, 1.0f);
+						}
+						// scatter arrow
+						else if (Minewatch.keys.ability2(player) && KeyBind.ABILITY_2.getCooldown(player) == 0) {
+								entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
+								entityarrow.setDamage(125*((double)i/160/DAMAGE_SCALE));
+								entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
+								//KeyBind.ABILITY_2.setCooldown(player, 200); 
+
+								//worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 
+										//SoundCategory.PLAYERS, 1.0f, 1.0f);
+							}
+						// regular arrow
+						else { 
+							entityarrow = new EntityHanzoArrow(worldIn, player);
+							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+						}
+						if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+							stack.damageItem(1, player);
 						worldIn.spawnEntity(entityarrow);
 					}
 
-					worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, 
+					worldIn.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, 
 							ModSoundEvents.hanzoShoot, SoundCategory.PLAYERS, 
 							worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
-					if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
+					if (!flag1 && !player.capabilities.isCreativeMode) {
 						itemstack.shrink(1);
 
 						if (itemstack.isEmpty())
-							entityplayer.inventory.deleteStack(itemstack);
+							player.inventory.deleteStack(itemstack);
 					}
 				}
 			}
@@ -120,7 +149,7 @@ public class ItemHanzoBow extends ItemMWWeapon
 	/** How long it takes to use or consume an item*/
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
-		return 100;
+		return 72000;
 	}
 
 	/** returns the action that specifies what animation to play when the items is being used */

@@ -12,6 +12,8 @@ public class ModSoundEvents {
 	public static SoundEvent reaperShoot;
 	public static SoundEvent hanzoShoot;
 	public static SoundEvent hanzoDraw;
+	public static SoundEvent hanzoSonicArrow;
+	public static SoundEvent hanzoScatterArrow;
 	public static SoundEvent reinhardtRocketHammer;
 	public static SoundEvent genjiShoot;
 	public static SoundEvent tracerShoot;
@@ -25,6 +27,8 @@ public class ModSoundEvents {
 		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
 		hanzoShoot = registerSound("hanzo_shoot");
 		hanzoDraw = registerSound("hanzo_draw");
+		hanzoSonicArrow = registerSound("hanzo_sonic_arrow");
+		hanzoScatterArrow = registerSound("hanzo_scatter_arrow");
 		reinhardtRocketHammer = registerSound("reinhardt_rocket_hammer");
 		genjiShoot = registerSound("genji_shoot");
 		EnumHero.GENJI.reloadSound = registerSound("genji_reload");

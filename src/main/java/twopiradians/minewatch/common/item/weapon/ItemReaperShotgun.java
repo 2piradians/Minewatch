@@ -19,8 +19,11 @@ public class ItemReaperShotgun extends ItemMWWeapon
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (!world.isRemote && this.canUse(player, true)) {
-			for (int i=0; i<20; i++)
-				world.spawnEntity(new EntityReaperBullet(world, player, hand));
+			for (int i=0; i<20; i++) {
+				EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, hand, false);
+				world.spawnEntity(bullet);
+			}
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	

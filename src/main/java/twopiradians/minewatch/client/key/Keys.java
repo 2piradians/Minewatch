@@ -171,6 +171,8 @@ public class Keys {
 			if (event.getButton() == 0) {
 				lmb.put(player, event.isButtonstate());
 				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), player));
+				if (event.isButtonstate())
+					event.setCanceled(true);
 			}
 
 			if (event.getButton() == 1) {

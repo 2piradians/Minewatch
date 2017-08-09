@@ -9,12 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.entity.RenderTippedArrow;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -26,9 +26,14 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys;
-import twopiradians.minewatch.client.particle.ParticleHealthPlus;
+import twopiradians.minewatch.client.particle.ParticleAnaHealth;
+import twopiradians.minewatch.client.particle.ParticleHanzoScatter;
+import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
+import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
+import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
+import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
@@ -38,6 +43,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
+import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
@@ -116,7 +123,9 @@ public class ClientProxy extends CommonProxy
 
 	private void registerEntityRenders() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, RenderTippedArrow::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, RenderHanzoArrow::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, RenderHanzoSonicArrow::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoScatterArrow.class, RenderHanzoScatterArrow::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, RenderAnaBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
@@ -132,15 +141,29 @@ public class ClientProxy extends CommonProxy
 
 	@SubscribeEvent
 	public void stitcherEventPre(TextureStitchEvent.Pre event) {
-		event.getMap().registerSprite(ParticleHealthPlus.TEXTURE);
+		event.getMap().registerSprite(ParticleAnaHealth.TEXTURE);
+		event.getMap().registerSprite(ParticleHanzoSonic.TEXTURE);
+		event.getMap().registerSprite(ParticleHanzoScatter.TEXTURE);
 	}
 
 	@Override
-	public void spawnParticlesHealthPlus(EntityLivingBase entity) {
+	public void spawnParticlesAnaHealth(EntityLivingBase entity) {
 		if (!healthParticleEntities.contains(entity.getPersistentID())) {
-			ParticleHealthPlus particle = new ParticleHealthPlus(entity);
+			ParticleAnaHealth particle = new ParticleAnaHealth(entity);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 			healthParticleEntities.add(entity.getPersistentID());
 		}
+	}
+
+	@Override
+	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) {
+		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, x, y, z, isBig);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+	
+	@Override
+	public void spawnParticlesHanzoScatter(World world, double x, double y, double z) {
+		ParticleHanzoScatter particle = new ParticleHanzoScatter(world, x, y, z);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 }

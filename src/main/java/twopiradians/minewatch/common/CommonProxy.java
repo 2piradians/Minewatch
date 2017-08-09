@@ -3,6 +3,7 @@ package twopiradians.minewatch.common;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -24,6 +25,7 @@ import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 import twopiradians.minewatch.packet.PacketSyncKeys;
+import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
 public class CommonProxy 
 {
@@ -47,10 +49,15 @@ public class CommonProxy
 		int id = 0;
 		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
 	}
 
-	public void spawnParticlesHealthPlus(EntityLivingBase entity) { }
-
+	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
+	
+	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) { }
+	
+	public void spawnParticlesHanzoScatter(World world, double x, double y, double z) { }
+	
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());

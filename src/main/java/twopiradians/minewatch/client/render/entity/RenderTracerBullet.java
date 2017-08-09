@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelTracerBullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.ModEntities;
+import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
 public class RenderTracerBullet extends Render<EntityTracerBullet>
 {
@@ -23,6 +25,19 @@ public class RenderTracerBullet extends Render<EntityTracerBullet>
 	
 	@Override
 	public void doRender(EntityTracerBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {
+		// correct trajectories of fast entities
+		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
+			PacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
+			entity.rotationPitch = packet.pitch;
+			entity.prevRotationPitch = packet.pitch;
+			entity.rotationYaw = packet.yaw;
+			entity.prevRotationYaw = packet.yaw;
+			entity.motionX = packet.motionX;
+			entity.motionY = packet.motionY;
+			entity.motionZ = packet.motionZ;
+			ModEntities.spawningEntities.remove(entity.getPersistentID());
+		}
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

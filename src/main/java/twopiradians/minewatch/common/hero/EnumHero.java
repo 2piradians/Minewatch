@@ -39,7 +39,7 @@ public enum EnumHero {
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle()), 
 	GENJI("Genji", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken()),
-	HANZO("Hanzo", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow()),
+	HANZO("Hanzo", false, KeyBind.ABILITY_2, true, KeyBind.ABILITY_1, true, KeyBind.NONE, false, 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow()),
 	MCCREE("McCree", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun()),
 	REAPER("Reaper", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
 	REINHARDT("Reinhardt", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
@@ -274,17 +274,17 @@ public enum EnumHero {
 							double scale = 2d;
 							GlStateManager.scale(scale, scale, 1);
 							if (hero.slot1.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot1.getCooldown(player)/20);
+								String num = String.valueOf((int)Math.ceil(hero.slot1.getCooldown(player)/20));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -14-width/2, 4, 0xFFFFFF);
 							}
 							if (hero.slot2.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot2.getCooldown(player)/20);
+								String num = String.valueOf((int)Math.ceil(hero.slot2.getCooldown(player)/20d));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -33-width/2, 4, 0xFFFFFF);
 							}
 							if (hero.slot3.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot3.getCooldown(player)/20);
+								String num = String.valueOf((int)Math.ceil(hero.slot3.getCooldown(player)/20d));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -51-width/2, 4, 0xFFFFFF);
 							}

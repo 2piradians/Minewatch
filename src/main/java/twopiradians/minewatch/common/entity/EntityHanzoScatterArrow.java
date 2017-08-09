@@ -39,7 +39,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		//super.onHit(result);
+		super.onHit(result);
 
 		if (this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
 			System.out.println(this.rotationYaw);

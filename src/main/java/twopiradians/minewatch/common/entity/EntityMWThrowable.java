@@ -67,22 +67,25 @@ public abstract class EntityMWThrowable extends EntityThrowable {
 		this.motionZ = velZ;
 	 */
 	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, EnumHand hand, boolean sendPacket) {
+		double velX = Math.cos(shooter.rotationPitch*Math.PI/180) * Math.cos(shooter.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
+		double velY = - Math.sin(shooter.rotationPitch*Math.PI/180) + (Math.random() - 0.5d)*0.2d;
+		double velZ = Math.cos(shooter.rotationPitch*Math.PI/180) * Math.sin(shooter.rotationYawHead*Math.PI/180 + Math.PI/2) + (Math.random() - 0.5d)*0.2d;
 		// copied from EntityArrow
-		float x = -MathHelper.sin(yaw * (float)Math.PI/180) * MathHelper.cos(pitch * (float)Math.PI/180);
-		float y = -MathHelper.sin(pitch * (float)Math.PI/180);
-		float z = MathHelper.cos(yaw * (float)Math.PI/180) * MathHelper.cos(pitch * (float)Math.PI/180);
-		// TODO uncomment and correct for McCree, Tracer, Soldier76, Reaper, (maybe Ana?)
-		/*if (hand == EnumHand.MAIN_HAND) {
-			x -= Math.cos(shooter.rotationYawHead*Math.PI/180)/2;
+		double x = shooter.posX + Math.cos(shooter.rotationPitch*Math.PI/180)*Math.cos(shooter.rotationYawHead*Math.PI/180 + Math.PI/2);
+		double y = shooter.posY + shooter.getEyeHeight() - Math.sin(shooter.rotationPitch*Math.PI/180);
+		double z = shooter.posZ + Math.cos(shooter.rotationPitch*Math.PI/180)*Math.sin(shooter.rotationYawHead*Math.PI/180 + Math.PI/2);
+		if (hand == EnumHand.MAIN_HAND) {
+			x -= Math.cos(shooter.rotationYawHead*Math.PI/180)/3;
 			y -= 0.15d - Math.sin(shooter.rotationPitch*Math.PI/180)/2;
 			z -= Math.sin(shooter.rotationYawHead*Math.PI/180)/3;
 		}
-		else if (hand == EnumHand.OFF_HAND) {
-			x += Math.cos(shooter.rotationYawHead*Math.PI/180)/2;
+		else {
+			x += Math.cos(shooter.rotationYawHead*Math.PI/180)/3;
 			y -= 0.15d - Math.sin(shooter.rotationPitch*Math.PI/180)/2;
 			z += Math.sin(shooter.rotationYawHead*Math.PI/180)/3;
-		}*/
-		this.setThrowableHeading((double)x, (double)y, (double)z, velocity, inaccuracy);
+		}
+		this.setPosition(x, y, z);
+		this.setThrowableHeading((double)velX, (double)velY, (double)velZ, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
 		this.prevRotationPitch = pitch;

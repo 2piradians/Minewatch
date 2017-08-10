@@ -25,10 +25,12 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
+import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
@@ -44,7 +46,9 @@ public enum EnumHero {
 	REAPER("Reaper", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
 	REINHARDT("Reinhardt", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
 	SOLDIER76("Soldier76", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
-	TRACER("Tracer", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol());
+	TRACER("Tracer", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol()),
+	BASTION("Bastion", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 25, 0, new int[] {2,3,3,2}, new ItemBastionGun()),
+	MEI("Mei", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 40, 0, new int[] {2,3,3,2}, new ItemMeiBlaster());
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 

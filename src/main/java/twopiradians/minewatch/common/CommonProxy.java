@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -55,6 +56,8 @@ public class CommonProxy
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
 	
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) { }
+	
+	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) { }
 	
 	public void spawnParticlesHanzoScatter(World world, double x, double y, double z) { }
 	

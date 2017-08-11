@@ -18,7 +18,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 
@@ -65,7 +67,6 @@ public class Keys {
 			}
 		}
 
-		@SideOnly(Side.CLIENT)
 		public boolean isKeyDown(EntityPlayer player) {
 			switch (this) {
 			case ABILITY_1:
@@ -209,10 +210,32 @@ public class Keys {
 			if (!ability1.containsKey(player) || ABILITY_1.isKeyDown() != ability1.get(player)) {
 				ability1.put(player, ABILITY_1.isKeyDown());
 				Minewatch.network.sendToServer(new PacketSyncKeys("Ability 1", ABILITY_1.isKeyDown(), player));
+				// toggle ability
+				if (ABILITY_1.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(player)) {
+					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
+					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
+						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
+							boolean toggle = ability.toggled.containsKey(player) ? !ability.toggled.get(player) : true;
+							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
+							Minewatch.network.sendToServer(new PacketSyncKeys("Toggle Ability 1", toggle, player));
+						}
+				}
 			}
 			if (!ability2.containsKey(player) || ABILITY_2.isKeyDown() != ability2.get(player)) {
 				ability2.put(player, ABILITY_2.isKeyDown());
 				Minewatch.network.sendToServer(new PacketSyncKeys("Ability 2", ABILITY_2.isKeyDown(), player));
+				// toggle ability
+				if (ABILITY_2.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(player)) {
+					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
+					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 
+						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
+							boolean toggle = ability.toggled.containsKey(player) ? !ability.toggled.get(player) : true;
+							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
+							Minewatch.network.sendToServer(new PacketSyncKeys("Toggle Ability 2", toggle, player));
+						}
+				}
 			}
 			if (!ultimate.containsKey(player) || ULTIMATE.isKeyDown() != ultimate.get(player)) {
 				ultimate.put(player, ULTIMATE.isKeyDown());

@@ -14,7 +14,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -23,19 +22,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 
-public abstract class ItemMWWeapon extends Item
+public abstract class ItemMWWeapon extends Item 
 {
 	/**Used to uniformly scale damage for all weapons/abilities*/
 	public static final float DAMAGE_SCALE = 10f;
 
 	public EnumHero hero;
-
 	public boolean hasOffhand;
-	protected ResourceLocation scope;
-
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
 	private HashMap<UUID, Integer> warningCooldown = Maps.newHashMap();
@@ -171,6 +168,14 @@ public abstract class ItemMWWeapon extends Item
 		for (UUID uuid : warningCooldown.keySet())
 			if (warningCooldown.get(uuid) != 0)
 				warningCooldown.put(uuid, Math.max(warningCooldown.get(uuid)-1, 0));
+
+		// deselect ability if it has cooldown
+		if (entity instanceof EntityPlayer)
+			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+				if (ability.keybind.getCooldown((EntityPlayer) entity) > 0 && 
+						ability.toggled.containsKey(entity.getPersistentID()) &&
+						ability.toggled.get(entity.getPersistentID()))
+					ability.toggled.put(entity.getPersistentID(), false);
 	}
 
 	@Override
@@ -206,7 +211,7 @@ public abstract class ItemMWWeapon extends Item
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		//delete dev spawned items if not worn by dev
 		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
 				entityItem.getEntityItem().hasTagCompound() && 
 				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
@@ -214,6 +219,18 @@ public abstract class ItemMWWeapon extends Item
 			return true;
 		}
 		return false;
+	}
+
+	/**Toggle an ability - will need to be overridden for different heros
+	 * i.e. if Hanzo's scatter ability is toggled, the sonic ability needs to be untoggled*/
+	public void toggle(EntityPlayer player, Ability ability, boolean toggle) {
+		if (toggle) 
+			for (Ability ability2 : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+				ability2.toggled.remove(player.getPersistentID());
+		
+		boolean isToggled = ability.toggled.containsKey(player.getPersistentID()) ? ability.toggled.get(player.getPersistentID()) : false;
+		if (isToggled != toggle)
+			ability.toggled.put(player.getPersistentID(), toggle);
 	}
 
 }

@@ -19,8 +19,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.key.Keys.KeyBind;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
@@ -81,45 +79,46 @@ public class ItemHanzoBow extends ItemMWWeapon
 					ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero;
 			ItemStack itemstack = this.findAmmo(player);
 
-            int i = this.getMaxItemUseDuration(stack) - timeLeft;
-            i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, player, i, !itemstack.isEmpty() || flag);
-            if (i < 0) return;
+			int i = this.getMaxItemUseDuration(stack) - timeLeft;
+			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, player, i, !itemstack.isEmpty() || flag);
+			if (i < 0) return;
 
 			if (!itemstack.isEmpty() || flag) {
 				if (itemstack.isEmpty())
 					itemstack = new ItemStack(Items.ARROW);
 
-		        float f = (float)i / 20.0F;
-		        f = (f * f + f * 2.0F) / 3.0F;
-		        if (f > 1.0F)
-		            f = 1.0F;
-		        
-				if (f >= 0.2f) {
+				float f = (float)i / 20.0F;
+				f = (f * f + f * 2.0F) / 3.0F;
+				if (f > 1.0F)
+					f = 1.0F;
+
+				if (f >= 0.28f) {
 					boolean flag1 = flag || (itemstack.getItem() instanceof ItemArrow 
 							&& ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, player));
 
 					if (!worldIn.isRemote) {
 						EntityHanzoArrow entityarrow = null;
 						// sonic arrow
-						if (Minewatch.keys.ability1(player) && KeyBind.ABILITY_1.getCooldown(player) == 0) {
+						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
 							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
-							//KeyBind.ABILITY_1.setCooldown(player, 400); 
+							//hero.ability2.keybind.setCooldown(player, 400); 
 
 							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f);
 						}
 						// scatter arrow
-						else if (Minewatch.keys.ability2(player) && KeyBind.ABILITY_2.getCooldown(player) == 0) {
-								entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-								entityarrow.setDamage(125*((double)i/160/DAMAGE_SCALE));
-								entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
-								//KeyBind.ABILITY_2.setCooldown(player, 200); 
+						else if (hero.ability1.isSelected(player)) {
+							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
+							entityarrow.setDamage(125*((double)i/160/DAMAGE_SCALE));
+							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
+							//hero.ability1.keybind.setCooldown(player, 200); 
 
-								//worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 
-										//SoundCategory.PLAYERS, 1.0f, 1.0f);
-							}
+							if (worldIn.rand.nextBoolean())
+								worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 
+										SoundCategory.PLAYERS, 1.0f, 1.0f);
+						}
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);

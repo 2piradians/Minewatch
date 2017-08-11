@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -158,6 +159,12 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) {
 		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, x, y, z, isBig);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+	
+	@Override
+	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {
+		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, trackEntity, isBig);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 	

@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -24,7 +25,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		super.onUpdate();
 
 		if (this.world.isRemote) {
-			int numParticles = 10;
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesHanzoScatter(this.world, 
 						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
@@ -32,7 +33,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
 		}
 
-		if (this.inGround)
+		if (this.inGround || (!this.scatter && this.ticksExisted > 100))
 			this.setDead();
 
 	}
@@ -41,17 +42,36 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);
 
+		if (result.entityHit instanceof EntityLivingBase)
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+
 		if (this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
-			System.out.println(this.rotationYaw);
-			System.out.println(this.rotationPitch);
-			// TODO deflect based on arrow pitch/yaw vs. result.sideHit
-			for (int i=0; i<1; ++i) {
+			for (int i=0; i<6; ++i) {
 				EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
 				entityarrow.setDamage(this.getDamage());
 				entityarrow.copyLocationAndAnglesFrom(this);
-				//entityarrow.setThrowableHeading(x, y, z, 2.0f, 0.0f);
-				//entityarrow.rotationPitch = ;
-				//entityarrow.rotationYaw = ;
+
+				double velX = 0;
+				double velZ = 0;
+				double velY = 0;
+
+				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) {
+					velX = this.prevPosX - this.posX;
+					velZ = this.prevPosZ - this.posZ;
+					velY = this.posY - this.prevPosY;
+				}
+				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) {
+					velX = this.prevPosX - this.posX;
+					velZ = this.posZ - this.prevPosZ;
+					velY = this.prevPosY - this.posY;
+				}
+				else {
+					velX = this.posX - this.prevPosX;
+					velZ = this.prevPosZ - this.posZ;
+					velY = this.prevPosY - this.posY;
+				} 
+
+				entityarrow.setThrowableHeading(velX, velY, velZ, 3.0f, 10.0f);
 				this.world.spawnEntity(entityarrow);
 			}
 			this.setDead();

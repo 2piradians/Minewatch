@@ -19,7 +19,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (!world.isRemote && player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
 			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 1.2F, hand, false);
+			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 1.2F, hand, false);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 					SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	

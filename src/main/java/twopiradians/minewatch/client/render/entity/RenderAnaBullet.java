@@ -28,7 +28,6 @@ public class RenderAnaBullet extends Render<EntityAnaBullet>
 		// correct trajectories of fast entities
 		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
 			PacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
-			System.out.println("received, pitch: "+packet.pitch+", yaw: "+packet.yaw);
 			entity.rotationPitch = -packet.pitch;
 			entity.prevRotationPitch = -packet.pitch;
 			entity.rotationYaw = -packet.yaw;

@@ -41,7 +41,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 			EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 					hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 					hero.playersUsingAlt.get(player.getPersistentID()));
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, hand, true);
+			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, null, true);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 

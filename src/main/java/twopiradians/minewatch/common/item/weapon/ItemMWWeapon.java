@@ -54,9 +54,9 @@ public abstract class ItemMWWeapon extends Item
 	}
 
 	public int getCurrentAmmo(EntityPlayer player) {
-		if (player != null && currentAmmo.containsKey(player.getPersistentID()))
+		/*if (player != null && currentAmmo.containsKey(player.getPersistentID()))
 			return currentAmmo.get(player.getPersistentID());
-		else 
+		else *///TODO
 			return getMaxAmmo(player);
 	}
 

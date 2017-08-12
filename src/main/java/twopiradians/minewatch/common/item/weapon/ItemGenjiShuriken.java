@@ -24,7 +24,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (!player.world.isRemote && this.canUse(player, true) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, null, false);
+			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, hand, false);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

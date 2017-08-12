@@ -23,6 +23,8 @@ import twopiradians.minewatch.common.Minewatch;
 
 public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
+	private EntityHitHandler handler = new EntityHitHandler();
+
 	public EntityHanzoSonicArrow(World worldIn) {
 		super(worldIn);
 	}
@@ -45,13 +47,13 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 			if (trackEntity != null)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, trackEntity, true);
 			else
-				Minewatch.proxy.spawnParticlesHanzoSonic(world, x, y, z, true);
+				Minewatch.proxy.spawnParticlesHanzoSonic(world, x, y, z, true, false);
 		else if (world.isRemote && ticks > 30 && ticks < 170 &&
 				(ticks % 30 == 0 || ticks % 32 == 0))
 			if (trackEntity != null)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, trackEntity, false);
 			else
-				Minewatch.proxy.spawnParticlesHanzoSonic(world, x, y, z, false);
+				Minewatch.proxy.spawnParticlesHanzoSonic(world, x, y, z, false, false);
 		else if (ticks > 200)
 			return true;
 
@@ -64,60 +66,69 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 		if (this.inGround && doEffect(world, shootingEntity, null, posX, posY, posZ, timeInGround))
 			this.setDead();
+		else if (!this.inGround && this.world.isRemote) {
+			if (this.ticksExisted % 2 == 0)
+				Minewatch.proxy.spawnParticlesHanzoSonic(world, posX, posY, posZ, false, true);
+
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*5d);
+			for (int i=0; i<numParticles; ++i)
+				Minewatch.proxy.spawnParticlesHanzoScatter(this.world, 
+						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
+		}
 	}
 
 	@Override
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);	
 
-		if (result.entityHit != null && result.entityHit != this.shootingEntity) 
-			new EntityHitHandler(result.entityHit);
+		if (result.entityHit != null && result.entityHit != this.shootingEntity) {
+			if (result.entityHit.world.isRemote)
+				this.handler.clientHitEntities.put(result.entityHit, 0);
+			else
+				this.handler.serverHitEntities.put(result.entityHit, 0);
+		}
 	}
 
-	private class EntityHitHandler {
+	private static class EntityHitHandler {
 
-		private HashMap<Entity, Integer> hitEntities = Maps.newHashMap();
+		public HashMap<Entity, Integer> serverHitEntities = Maps.newHashMap();
+		public HashMap<Entity, Integer> clientHitEntities = Maps.newHashMap();
 
-		public EntityHitHandler(Entity entity) {
-			hitEntities.put(entity, 0);
-			try { // sometimes has some weird registration exception
-				MinecraftForge.EVENT_BUS.register(this);
-			}
-			catch (Exception e) {
-				System.out.println("Caught exception: ");
-				e.printStackTrace();
-			}
+		public EntityHitHandler() {
+			MinecraftForge.EVENT_BUS.register(this);
 		}
 
 		@SubscribeEvent
 		public void clientSide(PlayerTickEvent event) {
 			if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
 				ArrayList<Entity> toRemove = new ArrayList<Entity>();
-				for (Entity entity : hitEntities.keySet()) {
-					if (entity == null || doEffect(entity.world, null, entity, entity.posX, 
-							entity.posY, entity.posZ, hitEntities.get(entity)))
+				for (Entity entity : clientHitEntities.keySet()) {
+					if (entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
+							entity.posY, entity.posZ, clientHitEntities.get(entity))) 
 						toRemove.add(entity);
 					else
-						hitEntities.put(entity, hitEntities.get(entity)+1);
+						clientHitEntities.put(entity, clientHitEntities.get(entity)+1);
 				}
 				for (Entity entity : toRemove)
-					hitEntities.remove(entity);
+					clientHitEntities.remove(entity);
 			}
 		}
 
 		@SubscribeEvent
 		public void serverSide(WorldTickEvent event) {
-			if (event.phase == TickEvent.Phase.END && event.world.rand.nextBoolean()) {
+			if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 3 == 0) {
 				ArrayList<Entity> toRemove = new ArrayList<Entity>();
-				for (Entity entity : hitEntities.keySet()) {
-					if (entity == null || doEffect(entity.world, null, entity, entity.posX, 
-							entity.posY, entity.posZ, hitEntities.get(entity)))
+				for (Entity entity : serverHitEntities.keySet()) {
+					if (entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
+							entity.posY, entity.posZ, serverHitEntities.get(entity))) 
 						toRemove.add(entity);
 					else
-						hitEntities.put(entity, hitEntities.get(entity)+1);
+						serverHitEntities.put(entity, serverHitEntities.get(entity)+1);
 				}
 				for (Entity entity : toRemove)
-					hitEntities.remove(entity);
+					serverHitEntities.remove(entity);
 			}
 		}
 

@@ -55,7 +55,7 @@ public class CommonProxy
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
 	
-	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) { }
+	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) { }
 	
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) { }
 	

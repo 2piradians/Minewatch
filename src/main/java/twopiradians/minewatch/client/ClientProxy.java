@@ -157,8 +157,8 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig) {
-		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, x, y, z, isBig);
+	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {
+		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, x, y, z, isBig, isFast);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 	

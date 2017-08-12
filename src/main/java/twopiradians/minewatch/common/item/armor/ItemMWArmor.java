@@ -43,7 +43,7 @@ public class ItemMWArmor extends ItemArmor
 		 * This way it's only checked once per tick, no matter what:
 		 * very useful for checking if HUDs should be rendered*/
 		@SubscribeEvent
-		public static void updateSets(TickEvent.PlayerTickEvent event) {			
+		public static void updateSets(TickEvent.PlayerTickEvent event) {//TODO remove toggles			
 			if (event.phase == TickEvent.Phase.START) {
 				//detect if player is wearing a set
 				ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);

@@ -22,7 +22,6 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-
 		if (this.world.isRemote && this.ticksExisted > 1) {
 			int numParticles = scatter ? (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d) : 20;
 			for (int i=0; i<numParticles; ++i)

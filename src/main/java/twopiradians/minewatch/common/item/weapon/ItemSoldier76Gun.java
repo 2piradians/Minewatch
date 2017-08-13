@@ -54,7 +54,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 		if (!world.isRemote && this.canUse(player, true) && hero.ability1.isSelected(player)) {
 			for (int i=1; i<=3; ++i) {
 				EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-				rocket.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 1.2F, hand, false);
+				rocket.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 0F, hand, false);
 				world.spawnEntity(rocket);
 			}
 			hero.ability1.keybind.setCooldown(player, 160);

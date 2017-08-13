@@ -127,7 +127,7 @@ public class ClientProxy extends CommonProxy
 						boolean blocking = false;
 						if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							blocking = player.isSprinting();
+							blocking = player != null ? player.isSprinting() : false;
 						}
 						//System.out.println(blocking);
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (blocking ? "_blocking_3d" : "_3d"), "inventory");

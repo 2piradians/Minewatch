@@ -101,6 +101,9 @@ public enum EnumHero {
 		this.ability1 = ability1;
 		this.ability2 = ability2;
 		this.ability3 = ability3;
+		this.ability1.hero = this;
+		this.ability2.hero = this;
+		this.ability3.hero = this;
 		this.mainAmmo = mainAmmo;
 		this.altAmmo = altAmmo;
 		this.armorReductionAmounts = armorReductionAmounts;

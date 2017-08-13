@@ -7,9 +7,11 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
 public class Ability {
 
+	public EnumHero hero;
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
@@ -22,7 +24,9 @@ public class Ability {
 	}
 	
 	public boolean isSelected(EntityPlayer player) {
-		return keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
+		return (ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
+				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
+				keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
 		(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 	}
 	

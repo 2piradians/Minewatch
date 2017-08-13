@@ -199,6 +199,18 @@ public class Keys {
 		if (event.phase == Phase.END && Minecraft.getMinecraft().player != null) {
 			UUID player = Minecraft.getMinecraft().player.getPersistentID();
 
+			// disable lmb if not in game screen
+			if (Minecraft.getMinecraft().currentScreen != null && this.lmb(Minecraft.getMinecraft().player)) {
+				lmb.put(player, false);
+				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", false, player));
+			}
+			// disable rmb if not in game screen
+			if (Minecraft.getMinecraft().currentScreen != null && this.rmb(Minecraft.getMinecraft().player)) {
+				rmb.put(player, false);
+				Minewatch.network.sendToServer(new PacketSyncKeys("RMB", false, player));
+			}
+			
+			// sync keys
 			if (!heroInformation.containsKey(player) || HERO_INFORMATION.isKeyDown() != heroInformation.get(player)) {
 				heroInformation.put(player, HERO_INFORMATION.isKeyDown());
 				Minewatch.network.sendToServer(new PacketSyncKeys("Hero Information", HERO_INFORMATION.isKeyDown(), player));

@@ -17,7 +17,6 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
-		this.ignoreEntity = this;
 		this.lifetime = 40;
 	}
 

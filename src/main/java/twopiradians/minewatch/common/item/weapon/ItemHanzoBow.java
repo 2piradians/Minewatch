@@ -169,7 +169,7 @@ public class ItemHanzoBow extends ItemMWWeapon
 
 			NBTTagCompound nbt = stack.getTagCompound();
 
-			if (!nbt.hasKey("player") || !nbt.getUniqueId("player").equals(entityIn.getPersistentID())) {
+			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entityIn.getPersistentID().getLeastSignificantBits())) {
 				nbt.setUniqueId("player", entityIn.getPersistentID());
 				stack.setTagCompound(nbt);
 			}

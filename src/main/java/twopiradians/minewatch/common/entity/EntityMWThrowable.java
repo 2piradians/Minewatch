@@ -23,6 +23,7 @@ public abstract class EntityMWThrowable extends EntityThrowable {
 
 	public EntityMWThrowable(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.ignoreEntity = this;
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public abstract class EntityMWThrowable extends EntityThrowable {
         this.setThrowableHeading(x, y, z, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
-		Vec3d look = shooter.getLookVec().rotateYaw(0).rotatePitch(0);
+		Vec3d look = shooter.getLookVec().scale(1).rotateYaw(0).rotatePitch(0);
 		this.setPosition(posX+look.xCoord, posY+look.yCoord, posZ+look.zCoord);
 
 		// correct trajectory of fast entities (received in render class)

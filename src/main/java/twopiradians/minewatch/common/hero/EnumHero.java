@@ -45,7 +45,7 @@ public enum EnumHero {
 	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun()),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, true), new Ability(KeyBind.NONE, false, false), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false), new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, true), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
-	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, false, false), new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, true), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
+	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false), new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.NONE, true, false), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
 	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol()),
 	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun()),
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, true), new Ability(KeyBind.NONE, false, false), 40, 0, new int[] {2,3,3,2}, new ItemMeiBlaster());

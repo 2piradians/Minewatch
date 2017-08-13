@@ -24,7 +24,6 @@ public class EntityAnaBullet extends EntityMWThrowable
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
 		this.heal = heal;
-		this.ignoreEntity = this;
 		this.lifetime = 40;
 	}
 

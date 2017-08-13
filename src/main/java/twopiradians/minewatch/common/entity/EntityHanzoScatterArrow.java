@@ -22,21 +22,22 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
 
-		if (!this.scatter && !this.world.isRemote)
-			System.out.println("prev: "+this.prevPosX+", x: "+this.posX);
-
-		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
+		if (this.world.isRemote && this.ticksExisted > 1) {
+			int numParticles = scatter ? (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d) : 20;
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesHanzoScatter(this.world, 
-						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
+						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
 		}
+		
+		super.onUpdate();
 
-		if (this.inGround || (!this.scatter && this.ticksExisted > 100))
+		if (this.inGround)
+			this.inGround = false;
+		
+		if (!this.world.isRemote && !this.scatter && this.ticksExisted > 100) 
 			this.setDead();
 
 	}
@@ -44,29 +45,14 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 	@Override
 	protected void onHit(RayTraceResult result) {
 
-		if (!this.scatter && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
-			double velX = 0;
-			double velZ = 0;
-			double velY = 0;
-
-			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) {
-				velX = this.prevPosX - this.posX;
-				velZ = this.prevPosZ - this.posZ;
-				velY = this.posY - this.prevPosY;
-			}
-			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) {
-				velX = this.prevPosX - this.posX;
-				velZ = this.posZ - this.prevPosZ;
-				velY = this.prevPosY - this.posY;
-			}
-			else {
-				velX = this.posX - this.prevPosX;
-				velZ = this.prevPosZ - this.posZ;
-				velY = this.prevPosY - this.posY;
-			} 
-
-			this.setThrowableHeading(velX, velY, velZ, 3.0f, 0.0f);
-			System.out.println("bounce: x: "+velX+", y: "+velY+", z: "+velZ);
+		// bounce if not scatter
+		if (!this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
+			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
+				this.motionY *= -1d;
+			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
+				this.motionZ *= -1d;
+			else 
+				this.motionX *= -1d;
 		}
 		else
 			super.onHit(result);
@@ -74,34 +60,25 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		if (result.entityHit instanceof EntityLivingBase)
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 
+		// scatter
 		if (this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
-			for (int i=0; i<1; ++i) {
+			for (int i=0; i<6; ++i) {
 				EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
 				entityarrow.setDamage(this.getDamage());
 				entityarrow.copyLocationAndAnglesFrom(this);
+				
+				entityarrow.motionX = this.motionX;
+				entityarrow.motionY = this.motionY;
+				entityarrow.motionZ = this.motionZ;
 
-				double velX = 0;
-				double velZ = 0;
-				double velY = 0;
+				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
+					entityarrow.motionY *= -1d;
+				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
+					entityarrow.motionZ *= -1d;
+				else 
+					entityarrow.motionX *= -1d;
 
-				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) {
-					velX = this.prevPosX - this.posX;
-					velZ = this.prevPosZ - this.posZ;
-					velY = this.posY - this.prevPosY;
-				}
-				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) {
-					velX = this.prevPosX - this.posX;
-					velZ = this.posZ - this.prevPosZ;
-					velY = this.prevPosY - this.posY;
-				}
-				else {
-					velX = this.posX - this.prevPosX;
-					velZ = this.prevPosZ - this.posZ;
-					velY = this.prevPosY - this.posY;
-				} 
-
-				entityarrow.setThrowableHeading(velX, velY, velZ, 3.0f, 10.0f);
-				System.out.println("spawn: x: "+velX+", y: "+velY+", z: "+velZ);
+				entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
 				this.world.spawnEntity(entityarrow);
 			}
 			this.setDead();

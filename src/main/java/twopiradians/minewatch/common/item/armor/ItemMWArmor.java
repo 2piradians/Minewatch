@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWArmor extends ItemArmor 
@@ -59,6 +60,14 @@ public class ItemMWArmor extends ItemArmor
 					}
 				}
 
+				// clear toggles when switching to set or if not holding weapon
+				if ((event.player.getHeldItemMainhand() == null || 
+						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
+						(fullSet && (!SetManager.playersWearingSets.containsKey(event.player.getPersistentID()) ||
+								SetManager.playersWearingSets.get(event.player.getPersistentID()) != hero)))
+					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+						ability.toggled.remove(event.player.getPersistentID());
+
 				// update playersWearingSets
 				if (fullSet)
 					SetManager.playersWearingSets.put(event.player.getPersistentID(), hero);
@@ -82,14 +91,14 @@ public class ItemMWArmor extends ItemArmor
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
-						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
-	
+
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
@@ -102,7 +111,7 @@ public class ItemMWArmor extends ItemArmor
 		}
 		return false;
 	}
-	
+
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		

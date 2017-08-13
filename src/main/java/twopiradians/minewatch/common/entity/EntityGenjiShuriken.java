@@ -19,7 +19,6 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 	public EntityGenjiShuriken(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
-		this.ignoreEntity = this;
 		this.lifetime = 40;
 	}
 

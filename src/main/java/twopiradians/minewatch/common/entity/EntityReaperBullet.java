@@ -18,7 +18,6 @@ public class EntityReaperBullet extends EntityMWThrowable {
 	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
-		this.ignoreEntity = this;
 		this.lifetime = 5;
 	}
 

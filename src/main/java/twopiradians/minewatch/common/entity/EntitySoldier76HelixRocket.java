@@ -1,23 +1,42 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
-public class EntitySoldier76Bullet extends EntityMWThrowable {
+public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 
-	public EntitySoldier76Bullet(World worldIn) {
+    private static final DataParameter<Integer> NUMBER = EntityDataManager.<Integer>createKey(EntitySoldier76HelixRocket.class, DataSerializers.VARINT);
+	
+	public EntitySoldier76HelixRocket(World worldIn) {
 		super(worldIn);
 		this.setSize(0.1f, 0.1f);
 	}
 
-	public EntitySoldier76Bullet(World worldIn, EntityLivingBase throwerIn) {
+	public EntitySoldier76HelixRocket(World worldIn, EntityLivingBase throwerIn, int number) {
 		super(worldIn, throwerIn);
+		this.getDataManager().set(NUMBER, number);
 		this.setNoGravity(true);
-		this.lifetime = 5;
+		this.lifetime = 100;
+	}
+	
+	@Override
+    protected void entityInit() {
+        super.entityInit();
+        this.getDataManager().register(NUMBER, Integer.valueOf(0));
+    }
+	
+	@Override
+	public void onUpdate() {		
+		int num = this.getDataManager().get(NUMBER);
 	}
 
 	@Override

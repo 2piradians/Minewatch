@@ -61,7 +61,7 @@ public class ItemMWArmor extends ItemArmor
 				}
 
 				// clear toggles when switching to set or if not holding weapon
-				if ((event.player.getHeldItemMainhand() == null || 
+				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
 						(fullSet && (!SetManager.playersWearingSets.containsKey(event.player.getPersistentID()) ||
 								SetManager.playersWearingSets.get(event.player.getPersistentID()) != hero)))

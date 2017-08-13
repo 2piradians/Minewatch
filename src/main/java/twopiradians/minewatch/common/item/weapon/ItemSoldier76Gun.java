@@ -80,11 +80,12 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 
 		// toggle ability3 to match sprinting
 		if (entity instanceof EntityPlayer) {
-			if (entity.isSprinting() && (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
+			if (isSelected && entity.isSprinting() && (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
 					!hero.ability3.toggled.get(entity.getPersistentID())))
 				hero.ability3.toggled.put(entity.getPersistentID(), true);
-			else if (!entity.isSprinting() && hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
-					hero.ability3.toggled.get(entity.getPersistentID()))
+			else if (!isSelected || (!entity.isSprinting() && 
+					hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
+					hero.ability3.toggled.get(entity.getPersistentID())))
 				hero.ability3.toggled.remove(entity.getPersistentID());
 		}
 
@@ -102,7 +103,6 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
 				nbt.setUniqueId("player", entity.getPersistentID());
 				stack.setTagCompound(nbt);
-				System.out.println(stack.getTagCompound());
 			}
 		}
 

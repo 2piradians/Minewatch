@@ -15,7 +15,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -132,7 +134,6 @@ public class ClientProxy extends CommonProxy
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							blocking = player != null ? player.isSprinting() : false;
 						}
-						//System.out.println(blocking);
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (blocking ? "_blocking_3d" : "_3d"), "inventory");
 					}
 				});
@@ -171,6 +172,29 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(loc);
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
+	}
+	
+	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
+	@Override
+	public void mouseClick() {
+		Minecraft mc = Minecraft.getMinecraft();
+		if (mc.objectMouseOver != null && !mc.player.isRowingBoat()) {
+			switch (mc.objectMouseOver.typeOfHit) {
+			case ENTITY:
+				mc.playerController.attackEntity(mc.player, mc.objectMouseOver.entityHit);
+				break;
+			case BLOCK:
+				BlockPos blockpos = mc.objectMouseOver.getBlockPos();
+				if (!mc.world.isAirBlock(blockpos)) {
+					mc.playerController.clickBlock(blockpos, mc.objectMouseOver.sideHit);
+					break;
+				}
+			case MISS:
+				mc.player.resetCooldown();
+				net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.player);
+			}
+			mc.player.swingArm(EnumHand.MAIN_HAND);
+		}
 	}
 
 	@Override

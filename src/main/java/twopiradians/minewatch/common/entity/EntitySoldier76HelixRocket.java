@@ -6,11 +6,13 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 
@@ -59,6 +61,8 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 			if (result.entityHit instanceof EntityLivingBase && !this.world.isRemote) {
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 5f/ItemMWWeapon.DAMAGE_SCALE);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 10;
+				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
 
 			// explosion

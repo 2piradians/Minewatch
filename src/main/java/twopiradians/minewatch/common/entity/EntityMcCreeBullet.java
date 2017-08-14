@@ -3,10 +3,12 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityMcCreeBullet extends EntityMWThrowable {
 
@@ -45,6 +47,8 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 			float damage = 70 - (70 - 21) * (this.ticksExisted / lifetime);
 			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+					ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			this.setDead();
 		}
 	}

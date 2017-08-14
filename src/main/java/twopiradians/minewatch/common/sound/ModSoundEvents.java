@@ -8,13 +8,15 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
 
+	public static SoundEvent hurt;
 	public static SoundEvent anaShoot;
+	public static SoundEvent anaHeal;
 	public static SoundEvent reaperShoot;
 	public static SoundEvent hanzoShoot;
 	public static SoundEvent hanzoDraw;
 	public static SoundEvent hanzoSonicArrow;
 	public static SoundEvent hanzoScatterArrow;
-	public static SoundEvent reinhardtRocketHammer;
+	public static SoundEvent reinhardtWeapon;
 	public static SoundEvent genjiShoot;
 	public static SoundEvent tracerShoot;
 	public static SoundEvent mccreeShoot;
@@ -22,7 +24,9 @@ public class ModSoundEvents {
 	public static SoundEvent soldier76Helix;
 
 	public static void preInit() {
+		hurt = registerSound("hurt");
 		anaShoot = registerSound("ana_shoot");
+		anaHeal = registerSound("ana_heal");
 		EnumHero.ANA.reloadSound = registerSound("ana_reload");
 		reaperShoot = registerSound("reaper_shoot");
 		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
@@ -30,7 +34,7 @@ public class ModSoundEvents {
 		hanzoDraw = registerSound("hanzo_draw");
 		hanzoSonicArrow = registerSound("hanzo_sonic_arrow");
 		hanzoScatterArrow = registerSound("hanzo_scatter_arrow");
-		reinhardtRocketHammer = registerSound("reinhardt_rocket_hammer");
+		reinhardtWeapon = registerSound("reinhardt_weapon");
 		genjiShoot = registerSound("genji_shoot");
 		EnumHero.GENJI.reloadSound = registerSound("genji_reload");
 		tracerShoot = registerSound("tracer_shoot");
@@ -38,8 +42,8 @@ public class ModSoundEvents {
 		mccreeShoot = registerSound("mccree_shoot");
 		EnumHero.MCCREE.reloadSound = registerSound("mccree_reload");
 		soldier76Shoot = registerSound("soldier76_shoot");
-		EnumHero.SOLDIER76.reloadSound = registerSound("soldier76_reload");
 		soldier76Helix = registerSound("soldier76_helix");
+		EnumHero.SOLDIER76.reloadSound = registerSound("soldier76_reload");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

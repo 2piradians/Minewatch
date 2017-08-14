@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -11,6 +10,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityAnaBullet extends EntityMWThrowable
 {
@@ -55,12 +55,12 @@ public class EntityAnaBullet extends EntityMWThrowable
 						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
 				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-						SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
+						ModSoundEvents.anaHeal, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);	
 			}
 			else {
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
 				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-						SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
 			this.setDead();
 		}

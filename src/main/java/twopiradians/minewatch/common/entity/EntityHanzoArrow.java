@@ -7,11 +7,14 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
 public class EntityHanzoArrow extends EntityArrow {
@@ -40,13 +43,22 @@ public class EntityHanzoArrow extends EntityArrow {
 					new PacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
 					new TargetPoint(this.world.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
 	}
-	
+
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
 
 		if (!this.hasNoGravity() && this.rotationPitch > -50) 
-            this.motionY += 0.04D;
+			this.motionY += 0.04D;
+	}
+
+	@Override
+	protected void onHit(RayTraceResult result) {
+		if (!this.world.isRemote && result.entityHit != null && result.entityHit != this.shootingEntity)
+			result.entityHit.world.playSound(null, this.shootingEntity.posX, this.shootingEntity.posY, this.shootingEntity.posZ, 
+					ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+		
+		super.onHit(result);
 	}
 
 	@Override

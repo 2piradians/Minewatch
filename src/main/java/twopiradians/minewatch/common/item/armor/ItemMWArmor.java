@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -122,6 +123,17 @@ public class ItemMWArmor extends ItemArmor
 				player.getItemStackFromSlot(this.armorType) == stack)) {
 			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
+		}
+
+		if (this.armorType == EntityEquipmentSlot.CHEST && 
+				hero == EnumHero.TRACER && world.isRemote && player != null) {
+			int numParticles = (int) ((Math.abs(player.motionX)+Math.abs(player.motionY)+Math.abs(player.motionZ))*10d);
+			for (int i=0; i<numParticles; ++i)
+				Minewatch.proxy.spawnParticlesTrail(player.world, 
+						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
+						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
+						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
+						0x5EDCE5, 0x007acc, 1, 7);
 		}
 	}
 

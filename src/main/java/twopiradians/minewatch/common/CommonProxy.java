@@ -88,5 +88,7 @@ public class CommonProxy
 		}
 		catch (Exception e) {}
 	}
+
+	public void mouseClick() { }
 	
 }

@@ -29,12 +29,6 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		this.thrower = throwerIn;
 		this.ignoreEntity = this;
 	}
-
-	@Override
-    public void applyEntityCollision(Entity entityIn) {
-    	System.out.println(entityIn);
-    	super.applyEntityCollision(entityIn);
-    }
 	
 	@Override
 	public boolean isImmuneToExplosions() {

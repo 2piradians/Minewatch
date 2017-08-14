@@ -50,7 +50,6 @@ public class ParticleSmoke extends ParticleSimpleAnimated {
 
 		if (this.particleAge % (this.particleMaxAge / 4) == 0) {
 			int num = Math.min(this.particleAge / (this.particleMaxAge / 4), 3);
-			//System.out.println(this.particleAge+": num: "+num+", scale: "+this.particleScale);
 			ResourceLocation texture = new ResourceLocation(Minewatch.MODID, "entity/particle/smoke_"+num);
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
 			this.setParticleTexture(sprite); 

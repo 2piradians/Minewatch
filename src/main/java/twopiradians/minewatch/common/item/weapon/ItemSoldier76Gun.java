@@ -33,7 +33,6 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 		this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				System.out.println(entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F);
 				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
 			}
 		});

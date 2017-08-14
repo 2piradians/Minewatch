@@ -41,7 +41,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote && this.canUse(player, true) && !hero.ability1.isSelected(player)) {
+		if (!player.world.isRemote && this.canUse(player, true)) {
 			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75/DAMAGE_SCALE);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
@@ -55,7 +55,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true) && !hero.ability1.isSelected(player)) {
 			if (world.isRemote)
 				Minewatch.proxy.mouseClick();
 			else {
@@ -66,7 +66,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						this.onLeftClickEntity(stack, player, entity);
 				player.world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
-						1.0F, player.world.rand.nextFloat()/2+0.75f);
+						1.0F, player.world.rand.nextFloat()/3+0.8f);
 				player.getCooldownTracker().setCooldown(this, 20);
 			}
 		}

@@ -58,18 +58,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (isSelected && entity != null && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false)) {
-			EntityPlayer player = (EntityPlayer)entity;
-
-			// sleep dart
-			if (isSelected && Minewatch.keys.ability1(player)) {
-
-			}
-
-			// biotic grenade
-			if (isSelected && Minewatch.keys.ability2(player)) {
-
-			}
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false)) {
 
 			// health particles
 			if (world.isRemote && entity.ticksExisted % 5 == 0) {

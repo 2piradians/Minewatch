@@ -16,6 +16,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,17 +52,24 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		// shoot
-		if (!world.isRemote && this.canUse(player, true) && hero.ability1.isSelected(player)) {
-			for (int i=1; i<=3; ++i) {
-				EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-				rocket.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 0F, hand, false);
-				world.spawnEntity(rocket);
+		if (this.canUse(player, true) && hero.ability1.isSelected(player)) {
+			if (!world.isRemote) {
+				for (int i=1; i<=3; ++i) {
+					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
+					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, hand, false);
+					world.spawnEntity(rocket);
+				}
+				//hero.ability1.keybind.setCooldown(player, 160); TODO
+				hero.ability1.keybind.setCooldown(player, 20);
+				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
+						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					player.getHeldItem(hand).damageItem(1, player);
 			}
-			hero.ability1.keybind.setCooldown(player, 160);
-			world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
-					SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-			if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-				player.getHeldItem(hand).damageItem(1, player);
+			else {
+				Vec3d look = player.getLookVec().scale(1.2d).addVector(player.posX, player.posY+player.eyeHeight, player.posZ);
+				Minewatch.proxy.spawnParticlesSpark(world, look.xCoord, look.yCoord, look.zCoord, 0x2B9191, 0x2B9191, 8, 3);
+			}
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -76,17 +84,6 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 			if (entity.isSprinting())
 				entity.setSprinting(false);
 			this.onItemRightClick(world, (EntityPlayer) entity, EnumHand.MAIN_HAND);
-		}
-
-		// toggle ability3 to match sprinting
-		if (entity instanceof EntityPlayer) {
-			if (isSelected && entity.isSprinting() && (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
-					!hero.ability3.toggled.get(entity.getPersistentID())))
-				hero.ability3.toggled.put(entity.getPersistentID(), true);
-			else if (!isSelected || (!entity.isSprinting() && 
-					hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
-					hero.ability3.toggled.get(entity.getPersistentID())))
-				hero.ability3.toggled.remove(entity.getPersistentID());
 		}
 
 		// block while running
@@ -107,8 +104,16 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 		}
 
 		// faster sprint
-		if (entity.isSprinting() && entity instanceof EntityPlayer && !entity.world.isRemote)
-			((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
+		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer) {
+			if (!world.isRemote)
+				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
+			if (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
+					!hero.ability3.toggled.get(entity.getPersistentID()))
+				hero.ability3.toggled.put(entity.getPersistentID(), true);
+		}
+		else if (isSelected && hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
+				hero.ability3.toggled.get(entity.getPersistentID()))
+			hero.ability3.toggled.remove(entity.getPersistentID());
 	}	
 
 	@Override
@@ -117,15 +122,21 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 			player.setSprinting(false);
 
 		// shoot
-		if (!world.isRemote && player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
-			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 1.2F, hand, false);
-			world.spawnEntity(bullet);
-			world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
-					SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-			this.subtractFromCurrentAmmo(player, 1);
-			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-				player.getHeldItem(hand).damageItem(1, player);
+		if (player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
+			if (!world.isRemote) {
+				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 4.0F, 1.2F, hand, false);
+				world.spawnEntity(bullet);
+				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
+						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				this.subtractFromCurrentAmmo(player, 1);
+				if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					player.getHeldItem(hand).damageItem(1, player);
+			}
+			else {
+				Vec3d look = player.getLookVec().scale(1.2d).addVector(player.posX, player.posY+player.eyeHeight, player.posZ);
+				Minewatch.proxy.spawnParticlesSpark(world, look.xCoord, look.yCoord, look.zCoord, 0x4AFDFD, 0x4AFDFD, 5, 1);
+			}
 		}
 	}
 

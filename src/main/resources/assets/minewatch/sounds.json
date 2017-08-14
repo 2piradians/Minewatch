@@ -101,5 +101,11 @@
 		"sounds": [
 			"minewatch:soldier76_reload"
 		]
+	},
+	"soldier76_helix": {
+		"category": "player",
+		"sounds": [
+			"minewatch:soldier76_helix"
+		]
 	}
 }

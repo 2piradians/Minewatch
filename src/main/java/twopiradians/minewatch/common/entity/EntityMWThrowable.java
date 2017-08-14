@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -10,12 +11,14 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
-public abstract class EntityMWThrowable extends EntityThrowable {
+public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
 
 	protected int lifetime;
+	private EntityLivingBase thrower;
 
 	public EntityMWThrowable(World worldIn) {
 		super(worldIn);
@@ -23,7 +26,19 @@ public abstract class EntityMWThrowable extends EntityThrowable {
 
 	public EntityMWThrowable(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.thrower = throwerIn;
 		this.ignoreEntity = this;
+	}
+
+	@Override
+    public void applyEntityCollision(Entity entityIn) {
+    	System.out.println(entityIn);
+    	super.applyEntityCollision(entityIn);
+    }
+	
+	@Override
+	public boolean isImmuneToExplosions() {
+		return true;
 	}
 
 	@Override
@@ -68,9 +83,9 @@ public abstract class EntityMWThrowable extends EntityThrowable {
         this.setPosition(x, y, z);
 		this.setThrowableHeading((double)velX, (double)velY, (double)velZ, velocity, inaccuracy);*/
 		double x = -Math.sin(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
-        double y = -Math.sin(pitch * Math.PI/180);
-        double z = Math.cos(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
-        this.setThrowableHeading(x, y, z, velocity, inaccuracy);
+		double y = -Math.sin(pitch * Math.PI/180);
+		double z = Math.cos(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
+		this.setThrowableHeading(x, y, z, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
 		Vec3d look = shooter.getLookVec().scale(1).rotateYaw(0).rotatePitch(0);
@@ -92,6 +107,17 @@ public abstract class EntityMWThrowable extends EntityThrowable {
 			if (!block.isPassable(this.world, result.getBlockPos())) 
 				this.setDead();
 		}
+	}
+
+	@Override
+	public EntityLivingBase getThrower() {
+		return this.thrower;
+	}
+	
+	@Override
+	public void setThrower(Entity entity) {
+		if (entity instanceof EntityLivingBase)
+			this.thrower = (EntityLivingBase) entity;
 	}
 
 }

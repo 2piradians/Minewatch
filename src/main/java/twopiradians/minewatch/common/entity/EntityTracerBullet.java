@@ -6,6 +6,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityTracerBullet extends EntityMWThrowable {
@@ -18,7 +19,22 @@ public class EntityTracerBullet extends EntityMWThrowable {
 	public EntityTracerBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
-		this.lifetime = 5;
+		this.lifetime = 15;
+	}
+	
+	@Override
+	public void onUpdate() {		
+		super.onUpdate();
+
+		if (this.world.isRemote && this.ticksExisted > 1) {
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
+			for (int i=0; i<numParticles; ++i)
+				Minewatch.proxy.spawnParticlesTrail(this.world, 
+						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
+						this.posY+(this.prevPosY-this.posY)*i/numParticles, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
+						0x5EDCE5, 0x007acc, 0.5f, 1);
+		}
 	}
 
 	@Override
@@ -26,7 +42,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
-				result.entityHit != this.getThrower()) {
+				result.entityHit != this.getThrower() && !this.world.isRemote) {
 			float damage = 6 - (6 - 1.5f) * (this.ticksExisted / lifetime);
 			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;

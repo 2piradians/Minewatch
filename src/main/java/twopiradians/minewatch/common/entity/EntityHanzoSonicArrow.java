@@ -72,10 +72,11 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*5d);
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesHanzoScatter(this.world, 
+				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
+						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						0x5EDCE5, 0x007acc, 1, 20);
 		}
 	}
 

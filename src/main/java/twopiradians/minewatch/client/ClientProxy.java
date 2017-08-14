@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -28,8 +29,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
-import twopiradians.minewatch.client.particle.ParticleHanzoScatter;
+import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
+import twopiradians.minewatch.client.particle.ParticleSmoke;
+import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
@@ -163,7 +166,11 @@ public class ClientProxy extends CommonProxy
 	public void stitcherEventPre(TextureStitchEvent.Pre event) {
 		event.getMap().registerSprite(ParticleAnaHealth.TEXTURE);
 		event.getMap().registerSprite(ParticleHanzoSonic.TEXTURE);
-		event.getMap().registerSprite(ParticleHanzoScatter.TEXTURE);
+		event.getMap().registerSprite(ParticleTrail.TEXTURE);
+		for (ResourceLocation loc : ParticleSmoke.TEXTURES)
+			event.getMap().registerSprite(loc);
+		for (ResourceLocation loc : ParticleSpark.TEXTURES)
+			event.getMap().registerSprite(loc);
 	}
 
 	@Override
@@ -188,8 +195,20 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesHanzoScatter(World world, double x, double y, double z) {
-		ParticleHanzoScatter particle = new ParticleHanzoScatter(world, x, y, z);
+	public void spawnParticlesTrail(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
+		ParticleTrail particle = new ParticleTrail(world, x, y, z, color, colorFade, scale, maxAge);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+	
+	@Override
+	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
+		ParticleSmoke particle = new ParticleSmoke(world, x, y, z, color, colorFade, scale, maxAge);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+	
+	@Override
+	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
+		ParticleSpark particle = new ParticleSpark(world, x, y, z, color, colorFade, scale, maxAge);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 }

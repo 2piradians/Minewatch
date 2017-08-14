@@ -25,10 +25,11 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		if (this.world.isRemote && this.ticksExisted > 1) {
 			int numParticles = scatter ? (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d) : 20;
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesHanzoScatter(this.world, 
+				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d);
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						0x5EDCE5, 0x007acc, 1, 20);
 		}
 		
 		super.onUpdate();
@@ -47,11 +48,11 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		// bounce if not scatter
 		if (!this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-				this.motionY *= -1d;
+				this.motionY *= -1.3d;
 			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-				this.motionZ *= -1d;
+				this.motionZ *= -1.3d;
 			else 
-				this.motionX *= -1d;
+				this.motionX *= -1.3d;
 		}
 		else
 			super.onHit(result);
@@ -71,11 +72,11 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 				entityarrow.motionZ = this.motionZ;
 
 				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-					entityarrow.motionY *= -1d;
+					entityarrow.motionY *= -1.3d;
 				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-					entityarrow.motionZ *= -1d;
+					entityarrow.motionZ *= -1.3d;
 				else 
-					entityarrow.motionX *= -1d;
+					entityarrow.motionX *= -1.3d;
 
 				entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
 				this.world.spawnEntity(entityarrow);

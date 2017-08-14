@@ -37,7 +37,7 @@ public class RenderReaperBullet extends Render<EntityReaperBullet>
 			entity.motionZ = packet.motionZ;
 			ModEntities.spawningEntities.remove(entity.getPersistentID());
 		}
-		
+				
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

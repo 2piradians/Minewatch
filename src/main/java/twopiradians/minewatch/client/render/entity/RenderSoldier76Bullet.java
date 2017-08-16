@@ -20,7 +20,7 @@ public class RenderSoldier76Bullet extends Render<EntitySoldier76Bullet>
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntitySoldier76Bullet entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/Soldier76_bullet.png");
+		return new ResourceLocation(Minewatch.MODID, "textures/entity/soldier76_bullet.png");
 	}
 	
 	@Override

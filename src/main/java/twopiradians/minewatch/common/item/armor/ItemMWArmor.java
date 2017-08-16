@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
@@ -36,6 +38,13 @@ public class ItemMWArmor extends ItemArmor
 		this.hero = hero;
 	}
 
+	@Override
+	@Nullable
+	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
+		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+hero.textureVariation+"_layer_"+
+				(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";    
+	}
+
 	@Mod.EventBusSubscriber
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
@@ -45,7 +54,7 @@ public class ItemMWArmor extends ItemArmor
 		 * This way it's only checked once per tick, no matter what:
 		 * very useful for checking if HUDs should be rendered*/
 		@SubscribeEvent
-		public static void updateSets(TickEvent.PlayerTickEvent event) {//TODO remove toggles			
+		public static void updateSets(TickEvent.PlayerTickEvent event) {			
 			if (event.phase == TickEvent.Phase.START) {
 				//detect if player is wearing a set
 				ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
@@ -125,6 +134,7 @@ public class ItemMWArmor extends ItemArmor
 			return;
 		}
 
+		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
 				hero == EnumHero.TRACER && world.isRemote && player != null) {
 			int numParticles = (int) ((Math.abs(player.motionX)+Math.abs(player.motionY)+Math.abs(player.motionZ))*10d);

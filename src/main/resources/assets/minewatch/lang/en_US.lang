@@ -1,5 +1,7 @@
 itemGroup.tabMinewatch=Minewatch
 
+config.heroTextures=Hero Textures
+
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helmet
 item.reaper_chestplate.name=Reaper Chestplate

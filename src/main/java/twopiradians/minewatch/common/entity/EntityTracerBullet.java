@@ -28,12 +28,12 @@ public class EntityTracerBullet extends EntityMWThrowable {
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote && this.ticksExisted > 1) {
+		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles, 
+						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
 						0x5EDCE5, 0x007acc, 0.5f, 1);
 		}

@@ -17,7 +17,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -31,10 +30,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
-import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
+import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
@@ -184,11 +183,6 @@ public class ClientProxy extends CommonProxy
 				mc.playerController.attackEntity(mc.player, mc.objectMouseOver.entityHit);
 				break;
 			case BLOCK:
-				BlockPos blockpos = mc.objectMouseOver.getBlockPos();
-				if (!mc.world.isAirBlock(blockpos)) {
-					mc.playerController.clickBlock(blockpos, mc.objectMouseOver.sideHit);
-					break;
-				}
 			case MISS:
 				mc.player.resetCooldown();
 				net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.player);

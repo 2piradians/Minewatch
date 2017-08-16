@@ -29,7 +29,7 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		this.thrower = throwerIn;
 		this.ignoreEntity = this;
 	}
-	
+
 	@Override
 	public boolean isImmuneToExplosions() {
 		return true;
@@ -50,32 +50,6 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 	}
 
 	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, EnumHand hand, boolean sendPacket) {
-		/*double velX = Math.cos(pitch*Math.PI/180) * Math.cos(yaw*Math.PI/180 + Math.PI/2);;
-        double velY = - Math.sin(pitch*Math.PI/180);
-        double velZ = Math.cos(pitch*Math.PI/180) * Math.sin(yaw*Math.PI/180 + Math.PI/2);;
-
-        // copied from EntityArrow
-        double x = shooter.posX + Math.cos(pitch*Math.PI/180)*Math.cos(yaw*Math.PI/180 + Math.PI/2);
-        double y = shooter.posY + shooter.getEyeHeight() - Math.sin(pitch*Math.PI/180);
-        double z = shooter.posZ + Math.cos(pitch*Math.PI/180)*Math.sin(yaw*Math.PI/180 + Math.PI/2);
-
-        double crosshairAdjust = 0.1d;
-        if (hand == EnumHand.MAIN_HAND) {
-            x -= Math.cos(yaw*Math.PI/180)/2;
-            y -= 0.15d - Math.sin(pitch*Math.PI/180)/2;
-            z -= Math.sin(yaw*Math.PI/180)/2;
-            //velX = Math.cos(pitch*Math.PI/180) * Math.cos(yaw*Math.PI/180 + Math.PI/2 - Math.copySign(crosshairAdjust, yaw));
-            //velZ = Math.cos(pitch*Math.PI/180) * Math.sin(yaw*Math.PI/180 + Math.PI/2 - Math.copySign(crosshairAdjust, yaw));
-        }
-        else if (hand == EnumHand.OFF_HAND) {
-            x += Math.cos(yaw*Math.PI/180)/2;
-            y -= 0.15d - Math.sin(pitch*Math.PI/180)/2;
-            z += Math.sin(yaw*Math.PI/180)/2;
-            //velX = Math.cos(pitch*Math.PI/180) * Math.cos(yaw*Math.PI/180 + Math.PI/2 + Math.copySign(crosshairAdjust, yaw));
-            //velZ = Math.cos(pitch*Math.PI/180) * Math.sin(yaw*Math.PI/180 + Math.PI/2 + Math.copySign(crosshairAdjust, yaw));
-        }
-        this.setPosition(x, y, z);
-		this.setThrowableHeading((double)velX, (double)velY, (double)velZ, velocity, inaccuracy);*/
 		double x = -Math.sin(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		double y = -Math.sin(pitch * Math.PI/180);
 		double z = Math.cos(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
@@ -83,6 +57,43 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
 		Vec3d look = shooter.getLookVec().scale(1).rotateYaw(0).rotatePitch(0);
+
+		if (hand == EnumHand.MAIN_HAND) {
+			look = look.rotateYaw(-0.5f);
+			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
+				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				posY = posY + Math.sin(pitch*Math.PI/180)/8;
+				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
+				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				posY = posY + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
+				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 70) {
+				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
+				posY = posY + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
+				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
+			}
+		}
+		else if (hand == EnumHand.OFF_HAND) {
+			look = look.rotateYaw(0.5f);
+			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
+				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				posY = posY + Math.sin(pitch*Math.PI/180)/8;
+				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
+				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				posY = posY + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
+				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 70) {
+				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
+				posY = posY + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
+				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
+			}
+		}
 		this.setPosition(posX+look.xCoord, posY+look.yCoord, posZ+look.zCoord);
 
 		// correct trajectory of fast entities (received in render class)
@@ -107,7 +118,7 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 	public EntityLivingBase getThrower() {
 		return this.thrower;
 	}
-	
+
 	@Override
 	public void setThrower(Entity entity) {
 		if (entity instanceof EntityLivingBase)

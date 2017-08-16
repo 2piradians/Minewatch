@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.item.weapon;
 
 import com.google.common.collect.Multimap;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -61,8 +62,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			else {
 				for (EntityLivingBase entity : 
 					player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-							player.getEntityBoundingBox().move(player.getLookVec().scale(2)).expand(2.0D, 0.5D, 2.0D))) 
-					if (entity != player && !player.isOnSameTeam(entity) && player.getDistanceSqToEntity(entity) < 9.0D) 
+							player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
+					if (entity != player && !player.isOnSameTeam(entity)) 
 						this.onLeftClickEntity(stack, player, entity);
 				player.world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
@@ -76,5 +77,10 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
 		return true;
 	}
+	
+    public boolean canHarvestBlock(IBlockState state, ItemStack stack)
+    {
+        return false;
+    }
 
 }

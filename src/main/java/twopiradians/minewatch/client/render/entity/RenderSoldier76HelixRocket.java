@@ -20,7 +20,7 @@ public class RenderSoldier76HelixRocket extends Render<EntitySoldier76HelixRocke
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntitySoldier76HelixRocket entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/Soldier76_helix_rocket.png");
+		return new ResourceLocation(Minewatch.MODID, "textures/entity/soldier76_helix_rocket.png");
 	}
 	
 	@Override

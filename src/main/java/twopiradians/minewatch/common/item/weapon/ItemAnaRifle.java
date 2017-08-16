@@ -84,7 +84,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Post event) {
+	public void renderScope(RenderGameOverlayEvent.Post event) {//TODO only in 1st person
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
 				Minewatch.keys.rmb(player)) {

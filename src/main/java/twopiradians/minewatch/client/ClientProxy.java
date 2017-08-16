@@ -124,6 +124,7 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "3_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "4_3d", "inventory"));	
 			}
+		// change soldier model when running
 			else if (item == EnumHero.SOLDIER76.weapon) {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
@@ -138,6 +139,22 @@ public class ClientProxy extends CommonProxy
 				});
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_blocking_3d", "inventory"));
+			}
+		// change bastion model depending on form
+			else if (item == EnumHero.BASTION.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean turret = false;//TODO
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							turret = player != null ? EnumHero.BASTION.ability2.isSelected(player) : false;
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (turret ? "_1_3d" : "_0_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
 			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
@@ -172,7 +189,7 @@ public class ClientProxy extends CommonProxy
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
 	}
-	
+
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
 	@Override
 	public void mouseClick() {
@@ -217,13 +234,13 @@ public class ClientProxy extends CommonProxy
 		ParticleTrail particle = new ParticleTrail(world, x, y, z, color, colorFade, scale, maxAge);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
-	
+
 	@Override
 	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
 		ParticleSmoke particle = new ParticleSmoke(world, x, y, z, color, colorFade, scale, maxAge);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
-	
+
 	@Override
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
 		ParticleSpark particle = new ParticleSpark(world, x, y, z, color, colorFade, scale, maxAge);

@@ -21,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -65,8 +66,8 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d look = player.getLookVec().scale(1.2d).addVector(player.posX, player.posY+player.eyeHeight, player.posZ);
-				Minewatch.proxy.spawnParticlesSpark(world, look.xCoord, look.yCoord, look.zCoord, 0x2B9191, 0x2B9191, 8, 3);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
 			}
 		}
 
@@ -132,8 +133,8 @@ public class ItemSoldier76Gun extends ItemMWWeapon
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d look = player.getLookVec().scale(1.2d).addVector(player.posX, player.posY+player.eyeHeight, player.posZ);
-				Minewatch.proxy.spawnParticlesSpark(world, look.xCoord, look.yCoord, look.zCoord, 0x4AFDFD, 0x4AFDFD, 5, 1);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x4AFDFD, 0x4AFDFD, 5, 1);
 			}
 		}
 	}

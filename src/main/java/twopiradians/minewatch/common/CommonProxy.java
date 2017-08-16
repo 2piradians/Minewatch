@@ -24,6 +24,7 @@ import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.PacketSpawnParticle;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
@@ -51,6 +52,7 @@ public class CommonProxy
 		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSpawnParticle.Handler.class, PacketSpawnParticle.class, id++, Side.CLIENT);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }

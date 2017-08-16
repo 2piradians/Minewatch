@@ -49,6 +49,52 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 			this.setDead();
 	}
 
+	public static Vec3d getShootingPos(EntityLivingBase entity, float pitch, float yaw, EnumHand hand) {
+		Vec3d look = entity.getLookVec();
+		double x = entity.posX;
+		double y = entity.posY + (double)entity.getEyeHeight() - 0.10000000149011612D;
+		double z = entity.posZ;
+
+		if (hand == EnumHand.MAIN_HAND) {
+			look = look.rotateYaw(-0.5f);
+			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
+				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				y = y + Math.sin(pitch*Math.PI/180)/8;
+				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
+				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				y = y + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
+				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 70) {
+				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
+				y = y + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
+				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
+			}
+		}
+		else if (hand == EnumHand.OFF_HAND) {
+			look = look.rotateYaw(0.5f);
+			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
+				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				y = y + Math.sin(pitch*Math.PI/180)/8;
+				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
+				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
+				y = y + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
+				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
+			}
+			else if (Math.abs(pitch) >= 70) {
+				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
+				y = y + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
+				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
+			}
+		}
+		
+		return new Vec3d(x+look.xCoord, y+look.yCoord, z+look.zCoord);
+	}
+	
 	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, EnumHand hand, boolean sendPacket) {
 		double x = -Math.sin(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		double y = -Math.sin(pitch * Math.PI/180);
@@ -56,45 +102,8 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		this.setThrowableHeading(x, y, z, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
-		Vec3d look = shooter.getLookVec().scale(1).rotateYaw(0).rotatePitch(0);
-
-		if (hand == EnumHand.MAIN_HAND) {
-			look = look.rotateYaw(-0.5f);
-			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
-				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				posY = posY + Math.sin(pitch*Math.PI/180)/8;
-				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
-				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				posY = posY + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
-				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 70) {
-				posX = posX - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
-				posY = posY + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
-				posZ = posZ - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
-			}
-		}
-		else if (hand == EnumHand.OFF_HAND) {
-			look = look.rotateYaw(0.5f);
-			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
-				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				posY = posY + Math.sin(pitch*Math.PI/180)/8;
-				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
-				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				posY = posY + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
-				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 70) {
-				posX = posX + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
-				posY = posY + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
-				posZ = posZ + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
-			}
-		}
-		this.setPosition(posX+look.xCoord, posY+look.yCoord, posZ+look.zCoord);
+		Vec3d vec = EntityMWThrowable.getShootingPos(shooter, pitch, yaw, hand);
+		this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0 && sendPacket) {

@@ -17,15 +17,19 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
+	private float initialScale;
+	private float finalScale;
 
-	public ParticleMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge) {
+	public ParticleMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) {
 		super(world, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
 		this.motionZ = motionZ;
 		this.particleGravity = 0.0f;
 		this.particleMaxAge = maxAge;
-		this.particleScale = 2.5f;
+		this.particleScale = initialScale;
+		this.initialScale = initialScale;
+		this.finalScale = finalScale;
 		this.particleAlpha = alpha;
 		this.initialAlpha = alpha;
 		this.setColorFade(0xAED4FF);
@@ -41,23 +45,25 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		
+
 		// color fade (faster than vanilla)
-        this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;
-        this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * 0.4F;
-        this.particleBlue += (this.fadeTargetBlue - this.particleBlue) * 0.4F;
-		
+		this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;
+		this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * 0.4F;
+		this.particleBlue += (this.fadeTargetBlue - this.particleBlue) * 0.4F;
+
 		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
+
+		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
 	}
-	
+
 	@Override
-    public void setColorFade(int rgb) {
-        this.fadeTargetRed = (float)((rgb & 16711680) >> 16) / 255.0F;
-        this.fadeTargetGreen = (float)((rgb & 65280) >> 8) / 255.0F;
-        this.fadeTargetBlue = (float)((rgb & 255) >> 0) / 255.0F;
-    }
+	public void setColorFade(int rgb) {
+		this.fadeTargetRed = (float)((rgb & 16711680) >> 16) / 255.0F;
+		this.fadeTargetGreen = (float)((rgb & 65280) >> 8) / 255.0F;
+		this.fadeTargetBlue = (float)((rgb & 255) >> 0) / 255.0F;
+	}
 
 	@Override
 	public void setParticleTextureIndex(int particleTextureIndex) {}
-	
+
 }

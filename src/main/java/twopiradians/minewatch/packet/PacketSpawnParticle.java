@@ -3,6 +3,7 @@ package twopiradians.minewatch.packet;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -64,12 +65,21 @@ public class PacketSpawnParticle implements IMessage{
 			{
 				@Override
 				public void run() {
+					World world = Minecraft.getMinecraft().world;
 					if (packet.type == 0) 
-						Minewatch.proxy.spawnParticlesSmoke(Minecraft.getMinecraft().world, 
+						Minewatch.proxy.spawnParticlesSmoke(world, 
 								packet.x, packet.y, packet.z, packet.color, packet.colorFade, packet.scale, packet.maxAge);
 					else if (packet.type == 1)
-						Minewatch.proxy.spawnParticlesSpark(Minecraft.getMinecraft().world, 
+						Minewatch.proxy.spawnParticlesSpark(world, 
 								packet.x, packet.y, packet.z, packet.color, packet.colorFade, packet.scale, packet.maxAge);
+					else if (packet.type == 2)
+						for (int i=0; i<3; ++i)
+							Minewatch.proxy.spawnParticlesMeiBlaster(world, 
+									packet.x+world.rand.nextDouble()-0.5d, 
+									packet.y+world.rand.nextDouble()-0.5d, 
+									packet.z+world.rand.nextDouble()-0.5d, 
+									0, 0.01f, 0, 
+									world.rand.nextFloat(), 5, 20f, 25f);
 				}
 			});
 			return null;

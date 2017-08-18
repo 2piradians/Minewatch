@@ -156,5 +156,17 @@
 		"sounds": [
 			"minewatch:mei_reload"
 		]
+	},
+	"mei_freeze": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_freeze"
+		]
+	},
+	"mei_unfreeze": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_unfreeze"
+		]
 	}
 }

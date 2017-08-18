@@ -14,8 +14,8 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketSpawnParticle;
 
-public class ItemReaperShotgun extends ItemMWWeapon
-{
+public class ItemReaperShotgun extends ItemMWWeapon {
+	
 	public ItemReaperShotgun() {
 		super(30);
 		this.hasOffhand = true;

@@ -6,7 +6,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -14,7 +13,6 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	public ItemMeiBlaster() {
 		super(30);
-		this.hero = EnumHero.MEI;
 	}
 
 	@Override

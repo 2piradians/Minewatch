@@ -150,11 +150,11 @@ public class ClientProxy extends CommonProxy
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean turret = false;//TODO
-						if (stack.hasTagCompound()) {
+						boolean turret = false;
+						/*if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							turret = player != null ? EnumHero.BASTION.ability2.isSelected(player) : false;
-						}
+						}*/
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (turret ? "_1_3d" : "_0_3d"), "inventory");
 					}
 				});
@@ -259,8 +259,8 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge) { 
-		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge);
+	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { 
+		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 }

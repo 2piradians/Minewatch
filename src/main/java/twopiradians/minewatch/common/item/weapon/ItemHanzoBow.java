@@ -25,8 +25,8 @@ import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemHanzoBow extends ItemMWWeapon
-{
+public class ItemHanzoBow extends ItemMWWeapon {
+	
 	public ItemHanzoBow() {
 		super(0);
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {

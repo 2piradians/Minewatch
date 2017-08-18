@@ -36,14 +36,18 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	}
 
 	@Override
-	public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
-		return entityLiving instanceof EntityPlayer ? !this.canUse((EntityPlayer) entityLiving, false) : false;
+	public boolean onEntitySwing(EntityLivingBase entity, ItemStack stack) {
+		if (entity instanceof EntityPlayer && entity.getHeldItemMainhand() != null && 
+				entity.getHeldItemMainhand().getItem() == this)
+			return false;
+		else 
+			return true;
 	}
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (!player.world.isRemote && this.canUse(player, true)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75/DAMAGE_SCALE);
+			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f/DAMAGE_SCALE);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
@@ -77,10 +81,10 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
 		return true;
 	}
-	
-    public boolean canHarvestBlock(IBlockState state, ItemStack stack)
-    {
-        return false;
-    }
+
+	public boolean canHarvestBlock(IBlockState state, ItemStack stack)
+	{
+		return false;
+	}
 
 }

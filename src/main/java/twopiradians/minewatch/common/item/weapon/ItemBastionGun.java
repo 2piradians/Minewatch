@@ -11,15 +11,20 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemBastionGun extends ItemMWWeapon 
-{
+public class ItemBastionGun extends ItemMWWeapon {
+	
 	public ItemBastionGun() {
 		super(40);
-		this.hero = EnumHero.BASTION;
+		/*this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn == null ? 0.0F : (!(entityIn.getActiveItemStack().getItem() instanceof ItemHanzoBow) ? 0.0F :
+					(float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 10.0F);
+			}
+		});*/
 	}
 	
 	@Override

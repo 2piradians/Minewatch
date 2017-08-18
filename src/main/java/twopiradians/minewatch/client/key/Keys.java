@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.MouseEvent;
@@ -15,7 +16,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -24,37 +25,63 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.packet.PacketSyncCooldown;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 
 public class Keys {
 	// The keys that will display underneath the icon
-	public static enum KeyBind {
+	public enum KeyBind {
 		NONE, ABILITY_1, ABILITY_2, RMB;
 
-		private HashMap<UUID, Integer> cooldowns = Maps.newHashMap();
+		private HashMap<UUID, Integer> clientCooldowns = Maps.newHashMap();
+		private HashMap<UUID, Integer> serverCooldowns = Maps.newHashMap();
 
 		private KeyBind() {
 			MinecraftForge.EVENT_BUS.register(this);
 		}
 
 		@SubscribeEvent
-		public void onPlayerTick(WorldTickEvent event) {
-			if (event.phase == Phase.END && event.world.getTotalWorldTime() % 3 == 0)
-				for (UUID uuid : cooldowns.keySet())
-					if (cooldowns.get(uuid) != 0)
-						cooldowns.put(uuid, Math.max(cooldowns.get(uuid)-1, 0));
+		public void onPlayerTick(PlayerTickEvent event) {
+			if (event.phase == Phase.END)
+				if (event.player.world.isRemote) {
+					for (UUID uuid : clientCooldowns.keySet())
+						if (uuid.equals(event.player.getPersistentID())) {
+							if (clientCooldowns.get(uuid) > 1)
+								clientCooldowns.put(uuid, Math.max(clientCooldowns.get(uuid)-1, 0));
+							else
+								clientCooldowns.remove(uuid);
+							break;
+						}
+				}
+				else
+					for (UUID uuid : serverCooldowns.keySet())
+						if (uuid == event.player.getPersistentID()) {
+							if (serverCooldowns.get(uuid) > 1)
+								serverCooldowns.put(uuid, Math.max(serverCooldowns.get(uuid)-1, 0));
+							else
+								serverCooldowns.remove(uuid);
+							break;
+						}
 		}
 
 		public int getCooldown(EntityPlayer player) {
-			if (player != null && cooldowns.containsKey(player.getPersistentID()))
-				return cooldowns.get(player.getPersistentID());
+			if (player != null && player.world.isRemote && clientCooldowns.containsKey(player.getPersistentID()))
+				return clientCooldowns.get(player.getPersistentID());
+			else if (player != null && !player.world.isRemote && serverCooldowns.containsKey(player.getPersistentID()))
+				return serverCooldowns.get(player.getPersistentID());
 			else
 				return 0;
 		}
 
 		public void setCooldown(EntityPlayer player, int cooldown) {
-			if (player != null)
-				cooldowns.put(player.getPersistentID(), cooldown);
+			if (player != null) {
+				if (player.world.isRemote)
+				clientCooldowns.put(player.getPersistentID(), cooldown);
+				else if (player instanceof EntityPlayerMP) {
+					serverCooldowns.put(player.getPersistentID(), cooldown);
+					Minewatch.network.sendTo(new PacketSyncCooldown(player.getPersistentID(), this, cooldown), (EntityPlayerMP) player);
+				}
+			}
 		}
 
 		@SideOnly(Side.CLIENT)

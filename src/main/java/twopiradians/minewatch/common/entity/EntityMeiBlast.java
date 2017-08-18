@@ -36,7 +36,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d,
-						motionX/10d, motionY/10d, motionZ/10d, 0.8f, 3);
+						motionX/10d, motionY/10d, motionZ/10d, 0.8f, 3, 2.5f, 2f);
 			if (this.world.rand.nextInt(5) == 0)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*world.rand.nextDouble()*0.8d, 
@@ -66,10 +66,9 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					ModPotions.frozen.serverFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
 					ModPotions.frozen.serverDelays.put((EntityLivingBase) result.entityHit, 10);
 				}
-				float damage = 4f * ((float)this.ticksExisted / lifetime);
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f/ItemMWWeapon.DAMAGE_SCALE);
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 

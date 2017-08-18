@@ -20,10 +20,10 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 @SuppressWarnings({"all"})
 @SideOnly(Side.CLIENT)
-public class GuiDisplay extends GuiScreen
-{
+public class GuiDisplay extends GuiScreen {
+	
 	/**Should display be opened on chat event?*/
-	public static boolean display_gui = false;
+	public static final boolean DISPLAY_GUI = false;
 	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
 	public static final int GUI_MODE = 0;
 
@@ -126,7 +126,7 @@ public class GuiDisplay extends GuiScreen
 
 		@SubscribeEvent
 		public static void openGui(ClientChatReceivedEvent event) {
-			if (GuiDisplay.display_gui) 
+			if (GuiDisplay.DISPLAY_GUI) 
 				Minecraft.getMinecraft().displayGuiScreen(new GuiDisplay());
 		}
 	}

@@ -15,8 +15,8 @@ import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemMcCreeGun extends ItemMWWeapon
-{
+public class ItemMcCreeGun extends ItemMWWeapon {
+	
 	public ItemMcCreeGun() {
 		super(30);
 	}

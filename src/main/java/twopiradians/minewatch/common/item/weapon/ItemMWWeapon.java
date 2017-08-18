@@ -27,8 +27,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 
-public abstract class ItemMWWeapon extends Item 
-{
+public abstract class ItemMWWeapon extends Item {
+	
 	/**Used to uniformly scale damage for all weapons/abilities*/
 	public static final float DAMAGE_SCALE = 10f;
 

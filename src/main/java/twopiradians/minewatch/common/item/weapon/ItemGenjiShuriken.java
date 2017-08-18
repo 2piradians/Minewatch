@@ -8,16 +8,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemGenjiShuriken extends ItemMWWeapon
-{
+public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	public ItemGenjiShuriken() {
 		super(40);
-		this.hero = EnumHero.GENJI;
 	}
 
 	@Override

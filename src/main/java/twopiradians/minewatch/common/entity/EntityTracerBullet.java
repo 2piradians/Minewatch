@@ -45,7 +45,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
 				result.entityHit != this.getThrower() && !this.world.isRemote) {
-			float damage = 6 - (6 - 1.5f) * (this.ticksExisted / lifetime);
+			float damage = 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime);
 			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
 			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 

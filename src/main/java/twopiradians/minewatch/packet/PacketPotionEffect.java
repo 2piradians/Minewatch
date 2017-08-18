@@ -1,5 +1,7 @@
 package twopiradians.minewatch.packet;
 
+import org.apache.commons.lang3.tuple.Triple;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -7,7 +9,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.IThreadListener;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -16,7 +17,7 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.potion.PotionFrozen;
 
 public class PacketPotionEffect implements IMessage {
-	
+
 	private int entity;
 	private String potion;
 	private int duration;
@@ -68,10 +69,10 @@ public class PacketPotionEffect implements IMessage {
 						if (potion2.getName().equalsIgnoreCase(packet.potion))
 							potion = potion2;
 					if (potion != null && entity instanceof EntityLivingBase)
-					((EntityLivingBase) entity).addPotionEffect
-					(new PotionEffect(potion, packet.duration, packet.amplifier, packet.ambient, packet.showParticles));
-					if (potion == ModPotions.frozen)
-						PotionFrozen.rotations.put(entity.getPersistentID(), new Tuple(entity.rotationPitch, entity.rotationYaw));
+						((EntityLivingBase) entity).addPotionEffect
+						(new PotionEffect(potion, packet.duration, packet.amplifier, packet.ambient, packet.showParticles));
+					if (potion == ModPotions.frozen) 
+						PotionFrozen.rotations.put(entity.getPersistentID(), Triple.of(entity.rotationPitch, entity.rotationYaw, entity.getRotationYawHead()));
 				}
 			});
 			return null;

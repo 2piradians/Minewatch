@@ -27,8 +27,8 @@ import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemSoldier76Gun extends ItemMWWeapon
-{	
+public class ItemSoldier76Gun extends ItemMWWeapon {
+	
 	public ItemSoldier76Gun() {
 		super(30);
 		this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {

@@ -25,8 +25,8 @@ import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemAnaRifle extends ItemMWWeapon 
-{
+public class ItemAnaRifle extends ItemMWWeapon {
+	
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope_background.png");
 
@@ -76,7 +76,8 @@ public class ItemAnaRifle extends ItemMWWeapon
 	@SubscribeEvent
 	public void changeFOV(FOVModifier event) {
 		if (event.getEntity() instanceof EntityPlayer && (((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
-				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this) && 
+				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this && 
+				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) && 
 				Minewatch.keys.rmb((EntityPlayer) event.getEntity())) {
 			event.setFOV(20f);
 		}
@@ -84,10 +85,10 @@ public class ItemAnaRifle extends ItemMWWeapon
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Post event) {//TODO only in 1st person
+	public void renderScope(RenderGameOverlayEvent.Post event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
-				Minewatch.keys.rmb(player)) {
+				Minewatch.keys.rmb(player) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;

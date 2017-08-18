@@ -26,6 +26,8 @@ public class ModSoundEvents {
 	public static SoundEvent bastionTurretReload;
 	public static SoundEvent meiShoot;
 	public static SoundEvent meiIcicleShoot;
+	public static SoundEvent meiFreeze;
+	public static SoundEvent meiUnfreeze;
 
 	public static void preInit() {
 		hurt = registerSound("hurt");
@@ -54,6 +56,8 @@ public class ModSoundEvents {
 		meiShoot = registerSound("mei_shoot_0");
 		EnumHero.MEI.reloadSound = registerSound("mei_reload");
 		meiIcicleShoot = registerSound("mei_shoot_1");
+		meiFreeze = registerSound("mei_freeze");
+		meiUnfreeze = registerSound("mei_unfreeze");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

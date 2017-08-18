@@ -28,6 +28,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.PacketPotionEffect;
 import twopiradians.minewatch.packet.PacketSpawnParticle;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
+import twopiradians.minewatch.packet.PacketSyncCooldown;
 import twopiradians.minewatch.packet.PacketSyncKeys;
 import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
@@ -55,6 +56,7 @@ public class CommonProxy
 		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSyncCooldown.Handler.class, PacketSyncCooldown.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketSpawnParticle.Handler.class, PacketSpawnParticle.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketPotionEffect.Handler.class, PacketPotionEffect.class, id++, Side.CLIENT);
 	}
@@ -65,7 +67,7 @@ public class CommonProxy
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) { }
 	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge) { }
+	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { }
 	
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);

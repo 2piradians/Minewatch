@@ -35,7 +35,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0x5EDCE5, 0x007acc, 0.5f, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1);
 		}
 	}
 

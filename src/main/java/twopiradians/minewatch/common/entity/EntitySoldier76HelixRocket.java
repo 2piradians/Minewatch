@@ -67,14 +67,14 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 		this.posY += this.motionY + Math.sin((yaw + separateThree + this.ticksExisted * speed) * Math.PI / 180) * size;
 		this.posZ += this.motionZ + Math.cos((yaw + separateThree + ticks) * toRadians) * Math.sin((pitch + separateThree + ticks) * toRadians) * size + Math.sin(yaw * toRadians) * size/2;
 
-		if (this.world.isRemote && this.ticksExisted > 1) {
+		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0x5EDCE5, 0x007acc, 1, 4);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 4);
 		}
 	}
 

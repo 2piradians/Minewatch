@@ -120,5 +120,41 @@
 		"sounds": [
 			"minewatch:soldier76_helix"
 		]
+	},
+	"bastion_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_shoot"
+		]
+	},
+	"bastion_reload_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reload_0"
+		]
+	},
+	"bastion_reload_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reload_1"
+		]
+	},
+	"mei_shoot_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_shoot_0"
+		]
+	},
+	"mei_shoot_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_shoot_1"
+		]
+	},
+	"mei_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_reload"
+		]
 	}
 }

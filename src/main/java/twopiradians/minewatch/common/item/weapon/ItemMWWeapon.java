@@ -24,6 +24,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item 
@@ -54,9 +55,9 @@ public abstract class ItemMWWeapon extends Item
 	}
 
 	public int getCurrentAmmo(EntityPlayer player) {
-		/*if (player != null && currentAmmo.containsKey(player.getPersistentID()))
+		if (player != null && currentAmmo.containsKey(player.getPersistentID()))
 			return currentAmmo.get(player.getPersistentID());
-		else *///TODO
+		else
 			return getMaxAmmo(player);
 	}
 
@@ -99,7 +100,9 @@ public abstract class ItemMWWeapon extends Item
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityPlayer player, boolean shouldWarn) {
 		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
-				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0))
+				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
+				(player.getActivePotionEffect(ModPotions.frozen) != null && 
+				player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();

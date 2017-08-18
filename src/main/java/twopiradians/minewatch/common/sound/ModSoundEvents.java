@@ -22,6 +22,10 @@ public class ModSoundEvents {
 	public static SoundEvent mccreeShoot;
 	public static SoundEvent soldier76Shoot;
 	public static SoundEvent soldier76Helix;
+	public static SoundEvent bastionShoot;
+	public static SoundEvent bastionTurretReload;
+	public static SoundEvent meiShoot;
+	public static SoundEvent meiIcicleShoot;
 
 	public static void preInit() {
 		hurt = registerSound("hurt");
@@ -44,6 +48,12 @@ public class ModSoundEvents {
 		soldier76Shoot = registerSound("soldier76_shoot");
 		soldier76Helix = registerSound("soldier76_helix");
 		EnumHero.SOLDIER76.reloadSound = registerSound("soldier76_reload");
+		bastionShoot = registerSound("bastion_shoot");
+		EnumHero.BASTION.reloadSound = registerSound("bastion_reload_0");
+		bastionTurretReload = registerSound("bastion_reload_1");
+		meiShoot = registerSound("mei_shoot_0");
+		EnumHero.MEI.reloadSound = registerSound("mei_reload");
+		meiIcicleShoot = registerSound("mei_shoot_1");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

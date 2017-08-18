@@ -143,7 +143,7 @@ public class ItemMWArmor extends ItemArmor
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
 						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
-						0x5EDCE5, 0x007acc, 1, 7);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7);
 		}
 	}
 

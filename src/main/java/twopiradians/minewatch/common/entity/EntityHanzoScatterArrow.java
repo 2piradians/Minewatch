@@ -29,7 +29,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0x5EDCE5, 0x007acc, 1, 20);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20);
 		}
 		
 		super.onUpdate();

@@ -31,14 +31,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
+import twopiradians.minewatch.client.particle.ParticleMeiBlaster;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
+import twopiradians.minewatch.client.render.entity.RenderBastionBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
+import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
@@ -47,11 +50,13 @@ import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
+import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
@@ -171,6 +176,8 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, RenderSoldier76Bullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, RenderSoldier76HelixRocket::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, RenderBastionBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
 	}
 
 	@Override
@@ -188,6 +195,7 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(loc);
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
+		event.getMap().registerSprite(ParticleMeiBlaster.TEXTURE);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
@@ -230,9 +238,12 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesTrail(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
-		ParticleTrail particle = new ParticleTrail(world, x, y, z, color, colorFade, scale, maxAge);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) {
+		int i = Minecraft.getMinecraft().gameSettings.particleSetting;
+		if (i == 0 || world.rand.nextInt(i*2) == 0) {
+			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+		}
 	}
 
 	@Override
@@ -244,6 +255,12 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
 		ParticleSpark particle = new ParticleSpark(world, x, y, z, color, colorFade, scale, maxAge);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+
+	@Override
+	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge) { 
+		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 }

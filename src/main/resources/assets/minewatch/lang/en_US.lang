@@ -1,6 +1,6 @@
 itemGroup.tabMinewatch=Minewatch
-
 config.heroTextures=Hero Textures
+effect.frozen=Frozen
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helmet
@@ -84,5 +84,5 @@ entity.tracer_bullet.name=Tracer Bullet
 entity.mccree_bullet.name=McCree Bullet
 entity.soldier76_bullet.name=Soldier 76 Bullet
 entity.soldier76_helix_rocket.name=Soldier 76 Helix Rocket
-
-
+entity.bastion_bullet.name=Bastion Bullet
+entity.mei_blast.name=Mei Blast

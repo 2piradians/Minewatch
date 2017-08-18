@@ -4,27 +4,27 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
-import twopiradians.minewatch.client.model.ModelAnaBullet;
+import twopiradians.minewatch.client.model.ModelSoldier76Bullet;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
-public class RenderAnaBullet extends Render<EntityAnaBullet>
-{
-	private final ModelAnaBullet ANA_BULLET_MODEL = new ModelAnaBullet();
+public class RenderBastionBullet extends Render<EntityBastionBullet> {
 	
-	public RenderAnaBullet(RenderManager renderManager) {
+	private final ModelSoldier76Bullet BASTION_BULLET_MODEL = new ModelSoldier76Bullet();
+	
+	public RenderBastionBullet(RenderManager renderManager) {
 		super(renderManager);
 	}
 
 	@Override
-	protected ResourceLocation getEntityTexture(EntityAnaBullet entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/ana_bullet.png");
+	protected ResourceLocation getEntityTexture(EntityBastionBullet entity) {
+		return new ResourceLocation(Minewatch.MODID, "textures/entity/bastion_bullet.png");
 	}
 	
 	@Override
-	public void doRender(EntityAnaBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void doRender(EntityBastionBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		// correct trajectories of fast entities
 		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
 			PacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
@@ -44,7 +44,7 @@ public class RenderAnaBullet extends Render<EntityAnaBullet>
 		GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, 1.0F, 0.0F);
 	    GlStateManager.rotate(-entity.rotationPitch, 1.0F, 0.0F, 0.0F);
 		this.bindEntityTexture(entity);
-		this.ANA_BULLET_MODEL.render(entity, 0, 0, 0, 0, entity.rotationPitch, 0.5f);
+		this.BASTION_BULLET_MODEL.render(entity, 0, 0, 0, 0, entity.rotationPitch, 0.5f);
 		GlStateManager.popMatrix();
     }
 }

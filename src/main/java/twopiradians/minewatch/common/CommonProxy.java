@@ -22,8 +22,10 @@ import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.PacketPotionEffect;
 import twopiradians.minewatch.packet.PacketSpawnParticle;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
 import twopiradians.minewatch.packet.PacketSyncKeys;
@@ -41,6 +43,7 @@ public class CommonProxy
 	}
 
 	public void init(FMLInitializationEvent event) {
+		ModPotions.init();
 		registerEventListeners();
 		registerCraftingRecipes();
 	}
@@ -53,15 +56,17 @@ public class CommonProxy
 		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(PacketSpawnParticle.Handler.class, PacketSpawnParticle.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketPotionEffect.Handler.class, PacketPotionEffect.class, id++, Side.CLIENT);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) { }
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) { }
-	public void spawnParticlesTrail(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) { }
+	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) { }
 	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-
+	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge) { }
+	
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());

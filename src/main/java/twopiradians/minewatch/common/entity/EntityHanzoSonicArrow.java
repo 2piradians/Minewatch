@@ -76,7 +76,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0x5EDCE5, 0x007acc, 1, 20);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20);
 		}
 	}
 

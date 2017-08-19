@@ -246,8 +246,10 @@ public class PotionFrozen extends Potion {
 	public void preventJumping(LivingJumpEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
 				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen) != null && 
-				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen).getDuration() > 0)
-			event.setCanceled(true);
+				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen).getDuration() > 0)  {
+			event.getEntity().motionY = 0;
+			event.getEntity().isAirBorne = false;
+		}
 	}
 	
 	@SubscribeEvent

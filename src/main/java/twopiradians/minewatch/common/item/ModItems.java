@@ -42,7 +42,7 @@ public class ModItems {
 		}
 		
 		genji_shuriken_single = registerItem(new ItemGenjiShuriken(), "genji_shuriken_single", false, true);
-	
+		((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {

@@ -122,6 +122,10 @@ public class PotionFrozen extends Potion {
 	@SubscribeEvent
 	public void clientSide(PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
+			if (event.player.getActivePotionEffect(ModPotions.frozen) != null &&
+					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0)
+				event.player.removeActivePotionEffect(ModPotions.frozen);
+			
 			if (event.player.ticksExisted % 2 == 0) {
 				ArrayList<EntityLivingBase> toRemove = new ArrayList<EntityLivingBase>();
 				for (EntityLivingBase entity : clientFreezes.keySet())

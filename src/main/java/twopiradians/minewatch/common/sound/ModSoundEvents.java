@@ -70,7 +70,19 @@ public class ModSoundEvents {
 			event.getRegistry().register(mccreeReload);
 			event.getRegistry().register(soldier76Shoot);
 			event.getRegistry().register(soldier76Reload);
-
+			event.getRegistry().register(hurt);
+			event.getRegistry().register(anaHeal);
+			event.getRegistry().register(hanzoSonicArrow);
+			event.getRegistry().register(hanzoScatterArrow);
+			event.getRegistry().register(soldier76Helix);
+			event.getRegistry().register(bastionShoot);
+			event.getRegistry().register(bastionReload);
+			event.getRegistry().register(bastionTurretReload);
+			event.getRegistry().register(meiShoot);
+			event.getRegistry().register(meiIcicleShoot);
+			event.getRegistry().register(meiFreeze);
+			event.getRegistry().register(meiUnfreeze);
+			event.getRegistry().register(meiReload);
 		}
 	}
 }

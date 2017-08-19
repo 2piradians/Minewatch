@@ -1,4 +1,10 @@
 {
+	"hurt": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hurt"
+		]
+	},
 	"ana_shoot": {
 		"category": "player",
 		"sounds": [
@@ -9,6 +15,12 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:ana_reload"
+		]
+	},
+	"ana_heal": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_heal"
 		]
 	},
 	"reaper_shoot": {
@@ -35,10 +47,24 @@
 			"minewatch:hanzo_draw"
 		]
 	},
-	"reinhardt_rocket_hammer": {
+	"hanzo_sonic_arrow": {
 		"category": "player",
 		"sounds": [
-			"minewatch:reinhardt_rocket_hammer"
+			"minewatch:hanzo_sonic_arrow_1",
+			"minewatch:hanzo_sonic_arrow_2"
+		]
+	},
+	"hanzo_scatter_arrow": {
+		"category": "player",
+		"sounds": [
+			"minewatch:hanzo_scatter_arrow"
+		]
+	},
+	"reinhardt_weapon": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_weapon_1",
+			"minewatch:reinhardt_weapon_2"
 		]
 	},
 	"genji_shoot": {
@@ -87,6 +113,60 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:soldier76_reload"
+		]
+	},
+	"soldier76_helix": {
+		"category": "player",
+		"sounds": [
+			"minewatch:soldier76_helix"
+		]
+	},
+	"bastion_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_shoot"
+		]
+	},
+	"bastion_reload_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reload_0"
+		]
+	},
+	"bastion_reload_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reload_1"
+		]
+	},
+	"mei_shoot_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_shoot_0"
+		]
+	},
+	"mei_shoot_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_shoot_1"
+		]
+	},
+	"mei_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_reload"
+		]
+	},
+	"mei_freeze": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_freeze"
+		]
+	},
+	"mei_unfreeze": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_unfreeze"
 		]
 	}
 }

@@ -22,7 +22,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWArmor extends ItemArmor 
@@ -35,6 +37,13 @@ public class ItemMWArmor extends ItemArmor
 	public ItemMWArmor(EnumHero hero, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		this.hero = hero;
+	}
+
+	@Override
+	@Nullable
+	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
+		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+hero.textureVariation+"_layer_"+
+				(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";    
 	}
 
 	@Mod.EventBusSubscriber
@@ -62,6 +71,14 @@ public class ItemMWArmor extends ItemArmor
 					}
 				}
 
+				// clear toggles when switching to set or if not holding weapon
+				if (hero != null && (event.player.getHeldItemMainhand() == null || 
+						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
+						(fullSet && (!SetManager.playersWearingSets.containsKey(event.player.getPersistentID()) ||
+								SetManager.playersWearingSets.get(event.player.getPersistentID()) != hero)))
+					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+						ability.toggled.remove(event.player.getPersistentID());
+
 				// update playersWearingSets
 				if (fullSet)
 					SetManager.playersWearingSets.put(event.player.getPersistentID(), hero);
@@ -85,14 +102,14 @@ public class ItemMWArmor extends ItemArmor
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
-						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
-	
+
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
@@ -105,7 +122,7 @@ public class ItemMWArmor extends ItemArmor
 		}
 		return false;
 	}
-	
+
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
@@ -116,6 +133,18 @@ public class ItemMWArmor extends ItemArmor
 				player.getItemStackFromSlot(this.armorType) == stack)) {
 			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
+		}
+
+		// tracer chestplate particles
+		if (this.armorType == EntityEquipmentSlot.CHEST && 
+				hero == EnumHero.TRACER && world.isRemote && player != null) {
+			int numParticles = (int) ((Math.abs(player.motionX)+Math.abs(player.motionY)+Math.abs(player.motionZ))*10d);
+			for (int i=0; i<numParticles; ++i)
+				Minewatch.proxy.spawnParticlesTrail(player.world, 
+						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
+						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
+						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7);
 		}
 	}
 

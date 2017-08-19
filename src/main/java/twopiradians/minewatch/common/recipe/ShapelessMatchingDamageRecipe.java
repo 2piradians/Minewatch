@@ -9,9 +9,8 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.NonNullList;
 
-public class ShapelessMatchingDamageRecipe extends ShapelessRecipes 
-{
-	/** Is the ItemStack that you get when you craft the recipe. */
+public class ShapelessMatchingDamageRecipe extends ShapelessRecipes {
+	
 	private ItemStack recipeOutput;
 
 	public ShapelessMatchingDamageRecipe(String group, ItemStack output, NonNullList<Ingredient> ingredients) {
@@ -26,7 +25,7 @@ public class ShapelessMatchingDamageRecipe extends ShapelessRecipes
 		for (int i = 0; i < inv.getHeight(); ++i)
 			for (int j = 0; j < inv.getWidth(); ++j) {
 				ItemStack stack = inv.getStackInRowAndColumn(j, i);
-				if (stack != null && stack.getItem() instanceof ItemArmor)
+				if (stack != null && stack.getItem() instanceof ItemArmor) 
 					result.setItemDamage(stack.getItemDamage());
 			}
 		return result;

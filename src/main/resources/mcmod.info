@@ -3,7 +3,7 @@
   "modid": "minewatch",
   "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
-  "version": "3.0",
+  "version": "3.1",
   "mcversion": "1.12",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
@@ -19,12 +19,14 @@ Model Credits:
 -McCree Pistol and Soldier Rifle by Rexx Art 
 
 Armor Texture Credits:
--Tracer, Genji, and Hanzo textures: Ringoster, https://www.planetminecraft.com/member/ringoster/ 
+-Tracer, Genji, Hanzo, and Bastion textures: Ringoster, https://www.planetminecraft.com/member/ringoster/ 
 -Soldier texture: sixfootblue, https://www.planetminecraft.com/member/sixfootblue/ 
 -Reaper texture: Aegeah, https://www.planetminecraft.com/member/aegeah/ 
+-Alternate Reaper texture: _Phantom, https://www.planetminecraft.com/member/_phantom/ 
 -Reinhardt texture: Kohicup, https://www.planetminecraft.com/member/kohicup/ 
 -Ana texture: Drzzter, https://www.planetminecraft.com/member/drzzter/ 
 -McCree texture: PlantyBox, https://www.planetminecraft.com/member/plantybox/ 
+-Mei texture: mareridt, https://www.planetminecraft.com/member/mareridt/ 
 ",
   "logoFile": "logo.png",
   "screenshots": [],

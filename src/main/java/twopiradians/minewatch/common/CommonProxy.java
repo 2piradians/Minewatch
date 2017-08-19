@@ -1,10 +1,12 @@
 package twopiradians.minewatch.common;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -19,10 +21,15 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
+import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.PacketPotionEffect;
+import twopiradians.minewatch.packet.PacketSpawnParticle;
 import twopiradians.minewatch.packet.PacketSyncAmmo;
+import twopiradians.minewatch.packet.PacketSyncCooldown;
 import twopiradians.minewatch.packet.PacketSyncKeys;
+import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
 
 public class CommonProxy 
 {
@@ -31,12 +38,13 @@ public class CommonProxy
 		Config.preInit(Minewatch.configFile);
 		registerPackets();
 		ModEntities.registerEntities();
-		registerEventListeners();
+		ModSoundEvents.postInit();
 	}
 
 	public void init(FMLInitializationEvent event) {
+		ModPotions.init();
+		registerEventListeners();
 		registerCraftingRecipes();
-		ModSoundEvents.postInit();
 	}
 
 	public void postInit(FMLPostInitializationEvent event) {}
@@ -45,17 +53,27 @@ public class CommonProxy
 		int id = 0;
 		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSyncCooldown.Handler.class, PacketSyncCooldown.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketSpawnParticle.Handler.class, PacketSpawnParticle.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(PacketPotionEffect.Handler.class, PacketPotionEffect.class, id++, Side.CLIENT);
 	}
 
-	public void spawnParticlesHealthPlus(EntityLivingBase entity) { }
-
+	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
+	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) { }
+	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) { }
+	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) { }
+	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
+	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
+	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { }
+	
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ItemMWToken());
 	}
 
-	private void registerCraftingRecipes() {
+private void registerCraftingRecipes() {
 		
 		for (EnumHero hero : EnumHero.values()) {
 			ForgeRegistries.RECIPES.register(new ShapelessMatchingDamageRecipe(Minewatch.MODNAME, new ItemStack(hero.helmet), 
@@ -86,5 +104,6 @@ public class CommonProxy
 		}
 		catch (Exception e) {}
 	}
+	public void mouseClick() { }
 	
 }

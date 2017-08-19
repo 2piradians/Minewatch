@@ -21,7 +21,7 @@ public class ModItems {
 
 	public static ArrayList<Item> jsonModelItems  = new ArrayList<Item>();
 	public static ArrayList<Item> objModelItems  = new ArrayList<Item>();
-
+	
 	public static Item genji_shuriken_single; // used for projectile
 
 	@Mod.EventBusSubscriber

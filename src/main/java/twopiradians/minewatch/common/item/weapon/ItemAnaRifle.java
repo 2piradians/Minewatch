@@ -25,8 +25,8 @@ import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class ItemAnaRifle extends ItemMWWeapon 
-{
+public class ItemAnaRifle extends ItemMWWeapon {
+	
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope_background.png");
 
@@ -41,7 +41,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 			EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 					hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 					hero.playersUsingAlt.get(player.getPersistentID()));
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F);
+			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, null, true);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
@@ -58,18 +58,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (isSelected && entity != null && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false)) {
-			EntityPlayer player = (EntityPlayer)entity;
-
-			// sleep dart
-			if (isSelected && Minewatch.keys.ability1(player)) {
-
-			}
-
-			// biotic grenade
-			if (isSelected && Minewatch.keys.ability2(player)) {
-
-			}
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false)) {
 
 			// health particles
 			if (world.isRemote && entity.ticksExisted % 5 == 0) {
@@ -78,7 +67,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 				for (Entity entity2 : list) 
 					if (entity2 instanceof EntityLivingBase 
 							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-						Minewatch.proxy.spawnParticlesHealthPlus((EntityLivingBase) entity2);
+						Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
 			}
 		}
 	}
@@ -87,7 +76,8 @@ public class ItemAnaRifle extends ItemMWWeapon
 	@SubscribeEvent
 	public void changeFOV(FOVModifier event) {
 		if (event.getEntity() instanceof EntityPlayer && (((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
-				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this) && 
+				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this && 
+				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) && 
 				Minewatch.keys.rmb((EntityPlayer) event.getEntity())) {
 			event.setFOV(20f);
 		}
@@ -98,7 +88,7 @@ public class ItemAnaRifle extends ItemMWWeapon
 	public void renderScope(RenderGameOverlayEvent.Post event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
-				Minewatch.keys.rmb(player)) {
+				Minewatch.keys.rmb(player) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;

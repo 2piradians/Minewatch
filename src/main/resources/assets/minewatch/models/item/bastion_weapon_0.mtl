@@ -1,0 +1,8 @@
+# Blender MTL File: 'bastion_recon.blend'
+# Material Count: 1
+
+newmtl Tex_1955_0.dds
+Ka 1.000000 1.000000 1.000000
+Kd 0.470400 0.470400 0.470400
+d 1.000000
+map_Kd minewatch:items/bastion_weapon_0_3d

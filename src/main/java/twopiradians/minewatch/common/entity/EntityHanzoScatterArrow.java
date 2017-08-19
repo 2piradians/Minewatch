@@ -72,7 +72,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 				entityarrow.motionZ = this.motionZ;
 
 				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-					entityarrow.motionY *= -1.3d;
+					entityarrow.motionY *= -0.5d;
 				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
 					entityarrow.motionZ *= -1.3d;
 				else 

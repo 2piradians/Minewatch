@@ -13,12 +13,12 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 @SideOnly(Side.CLIENT)
-public class ParticleHealthPlus extends ParticleSimpleAnimated {
+public class ParticleAnaHealth extends ParticleSimpleAnimated {
 
-	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/health_plus");
+	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/ana_health");
 	private EntityLivingBase entity;
 
-	public ParticleHealthPlus(EntityLivingBase entity) {
+	public ParticleAnaHealth(EntityLivingBase entity) {
 		super(entity.worldObj, entity.posX, entity.posY+entity.height+0.8d, entity.posZ, 0, 0, 0);
 		this.entity = entity;
 		this.particleGravity = 0.0f;

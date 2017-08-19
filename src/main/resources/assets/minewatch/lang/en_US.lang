@@ -1,4 +1,6 @@
 itemGroup.tabMinewatch=Minewatch
+config.heroTextures=Hero Textures
+effect.frozen=Frozen
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helmet
@@ -57,12 +59,30 @@ item.soldier76_leggings.name=Soldier 76 Leggings
 item.soldier76_boots.name=Soldier 76 Boots
 item.soldier76_weapon.name=Soldier 76's Pulse Rifle
 
+item.mei_token.name=Mei Token
+item.mei_helmet.name=Mei Helmet
+item.mei_chestplate.name=Mei Chestplate
+item.mei_leggings.name=Mei Leggings
+item.mei_boots.name=Mei Boots
+item.mei_weapon.name=Mei's Endothermic Blaster
+
+item.bastion_token.name=Bastion Token
+item.bastion_helmet.name=Bastion Helmet
+item.bastion_chestplate.name=Bastion Chestplate
+item.bastion_leggings.name=Bastion Leggings
+item.bastion_boots.name=Bastion Boots
+item.bastion_weapon.name=Bastion's Submachine Gun
+
 entity.hanzo_arrow.name=Hanzo Arrow
+entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
+entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
 entity.genji_shuriken.name=Genji Shuriken
 entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet
 entity.mccree_bullet.name=McCree Bullet
-entity.soldier_bullet.name=Soldier 76 Bullet
-
+entity.soldier76_bullet.name=Soldier 76 Bullet
+entity.soldier76_helix_rocket.name=Soldier 76 Helix Rocket
+entity.bastion_bullet.name=Bastion Bullet
+entity.mei_blast.name=Mei Blast

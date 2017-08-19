@@ -19,6 +19,7 @@ public class MinewatchGuiConfig extends GuiConfig {
 
 	private static List<IConfigElement> getConfigElements() {
 		List<IConfigElement> list = new ArrayList<IConfigElement>();
+		list.add(new ConfigElement(Config.config.getCategory(Config.CATEGORY_HERO_TEXTURES).setLanguageKey(Config.CATEGORY_HERO_TEXTURES)));
 		list.addAll(new ConfigElement(Config.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements());
 		return list;
 	}

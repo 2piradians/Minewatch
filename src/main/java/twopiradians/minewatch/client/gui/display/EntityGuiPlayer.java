@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.config;
+package twopiradians.minewatch.client.gui.display;
 
 import com.mojang.authlib.GameProfile;
 

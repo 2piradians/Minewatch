@@ -1,0 +1,38 @@
+# Blender MTL File: 'mei.blend'
+# Material Count: 6
+
+newmtl 043BE835517B680E
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon1_3d
+
+newmtl 76A634D146D72616
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon2_3d
+
+newmtl 81B09AB0F566B1D2.006
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon3_3d
+
+newmtl C01E0A80258D0E67
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon4_3d
+
+newmtl DB89870046EC17D1
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon2_3d
+
+newmtl FA5F5043C05EDC19
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mei_weapon2_3d

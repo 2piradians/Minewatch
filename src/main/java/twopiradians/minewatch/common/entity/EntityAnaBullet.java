@@ -1,101 +1,68 @@
 package twopiradians.minewatch.common.entity;
 
-import java.util.Arrays;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class EntityAnaBullet extends EntityThrowable
+public class EntityAnaBullet extends EntityMWThrowable
 {
-	private static final int LIFETIME = 40;
 	private boolean heal = false;
 
 	public EntityAnaBullet(World worldIn) {
 		super(worldIn);
-		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 	}
 
-	//Client doesn't read here
 	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, boolean heal) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
-		this.setSize(0.1f, 0.1f);
-		this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight(), throwerIn.posZ);
 		this.heal = heal;
+		this.lifetime = 40;
 	}
+	
+	@Override
+	public void onUpdate() {		
+		super.onUpdate();
 
-	/**Copied from EntityArrow*/
-	public void setAim(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy) {
-		float f = -MathHelper.sin(yaw * (float)Math.PI/180) * MathHelper.cos(pitch * (float)Math.PI/180);
-		float f1 = -MathHelper.sin(pitch * (float)Math.PI/180);
-		float f2 = MathHelper.cos(yaw * (float)Math.PI/180) * MathHelper.cos(pitch * (float)Math.PI/180);
-		this.setThrowableHeading((double)f, (double)f1, (double)f2, velocity, inaccuracy);
-		this.motionX += shooter.motionX;
-		this.motionZ += shooter.motionZ;
-		this.prevRotationPitch = pitch;
-		this.prevRotationYaw = yaw;
-		this.setRotation(yaw, pitch);
-
-		if (!shooter.onGround) {
-			this.motionY += shooter.motionY;
+		if (this.worldObj.isRemote && this.ticksExisted > 1) {
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
+			for (int i=0; i<numParticles; ++i)
+				Minewatch.proxy.spawnParticlesTrail(this.worldObj, 
+						this.posX+(this.prevPosX-this.posX)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
+						this.posY+(this.prevPosY-this.posY)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
+						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 8);
 		}
 	}
 
 	@Override
-	public void onUpdate() {		
-		float f = MathHelper.sqrt_float((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
-		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
-		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
-		this.prevRotationYaw = this.rotationYaw;
-		this.prevRotationPitch = this.rotationPitch;
-		super.onUpdate();
-
-		if (this.ticksExisted > LIFETIME)
-			this.setDead();
-	}
-
-	@Override
 	protected void onImpact(RayTraceResult result) {
-		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null && result.entityHit != this.getThrower()) {
+		super.onImpact(result);
+		
+		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
+				result.entityHit != this.getThrower() && !this.worldObj.isRemote) {
 			if (this.heal) {
 				((EntityLivingBase)result.entityHit).heal(75/ItemMWWeapon.DAMAGE_SCALE);
 				((WorldServer)result.entityHit.worldObj).spawnParticle(EnumParticleTypes.HEART, 
 						result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 						10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
-				if (this.getThrower() != null)
-					result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f);	
+				result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+						ModSoundEvents.anaHeal, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f);	
 			}
 			else {
-				if (this.getThrower() instanceof EntityPlayer)
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
-				else 
-					if (this.getThrower() instanceof EntityPlayer)
-						((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
-				if (this.getThrower() != null)
-					result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-							SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F/ItemMWWeapon.DAMAGE_SCALE);
+				result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
+						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
 			}
 			this.setDead();
-		}
-		else if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-			Block block = this.worldObj.getBlockState(result.getBlockPos()).getBlock();
-
-			if (!Arrays.asList(ModEntities.ENTITY_PASSES_THROUGH).contains(block))
-				this.setDead();
 		}
 	}
 }

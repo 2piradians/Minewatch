@@ -25,10 +25,12 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
+import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
@@ -37,23 +39,22 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle()), 
-	GENJI("Genji", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken()),
-	HANZO("Hanzo", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow()),
-	MCCREE("McCree", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun()),
-	REAPER("Reaper", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun()),
-	REINHARDT("Reinhardt", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer()),
-	SOLDIER76("Soldier76", false, KeyBind.RMB, false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun()),
-	TRACER("Tracer", false, KeyBind.ABILITY_2, false, KeyBind.ABILITY_1, false, KeyBind.NONE, false, 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol());
+	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), "Overwatch - Ana by Drzzter"), 
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), "Overwatch- Genji by Ringoster"),
+	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true), new Ability(KeyBind.ABILITY_1, true, true), new Ability(KeyBind.NONE, false, false), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), "Overwatch- Hanzo by Ringoster"),
+	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), "im yer huckleberry | Jesse McCree by PlantyBox"),
+	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, true), new Ability(KeyBind.NONE, false, false), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
+	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false), new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, true), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), "Overwatch Reinhardt by Kohicup"),
+	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false), new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.NONE, true, false), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), "Soldier 76 (Overwatch) by sixfootblue"),
+	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, false), new Ability(KeyBind.NONE, false, false), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), "Tracer- Overwatch by Ringoster"),
+	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false), new Ability(KeyBind.ABILITY_1, false, true), new Ability(KeyBind.NONE, false, false), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), "Bastion- Overwatch by Ringoster"),
+	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true), new Ability(KeyBind.ABILITY_1, false, true), new Ability(KeyBind.NONE, false, false), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt");
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
-	private KeyBind slot1;
-	private KeyBind slot2;
-	private KeyBind slot3;
-	private boolean slot1Enabled;
-	private boolean slot2Enabled;
-	private boolean slot3Enabled;
+	public Ability ability1;
+	public Ability ability2;
+	public Ability ability3;
 
 	public String name;
 	/**index from top of ability_overlay.png for this hero*/
@@ -77,7 +78,8 @@ public enum EnumHero {
 	public ItemMWToken token;
 
 	public SoundEvent reloadSound;
-
+	public String[] textureCredits;
+	public int textureVariation;
 
 	private static final class IndexCounter {
 		/**used to calculate overlayIndex*/
@@ -90,24 +92,24 @@ public enum EnumHero {
 
 	}
 
-	private EnumHero(String name, boolean hasAltWeapon, KeyBind slot1, boolean slot1Enabled, 
-			KeyBind slot2, boolean slot2Enabled, KeyBind slot3, boolean slot3Enabled,
-			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon) {
+	private EnumHero(String name, boolean hasAltWeapon, Ability ability1, Ability ability2, Ability ability3,
+			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, String... textureCredits) {
 		this.overlayIndex = IndexCounter.index++;
 		this.name = name;
 		this.hasAltWeapon = hasAltWeapon;
 		if (this.hasAltWeapon)
 			this.altWeaponIndex = IndexCounter.index++;
-		this.slot1 = slot1;
-		this.slot2 = slot2;
-		this.slot3 = slot3;
-		this.slot1Enabled = slot1Enabled;
-		this.slot2Enabled = slot2Enabled;
-		this.slot3Enabled = slot3Enabled;
+		this.ability1 = ability1;
+		this.ability2 = ability2;
+		this.ability3 = ability3;
+		this.ability1.hero = this;
+		this.ability2.hero = this;
+		this.ability3.hero = this;
 		this.mainAmmo = mainAmmo;
 		this.altAmmo = altAmmo;
 		this.armorReductionAmounts = armorReductionAmounts;
 		this.weapon = weapon;
+		this.textureCredits = textureCredits;
 	}
 
 	public Item getEquipment(EntityEquipmentSlot slot) {
@@ -146,7 +148,9 @@ public enum EnumHero {
 					GlStateManager.disableDepth();
 
 					GlStateManager.scale(event.getResolution().getScaledWidth_double()/256d, event.getResolution().getScaledHeight_double()/256d, 1);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_info.png"));
+					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/info_background.png"));
+					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_info.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
 
 					GlStateManager.enableDepth();
@@ -165,7 +169,7 @@ public enum EnumHero {
 						GlStateManager.translate(60, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 50, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
 						GlStateManager.popMatrix();
@@ -190,101 +194,101 @@ public enum EnumHero {
 
 						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID())) {
 							// slot 1
-							if (hero.slot1.getCooldown(player) > 0) 
+							if (hero.ability1.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.slot1.isKeyDown(player)) {
+							else if (hero.ability1.isSelected(player)) {
 								GlStateManager.color(0.8f, 0.6f, 0);
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-50, -2, 124, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.slot1Enabled && hero.slot1 != KeyBind.NONE) 
+							if (!hero.ability1.isEnabled && hero.ability1.keybind != KeyBind.NONE) 
 								GuiUtils.drawTexturedModalRect(-28, 0, 65, 1015, 12, 9, 0);
 							GlStateManager.color(1, 1, 1);
-							if (hero.slot1.getCooldown(player) <= 0 && hero.slot1.isKeyDown(player)) 
+							if (hero.ability1.isSelected(player)) 
 								GlStateManager.translate(-1, -1, 0);
 							// slot 2
-							if (hero.slot2.getCooldown(player) > 0) 
+							if (hero.ability2.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.slot2.isKeyDown(player)) {
+							else if (hero.ability2.isSelected(player)) {
 								GlStateManager.color(0.8f, 0.6f, 0);
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-87, -2, 165, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.slot2Enabled && hero.slot2 != KeyBind.NONE) {
+							if (!hero.ability2.isEnabled && hero.ability2.keybind != KeyBind.NONE) {
 								GlStateManager.translate(0, 0.3f, 0);
 								GuiUtils.drawTexturedModalRect(-65, -1, 65, 1015, 12, 9, 0);
 								GlStateManager.translate(0, -0.3f, 0);
 							}
 							GlStateManager.color(1, 1, 1);
-							if (hero.slot2.getCooldown(player) <= 0 && hero.slot2.isKeyDown(player)) 
+							if (hero.ability2.isSelected(player)) 
 								GlStateManager.translate(-1, -1, 0);
 							// slot 3
-							if (hero.slot3.getCooldown(player) > 0) 
+							if (hero.ability3.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.slot3.isKeyDown(player)) {
+							else if (hero.ability3.isSelected(player)) {
 								GlStateManager.color(0.8f, 0.6f, 0);
 								GlStateManager.translate(1, 1, 0);
 							}
 							GuiUtils.drawTexturedModalRect(-124, -2, 206, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.slot3Enabled && hero.slot3 != KeyBind.NONE) {
+							if (!hero.ability3.isEnabled && hero.ability3.keybind != KeyBind.NONE) {
 								GlStateManager.translate(0, 0.5f, 0);
 								GuiUtils.drawTexturedModalRect(-102, -2, 65, 1015, 12, 9, 0);
 								GlStateManager.translate(0, -0.5f, 0);
 							}
 							GlStateManager.color(1, 1, 1);
-							if (hero.slot3.getCooldown(player) <= 0 && hero.slot3.isKeyDown(player)) 
+							if (hero.ability3.isSelected(player))
 								GlStateManager.translate(-1, -1, 0);
 
 							// keybinds 
-							int width1 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.slot1.getKeyName());
-							int width2 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.slot2.getKeyName());
-							int width3 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.slot3.getKeyName());
+							int width1 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability1.keybind.getKeyName());
+							int width2 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability2.keybind.getKeyName());
+							int width3 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability3.keybind.getKeyName());
 							// background
 							// slot 1
-							if (hero.slot1.getCooldown(player) > 0) 
+							if (hero.ability1.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.slot1.getKeyName() != "")
+							if (hero.ability1.keybind.getKeyName() != "")
 								GuiUtils.drawTexturedModalRect(-58, 3, 0, 1015, 40, 9, 0);
-							else if (hero.slot1 == KeyBind.RMB)
+							else if (hero.ability1.keybind == KeyBind.RMB)
 								GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							// slot 2
-							if (hero.slot2.getCooldown(player) > 0) 
+							if (hero.ability2.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.slot2.getKeyName() != "")
+							if (hero.ability2.keybind.getKeyName() != "")
 								GuiUtils.drawTexturedModalRect(-98, 2, 0, 1015, 40, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							// slot 3
-							if (hero.slot3.getCooldown(player) > 0) 
+							if (hero.ability3.keybind.getCooldown(player) > 0) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.slot3.getKeyName() != "")
+							if (hero.ability3.keybind.getKeyName() != "")
 								GuiUtils.drawTexturedModalRect(-137, 1, 0, 1015, 40, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							// text
 							GlStateManager.scale(1, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// slot 1
-							Minecraft.getMinecraft().fontRendererObj.drawString(hero.slot1.getKeyName(), -33-width1/2, 38, 0);
+							Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
 							// slot 2
-							Minecraft.getMinecraft().fontRendererObj.drawString(hero.slot2.getKeyName(), -74-width2/2, 37, 0);
+							Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
 							// slot 3
-							Minecraft.getMinecraft().fontRendererObj.drawString(hero.slot3.getKeyName(), -114-width3/2, 37, 0);
+							Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
 
 							// cooldowns
 							double scale = 2d;
 							GlStateManager.scale(scale, scale, 1);
-							if (hero.slot1.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot1.getCooldown(player)/20);
+							if (hero.ability1.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability1.keybind.getCooldown(player)/20d));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -14-width/2, 4, 0xFFFFFF);
 							}
-							if (hero.slot2.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot2.getCooldown(player)/20);
+							if (hero.ability2.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability2.keybind.getCooldown(player)/20d));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -33-width/2, 4, 0xFFFFFF);
 							}
-							if (hero.slot3.getCooldown(player) > 0) { 
-								String num = String.valueOf(hero.slot3.getCooldown(player)/20);
+							if (hero.ability3.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability3.keybind.getCooldown(player)/20d));
 								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
 								Minecraft.getMinecraft().fontRendererObj.drawString(num, -51-width/2, 4, 0xFFFFFF);
 							}

@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class PacketSyncAmmo implements IMessage{
-
+	
 	private UUID player;
 	private int ammo;
 	private EnumHand[] hands;
@@ -36,6 +36,7 @@ public class PacketSyncAmmo implements IMessage{
 		this.hands = new EnumHand[numHands];
 		for (int i=0; i<numHands; ++i)
 			this.hands[i] = EnumHand.valueOf(ByteBufUtils.readUTF8String(buf));
+			
 	}
 
 	@Override
@@ -58,7 +59,7 @@ public class PacketSyncAmmo implements IMessage{
 					EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 					ItemStack main = player.getHeldItemMainhand();
 					if (main != null && main.getItem() instanceof ItemMWWeapon)
-						((ItemMWWeapon)main.getItem()).setCurrentAmmo(player, packet.ammo, packet.hands); 			
+						((ItemMWWeapon)main.getItem()).setCurrentAmmo(player, packet.ammo, packet.hands);
 				}
 			});
 			return null;

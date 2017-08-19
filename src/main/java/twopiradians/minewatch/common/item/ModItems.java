@@ -41,7 +41,7 @@ public class ModItems {
 			}
 
 			genji_shuriken_single = registerItem(event.getRegistry(), new ItemGenjiShuriken(), "genji_shuriken_single", false, true);
-
+			((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;
 		}
 
 		private static Item registerItem(IForgeRegistry<Item> registry, Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {

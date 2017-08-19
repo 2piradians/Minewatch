@@ -16,7 +16,7 @@ public class ModSoundEvents {
 	public static SoundEvent reaperReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_reload")).setRegistryName("reaper_reload");
 	public static SoundEvent hanzoShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "hanzo_shoot")).setRegistryName("hanzo_shoot");
 	public static SoundEvent hanzoDraw = new SoundEvent(new ResourceLocation(Minewatch.MODID, "hanzo_draw")).setRegistryName("hanzo_draw");
-	public static SoundEvent reinhardtWeapon = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reinhardt_rocket_hammer")).setRegistryName("reinhardt_rocket_hammer");
+	public static SoundEvent reinhardtWeapon = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reinhardt_weapon")).setRegistryName("reinhardt_weapon");
 	public static SoundEvent genjiShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_shoot")).setRegistryName("genji_shoot");
 	public static SoundEvent genjiReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_reload")).setRegistryName("genji_reload");
 	public static SoundEvent tracerShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "tracer_shoot")).setRegistryName("tracer_shoot");

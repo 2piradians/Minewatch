@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,8 +51,10 @@ public class ModItems {
 				jsonModelItems.add(item);
 			item.setUnlocalizedName(unlocalizedName);
 			item.setRegistryName(Minewatch.MODID, unlocalizedName);
-			if (addToTab)
+			if (addToTab) {
 				item.setCreativeTab(Minewatch.tab);
+				Minewatch.tab.orderedStacks.add(new ItemStack(item));
+			}
 			registry.register(item);
 			return item;
 		}

@@ -37,13 +37,13 @@ public class CommonProxy
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
 		registerPackets();
+		registerEventListeners();
 		ModEntities.registerEntities();
 		ModSoundEvents.postInit();
 	}
 
 	public void init(FMLInitializationEvent event) {
 		ModPotions.init();
-		registerEventListeners();
 		registerCraftingRecipes();
 	}
 

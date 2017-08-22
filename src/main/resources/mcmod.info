@@ -4,7 +4,7 @@
   "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
   "version": "3.1",
-  "mcversion": "1.12",
+  "mcversion": "1.12.1",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
   "authorList": ["2piradians, Furgl"],
@@ -33,4 +33,4 @@ Armor Texture Credits:
   "requiredMods": ["Forge"],
   "dependencies": []
 }
-]
+]  

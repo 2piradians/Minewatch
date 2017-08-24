@@ -8,11 +8,11 @@ import com.google.common.collect.Maps;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class ModEntities {
 	
-	public static HashMap<UUID, PacketSyncSpawningEntity> spawningEntities = Maps.newHashMap();
+	public static HashMap<UUID, SPacketSyncSpawningEntity> spawningEntities = Maps.newHashMap();
 	
 	public static void registerEntities() {
 		int id = 0;

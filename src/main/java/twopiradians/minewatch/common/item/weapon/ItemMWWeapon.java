@@ -25,7 +25,7 @@ import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.potion.ModPotions;
-import twopiradians.minewatch.packet.PacketSyncAmmo;
+import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item {
 	
@@ -64,7 +64,7 @@ public abstract class ItemMWWeapon extends Item {
 	public void setCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
 		if (player != null) {
 			if (player instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount, hands), (EntityPlayerMP) player);
+				Minewatch.network.sendTo(new SPacketSyncAmmo(player.getPersistentID(), amount, hands), (EntityPlayerMP) player);
 			if (player.world.isRemote)
 				for (EnumHand hand : hands)
 					if (player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == this) {

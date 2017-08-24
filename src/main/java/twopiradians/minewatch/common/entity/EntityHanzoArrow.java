@@ -15,7 +15,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class EntityHanzoArrow extends EntityArrow {
 
@@ -40,7 +40,7 @@ public class EntityHanzoArrow extends EntityArrow {
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0)
 			Minewatch.network.sendToAllAround(
-					new PacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
+					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
 					new TargetPoint(this.world.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
 	}
 

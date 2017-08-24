@@ -1,6 +1,8 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -12,7 +14,8 @@ import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
@@ -30,7 +33,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				player.world.spawnEntity(bullet);
 			}
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-			Minewatch.network.sendToAllAround(new PacketSpawnParticle(1, vec.xCoord, vec.yCoord, vec.zCoord, 0x4AFDFD, 0x4AFDFD, 3, 1), 
+			Minewatch.network.sendToAllAround(new SPacketSpawnParticle(1, vec.xCoord, vec.yCoord, vec.zCoord, 0x4AFDFD, 0x4AFDFD, 3, 1), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 			this.subtractFromCurrentAmmo(player, 1);
@@ -38,5 +41,19 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
+	
+	@Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
+        super.onUpdate(stack, world, entity, slot, isSelected);
+        if (!world.isRemote && entity instanceof EntityPlayerMP) {
+            EntityPlayerMP player = (EntityPlayerMP) entity;
+            if (isSelected && this.canUse(player, true) && hero.ability2.isSelected(player)) {
+            	world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, 
+            			SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
+            	Minewatch.network.sendTo(new SPacketTriggerAbility(0), player);
+                hero.ability2.keybind.setCooldown(player, 60); 
+            }
+        }
+    }
 
 }

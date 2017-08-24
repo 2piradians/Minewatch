@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
 
@@ -108,7 +108,7 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0 && sendPacket) {
 			Minewatch.network.sendToAllAround(
-					new PacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
+					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
 					new TargetPoint(this.world.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
 		}
 	}

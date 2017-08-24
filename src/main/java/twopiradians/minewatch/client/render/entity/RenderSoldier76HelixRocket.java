@@ -8,7 +8,7 @@ import twopiradians.minewatch.client.model.ModelSoldier76Bullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class RenderSoldier76HelixRocket extends Render<EntitySoldier76HelixRocket>
 {
@@ -27,7 +27,7 @@ public class RenderSoldier76HelixRocket extends Render<EntitySoldier76HelixRocke
 	public void doRender(EntitySoldier76HelixRocket entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		// correct trajectories of fast entities
 		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
-			PacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
+			SPacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
 			entity.rotationPitch = packet.pitch;
 			entity.prevRotationPitch = packet.pitch;
 			entity.rotationYaw = packet.yaw;

@@ -12,15 +12,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 
-public class PacketSyncCooldown implements IMessage{
+public class SPacketSyncCooldown implements IMessage{
 	
 	private UUID player;
 	private String keybind;
 	private int cooldown;
 
-	public PacketSyncCooldown() {}
+	public SPacketSyncCooldown() {}
 
-	public PacketSyncCooldown(UUID player, KeyBind keybind, int cooldown) {
+	public SPacketSyncCooldown(UUID player, KeyBind keybind, int cooldown) {
 		this.player = player;
 		this.keybind = keybind.name();
 		this.cooldown = cooldown;
@@ -40,9 +40,9 @@ public class PacketSyncCooldown implements IMessage{
 		buf.writeInt(this.cooldown);
 	}
 
-	public static class Handler implements IMessageHandler<PacketSyncCooldown, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSyncCooldown, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncCooldown packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSyncCooldown packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() {
 				@Override

@@ -25,8 +25,9 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
-import twopiradians.minewatch.packet.PacketSyncCooldown;
-import twopiradians.minewatch.packet.PacketSyncKeys;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.CPacketSyncKeys;
+import twopiradians.minewatch.packet.SPacketSyncCooldown;
 
 public class Keys {
 	// The keys that will display underneath the icon
@@ -35,6 +36,7 @@ public class Keys {
 
 		private HashMap<UUID, Integer> clientCooldowns = Maps.newHashMap();
 		private HashMap<UUID, Integer> serverCooldowns = Maps.newHashMap();
+		public HashMap<UUID, Integer> abilityNotReadyCooldowns = Maps.newHashMap();
 
 		private KeyBind() {
 			MinecraftForge.EVENT_BUS.register(this);
@@ -48,8 +50,18 @@ public class Keys {
 						if (uuid.equals(event.player.getPersistentID())) {
 							if (clientCooldowns.get(uuid) > 1)
 								clientCooldowns.put(uuid, Math.max(clientCooldowns.get(uuid)-1, 0));
-							else
+							else {
 								clientCooldowns.remove(uuid);
+								event.player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
+							}
+							break;
+						}
+					for (UUID uuid : abilityNotReadyCooldowns.keySet())
+						if (uuid.equals(event.player.getPersistentID())) {
+							if (abilityNotReadyCooldowns.get(uuid) > 1)
+								abilityNotReadyCooldowns.put(uuid, Math.max(abilityNotReadyCooldowns.get(uuid)-1, 0));
+							else 
+								abilityNotReadyCooldowns.remove(uuid);
 							break;
 						}
 				}
@@ -79,7 +91,7 @@ public class Keys {
 				clientCooldowns.put(player.getPersistentID(), cooldown);
 				else if (player instanceof EntityPlayerMP) {
 					serverCooldowns.put(player.getPersistentID(), cooldown);
-					Minewatch.network.sendTo(new PacketSyncCooldown(player.getPersistentID(), this, cooldown), (EntityPlayerMP) player);
+					Minewatch.network.sendTo(new SPacketSyncCooldown(player.getPersistentID(), this, cooldown), (EntityPlayerMP) player);
 				}
 			}
 		}
@@ -201,7 +213,7 @@ public class Keys {
 				!event.isButtonstate()) {
 			if (event.getButton() == 0) {
 				lmb.put(uuid, event.isButtonstate());
-				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", event.isButtonstate(), uuid));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("LMB", event.isButtonstate(), uuid));
 				if (event.isButtonstate())
 					if (!(main.getItem() instanceof ItemReinhardtHammer))
 						event.setCanceled(true);
@@ -214,7 +226,7 @@ public class Keys {
 
 			if (event.getButton() == 1) {
 				rmb.put(uuid, event.isButtonstate());
-				Minewatch.network.sendToServer(new PacketSyncKeys("RMB", event.isButtonstate(), uuid));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("RMB", event.isButtonstate(), uuid));
 			}
 		}
 
@@ -224,7 +236,7 @@ public class Keys {
 			EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
 			hero.playersUsingAlt.put(uuid, 
 					hero.playersUsingAlt.containsKey(uuid) ? !hero.playersUsingAlt.get(uuid) : true);
-			Minewatch.network.sendToServer(new PacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(uuid), uuid));
+			Minewatch.network.sendToServer(new CPacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(uuid), uuid));
 			event.setCanceled(true);
 		}
 	}
@@ -238,26 +250,26 @@ public class Keys {
 			// disable lmb if not in game screen
 			if (Minecraft.getMinecraft().currentScreen != null && this.lmb(Minecraft.getMinecraft().player)) {
 				lmb.put(player, false);
-				Minewatch.network.sendToServer(new PacketSyncKeys("LMB", false, player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("LMB", false, player));
 			}
 			// disable rmb if not in game screen
 			if (Minecraft.getMinecraft().currentScreen != null && this.rmb(Minecraft.getMinecraft().player)) {
 				rmb.put(player, false);
-				Minewatch.network.sendToServer(new PacketSyncKeys("RMB", false, player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("RMB", false, player));
 			}
 
 			// sync keys
 			if (!heroInformation.containsKey(player) || HERO_INFORMATION.isKeyDown() != heroInformation.get(player)) {
 				heroInformation.put(player, HERO_INFORMATION.isKeyDown());
-				Minewatch.network.sendToServer(new PacketSyncKeys("Hero Information", HERO_INFORMATION.isKeyDown(), player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Hero Information", HERO_INFORMATION.isKeyDown(), player));
 			}
 			if (!reload.containsKey(player) || RELOAD.isKeyDown() != reload.get(player)) {
 				reload.put(player, RELOAD.isKeyDown());
-				Minewatch.network.sendToServer(new PacketSyncKeys("Reload", RELOAD.isKeyDown(), player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Reload", RELOAD.isKeyDown(), player));
 			}
 			if (!ability1.containsKey(player) || ABILITY_1.isKeyDown() != ability1.get(player)) {
 				ability1.put(player, ABILITY_1.isKeyDown());
-				Minewatch.network.sendToServer(new PacketSyncKeys("Ability 1", ABILITY_1.isKeyDown(), player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Ability 1", ABILITY_1.isKeyDown(), player));
 				// toggle ability
 				if (ABILITY_1.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(player)) {
 					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
@@ -266,13 +278,13 @@ public class Keys {
 						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
 							boolean toggle = ability.toggled.containsKey(player) ? !ability.toggled.get(player) : true;
 							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
-							Minewatch.network.sendToServer(new PacketSyncKeys("Toggle Ability 1", toggle, player));
+							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 1", toggle, player));
 						}
 				}
 			}
 			if (!ability2.containsKey(player) || ABILITY_2.isKeyDown() != ability2.get(player)) {
 				ability2.put(player, ABILITY_2.isKeyDown());
-				Minewatch.network.sendToServer(new PacketSyncKeys("Ability 2", ABILITY_2.isKeyDown(), player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Ability 2", ABILITY_2.isKeyDown(), player));
 				// toggle ability
 				if (ABILITY_2.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(player)) {
 					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(player);
@@ -281,13 +293,13 @@ public class Keys {
 						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
 							boolean toggle = ability.toggled.containsKey(player) ? !ability.toggled.get(player) : true;
 							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
-							Minewatch.network.sendToServer(new PacketSyncKeys("Toggle Ability 2", toggle, player));
+							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 2", toggle, player));
 						}
 				}
 			}
 			if (!ultimate.containsKey(player) || ULTIMATE.isKeyDown() != ultimate.get(player)) {
 				ultimate.put(player, ULTIMATE.isKeyDown());
-				Minewatch.network.sendToServer(new PacketSyncKeys("Ultimate", ULTIMATE.isKeyDown(), player));
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Ultimate", ULTIMATE.isKeyDown(), player));
 			}
 		}
 	}

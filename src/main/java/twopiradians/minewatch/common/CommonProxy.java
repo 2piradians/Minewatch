@@ -25,12 +25,13 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketPotionEffect;
-import twopiradians.minewatch.packet.PacketSpawnParticle;
-import twopiradians.minewatch.packet.PacketSyncAmmo;
-import twopiradians.minewatch.packet.PacketSyncCooldown;
-import twopiradians.minewatch.packet.PacketSyncKeys;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.CPacketSyncKeys;
+import twopiradians.minewatch.packet.SPacketPotionEffect;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketSyncAmmo;
+import twopiradians.minewatch.packet.SPacketSyncCooldown;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class CommonProxy 
 {
@@ -53,12 +54,13 @@ public class CommonProxy
 
 	private void registerPackets() { // Side is where the packets goes TO
 		int id = 0;
-		Minewatch.network.registerMessage(PacketSyncKeys.Handler.class, PacketSyncKeys.class, id++, Side.SERVER);
-		Minewatch.network.registerMessage(PacketSyncAmmo.Handler.class, PacketSyncAmmo.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(PacketSyncSpawningEntity.Handler.class, PacketSyncSpawningEntity.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(PacketSyncCooldown.Handler.class, PacketSyncCooldown.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(PacketSpawnParticle.Handler.class, PacketSpawnParticle.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(PacketPotionEffect.Handler.class, PacketPotionEffect.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(CPacketSyncKeys.Handler.class, CPacketSyncKeys.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(SPacketSyncAmmo.Handler.class, SPacketSyncAmmo.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSyncSpawningEntity.Handler.class, SPacketSyncSpawningEntity.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSyncCooldown.Handler.class, SPacketSyncCooldown.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSpawnParticle.Handler.class, SPacketSpawnParticle.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketPotionEffect.Handler.class, SPacketPotionEffect.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketTriggerAbility.Handler.class, SPacketTriggerAbility.class, id++, Side.CLIENT);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }

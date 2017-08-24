@@ -9,6 +9,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class ModSoundEvents {
 
 	public static SoundEvent hurt;
+	public static SoundEvent abilityRecharge;
+	public static SoundEvent abilityNotReady;
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
 	public static SoundEvent reaperShoot;
@@ -19,6 +21,7 @@ public class ModSoundEvents {
 	public static SoundEvent reinhardtWeapon;
 	public static SoundEvent genjiShoot;
 	public static SoundEvent tracerShoot;
+	public static SoundEvent tracerBlink;
 	public static SoundEvent mccreeShoot;
 	public static SoundEvent soldier76Shoot;
 	public static SoundEvent soldier76Helix;
@@ -31,6 +34,8 @@ public class ModSoundEvents {
 
 	public static void preInit() {
 		hurt = registerSound("hurt");
+		abilityRecharge = registerSound("ability_recharge");
+		abilityNotReady = registerSound("ability_not_ready");
 		anaShoot = registerSound("ana_shoot");
 		anaHeal = registerSound("ana_heal");
 		EnumHero.ANA.reloadSound = registerSound("ana_reload");
@@ -44,6 +49,7 @@ public class ModSoundEvents {
 		genjiShoot = registerSound("genji_shoot");
 		EnumHero.GENJI.reloadSound = registerSound("genji_reload");
 		tracerShoot = registerSound("tracer_shoot");
+		tracerBlink = registerSound("tracer_blink");
 		EnumHero.TRACER.reloadSound = registerSound("tracer_reload");
 		mccreeShoot = registerSound("mccree_shoot");
 		EnumHero.MCCREE.reloadSound = registerSound("mccree_reload");

@@ -12,7 +12,7 @@ import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 	
@@ -33,7 +33,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-			Minewatch.network.sendToAllAround(new PacketSpawnParticle(0, vec.xCoord, vec.yCoord, vec.zCoord, 0xD93B1A, 0x510D30, 5, 5), 
+			Minewatch.network.sendToAllAround(new SPacketSpawnParticle(0, vec.xCoord, vec.yCoord, vec.zCoord, 0xD93B1A, 0x510D30, 5, 5), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 
 			this.subtractFromCurrentAmmo(player, 1, hand);

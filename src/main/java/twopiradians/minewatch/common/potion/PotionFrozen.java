@@ -41,8 +41,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketPotionEffect;
-import twopiradians.minewatch.packet.PacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketPotionEffect;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class PotionFrozen extends Potion {
 
@@ -86,7 +86,7 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToAll(new PacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+		Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
 		entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
 	}
 
@@ -168,9 +168,9 @@ public class PotionFrozen extends Potion {
 						if (entity instanceof EntityLiving)
 							((EntityLiving)entity).setAttackTarget(null);
 						entity.addPotionEffect(effect);
-						Minewatch.network.sendToAll(new PacketPotionEffect(entity, effect));
+						Minewatch.network.sendToAll(new SPacketPotionEffect(entity, effect));
 						entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.NEUTRAL, 1.0f, 1.0f);
-						Minewatch.network.sendToAll(new PacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+						Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
 						serverFreezes.put(entity, serverFreezes.get(entity) - 1);
 					}
 					else

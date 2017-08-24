@@ -14,15 +14,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
-public class PacketSyncAmmo implements IMessage{
+public class SPacketSyncAmmo implements IMessage{
 	
 	private UUID player;
 	private int ammo;
 	private EnumHand[] hands;
 
-	public PacketSyncAmmo() {}
+	public SPacketSyncAmmo() {}
 
-	public PacketSyncAmmo(UUID player, int ammo, EnumHand... hands) {
+	public SPacketSyncAmmo(UUID player, int ammo, EnumHand... hands) {
 		this.player = player;
 		this.ammo = ammo;
 		this.hands = hands;
@@ -48,9 +48,9 @@ public class PacketSyncAmmo implements IMessage{
 			ByteBufUtils.writeUTF8String(buf, hand.name());
 	}
 
-	public static class Handler implements IMessageHandler<PacketSyncAmmo, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSyncAmmo, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncAmmo packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSyncAmmo packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
 			{

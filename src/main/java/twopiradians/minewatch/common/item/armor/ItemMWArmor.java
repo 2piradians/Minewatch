@@ -136,8 +136,8 @@ public class ItemMWArmor extends ItemArmor
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				hero == EnumHero.TRACER && world.isRemote && player != null) {
-			int numParticles = (int) ((Math.abs(player.motionX)+Math.abs(player.motionY)+Math.abs(player.motionZ))*10d);
+				hero == EnumHero.TRACER && world.isRemote && player != null && player.ticksExisted > 2) {
+			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*5d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 

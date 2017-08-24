@@ -5,6 +5,18 @@
 			"minewatch:hurt"
 		]
 	},
+	"ability_recharge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_recharge"
+		]
+	},
+	"ability_not_ready": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_not_ready"
+		]
+	},
 	"ana_shoot": {
 		"category": "player",
 		"sounds": [
@@ -89,6 +101,12 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:tracer_reload"
+		]
+	},
+	"tracer_blink": {
+		"category": "player",
+		"sounds": [
+			"minewatch:tracer_blink"
 		]
 	},
 	"mccree_shoot": {

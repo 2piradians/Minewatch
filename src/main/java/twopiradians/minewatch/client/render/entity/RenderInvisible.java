@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class RenderInvisible extends Render<EntityMWThrowable> {
 		
@@ -23,7 +23,7 @@ public class RenderInvisible extends Render<EntityMWThrowable> {
 	public void doRender(EntityMWThrowable entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		// correct trajectories of fast entities
 		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
-			PacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
+			SPacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
 			entity.rotationPitch = packet.pitch;
 			entity.prevRotationPitch = packet.pitch;
 			entity.rotationYaw = packet.yaw;

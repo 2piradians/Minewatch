@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.entity.ModEntities;
 
-public class PacketSyncSpawningEntity implements IMessage{
+public class SPacketSyncSpawningEntity implements IMessage{
 	
 	private UUID uuid;
 	public float pitch;
@@ -20,9 +20,9 @@ public class PacketSyncSpawningEntity implements IMessage{
 	public double motionY; 
 	public double motionZ;
 
-	public PacketSyncSpawningEntity() {}
+	public SPacketSyncSpawningEntity() {}
 
-	public PacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ) {
+	public SPacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ) {
 		this.uuid = uuid;
 		this.pitch = pitch;
 		this.yaw = yaw;
@@ -52,9 +52,9 @@ public class PacketSyncSpawningEntity implements IMessage{
 		buf.writeDouble(motionZ);
 	}
 
-	public static class Handler implements IMessageHandler<PacketSyncSpawningEntity, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSyncSpawningEntity, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncSpawningEntity packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSyncSpawningEntity packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
 			{

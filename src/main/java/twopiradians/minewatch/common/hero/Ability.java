@@ -79,7 +79,7 @@ public class Ability {
 			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
 		}
 
-		boolean ret = getUses(player) > 0 && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
+		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0) &&
 				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
 				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&

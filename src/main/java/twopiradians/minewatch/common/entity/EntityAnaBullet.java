@@ -47,7 +47,7 @@ public class EntityAnaBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 8);
+						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 0.5f, 8);
 		}
 	}
 

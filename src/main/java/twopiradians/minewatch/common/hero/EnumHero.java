@@ -40,16 +40,16 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), "Overwatch - Ana by Drzzter"), 
-	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), "Overwatch- Genji by Ringoster"),
-	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), "Overwatch- Hanzo by Ringoster"),
-	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), "im yer huckleberry | Jesse McCree by PlantyBox"),
-	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
-	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), "Overwatch Reinhardt by Kohicup"),
-	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), "Soldier 76 (Overwatch) by sixfootblue"),
-	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), "Tracer- Overwatch by Ringoster"),
-	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), "Bastion- Overwatch by Ringoster"),
-	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt");
+	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, "Overwatch - Ana by Drzzter"), 
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
+	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, "Overwatch- Hanzo by Ringoster"),
+	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, "im yer huckleberry | Jesse McCree by PlantyBox"),
+	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
+	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, "Overwatch Reinhardt by Kohicup"),
+	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, "Soldier 76 (Overwatch) by sixfootblue"),
+	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, "Tracer- Overwatch by Ringoster"),
+	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, "Bastion- Overwatch by Ringoster"), //TODO switches to Crosshair.CIRCLE_BIG in turret
+	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt");
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
@@ -81,6 +81,20 @@ public enum EnumHero {
 	public SoundEvent reloadSound;
 	public String[] textureCredits;
 	public int textureVariation;
+	private Crosshair crosshair;
+
+	private static enum Crosshair {
+		CIRCLE_SMALL(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_circle_small.png")),
+		CIRCLE_BIG(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_circle_big.png")),
+		PLUS(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_plus.png")),
+		BOW(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_bow.png"));
+
+		public ResourceLocation loc;
+
+		private Crosshair(ResourceLocation loc) {
+			this.loc = loc;
+		}
+	}
 
 	private static final class IndexCounter {
 		/**used to calculate overlayIndex*/
@@ -94,7 +108,7 @@ public enum EnumHero {
 	}
 
 	private EnumHero(String name, boolean hasAltWeapon, Ability ability1, Ability ability2, Ability ability3,
-			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, String... textureCredits) {
+			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, Crosshair crosshair, String... textureCredits) {
 		this.overlayIndex = IndexCounter.index++;
 		this.name = name;
 		this.hasAltWeapon = hasAltWeapon;
@@ -110,6 +124,7 @@ public enum EnumHero {
 		this.altAmmo = altAmmo;
 		this.armorReductionAmounts = armorReductionAmounts;
 		this.weapon = weapon;
+		this.crosshair = crosshair;
 		this.textureCredits = textureCredits;
 	}
 
@@ -133,6 +148,39 @@ public enum EnumHero {
 
 	@Mod.EventBusSubscriber(Side.CLIENT)
 	public static class RenderManager {
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
+			if (event.getType() == ElementType.CROSSHAIRS) {
+				EntityPlayer player = Minecraft.getMinecraft().player;
+				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
+				EnumHand hand = null;
+				for (EnumHand hand2 : EnumHand.values())
+					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
+						hand = hand2;
+				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
+
+				if (weapon != null) {
+					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player))) {
+						GlStateManager.pushMatrix();
+						GlStateManager.enableDepth();
+						GlStateManager.enableAlpha();
+
+						// render crosshair
+						double scale = 0.2d;
+						GlStateManager.scale(scale, scale, 1);
+						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
+						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
+
+						GlStateManager.popMatrix();
+
+					}
+					event.setCanceled(true);
+				}
+			}
+		}
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
@@ -261,7 +309,7 @@ public enum EnumHero {
 							if (hero.ability2.keybind.getKeyName() != "")
 								GuiUtils.drawTexturedModalRect(-98, 2, 0, 1015, 40, 9, 0);
 							if (hero.ability2.maxUses > 0)
-							GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
+								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							// slot 3
 							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
@@ -269,7 +317,7 @@ public enum EnumHero {
 							if (hero.ability3.keybind.getKeyName() != "")
 								GuiUtils.drawTexturedModalRect(-137, 1, 0, 1015, 40, 9, 0);
 							if (hero.ability3.maxUses > 0)
-							GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
+								GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
 							GlStateManager.color(1, 1, 1);
 							// text
 							GlStateManager.scale(1, 0.25d, 1);

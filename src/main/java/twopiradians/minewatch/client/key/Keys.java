@@ -65,7 +65,7 @@ public class Keys {
 							break;
 						}
 				}
-				else
+				else 
 					for (UUID uuid : serverCooldowns.keySet())
 						if (uuid == event.player.getPersistentID()) {
 							if (serverCooldowns.get(uuid) > 1)
@@ -208,8 +208,10 @@ public class Keys {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		UUID uuid = player.getPersistentID();
 		ItemStack main = player.getHeldItemMainhand();
+		ItemStack off = player.getHeldItemOffhand();
 
-		if ((event.isButtonstate() && main != null && main.getItem() instanceof ItemMWWeapon) || 
+		if ((event.isButtonstate() && ((main != null && main.getItem() instanceof ItemMWWeapon) || 
+				(off != null && off.getItem() instanceof ItemMWWeapon))) || 
 				!event.isButtonstate()) {
 			if (event.getButton() == 0) {
 				lmb.put(uuid, event.isButtonstate());

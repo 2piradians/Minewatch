@@ -28,6 +28,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.SPacketPotionEffect;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
@@ -61,6 +62,7 @@ public class CommonProxy
 		Minewatch.network.registerMessage(SPacketSpawnParticle.Handler.class, SPacketSpawnParticle.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketPotionEffect.Handler.class, SPacketPotionEffect.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketTriggerAbility.Handler.class, SPacketTriggerAbility.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }

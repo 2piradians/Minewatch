@@ -9,6 +9,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
@@ -41,19 +42,23 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
-	
+
 	@Override
-    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-        super.onUpdate(stack, world, entity, slot, isSelected);
-        if (!world.isRemote && entity instanceof EntityPlayerMP) {
-            EntityPlayerMP player = (EntityPlayerMP) entity;
-            if (isSelected && this.canUse(player, true) && hero.ability2.isSelected(player)) {
-            	world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, 
-            			SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
-            	Minewatch.network.sendTo(new SPacketTriggerAbility(0), player);
-                hero.ability2.keybind.setCooldown(player, 60); 
-            }
-        }
-    }
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, world, entity, slot, isSelected);
+		
+		// dash
+		if (entity instanceof EntityPlayer && 
+				(hero.ability2.isSelected((EntityPlayer) entity) || 
+						hero.ability2.isSelected((EntityPlayer) entity, Keys.KeyBind.RMB)) &&
+				!world.isRemote && isSelected && this.canUse((EntityPlayer) entity, true)) {
+			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, 
+					SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
+			if (entity instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(new SPacketTriggerAbility(0), (EntityPlayerMP) entity);
+			hero.ability2.subtractUse((EntityPlayer) entity);
+			hero.ability2.keybind.setCooldown((EntityPlayer) entity, 5); 
+		}
+	}
 
 }

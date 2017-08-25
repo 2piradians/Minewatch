@@ -6,7 +6,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
@@ -83,13 +82,16 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.getThrower() != null && result.entityHit != this.getThrower() && 
-				!(result.entityHit instanceof EntitySoldier76HelixRocket)) {
+				!(result.entityHit instanceof EntitySoldier76HelixRocket) && 
+				(!(result.entityHit instanceof EntityLivingBase) || ((EntityLivingBase)result.entityHit).getHealth() > 0)) {
 			// direct hit damage (explosions do plenty of damage - direct can't be much)
-			if (result.entityHit instanceof EntityLivingBase && !this.world.isRemote) {
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 1f/ItemMWWeapon.DAMAGE_SCALE);
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 10;
-				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			if (result.entityHit instanceof EntityLivingBase) {
+				if (!this.world.isRemote) {
+					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 1f*ItemMWWeapon.damageScale);
+					((EntityLivingBase)result.entityHit).hurtResistantTime = 10;
+				}
+				else
+					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
 
 			// explosion

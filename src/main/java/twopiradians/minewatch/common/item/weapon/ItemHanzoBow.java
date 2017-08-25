@@ -101,7 +101,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// sonic arrow
 						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 							hero.ability2.keybind.setCooldown(player, 400); 
 
@@ -111,7 +111,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// scatter arrow
 						else if (hero.ability1.isSelected(player)) {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-							entityarrow.setDamage(125*((double)i/160/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/160*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
 							hero.ability1.keybind.setCooldown(player, 200); 
 
@@ -122,7 +122,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 						}
 						if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)

@@ -17,13 +17,15 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 public class SPacketSyncAmmo implements IMessage{
 	
 	private UUID player;
+	private EnumHand hand;
 	private int ammo;
 	private EnumHand[] hands;
 
 	public SPacketSyncAmmo() {}
 
-	public SPacketSyncAmmo(UUID player, int ammo, EnumHand... hands) {
+	public SPacketSyncAmmo(UUID player, EnumHand hand, int ammo, EnumHand... hands) {
 		this.player = player;
+		this.hand = hand;
 		this.ammo = ammo;
 		this.hands = hands;
 	}
@@ -31,6 +33,7 @@ public class SPacketSyncAmmo implements IMessage{
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		this.player = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+		this.hand = EnumHand.valueOf(ByteBufUtils.readUTF8String(buf));
 		this.ammo = buf.readInt();
 		int numHands = buf.readInt();
 		this.hands = new EnumHand[numHands];
@@ -42,6 +45,7 @@ public class SPacketSyncAmmo implements IMessage{
 	@Override
 	public void toBytes(ByteBuf buf) {
 		ByteBufUtils.writeUTF8String(buf, player.toString());
+		ByteBufUtils.writeUTF8String(buf, hand.toString());
 		buf.writeInt(this.ammo);
 		buf.writeInt(this.hands.length);
 		for (EnumHand hand : this.hands)
@@ -57,9 +61,9 @@ public class SPacketSyncAmmo implements IMessage{
 				@Override
 				public void run() {
 					EntityPlayer player = Minecraft.getMinecraft().player;
-					ItemStack main = player.getHeldItemMainhand();
-					if (main != null && main.getItem() instanceof ItemMWWeapon)
-						((ItemMWWeapon)main.getItem()).setCurrentAmmo(player, packet.ammo, packet.hands);
+					ItemStack stack = player.getHeldItem(packet.hand);
+					if (stack != null && stack.getItem() instanceof ItemMWWeapon)
+						((ItemMWWeapon)stack.getItem()).setCurrentAmmo(player, packet.ammo, packet.hands);
 				}
 			});
 			return null;

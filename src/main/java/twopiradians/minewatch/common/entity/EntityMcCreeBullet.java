@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -22,7 +21,7 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
-	
+
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
@@ -41,15 +40,16 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
-		
+
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
-				result.entityHit != this.getThrower() && !this.world.isRemote) {
-			float damage = 70 - (70 - 21) * ((float)this.ticksExisted / lifetime);
-			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-			result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-					ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			this.setDead();
+				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
+			if (!this.world.isRemote) {
+				float damage = 70 - (70 - 21) * ((float)this.ticksExisted / lifetime);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
+				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			}
+			else
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 		}
 	}
 }

@@ -4,7 +4,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -51,7 +50,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null &&
-				result.entityHit != this.getThrower()) {
+				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
@@ -68,13 +67,12 @@ public class EntityMeiBlast extends EntityMWThrowable {
 				}
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f/ItemMWWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f*ItemMWWeapon.damageScale);
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-				result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-				this.setDead();
 			}
+			else
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 		}
 	}
 

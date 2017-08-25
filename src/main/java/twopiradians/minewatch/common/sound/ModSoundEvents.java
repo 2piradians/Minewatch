@@ -10,6 +10,7 @@ public class ModSoundEvents {
 
 	public static SoundEvent hurt;
 	public static SoundEvent abilityRecharge;
+	public static SoundEvent abilityMultiRecharge;
 	public static SoundEvent abilityNotReady;
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
@@ -35,6 +36,7 @@ public class ModSoundEvents {
 	public static void preInit() {
 		hurt = registerSound("hurt");
 		abilityRecharge = registerSound("ability_recharge");
+		abilityMultiRecharge = registerSound("ability_multi_recharge");
 		abilityNotReady = registerSound("ability_not_ready");
 		anaShoot = registerSound("ana_shoot");
 		anaHeal = registerSound("ana_heal");

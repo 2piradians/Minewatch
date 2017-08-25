@@ -133,7 +133,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x4AFDFD, 0x4AFDFD, 5, 1);
 			}
 		}

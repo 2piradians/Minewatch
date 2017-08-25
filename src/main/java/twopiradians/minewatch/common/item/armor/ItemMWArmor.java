@@ -18,9 +18,13 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.Ability;
@@ -49,6 +53,25 @@ public class ItemMWArmor extends ItemArmor
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
 		public static HashMap<UUID, EnumHero> playersWearingSets = Maps.newHashMap();	
+
+		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
+		public static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
+
+		/**Clear cooldowns of players logging in (for when switching worlds)*/
+		@SubscribeEvent
+		public static void resetCooldowns(PlayerLoggedInEvent event) {
+			for (KeyBind key : Keys.KeyBind.values()) 
+				if (key.getCooldown(event.player) > 0)
+					key.setCooldown(event.player, 0);
+		}
+		
+		/**Clear cooldowns of players respawning*/
+		@SubscribeEvent
+		public static void resetCooldowns(PlayerRespawnEvent event) {
+			for (KeyBind key : Keys.KeyBind.values()) 
+				if (key.getCooldown(event.player) > 0)
+					key.setCooldown(event.player, 0);
+		}
 
 		/**Update playersWearingSets each tick
 		 * This way it's only checked once per tick, no matter what:
@@ -79,8 +102,15 @@ public class ItemMWArmor extends ItemArmor
 						ability.toggled.remove(event.player.getPersistentID());
 
 				// update playersWearingSets
-				if (fullSet)
+				if (fullSet) {
 					SetManager.playersWearingSets.put(event.player.getPersistentID(), hero);
+					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
+						for (KeyBind key : Keys.KeyBind.values()) 
+							if (key.getCooldown(event.player) > 0)
+								key.setCooldown(event.player, 0);
+						SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
+					}
+				}
 				else
 					SetManager.playersWearingSets.remove(event.player.getPersistentID());
 			}
@@ -136,7 +166,8 @@ public class ItemMWArmor extends ItemArmor
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				hero == EnumHero.TRACER && world.isRemote && player != null && player.ticksExisted > 2) {
+				hero == EnumHero.TRACER && world.isRemote && player != null && 
+				(player.chasingPosX != 0 || player.chasingPosY != 0 || player.chasingPosZ != 0)) {
 			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*5d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 

@@ -11,6 +11,12 @@
 			"minewatch:ability_recharge"
 		]
 	},
+	"ability_multi_recharge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_multi_recharge"
+		]
+	},
 	"ability_not_ready": {
 		"category": "player",
 		"sounds": [

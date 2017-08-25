@@ -8,6 +8,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class Config {
 
@@ -16,6 +17,7 @@ public class Config {
 	public static Configuration config;
 	public static boolean useObjModels;
 	public static int tokenDropRate;
+	public static boolean allowGunWarnings;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file);
@@ -26,12 +28,18 @@ public class Config {
 	}
 
 	public static void syncConfig() {
-		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models");
-		prop.setRequiresMcRestart(true);
-		useObjModels = prop.getBoolean();
+		Property use3DModelsprop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models?");
+		use3DModelsprop.setRequiresMcRestart(true);
+		useObjModels = use3DModelsprop.getBoolean();
+		
+		Property allowGunWarningsProp = config.get(Configuration.CATEGORY_GENERAL, "Restrict weapon usage", true, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand). This also prevents weapons from different heroes from being mixed and matched.");
+		allowGunWarnings = allowGunWarningsProp.getBoolean();
 
 		Property tokenDropRateProp = config.get(Configuration.CATEGORY_GENERAL, "Token Drop Rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
 		tokenDropRate = tokenDropRateProp.getInt();
+		
+		Property damageScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
+		ItemMWWeapon.damageScale = (float) (0.1d * damageScaleProp.getDouble());
 
 		for (EnumHero hero : EnumHero.values()) {
 			Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);

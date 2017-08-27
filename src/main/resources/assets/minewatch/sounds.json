@@ -192,5 +192,17 @@
 		"sounds": [
 			"minewatch:mei_unfreeze"
 		]
+	},
+	"widowmaker_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_shoot"
+		]
+	},
+	"widowmaker_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_reload"
+		]
 	}
 }

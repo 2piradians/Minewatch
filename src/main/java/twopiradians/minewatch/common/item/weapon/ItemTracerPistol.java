@@ -57,7 +57,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketTriggerAbility(0), (EntityPlayerMP) entity);
 			hero.ability2.subtractUse((EntityPlayer) entity);
-			hero.ability2.keybind.setCooldown((EntityPlayer) entity, 5); 
+			hero.ability2.keybind.setCooldown((EntityPlayer) entity, 5, true); 
 		}
 	}
 

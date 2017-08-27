@@ -50,7 +50,7 @@ public class EntityReaperBullet extends EntityMWThrowable {
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			}
 			else
-				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.05f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 		}
 	}
 }

@@ -2,10 +2,16 @@ package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -29,5 +35,28 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
+	}
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		// shoot
+		if (this.canUse(player, true)) {
+			if (!world.isRemote) {
+				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
+				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 0.01F, 0F, hand, false);
+				world.spawnEntity(icicle);
+				player.getCooldownTracker().setCooldown(this, 10);
+				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
+						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					player.getHeldItem(hand).damageItem(1, player);
+			}
+			else {
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
+			}
+		}
+
+		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 }

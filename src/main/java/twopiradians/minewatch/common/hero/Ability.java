@@ -64,6 +64,10 @@ public class Ability {
 		this.keybind = keybind;
 		boolean ret = isSelected(player) && prev.getCooldown(player) == 0;
 		this.keybind = prev;
+		
+		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB) {
+			System.out.println("wtf: "+this.keybind.name()); //TODO
+		}
 
 		if (ret && player.world.isRemote)
 			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
@@ -104,7 +108,8 @@ public class Ability {
 	public void subtractUse(EntityPlayer player) {
 		if (player != null && !player.world.isRemote && getUses(player) > 0 && player instanceof EntityPlayerMP) {
 			multiAbilityUses.put(player.getPersistentID(), multiAbilityUses.get(player.getPersistentID())-1);
-			multiAbilityCooldowns.put(player.getPersistentID(), useCooldown);
+			if (!multiAbilityCooldowns.containsKey(player.getPersistentID()))
+				multiAbilityCooldowns.put(player.getPersistentID(), useCooldown);
 			Minewatch.network.sendTo(
 					new SPacketSyncAbilityUses(player.getPersistentID(), hero, getNumber(), 
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
@@ -122,7 +127,6 @@ public class Ability {
 						multiAbilityCooldowns.remove(uuid);
 
 						if (this.multiAbilityUses.containsKey(uuid)) {
-							event.player.playSound(ModSoundEvents.abilityMultiRecharge, 1.0f, 1.0f);
 							this.multiAbilityUses.put(uuid, Math.min(maxUses, multiAbilityUses.get(uuid)+1));
 							if (this.multiAbilityUses.get(uuid) < maxUses)
 								this.multiAbilityCooldowns.put(uuid, useCooldown);

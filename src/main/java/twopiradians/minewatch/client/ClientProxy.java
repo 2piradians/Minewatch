@@ -43,6 +43,7 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
+import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76HelixRocket;
@@ -57,6 +58,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
@@ -102,7 +104,7 @@ public class ClientProxy extends CommonProxy
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
-	private static void registerObjRenders() {
+	private static void registerObjRenders() {		
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
 			if (item == EnumHero.HANZO.weapon) {
@@ -178,6 +180,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, RenderSoldier76HelixRocket::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, RenderBastionBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
 	}
 
 	@Override

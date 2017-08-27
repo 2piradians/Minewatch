@@ -17,20 +17,23 @@ public class SPacketSyncCooldown implements IMessage{
 	private UUID player;
 	private String keybind;
 	private int cooldown;
+	private boolean silent;
 
 	public SPacketSyncCooldown() {}
 
-	public SPacketSyncCooldown(UUID player, KeyBind keybind, int cooldown) {
+	public SPacketSyncCooldown(UUID player, KeyBind keybind, int cooldown, boolean silent) {
 		this.player = player;
 		this.keybind = keybind.name();
 		this.cooldown = cooldown;
+		this.silent = silent;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		this.player = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.keybind = ByteBufUtils.readUTF8String(buf);
-		this.cooldown = buf.readInt();			
+		this.cooldown = buf.readInt();	
+		this.silent = buf.readBoolean();
 	}
 
 	@Override
@@ -38,6 +41,7 @@ public class SPacketSyncCooldown implements IMessage{
 		ByteBufUtils.writeUTF8String(buf, this.player.toString());
 		ByteBufUtils.writeUTF8String(buf, this.keybind);
 		buf.writeInt(this.cooldown);
+		buf.writeBoolean(this.silent);
 	}
 
 	public static class Handler implements IMessageHandler<SPacketSyncCooldown, IMessage> {
@@ -50,7 +54,7 @@ public class SPacketSyncCooldown implements IMessage{
 					EntityPlayer player = Minecraft.getMinecraft().player;
 					KeyBind keybind = KeyBind.valueOf(packet.keybind);
 					if (player != null && keybind != null)
-						keybind.setCooldown(player, packet.cooldown);
+						keybind.setCooldown(player, packet.cooldown, packet.silent);
 				}
 			});
 			return null;

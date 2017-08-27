@@ -1,5 +1,6 @@
 package twopiradians.minewatch.client.key;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ public class Keys {
 		private HashMap<UUID, Integer> clientCooldowns = Maps.newHashMap();
 		private HashMap<UUID, Integer> serverCooldowns = Maps.newHashMap();
 		public HashMap<UUID, Integer> abilityNotReadyCooldowns = Maps.newHashMap();
+		public ArrayList<UUID> silentRecharge = new ArrayList<UUID>();
 
 		private KeyBind() {
 			MinecraftForge.EVENT_BUS.register(this);
@@ -52,7 +54,10 @@ public class Keys {
 								clientCooldowns.put(uuid, Math.max(clientCooldowns.get(uuid)-1, 0));
 							else {
 								clientCooldowns.remove(uuid);
-								event.player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
+								if (silentRecharge.contains(event.player.getPersistentID()))
+									silentRecharge.remove(event.player.getPersistentID());
+								else
+									event.player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 							}
 							break;
 						}
@@ -85,13 +90,16 @@ public class Keys {
 				return 0;
 		}
 
-		public void setCooldown(EntityPlayer player, int cooldown) {
+		public void setCooldown(EntityPlayer player, int cooldown, boolean silent) {
 			if (player != null) {
-				if (player.world.isRemote)
-				clientCooldowns.put(player.getPersistentID(), cooldown);
+				if (player.world.isRemote) {
+					clientCooldowns.put(player.getPersistentID(), cooldown);
+					if (silent)
+						silentRecharge.add(player.getPersistentID());
+				}
 				else if (player instanceof EntityPlayerMP) {
 					serverCooldowns.put(player.getPersistentID(), cooldown);
-					Minewatch.network.sendTo(new SPacketSyncCooldown(player.getPersistentID(), this, cooldown), (EntityPlayerMP) player);
+					Minewatch.network.sendTo(new SPacketSyncCooldown(player.getPersistentID(), this, cooldown, silent), (EntityPlayerMP) player);
 				}
 			}
 		}

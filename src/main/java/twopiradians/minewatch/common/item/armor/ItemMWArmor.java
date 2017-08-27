@@ -62,7 +62,7 @@ public class ItemMWArmor extends ItemArmor
 		public static void resetCooldowns(PlayerLoggedInEvent event) {
 			for (KeyBind key : Keys.KeyBind.values()) 
 				if (key.getCooldown(event.player) > 0)
-					key.setCooldown(event.player, 0);
+					key.setCooldown(event.player, 0, false);
 		}
 		
 		/**Clear cooldowns of players respawning*/
@@ -70,7 +70,7 @@ public class ItemMWArmor extends ItemArmor
 		public static void resetCooldowns(PlayerRespawnEvent event) {
 			for (KeyBind key : Keys.KeyBind.values()) 
 				if (key.getCooldown(event.player) > 0)
-					key.setCooldown(event.player, 0);
+					key.setCooldown(event.player, 0, false);
 		}
 
 		/**Update playersWearingSets each tick
@@ -107,7 +107,7 @@ public class ItemMWArmor extends ItemArmor
 					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
 						for (KeyBind key : Keys.KeyBind.values()) 
 							if (key.getCooldown(event.player) > 0)
-								key.setCooldown(event.player, 0);
+								key.setCooldown(event.player, 0, false);
 						SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
 					}
 				}

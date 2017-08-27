@@ -15,7 +15,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class SPacketSyncAbilityUses implements IMessage{
-	
+
 	private UUID player;
 	private String hero;
 	private int ability;
@@ -66,10 +66,13 @@ public class SPacketSyncAbilityUses implements IMessage{
 						ability = hero.ability2;
 					else if (packet.ability == 3)
 						ability = hero.ability3;
-					
+
 					if (player != null && ability != null) {
-						if (packet.playSound)
+						if (packet.playSound) {
+							if (packet.uses == 1)
+								player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 							player.playSound(ModSoundEvents.abilityMultiRecharge, 0.5f, 1.0f);
+						}
 						ability.multiAbilityUses.put(player.getPersistentID(), packet.uses);
 					}
 				}

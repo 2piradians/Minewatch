@@ -16,7 +16,7 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
-	
+
 	public ItemMcCreeGun() {
 		super(30);
 	}
@@ -60,19 +60,20 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {
 		if (entity instanceof EntityPlayer && count % 2 == 0 && this.canUse((EntityPlayer) entity, true)) {
 			if (!entity.world.isRemote) {
-			EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
-			bullet.setAim((EntityPlayer) entity, entity.rotationPitch, entity.rotationYaw, 2.0F, 0.3F, EnumHand.MAIN_HAND, false);
-			entity.world.spawnEntity(bullet);				
-			entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
-					SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
-			if (count == this.getMaxItemUseDuration(stack))
-				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, EnumHand.MAIN_HAND);
-			else
-				this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
-			if (entity.world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)
-				entity.getHeldItemMainhand().damageItem(1, entity);
+				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
+				bullet.setAim((EntityPlayer) entity, entity.rotationPitch, entity.rotationYaw, 2.0F, 1.5F, EnumHand.MAIN_HAND, false);
+				entity.world.spawnEntity(bullet);				
+				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
+						SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
+				if (count == this.getMaxItemUseDuration(stack))
+					this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, EnumHand.MAIN_HAND);
+				else
+					this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
+				if (entity.world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)
+					entity.getHeldItemMainhand().damageItem(1, entity);
 			} 
 			else {
+				entity.rotationPitch--;
 				Vec3d vec = EntityMWThrowable.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, EnumHand.MAIN_HAND);
 				Minewatch.proxy.spawnParticlesSpark(entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0xFFEF89, 0x5A575A, 5, 1);
 			}

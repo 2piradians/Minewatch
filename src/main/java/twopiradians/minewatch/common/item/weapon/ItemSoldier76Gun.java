@@ -59,7 +59,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, hand, false);
 					world.spawnEntity(rocket);
 				}
-				hero.ability1.keybind.setCooldown(player, 160); 
+				hero.ability1.keybind.setCooldown(player, 160, false); 
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))

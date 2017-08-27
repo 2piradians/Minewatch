@@ -103,7 +103,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
 							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
-							hero.ability2.keybind.setCooldown(player, 400); 
+							hero.ability2.keybind.setCooldown(player, 400, false); 
 
 							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f);
@@ -113,7 +113,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
 							entityarrow.setDamage(125*((double)i/160*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
-							hero.ability1.keybind.setCooldown(player, 200); 
+							hero.ability1.keybind.setCooldown(player, 200, false); 
 
 							if (worldIn.rand.nextBoolean())
 								worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 

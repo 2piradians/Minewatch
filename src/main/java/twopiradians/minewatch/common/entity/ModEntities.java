@@ -28,5 +28,6 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "soldier76_helix_rocket"), EntitySoldier76HelixRocket.class, "soldier76_helix_rocket", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "bastion_bullet"), EntityBastionBullet.class, "bastion_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_blast"), EntityMeiBlast.class, "mei_blast", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_icicle"), EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, 20, false);
 	}
 }

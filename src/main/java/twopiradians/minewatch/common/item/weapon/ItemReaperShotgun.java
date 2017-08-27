@@ -26,7 +26,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		if (this.canUse(player, true) && !world.isRemote) {
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, 1F, hand, false);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, player.posX, player.posY, player.posZ, 

@@ -24,7 +24,7 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 
 	@Override
 	public void onUpdate() {		
-		//super.onUpdate();
+		super.onUpdate();
 		
 		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);

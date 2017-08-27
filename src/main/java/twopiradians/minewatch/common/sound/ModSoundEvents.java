@@ -32,7 +32,8 @@ public class ModSoundEvents {
 	public static SoundEvent meiIcicleShoot;
 	public static SoundEvent meiFreeze;
 	public static SoundEvent meiUnfreeze;
-	public static SoundEvent widowmakerShoot;
+	public static SoundEvent widowmakerScopedShoot;
+	public static SoundEvent widowmakerUnscopedShoot;
 
 	public static void preInit() {
 		hurt = registerSound("hurt");
@@ -67,7 +68,8 @@ public class ModSoundEvents {
 		meiIcicleShoot = registerSound("mei_shoot_1");
 		meiFreeze = registerSound("mei_freeze");
 		meiUnfreeze = registerSound("mei_unfreeze");
-		widowmakerShoot = registerSound("widowmaker_shoot");
+		widowmakerScopedShoot = registerSound("widowmaker_shoot_0");
+		widowmakerUnscopedShoot = registerSound("widowmaker_shoot_1");
 		EnumHero.WIDOWMAKER.reloadSound = registerSound("widowmaker_reload");
 	}
 	

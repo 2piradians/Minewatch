@@ -91,14 +91,14 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
 			}
 		}
-		
+
 		return new Vec3d(x+look.xCoord, y+look.yCoord, z+look.zCoord);
 	}
-	
-	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, EnumHand hand, boolean sendPacket) {
-		double x = -Math.sin(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
+
+	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, float adjustment, EnumHand hand, boolean sendPacket) {
+		double x = -Math.sin((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		double y = -Math.sin(pitch * Math.PI/180);
-		double z = Math.cos(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
+		double z = Math.cos((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		this.setThrowableHeading(x, y, z, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;

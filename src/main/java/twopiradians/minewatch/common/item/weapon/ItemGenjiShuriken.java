@@ -21,7 +21,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (!player.world.isRemote && this.canUse(player, true) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, hand, false);
+			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -40,7 +40,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, hand, false);
+				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
 				player.world.spawnEntity(shuriken);
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 

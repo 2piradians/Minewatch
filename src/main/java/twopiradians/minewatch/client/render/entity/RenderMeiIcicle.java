@@ -24,8 +24,7 @@ public class RenderMeiIcicle extends RenderOBJModel<EntityMeiIcicle> {
 	
 	@Override
 	protected void preRender(EntityMeiIcicle entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		// TODO translate collision box to back of icicle
-		GlStateManager.translate(0, 0.06d, 0);
+		GlStateManager.translate(0, 0.06d, 0.5d);
 		GlStateManager.scale(2, 2, 2);		
 	}
 }

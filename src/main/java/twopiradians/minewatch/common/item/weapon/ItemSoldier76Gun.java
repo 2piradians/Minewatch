@@ -56,7 +56,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, hand, false);
+					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, 1F, hand, false);
 					world.spawnEntity(rocket);
 				}
 				hero.ability1.keybind.setCooldown(player, 160, false); 
@@ -124,7 +124,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 4.0F, 1.2F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 4.0F, 1.2F, 1F, hand, false);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	

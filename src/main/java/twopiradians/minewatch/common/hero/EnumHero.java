@@ -51,7 +51,7 @@ public enum EnumHero {
 	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, "Tracer- Overwatch by Ringoster"),
 	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, "Bastion- Overwatch by Ringoster"), //TODO switches to Crosshair.CIRCLE_BIG in turret
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt"),
-	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_BIG, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor");
+	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor");
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 

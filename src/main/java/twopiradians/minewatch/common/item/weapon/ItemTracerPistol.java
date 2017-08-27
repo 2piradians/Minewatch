@@ -30,7 +30,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (this.canUse(player, true) && !world.isRemote) {
 			for (int i=0; i<2; i++) {
 				EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 1F, hand, false);
 				player.world.spawnEntity(bullet);
 			}
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);

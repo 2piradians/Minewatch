@@ -40,9 +40,11 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 	@Override
 	protected abstract ResourceLocation getEntityTexture(T entity);
 	protected abstract ResourceLocation getEntityModel();
+	protected abstract void preRender(T entity, double x, double y, double z, float entityYaw, float partialTicks);
 
+	/**Adapted from ForgeBlockModelRenderer#render*/
 	@Override
-	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {		
 		this.bindEntityTexture(entity);
 
 		RenderHelper.disableStandardItemLighting();
@@ -50,7 +52,8 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		GlStateManager.rotate(180, 0, 0, 1);
 		GlStateManager.translate((float)-x, (float)-y, (float)z);
 		GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, -1.0F, 0.0F);
-	    GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+		GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+		this.preRender(entity, x, y, z, entityYaw, partialTicks);
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer VertexBuffer = tessellator.getBuffer();
 		VertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
@@ -84,4 +87,5 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		GlStateManager.popMatrix();
 		RenderHelper.enableStandardItemLighting();
 	}
+
 }

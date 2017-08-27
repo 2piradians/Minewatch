@@ -33,7 +33,7 @@ public class EntityBastionBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 1);
+						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
 		}
 	}
 
@@ -47,6 +47,7 @@ public class EntityBastionBullet extends EntityMWThrowable {
 				float damage = 20 - (20 - 6) * ((float)this.ticksExisted / lifetime);
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+				this.setDead();
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);

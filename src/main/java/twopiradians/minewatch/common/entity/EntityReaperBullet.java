@@ -34,7 +34,7 @@ public class EntityReaperBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xAF371E, 0xFFC26E, 0.3f, 1);
+						0, 0, 0, 0xAF371E, 0xFFC26E, 0.3f, 1, 1);
 		}
 	}
 
@@ -48,6 +48,7 @@ public class EntityReaperBullet extends EntityMWThrowable {
 				float damage = 7 - (7 - 2) * ((float)this.ticksExisted / lifetime);
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+				this.setDead();
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.05f, result.entityHit.world.rand.nextFloat()/2+0.75f);

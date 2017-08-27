@@ -34,7 +34,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1, 1);
 		}
 	}
 
@@ -48,6 +48,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 				float damage = 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime);
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+				this.setDead();
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);

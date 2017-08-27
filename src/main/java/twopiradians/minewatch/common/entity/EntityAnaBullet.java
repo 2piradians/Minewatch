@@ -47,7 +47,7 @@ public class EntityAnaBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 0.5f, 8);
+						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 0.5f, 8, 1);
 		}
 	}
 
@@ -63,17 +63,19 @@ public class EntityAnaBullet extends EntityMWThrowable {
 					((WorldServer)result.entityHit.world).spawnParticle(EnumParticleTypes.HEART, 
 							result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 							10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
+					this.setDead();
 				}
 				else 
 					this.getThrower().playSound(ModSoundEvents.anaHeal, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
 			}
 			else {
-				if (!this.world.isRemote)
+				if (!this.world.isRemote) {
 					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F*ItemMWWeapon.damageScale);
+					this.setDead();
+				}
 				else
 					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
-			this.setDead();
 		}
 	}
 }

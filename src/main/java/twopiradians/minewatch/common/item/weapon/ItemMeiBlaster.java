@@ -43,20 +43,22 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (this.canUse(player, true)) {
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
-				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 0.01F, 0F, hand, false);
+				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, hand, false);
 				world.spawnEntity(icicle);
-				player.getCooldownTracker().setCooldown(this, 10);
-				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
+				player.getCooldownTracker().setCooldown(this, 24);
+				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.meiIcicleShoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
 					player.getHeldItem(hand).damageItem(1, player);
+				this.subtractFromCurrentAmmo(player, 25, hand);
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
+				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 3, 3);
 			}
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
+
 }

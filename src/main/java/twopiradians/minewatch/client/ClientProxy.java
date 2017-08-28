@@ -165,6 +165,38 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
 			}
+		//change widowmaker model based on scoping
+			else if (item == EnumHero.WIDOWMAKER.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean scoping = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							scoping = player != null ? Minewatch.keys.rmb(player) : false;
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
+			}
+		//change ana model based on scoping
+			else if (item == EnumHero.ANA.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean scoping = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							scoping = player != null ? Minewatch.keys.rmb(player) : false;
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
+			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}

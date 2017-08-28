@@ -2,12 +2,19 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -26,13 +33,41 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemAnaRifle extends ItemMWWeapon {
-	
+
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope_background.png");
 
 	public ItemAnaRifle() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+			}
+		});
+	}
+
+	@Override
+	public int getMaxItemUseDuration(ItemStack stack) {
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public EnumAction getItemUseAction(ItemStack stack) {
+		return EnumAction.BOW;
+	}
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		ItemStack stack = player.getHeldItem(hand);
+
+		if (this.canUse(player, true)) {
+			player.setActiveHand(hand);
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+		}
+		else
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
 	}
 
 	@Override
@@ -68,6 +103,21 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					if (entity2 instanceof EntityLivingBase 
 							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
 						Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+			}
+		}
+
+		// scope while right click
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && Minewatch.keys.rmb((EntityPlayer)entity)) 
+			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+
+		// set player in nbt for model changer (in ClientProxy) to reference
+		if (entity instanceof EntityPlayer && !entity.world.isRemote && stack != null && stack.getItem() instanceof ItemAnaRifle) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("player", entity.getPersistentID());
+				stack.setTagCompound(nbt);
 			}
 		}
 	}

@@ -1,12 +1,16 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -35,6 +39,13 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	public ItemWidowmakerRifle() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+			}
+		});
 	}
 
 	@Override
@@ -57,6 +68,26 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+		super.onUpdate(stack, world, entity, itemSlot, isSelected);
+
+		// scope while right click
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && Minewatch.keys.rmb((EntityPlayer)entity)) 
+			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+
+		// set player in nbt for model changer (in ClientProxy) to reference
+		if (entity instanceof EntityPlayer && !entity.world.isRemote && stack != null && stack.getItem() instanceof ItemWidowmakerRifle) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("player", entity.getPersistentID());
+				stack.setTagCompound(nbt);
+			}
+		}
+	}
+	
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (this.canUse(player, true)) {

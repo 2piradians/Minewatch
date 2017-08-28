@@ -68,8 +68,8 @@ public class ModSoundEvents {
 		meiIcicleShoot = registerSound("mei_shoot_1");
 		meiFreeze = registerSound("mei_freeze");
 		meiUnfreeze = registerSound("mei_unfreeze");
-		widowmakerScopedShoot = registerSound("widowmaker_shoot_0");
-		widowmakerUnscopedShoot = registerSound("widowmaker_shoot_1");
+		widowmakerUnscopedShoot = registerSound("widowmaker_shoot_0");
+		widowmakerScopedShoot = registerSound("widowmaker_shoot_1");
 		EnumHero.WIDOWMAKER.reloadSound = registerSound("widowmaker_reload");
 	}
 	

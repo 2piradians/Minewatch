@@ -13,14 +13,13 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -40,7 +39,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public ItemAnaRifle() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
-		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -58,34 +56,26 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public EnumAction getItemUseAction(ItemStack stack) {
 		return EnumAction.BOW;
 	}
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		ItemStack stack = player.getHeldItem(hand);
-
-		if (this.canUse(player, true)) {
-			player.setActiveHand(hand);
-			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
-		}
-		else
-			return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-	}
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (!world.isRemote && this.canUse(player, true)) {
-			EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
-					hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-					hero.playersUsingAlt.get(player.getPersistentID()));
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, 0F, null, true);
-			world.spawnEntity(bullet);
-			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
-					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
-			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (!player.getCooldownTracker().hasCooldown(this))
-				player.getCooldownTracker().setCooldown(this, 20);
-			if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-				player.getHeldItem(hand).damageItem(1, player);
+		if (this.canUse(player, true)) {
+			if (!world.isRemote) {
+				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
+						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
+						hero.playersUsingAlt.get(player.getPersistentID()));
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, 0F, null, true);
+				world.spawnEntity(bullet);
+				world.playSound(null, player.posX, player.posY, player.posZ, 
+						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
+						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				this.subtractFromCurrentAmmo(player, 1, hand);
+				if (!player.getCooldownTracker().hasCooldown(this))
+					player.getCooldownTracker().setCooldown(this, 20);
+				if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					player.getHeldItem(hand).damageItem(1, player);
+			}
+			player.stopActiveHand();
 		}
 	}
 
@@ -93,21 +83,20 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false)) {
-
-			// health particles
-			if (world.isRemote && entity.ticksExisted % 5 == 0) {
-				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
-				for (Entity entity2 : list) 
-					if (entity2 instanceof EntityLivingBase 
-							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-						Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
-			}
+		// health particles
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false) &&
+				world.isRemote && entity.ticksExisted % 5 == 0) {
+			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			for (Entity entity2 : list) 
+				if (entity2 instanceof EntityLivingBase 
+						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
+					Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
 		}
 
 		// scope while right click
-		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && Minewatch.keys.rmb((EntityPlayer)entity)) 
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
+				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// set player in nbt for model changer (in ClientProxy) to reference
@@ -128,17 +117,19 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (event.getEntity() instanceof EntityPlayer && (((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
 				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this && 
 				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) && 
-				Minewatch.keys.rmb((EntityPlayer) event.getEntity())) {
+				Minewatch.keys.rmb((EntityPlayer) event.getEntity()) && 
+				this.getCurrentAmmo((EntityPlayer) event.getEntity()) > 0) {
 			event.setFOV(20f);
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Post event) {
+	public void renderScope(RenderGameOverlayEvent.Pre event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
-				Minewatch.keys.rmb(player) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+		if (event.getType() == ElementType.ALL && player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
+				Minewatch.keys.rmb(player) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 && 
+				this.getCurrentAmmo((EntityPlayer) player) > 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
@@ -146,11 +137,11 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			// scope
-			GlStateManager.color(1, 1, 1, 0.22f);
+			GlStateManager.color(1, 1, 1, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, 256, 256, 0);
 			// background
-			GlStateManager.color(1, 1, 1, 0.1f);
+			GlStateManager.color(1, 1, 1, 1);
 			GlStateManager.scale(width/imageSize, height/imageSize, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
 			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);

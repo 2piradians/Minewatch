@@ -59,15 +59,14 @@ public class Ability {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
 			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
 		}
-
+		
 		KeyBind prev = this.keybind;
 		this.keybind = keybind;
 		boolean ret = isSelected(player) && prev.getCooldown(player) == 0;
 		this.keybind = prev;
 		
-		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB) {
-			System.out.println("wtf: "+this.keybind.name()); //TODO
-		}
+		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
+			this.keybind = KeyBind.ABILITY_1;
 
 		if (ret && player.world.isRemote)
 			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);

@@ -155,7 +155,7 @@ public enum EnumHero {
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
-			if (event.getType() == ElementType.CROSSHAIRS) {
+			if (event.getType() == ElementType.CROSSHAIRS && Config.guiScale > 0) {
 				EntityPlayer player = Minecraft.getMinecraft().player;
 				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
 				EnumHand hand = null;
@@ -171,7 +171,7 @@ public enum EnumHero {
 						GlStateManager.enableBlend();
 
 						// render crosshair
-						double scale = 0.2d;
+						double scale = 0.2d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
 						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
 						if (Config.customCrosshairs) {
@@ -181,8 +181,11 @@ public enum EnumHero {
 
 						// tracer's dash
 						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
-							scale = 3d;
+							GlStateManager.scale(1/scale, 1/scale, 1);
+
+							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale*4, 1);
+							GlStateManager.translate(-10, -3, 0);
 							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
 							int uses = weapon.hero.ability2.getUses(player);
 							GuiUtils.drawTexturedModalRect(23, 21, 1, uses > 2 ? 1011 : 1015, 40, 4, 0);
@@ -204,7 +207,7 @@ public enum EnumHero {
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-			if (event.getType() == ElementType.HELMET) {			
+			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
 				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
 				EnumHand hand = null;
@@ -234,9 +237,9 @@ public enum EnumHero {
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						double scale = 0.35d;
+						double scale = 0.35d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
-						GlStateManager.translate(60, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 50, 0);
+						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
@@ -251,8 +254,9 @@ public enum EnumHero {
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						GlStateManager.scale(1, 4d, 1);
-						GlStateManager.translate((int) (event.getResolution().getScaledWidth())-125, ((int)event.getResolution().getScaledHeight()/4)-22, 0);
+						double scale = 1d*Config.guiScale;
+						GlStateManager.scale(1*scale, 4*scale, 1);
+						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125+scale*20, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
 						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
@@ -355,7 +359,7 @@ public enum EnumHero {
 								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability3.getUses(player)), -23, -16, 0);
 
 							// cooldowns
-							double scale = 2d;
+							scale = 2d;
 							GlStateManager.scale(scale, scale, 1);
 							if (hero.ability1.keybind.getCooldown(player) > 0) { 
 								String num = String.valueOf((int)Math.ceil(hero.ability1.keybind.getCooldown(player)/20d));
@@ -378,11 +382,11 @@ public enum EnumHero {
 							if (weapon.hero != hero || hero == null) { // adjust things that were skipped
 								GlStateManager.scale(1, 0.25d, 1);
 								GlStateManager.rotate(4.5f, 0, 0, 1);
-								double scale = 2d;
+								scale = 2d;
 								GlStateManager.scale(scale, scale, 1);
 							}
 
-							double scale = 0.9d;
+							scale = 0.9d;
 							GlStateManager.scale(scale, scale, 1);
 							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
 									String.valueOf(weapon.getCurrentAmmo(player)));

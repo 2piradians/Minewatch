@@ -19,6 +19,7 @@ public class Config {
 	public static int tokenDropRate;
 	public static boolean allowGunWarnings;
 	public static boolean customCrosshairs;
+	public static double guiScale;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file);
@@ -44,6 +45,9 @@ public class Config {
 		
 		Property damageScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
 		ItemMWWeapon.damageScale = (float) (0.1d * damageScaleProp.getDouble());
+		
+		Property guiScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Gui Scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
+		Config.guiScale = guiScaleProp.getDouble();
 
 		for (EnumHero hero : EnumHero.values()) {
 			Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);

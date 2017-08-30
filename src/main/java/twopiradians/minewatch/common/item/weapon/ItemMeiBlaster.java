@@ -43,7 +43,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (this.canUse(player, true)) {
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
-				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, 1F, hand, false);
+				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, 0F, hand, false);
 				world.spawnEntity(icicle);
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 24);

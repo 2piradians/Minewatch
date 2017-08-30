@@ -64,7 +64,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 						hero.playersUsingAlt.get(player.getPersistentID()));
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.1F, 0F, null, true);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, null, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
@@ -133,18 +133,22 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
+			
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			// scope
-			GlStateManager.color(1, 1, 1, 1);
+			GlStateManager.color(1, 1, 1, 0.6f);
+			double scale = 2;
+			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
-			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, 256, 256, 0);
+			GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
+			GlStateManager.scale(1/scale, 1/scale, 1);
 			// background
-			GlStateManager.color(1, 1, 1, 1);
-			GlStateManager.scale(width/imageSize, height/imageSize, 1);
+			GlStateManager.color(1, 1, 1, 1f);
+			scale = Math.max(height/imageSize, width/imageSize);
+			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+			GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
 			GlStateManager.popMatrix();
 		}
 	}

@@ -32,7 +32,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		if (this.canUse(player, true) && player.ticksExisted % 3 == 0) {
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 0.3F, 1F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.bastionShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

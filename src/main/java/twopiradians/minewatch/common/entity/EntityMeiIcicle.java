@@ -46,10 +46,10 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 			if (!this.world.isRemote) {
 				float damage = 75 - (75 - 22) * ((float)this.ticksExisted / lifetime);
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
-				this.setDead();
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			this.setDead();
 		}
 	}
 }

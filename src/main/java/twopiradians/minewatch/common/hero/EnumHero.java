@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -173,10 +174,13 @@ public enum EnumHero {
 						double scale = 0.2d;
 						GlStateManager.scale(scale, scale, 1);
 						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
-						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
-						
-						if (weapon.hero == EnumHero.TRACER) {
+						if (Config.customCrosshairs) {
+							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
+							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
+						}
+
+						// tracer's dash
+						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
 							scale = 3d;
 							GlStateManager.scale(scale, scale*4, 1);
 							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
@@ -187,11 +191,12 @@ public enum EnumHero {
 							GlStateManager.scale(0.75f, 0.75f, 1);
 							GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
 						}
-						
+
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
 					}
-					event.setCanceled(true);
+					if (Config.customCrosshairs)
+						event.setCanceled(true);
 				}
 			}
 		}

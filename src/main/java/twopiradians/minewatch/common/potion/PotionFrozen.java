@@ -152,8 +152,6 @@ public class PotionFrozen extends Potion {
 	@SubscribeEvent
 	public void serverSide(WorldTickEvent event) {
 		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 6 == 0) {
-			/*if (!serverFreezes.isEmpty())
-				System.out.println(serverFreezes);*/
 			ArrayList<EntityLivingBase> toRemove = new ArrayList<EntityLivingBase>();
 			for (EntityLivingBase entity : serverFreezes.keySet())
 				if (serverFreezes.get(entity) > 1 && !entity.isDead && 

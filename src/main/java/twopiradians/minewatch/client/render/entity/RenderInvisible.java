@@ -31,6 +31,9 @@ public class RenderInvisible extends Render<EntityMWThrowable> {
 			entity.motionX = packet.motionX;
 			entity.motionY = packet.motionY;
 			entity.motionZ = packet.motionZ;
+			entity.posX = packet.posX;
+			entity.posY = packet.posY;
+			entity.posZ = packet.posZ;
 			ModEntities.spawningEntities.remove(entity.getPersistentID());
 		}
     }

@@ -70,23 +70,14 @@ public class EntityWidowmakerBullet extends EntityMWThrowable {
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
 				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
-			if (this.getDataManager().get(SCOPED)) {
-				if (!this.world.isRemote) {
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F*ItemMWWeapon.damageScale);
-					this.setDead();
-				}
-				else
-					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			}
-			else {
-				if (!this.world.isRemote) {
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 13F*ItemMWWeapon.damageScale);
+			if (!this.world.isRemote) {
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
+				if (!this.dataManager.get(SCOPED))
 					((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-					this.setDead();
-				}
-				else
-					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
+			else
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			this.setDead();
 		}
 	}
 }

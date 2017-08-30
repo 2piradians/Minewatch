@@ -35,6 +35,9 @@ public class RenderSoldier76Bullet extends Render<EntitySoldier76Bullet>
 			entity.motionX = packet.motionX;
 			entity.motionY = packet.motionY;
 			entity.motionZ = packet.motionZ;
+			entity.posX = packet.posX;
+			entity.posY = packet.posY;
+			entity.posZ = packet.posZ;
 			ModEntities.spawningEntities.remove(entity.getPersistentID());
 		}
 		

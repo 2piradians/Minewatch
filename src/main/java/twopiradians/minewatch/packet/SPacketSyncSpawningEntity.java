@@ -19,16 +19,22 @@ public class SPacketSyncSpawningEntity implements IMessage{
 	public double motionX; 
 	public double motionY; 
 	public double motionZ;
+	public double posX; 
+	public double posY;
+	public double posZ;
 
 	public SPacketSyncSpawningEntity() {}
 
-	public SPacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ) {
+	public SPacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ, double posX, double posY, double posZ) {
 		this.uuid = uuid;
 		this.pitch = pitch;
 		this.yaw = yaw;
 		this.motionX = motionX;
 		this.motionY = motionY; 
 		this.motionZ = motionZ;
+		this.posX = posX;
+		this.posY = posY;
+		this.posZ = posZ;
 	}
 
 	@Override
@@ -39,6 +45,9 @@ public class SPacketSyncSpawningEntity implements IMessage{
 		this.motionX = buf.readDouble();
 		this.motionY = buf.readDouble();
 		this.motionZ = buf.readDouble();
+		this.posX = buf.readDouble();
+		this.posY = buf.readDouble();
+		this.posZ = buf.readDouble();
 			
 	}
 
@@ -50,6 +59,9 @@ public class SPacketSyncSpawningEntity implements IMessage{
 		buf.writeDouble(motionX);
 		buf.writeDouble(motionY);
 		buf.writeDouble(motionZ);
+		buf.writeDouble(posX);
+		buf.writeDouble(posY);
+		buf.writeDouble(posZ);
 	}
 
 	public static class Handler implements IMessageHandler<SPacketSyncSpawningEntity, IMessage> {

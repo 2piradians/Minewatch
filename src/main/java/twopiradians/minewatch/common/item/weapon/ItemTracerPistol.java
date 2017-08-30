@@ -30,7 +30,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (this.canUse(player, true) && !world.isRemote) {
 			for (int i=0; i<2; i++) {
 				EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 1F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 0F, hand, false);
 				player.world.spawnEntity(bullet);
 			}
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
@@ -51,7 +51,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityPlayer && 
 				(hero.ability2.isSelected((EntityPlayer) entity) || 
 						hero.ability2.isSelected((EntityPlayer) entity, Keys.KeyBind.RMB)) &&
-				!world.isRemote && this.canUse((EntityPlayer) entity, true)) {
+				!world.isRemote && (this.canUse((EntityPlayer) entity, true) || this.getCurrentAmmo((EntityPlayer) entity) == 0)) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, 
 					SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
 			if (entity instanceof EntityPlayerMP)

@@ -124,7 +124,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 4.0F, 1.2F, 1F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	

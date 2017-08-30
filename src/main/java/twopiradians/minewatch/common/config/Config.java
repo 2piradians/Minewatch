@@ -18,6 +18,7 @@ public class Config {
 	public static boolean useObjModels;
 	public static int tokenDropRate;
 	public static boolean allowGunWarnings;
+	public static boolean customCrosshairs;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file);
@@ -34,6 +35,9 @@ public class Config {
 		
 		Property allowGunWarningsProp = config.get(Configuration.CATEGORY_GENERAL, "Restrict weapon usage", true, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand). This also prevents weapons from different heroes from being mixed and matched.");
 		allowGunWarnings = allowGunWarningsProp.getBoolean();
+		
+		Property customCrosshairsProp = config.get(Configuration.CATEGORY_GENERAL, "Custom Crosshairs", true, "Should weapons change your crosshair.");
+		customCrosshairs = customCrosshairsProp.getBoolean();
 
 		Property tokenDropRateProp = config.get(Configuration.CATEGORY_GENERAL, "Token Drop Rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
 		tokenDropRate = tokenDropRateProp.getInt();

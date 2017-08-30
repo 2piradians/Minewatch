@@ -46,7 +46,6 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 				if (!this.world.isRemote) {
 					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 28F*ItemMWWeapon.damageScale);
 					((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-					this.setDead();
 				}
 				else 
 					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
@@ -57,6 +56,8 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 							result.entityHit == null ? result.hitVec.yCoord : posY, 
 									result.entityHit == null ? result.hitVec.zCoord : posZ, 
 											0xC8E682, 0x709233, 5, 5);
+			
+			this.setDead();
 		}
 	}
 }

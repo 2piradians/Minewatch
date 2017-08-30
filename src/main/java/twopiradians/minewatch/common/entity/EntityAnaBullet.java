@@ -15,7 +15,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityAnaBullet extends EntityMWThrowable {
-	
+
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityAnaBullet.class, DataSerializers.BOOLEAN);
 
 	public EntityAnaBullet(World worldIn) {
@@ -29,7 +29,7 @@ public class EntityAnaBullet extends EntityMWThrowable {
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
-	
+
 	@Override
 	protected void entityInit() {
 		super.entityInit();
@@ -63,19 +63,17 @@ public class EntityAnaBullet extends EntityMWThrowable {
 					((WorldServer)result.entityHit.world).spawnParticle(EnumParticleTypes.HEART, 
 							result.entityHit.posX+0.5d, result.entityHit.posY+0.5d,result.entityHit.posZ+0.5d, 
 							10, 0.4d, 0.4d, 0.4d, 0d, new int[0]);
-					this.setDead();
 				}
 				else 
 					this.getThrower().playSound(ModSoundEvents.anaHeal, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
 			}
 			else {
-				if (!this.world.isRemote) {
+				if (!this.world.isRemote) 
 					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F*ItemMWWeapon.damageScale);
-					this.setDead();
-				}
 				else
 					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			}
+			this.setDead();
 		}
 	}
 }

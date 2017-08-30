@@ -40,7 +40,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0)
 			Minewatch.network.sendToAllAround(
-					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
+					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ, this.posX, this.posY, this.posZ), 
 					new TargetPoint(this.world.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
 	}
 
@@ -57,7 +57,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 		if (this.world.isRemote && result.entityHit != null && result.entityHit != this.shootingEntity && 
 				((EntityLivingBase)result.entityHit).getHealth() > 0 && this.shootingEntity != null)
 			this.shootingEntity.playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-
+		
 		super.onHit(result);
 	}
 

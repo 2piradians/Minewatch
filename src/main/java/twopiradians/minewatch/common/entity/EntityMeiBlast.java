@@ -64,7 +64,6 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					int freezeCount = ModPotions.frozen.serverFreezes.containsKey(result.entityHit) ? ModPotions.frozen.serverFreezes.get(result.entityHit)+1 : 1;
 					ModPotions.frozen.serverFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
 					ModPotions.frozen.serverDelays.put((EntityLivingBase) result.entityHit, 10);
-					this.setDead();
 				}
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
@@ -74,6 +73,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			this.setDead();
 		}
 	}
 

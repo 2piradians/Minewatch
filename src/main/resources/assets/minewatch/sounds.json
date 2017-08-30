@@ -210,5 +210,11 @@
 		"sounds": [
 			"minewatch:widowmaker_reload"
 		]
+	},
+	"widowmaker_charge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_charge"
+		]
 	}
 }

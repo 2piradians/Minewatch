@@ -47,10 +47,10 @@ public class EntitySoldier76Bullet extends EntityMWThrowable {
 				float damage = 19 - (19 - 5.7f) * ((float)this.ticksExisted / lifetime);
 				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-				this.setDead();
 			}
 			else
 				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+			this.setDead();
 		}
 	}
 }

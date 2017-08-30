@@ -89,7 +89,6 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 				if (!this.world.isRemote) {
 					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 1f*ItemMWWeapon.damageScale);
 					((EntityLivingBase)result.entityHit).hurtResistantTime = 10;
-					this.setDead();
 				}
 				else
 					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
@@ -102,6 +101,7 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 			explosion.doExplosionB(true);
 			if (this.world.isRemote)
 				Minewatch.proxy.spawnParticlesSmoke(world, posX, posY, posZ, 0x62E2FC, 0x203B7E, 25, 10);
+			this.setDead();
 		}
 	}
 }

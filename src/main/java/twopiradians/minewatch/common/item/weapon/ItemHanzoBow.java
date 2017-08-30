@@ -92,7 +92,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 				if (f > 1.0F)
 					f = 1.0F;
 
-				if (f >= 0.28f) {
+				if (f >= 0.05f) {
 					boolean flag1 = flag || (itemstack.getItem() instanceof ItemArrow 
 							&& ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, player));
 

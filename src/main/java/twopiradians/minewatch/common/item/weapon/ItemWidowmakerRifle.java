@@ -21,7 +21,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -58,12 +57,26 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	@Override
+	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+		int time = this.getMaxItemUseDuration(stack)-count;
+		if (time == 4) 
+			player.playSound(ModSoundEvents.widowmakerCharge, 0.3f, 1f);
+		else if (time == 10)
+			player.playSound(ModSoundEvents.widowmakerCharge, 0.5f, 1.1f);
+		else if (time == 15) {
+			player.playSound(ModSoundEvents.widowmakerCharge, 0.8f, 1.8f);
+			player.playSound(ModSoundEvents.widowmakerCharge, 0.1f, 1f);
+		}
+	}
+
+	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
+				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0 &&
+				this.canUse((EntityPlayer) entity, true)) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// set player in nbt for model changer (in ClientProxy) to reference
@@ -84,8 +97,9 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			// scoped
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
-					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, true, 13);
-					bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0F, 0F, null, true);
+					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, true, 
+							(int) (12+(120d-12d)*((this.getMaxItemUseDuration(player.getActiveItemStack())-player.getItemInUseCount())/15d)));//120-12
+					bullet.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0F, 0F, null, true);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
 					if (!player.getCooldownTracker().hasCooldown(this))
@@ -150,14 +164,15 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
 			Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
 			// scope
-			GlStateManager.color(1, 1, 1, 1f);
+			GlStateManager.color(1, 1, 1, 0.7f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
-			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, 256, 256, 0);
+			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
 			// background
-			GlStateManager.color(1, 1, 1, 1f);
-			GlStateManager.scale(width/imageSize, height/imageSize, 1);
+			GlStateManager.color(1, 1, 1, 0.7f);
+			double scale = Math.max(height/imageSize, width/imageSize);
+			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+			GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
 			GlStateManager.popMatrix();
 		}
 	}

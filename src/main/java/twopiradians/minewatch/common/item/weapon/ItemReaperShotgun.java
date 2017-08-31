@@ -1,6 +1,11 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,10 +13,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
@@ -21,9 +33,13 @@ import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
+	public static HashMap<EntityPlayer, Tuple<Integer, Vec3d>> clientTps = Maps.newHashMap();
+	public static HashMap<EntityPlayer, Tuple<Integer, Vec3d>> serverTps = Maps.newHashMap();
+
 	public ItemReaperShotgun() {
 		super(30);
 		this.hasOffhand = true;
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -67,12 +83,21 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		// teleport
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
-			if (hero.ability1.isSelected(player) && this.canUse(player, true)) {   
+			if (isSelected && hero.ability1.isSelected(player) && this.canUse(player, true)) {   
 				if (world.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
-					if (tpVec != null) 
-						for (int i=0; i<5; ++i)
-							world.spawnParticle(EnumParticleTypes.HEART, tpVec.xCoord, tpVec.yCoord+world.rand.nextDouble()*2, tpVec.zCoord, 0, 0, 0);
+					if (tpVec != null) {
+						if (!clientTps.containsKey(player)) {
+							clientTps.put(player, new Tuple(-1, tpVec));
+							Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, true);
+						}
+						else
+							clientTps.put(player, new Tuple(-1, tpVec));
+						//for (int i=0; i<5; ++i)
+						//world.spawnParticle(EnumParticleTypes.HEART, tpVec.xCoord, tpVec.yCoord+world.rand.nextDouble()*2, tpVec.zCoord, 0, 0, 0);
+					}
+					else if (clientTps.containsKey(player) && clientTps.get(player).getFirst() == -1)
+						clientTps.remove(player);
 				}
 				else if (Minewatch.keys.rmb(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
@@ -89,4 +114,39 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			}
 		}
 	}
+
+	@SubscribeEvent
+	public void clientSide(PlayerTickEvent event) {
+		if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
+			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayer player : clientTps.keySet()) {
+				if (player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != this ||
+						!hero.ability1.isSelected(player) || !this.canUse(player, true))
+					toRemove.add(player);
+				else {				
+					if (event.player.ticksExisted % 2 == 0 && clientTps.get(player).getFirst() != -1) {
+						// decrement
+					}
+
+					if (clientTps.get(player).getFirst() == -1)
+						Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, false, false);
+				}
+			}
+			for (EntityPlayer player : toRemove)
+				clientTps.remove(player);
+		}
+	}
+
+	@SubscribeEvent
+	public void serverSide(WorldTickEvent event) {
+		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 6 == 0) {
+			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayer player : serverTps.keySet()) {
+
+			}
+			for (EntityPlayer player : toRemove)
+				serverTps.remove(player);
+		}
+	}
+
 }

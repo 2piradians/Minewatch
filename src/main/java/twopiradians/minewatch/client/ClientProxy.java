@@ -32,6 +32,7 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleMeiBlaster;
+import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.particle.ParticleTrail;
@@ -238,6 +239,8 @@ public class ClientProxy extends CommonProxy
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
 		event.getMap().registerSprite(ParticleMeiBlaster.TEXTURE);
+		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
+			event.getMap().registerSprite(loc);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
@@ -303,6 +306,12 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { 
 		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+	
+	@Override
+	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, boolean base) { 
+		ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, base);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 }

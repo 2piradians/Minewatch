@@ -126,7 +126,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 							serverTps.put(player, new Tuple(70, new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)));
 							world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 3.0f, 1.0f);
 							hero.ability1.keybind.setCooldown(player, 20, false); //TODO
-							PotionEffect effect = new PotionEffect(ModPotions.frozen, 60, 1, false, false);
+							PotionEffect effect = new PotionEffect(ModPotions.frozen, 50, 1, false, false);
 							player.addPotionEffect(effect);
 							Minewatch.network.sendToAll(new SPacketPotionEffect(player, effect));
 						}

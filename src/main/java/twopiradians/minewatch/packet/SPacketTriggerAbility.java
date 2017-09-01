@@ -41,11 +41,11 @@ public class SPacketTriggerAbility implements IMessage {
 					
 					// Tracer's dash
 					if (packet.type == 0) {
-		            	Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
-		            	if (vec.xCoord == 0 && vec.zCoord == 0)
-		            		vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
-		            	vec = vec.normalize().scale(10);
-		            	player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
+						Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
+			        	if (vec.xCoord == 0 && vec.zCoord == 0) 
+			        		vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
+			        	vec = vec.normalize().scale(9);
+			        	player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
 					}
 				}
 			});

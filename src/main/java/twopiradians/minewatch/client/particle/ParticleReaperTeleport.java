@@ -125,8 +125,8 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 				this.particleScale -= 0.07f;
 		}
 
-		if (player == null || player.isDead || !ItemReaperShotgun.clientTps.containsKey(player) || 
-				(spawnAtPlayer && ItemReaperShotgun.clientTps.get(player).getFirst() < 40 && ItemReaperShotgun.clientTps.get(player).getFirst() != -1))
+		if (player == null || player.isDead || !ItemReaperShotgun.clientTps.containsKey(player)/* || 
+				(spawnAtPlayer && ItemReaperShotgun.clientTps.get(player).getFirst() < 0 && ItemReaperShotgun.clientTps.get(player).getFirst() != -1)*/)
 			this.setExpired();
 		else {
 			if (type == 1)

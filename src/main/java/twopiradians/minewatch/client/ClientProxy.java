@@ -177,7 +177,7 @@ public class ClientProxy extends CommonProxy
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							scoping = (player != null && player.getHeldItemMainhand() != null && 
 									player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
-									Minewatch.keys.rmb(player) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0);
+									player.getActiveItemStack() == stack && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0);
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
 					}
@@ -195,7 +195,7 @@ public class ClientProxy extends CommonProxy
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							scoping = (player != null && player.getHeldItemMainhand() != null && 
 									player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-									Minewatch.keys.rmb(player) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0);		
+									player.getActiveItemStack() == stack && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0);		
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
 					}

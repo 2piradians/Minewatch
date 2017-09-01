@@ -58,14 +58,16 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		int time = this.getMaxItemUseDuration(stack)-count;
-		if (time == 4) 
-			player.playSound(ModSoundEvents.widowmakerCharge, 0.3f, 1f);
-		else if (time == 10)
-			player.playSound(ModSoundEvents.widowmakerCharge, 0.5f, 1.1f);
-		else if (time == 15) {
-			player.playSound(ModSoundEvents.widowmakerCharge, 0.8f, 1.8f);
-			player.playSound(ModSoundEvents.widowmakerCharge, 0.1f, 1f);
+		if (player.world.isRemote) {
+			int time = this.getMaxItemUseDuration(stack)-count;
+			if (time == 4) 
+				player.playSound(ModSoundEvents.widowmakerCharge, 0.3f, 1f);
+			else if (time == 10)
+				player.playSound(ModSoundEvents.widowmakerCharge, 0.5f, 1.1f);
+			else if (time == 15) {
+				player.playSound(ModSoundEvents.widowmakerCharge, 0.8f, 1.8f);
+				player.playSound(ModSoundEvents.widowmakerCharge, 0.1f, 1f);
+			}
 		}
 	}
 

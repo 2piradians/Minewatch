@@ -86,8 +86,10 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
-		entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
+		if (amplifier == 0) {
+			Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+			entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
+		}
 	}
 
 	@SubscribeEvent
@@ -95,7 +97,8 @@ public class PotionFrozen extends Potion {
 	public void colorEntities(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		if (clientFreezes.containsKey(event.getEntity()) || 
 				(event.getEntity().getActivePotionEffect(ModPotions.frozen) != null && 
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0) &&
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getAmplifier() == 0) {
 			int freeze = clientFreezes.containsKey(event.getEntity()) ? clientFreezes.get(event.getEntity()) : 30;
 			event.getEntity().maxHurtTime = -1;
 			event.getEntity().hurtTime = -1;
@@ -125,7 +128,7 @@ public class PotionFrozen extends Potion {
 			if (event.player.getActivePotionEffect(ModPotions.frozen) != null &&
 					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0)
 				event.player.removeActivePotionEffect(ModPotions.frozen);
-			
+
 			if (event.player.ticksExisted % 2 == 0) {
 				ArrayList<EntityLivingBase> toRemove = new ArrayList<EntityLivingBase>();
 				for (EntityLivingBase entity : clientFreezes.keySet())
@@ -243,7 +246,7 @@ public class PotionFrozen extends Potion {
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
@@ -253,7 +256,7 @@ public class PotionFrozen extends Potion {
 			event.getEntity().isAirBorne = false;
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void preventTeleporting(EnderTeleportEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
@@ -263,7 +266,7 @@ public class PotionFrozen extends Potion {
 								serverFreezes.containsKey(event.getEntity()))))
 			event.setCanceled(true);
 	}
-	
+
 	@SubscribeEvent
 	public void preventTargeting(LivingSetAttackTargetEvent event) {
 		if (event.getTarget() != null && event.getEntity() instanceof EntityLivingBase &&

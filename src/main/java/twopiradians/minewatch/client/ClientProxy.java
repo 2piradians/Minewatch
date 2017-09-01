@@ -68,6 +68,7 @@ import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
 public class ClientProxy extends CommonProxy
 {
@@ -308,10 +309,12 @@ public class ClientProxy extends CommonProxy
 		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
-	
+
 	@Override
-	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, boolean base) { 
-		ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, base);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
+		if (spawnAtPlayer || ItemReaperShotgun.clientTps.containsKey(player)) {
+			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+		}
 	}
 }

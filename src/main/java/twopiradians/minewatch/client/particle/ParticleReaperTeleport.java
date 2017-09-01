@@ -19,10 +19,11 @@ import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 
 	public static final ResourceLocation[] TEXTURES = new ResourceLocation[] {
-			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_0"),
-			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_1"),
-			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_2"),
-			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_3")
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_base"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_inside"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_outside_0"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_outside_1"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_outside_2")
 	};
 
 	private EntityPlayer player;
@@ -30,10 +31,10 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 	private Vec3d origin;
 	private Vec3d offset;
 	private float randomNumber;
+	private int type;
 
-	private boolean base;
-
-	public ParticleReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, boolean base) {
+	/**type: 0 = base, 1 = inside, 2 = outside, 3 = small outside*/
+	public ParticleReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {
 		super(world, spawnAtPlayer ? player.posX : ItemReaperShotgun.clientTps.get(player).getSecond().xCoord, 
 				spawnAtPlayer ? player.posY : ItemReaperShotgun.clientTps.get(player).getSecond().yCoord, 
 						spawnAtPlayer ? player.posZ : ItemReaperShotgun.clientTps.get(player).getSecond().zCoord, 0, 0, 0);
@@ -41,19 +42,19 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		double t = 2d*Math.PI*world.rand.nextDouble();
 		double u = world.rand.nextDouble()+world.rand.nextDouble();
 		double r = u > 1 ? 2-u : u;
-		this.offset = base ? new Vec3d(0, 0.01d, 0) : new Vec3d(r*Math.cos(t), 0, r*Math.sin(t));
+		this.offset = type == 0 ? new Vec3d(0, 0.01d, 0) : type == 1 ? new Vec3d(0, 0.5d, 0) : new Vec3d(r*Math.cos(t), 0.3d, r*Math.sin(t));
 		this.motionX = 0;
-		this.motionY = base ? 0 : 0.4f;
+		this.motionY = type == 0 ? 0 : type == 3 ? 0.1f : 0.4f;
 		this.motionZ = 0;
 		this.particleGravity = 0;
-		this.particleMaxAge = base ? Integer.MAX_VALUE : 20;
-		this.particleScale = base ? 14f : 3f + world.rand.nextFloat()*3f;
-		if (!base)
-			this.setColor(0x3B1515+world.rand.nextInt(10));
+		this.particleMaxAge = type == 0 ? Integer.MAX_VALUE : type == 3 ? 50 : 17;
+		this.particleScale = type == 0 ? 14f : type == 1 ? 3f + world.rand.nextFloat()*2f : type == 2 ? 3f + world.rand.nextFloat()*3f : 0.5f;
+		if (type != 0)
+			this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+world.rand.nextInt(10));
 		this.player = player;
 		this.spawnAtPlayer = spawnAtPlayer;
-		this.base = base;
-		if (base)
+		this.type = type;
+		if (type == 0)
 			this.particleAlpha = 0.9f;
 		this.posX = offset.xCoord + origin.xCoord;
 		this.posY = offset.yCoord + origin.yCoord;
@@ -62,18 +63,15 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.prevPosY = posY;
 		this.prevPosZ = posZ;
 		this.randomNumber = rand.nextFloat();
-		String texture = base ? TEXTURES[3].toString() : TEXTURES[world.rand.nextInt(3)].toString();
+		String texture = type == 0 ? TEXTURES[0].toString() : type == 1 || type == 3 ? TEXTURES[1].toString() : TEXTURES[world.rand.nextInt(3)+2].toString();
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture);
 		this.setParticleTexture(sprite); 
 	}
 
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-		//super.renderParticle(buffer, entityIn, partialTicks, rotationX, base ? 0 : rotationZ, base ? rotationYZ : rotationYZ + randomNumber, rotationXY, base ? 0 : rotationXZ);
-
-		/*if (base) { // FIXME keep flat and spin pls (this keeps flat if particleAngle == 0)
-			rotationZ = 0;
-		}*/
+		if (type != 0 && type != 3)
+			rotationZ += this.randomNumber;
 
 		float f = (float)this.particleTextureIndexX / 16.0F;
 		float f1 = f + 0.0624375F;
@@ -81,8 +79,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		float f3 = f2 + 0.0624375F;
 		float f4 = 0.1F * this.particleScale;
 
-		if (this.particleTexture != null)
-		{
+		if (this.particleTexture != null) {
 			f = this.particleTexture.getMinU();
 			f1 = this.particleTexture.getMaxU();
 			f2 = this.particleTexture.getMinV();
@@ -97,8 +94,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		int k = i & 65535;
 		Vec3d[] avec3d = new Vec3d[] {new Vec3d((double)(-rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(-rotationYZ * f4 - rotationXZ * f4)), new Vec3d((double)(-rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(-rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(rotationYZ * f4 - rotationXZ * f4))};
 
-		if (this.particleAngle != 0.0F)
-		{
+		if (this.particleAngle != 0.0F) {
 			float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
 			float f9 = MathHelper.cos(f8 * 0.5F);
 			float f10 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.xCoord;
@@ -107,40 +103,61 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 			Vec3d vec3d = new Vec3d((double)f10, (double)f11, (double)f12);
 
 			for (int l = 0; l < 4; ++l)
-			{
 				avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
-			}
 		}
 
-		buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-		buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-		buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-		buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
+		buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + (type == 0 ? 0 : avec3d[0].yCoord), (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
+		buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + (type == 0 ? 0 : avec3d[1].yCoord), (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
+		buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + (type == 0 ? 0 : avec3d[2].yCoord), (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
+		buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + (type == 0 ? 0 : avec3d[3].yCoord), (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
 
-		//if (!base)
 		this.prevParticleAngle = this.particleAngle;
-		this.particleAngle += base ? 0.2f : 0.01f;
+		this.particleAngle += type == 0 ? 0.2f : 0.01f;
 
-		if (!base) {
+		if (type != 0) {
 			this.particleAlpha = (float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge;
-			this.particleScale -= 0.07f;
+			if (type != 3)
+				this.particleScale -= 0.07f;
 		}
 
-		if (player == null || player.isDead || !ItemReaperShotgun.clientTps.containsKey(player))
+		if (player == null || player.isDead || !ItemReaperShotgun.clientTps.containsKey(player) || 
+				(spawnAtPlayer && ItemReaperShotgun.clientTps.get(player).getFirst() < 40 && ItemReaperShotgun.clientTps.get(player).getFirst() != -1))
 			this.setExpired();
 		else {
+			if (type == 1)
+				this.particleScale -= 0.2f;
+			else if (type == 3)
+				this.motionY = 0.05f;
+
+			if (type == 2 || type == 3) {
+				double rotateSpeed = 10;
+
+				this.posX = 2 * offset.xCoord * Math.cos(rotateSpeed * this.particleAge * Math.PI/180) + origin.xCoord;
+				this.posY = offset.yCoord + origin.yCoord;
+				this.posZ = 2 * offset.zCoord * Math.sin(rotateSpeed * this.particleAge * Math.PI/180) + origin.zCoord;
+			}
+
 			this.origin = spawnAtPlayer ? player.getPositionVector() : ItemReaperShotgun.clientTps.get(player).getSecond();
 
 			this.offset = this.offset.addVector(motionX, motionY, motionZ);
 
-			this.posX = offset.xCoord + origin.xCoord;
-			this.posY = offset.yCoord + origin.yCoord;
-			this.posZ = offset.zCoord + origin.zCoord;
+			if (type == 2 || type == 3) {
+				double rotateSpeed = 10;
+
+				this.posX = 2 * offset.xCoord * Math.cos(rotateSpeed * this.particleAge * Math.PI/180) + origin.xCoord;
+				this.posY = offset.yCoord + origin.yCoord;
+				this.posZ = 2 * offset.zCoord * Math.sin(rotateSpeed * this.particleAge * Math.PI/180) + origin.zCoord;
+			}
+			else {
+				this.posX = offset.xCoord + origin.xCoord;
+				this.posY = offset.yCoord + origin.yCoord;
+				this.posZ = offset.zCoord + origin.zCoord;
+			}
 		}
 	}
 

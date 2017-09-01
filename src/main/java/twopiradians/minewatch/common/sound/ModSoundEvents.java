@@ -15,6 +15,11 @@ public class ModSoundEvents {
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
 	public static SoundEvent reaperShoot;
+	public static SoundEvent reaperTeleportStart;
+	public static SoundEvent reaperTeleportDuring;
+	public static SoundEvent reaperTeleportStop;
+	public static SoundEvent reaperTeleportFinal;
+	public static SoundEvent reaperTeleportVoice;
 	public static SoundEvent hanzoShoot;
 	public static SoundEvent hanzoDraw;
 	public static SoundEvent hanzoSonicArrow;
@@ -45,6 +50,11 @@ public class ModSoundEvents {
 		anaHeal = registerSound("ana_heal");
 		EnumHero.ANA.reloadSound = registerSound("ana_reload");
 		reaperShoot = registerSound("reaper_shoot");
+		reaperTeleportStart = registerSound("reaper_teleport_start");
+		reaperTeleportDuring = registerSound("reaper_teleport_during");
+		reaperTeleportStop = registerSound("reaper_teleport_stop");
+		reaperTeleportFinal = registerSound("reaper_teleport_final");
+		reaperTeleportVoice = registerSound("reaper_teleport_voice");
 		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
 		hanzoShoot = registerSound("hanzo_shoot");
 		hanzoDraw = registerSound("hanzo_draw");

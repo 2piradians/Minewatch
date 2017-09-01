@@ -53,6 +53,37 @@
 			"minewatch:reaper_reload"
 		]
 	},
+	"reaper_teleport_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_start"
+		]
+	},
+	"reaper_teleport_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_during"
+		]
+	},
+	"reaper_teleport_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_stop"
+		]
+	},
+	"reaper_teleport_final": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_final"
+		]
+	},
+	"reaper_teleport_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_voice_0",
+			"minewatch:reaper_teleport_voice_1"
+		]
+	},
 	"hanzo_shoot": {
 		"category": "player",
 		"sounds": [

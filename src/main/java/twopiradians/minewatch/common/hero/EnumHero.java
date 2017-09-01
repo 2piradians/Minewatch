@@ -169,7 +169,7 @@ public enum EnumHero {
 							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
-
+						
 						// render crosshair
 						double scale = 0.2d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
@@ -178,14 +178,18 @@ public enum EnumHero {
 							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
 							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
 						}
+						
+						GlStateManager.disableBlend();
+						GlStateManager.popMatrix();
 
 						// tracer's dash
 						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
-							GlStateManager.scale(1/scale, 1/scale, 1);
-
+							GlStateManager.pushMatrix();
+							GlStateManager.enableBlend();
+							
 							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale*4, 1);
-							GlStateManager.translate(-10, -3, 0);
+							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 83*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double()- 80*scale)/8d / scale), 0);
 							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
 							int uses = weapon.hero.ability2.getUses(player);
 							GuiUtils.drawTexturedModalRect(23, 21, 1, uses > 2 ? 1011 : 1015, 40, 4, 0);
@@ -193,10 +197,25 @@ public enum EnumHero {
 							GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
 							GlStateManager.scale(0.75f, 0.75f, 1);
 							GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
+							
+							GlStateManager.disableBlend();
+							GlStateManager.popMatrix();
 						}
-
-						GlStateManager.disableBlend();
-						GlStateManager.popMatrix();
+						// reaper's teleport/cancel overlay
+						else if (weapon.hero == EnumHero.REAPER && ItemReaperShotgun.clientTps.containsKey(player) &&
+								ItemReaperShotgun.clientTps.get(player).getFirst() == -1) {
+							GlStateManager.pushMatrix();
+							GlStateManager.enableBlend();
+							
+							scale = 0.8d*Config.guiScale;
+							GlStateManager.scale(scale, scale, 1);
+							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_teleport.png"));
+							GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+							
+							GlStateManager.disableBlend();
+							GlStateManager.popMatrix();
+						}
 					}
 					if (Config.customCrosshairs)
 						event.setCanceled(true);

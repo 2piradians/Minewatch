@@ -72,7 +72,8 @@ public class SPacketSyncSpawningEntity implements IMessage{
 			{
 				@Override
 				public void run() {
-					ModEntities.spawningEntities.put(packet.uuid, packet);
+					ModEntities.spawningEntityPacket = packet;
+					ModEntities.spawningEntityUUID = packet.uuid;
 				}
 			});
 			return null;

@@ -100,8 +100,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, true, 
-							(int) (12+(120d-12d)*((this.getMaxItemUseDuration(player.getActiveItemStack())-player.getItemInUseCount())/15d)));//120-12
-					bullet.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0F, 0F, null, true);
+							(int) (12+(120d-12d)*Math.min((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount())/15d, 1)));//120-12
+					bullet.setAim(player, player.rotationPitch, player.rotationYaw, 8.0F, 0F, 0F, null, true);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
 					if (!player.getCooldownTracker().hasCooldown(this))

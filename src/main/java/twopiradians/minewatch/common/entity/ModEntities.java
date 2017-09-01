@@ -1,9 +1,6 @@
 package twopiradians.minewatch.common.entity;
 
-import java.util.HashMap;
 import java.util.UUID;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -12,7 +9,8 @@ import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class ModEntities {
 	
-	public static HashMap<UUID, SPacketSyncSpawningEntity> spawningEntities = Maps.newHashMap();
+	public static UUID spawningEntityUUID;
+	public static SPacketSyncSpawningEntity spawningEntityPacket;
 	
 	public static void registerEntities() {
 		int id = 0;

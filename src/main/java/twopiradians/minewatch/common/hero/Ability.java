@@ -59,12 +59,12 @@ public class Ability {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
 			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
 		}
-		
+
 		KeyBind prev = this.keybind;
 		this.keybind = keybind;
 		boolean ret = isSelected(player) && prev.getCooldown(player) == 0;
 		this.keybind = prev;
-		
+
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
 			this.keybind = KeyBind.ABILITY_1;
 
@@ -117,9 +117,9 @@ public class Ability {
 
 	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent event) {
-		if (event.phase == Phase.END && !event.player.world.isRemote)
-			for (UUID uuid : multiAbilityCooldowns.keySet())
-				if (uuid == event.player.getPersistentID()) {
+		if (event.phase == Phase.END && !event.player.world.isRemote) 
+			for (UUID uuid : multiAbilityCooldowns.keySet()) 
+				if (uuid.equals(event.player.getPersistentID())) {
 					if (multiAbilityCooldowns.get(uuid) > 1)
 						multiAbilityCooldowns.put(uuid, Math.max(multiAbilityCooldowns.get(uuid)-1, 0));
 					else {

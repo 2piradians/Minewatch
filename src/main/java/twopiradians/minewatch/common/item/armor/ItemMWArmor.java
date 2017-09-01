@@ -11,6 +11,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -29,6 +30,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
 {
@@ -63,8 +65,16 @@ public class ItemMWArmor extends ItemArmor
 			for (KeyBind key : Keys.KeyBind.values()) 
 				if (key.getCooldown(event.player) > 0)
 					key.setCooldown(event.player, 0, false);
+			for (EnumHero hero : EnumHero.values())
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) 
+					if (ability.multiAbilityUses.remove(event.player.getPersistentID()) != null &&
+					event.player instanceof EntityPlayerMP) {
+						Minewatch.network.sendTo(
+								new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
+										ability.maxUses, false), (EntityPlayerMP) event.player);
+					}
 		}
-		
+
 		/**Clear cooldowns of players respawning*/
 		@SubscribeEvent
 		public static void resetCooldowns(PlayerRespawnEvent event) {

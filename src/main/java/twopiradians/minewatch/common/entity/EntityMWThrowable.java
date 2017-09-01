@@ -10,7 +10,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
@@ -36,7 +35,24 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 	}
 
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {	
+		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID)) {
+			SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
+			this.rotationPitch = packet.pitch;
+			this.prevRotationPitch = packet.pitch;
+			this.rotationYaw = packet.yaw;
+			this.prevRotationYaw = packet.yaw;
+			this.motionX = packet.motionX;
+			this.motionY = packet.motionY;
+			this.motionZ = packet.motionZ;
+			this.posX = packet.posX;
+			this.posY = packet.posY;
+			this.posZ = packet.posZ;
+			this.prevPosX = packet.posX;
+			this.prevPosY = packet.posY;
+			this.prevPosZ = packet.posZ;
+		}
+
 		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
@@ -107,9 +123,8 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0 && sendPacket) {
-			Minewatch.network.sendToAllAround(
-					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ, this.posX, this.posY, this.posZ), 
-					new TargetPoint(this.world.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
+			Minewatch.network.sendToAll(
+					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ, this.posX, this.posY, this.posZ));
 		}
 	}
 

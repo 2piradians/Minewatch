@@ -68,7 +68,7 @@ public class EntityAnaBullet extends EntityMWThrowable {
 					this.getThrower().playSound(ModSoundEvents.anaHeal, 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
 			}
 			else {
-				if (!this.world.isRemote) 
+				if (!this.world.isRemote) //TODO change to if
 					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 60F*ItemMWWeapon.damageScale);
 				else
 					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);

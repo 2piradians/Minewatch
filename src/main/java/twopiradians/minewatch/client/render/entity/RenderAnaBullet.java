@@ -7,8 +7,6 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelAnaBullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class RenderAnaBullet extends Render<EntityAnaBullet>
 {
@@ -24,23 +22,7 @@ public class RenderAnaBullet extends Render<EntityAnaBullet>
 	}
 	
 	@Override
-	public void doRender(EntityAnaBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		// correct trajectories of fast entities
-		if (ModEntities.spawningEntities.containsKey(entity.getPersistentID())) {
-			SPacketSyncSpawningEntity packet = ModEntities.spawningEntities.get(entity.getPersistentID());
-			entity.rotationPitch = packet.pitch;
-			entity.prevRotationPitch = packet.pitch;
-			entity.rotationYaw = packet.yaw;
-			entity.prevRotationYaw = packet.yaw;
-			entity.motionX = packet.motionX;
-			entity.motionY = packet.motionY;
-			entity.motionZ = packet.motionZ;
-			entity.posX = packet.posX;
-			entity.posY = packet.posY;
-			entity.posZ = packet.posZ;
-			ModEntities.spawningEntities.remove(entity.getPersistentID());
-		}
-				
+	public void doRender(EntityAnaBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {	
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Tuple;
@@ -80,12 +81,18 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					player.getLookVec().scale(Integer.MAX_VALUE), false, false, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
+				
+				double adjustZ = result.sideHit == EnumFacing.SOUTH ? -0.5d : 0;
+				double adjustX = result.sideHit == EnumFacing.EAST ? -0.5d : 0;
+
+				pos = pos.add(adjustX, 0, adjustZ);
+				
 				if (player.world.isAirBlock(pos.up()) && player.world.isAirBlock(pos.up(2)) && 
 						!player.world.isAirBlock(pos) && 
 						player.world.getBlockState(pos).getBlock().getCollisionBoundingBox(player.world.getBlockState(pos), player.world, pos) != null &&
 						player.world.getBlockState(pos).getBlock().getCollisionBoundingBox(player.world.getBlockState(pos), player.world, pos) != Block.NULL_AABB &&
 						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35)
-					return new Vec3d(result.hitVec.xCoord, result.getBlockPos().getY()+1, result.hitVec.zCoord);
+					return new Vec3d(result.hitVec.xCoord + adjustX, result.getBlockPos().getY()+1, result.hitVec.zCoord + adjustZ);
 			}
 		}
 		catch (Exception e) {}

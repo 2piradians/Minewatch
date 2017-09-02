@@ -66,7 +66,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
 			}
 		}
@@ -129,7 +129,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {

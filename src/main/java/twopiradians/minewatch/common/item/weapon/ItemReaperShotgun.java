@@ -78,7 +78,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (!player.getCooldownTracker().hasCooldown(this))
 				player.getCooldownTracker().setCooldown(this, 11);
-			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+			if (world.rand.nextInt(8) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}

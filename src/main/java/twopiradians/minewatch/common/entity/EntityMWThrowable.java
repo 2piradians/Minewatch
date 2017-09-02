@@ -34,10 +34,9 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		return true;
 	}
 
-	@Override
-	public void onUpdate() {	
-		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID)) {
-			SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
+	public void updateFromPacket() {
+		SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
+		if (packet != null) {
 			this.rotationPitch = packet.pitch;
 			this.prevRotationPitch = packet.pitch;
 			this.rotationYaw = packet.yaw;
@@ -51,7 +50,14 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 			this.prevPosX = packet.posX;
 			this.prevPosY = packet.posY;
 			this.prevPosZ = packet.posZ;
+			ModEntities.spawningEntityUUID = null;
 		}
+	}
+
+	@Override
+	public void onUpdate() {	
+		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
+			this.updateFromPacket();
 
 		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));

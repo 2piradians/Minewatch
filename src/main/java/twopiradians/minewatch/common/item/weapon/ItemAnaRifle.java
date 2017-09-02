@@ -28,7 +28,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemAnaRifle extends ItemMWWeapon {
@@ -72,7 +71,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 20);
-				if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			player.stopActiveHand();

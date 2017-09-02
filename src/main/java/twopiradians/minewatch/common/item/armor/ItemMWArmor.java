@@ -28,6 +28,7 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
@@ -146,6 +147,11 @@ public class ItemMWArmor extends ItemArmor
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
+		
+		// set damage to full if option set to never use durability
+		if (Config.durabilityOptionArmors == 2 && stack.getItemDamage() != 0)
+			stack.setItemDamage(0);
+		
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
 
@@ -186,6 +192,11 @@ public class ItemMWArmor extends ItemArmor
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
 						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 1);
 		}
+		
+		// set damage to full if wearing full set and option set to not use durability while wearing full set
+		if (Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
+				SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
+			stack.setItemDamage(0);
 	}
 
 }

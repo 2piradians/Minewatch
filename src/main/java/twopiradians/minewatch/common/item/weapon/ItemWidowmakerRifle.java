@@ -27,7 +27,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemWidowmakerRifle extends ItemMWWeapon {
@@ -107,12 +106,12 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					if (!player.getCooldownTracker().hasCooldown(this))
 						player.getCooldownTracker().setCooldown(this, 10);
 					this.subtractFromCurrentAmmo(player, 3);
-					if (player.world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					if (player.world.rand.nextInt(10) == 0)
 						stack.damageItem(1, player);
 					player.stopActiveHand();
 				}
 				else {
-					Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+					Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 					Minewatch.proxy.spawnParticlesSpark(player.world, vec.xCoord, vec.yCoord, vec.zCoord, 0xF9394F, 0x5A575A, 5, 1);
 					player.stopActiveHand();
 				}
@@ -125,7 +124,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					world.spawnEntity(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);
-					if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+					if (world.rand.nextInt(30) == 0)
 						player.getHeldItem(hand).damageItem(1, player);
 				}
 				else {

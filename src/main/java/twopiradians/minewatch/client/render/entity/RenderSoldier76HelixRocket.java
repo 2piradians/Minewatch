@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelSoldier76Bullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.ModEntities;
 
 public class RenderSoldier76HelixRocket extends Render<EntitySoldier76HelixRocket>
 {
@@ -23,6 +24,9 @@ public class RenderSoldier76HelixRocket extends Render<EntitySoldier76HelixRocke
 	
 	@Override
 	public void doRender(EntitySoldier76HelixRocket entity, double x, double y, double z, float entityYaw, float partialTicks) {
+		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			entity.updateFromPacket();
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

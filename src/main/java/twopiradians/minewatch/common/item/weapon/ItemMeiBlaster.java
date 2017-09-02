@@ -12,7 +12,6 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemMeiBlaster extends ItemMWWeapon {
@@ -32,7 +31,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 					world.rand.nextFloat()/2+0.75f);	
 
 			this.subtractFromCurrentAmmo(player, 1);
-			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+			if (world.rand.nextInt(200) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
@@ -49,12 +48,12 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 					player.getCooldownTracker().setCooldown(this, 24);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.meiIcicleShoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 				this.subtractFromCurrentAmmo(player, 25, hand);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 3, 3);
 			}
 		}

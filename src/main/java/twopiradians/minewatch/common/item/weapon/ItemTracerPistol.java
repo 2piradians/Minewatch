@@ -13,7 +13,6 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
 import twopiradians.minewatch.packet.SPacketTriggerAbility;
@@ -38,7 +37,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 			this.subtractFromCurrentAmmo(player, 1);
-			if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+			if (world.rand.nextInt(40) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}

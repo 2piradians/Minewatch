@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelReaperBullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.ModEntities;
 
 public class RenderReaperBullet extends Render<EntityReaperBullet>
 {
@@ -23,6 +24,9 @@ public class RenderReaperBullet extends Render<EntityReaperBullet>
 	
 	@Override
 	public void doRender(EntityReaperBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {	
+		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			entity.updateFromPacket();
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

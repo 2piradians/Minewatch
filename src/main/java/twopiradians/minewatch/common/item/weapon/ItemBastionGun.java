@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemBastionGun extends ItemMWWeapon {
@@ -39,7 +38,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 						world.rand.nextFloat()/3+0.8f);	
 
 				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {

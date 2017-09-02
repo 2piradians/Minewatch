@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 
 public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
@@ -31,6 +32,9 @@ public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
 
 	@Override
 	public void doRender(EntityGenjiShuriken entity, double x, double y, double z, float entityYaw, float partialTicks) {
+		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			entity.updateFromPacket();
+		
 		GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y+.05f, (float)z);
         GlStateManager.enableRescaleNormal();

@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelAnaBullet;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.ModEntities;
 
 public class RenderAnaBullet extends Render<EntityAnaBullet>
 {
@@ -23,6 +24,9 @@ public class RenderAnaBullet extends Render<EntityAnaBullet>
 	
 	@Override
 	public void doRender(EntityAnaBullet entity, double x, double y, double z, float entityYaw, float partialTicks) {	
+		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			entity.updateFromPacket();
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float)x, (float)y, (float)z);
 		GlStateManager.scale(0.1F, 0.1F, 0.1F);

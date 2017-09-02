@@ -12,7 +12,6 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
@@ -40,7 +39,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 10);
-				if (world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
+				if (world.rand.nextInt(6) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
@@ -59,22 +58,26 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {
 		if (entity instanceof EntityPlayer && count % 2 == 0 && this.canUse((EntityPlayer) entity, true)) {
-			if (!entity.world.isRemote) {
+			EnumHand hand = null;
+			for (EnumHand hand2 : EnumHand.values())
+				if (((EntityPlayer)entity).getHeldItem(hand2) == stack)
+					hand = hand2;
+			if (!entity.world.isRemote && hand != null) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
-				bullet.setAim((EntityPlayer) entity, entity.rotationPitch, entity.rotationYaw, 5.0F, 1.5F, 1F, EnumHand.MAIN_HAND, true);
+				bullet.setAim((EntityPlayer) entity, entity.rotationPitch, entity.rotationYaw, 5.0F, 1.5F, 1F, hand, true);
 				entity.world.spawnEntity(bullet);				
 				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
 						SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
 				if (count == this.getMaxItemUseDuration(stack))
-					this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, EnumHand.MAIN_HAND);
+					this.subtractFromCurrentAmmo((EntityPlayer) entity, 1, hand);
 				else
 					this.subtractFromCurrentAmmo((EntityPlayer) entity, 1);
-				if (entity.world.rand.nextInt(25) == 0 && ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) != hero)
-					entity.getHeldItemMainhand().damageItem(1, entity);
+				if (entity.world.rand.nextInt(25) == 0)
+					entity.getHeldItem(hand).damageItem(1, entity);
 			} 
-			else {
+			else if (hand != null) {
 				entity.rotationPitch--;
-				Vec3d vec = EntityMWThrowable.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0xFFEF89, 0x5A575A, 5, 1);
 			}
 		}

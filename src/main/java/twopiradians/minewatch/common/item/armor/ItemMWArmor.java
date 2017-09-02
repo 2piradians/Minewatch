@@ -194,7 +194,7 @@ public class ItemMWArmor extends ItemArmor
 		}
 		
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
-		if (Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
+		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 	}

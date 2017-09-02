@@ -189,10 +189,10 @@ public abstract class ItemMWWeapon extends Item {
 					ability.toggled.put(entity.getPersistentID(), false);
 		
 		// set damage to full if option set to never use durability
-		if (Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
+		if (!world.isRemote && Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
-		else if (Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
+		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
 				SetManager.playersWearingSets.get(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 	}

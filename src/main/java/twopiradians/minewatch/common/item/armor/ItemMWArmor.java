@@ -12,6 +12,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -19,13 +20,19 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
 {
@@ -50,6 +57,33 @@ public class ItemMWArmor extends ItemArmor
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
 		public static HashMap<UUID, EnumHero> playersWearingSets = Maps.newHashMap();	
+
+		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
+		public static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
+
+		/**Clear cooldowns of players logging in (for when switching worlds)*/
+		@SubscribeEvent
+		public static void resetCooldowns(PlayerLoggedInEvent event) {
+			for (KeyBind key : Keys.KeyBind.values()) 
+				if (key.getCooldown(event.player) > 0)
+					key.setCooldown(event.player, 0, false);
+			for (EnumHero hero : EnumHero.values())
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) 
+					if (ability.multiAbilityUses.remove(event.player.getPersistentID()) != null &&
+					event.player instanceof EntityPlayerMP) {
+						Minewatch.network.sendTo(
+								new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
+										ability.maxUses, false), (EntityPlayerMP) event.player);
+					}
+		}
+
+		/**Clear cooldowns of players respawning*/
+		@SubscribeEvent
+		public static void resetCooldowns(PlayerRespawnEvent event) {
+			for (KeyBind key : Keys.KeyBind.values()) 
+				if (key.getCooldown(event.player) > 0)
+					key.setCooldown(event.player, 0, false);
+		}
 
 		/**Update playersWearingSets each tick
 		 * This way it's only checked once per tick, no matter what:
@@ -80,8 +114,15 @@ public class ItemMWArmor extends ItemArmor
 						ability.toggled.remove(event.player.getPersistentID());
 
 				// update playersWearingSets
-				if (fullSet)
+				if (fullSet) {
 					SetManager.playersWearingSets.put(event.player.getPersistentID(), hero);
+					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
+						for (KeyBind key : Keys.KeyBind.values()) 
+							if (key.getCooldown(event.player) > 0)
+								key.setCooldown(event.player, 0, false);
+						SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
+					}
+				}
 				else
 					SetManager.playersWearingSets.remove(event.player.getPersistentID());
 			}
@@ -92,8 +133,7 @@ public class ItemMWArmor extends ItemArmor
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 		super.addInformation(stack, worldIn, tooltip, flagIn);
 	}
@@ -107,6 +147,11 @@ public class ItemMWArmor extends ItemArmor
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
+		
+		// set damage to full if option set to never use durability
+		if (Config.durabilityOptionArmors == 2 && stack.getItemDamage() != 0)
+			stack.setItemDamage(0);
+		
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
 
@@ -137,15 +182,21 @@ public class ItemMWArmor extends ItemArmor
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				hero == EnumHero.TRACER && world.isRemote && player != null) {
-			int numParticles = (int) ((Math.abs(player.motionX)+Math.abs(player.motionY)+Math.abs(player.motionZ))*10d);
+				hero == EnumHero.TRACER && world.isRemote && player != null && 
+				(player.chasingPosX != 0 || player.chasingPosY != 0 || player.chasingPosZ != 0)) {
+			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*5d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
 						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 1);
 		}
+		
+		// set damage to full if wearing full set and option set to not use durability while wearing full set
+		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
+				SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
+			stack.setItemDamage(0);
 	}
 
 }

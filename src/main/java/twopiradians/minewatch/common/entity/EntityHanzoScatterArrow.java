@@ -29,7 +29,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20, 1);
 		}
 		
 		super.onUpdate();
@@ -72,7 +72,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 				entityarrow.motionZ = this.motionZ;
 
 				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-					entityarrow.motionY *= -0.5d;
+					entityarrow.motionY *= -1.3d;
 				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
 					entityarrow.motionZ *= -1.3d;
 				else 

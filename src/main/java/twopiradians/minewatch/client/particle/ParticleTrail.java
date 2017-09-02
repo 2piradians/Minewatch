@@ -16,8 +16,9 @@ public class ParticleTrail extends ParticleSimpleAnimated {
 	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
+	private float initialAlpha;
 	
-	public ParticleTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) {
+	public ParticleTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
 		super(world, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
@@ -25,6 +26,8 @@ public class ParticleTrail extends ParticleSimpleAnimated {
 		this.particleGravity = 0.01f;
 		this.particleMaxAge = maxAge;
 		this.particleScale = scale;
+		this.particleAlpha = alpha;
+		this.initialAlpha = alpha;
 		this.setColor(color);
 		this.setColorFade(colorFade);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TEXTURE.toString());
@@ -40,8 +43,8 @@ public class ParticleTrail extends ParticleSimpleAnimated {
         this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * 0.3F;
         this.particleBlue += (this.fadeTargetBlue - this.particleBlue) * 0.3F;
 		
-		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge, 0.1f);
-    }
+		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
+	}
 	
 	@Override
     public void setColorFade(int rgb) {

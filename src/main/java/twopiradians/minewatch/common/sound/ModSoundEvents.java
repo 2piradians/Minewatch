@@ -39,6 +39,21 @@ public class ModSoundEvents {
 	public static SoundEvent meiUnfreeze = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mei_unfreeze")).setRegistryName("mei_unfreeze");
 	public static SoundEvent meiReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mei_reload")).setRegistryName("mei_reload");
 
+	public static SoundEvent abilityRecharge = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ability_recharge")).setRegistryName("ability_recharge");
+	public static SoundEvent abilityMultiRecharge = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ability_multi_recharge")).setRegistryName("ability_multi_recharge");
+	public static SoundEvent abilityNotReady = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ability_not_ready")).setRegistryName("ability_not_ready");
+	public static SoundEvent reaperTeleportStart = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_teleport_start")).setRegistryName("reaper_teleport_start");
+	public static SoundEvent reaperTeleportDuring = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_teleport_during")).setRegistryName("reaper_teleport_during");
+	public static SoundEvent reaperTeleportStop = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_teleport_stop")).setRegistryName("reaper_teleport_stop");
+	public static SoundEvent reaperTeleportFinal = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_teleport_final")).setRegistryName("reaper_teleport_final");
+	public static SoundEvent reaperTeleportVoice = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_teleport_voice")).setRegistryName("reaper_teleport_voice");
+	public static SoundEvent tracerBlink = new SoundEvent(new ResourceLocation(Minewatch.MODID, "tracer_blink")).setRegistryName("tracer_blink");
+	public static SoundEvent widowmakerScopedShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_shoot_1")).setRegistryName("widowmaker_shoot_1");
+	public static SoundEvent widowmakerUnscopedShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_shoot_0")).setRegistryName("widowmaker_shoot_0");
+	public static SoundEvent widowmakerCharge = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_charge")).setRegistryName("widowmaker_charge");
+	public static SoundEvent widowmakerReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_reload")).setRegistryName("widowmaker_reload");
+
+
 	public static void postInit() {
 		EnumHero.ANA.reloadSound = anaReload;
 		EnumHero.REAPER.reloadSound = reaperReload;
@@ -48,6 +63,7 @@ public class ModSoundEvents {
 		EnumHero.SOLDIER76.reloadSound = soldier76Reload;
 		EnumHero.BASTION.reloadSound = bastionReload;
 		EnumHero.MEI.reloadSound = meiReload;
+		EnumHero.WIDOWMAKER.reloadSound = widowmakerReload;
 	}
 
 	@Mod.EventBusSubscriber
@@ -83,6 +99,18 @@ public class ModSoundEvents {
 			event.getRegistry().register(meiFreeze);
 			event.getRegistry().register(meiUnfreeze);
 			event.getRegistry().register(meiReload);
+			event.getRegistry().register(abilityRecharge);
+			event.getRegistry().register(abilityMultiRecharge);
+			event.getRegistry().register(abilityNotReady);
+			event.getRegistry().register(reaperTeleportStart);
+			event.getRegistry().register(reaperTeleportDuring);
+			event.getRegistry().register(reaperTeleportStop);
+			event.getRegistry().register(reaperTeleportFinal);
+			event.getRegistry().register(reaperTeleportVoice);
+			event.getRegistry().register(tracerBlink);
+			event.getRegistry().register(widowmakerScopedShoot);
+			event.getRegistry().register(widowmakerUnscopedShoot);
+			event.getRegistry().register(widowmakerCharge);
 		}
 	}
 }

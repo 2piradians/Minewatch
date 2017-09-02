@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.entity.ModEntities;
 
-public class PacketSyncSpawningEntity implements IMessage{
+public class SPacketSyncSpawningEntity implements IMessage{
 	
 	private UUID uuid;
 	public float pitch;
@@ -19,16 +19,22 @@ public class PacketSyncSpawningEntity implements IMessage{
 	public double motionX; 
 	public double motionY; 
 	public double motionZ;
+	public double posX; 
+	public double posY;
+	public double posZ;
 
-	public PacketSyncSpawningEntity() {}
+	public SPacketSyncSpawningEntity() {}
 
-	public PacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ) {
+	public SPacketSyncSpawningEntity(UUID uuid, float pitch, float yaw, double motionX, double motionY, double motionZ, double posX, double posY, double posZ) {
 		this.uuid = uuid;
 		this.pitch = pitch;
 		this.yaw = yaw;
 		this.motionX = motionX;
 		this.motionY = motionY; 
 		this.motionZ = motionZ;
+		this.posX = posX;
+		this.posY = posY;
+		this.posZ = posZ;
 	}
 
 	@Override
@@ -39,6 +45,9 @@ public class PacketSyncSpawningEntity implements IMessage{
 		this.motionX = buf.readDouble();
 		this.motionY = buf.readDouble();
 		this.motionZ = buf.readDouble();
+		this.posX = buf.readDouble();
+		this.posY = buf.readDouble();
+		this.posZ = buf.readDouble();
 			
 	}
 
@@ -50,17 +59,21 @@ public class PacketSyncSpawningEntity implements IMessage{
 		buf.writeDouble(motionX);
 		buf.writeDouble(motionY);
 		buf.writeDouble(motionZ);
+		buf.writeDouble(posX);
+		buf.writeDouble(posY);
+		buf.writeDouble(posZ);
 	}
 
-	public static class Handler implements IMessageHandler<PacketSyncSpawningEntity, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSyncSpawningEntity, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncSpawningEntity packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSyncSpawningEntity packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
 			{
 				@Override
 				public void run() {
-					ModEntities.spawningEntities.put(packet.uuid, packet);
+					ModEntities.spawningEntityPacket = packet;
+					ModEntities.spawningEntityUUID = packet.uuid;
 				}
 			});
 			return null;

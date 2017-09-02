@@ -58,5 +58,6 @@ public class ModItems {
 			registry.register(item);
 			return item;
 		}
-	}
+}
+
 }

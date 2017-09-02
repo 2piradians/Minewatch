@@ -31,7 +31,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d/DAMAGE_SCALE-1, 0));
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*damageScale-1, 0));
 		return multimap;
 	}
 
@@ -47,7 +47,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (!player.world.isRemote && this.canUse(player, true)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f/DAMAGE_SCALE);
+			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*damageScale);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
@@ -66,7 +66,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			else {
 				for (EntityLivingBase entity : 
 					player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-							player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
+							player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).grow(2.0D, 1D, 2.0D))) 
 					if (entity != player && !player.isOnSameTeam(entity)) 
 						this.onLeftClickEntity(stack, player, entity);
 				player.world.playSound(null, player.posX, player.posY, player.posZ, 

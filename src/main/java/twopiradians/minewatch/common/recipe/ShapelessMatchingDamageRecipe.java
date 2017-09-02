@@ -16,7 +16,7 @@ public class ShapelessMatchingDamageRecipe extends ShapelessRecipes {
 	public ShapelessMatchingDamageRecipe(String group, ItemStack output, NonNullList<Ingredient> ingredients) {
 		super(group, output, ingredients);
 		this.recipeOutput = output;
-	}
+}
 
 	@Override
 	@Nullable

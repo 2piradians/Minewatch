@@ -5,6 +5,24 @@
 			"minewatch:hurt"
 		]
 	},
+	"ability_recharge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_recharge"
+		]
+	},
+	"ability_multi_recharge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_multi_recharge"
+		]
+	},
+	"ability_not_ready": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ability_not_ready"
+		]
+	},
 	"ana_shoot": {
 		"category": "player",
 		"sounds": [
@@ -33,6 +51,37 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:reaper_reload"
+		]
+	},
+	"reaper_teleport_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_start"
+		]
+	},
+	"reaper_teleport_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_during"
+		]
+	},
+	"reaper_teleport_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_stop"
+		]
+	},
+	"reaper_teleport_final": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_final"
+		]
+	},
+	"reaper_teleport_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_teleport_voice_0",
+			"minewatch:reaper_teleport_voice_1"
 		]
 	},
 	"hanzo_shoot": {
@@ -89,6 +138,12 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:tracer_reload"
+		]
+	},
+	"tracer_blink": {
+		"category": "player",
+		"sounds": [
+			"minewatch:tracer_blink"
 		]
 	},
 	"mccree_shoot": {
@@ -167,6 +222,30 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:mei_unfreeze"
+		]
+	},
+	"widowmaker_shoot_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_shoot_0"
+		]
+	},
+	"widowmaker_shoot_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_shoot_1"
+		]
+	},
+	"widowmaker_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_reload"
+		]
+	},
+	"widowmaker_charge": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_charge"
 		]
 	}
 }

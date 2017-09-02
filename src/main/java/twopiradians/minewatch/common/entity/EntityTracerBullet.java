@@ -4,7 +4,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -23,7 +22,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 		this.setNoGravity(true);
 		this.lifetime = 15;
 	}
-	
+
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
@@ -35,7 +34,7 @@ public class EntityTracerBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1, 1);
 		}
 	}
 
@@ -44,12 +43,14 @@ public class EntityTracerBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
-				result.entityHit != this.getThrower() && !this.world.isRemote) {
-			float damage = 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime);
-			((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage/ItemMWWeapon.DAMAGE_SCALE);
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-			result.entityHit.world.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-					ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
+			if (!this.world.isRemote) {
+				float damage = 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
+				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			}
+			else
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
 			this.setDead();
 		}
 	}

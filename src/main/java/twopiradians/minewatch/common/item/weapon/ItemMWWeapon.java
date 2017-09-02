@@ -25,15 +25,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.potion.ModPotions;
-import twopiradians.minewatch.packet.PacketSyncAmmo;
+import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item {
-	
+
 	/**Used to uniformly scale damage for all weapons/abilities*/
-	public static final float DAMAGE_SCALE = 10f;
+	public static float damageScale;
 
 	public EnumHero hero;
 	public boolean hasOffhand;
@@ -66,12 +68,15 @@ public abstract class ItemMWWeapon extends Item {
 
 	public void setCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
 		if (player != null) {
-			if (player instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new PacketSyncAmmo(player.getPersistentID(), amount, hands), (EntityPlayerMP) player);
+			if (player instanceof EntityPlayerMP) {
+				EnumHand hand = player.getHeldItemMainhand() != null && 
+						player.getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+				Minewatch.network.sendTo(new SPacketSyncAmmo(player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player);
+			}
 			if (player.world.isRemote)
-				for (EnumHand hand : hands)
-					if (player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == this) {
-						this.reequipAnimation.put(player.getHeldItem(hand), 2);
+				for (EnumHand hand2 : hands)
+					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) {
+						this.reequipAnimation.put(player.getHeldItem(hand2), 2);
 					}
 			currentAmmo.put(player.getPersistentID(), amount);
 		}
@@ -111,7 +116,9 @@ public abstract class ItemMWWeapon extends Item {
 		ItemStack main = player.getHeldItemMainhand();
 		ItemStack off = player.getHeldItemOffhand();
 
-		if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
+		if (!Config.allowGunWarnings)
+			return true;
+		else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
 			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
@@ -152,10 +159,11 @@ public abstract class ItemMWWeapon extends Item {
 		}
 
 		// reloading
-		if (!world.isRemote && entity instanceof EntityPlayer && isSelected)
+		if (!world.isRemote && entity instanceof EntityPlayer && (((EntityPlayer)entity).getHeldItemMainhand() == stack ||
+				((EntityPlayer)entity).getHeldItemOffhand() == stack))
 			// automatic reload
 			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
-			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this)) 
+			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
 				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity), EnumHand.values());
 		// manual reload
 			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && Minewatch.keys.reload((EntityPlayer) entity))
@@ -182,6 +190,14 @@ public abstract class ItemMWWeapon extends Item {
 						ability.toggled.containsKey(entity.getPersistentID()) &&
 						ability.toggled.get(entity.getPersistentID()))
 					ability.toggled.put(entity.getPersistentID(), false);
+		
+		// set damage to full if option set to never use durability
+		if (!world.isRemote && Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
+			stack.setItemDamage(0);
+		// set damage to full if wearing full set and option set to not use durability while wearing full set
+		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
+				SetManager.playersWearingSets.get(entity.getPersistentID()) == hero)
+			stack.setItemDamage(0);
 	}
 
 	@Override
@@ -233,7 +249,7 @@ public abstract class ItemMWWeapon extends Item {
 		if (toggle) 
 			for (Ability ability2 : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 				ability2.toggled.remove(player.getPersistentID());
-		
+
 		boolean isToggled = ability.toggled.containsKey(player.getPersistentID()) ? ability.toggled.get(player.getPersistentID()) : false;
 		if (isToggled != toggle)
 			ability.toggled.put(player.getPersistentID(), toggle);

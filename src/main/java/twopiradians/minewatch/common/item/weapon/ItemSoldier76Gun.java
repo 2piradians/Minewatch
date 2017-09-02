@@ -56,17 +56,17 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, hand, false);
+					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, 1F, hand, false);
 					world.spawnEntity(rocket);
 				}
-				hero.ability1.keybind.setCooldown(player, 160); 
+				hero.ability1.keybind.setCooldown(player, 160, false); 
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(world, vec.x, vec.y, vec.z, 0x2B9191, 0x2B9191, 8, 3);
 			}
 		}
@@ -124,16 +124,16 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 4.0F, 1.2F, hand, false);
+				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0 && !(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
+				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, EnumHand.MAIN_HAND);
+				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesSpark(world, vec.x, vec.y, vec.z, 0x4AFDFD, 0x4AFDFD, 5, 1);
 			}
 		}

@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 
-public class PacketSpawnParticle implements IMessage{
+public class SPacketSpawnParticle implements IMessage{
 	
 	private int type;
 	private double x;
@@ -20,9 +20,9 @@ public class PacketSpawnParticle implements IMessage{
 	private int scale;
 	private int maxAge;
 
-	public PacketSpawnParticle() {}
+	public SPacketSpawnParticle() {}
 
-	public PacketSpawnParticle(int type, double x, double y, double z, int color, int colorFade, int scale, int maxAge) {
+	public SPacketSpawnParticle(int type, double x, double y, double z, int color, int colorFade, int scale, int maxAge) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -57,9 +57,9 @@ public class PacketSpawnParticle implements IMessage{
 		buf.writeInt(this.maxAge);
 	}
 
-	public static class Handler implements IMessageHandler<PacketSpawnParticle, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSpawnParticle, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSpawnParticle packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSpawnParticle packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
 			{

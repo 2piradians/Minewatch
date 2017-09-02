@@ -41,8 +41,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.PacketPotionEffect;
-import twopiradians.minewatch.packet.PacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketPotionEffect;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class PotionFrozen extends Potion {
 
@@ -86,8 +86,10 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToAll(new PacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
-		entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
+		if (amplifier == 0) {
+			Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+			entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
+		}
 	}
 
 	@SubscribeEvent
@@ -95,7 +97,8 @@ public class PotionFrozen extends Potion {
 	public void colorEntities(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		if (clientFreezes.containsKey(event.getEntity()) || 
 				(event.getEntity().getActivePotionEffect(ModPotions.frozen) != null && 
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0) &&
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getAmplifier() == 0) {
 			int freeze = clientFreezes.containsKey(event.getEntity()) ? clientFreezes.get(event.getEntity()) : 30;
 			event.getEntity().maxHurtTime = -1;
 			event.getEntity().hurtTime = -1;
@@ -121,11 +124,17 @@ public class PotionFrozen extends Potion {
 
 	@SubscribeEvent
 	public void clientSide(PlayerTickEvent event) {
+		// prevent flying while frozen
+		if (event.phase == TickEvent.Phase.START && event.side == Side.CLIENT &&
+			event.player.getActivePotionEffect(ModPotions.frozen) != null &&
+					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) 
+			event.player.onGround = true;
+		
 		if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
 			if (event.player.getActivePotionEffect(ModPotions.frozen) != null &&
 					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0)
 				event.player.removeActivePotionEffect(ModPotions.frozen);
-			
+
 			if (event.player.ticksExisted % 2 == 0) {
 				ArrayList<EntityLivingBase> toRemove = new ArrayList<EntityLivingBase>();
 				for (EntityLivingBase entity : clientFreezes.keySet())
@@ -152,8 +161,6 @@ public class PotionFrozen extends Potion {
 	@SubscribeEvent
 	public void serverSide(WorldTickEvent event) {
 		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 6 == 0) {
-			/*if (!serverFreezes.isEmpty())
-				System.out.println(serverFreezes);*/
 			ArrayList<EntityLivingBase> toRemove = new ArrayList<EntityLivingBase>();
 			for (EntityLivingBase entity : serverFreezes.keySet())
 				if (serverFreezes.get(entity) > 1 && !entity.isDead && 
@@ -168,9 +175,9 @@ public class PotionFrozen extends Potion {
 						if (entity instanceof EntityLiving)
 							((EntityLiving)entity).setAttackTarget(null);
 						entity.addPotionEffect(effect);
-						Minewatch.network.sendToAll(new PacketPotionEffect(entity, effect));
+						Minewatch.network.sendToAll(new SPacketPotionEffect(entity, effect));
 						entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.NEUTRAL, 1.0f, 1.0f);
-						Minewatch.network.sendToAll(new PacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+						Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
 						serverFreezes.put(entity, serverFreezes.get(entity) - 1);
 					}
 					else
@@ -245,17 +252,17 @@ public class PotionFrozen extends Potion {
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
 				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen) != null && 
-				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen).getDuration() > 0) {
+				((EntityLivingBase) event.getEntity()).getActivePotionEffect(ModPotions.frozen).getDuration() > 0)  {
 			event.getEntity().motionY = 0;
 			event.getEntity().isAirBorne = false;
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void preventTeleporting(EnderTeleportEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
@@ -265,7 +272,7 @@ public class PotionFrozen extends Potion {
 								serverFreezes.containsKey(event.getEntity()))))
 			event.setCanceled(true);
 	}
-	
+
 	@SubscribeEvent
 	public void preventTargeting(LivingSetAttackTargetEvent event) {
 		if (event.getTarget() != null && event.getEntity() instanceof EntityLivingBase &&

@@ -8,11 +8,19 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFence;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.CombatRules;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -22,6 +30,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
@@ -37,13 +46,14 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketPotionEffect;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
+import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
 	public static HashMap<EntityPlayer, Tuple<Integer, Vec3d>> clientTps = Maps.newHashMap();
 	public static HashMap<EntityPlayer, Tuple<Integer, Vec3d>> serverTps = Maps.newHashMap();
 
-	public ItemReaperShotgun() {//TODO 20% healing and 3rd person (behind) during tp
+	public ItemReaperShotgun() {
 		super(30);
 		this.hasOffhand = true;
 		MinecraftForge.EVENT_BUS.register(this);
@@ -81,18 +91,21 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					player.getLookVec().scale(Integer.MAX_VALUE), false, false, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
-				
+
 				double adjustZ = result.sideHit == EnumFacing.SOUTH ? -0.5d : 0;
 				double adjustX = result.sideHit == EnumFacing.EAST ? -0.5d : 0;
 
 				pos = pos.add(adjustX, 0, adjustZ);
-				
+				IBlockState state = player.world.getBlockState(pos);
+
 				if (player.world.isAirBlock(pos.up()) && player.world.isAirBlock(pos.up(2)) && 
 						!player.world.isAirBlock(pos) && 
-						player.world.getBlockState(pos).getBlock().getCollisionBoundingBox(player.world.getBlockState(pos), player.world, pos) != null &&
-						player.world.getBlockState(pos).getBlock().getCollisionBoundingBox(player.world.getBlockState(pos), player.world, pos) != Block.NULL_AABB &&
+						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
+						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&
 						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35)
-					return new Vec3d(result.hitVec.xCoord + adjustX, result.getBlockPos().getY()+1, result.hitVec.zCoord + adjustZ);
+					return new Vec3d(result.hitVec.xCoord + adjustX, 
+							result.getBlockPos().getY()+1+(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
+							result.hitVec.zCoord + adjustZ);
 			}
 		}
 		catch (Exception e) {}
@@ -124,19 +137,13 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				if (Minewatch.keys.lmb(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
-					if (tpVec != null) {
-						if (world.isRemote) {
-							clientTps.put(player, new Tuple(70, new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)));
-							Minewatch.proxy.spawnParticlesReaperTeleport(world, player, true, 0);
-						}
-						else {
-							serverTps.put(player, new Tuple(70, new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)));
-							world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 3.0f, 1.0f);
-							hero.ability1.keybind.setCooldown(player, 20, false); //TODO
-							PotionEffect effect = new PotionEffect(ModPotions.frozen, 50, 1, false, false);
-							player.addPotionEffect(effect);
-							Minewatch.network.sendToAll(new SPacketPotionEffect(player, effect));
-						}
+					if (tpVec != null && !world.isRemote && player instanceof EntityPlayerMP) {
+						Minewatch.network.sendToAll(new SPacketTriggerAbility(1, player, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
+						serverTps.put(player, new Tuple(70, new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)));
+						world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 3.0f, 1.0f);
+						PotionEffect effect = new PotionEffect(ModPotions.frozen, 60, 1, false, false);
+						player.addPotionEffect(effect);
+						Minewatch.network.sendToAll(new SPacketPotionEffect(player, effect));
 					}
 				}
 
@@ -209,6 +216,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 								serverTps.get(player).getSecond().zCoord);
 						if (player.world.rand.nextBoolean())
 							player.world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportVoice, SoundCategory.PLAYERS, 1.0f, 1.0f);
+						hero.ability1.keybind.setCooldown(player, 200, false);
 					}
 				}
 				else
@@ -216,6 +224,46 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			}
 			for (EntityPlayer player : toRemove)
 				serverTps.remove(player);
+		}
+	}
+
+	@SubscribeEvent
+	public void passiveHeal(LivingHurtEvent event) {
+		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer) {
+			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+			if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
+					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
+				try {
+					float damage = event.getAmount();
+					damage = CombatRules.getDamageAfterAbsorb(damage, (float)player.getTotalArmorValue(), (float)player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+					damage = this.applyPotionDamageCalculations(player, event.getSource(), damage);
+					if (damage >= 0) 
+						player.heal(damage * 0.2f);
+				}
+				catch (Exception e) {}
+			}
+		}
+	}
+
+	/**Copied from EntityLivingBase bc it's protected*/
+	private float applyPotionDamageCalculations(EntityPlayer player, DamageSource source, float damage) {
+		if (source.isDamageAbsolute())
+			return damage;
+		else {
+			if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD) {
+				int i = (player.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
+				int j = 25 - i;
+				float f = damage * (float)j;
+				damage = f / 25.0F;
+			}
+			if (damage <= 0.0F)
+				return 0.0F;
+			else {
+				int k = EnchantmentHelper.getEnchantmentModifierDamage(player.getArmorInventoryList(), source);
+				if (k > 0)
+					damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
+				return damage;
+			}
 		}
 	}
 

@@ -124,6 +124,12 @@ public class PotionFrozen extends Potion {
 
 	@SubscribeEvent
 	public void clientSide(PlayerTickEvent event) {
+		// prevent flying while frozen
+		if (event.phase == TickEvent.Phase.START && event.side == Side.CLIENT &&
+			event.player.getActivePotionEffect(ModPotions.frozen) != null &&
+					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) 
+			event.player.onGround = true;
+		
 		if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
 			if (event.player.getActivePotionEffect(ModPotions.frozen) != null &&
 					event.player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0)

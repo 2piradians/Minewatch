@@ -1,8 +1,5 @@
 package twopiradians.minewatch.common.entity;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.DataParameter;
@@ -14,7 +11,6 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class EntityWidowmakerBullet extends EntityMWThrowable {
 

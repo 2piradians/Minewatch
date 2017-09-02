@@ -58,7 +58,8 @@ public class EntityMeiBlast extends EntityMWThrowable {
 				ModPotions.frozen.clientFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
 				ModPotions.frozen.clientDelays.put((EntityLivingBase) result.entityHit, 10);
 			}
-			if (!this.world.isRemote) {
+			if (!this.world.isRemote && 
+					!(result.entityHit instanceof EntityPlayer && ((EntityPlayer)result.entityHit).isCreative())) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					int freezeCount = ModPotions.frozen.serverFreezes.containsKey(result.entityHit) ? ModPotions.frozen.serverFreezes.get(result.entityHit)+1 : 1;

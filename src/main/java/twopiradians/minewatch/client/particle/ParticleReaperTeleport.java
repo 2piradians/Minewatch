@@ -19,7 +19,8 @@ import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 
 	public static final ResourceLocation[] TEXTURES = new ResourceLocation[] {
-			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_base"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_base_0"),
+			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_base_1"),
 			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_inside"),
 			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_outside_0"),
 			new ResourceLocation(Minewatch.MODID, "entity/particle/reaper_teleport_outside_1"),
@@ -50,7 +51,10 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.particleMaxAge = type == 0 ? Integer.MAX_VALUE : type == 3 ? 50 : 17;
 		this.particleScale = type == 0 ? 14f : type == 1 ? 3f + world.rand.nextFloat()*2f : type == 2 ? 3f + world.rand.nextFloat()*3f : 0.5f;
 		if (type != 0)
-			this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+world.rand.nextInt(10));
+			if (player == Minecraft.getMinecraft().player) 
+				this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+world.rand.nextInt(10));
+			else
+				this.setColor(type == 1 ? 0xCF4F17 : type == 3 ? 0xC12828 : 0x511D12+world.rand.nextInt(10));
 		this.player = player;
 		this.spawnAtPlayer = spawnAtPlayer;
 		this.type = type;
@@ -63,7 +67,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.prevPosY = posY;
 		this.prevPosZ = posZ;
 		this.randomNumber = rand.nextFloat();
-		String texture = type == 0 ? TEXTURES[0].toString() : type == 1 || type == 3 ? TEXTURES[1].toString() : TEXTURES[world.rand.nextInt(3)+2].toString();
+		String texture = type == 0 ? (player == Minecraft.getMinecraft().player ? TEXTURES[0].toString() : TEXTURES[1].toString()) : type == 1 || type == 3 ? TEXTURES[2].toString() : TEXTURES[world.rand.nextInt(3)+3].toString();
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture);
 		this.setParticleTexture(sprite); 
 	}

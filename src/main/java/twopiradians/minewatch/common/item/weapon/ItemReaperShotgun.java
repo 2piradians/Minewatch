@@ -274,14 +274,11 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 	}
  
-	public Vec3d getPositionEyes(Entity entity, float partialTicks)
-    {
+	/**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*/
+	private Vec3d getPositionEyes(Entity entity, float partialTicks)  {
         if (partialTicks == 1.0F)
-        {
             return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
-        }
-        else
-        {
+        else {
             double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
             double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
             double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;

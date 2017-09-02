@@ -98,7 +98,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				pos = pos.add(adjustX, 0, adjustZ);
 				IBlockState state = player.world.getBlockState(pos);
 
-				if (player.world.isAirBlock(pos.up()) && player.world.isAirBlock(pos.up(2)) && 
+				if ((state.getBlock().getCollisionBoundingBox(state, player.world, pos.up()) == null ||
+						state.getBlock().getCollisionBoundingBox(state, player.world, pos.up()) == Block.NULL_AABB) && 
+						(state.getBlock().getCollisionBoundingBox(state, player.world, pos.up(2)) == null ||
+						state.getBlock().getCollisionBoundingBox(state, player.world, pos.up(2)) == Block.NULL_AABB) && 
 						!player.world.isAirBlock(pos) && 
 						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
 						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&
@@ -166,7 +169,8 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				else {		
 					if (clientTps.get(player).getFirst() != -1) {
-						if (Minecraft.getMinecraft().gameSettings.thirdPersonView != 1)
+						if (Minecraft.getMinecraft().gameSettings.thirdPersonView != 1 && 
+								Minecraft.getMinecraft().player == player)
 							Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
 
 						if (clientTps.get(player).getFirst() > 1)
@@ -176,24 +180,25 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					}
 
 					if (player.ticksExisted % 2 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, false, 1);
+						Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 1);
 					else if (player.ticksExisted % 3 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, false, 3);
-					Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, false, 2);
+						Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 3);
+					Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 2);
 					if (player.ticksExisted % 13 == 0 && clientTps.get(player).getFirst() == -1)
 						player.playSound(ModSoundEvents.reaperTeleportDuring, player.world.rand.nextFloat()*0.5f+0.3f, player.world.rand.nextFloat()*0.5f+0.75f);
 
 					if (clientTps.get(player).getFirst() > 40 && clientTps.get(player).getFirst() != -1) {
 						if (player.ticksExisted % 2 == 0)
-							Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, true, 1);
+							Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 1);
 						else if (player.ticksExisted % 3 == 0)
-							Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, true, 3);
-						Minewatch.proxy.spawnParticlesReaperTeleport(event.player.world, event.player, true, 2);
+							Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 3);
+						Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 2);
 					}
 				}
 			}
 			for (EntityPlayer player : toRemove) {
-				if (clientTps.get(player).getFirst() != -1)
+				if (clientTps.get(player).getFirst() != -1 && 
+						Minecraft.getMinecraft().player == player)
 					Minecraft.getMinecraft().gameSettings.thirdPersonView = 0;
 				clientTps.remove(player);
 			}

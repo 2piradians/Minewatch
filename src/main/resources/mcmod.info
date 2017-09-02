@@ -3,7 +3,7 @@
   "modid": "minewatch",
   "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
-  "version": "3.1",
+  "version": "3.2",
   "mcversion": "1.10.2",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
@@ -16,7 +16,7 @@ Model Credits:
 -Tracer Pistol Low poly | Tracer Overwatch Gun by Franz Perez is licensed under CC Attribution 
 -Hanzo Bow: Hanzo Bow by backer is licensed under CC Attribution 
 -Hanzo Arrow: Overwatch - Hanzo's Arrow by beyondmatter is licensed under CC Attribution 
--McCree Pistol and Soldier Rifle by Rexx Art 
+-McCree Pistol, Soldier Rifle, Widowmaker Rifle, Bastion Recon and Turret by Rexx Art 
 
 Armor Texture Credits:
 -Tracer, Genji, Hanzo, and Bastion textures: Ringoster, https://www.planetminecraft.com/member/ringoster/ 
@@ -27,6 +27,7 @@ Armor Texture Credits:
 -Ana texture: Drzzter, https://www.planetminecraft.com/member/drzzter/ 
 -McCree texture: PlantyBox, https://www.planetminecraft.com/member/plantybox/ 
 -Mei texture: mareridt, https://www.planetminecraft.com/member/mareridt/ 
+-Widowmaker texture: sir-connor, https://www.planetminecraft.com/member/sir-connor/
 ",
   "logoFile": "logo.png",
   "screenshots": [],

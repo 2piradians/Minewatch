@@ -10,10 +10,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
 
@@ -35,8 +34,31 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		return true;
 	}
 
+	public void updateFromPacket() {
+		SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
+		if (packet != null) {
+			this.rotationPitch = packet.pitch;
+			this.prevRotationPitch = packet.pitch;
+			this.rotationYaw = packet.yaw;
+			this.prevRotationYaw = packet.yaw;
+			this.motionX = packet.motionX;
+			this.motionY = packet.motionY;
+			this.motionZ = packet.motionZ;
+			this.posX = packet.posX;
+			this.posY = packet.posY;
+			this.posZ = packet.posZ;
+			this.prevPosX = packet.posX;
+			this.prevPosY = packet.posY;
+			this.prevPosZ = packet.posZ;
+			ModEntities.spawningEntityUUID = null;
+		}
+	}
+
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {	
+		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
+			this.updateFromPacket();
+
 		float f = MathHelper.sqrt_float((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
@@ -91,14 +113,14 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
 			}
 		}
-		
+
 		return new Vec3d(x+look.xCoord, y+look.yCoord, z+look.zCoord);
 	}
-	
-	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, EnumHand hand, boolean sendPacket) {
-		double x = -Math.sin(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
+
+	public void setAim(EntityPlayer shooter, float pitch, float yaw, float velocity, float inaccuracy, float adjustment, EnumHand hand, boolean sendPacket) {
+		double x = -Math.sin((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		double y = -Math.sin(pitch * Math.PI/180);
-		double z = Math.cos(yaw * Math.PI/180) * Math.cos(pitch * Math.PI/180);
+		double z = Math.cos((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
 		this.setThrowableHeading(x, y, z, velocity, inaccuracy);
 		this.motionX += shooter.motionX;
 		this.motionZ += shooter.motionZ;
@@ -107,9 +129,8 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 
 		// correct trajectory of fast entities (received in render class)
 		if (!this.worldObj.isRemote && this.ticksExisted == 0 && sendPacket) {
-			Minewatch.network.sendToAllAround(
-					new PacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ), 
-					new TargetPoint(this.worldObj.provider.getDimension(), this.posX, this.posY, this.posZ, 1024));
+			Minewatch.network.sendToAll(
+					new SPacketSyncSpawningEntity(this.getPersistentID(), this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ, this.posX, this.posY, this.posZ));
 		}
 	}
 

@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.potion.PotionFrozen;
 
-public class PacketPotionEffect implements IMessage {
+public class SPacketPotionEffect implements IMessage {
 
 	private int entity;
 	private String potion;
@@ -25,9 +25,9 @@ public class PacketPotionEffect implements IMessage {
 	private boolean ambient;
 	private boolean showParticles;
 
-	public PacketPotionEffect() { }
+	public SPacketPotionEffect() { }
 
-	public PacketPotionEffect(EntityLivingBase entity, PotionEffect effect) {
+	public SPacketPotionEffect(EntityLivingBase entity, PotionEffect effect) {
 		this.entity = entity.getEntityId();
 		this.potion = effect.getPotion().getName();
 		this.duration = effect.getDuration();
@@ -56,9 +56,9 @@ public class PacketPotionEffect implements IMessage {
 		buf.writeBoolean(this.showParticles);
 	}
 
-	public static class Handler implements IMessageHandler<PacketPotionEffect, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketPotionEffect, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketPotionEffect packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketPotionEffect packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() {
 				@Override

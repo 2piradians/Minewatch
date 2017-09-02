@@ -32,6 +32,7 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleMeiBlaster;
+import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.particle.ParticleTrail;
@@ -43,10 +44,12 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
+import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76HelixRocket;
 import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
+import twopiradians.minewatch.client.render.entity.RenderWidowmakerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
@@ -57,12 +60,15 @@ import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
 public class ClientProxy extends CommonProxy
 {
@@ -102,7 +108,7 @@ public class ClientProxy extends CommonProxy
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
-	private static void registerObjRenders() {
+	private static void registerObjRenders() {		
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
 			if (item == EnumHero.HANZO.weapon) {
@@ -161,6 +167,42 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
 			}
+		//change widowmaker model based on scoping
+			else if (item == EnumHero.WIDOWMAKER.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean scoping = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							scoping = (player != null && player.getHeldItemMainhand() != null && 
+									player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
+									(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0);
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
+			}
+		//change ana model based on scoping
+			else if (item == EnumHero.ANA.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean scoping = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							scoping = (player != null && player.getHeldItemMainhand() != null && 
+									player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
+									(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0);		
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
+			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}
@@ -178,6 +220,8 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, RenderSoldier76HelixRocket::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, RenderBastionBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
 	}
 
 	@Override
@@ -196,6 +240,8 @@ public class ClientProxy extends CommonProxy
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
 		event.getMap().registerSprite(ParticleMeiBlaster.TEXTURE);
+		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
+			event.getMap().registerSprite(loc);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
@@ -238,10 +284,10 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge) {
+	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
 		int i = Minecraft.getMinecraft().gameSettings.particleSetting;
 		if (i == 0 || world.rand.nextInt(i*2) == 0) {
-			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge);
+			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge, alpha);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
@@ -262,5 +308,13 @@ public class ClientProxy extends CommonProxy
 	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { 
 		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
+
+	@Override
+	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
+		if (spawnAtPlayer || ItemReaperShotgun.clientTps.containsKey(player)) {
+			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+		}
 	}
 }

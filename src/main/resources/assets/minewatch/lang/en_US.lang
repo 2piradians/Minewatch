@@ -73,6 +73,13 @@ item.bastion_leggings.name=Bastion Leggings
 item.bastion_boots.name=Bastion Boots
 item.bastion_weapon.name=Bastion's Submachine Gun
 
+item.widowmaker_token.name=Widowmaker Token
+item.widowmaker_helmet.name=Widowmaker Helmet
+item.widowmaker_chestplate.name=Widowmaker Chestplate
+item.widowmaker_leggings.name=Widowmaker Leggings
+item.widowmaker_boots.name=Widowmaker Boots
+item.widowmaker_weapon.name=Widow's Kiss
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow
@@ -86,3 +93,4 @@ entity.soldier76_bullet.name=Soldier 76 Bullet
 entity.soldier76_helix_rocket.name=Soldier 76 Helix Rocket
 entity.bastion_bullet.name=Bastion Bullet
 entity.mei_blast.name=Mei Blast
+entity.mei_icicle.name=Mei Icicle

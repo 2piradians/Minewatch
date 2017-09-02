@@ -26,7 +26,7 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemHanzoBow extends ItemMWWeapon {
-	
+
 	public ItemHanzoBow() {
 		super(0);
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
@@ -63,7 +63,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 
 	private boolean isArrow(@Nullable ItemStack stack) {
 		return stack != null && stack.getItem() instanceof ItemArrow;
-}
+	}
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
@@ -92,7 +92,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 				if (f > 1.0F)
 					f = 1.0F;
 
-				if (f >= 0.28f) {
+				if (f >= 0.05f) {
 					boolean flag1 = flag || (itemstack.getItem() instanceof ItemArrow 
 							&& ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, player));
 
@@ -101,9 +101,9 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// sonic arrow
 						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
-							hero.ability2.keybind.setCooldown(player, 400); 
+							hero.ability2.keybind.setCooldown(player, 400, false); 
 
 							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f);
@@ -111,9 +111,9 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// scatter arrow
 						else if (hero.ability1.isSelected(player)) {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-							entityarrow.setDamage(125*((double)i/160/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/160*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
-							hero.ability1.keybind.setCooldown(player, 200); 
+							hero.ability1.keybind.setCooldown(player, 200, false); 
 
 							if (worldIn.rand.nextBoolean())
 								worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 
@@ -122,7 +122,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80/DAMAGE_SCALE));
+							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 						}
 						if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
@@ -139,7 +139,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 
 						if (itemstack.stackSize == 0)
 							player.inventory.deleteStack(itemstack); 
-					}
+}
 				}
 			}
 		}

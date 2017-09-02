@@ -31,7 +31,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 75d/DAMAGE_SCALE-1, 0));
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 75d*damageScale-1, 0));
 		return multimap;
 	}
 
@@ -47,7 +47,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (!player.worldObj.isRemote && this.canUse(player, true)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f/DAMAGE_SCALE);
+			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*damageScale);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 

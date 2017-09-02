@@ -18,15 +18,15 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
-public class PacketSyncKeys implements IMessage
+public class CPacketSyncKeys implements IMessage
 {
 	private boolean isKeyPressed;
 	private UUID player;
 	private String keyName;
 
-	public PacketSyncKeys() {}
+	public CPacketSyncKeys() {}
 
-	public PacketSyncKeys(String keyName, boolean isKeyPressed, UUID player) {
+	public CPacketSyncKeys(String keyName, boolean isKeyPressed, UUID player) {
 		this.keyName = keyName;
 		this.isKeyPressed = isKeyPressed;
 		this.player = player;
@@ -46,9 +46,9 @@ public class PacketSyncKeys implements IMessage
 		ByteBufUtils.writeUTF8String(buf, player.toString());
 	}
 
-	public static class Handler implements IMessageHandler<PacketSyncKeys, IMessage> {
+	public static class Handler implements IMessageHandler<CPacketSyncKeys, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncKeys packet, final MessageContext ctx) {
+		public IMessage onMessage(final CPacketSyncKeys packet, final MessageContext ctx) {
 			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() {
 

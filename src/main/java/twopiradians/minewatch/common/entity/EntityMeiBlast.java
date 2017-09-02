@@ -4,7 +4,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -42,7 +41,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*worldObj.rand.nextDouble()*0.8d, 
 						this.posY+(this.prevPosY-this.posY)*worldObj.rand.nextDouble()*0.8d, 
 						this.posZ+(this.prevPosZ-this.posZ)*worldObj.rand.nextDouble()*0.8d,
-						motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5);
+						motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5, 1);
 		}
 	}
 
@@ -51,7 +50,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null &&
-				result.entityHit != this.getThrower()) {
+				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
 			if (this.worldObj.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
@@ -59,7 +58,8 @@ public class EntityMeiBlast extends EntityMWThrowable {
 				ModPotions.frozen.clientFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
 				ModPotions.frozen.clientDelays.put((EntityLivingBase) result.entityHit, 10);
 			}
-			if (!this.worldObj.isRemote) {
+			if (!this.worldObj.isRemote && 
+					!(result.entityHit instanceof EntityPlayer && ((EntityPlayer)result.entityHit).isCreative())) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					int freezeCount = ModPotions.frozen.serverFreezes.containsKey(result.entityHit) ? ModPotions.frozen.serverFreezes.get(result.entityHit)+1 : 1;
@@ -68,13 +68,13 @@ public class EntityMeiBlast extends EntityMWThrowable {
 				}
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f/ItemMWWeapon.DAMAGE_SCALE);
+				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f*ItemMWWeapon.damageScale);
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-				result.entityHit.worldObj.playSound(null, this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ, 
-						ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
-				this.setDead();
 			}
+			else
+				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
+			this.setDead();
 		}
 	}
 

@@ -1,17 +1,16 @@
 package twopiradians.minewatch.common.entity;
 
-import java.util.HashMap;
 import java.util.UUID;
 
-import com.google.common.collect.Maps;
-
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.packet.PacketSyncSpawningEntity;
+import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class ModEntities {
 	
-	public static HashMap<UUID, PacketSyncSpawningEntity> spawningEntities = Maps.newHashMap();
+	public static UUID spawningEntityUUID;
+	public static SPacketSyncSpawningEntity spawningEntityPacket;
 	
 	public static void registerEntities() {
 		int id = 0;
@@ -27,5 +26,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(EntitySoldier76HelixRocket.class, "soldier76_helix_rocket", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(EntityBastionBullet.class, "bastion_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(EntityMeiBlast.class, "mei_blast", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityWidowmakerBullet.class, "widowmaker_bullet", id++, Minewatch.instance, 64, 20, false);
 	}
 }

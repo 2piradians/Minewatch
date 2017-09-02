@@ -26,7 +26,7 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 		this.motionY = motionY;
 		this.motionZ = motionZ;
 		this.particleGravity = 0.0f;
-		this.particleMaxAge = maxAge;
+		this.particleMaxAge = maxAge; 
 		this.particleScale = initialScale;
 		this.initialScale = initialScale;
 		this.finalScale = finalScale;

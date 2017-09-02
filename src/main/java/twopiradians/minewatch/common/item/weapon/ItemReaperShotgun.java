@@ -88,7 +88,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	private Vec3d getTeleportPos(EntityPlayer player) {
 		try {
 			RayTraceResult result = player.world.rayTraceBlocks(player.getPositionEyes(1), 
-					player.getLookVec().scale(Integer.MAX_VALUE), false, false, true);
+					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
 
@@ -97,11 +97,13 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 				pos = pos.add(adjustX, 0, adjustZ);
 				IBlockState state = player.world.getBlockState(pos);
+				IBlockState state1 = player.world.getBlockState(pos.up());
+				IBlockState state2 = player.world.getBlockState(pos.up(2));
 
-				if ((state.getBlock().getCollisionBoundingBox(state, player.world, pos.up()) == null ||
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos.up()) == Block.NULL_AABB) && 
-						(state.getBlock().getCollisionBoundingBox(state, player.world, pos.up(2)) == null ||
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos.up(2)) == Block.NULL_AABB) && 
+				if ((player.world.isAirBlock(pos.up()) || state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == null ||
+						state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == Block.NULL_AABB) && 
+						(player.world.isAirBlock(pos.up(2)) || state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == null ||
+						state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == Block.NULL_AABB) && 
 						!player.world.isAirBlock(pos) && 
 						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
 						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&

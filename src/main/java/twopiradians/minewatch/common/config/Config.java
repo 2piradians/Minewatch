@@ -63,8 +63,6 @@ public class Config {
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
 
-		Config.updateDurability();
-
 		for (EnumHero hero : EnumHero.values()) {
 			Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);
 			for (int i=0; i<hero.textureCredits.length; ++i)
@@ -81,26 +79,5 @@ public class Config {
 			syncConfig();
 			config.save();
 		}
-	}
-
-	/**Update armor/weapon durabilities according to config options*/
-	public static void updateDurability() {
-		/*// update durabilities
-		for (EnumHero hero : EnumHero.values()) {
-			for (ItemMWArmor item : new ItemMWArmor[] {hero.helmet, hero.chestplate, hero.leggings, hero.boots}) {
-				if (item != null) {
-					if (Config.durabilityOptionArmors == 0 || Config.durabilityOptionArmors == 1)
-						item.setMaxDamage(item.getArmorMaterial().getDurability(item.armorType));
-					else if (Config.durabilityOptionArmors == 2)
-						item.setMaxDamage(0);
-				}
-			}
-			if (hero.weapon != null) {
-				if (Config.durabilityOptionWeapons == 0 || Config.durabilityOptionWeapons == 1)
-					hero.weapon.setMaxDamage(100);
-				else if (Config.durabilityOptionWeapons == 2)
-					hero.weapon.setMaxDamage(0);
-			}
-		}*/
 	}
 }

@@ -275,7 +275,7 @@ public enum EnumHero {
 
 						double scale = 1d*Config.guiScale;
 						GlStateManager.scale(1*scale, 4*scale, 1);
-						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125+scale*20, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
+						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
 						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;

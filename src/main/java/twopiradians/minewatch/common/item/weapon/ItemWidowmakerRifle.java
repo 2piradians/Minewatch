@@ -161,6 +161,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			// power
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
+			double scale = event.getResolution().getScaleFactor();
+			GlStateManager.scale(scale, scale, 1);
 			int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) Math.min((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount())/15d*100d, 100) : 0;
 			int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
 			Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
@@ -170,7 +172,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
 			// background
 			GlStateManager.color(1, 1, 1, 0.7f);
-			double scale = Math.max(height/imageSize, width/imageSize);
+			scale = Math.max(height/imageSize, width/imageSize);
 			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
 			GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);

@@ -169,7 +169,7 @@ public enum EnumHero {
 							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
-						
+
 						// render crosshair
 						double scale = 0.2d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
@@ -178,7 +178,7 @@ public enum EnumHero {
 							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
 							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
 						}
-						
+
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
 
@@ -186,7 +186,7 @@ public enum EnumHero {
 						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
-							
+
 							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale*4, 1);
 							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 83*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double()- 80*scale)/8d / scale), 0);
@@ -197,7 +197,7 @@ public enum EnumHero {
 							GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
 							GlStateManager.scale(0.75f, 0.75f, 1);
 							GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
-							
+
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
 						}
@@ -206,13 +206,13 @@ public enum EnumHero {
 								ItemReaperShotgun.clientTps.get(player).getFirst() == -1) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
-							
+
 							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale, 1);
 							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
 							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_teleport.png"));
 							GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-							
+
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
 						}
@@ -275,7 +275,7 @@ public enum EnumHero {
 
 						double scale = 1d*Config.guiScale;
 						GlStateManager.scale(1*scale, 4*scale, 1);
-						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125+scale*20, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
+						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
 						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;

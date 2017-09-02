@@ -137,7 +137,9 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			GlStateManager.enableBlend();
 			// scope
 			GlStateManager.color(1, 1, 1, 0.6f);
-			double scale = 2;
+			double scale = event.getResolution().getScaleFactor();
+			GlStateManager.scale(scale, scale, 1);
+			scale = 2;
 			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 			GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);

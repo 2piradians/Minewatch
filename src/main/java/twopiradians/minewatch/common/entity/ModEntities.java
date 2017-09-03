@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.entity;
 
 import java.util.UUID;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;

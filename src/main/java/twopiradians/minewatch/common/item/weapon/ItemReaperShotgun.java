@@ -212,7 +212,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 3 == 0) {
 			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayer player : serverTps.keySet()) {
-				if (serverTps.get(player).getFirst() > 1) {
+				if (serverTps.get(player).getFirst() > 1 && player.getHealth() > 0) {
 					serverTps.put(player, new Tuple(serverTps.get(player).getFirst()-1, serverTps.get(player).getSecond()));
 
 					if (serverTps.get(player).getFirst() == 40) {

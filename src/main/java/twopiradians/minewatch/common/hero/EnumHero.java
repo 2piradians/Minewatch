@@ -43,7 +43,7 @@ public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, "Overwatch - Ana by Drzzter"), 
-	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
 	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, "Overwatch- Hanzo by Ringoster"),
 	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, "im yer huckleberry | Jesse McCree by PlantyBox"),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
@@ -243,7 +243,7 @@ public enum EnumHero {
 					GlStateManager.scale(event.getResolution().getScaledWidth_double()/256d, event.getResolution().getScaledHeight_double()/256d, 1);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/info_background.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_info.png"));
+					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_info.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
 
 					GlStateManager.enableDepth();
@@ -261,7 +261,7 @@ public enum EnumHero {
 						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
 						GlStateManager.popMatrix();

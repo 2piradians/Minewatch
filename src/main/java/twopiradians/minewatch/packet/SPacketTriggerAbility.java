@@ -70,6 +70,10 @@ public class SPacketTriggerAbility implements IMessage {
 						Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
 						if (vec.xCoord == 0 && vec.zCoord == 0) 
 							vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
+						if (!player.onGround) {
+							player.motionY = 0.24d;
+							player.velocityChanged = true;
+						}
 						vec = vec.normalize().scale(9);
 						player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
 					}

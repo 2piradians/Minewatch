@@ -1,11 +1,20 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.List;
+
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -54,4 +63,65 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, world, entity, slot, isSelected);
+
+		if (entity instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer)entity;
+
+			if (world.isRemote && ((EntityPlayerSP)player).movementInput.jump && !player.onGround && !player.isOnLadder() && player.motionY < 0.0d)
+				player.jump();
+			
+			//TODO Genji
+			// deflect
+			if (isSelected && hero.ability1.isSelected((EntityPlayer) entity) && !world.isRemote) {
+				//	world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);	
+				//	if (entity instanceof EntityPlayerMP)
+				//		Minewatch.network.sendTo(new SPacketTriggerAbility(0), (EntityPlayerMP) entity);
+				//	hero.ability2.subtractUse((EntityPlayer) entity);
+				//	hero.ability2.keybind.setCooldown((EntityPlayer) entity, 5, true); 
+
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(3);
+				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
+
+				for (Entity entityCollided : list) {
+
+					if (entityCollided instanceof EntityArrow && ((EntityArrow)entityCollided).shootingEntity != player
+							&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) { 
+						System.out.println(player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)));
+						EntityArrow ent = (EntityArrow) entityCollided;
+						ent.shootingEntity = player;
+						double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
+						ent.setPosition(player.posX + player.getLookVec().xCoord, player.posY + player.eyeHeight, player.posZ + player.getLookVec().zCoord);
+						ent.motionX = player.getLookVec().xCoord*velScale;	
+						ent.motionY = player.getLookVec().yCoord*velScale;	
+						ent.motionZ = player.getLookVec().zCoord*velScale;	
+						ent.velocityChanged = true;
+					}
+					else if (entityCollided instanceof EntityThrowable && player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) {
+						EntityThrowable ent = (EntityThrowable) entityCollided;
+						double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
+						ent.motionX = player.getLookVec().xCoord*velScale;	
+						ent.motionY = player.getLookVec().yCoord*velScale;	
+						ent.motionZ = player.getLookVec().zCoord*velScale;		
+						ent.velocityChanged = true;
+					}
+					else if (entityCollided instanceof EntityFireball /*&& ((EntityFireball)entityCollided).shootingEntity != player*/
+							&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) {
+						EntityFireball ent = (EntityFireball) entityCollided;
+						ent.accelerationX = 0;
+						ent.accelerationY = 0;
+						ent.accelerationZ = 0;
+						ent.shootingEntity = player;
+						double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
+						ent.motionX = player.getLookVec().xCoord*velScale;	
+						ent.motionY = player.getLookVec().yCoord*velScale;	
+						ent.motionZ = player.getLookVec().zCoord*velScale;		
+						ent.velocityChanged = true;
+					}
+				}
+			}
+		}
+	}	
 }

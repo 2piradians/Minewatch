@@ -33,6 +33,7 @@ import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
+import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
@@ -43,17 +44,18 @@ public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, "Overwatch - Ana by Drzzter"), 
-	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
 	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, "Overwatch- Hanzo by Ringoster"),
-	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, "im yer huckleberry | Jesse McCree by PlantyBox"),
+	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, "im yer huckleberry | Jesse McCree by PlantyBox"),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, "Overwatch Reinhardt by Kohicup"),
 	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, "Soldier 76 (Overwatch) by sixfootblue"),
 	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, "Tracer- Overwatch by Ringoster"),
 	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, "Bastion- Overwatch by Ringoster"), //TODO switches to Crosshair.CIRCLE_BIG in turret
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt"),
-	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor");
-
+	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor"),
+	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, "-=+=-(MERCY)-=+=- by Overtrash");
+	
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
 	public Ability ability1;

@@ -104,6 +104,10 @@ public class CommonProxy
 		catch (Exception e) {}
 	}
 
-	public void mouseClick() { }
+	public void mouseClick() {}
+	
+	public boolean isJumping() {
+		return false;
+	}
 	
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -203,6 +204,36 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
 			}
+		//change genji model based on active abilities
+			else if (item == EnumHero.GENJI.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean sword = true;
+						if (stack.hasTagCompound()) 
+							sword = stack.getTagCompound().getBoolean("useSword");
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_sword_3d", "inventory"));
+			}
+		// change mercy model
+			else if (item == EnumHero.MERCY.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						boolean battleMercy = false;
+						/*if (stack.hasTagCompound()) {
+			EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+			battleMercy = player != null ? EnumHero.MERCY.ability2.isSelected(player) : false;
+			}*/
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (battleMercy ? "_1_3d" : "_0_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
+			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}
@@ -317,4 +348,11 @@ public class ClientProxy extends CommonProxy
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
+
+	@Override
+	public boolean isJumping() {
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		return player.movementInput.jump;
+	}
+
 }

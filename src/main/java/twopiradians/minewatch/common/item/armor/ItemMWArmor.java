@@ -12,11 +12,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -140,25 +143,25 @@ public class ItemMWArmor extends ItemArmor
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		// delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
-		
+
 		// set damage to full if option set to never use durability
 		if (Config.durabilityOptionArmors == 2 && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
-		
+
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
 
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		// delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
 		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
 				entityItem.getEntityItem().hasTagCompound() && 
 				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
@@ -171,7 +174,7 @@ public class ItemMWArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
-		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		//delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
@@ -180,11 +183,19 @@ public class ItemMWArmor extends ItemArmor
 			return;
 		}
 
+		// genji jump boost
+		if (this.armorType == EntityEquipmentSlot.CHEST && 
+				hero == EnumHero.GENJI && !world.isRemote && player != null && 
+				SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
+						(player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null ||
+						player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
+				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
+
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
 				hero == EnumHero.TRACER && world.isRemote && player != null && 
 				(player.chasingPosX != 0 || player.chasingPosY != 0 || player.chasingPosZ != 0)) {
-			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*5d);
+			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
@@ -192,7 +203,7 @@ public class ItemMWArmor extends ItemArmor
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
 						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 1);
 		}
-		
+
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == hero)

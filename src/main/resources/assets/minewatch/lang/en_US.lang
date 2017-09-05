@@ -80,6 +80,13 @@ item.widowmaker_leggings.name=Widowmaker Leggings
 item.widowmaker_boots.name=Widowmaker Boots
 item.widowmaker_weapon.name=Widow's Kiss
 
+item.mercy_token.name=Mercy Token
+item.mercy_helmet.name=Mercy Helmet
+item.mercy_chestplate.name=Mercy Chestplate
+item.mercy_leggings.name=Mercy Leggings
+item.mercy_boots.name=Mercy Boots
+item.mercy_weapon.name=Mercy's Weapon
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow

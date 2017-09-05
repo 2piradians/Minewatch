@@ -128,6 +128,36 @@
 			"minewatch:genji_reload"
 		]
 	},
+	"genji_deflect": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_deflect_0",
+			"minewatch:genji_deflect_1",
+			"minewatch:genji_deflect_2"
+		]
+	},
+	"genji_deflect_hit": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_deflect_hit_0",
+			"minewatch:genji_deflect_hit_1",
+			"minewatch:genji_deflect_hit_2"
+		]
+	},
+	"genji_strike": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_strike_0",
+			"minewatch:genji_strike_1"
+		]
+	},
+	"genji_jump": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_jump_0",
+			"minewatch:genji_jump_1"
+		]
+	},
 	"tracer_shoot": {
 		"category": "player",
 		"sounds": [
@@ -156,6 +186,20 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:mccree_reload"
+		]
+	},
+	"mccree_roll": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_roll"
+		]
+	},
+	"mccree_flashbang": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_flashbang_0",
+			"minewatch:mccree_flashbang_1",
+			"minewatch:mccree_flashbang_2"
 		]
 	},
 	"soldier76_shoot": {

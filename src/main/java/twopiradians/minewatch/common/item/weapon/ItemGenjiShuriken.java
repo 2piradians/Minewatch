@@ -42,7 +42,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	private static HashMap<EntityPlayer, Integer> deflecting = Maps.newHashMap();
 	public static HashMap<EntityPlayer, Integer> clientStriking = Maps.newHashMap();
 	private static HashMap<EntityPlayerMP, Integer> serverStriking = Maps.newHashMap();
-	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>();
 
 	public ItemGenjiShuriken() {
 		super(40);
@@ -103,7 +102,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 		// strike
 		ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-		if (!world.isRemote) {
+		if (!world.isRemote && isSelected) {
 			for (EntityPlayerMP player : serverStriking.keySet()) {
 				if (player == entity) {
 					hero.ability2.toggled.put(player.getPersistentID(), true);
@@ -135,8 +134,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		// deflect
-		toRemove = new ArrayList<EntityPlayer>();
-		if (!world.isRemote) {
+		toRemove = new ArrayList<EntityPlayer>();//TODO stop if not selected (detect nbt)
+		if (!world.isRemote && isSelected) {
 			for (EntityPlayer player : deflecting.keySet()) {
 				if (player == entity) {
 					hero.ability1.toggled.put(player.getPersistentID(), true);
@@ -201,17 +200,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
-
-			// double jump
-			if (world.isRemote && player.onGround)
-				playersJumped.remove(player);
-			if (world.isRemote && Minewatch.proxy.isJumping() && !player.onGround && 
-					!player.isOnLadder() && player.motionY < 0.0d && !playersJumped.contains(player)) {
-				player.jump();
-				player.motionY += 0.2d;
-				playersJumped.add(player);
-				player.playSound(ModSoundEvents.genjiJump, 0.4f, world.rand.nextFloat()/6f+0.9f);
-			}
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&

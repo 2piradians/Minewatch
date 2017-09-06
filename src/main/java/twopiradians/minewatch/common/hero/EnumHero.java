@@ -6,16 +6,19 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -43,18 +46,18 @@ import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, "Overwatch - Ana by Drzzter"), 
-	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, "Overwatch- Genji by Ringoster"),
-	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, "Overwatch- Hanzo by Ringoster"),
-	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, "im yer huckleberry | Jesse McCree by PlantyBox"),
-	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
-	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, "Overwatch Reinhardt by Kohicup"),
-	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, "Soldier 76 (Overwatch) by sixfootblue"),
-	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, "Tracer- Overwatch by Ringoster"),
-	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, "Bastion- Overwatch by Ringoster"), //TODO switches to Crosshair.CIRCLE_BIG in turret
-	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt"),
-	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor"),
-	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, "-=+=-(MERCY)-=+=- by Overtrash");
+	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, true, "Overwatch - Ana by Drzzter", "Captain Amari by yana2princess", "Ana Ghoul Skin by DaDerpNarwhal", "Ana Merciful by QuantumQuark"), 
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, false, "Overwatch- Genji by Ringoster", "Young Genji by Aegeah", "GENJI - BLACKWATCH! [Overwatch] by Thinkingz", "Genji: Carbon Fiber by EP_Schnellnut", "Sentai Genji by Blastronaut360"),
+	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, false, "Overwatch- Hanzo by Ringoster"),
+	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, false, "im yer huckleberry | Jesse McCree by PlantyBox"),
+	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, false, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
+	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, false, "Overwatch Reinhardt by Kohicup"),
+	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, false, "Soldier 76 (Overwatch) by sixfootblue"),
+	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 3, 60), new Ability(KeyBind.NONE, false, false, 0, 0), 40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, true, "Tracer- Overwatch by Ringoster"),
+	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, false, "Bastion- Overwatch by Ringoster"), //TODO switches to Crosshair.CIRCLE_BIG in turret
+	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, true, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt"),
+	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, true, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor"),
+	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, true, "Overwatch | Mercy by Efflorescence");
 	
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
@@ -84,6 +87,7 @@ public enum EnumHero {
 	public ItemMWToken token;
 
 	public SoundEvent reloadSound;
+	public boolean smallArms;
 	public String[] textureCredits;
 	public int textureVariation;
 	private Crosshair crosshair;
@@ -113,7 +117,8 @@ public enum EnumHero {
 	}
 
 	private EnumHero(String name, boolean hasAltWeapon, Ability ability1, Ability ability2, Ability ability3,
-			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, Crosshair crosshair, String... textureCredits) {
+			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, Crosshair crosshair, 
+			boolean smallArms, String... textureCredits) {
 		this.overlayIndex = IndexCounter.index++;
 		this.name = name;
 		this.hasAltWeapon = hasAltWeapon;
@@ -130,6 +135,7 @@ public enum EnumHero {
 		this.armorReductionAmounts = armorReductionAmounts;
 		this.weapon = weapon;
 		this.crosshair = crosshair;
+		this.smallArms = smallArms;
 		this.textureCredits = textureCredits;
 	}
 
@@ -153,6 +159,49 @@ public enum EnumHero {
 
 	@Mod.EventBusSubscriber(Side.CLIENT)
 	public static class RenderManager {
+		
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void test(RenderLivingEvent.Pre<EntityPlayer> event) {
+			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
+				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
+				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
+					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
+						if (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET) {
+							model.bipedLeftLegwear.showModel = false;
+							model.bipedRightLegwear.showModel = false;
+						}
+						else if (slot == EntityEquipmentSlot.CHEST) {
+							model.bipedBody.showModel = false;
+							model.bipedBodyWear.showModel = false;
+							model.bipedLeftArm.showModel = false;
+							model.bipedLeftArmwear.showModel = false;
+							model.bipedRightArm.showModel = false;
+							model.bipedRightArmwear.showModel = false;
+						}
+						else if (slot == EntityEquipmentSlot.HEAD) {
+							model.bipedHeadwear.showModel = false;
+							model.bipedHead.showModel = false;
+						}
+					}
+				}
+				/*model.bipedBody.showModel = false;
+				model.bipedBodyWear.showModel = false;
+				model.bipedHead.showModel = false;
+				model.bipedHeadwear.showModel = false;
+				model.bipedLeftArm.showModel = false;
+				model.bipedLeftArmwear.showModel = false;
+				model.bipedLeftLeg.showModel = false;
+				model.bipedLeftLegwear.showModel = false;
+				model.bipedRightArm.showModel = false;
+				model.bipedRightArmwear.showModel = false;
+				model.bipedRightLeg.showModel = false;
+				model.bipedRightLegwear.showModel = false;*/
+				/*for (ModelRenderer renderer : model.boxList)
+					renderer.showModel = false;*/
+			}
+		}
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)

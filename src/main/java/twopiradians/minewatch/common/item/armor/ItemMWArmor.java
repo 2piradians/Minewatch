@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.armor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +9,13 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelPlayer;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,7 +26,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -34,11 +40,17 @@ import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
 {
 	public EnumHero hero;
+	@SideOnly(Side.CLIENT)
+	private ModelPlayer maleModel;
+	@SideOnly(Side.CLIENT)
+	private ModelPlayer femaleModel;
+	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>();
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -50,9 +62,47 @@ public class ItemMWArmor extends ItemArmor
 
 	@Override
 	@Nullable
+	@SideOnly(Side.CLIENT)
+	public net.minecraft.client.model.ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped defaultModel) {
+		// set arms to be visible after rendering (so held items are rendered in the correct places)
+		if (entity instanceof AbstractClientPlayer) {
+			ModelPlayer model = (ModelPlayer) ((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel();
+			model.bipedRightArm.showModel = true;
+			model.bipedLeftArm.showModel = true;
+		}
+		//playerModel = null; TODO
+		if (maleModel == null || femaleModel == null) {
+			maleModel = new ModelPlayer(0, false);
+			femaleModel = new ModelPlayer(0, true);
+		}
+		return hero.smallArms ? femaleModel : maleModel;
+	}
+
+	@Override
+	@Nullable
+	@SideOnly(Side.CLIENT)
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
+		// show layers
+		if (slot == EntityEquipmentSlot.CHEST) {
+			(hero.smallArms ? femaleModel : maleModel).bipedBodyWear.showModel = true;
+			(hero.smallArms ? femaleModel : maleModel).bipedLeftArmwear.showModel = true;
+			(hero.smallArms ? femaleModel : maleModel).bipedRightArmwear.showModel = true;
+		}
+		else if (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET) {
+			(hero.smallArms ? femaleModel : maleModel).bipedLeftLegwear.showModel = true;
+			(hero.smallArms ? femaleModel : maleModel).bipedRightLegwear.showModel = true;
+		}
+		
+		/*if (entity.ticksExisted % 30 == 0) {
+			hero.textureVariation++;
+			entity.ticksExisted++;
+			if (hero.textureVariation+1 > hero.textureCredits.length)
+				hero.textureVariation = 0;
+			System.out.println(hero.textureCredits[hero.textureVariation]);
+		}*/
+		
 		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+hero.textureVariation+"_layer_"+
-				(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";    
+		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
 	@Mod.EventBusSubscriber
@@ -183,13 +233,24 @@ public class ItemMWArmor extends ItemArmor
 			return;
 		}
 
-		// genji jump boost
-		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				hero == EnumHero.GENJI && !world.isRemote && player != null && 
-				SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
-						(player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null ||
-						player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
-				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
+		// genji jump boost/double jump
+        if (this.armorType == EntityEquipmentSlot.CHEST && player != null && SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
+            if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
+                player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
+            /*else if (!world.isRemote && player.fallDistance > 2) {
+                System.out.println("before: " + player.fallDistance);
+                player.fallDistance = player.fallDistance - 6;//TODO
+                System.out.println("after: " + player.fallDistance);
+            }*/
+            else if (world.isRemote && player.onGround)
+                playersJumped.remove(player);
+            else if (world.isRemote && Minewatch.proxy.isJumping() && !player.onGround && !player.isOnLadder() && player.motionY < 0.0d && !playersJumped.contains(player)) {
+                player.jump();
+                player.motionY += 0.2d;
+                playersJumped.add(player);
+                player.playSound(ModSoundEvents.genjiJump, 0.4f, world.rand.nextFloat()/6f+0.9f);
+            }
+        }
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 

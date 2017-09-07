@@ -28,7 +28,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true) && player.ticksExisted % 3 == 0) {
+		if (this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);

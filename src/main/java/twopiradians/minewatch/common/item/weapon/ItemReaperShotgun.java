@@ -61,7 +61,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true) && !world.isRemote && !serverTps.containsKey(player) &&
+		if (this.canUse(player, true, hand) && !world.isRemote && !serverTps.containsKey(player) &&
 				!hero.ability1.isSelected(player)) {
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand);
@@ -124,7 +124,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		// teleport
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
-			if (isSelected && hero.ability1.isSelected(player) && this.canUse(player, true)) {   
+			if (isSelected && hero.ability1.isSelected(player) && this.canUse(player, true, EnumHand.MAIN_HAND)) {   
 				if (world.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					if (tpVec != null) {
@@ -165,7 +165,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayer player : clientTps.keySet()) {
 				if ((player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != this ||
-						!hero.ability1.isSelected(player) || !this.canUse(player, true)) && clientTps.get(player).getFirst() == -1) {
+						!hero.ability1.isSelected(player) || !this.canUse(player, true, EnumHand.MAIN_HAND)) && clientTps.get(player).getFirst() == -1) {
 					toRemove.add(player);
 					player.playSound(ModSoundEvents.reaperTeleportStop, 1.0f, 1.0f);
 				}

@@ -60,7 +60,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (!player.world.isRemote && this.canUse(player, true) && player.ticksExisted % 3 == 0) {
+		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
@@ -78,7 +78,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		if (!player.world.isRemote && this.canUse(player, true)) {
+		if (!player.world.isRemote && this.canUse(player, true, hand)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);

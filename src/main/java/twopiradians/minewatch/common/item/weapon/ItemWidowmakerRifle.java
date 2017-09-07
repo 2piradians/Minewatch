@@ -77,7 +77,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
 				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0 &&
-				this.canUse((EntityPlayer) entity, true)) 
+				this.canUse((EntityPlayer) entity, true, getHand((EntityLivingBase) entity, stack))) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// set player in nbt for model changer (in ClientProxy) to reference
@@ -94,7 +94,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true, hand)) {
 			// scoped
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {

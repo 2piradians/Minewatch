@@ -22,7 +22,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true) && !world.isRemote) {
+		if (this.canUse(player, true, hand) && !world.isRemote) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player);
 			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.3F, 2.5F, hand, false);
 			world.spawnEntity(bullet);
@@ -39,7 +39,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		// shoot
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
 				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, 0F, hand, false);

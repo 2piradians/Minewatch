@@ -48,7 +48,7 @@ public enum EnumHero {
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, true, "Overwatch - Ana by Drzzter", "Captain Amari by yana2princess", "Ana Ghoul Skin by DaDerpNarwhal", "Ana Merciful by QuantumQuark"), 
 	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, false, "Overwatch- Genji by Ringoster", "Young Genji by Aegeah", "GENJI - BLACKWATCH! [Overwatch] by Thinkingz", "Genji: Carbon Fiber by EP_Schnellnut", "Sentai Genji by Blastronaut360"),
-	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, false, "Overwatch- Hanzo by Ringoster"),
+	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, true, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, false, "Overwatch- Hanzo by Ringoster", "Cyber Ninja Hanzo by Arctrooper7802", "Hanzo, Lone Wolf | Overwatch by Cayde - 6", "Okami Hanzo (OW) by SublimePNG"),
 	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, true, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, false, "im yer huckleberry | Jesse McCree by PlantyBox"),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, false, "Reaper [Overwatch] by Aegeah", "Reaper (PlayOfTheGame) by _Phantom"),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, false, "Overwatch Reinhardt by Kohicup"),
@@ -162,7 +162,7 @@ public enum EnumHero {
 		
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void test(RenderLivingEvent.Pre<EntityPlayer> event) {
+		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
 			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
 				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
@@ -186,20 +186,6 @@ public enum EnumHero {
 						}
 					}
 				}
-				/*model.bipedBody.showModel = false;
-				model.bipedBodyWear.showModel = false;
-				model.bipedHead.showModel = false;
-				model.bipedHeadwear.showModel = false;
-				model.bipedLeftArm.showModel = false;
-				model.bipedLeftArmwear.showModel = false;
-				model.bipedLeftLeg.showModel = false;
-				model.bipedLeftLegwear.showModel = false;
-				model.bipedRightArm.showModel = false;
-				model.bipedRightArmwear.showModel = false;
-				model.bipedRightLeg.showModel = false;
-				model.bipedRightLegwear.showModel = false;*/
-				/*for (ModelRenderer renderer : model.boxList)
-					renderer.showModel = false;*/
 			}
 		}
 

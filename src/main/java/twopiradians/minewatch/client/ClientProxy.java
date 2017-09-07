@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
+import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
@@ -29,6 +31,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
@@ -102,6 +105,15 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
+		registerInventoryTab();
+	}
+
+	private static void registerInventoryTab() {
+		if (TabRegistry.getTabList().size() == 0)
+			TabRegistry.registerTab(new InventoryTabVanilla());
+		
+		TabRegistry.registerTab(new InventoryTab());
+		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
 
 	private static void registerRenders() {

@@ -46,7 +46,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote && this.canUse(player, true)) {
+		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack))) {
 			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*damageScale);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
@@ -60,7 +60,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true) && !hero.ability1.isSelected(player)) {
+		if (this.canUse(player, true, hand) && !hero.ability1.isSelected(player)) {
 			if (world.isRemote)
 				Minewatch.proxy.mouseClick();
 			else {

@@ -45,7 +45,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 0F, hand, true);
@@ -75,7 +75,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {
-		if (entity instanceof EntityPlayer && count % 2 == 0 && this.canUse((EntityPlayer) entity, true)) {
+		if (entity instanceof EntityPlayer && count % 2 == 0 && this.canUse((EntityPlayer) entity, true, getHand(entity, stack))) {
 			EnumHand hand = null;
 			for (EnumHand hand2 : EnumHand.values())
 				if (((EntityPlayer)entity).getHeldItem(hand2) == stack)
@@ -125,7 +125,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			serverRolling.remove(player);
 
 		if (isSelected && entity.onGround && entity instanceof EntityPlayer && hero.ability2.isSelected((EntityPlayer) entity) &&
-				!world.isRemote && (this.canUse((EntityPlayer) entity, true) || this.getCurrentAmmo((EntityPlayer) entity) == 0) &&
+				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0) &&
 				!serverRolling.containsKey(entity)) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			if (entity instanceof EntityPlayerMP)

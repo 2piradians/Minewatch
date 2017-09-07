@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
@@ -99,11 +101,19 @@ public abstract class ItemMWWeapon extends Item {
 						player.world.rand.nextFloat()/2+0.75f);
 		}
 	}
+	
+	@Nullable
+	public EnumHand getHand(EntityLivingBase entity, ItemStack stack) {
+		for (EnumHand hand : EnumHand.values())
+			if (entity.getHeldItem(hand) == stack)
+				return hand;
+		return null;
+	}
 
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
-	public boolean canUse(EntityPlayer player, boolean shouldWarn) {
+	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand) {
 		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
 				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				(player.getActivePotionEffect(ModPotions.frozen) != null && 
@@ -121,7 +131,7 @@ public abstract class ItemMWWeapon extends Item {
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
 						new ItemStack(this).getDisplayName()+" must be held in the main-hand and off-hand to work."));
 		} 
-		else if (main == null || main.getItem() != this) {
+		else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
 			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+

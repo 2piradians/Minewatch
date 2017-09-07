@@ -187,7 +187,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		if (!player.capabilities.isCreativeMode && !flag) {
 			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
-		else if (this.canUse(player, true)) {
+		else if (this.canUse(player, true, handIn)) {
 			player.setActiveHand(handIn);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);

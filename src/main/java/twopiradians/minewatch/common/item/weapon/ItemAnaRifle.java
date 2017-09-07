@@ -58,7 +58,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
@@ -83,7 +83,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
 		// health particles
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false) &&
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND) &&
 				world.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);

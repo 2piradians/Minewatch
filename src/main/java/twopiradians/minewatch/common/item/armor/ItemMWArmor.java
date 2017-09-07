@@ -93,14 +93,6 @@ public class ItemMWArmor extends ItemArmor
 			(hero.smallArms ? femaleModel : maleModel).bipedRightLegwear.showModel = true;
 		}
 		
-		/*if (entity.ticksExisted % 30 == 0) {
-			hero.textureVariation++;
-			entity.ticksExisted++;
-			if (hero.textureVariation+1 > hero.textureCredits.length)
-				hero.textureVariation = 0;
-			System.out.println(hero.textureCredits[hero.textureVariation]);
-		}*/
-		
 		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+hero.textureVariation+"_layer_"+
 		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
@@ -224,6 +216,15 @@ public class ItemMWArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
+		/*if (player.world.isRemote && this.armorType == EntityEquipmentSlot.HEAD && player.ticksExisted % 30 == 0) {
+			hero.textureVariation++;
+			if (hero.textureVariation+1 > hero.textureCredits.length)
+				hero.textureVariation = 0;
+			TextComponentString component = new TextComponentString(hero.textureCredits[hero.textureVariation]);
+			component.getStyle().setColor(TextFormatting.GOLD).setBold(true);
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 90);//TODO
+		}*/
+		
 		//delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
@@ -244,7 +245,8 @@ public class ItemMWArmor extends ItemArmor
             }*/
             else if (world.isRemote && player.onGround)
                 playersJumped.remove(player);
-            else if (world.isRemote && Minewatch.proxy.isJumping() && !player.onGround && !player.isOnLadder() && player.motionY < 0.0d && !playersJumped.contains(player)) {
+            else if (world.isRemote && Minewatch.proxy.isJumping() && !player.onGround && !player.isOnLadder() && 
+            		player.motionY < 0.0d && !playersJumped.contains(player)) {
                 player.jump();
                 player.motionY += 0.2d;
                 playersJumped.add(player);

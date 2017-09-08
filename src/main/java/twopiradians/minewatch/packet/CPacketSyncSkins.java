@@ -20,7 +20,9 @@ public class CPacketSyncSkins implements IMessage {
 	private int numSkins;
 	private int[] skins;
 
-	public CPacketSyncSkins() {
+	public CPacketSyncSkins() {}
+	
+	public CPacketSyncSkins(UUID uuid) {
 		this.player = Minewatch.proxy.getClientPlayer().getPersistentID();
 		this.numSkins = EnumHero.values().length;
 		this.skins = new int[this.numSkins];

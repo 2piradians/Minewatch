@@ -76,7 +76,7 @@ public class Config {
 					if (hero.textureCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
 						hero.setSkin(player, i);
 			}
-			Minewatch.network.sendToServer(new CPacketSyncSkins());
+			Minewatch.network.sendToServer(new CPacketSyncSkins(player.getPersistentID()));
 		}
 	}
 

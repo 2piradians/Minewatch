@@ -93,7 +93,7 @@ public class SPacketTriggerAbility implements IMessage {
 						}
 					}
 					// McCree's roll
-					else if (packet.type == 2) {
+					else if (packet.type == 2) {//TODO make particles server side
 						player.onGround = true;
 						player.movementInput.sneak = true;
 						if (packet.bool)

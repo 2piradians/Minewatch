@@ -145,7 +145,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 					for (Entity entityCollided : list) {
 						if (entityCollided instanceof EntityArrow && ((EntityArrow)entityCollided).shootingEntity != player
-								&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) { 
+								&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d &&
+								Math.abs(entityCollided.motionX)+Math.abs(entityCollided.motionY)+Math.abs(entityCollided.motionZ) > 0) { 
 							EntityArrow ent = (EntityArrow) entityCollided;
 							ent.shootingEntity = player;
 							double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;

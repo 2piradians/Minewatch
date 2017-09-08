@@ -116,6 +116,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				if (serverRolling.get(player) > 1)
 					serverRolling.put(player, serverRolling.get(player)-1);
 				else {
+					entity.setSneaking(false);
 					toRemove.add(player);
 					hero.ability2.keybind.setCooldown((EntityPlayer) entity, 20, false); //TODO 160
 				}

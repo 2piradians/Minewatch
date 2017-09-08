@@ -58,7 +58,7 @@ public enum EnumHero {
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), new Ability(KeyBind.ABILITY_1, false, true, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, true, "A-Mei-Zing! ...get it? 'cause Mei.. by mareridt"),
 	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), new Ability(KeyBind.NONE, false, false, 0, 0), 30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, true, "Widowmaker - Overwatch: 1.8 Skin, Female by sir-connor"),
 	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), new Ability(KeyBind.ABILITY_2, false, false, 0, 0), new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, true, "Overwatch | Mercy by Efflorescence");
-	
+
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
 	public Ability ability1;
@@ -89,7 +89,7 @@ public enum EnumHero {
 	public SoundEvent reloadSound;
 	public boolean smallArms;
 	public String[] textureCredits;
-	public int textureVariation;
+	public HashMap<String, Integer> skins = Maps.newHashMap();
 	private Crosshair crosshair;
 
 	private static enum Crosshair {
@@ -139,6 +139,21 @@ public enum EnumHero {
 		this.textureCredits = textureCredits;
 	}
 
+	public int getSkin(UUID uuid) {
+		if (skins.containsKey(uuid.toString()))
+			return skins.get(uuid.toString());
+		else
+			return 0;
+	}
+
+	public void setSkin(EntityPlayer player, int skin) {
+		if (player == null)
+			return;
+		if (skin < 0 || skin >= this.textureCredits.length)
+			skin = 0;
+		skins.put(player.getPersistentID().toString(), skin);
+	}
+
 	public Item getEquipment(EntityEquipmentSlot slot) {
 		switch (slot) {
 		case HEAD:
@@ -159,7 +174,7 @@ public enum EnumHero {
 
 	@Mod.EventBusSubscriber(Side.CLIENT)
 	public static class RenderManager {
-		
+
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
@@ -206,7 +221,7 @@ public enum EnumHero {
 							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
-						
+
 						// render crosshair
 						double scale = 0.2d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
@@ -215,7 +230,7 @@ public enum EnumHero {
 							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
 							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
 						}
-						
+
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
 
@@ -223,7 +238,7 @@ public enum EnumHero {
 						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
-							
+
 							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale*4, 1);
 							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 83*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double()- 80*scale)/8d / scale), 0);
@@ -234,7 +249,7 @@ public enum EnumHero {
 							GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
 							GlStateManager.scale(0.75f, 0.75f, 1);
 							GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
-							
+
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
 						}
@@ -243,13 +258,13 @@ public enum EnumHero {
 								ItemReaperShotgun.clientTps.get(player).getFirst() == -1) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
-							
+
 							scale = 0.8d*Config.guiScale;
 							GlStateManager.scale(scale, scale, 1);
 							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
 							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_teleport.png"));
 							GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-							
+
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
 						}

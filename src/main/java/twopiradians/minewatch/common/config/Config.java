@@ -2,13 +2,18 @@ package twopiradians.minewatch.common.config;
 
 import java.io.File;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.packet.CPacketSyncSkins;
 
 public class Config {
 
@@ -63,14 +68,25 @@ public class Config {
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
 
-		for (EnumHero hero : EnumHero.values()) {
-			Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);
-			for (int i=0; i<hero.textureCredits.length; ++i)
-				if (hero.textureCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
-					hero.textureVariation = i;
-			if (hero.textureVariation < 0 || hero.textureVariation > hero.textureCredits.length)
-				hero.textureVariation = 0;
+		EntityPlayer player = Minewatch.proxy.getClientPlayer();
+		if (player != null) {
+			for (EnumHero hero : EnumHero.values()) {
+				Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);
+				for (int i=0; i<hero.textureCredits.length; ++i)
+					if (hero.textureCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
+						hero.setSkin(player, i);
+			}
+			Minewatch.network.sendToServer(new CPacketSyncSkins());
 		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void syncSkins(EntityJoinWorldEvent event) {
+		if (event.getWorld().isRemote && event.getEntity() == Minewatch.proxy.getClientPlayer()) {
+			syncConfig();
+			config.save();	
+		}			
 	}
 
 	@SubscribeEvent

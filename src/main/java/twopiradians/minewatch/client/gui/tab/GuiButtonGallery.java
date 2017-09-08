@@ -12,7 +12,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class GuiButtonGallery extends GuiButtonTab {
 
 	private static final ResourceLocation GALLERY_OVERLAY = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_gallery_overlay.png");
-	private EnumHero hero;
+	public EnumHero hero;
 
 	public GuiButtonGallery(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Screen screen, EnumHero hero) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText, screen);
@@ -26,6 +26,7 @@ public class GuiButtonGallery extends GuiButtonTab {
 
 		//super.drawButton(mc, mouseX, mouseY);
 		//this.hovered = true;
+        
 		if (this.visible) {
 			GlStateManager.pushMatrix();
 			if (this.hovered)

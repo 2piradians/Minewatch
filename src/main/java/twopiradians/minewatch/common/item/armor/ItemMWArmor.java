@@ -33,6 +33,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -70,7 +71,6 @@ public class ItemMWArmor extends ItemArmor
 			model.bipedRightArm.showModel = true;
 			model.bipedLeftArm.showModel = true;
 		}
-		//playerModel = null; TODO
 		if (maleModel == null || femaleModel == null) {
 			maleModel = new ModelPlayer(0, false);
 			femaleModel = new ModelPlayer(0, true);
@@ -93,7 +93,9 @@ public class ItemMWArmor extends ItemArmor
 			(hero.smallArms ? femaleModel : maleModel).bipedRightLegwear.showModel = true;
 		}
 		
-		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+hero.textureVariation+"_layer_"+
+		int skin = entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
+			hero.getSkin(entity.getPersistentID());
+		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
 		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
@@ -215,16 +217,7 @@ public class ItemMWArmor extends ItemArmor
 
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
-	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
-		/*if (player.world.isRemote && this.armorType == EntityEquipmentSlot.HEAD && player.ticksExisted % 30 == 0) {
-			hero.textureVariation++;
-			if (hero.textureVariation+1 > hero.textureCredits.length)
-				hero.textureVariation = 0;
-			TextComponentString component = new TextComponentString(hero.textureCredits[hero.textureVariation]);
-			component.getStyle().setColor(TextFormatting.GOLD).setBold(true);
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 90);//TODO
-		}*/
-		
+	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {				
 		//delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 

@@ -366,5 +366,10 @@ public class ClientProxy extends CommonProxy
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		return player.movementInput.jump;
 	}
+	
+	@Override
+	public EntityPlayer getClientPlayer() {
+		return Minecraft.getMinecraft().player;
+	}
 
 }

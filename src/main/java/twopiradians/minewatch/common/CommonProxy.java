@@ -27,16 +27,18 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
+import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketPotionEffect;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
+import twopiradians.minewatch.packet.SPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
-public class CommonProxy 
-{
+public class CommonProxy {
+	
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
@@ -64,6 +66,8 @@ public class CommonProxy
 		Minewatch.network.registerMessage(SPacketPotionEffect.Handler.class, SPacketPotionEffect.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketTriggerAbility.Handler.class, SPacketTriggerAbility.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(CPacketSyncSkins.Handler.class, CPacketSyncSkins.class, id++, Side.SERVER);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
@@ -108,6 +112,10 @@ public class CommonProxy
 	
 	public boolean isJumping() {
 		return false;
+	}
+
+	public EntityPlayer getClientPlayer() {
+		return null;
 	}
 	
 }

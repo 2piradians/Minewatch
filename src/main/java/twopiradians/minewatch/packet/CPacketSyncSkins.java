@@ -3,7 +3,6 @@ package twopiradians.minewatch.packet;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
@@ -22,7 +21,7 @@ public class CPacketSyncSkins implements IMessage {
 	private int[] skins;
 
 	public CPacketSyncSkins() {
-		this.player = Minecraft.getMinecraft().player.getPersistentID();
+		this.player = Minewatch.proxy.getClientPlayer().getPersistentID();
 		this.numSkins = EnumHero.values().length;
 		this.skins = new int[this.numSkins];
 		for (int i=0; i<this.numSkins; ++i)

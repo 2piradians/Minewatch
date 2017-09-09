@@ -93,8 +93,8 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO_SKINS));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
 		for (int i=0; i<6; ++i) {
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+12, this.guiTop+28+i*22, 80, 20, "", Screen.GALLERY_HERO_SKINS)); 
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+12+81, this.guiTop+28+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
+			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5, this.guiTop+28+i*22, 100, 20, "", Screen.GALLERY_HERO_SKINS)); 
+			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+28+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
 		}
 		// Screen.GALLERY_HERO_SKINS_INFO
 		this.buttonOKGHSI = new GuiButtonTab(0, 0, 0, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO); 
@@ -115,7 +115,7 @@ public class GuiTab extends GuiScreen {
 		case MAIN:
 			this.drawTexturedModalRect(this.guiLeft, this.guiTop+2, 0, 230, 130, 24);
 			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
-			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 180, this.guiTop + 165, 0x7F7F7F);
+			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 165, 0x7F7F7F);
 			break;
 		case GALLERY:
 			double textScale = 1.5d;
@@ -261,7 +261,7 @@ public class GuiTab extends GuiScreen {
 				guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
 		this.guiPlayer.skin = skin;
 		// draw hero
-		int x = this.guiLeft + 180;
+		int x = this.guiLeft + 190;
 		int y = this.guiTop + 150;
 		int scale = 60;
 		GuiInventory.drawEntityOnScreen(x, y, scale, -mouseX+x, -mouseY+y-this.guiPlayer.eyeHeight*scale, this.guiPlayer);

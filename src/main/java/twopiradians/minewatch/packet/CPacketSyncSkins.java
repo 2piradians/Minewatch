@@ -23,7 +23,7 @@ public class CPacketSyncSkins implements IMessage {
 	public CPacketSyncSkins() {}
 	
 	public CPacketSyncSkins(UUID uuid) {
-		this.player = Minewatch.proxy.getClientPlayer().getPersistentID();
+		this.player = Minewatch.proxy.getClientUUID();
 		this.numSkins = EnumHero.values().length;
 		this.skins = new int[this.numSkins];
 		for (int i=0; i<this.numSkins; ++i)
@@ -58,7 +58,7 @@ public class CPacketSyncSkins implements IMessage {
 					EntityPlayer player = ctx.getServerHandler().playerEntity.world.getPlayerEntityByUUID(packet.player);
 					if (player != null && packet.numSkins == EnumHero.values().length) {
 						for (int i=0; i<packet.numSkins; ++i)
-							EnumHero.values()[i].setSkin(player, packet.skins[i]);
+							EnumHero.values()[i].setSkin(player.getPersistentID(), packet.skins[i]);
 						Minewatch.network.sendToAll(new SPacketSyncSkins());
 					}
 				}

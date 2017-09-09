@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common;
 
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,7 +40,7 @@ import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class CommonProxy {
-	
+
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
@@ -114,7 +116,7 @@ public class CommonProxy {
 		return false;
 	}
 
-	public EntityPlayer getClientPlayer() {
+	public UUID getClientUUID() {
 		return null;
 	}
 	

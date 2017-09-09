@@ -81,7 +81,7 @@ public class GuiTab extends GuiScreen {
 		int spaceBetweenY = 55;
 		int perRow = 6;
 		for (int i=0; i<EnumHero.values().length; ++i) 
-			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+8)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+30+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.values()[i]));
+			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+8)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+37+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.values()[i]));
 		// Screen.GALLERY_HERO
 		this.buttonList.add(new GuiButtonGalleryHero(1, this.guiLeft+12, this.guiTop+40, 100, 20, "", Screen.GALLERY_HERO)); //Skins
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));
@@ -130,10 +130,10 @@ public class GuiTab extends GuiScreen {
 			// hero name
 			textScale = 1.5d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+GuiTab.galleryHero.name.toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+GuiTab.galleryHero.name.toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_INFO:
 			ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
@@ -148,10 +148,10 @@ public class GuiTab extends GuiScreen {
 			// hero name
 			textScale = 1.5d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+GuiTab.galleryHero.name.toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+GuiTab.galleryHero.name.toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_SKINS_INFO:
 			res = new ScaledResolution(Minecraft.getMinecraft());
@@ -218,7 +218,7 @@ public class GuiTab extends GuiScreen {
 			}
 			else if (button instanceof GuiButtonSkin) 
 				if (galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()) != button.id) {
-					galleryHero.setSkin(Minecraft.getMinecraft().player, button.id);
+					galleryHero.setSkin(Minecraft.getMinecraft().player.getPersistentID(), button.id);
 					Minewatch.network.sendToServer(new CPacketSyncSkins(Minecraft.getMinecraft().player.getPersistentID()));
 				}
 			break;

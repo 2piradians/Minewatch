@@ -1,8 +1,8 @@
 package twopiradians.minewatch.common.config;
 
 import java.io.File;
+import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -68,22 +68,27 @@ public class Config {
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
 
-		EntityPlayer player = Minewatch.proxy.getClientPlayer();
-		if (player != null) {
+		UUID uuid = Minewatch.proxy.getClientUUID();
+		if (uuid != null) {
 			for (EnumHero hero : EnumHero.values()) {
-				Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
+				Property heroTextureProp = getHeroTextureProp(hero);
 				for (int i=0; i<hero.skinCredits.length; ++i)
 					if (hero.skinCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
-						hero.setSkin(player, i);
+						hero.setSkin(uuid, i);
 			}
-			Minewatch.network.sendToServer(new CPacketSyncSkins(player.getPersistentID()));
+			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
+	}
+
+	public static Property getHeroTextureProp(EnumHero hero) {
+		return config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
 	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void syncSkins(EntityJoinWorldEvent event) {
-		if (event.getWorld().isRemote && event.getEntity() == Minewatch.proxy.getClientPlayer()) {
+		if (event.getWorld().isRemote && Minewatch.proxy.getClientUUID() != null && 
+				event.getEntity().getPersistentID().toString().equals(Minewatch.proxy.getClientUUID().toString())) {
 			syncConfig();
 			config.save();	
 		}			

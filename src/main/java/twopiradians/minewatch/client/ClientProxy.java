@@ -368,8 +368,8 @@ public class ClientProxy extends CommonProxy
 	}
 	
 	@Override
-	public EntityPlayer getClientPlayer() {
-		return Minecraft.getMinecraft().player;
+	public UUID getClientUUID() {
+		return Minecraft.getMinecraft().getSession().getProfile().getId();
 	}
 
 }

@@ -21,6 +21,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -107,7 +108,7 @@ public enum EnumHero {
 			this.loc = loc;
 		}
 	}
-	
+
 	public static class Skin {
 		public String owName;
 		public String skinName;
@@ -120,7 +121,7 @@ public enum EnumHero {
 			this.author = author;
 			this.address = address;
 		}
-		
+
 		/**(skin name) by (author)*/
 		public String getCreditText() {
 			return this.skinName+TextFormatting.RESET+" by "+this.author;
@@ -171,12 +172,20 @@ public enum EnumHero {
 			return 0;
 	}
 
-	public void setSkin(EntityPlayer player, int skin) {
-		if (player == null)
+	public void setSkin(UUID uuid, int skin) {
+		if (uuid == null)
 			return;
 		if (skin < 0 || skin >= this.skinInfo.length)
 			skin = 0;
-		skins.put(player.getPersistentID().toString(), skin);
+		if (!skins.containsKey(uuid) || skins.get(uuid) != skin) {
+			skins.put(uuid.toString(), skin);
+			// sync to config
+			Property prop = Config.getHeroTextureProp(this);
+			if (!this.skinInfo[skin].getCreditText().equals(prop.getString())) {
+				prop.set(this.skinInfo[skin].getCreditText());
+				Config.config.save();
+			}
+		}
 	}
 
 	public Item getEquipment(EntityEquipmentSlot slot) {

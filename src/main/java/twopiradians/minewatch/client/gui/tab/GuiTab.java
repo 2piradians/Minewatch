@@ -120,10 +120,10 @@ public class GuiTab extends GuiScreen {
 		case GALLERY:
 			double textScale = 1.5d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+"HERO GALLERY", (int) ((this.guiLeft+10)/textScale), (int) ((this.guiTop+13)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+"HERO GALLERY", (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+"HERO GALLERY", (int) ((this.guiLeft+10)/textScale), (int) ((this.guiTop+13)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+"HERO GALLERY", (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO:
 			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);

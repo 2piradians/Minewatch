@@ -44,6 +44,9 @@ public class GuiButtonGallery extends GuiButtonTab {
 			// icon overlay
 			mc.getTextureManager().bindTexture(GALLERY_OVERLAY);
 			GuiUtils.drawTexturedModalRect((int) ((this.xPosition-8)/bothScale), (int) (this.yPosition/bothScale), 45, 45, 160, 155, 0);
+			GlStateManager.color(hero.color.getRed()/255f, hero.color.getGreen()/255f, hero.color.getBlue()/255f);
+			double percent = hero.skinInfo.length/hero.skinInfo.length;
+			GuiUtils.drawTexturedModalRect((int) ((this.xPosition-(this.hovered ? 3 : 4))/bothScale), (int) ((this.yPosition+(this.hovered ? 58 : 45))/bothScale), 0, 0, (int) (percent*118), 20, 0);
 			// text
 			if (this.hovered)
 				GlStateManager.translate(18, 26, 0);

@@ -2,6 +2,7 @@ package twopiradians.minewatch.client.gui.tab;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.client.gui.tab.GuiTab.Screen;
 
 public class GuiButtonGalleryHero extends GuiButtonTab {
@@ -17,11 +18,8 @@ public class GuiButtonGalleryHero extends GuiButtonTab {
 		this.visible = GuiTab.currentScreen == screen;
 
 		if (this.visible) {
-			if (this.id == 0) {
-				
-			}		
-
 			// manually drawn to account for different height
+			GlStateManager.pushMatrix();
 			GlStateManager.translate(0, this.yPosition-this.yPosition*Y_SCALE, 0);
 			GlStateManager.scale(1, Y_SCALE, 1);
 			mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
@@ -34,6 +32,18 @@ public class GuiButtonGalleryHero extends GuiButtonTab {
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
 			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 			this.mouseDragged(mc, mouseX, mouseY);
+			GlStateManager.popMatrix();
+			
+			// Skins
+			if (this.id == 1) {
+				this.drawString(mc.fontRendererObj, 
+						TextFormatting.BOLD+"SKINS "+TextFormatting.RESET+
+						GuiTab.galleryHero.skinInfo.length+TextFormatting.GRAY+"/"+GuiTab.galleryHero.skinInfo.length, 
+						this.xPosition+5, this.yPosition+6, 0xFFFFFF);
+				this.drawString(mc.fontRendererObj, 
+						TextFormatting.DARK_AQUA+TextFormatting.getTextWithoutFormattingCodes(GuiTab.galleryHero.skinInfo[GuiTab.galleryHero.getSkin(mc.player.getPersistentID())].owName).toUpperCase(),
+						this.xPosition+5, this.yPosition+16, 0xFFFFFF);
+			}		
 		}
 	}
 

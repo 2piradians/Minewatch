@@ -71,9 +71,9 @@ public class Config {
 		EntityPlayer player = Minewatch.proxy.getClientPlayer();
 		if (player != null) {
 			for (EnumHero hero : EnumHero.values()) {
-				Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);
-				for (int i=0; i<hero.textureCredits.length; ++i)
-					if (hero.textureCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
+				Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
+				for (int i=0; i<hero.skinCredits.length; ++i)
+					if (hero.skinCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
 						hero.setSkin(player, i);
 			}
 			Minewatch.network.sendToServer(new CPacketSyncSkins(player.getPersistentID()));

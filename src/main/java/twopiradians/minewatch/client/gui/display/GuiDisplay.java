@@ -23,7 +23,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class GuiDisplay extends GuiScreen {
 	
 	/**Should display be opened on chat event?*/
-	public static final boolean DISPLAY_GUI = false;
+	public static final boolean DISPLAY_GUI = false;//TODO move to command
 	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
 	public static final int GUI_MODE = 0;
 

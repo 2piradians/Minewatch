@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.hero;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -106,7 +108,7 @@ public enum EnumHero {
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, 
 			new Skin("Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
-			new Skin(TextFormatting.AQUA+"Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
+			new Skin(TextFormatting.DARK_AQUA+"Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Golden", "Golden Soldier 76", "riddler55", "http://www.minecraftskins.com/skin/10930005/golden-soldier-76/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Bone", "Soldier 76 Bone SKin", "BagelSki", "http://www.minecraftskins.com/skin/9737491/soldier-76-bone-skin/"),
 			new Skin(TextFormatting.GOLD+"Strike Commander", "Strike Commander Morrison - Soldier 76 - Overwatch", "Obvial", "https://www.planetminecraft.com/skin/strike-commander-morrison-3938568/"),
@@ -304,11 +306,34 @@ public enum EnumHero {
 	@Mod.EventBusSubscriber(Side.CLIENT)
 	public static class RenderManager {
 
+		public static HashMap<EntityPlayer, Integer> playersSneaking = Maps.newHashMap();
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void clientSide(PlayerTickEvent event) {
+			// playersSneaking
+			if (event.player.world.isRemote) {
+				ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
+				for (EntityPlayer player : playersSneaking.keySet()) {
+					if (player == event.player) {
+						if (playersSneaking.get(player) > 1)
+							playersSneaking.put(player, playersSneaking.get(player)-1);
+						else
+							toRemove.add(player);
+					}
+				}
+				for (EntityPlayer player : toRemove)
+					playersSneaking.remove(player);
+			}
+		}
+
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
 			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
 				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
+				if (event.getEntity() instanceof EntityPlayer && playersSneaking.containsKey((EntityPlayer)event.getEntity()))
+					model.isSneak = true;
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {

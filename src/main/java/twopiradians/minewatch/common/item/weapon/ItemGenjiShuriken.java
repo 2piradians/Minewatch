@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -26,10 +27,14 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -42,6 +47,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	private static HashMap<EntityPlayer, Integer> deflecting = Maps.newHashMap();
 	public static HashMap<EntityPlayer, Integer> clientStriking = Maps.newHashMap();
 	private static HashMap<EntityPlayerMP, Integer> serverStriking = Maps.newHashMap();
+	public static HashMap<EntityPlayer, Integer> useSword = Maps.newHashMap();
 
 	public ItemGenjiShuriken() {
 		super(40);
@@ -55,7 +61,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
-		return Integer.MAX_VALUE;//TODO 8?
+		return 10;
 	}
 
 	@Override
@@ -100,103 +106,16 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		// strike
-		ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-		if (!world.isRemote && isSelected) {
-			for (EntityPlayerMP player : serverStriking.keySet()) {
-				if (player == entity) {
-					hero.ability2.toggled.put(player.getPersistentID(), true);
-					Minewatch.network.sendTo(new SPacketTriggerAbility(3), (EntityPlayerMP) entity);
-					player.setActiveHand(EnumHand.MAIN_HAND);
-
-					AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(1.3d);
-					List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
-
-					for (Entity entityCollided : list) {
-						if (entityCollided instanceof EntityLivingBase) {
-							if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*ItemMWWeapon.damageScale))
-								entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
-						}
-					}
-
-					if (serverStriking.get(player) > 1)
-						serverStriking.put(player, serverStriking.get(player)-1);
-					else {
-						stack.getTagCompound().removeTag("useSword");
-						player.resetActiveHand();
-						toRemove.add(player);
-						hero.ability2.keybind.setCooldown(player, 10, false); //TODO 160
-					}
-				}
+		// set player in nbt for model changer (in ClientProxy) to reference
+		if (entity instanceof EntityPlayer && !entity.world.isRemote && 
+				stack != null && stack.getItem() == this) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("player", entity.getPersistentID());
+				stack.setTagCompound(nbt);
 			}
-			for (EntityPlayer player : toRemove)
-				serverStriking.remove(player);
-		}
-
-		// deflect
-		toRemove = new ArrayList<EntityPlayer>();//TODO stop if not selected (detect nbt)
-		if (!world.isRemote && isSelected) {
-			for (EntityPlayer player : deflecting.keySet()) {
-				if (player == entity) {
-					hero.ability1.toggled.put(player.getPersistentID(), true);
-					AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(3);
-					List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
-					boolean playSound = false;
-
-					for (Entity entityCollided : list) {
-						if (entityCollided instanceof EntityArrow && ((EntityArrow)entityCollided).shootingEntity != player
-								&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d &&
-								Math.abs(entityCollided.motionX)+Math.abs(entityCollided.motionY)+Math.abs(entityCollided.motionZ) > 0) { 
-							EntityArrow ent = (EntityArrow) entityCollided;
-							ent.shootingEntity = player;
-							double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
-							ent.setPosition(player.posX + player.getLookVec().xCoord, player.posY + player.eyeHeight, player.posZ + player.getLookVec().zCoord);
-							ent.motionX = player.getLookVec().xCoord*velScale;	
-							ent.motionY = player.getLookVec().yCoord*velScale;	
-							ent.motionZ = player.getLookVec().zCoord*velScale;	
-							ent.velocityChanged = true;
-							playSound = true;
-						}
-						else if (entityCollided instanceof EntityThrowable && player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) {
-							EntityThrowable ent = (EntityThrowable) entityCollided;
-							double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
-							ent.motionX = player.getLookVec().xCoord*velScale;	
-							ent.motionY = player.getLookVec().yCoord*velScale;	
-							ent.motionZ = player.getLookVec().zCoord*velScale;		
-							ent.velocityChanged = true;
-							playSound = true;
-						}
-						else if (entityCollided instanceof EntityFireball /*&& ((EntityFireball)entityCollided).shootingEntity != player*/
-								&& player.getLookVec().dotProduct(new Vec3d(entityCollided.motionX, entityCollided.motionY, entityCollided.motionZ)) < -0.1d) {
-							EntityFireball ent = (EntityFireball) entityCollided;
-							ent.accelerationX = 0;
-							ent.accelerationY = 0;
-							ent.accelerationZ = 0;
-							ent.shootingEntity = player;
-							double velScale = Math.sqrt(ent.motionX*ent.motionX + ent.motionY*ent.motionY + ent.motionZ*ent.motionZ)*1.2d;
-							ent.motionX = player.getLookVec().xCoord*velScale;	
-							ent.motionY = player.getLookVec().yCoord*velScale;	
-							ent.motionZ = player.getLookVec().zCoord*velScale;		
-							ent.velocityChanged = true;
-							playSound = true;
-						}
-					}
-					if (playSound) {
-						world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, world.rand.nextFloat()/6f+0.9f);
-						player.setActiveHand(EnumHand.MAIN_HAND);
-					}
-
-					if (deflecting.get(player) > 1)
-						deflecting.put(player, deflecting.get(player)-1);
-					else {
-						stack.getTagCompound().removeTag("useSword");
-						toRemove.add(player);
-						hero.ability1.keybind.setCooldown(player, 10, false); //TODO 160
-					}
-				}
-			}
-			for (EntityPlayer player : toRemove)
-				deflecting.remove(player);
 		}
 
 		if (entity instanceof EntityPlayer) {
@@ -204,12 +123,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
-					!deflecting.containsKey(entity)) {
-				if (!stack.hasTagCompound())
-					stack.setTagCompound(new NBTTagCompound());
-				NBTTagCompound nbt = stack.getTagCompound();
-				nbt.setBoolean("useSword", true);
-				stack.setTagCompound(nbt);
+					!deflecting.containsKey(entity) && entity instanceof EntityPlayerMP) {
+				Minewatch.network.sendToAll(new SPacketTriggerAbility(4, (EntityPlayer) entity, 40, 0, 0));
 				deflecting.put(player, 40);
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
@@ -217,14 +132,9 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
 					!serverStriking.containsKey(entity) && entity instanceof EntityPlayerMP) {
-				if (!stack.hasTagCompound())
-					stack.setTagCompound(new NBTTagCompound());
-				NBTTagCompound nbt = stack.getTagCompound();
-				nbt.setBoolean("useSword", true);
-				stack.setTagCompound(nbt);
 				((EntityPlayer) entity).setActiveHand(EnumHand.MAIN_HAND);
 				serverStriking.put((EntityPlayerMP) player, 8);
-				Minewatch.network.sendTo(new SPacketTriggerAbility(3, true), (EntityPlayerMP) entity);
+				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity, 0, 0, 0));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}
 		}
@@ -234,11 +144,26 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void clientSide(PlayerTickEvent event) {
 		if (event.phase == Phase.END && event.player.world.isRemote) {
+			// clientStriking
 			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayer player : clientStriking.keySet()) {
 				if (player == event.player && player instanceof EntityPlayerSP) {
-					((EntityPlayerSP)player).movementInput.sneak = true;
+					SPacketTriggerAbility.move(player, 0.9f, true);
+					((EntityPlayerSP)player).movementInput.sneak = false;
 					player.setActiveHand(EnumHand.MAIN_HAND);
+					int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*40d);
+					for (int i=0; i<numParticles; ++i) {
+						Minewatch.proxy.spawnParticlesTrail(player.world, 
+								player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
+								player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
+								player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
+								0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+						Minewatch.proxy.spawnParticlesTrail(player.world, 
+								player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
+								player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
+								player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
+								0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+					}
 					if (event.player.ticksExisted % 2 == 0) {
 						if (clientStriking.get(player) > 1)
 							clientStriking.put(player, clientStriking.get(player)-1);
@@ -251,6 +176,119 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			for (EntityPlayer player : toRemove)
 				clientStriking.remove(player);
+			// useSword
+			toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayer player : useSword.keySet()) {
+				if (player == event.player) {
+					if (event.player.ticksExisted % 2 == 0) {
+						if (useSword.get(player) > 1)
+							useSword.put(player, useSword.get(player)-1);
+						else 
+							toRemove.add(player);
+					}
+				}
+			}
+			for (EntityPlayer player : toRemove)
+				useSword.remove(player);
+		}
+	}
+
+	@SubscribeEvent
+	public void serverSide(WorldTickEvent event) {
+		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 6 == 0) {
+			// strike
+			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayerMP player : serverStriking.keySet()) {
+				hero.ability2.toggled.put(player.getPersistentID(), true);
+				player.setActiveHand(EnumHand.MAIN_HAND);
+
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(1.3d);
+				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
+
+				for (Entity entityCollided : list) {
+					if (entityCollided instanceof EntityLivingBase) {
+						if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*ItemMWWeapon.damageScale))
+							entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
+					}
+				}
+
+				if (serverStriking.get(player) > 1)
+					serverStriking.put(player, serverStriking.get(player)-1);
+				else {
+					player.resetActiveHand();
+					toRemove.add(player);
+					hero.ability2.keybind.setCooldown(player, 10, false); //TODo 160
+				}
+			}
+			for (EntityPlayer player : toRemove)
+				serverStriking.remove(player);
+
+			// deflect
+			toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayer player : deflecting.keySet()) {
+				hero.ability1.toggled.put(player.getPersistentID(), true);
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(4);
+				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
+				for (Entity entity : list) {
+					System.out.println(entity);
+					if (!(entity instanceof EntityArrow))
+						this.deflect(player, entity);
+				}
+				if (deflecting.get(player) > 1)
+					deflecting.put(player, deflecting.get(player)-1);
+				else {
+					toRemove.add(player);
+					hero.ability1.keybind.setCooldown(player, 160, false);
+				}
+			}
+			for (EntityPlayer player : toRemove)
+				deflecting.remove(player);
+		}
+	}
+
+	private boolean deflect(EntityPlayer player, Entity entity) {
+		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
+				entity instanceof EntityTNTPrimed) &&
+				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d) {
+			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
+					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
+			entity.motionX = player.getLookVec().xCoord*velScale;	
+			entity.motionY = player.getLookVec().yCoord*velScale;	
+			entity.motionZ = player.getLookVec().zCoord*velScale;		
+			entity.velocityChanged = true;
+
+			if (entity instanceof EntityArrow) { 
+				EntityArrow ent = (EntityArrow) entity;
+				ent.shootingEntity = player;
+				// undo motion slowing done after event in EntityArrow#onHit
+				ent.motionX *= -1/0.10000000149011612D;
+				ent.motionY *= -1/0.10000000149011612D;
+				ent.motionZ *= -1/0.10000000149011612D;
+			}
+			if (entity instanceof EntityFireball) {
+				EntityFireball ent = (EntityFireball) entity;
+				ent.accelerationX = ent.motionX * 0.05d;
+				ent.accelerationY = ent.motionY * 0.05d;
+				ent.accelerationZ = ent.motionZ * 0.05d;
+				ent.shootingEntity = player;
+			}
+			if (entity instanceof IThrowableEntity)
+				((IThrowableEntity) entity).setThrower(player);
+
+			player.world.playSound(null, player.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
+			player.setActiveHand(EnumHand.MAIN_HAND);
+			return true;
+		}
+		return false;
+	}
+
+	@SubscribeEvent
+	public void deflectAttack(LivingAttackEvent event) {
+		if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote && 
+				deflecting.containsKey(event.getEntity())) {
+			if (this.deflect((EntityPlayer) event.getEntity(), event.getSource().getSourceOfDamage()))
+				event.setCanceled(true);
 		}
 	}
 

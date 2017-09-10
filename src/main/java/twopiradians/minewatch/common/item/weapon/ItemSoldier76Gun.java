@@ -92,7 +92,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 		// set player in nbt for model changer (in ClientProxy) to reference
 		if (entity instanceof EntityPlayer && !entity.world.isRemote && 
-				stack != null && stack.getItem() instanceof ItemSoldier76Gun) {
+				stack != null && stack.getItem() == this) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			NBTTagCompound nbt = stack.getTagCompound();

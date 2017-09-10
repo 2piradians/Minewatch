@@ -72,6 +72,7 @@ import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
 public class ClientProxy extends CommonProxy
@@ -222,8 +223,10 @@ public class ClientProxy extends CommonProxy
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
 						boolean sword = true;
-						if (stack.hasTagCompound()) 
-							sword = stack.getTagCompound().getBoolean("useSword");
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							sword = player != null && ItemGenjiShuriken.useSword.containsKey(player);		
+						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
 					}
 				});

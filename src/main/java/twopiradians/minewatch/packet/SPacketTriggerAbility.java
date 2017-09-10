@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
@@ -72,6 +73,20 @@ public class SPacketTriggerAbility implements IMessage {
 		buf.writeDouble(this.z);
 	}
 
+	public static void move(EntityPlayer player, double scale, boolean useLook) {
+		Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
+		if (vec.xCoord == 0 && vec.zCoord == 0) 
+			vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
+		if (useLook)
+			vec = new Vec3d(player.getLookVec().xCoord, player.getLookVec().yCoord, player.getLookVec().zCoord);
+		if (!player.onGround) {
+			player.motionY = 0.24d;
+			player.velocityChanged = true;
+		}
+		vec = vec.normalize().scale(scale);
+		player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
+	}
+
 	public static class Handler implements IMessageHandler<SPacketTriggerAbility, IMessage> {
 		@Override
 		public IMessage onMessage(final SPacketTriggerAbility packet, final MessageContext ctx) {
@@ -80,68 +95,49 @@ public class SPacketTriggerAbility implements IMessage {
 				@Override
 				public void run() {
 					EntityPlayerSP player = Minecraft.getMinecraft().player;
+					EntityPlayer packetPlayer = packet.uuid == null ? null : Minecraft.getMinecraft().world.getPlayerEntityByUUID(packet.uuid);
 
 					// Tracer's dash
 					if (packet.type == 0) 
 						move(player, 9, false);
 					// Reaper's teleport
-					else if (packet.type == 1) {
-						EntityPlayer player2 = player.world.getPlayerEntityByUUID(packet.uuid);
-						if (player2 != null) {
-							ItemReaperShotgun.clientTps.put(player2, new Tuple(70, new Vec3d(packet.x, packet.y, packet.z)));
-							Minewatch.proxy.spawnParticlesReaperTeleport(player2.world, player2, true, 0);
-						}
+					else if (packet.type == 1 && packetPlayer != null) {
+						ItemReaperShotgun.clientTps.put(packetPlayer, new Tuple(70, new Vec3d(packet.x, packet.y, packet.z)));
+						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
 					}
 					// McCree's roll
-					else if (packet.type == 2) {//TODO make particles server side
-						player.onGround = true;
-						player.movementInput.sneak = true;
-						if (packet.bool)
-							ItemMcCreeGun.clientRolling.put(player, 10);
-						Minewatch.proxy.spawnParticlesSmoke(player.world, 
-								player.posX+player.world.rand.nextDouble()-0.5d, 
-								player.posY+player.world.rand.nextDouble(), 
-								player.posZ+player.world.rand.nextDouble()-0.5d, 
-								0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
-						move(player, 1.0d, false);
+					else if (packet.type == 2 && packetPlayer != null) {//TODO test that particles are server side
+						if (packetPlayer == player) {
+							player.onGround = true;
+							player.movementInput.sneak = true;
+						}
+						if (packet.bool) {
+							ItemMcCreeGun.clientRolling.put(packetPlayer, 10);
+							EnumHero.RenderManager.playersSneaking.put(packetPlayer, 11);
+						}
+						if (packetPlayer == player)
+							move(packetPlayer, 1.0d, false);
 					}
 					// Genji's strike
-					else if (packet.type == 3) {
-						if (packet.bool)
-							ItemGenjiShuriken.clientStriking.put(player, 8);
-						player.setActiveHand(EnumHand.MAIN_HAND);
-						move(player, 1.8d, true);
-						int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*40d);
-						for (int i=0; i<numParticles; ++i) {
-							Minewatch.proxy.spawnParticlesTrail(player.world, 
-									player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
-									player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
-									player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
-									0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
-							Minewatch.proxy.spawnParticlesTrail(player.world, 
-									player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
-									player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
-									player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
-									0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+					else if (packet.type == 3 && packetPlayer != null) {
+						ItemGenjiShuriken.clientStriking.put(packetPlayer, 8);
+						ItemGenjiShuriken.useSword.put(packetPlayer, 8);
+						EnumHero.RenderManager.playersSneaking.put(packetPlayer, 9);
+						if (packetPlayer == player) {
+							packetPlayer.setActiveHand(EnumHand.MAIN_HAND);
+							move(packetPlayer, 1.8d, false);
 						}
+					}
+					// Genji's use sword
+					else if (packet.type == 4 && packetPlayer != null) {
+						ItemGenjiShuriken.useSword.put(packetPlayer, (int) packet.x);
+					}
+					else if (packet.type == 5) {
+						Minewatch.proxy.mouseClick();
 					}
 				}
 			});
 			return null;
-		}
-
-		private void move(EntityPlayer player, double scale, boolean useLook) {
-			Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
-			if (vec.xCoord == 0 && vec.zCoord == 0) 
-				vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
-			if (useLook)
-				vec = new Vec3d(player.getLookVec().xCoord, player.getLookVec().yCoord, player.getLookVec().zCoord);
-			if (!player.onGround) {
-				player.motionY = 0.24d;
-				player.velocityChanged = true;
-			}
-			vec = vec.normalize().scale(scale);
-			player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
 		}
 	}
 }

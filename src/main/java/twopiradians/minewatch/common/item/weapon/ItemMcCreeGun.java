@@ -105,18 +105,14 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
+		// serverRolling
 		ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 		for (EntityPlayer player : serverRolling.keySet()) {
 			if (player == entity) {
 				hero.ability2.toggled.put(player.getPersistentID(), true);
-				entity.setSneaking(true);
-				if (entity instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketTriggerAbility(2, false), (EntityPlayerMP) entity);
-
 				if (serverRolling.get(player) > 1)
 					serverRolling.put(player, serverRolling.get(player)-1);
 				else {
-					entity.setSneaking(false);
 					toRemove.add(player);
 					hero.ability2.keybind.setCooldown((EntityPlayer) entity, 20, false); //TODO 160
 				}
@@ -125,12 +121,13 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		for (EntityPlayer player : toRemove)
 			serverRolling.remove(player);
 
+		// roll
 		if (isSelected && entity.onGround && entity instanceof EntityPlayer && hero.ability2.isSelected((EntityPlayer) entity) &&
 				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0) &&
 				!serverRolling.containsKey(entity)) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketTriggerAbility(2, true), (EntityPlayerMP) entity);
+				Minewatch.network.sendToAll(new SPacketTriggerAbility(2, true, (EntityPlayerMP) entity, 0, 0, 0));
 			this.setCurrentAmmo((EntityPlayer)entity, this.getMaxAmmo((EntityPlayer) entity));
 			serverRolling.put((EntityPlayer) entity, 10);
 		}
@@ -139,11 +136,19 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void clientSide(PlayerTickEvent event) {
+		// clientRolling
 		if (event.player.world.isRemote) {
 			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayer player : clientRolling.keySet()) {
 				if (player == event.player && player instanceof EntityPlayerSP) {
-					((EntityPlayerSP)player).movementInput.sneak = true;
+					player.onGround = true;
+					SPacketTriggerAbility.move(player, 1.0d, false);
+					if (clientRolling.get(player) % 3 == 0 && clientRolling.get(player) > 2)
+					Minewatch.proxy.spawnParticlesSmoke(player.world, 
+							player.prevPosX+player.world.rand.nextDouble()-0.5d, 
+							player.prevPosY+player.world.rand.nextDouble(), 
+							player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
+							0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
 					if (clientRolling.get(player) > 1)
 						clientRolling.put(player, clientRolling.get(player)-1);
 					else

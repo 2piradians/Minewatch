@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.item.weapon;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -10,7 +9,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -26,9 +24,10 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemHanzoBow extends ItemMWWeapon {
-	
+
 	public ItemHanzoBow() {
 		super(0);
+		this.savePlayerToNBT = true;
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -125,8 +124,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 							entityarrow.setDamage(125*((double)i/80*damageScale));
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 						}
-						if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
-							stack.damageItem(1, player);
+						stack.damageItem(1, player);
 						worldIn.spawnEntity(entityarrow);
 					}
 
@@ -155,25 +153,6 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	@Override
 	public EnumAction getItemUseAction(ItemStack stack)	{
 		return EnumAction.BOW;
-	}
-
-	@Override
-	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {	
-		super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
-
-		// set player in nbt for model changer (in ModItems) to reference
-		if (entityIn instanceof EntityPlayer && !entityIn.world.isRemote && 
-				stack != null && stack.getItem() instanceof ItemHanzoBow) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-
-			NBTTagCompound nbt = stack.getTagCompound();
-
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entityIn.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entityIn.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
 	}
 
 	@Override

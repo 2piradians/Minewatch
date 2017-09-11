@@ -8,7 +8,6 @@ import org.lwjgl.input.Keyboard;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -49,6 +48,7 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
+import twopiradians.minewatch.client.render.entity.RenderMercyBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76HelixRocket;
@@ -65,6 +65,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
@@ -112,7 +113,7 @@ public class ClientProxy extends CommonProxy
 	private static void registerInventoryTab() {
 		if (TabRegistry.getTabList().size() == 0)
 			TabRegistry.registerTab(new InventoryTabVanilla());
-		
+
 		TabRegistry.registerTab(new InventoryTab());
 		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
@@ -238,11 +239,7 @@ public class ClientProxy extends CommonProxy
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						boolean battleMercy = false;
-						/*if (stack.hasTagCompound()) {
-			EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-			battleMercy = player != null ? EnumHero.MERCY.ability2.isSelected(player) : false;
-			}*/
+						boolean battleMercy = item.getItemStackDisplayName(stack).equals("Caduceus Blaster");
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (battleMercy ? "_1_3d" : "_0_3d"), "inventory");
 					}
 				});
@@ -268,6 +265,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, RenderMercyBullet::new);
 	}
 
 	@Override
@@ -364,12 +362,6 @@ public class ClientProxy extends CommonProxy
 		}
 	}
 
-	@Override
-	public boolean isJumping() {
-		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		return player.movementInput.jump;
-	}
-	
 	@Override
 	public UUID getClientUUID() {
 		return Minecraft.getMinecraft().getSession().getProfile().getId();

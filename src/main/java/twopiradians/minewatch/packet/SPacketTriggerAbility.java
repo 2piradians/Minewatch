@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.Tuple;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
@@ -38,6 +40,10 @@ public class SPacketTriggerAbility implements IMessage {
 
 	public SPacketTriggerAbility(int type, boolean bool) {
 		this(type, bool, null, 0, 0, 0);
+	}
+
+	public SPacketTriggerAbility(int type, boolean bool, EntityPlayer player) {
+		this(type, bool, player, 0, 0, 0);
 	}
 
 	public SPacketTriggerAbility(int type, EntityPlayer player, double x, double y, double z) {
@@ -123,17 +129,32 @@ public class SPacketTriggerAbility implements IMessage {
 						ItemGenjiShuriken.clientStriking.put(packetPlayer, 8);
 						ItemGenjiShuriken.useSword.put(packetPlayer, 8);
 						EnumHero.RenderManager.playersSneaking.put(packetPlayer, 9);
-						if (packetPlayer == player) {
-							packetPlayer.setActiveHand(EnumHand.MAIN_HAND);
+						if (packetPlayer == player) 
 							move(packetPlayer, 1.8d, false);
-						}
 					}
 					// Genji's use sword
 					else if (packet.type == 4 && packetPlayer != null) {
 						ItemGenjiShuriken.useSword.put(packetPlayer, (int) packet.x);
 					}
+					// Reinhardt's hammer swing
 					else if (packet.type == 5) {
 						Minewatch.proxy.mouseClick();
+					}
+					// Sync playersUsingAlt
+					else if (packet.type == 6 && packetPlayer != null) {
+						ItemStack main = packetPlayer.getHeldItemMainhand();
+						if (main != null && main.getItem() instanceof ItemMWWeapon) {
+							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
+							hero.playersUsingAlt.put(packet.uuid, packet.bool);
+							if (ItemStack.areItemsEqualIgnoreDurability(main, packetPlayer.getHeldItemOffhand()))
+								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
+										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
+										EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
+							else
+								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
+										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
+										EnumHand.MAIN_HAND);
+						}
 					}
 				}
 			});

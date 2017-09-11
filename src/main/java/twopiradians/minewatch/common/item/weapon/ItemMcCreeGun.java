@@ -56,7 +56,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 10);
+					player.getCooldownTracker().setCooldown(this, 9);
 				if (world.rand.nextInt(6) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}

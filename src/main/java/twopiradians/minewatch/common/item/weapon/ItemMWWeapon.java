@@ -15,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
@@ -44,6 +45,7 @@ public abstract class ItemMWWeapon extends Item {
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
+	protected boolean savePlayerToNBT;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -101,7 +103,7 @@ public abstract class ItemMWWeapon extends Item {
 						player.world.rand.nextFloat()/2+0.75f);
 		}
 	}
-	
+
 	@Nullable
 	public EnumHand getHand(EntityLivingBase entity, ItemStack stack) {
 		for (EnumHand hand : EnumHand.values())
@@ -122,6 +124,9 @@ public abstract class ItemMWWeapon extends Item {
 
 		ItemStack main = player.getHeldItemMainhand();
 		ItemStack off = player.getHeldItemOffhand();
+		String displayName = (main != null && main.getItem() == this) ? this.getItemStackDisplayName(main) :
+			(off != null && off.getItem() == this) ? this.getItemStackDisplayName(off) : 
+				new ItemStack(this).getDisplayName();
 
 		if (!Config.allowGunWarnings)
 			return true;
@@ -129,13 +134,13 @@ public abstract class ItemMWWeapon extends Item {
 			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
-						new ItemStack(this).getDisplayName()+" must be held in the main-hand and off-hand to work."));
+						displayName+" must be held in the main-hand and off-hand to work."));
 		} 
 		else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
 			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
 					this.warningCooldown.get(player.getPersistentID()) == 0))
 				player.sendMessage(new TextComponentString(TextFormatting.RED+
-						new ItemStack(this).getDisplayName()+" must be held in the main-hand to work."));
+						displayName+" must be held in the main-hand to work."));
 		}
 		else
 			return true;
@@ -165,6 +170,18 @@ public abstract class ItemMWWeapon extends Item {
 			return;
 		}
 
+		// set player in nbt for model changer (in ClientProxy) to reference
+		if (this.savePlayerToNBT && entity instanceof EntityPlayer && !entity.world.isRemote && 
+				stack != null && stack.getItem() == this) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("player", entity.getPersistentID());
+				stack.setTagCompound(nbt);
+			}
+		}
+
 		// reloading
 		if (!world.isRemote && entity instanceof EntityPlayer && (((EntityPlayer)entity).getHeldItemMainhand() == stack ||
 				((EntityPlayer)entity).getHeldItemOffhand() == stack))
@@ -179,11 +196,16 @@ public abstract class ItemMWWeapon extends Item {
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
-		if (entity instanceof EntityPlayer && Minewatch.keys.lmb((EntityPlayer) entity))
-			for (EnumHand hand : EnumHand.values())
-				if (((EntityPlayer)entity).getHeldItem(hand) == stack && 
-				(!hasOffhand || !(hand == EnumHand.MAIN_HAND && entity.ticksExisted % 2 == 0)))
+		if (entity instanceof EntityPlayer && Minewatch.keys.lmb((EntityPlayer) entity)) {
+			EntityPlayer player = (EntityPlayer) entity;
+			boolean dual = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+					player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof ItemMWWeapon;
+			EnumHand hand = this.getHand(player, stack);	
+			if (hand != null && ((!dual || Config.allowGunWarnings) || 
+					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
+							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
 					onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
+		}
 
 		// warning cooldown
 		for (UUID uuid : warningCooldown.keySet())
@@ -197,7 +219,7 @@ public abstract class ItemMWWeapon extends Item {
 						ability.toggled.containsKey(entity.getPersistentID()) &&
 						ability.toggled.get(entity.getPersistentID()))
 					ability.toggled.put(entity.getPersistentID(), false);
-		
+
 		// set damage to full if option set to never use durability
 		if (!world.isRemote && Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
@@ -219,7 +241,7 @@ public abstract class ItemMWWeapon extends Item {
 			}
 		}
 
-		return oldStack.getItem() != newStack.getItem();
+		return oldStack.getItem() != newStack.getItem() || slotChanged;
 	}
 
 	@Override

@@ -9,7 +9,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -24,13 +23,13 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemSoldier76Gun extends ItemMWWeapon {
-	
+
 	public ItemSoldier76Gun() {
 		super(30);
+		this.savePlayerToNBT = true;
 		this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -62,8 +61,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 				hero.ability1.keybind.setCooldown(player, 160, false); 
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-					player.getHeldItem(hand).damageItem(1, player);
+				player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
@@ -89,18 +87,6 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityPlayer && entity.isSprinting() &&
 				((EntityPlayer)entity).getActiveItemStack() != stack) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
-
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (entity instanceof EntityPlayer && !entity.world.isRemote && 
-				stack != null && stack.getItem() == this) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer) {

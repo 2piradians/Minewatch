@@ -66,11 +66,14 @@ public class CPacketSyncKeys implements IMessage
 						Minewatch.keys.ability2.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Ultimate"))
 						Minewatch.keys.ultimate.put(packet.player, packet.isKeyPressed);
+					else if (packet.keyName.equals("Jump"))
+						Minewatch.keys.jump.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Alt Weapon")) {
 						ItemStack main = player.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
 							hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
+							Minewatch.network.sendToAll(new SPacketTriggerAbility(6, packet.isKeyPressed, player));
 						}
 					}
 					else if (packet.keyName.equals("LMB"))

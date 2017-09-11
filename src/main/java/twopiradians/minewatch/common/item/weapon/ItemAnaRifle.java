@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -37,6 +36,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	public ItemAnaRifle() {
 		super(30);
+		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
@@ -70,7 +70,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 20);
+					player.getCooldownTracker().setCooldown(this, 19);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -97,17 +97,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
 				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
-
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (entity instanceof EntityPlayer && !entity.world.isRemote && stack != null && stack.getItem() instanceof ItemAnaRifle) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
 	}
 
 	@SideOnly(Side.CLIENT)

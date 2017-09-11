@@ -17,7 +17,6 @@ import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
@@ -51,6 +50,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	public ItemGenjiShuriken() {
 		super(40);
+		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -66,7 +66,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
+		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0 && 
+				!deflecting.containsKey(player)) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
@@ -84,7 +85,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		if (!player.world.isRemote && this.canUse(player, true, hand)) {
+		if (!player.world.isRemote && this.canUse(player, true, hand) && !deflecting.containsKey(player)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
@@ -106,17 +107,16 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (entity instanceof EntityPlayer && !entity.world.isRemote && 
-				stack != null && stack.getItem() == this) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
+		// don't untoggle while active
+		if (isSelected && serverStriking.containsKey(entity))
+			hero.ability2.toggled.put(entity.getPersistentID(), true);
+		else if (isSelected && deflecting.containsKey(entity))
+			hero.ability1.toggled.put(entity.getPersistentID(), true);
+		
+		// block while striking
+		if (isSelected && entity instanceof EntityPlayer && serverStriking.containsKey(entity) &&
+				((EntityPlayer)entity).getActiveItemStack() != stack) 
+			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
@@ -132,7 +132,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
 					!serverStriking.containsKey(entity) && entity instanceof EntityPlayerMP) {
-				((EntityPlayer) entity).setActiveHand(EnumHand.MAIN_HAND);
 				serverStriking.put((EntityPlayerMP) player, 8);
 				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity, 0, 0, 0));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
@@ -150,19 +149,21 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				if (player == event.player && player instanceof EntityPlayerSP) {
 					SPacketTriggerAbility.move(player, 0.9f, true);
 					((EntityPlayerSP)player).movementInput.sneak = false;
-					player.setActiveHand(EnumHand.MAIN_HAND);
-					int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*40d);
+					int numParticles = (int) ((Math.abs(player.chasingPosX-player.prevChasingPosX)+Math.abs(player.chasingPosY-player.prevChasingPosY)+Math.abs(player.chasingPosZ-player.prevChasingPosZ))*20d);
 					for (int i=0; i<numParticles; ++i) {
 						Minewatch.proxy.spawnParticlesTrail(player.world, 
-								player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
-								player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
-								player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
+								player.prevChasingPosX+(player.chasingPosX-player.prevChasingPosX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
+								player.prevChasingPosY+(player.chasingPosY-player.prevChasingPosY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
+								player.prevChasingPosZ+(player.chasingPosZ-player.prevChasingPosZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
 								0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
 						Minewatch.proxy.spawnParticlesTrail(player.world, 
-								player.posX+(player.chasingPosX-player.posX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
-								player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
-								player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
+								player.prevChasingPosX+(player.chasingPosX-player.prevChasingPosX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
+								player.prevChasingPosY+(player.chasingPosY-player.prevChasingPosY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
+								player.prevChasingPosZ+(player.chasingPosZ-player.prevChasingPosZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
 								0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+						player.chasingPosX = player.prevPosX;
+						player.chasingPosY = player.prevPosY;
+						player.chasingPosZ = player.prevPosZ;
 					}
 					if (event.player.ticksExisted % 2 == 0) {
 						if (clientStriking.get(player) > 1)
@@ -199,9 +200,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// strike
 			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayerMP player : serverStriking.keySet()) {
-				hero.ability2.toggled.put(player.getPersistentID(), true);
-				player.setActiveHand(EnumHand.MAIN_HAND);
-
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(1.3d);
 				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
@@ -217,7 +215,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				else {
 					player.resetActiveHand();
 					toRemove.add(player);
-					hero.ability2.keybind.setCooldown(player, 10, false); //TODo 160
+					hero.ability2.keybind.setCooldown(player, 160, false);
 				}
 			}
 			for (EntityPlayer player : toRemove)
@@ -226,14 +224,11 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// deflect
 			toRemove = new ArrayList<EntityPlayer>();
 			for (EntityPlayer player : deflecting.keySet()) {
-				hero.ability1.toggled.put(player.getPersistentID(), true);
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(4);
 				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
-				for (Entity entity : list) {
-					System.out.println(entity);
+				for (Entity entity : list) 
 					if (!(entity instanceof EntityArrow))
 						this.deflect(player, entity);
-				}
 				if (deflecting.get(player) > 1)
 					deflecting.put(player, deflecting.get(player)-1);
 				else {

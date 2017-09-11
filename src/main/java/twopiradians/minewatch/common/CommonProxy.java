@@ -28,6 +28,7 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketPotionEffect;
@@ -70,6 +71,7 @@ public class CommonProxy {
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(CPacketSyncSkins.Handler.class, CPacketSyncSkins.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(CPacketSimple.Handler.class, CPacketSimple.class, id++, Side.SERVER);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
@@ -111,10 +113,6 @@ public class CommonProxy {
 	}
 
 	public void mouseClick() {}
-	
-	public boolean isJumping() {
-		return false;
-	}
 
 	public UUID getClientUUID() {
 		return null;

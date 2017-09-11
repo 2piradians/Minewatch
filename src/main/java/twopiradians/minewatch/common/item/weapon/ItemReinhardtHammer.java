@@ -60,7 +60,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (!world.isRemote && this.canUse(player, true, hand) && !hero.ability1.isSelected(player)) {
+		if (!world.isRemote && this.canUse(player, true, hand) && !hero.ability1.isSelected(player) &&
+				hand == EnumHand.MAIN_HAND) {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketTriggerAbility(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 

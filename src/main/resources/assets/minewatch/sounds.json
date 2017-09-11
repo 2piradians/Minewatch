@@ -291,5 +291,17 @@
 		"sounds": [
 			"minewatch:widowmaker_charge"
 		]
+	},
+	"mercy_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_shoot"
+		]
+	},
+	"mercy_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_reload"
+		]
 	}
 }

@@ -114,11 +114,11 @@ public class PotionFrozen extends Potion {
 						(rand.nextDouble()-0.5d)*0.5d, 
 						new int[0]);
 			if (rand.nextInt(70 - freeze*2) == 0)
-				Minewatch.proxy.spawnParticlesMeiBlaster(event.getEntity().world, 
+				Minewatch.proxy.spawnParticlesCircle(event.getEntity().world, 
 						event.getEntity().posX+rand.nextDouble()-0.5d, 
 						event.getEntity().posY+rand.nextDouble()-0.5d+event.getEntity().height/2, 
 						event.getEntity().posZ+rand.nextDouble()-0.5d, 
-						0, (rand.nextDouble())*0.2f, 0, rand.nextFloat(), 8, 2.5f, 2f);
+						0, (rand.nextDouble())*0.2f, 0, 0x5BC8E0, 0xAED4FF, rand.nextFloat(), 8, 2.5f, 2f);
 		}
 	}
 

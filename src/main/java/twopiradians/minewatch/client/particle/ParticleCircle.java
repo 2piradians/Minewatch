@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 
 @SideOnly(Side.CLIENT)
-public class ParticleMeiBlaster extends ParticleSimpleAnimated {
+public class ParticleCircle extends ParticleSimpleAnimated {
 
 	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/mei_blaster");
 	private float fadeTargetRed;
@@ -20,7 +20,7 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 	private float initialScale;
 	private float finalScale;
 
-	public ParticleMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) {
+	public ParticleCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) {
 		super(world, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
@@ -32,7 +32,8 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 		this.finalScale = finalScale;
 		this.particleAlpha = alpha;
 		this.initialAlpha = alpha;
-		this.setColorFade(0xAED4FF);
+		this.setColor(color);
+		this.setColorFade(colorFade);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TEXTURE.toString());
 		this.setParticleTexture(sprite); 	
 	}
@@ -65,5 +66,10 @@ public class ParticleMeiBlaster extends ParticleSimpleAnimated {
 
 	@Override
 	public void setParticleTextureIndex(int particleTextureIndex) {}
+
+	public void oneTickToLive() {
+		this.particleMaxAge = this.particleAge + 3;
+		this.particleAlpha = this.initialAlpha;
+	}
 
 }

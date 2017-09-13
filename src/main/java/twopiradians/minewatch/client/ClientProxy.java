@@ -33,8 +33,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
+import twopiradians.minewatch.client.particle.ParticleCircle;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
-import twopiradians.minewatch.client.particle.ParticleMeiBlaster;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
@@ -48,6 +48,7 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
+import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderMercyBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
@@ -65,6 +66,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
@@ -266,6 +268,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, RenderMercyBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 	}
 
 	@Override
@@ -283,7 +286,7 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(loc);
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
-		event.getMap().registerSprite(ParticleMeiBlaster.TEXTURE);
+		event.getMap().registerSprite(ParticleCircle.TEXTURE);
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
 	}
@@ -349,8 +352,8 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { 
-		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
+	public void spawnParticlesCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) { 
+		ParticleCircle particle = new ParticleCircle(world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 

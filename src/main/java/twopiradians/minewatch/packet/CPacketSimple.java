@@ -36,7 +36,6 @@ public class CPacketSimple implements IMessage
 
 				@Override
 				public void run() {
-					EntityPlayer player = ctx.getServerHandler().playerEntity;
 
 				}
 			});

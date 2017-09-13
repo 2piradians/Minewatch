@@ -31,11 +31,11 @@ public class EntityMeiBlast extends EntityMWThrowable {
 		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*2d);
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesMeiBlaster(this.world, 
+				Minewatch.proxy.spawnParticlesCircle(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d,
-						motionX/10d, motionY/10d, motionZ/10d, 0.8f, 3, 2.5f, 2f);
+						motionX/10d, motionY/10d, motionZ/10d, 0x5BC8E0, 0xAED4FF, 0.8f, 3, 2.5f, 2f);
 			if (this.world.rand.nextInt(5) == 0)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*world.rand.nextDouble()*0.8d, 

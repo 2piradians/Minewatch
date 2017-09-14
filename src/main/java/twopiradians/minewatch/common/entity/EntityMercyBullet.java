@@ -33,12 +33,12 @@ public class EntityMercyBullet extends EntityMWThrowable {
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x1C1F67, 0x40448E, 1.5f, 3, 1);
+						0, 0, 0, 0xE39684, 0xE26E53, 1.5f, 2, 1);
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xDDDAA6, 0xDADDC6, 0.8f, 3, 1);
+						0, 0, 0, 0xF7F489, 0xF4EF5A, 0.8f, 2, 1);
 			}
 		}
 	}
@@ -62,6 +62,6 @@ public class EntityMercyBullet extends EntityMWThrowable {
 				result.entityHit == null ? result.hitVec.xCoord : posX, 
 						result.entityHit == null ? result.hitVec.yCoord : posY, 
 								result.entityHit == null ? result.hitVec.zCoord : posZ, 
-										0x1C1F67, 0x40448E, 5, 5);
+										0xE39684, 0xE26E53, 5, 5);
 	}
 }

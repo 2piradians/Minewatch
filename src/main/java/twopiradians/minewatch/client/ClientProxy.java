@@ -76,6 +76,7 @@ import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 
 public class ClientProxy extends CommonProxy
@@ -241,7 +242,7 @@ public class ClientProxy extends CommonProxy
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						boolean battleMercy = item.getItemStackDisplayName(stack).equals("Caduceus Blaster");
+						boolean battleMercy = !ItemMercyWeapon.isStaff(stack);
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (battleMercy ? "_1_3d" : "_0_3d"), "inventory");
 					}
 				});

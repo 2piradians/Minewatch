@@ -2,23 +2,36 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
@@ -32,6 +45,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	public static HashMap<EntityPlayer, Integer> notRegening = Maps.newHashMap();
 	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
+	public HashMap<EntityPlayer, Integer> voiceCooldowns = Maps.newHashMap();
 
 	public ItemMercyWeapon() {
 		super(20);
@@ -47,6 +61,12 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			battleMercy = uuid != null && hero.playersUsingAlt.containsKey(uuid) && hero.playersUsingAlt.get(uuid);		
 		}
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
+	}
+
+	public static boolean isStaff(ItemStack stack) {
+		ItemStack copy = stack.copy();
+		copy.clearCustomName();
+		return copy.getDisplayName().equals("Caduceus Staff");
 	}
 
 	@Override
@@ -69,7 +89,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x25307E, 0xE0DFCF, 3, 3);
+				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0xEF5D1F, 0xEF5D1F, 3, 3);
 			}
 		}
 	}
@@ -78,25 +98,84 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {
-			if (beams.containsKey(entity) && beams.get(entity).isDead)
+		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
+			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
+			if (beams.containsKey(entity) && (beams.get(entity).isDead || 
+					Math.sqrt(entity.getDistanceSqToEntity(beams.get(entity))) > 16)) {
+				beams.get(entity).setDead();
 				beams.remove(entity);
-			if (this.getItemStackDisplayName(stack).equals("Caduceus Staff") && 
+				// stop sound
+				if (entity instanceof EntityPlayerMP) {
+					PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
+					packetbuffer.writeString("player");
+					packetbuffer.writeString("minewatch:mercy_beam_during");
+					((EntityPlayerMP)entity).connection.sendPacket(new SPacketCustomPayload("MC|StopSound", packetbuffer));
+				}
+				world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+						ModSoundEvents.mercyBeamStop, SoundCategory.PLAYERS, 2.0f, 1.0f);
+			}
+			// spawn beam
+			if (isStaff(stack) && 
 					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity);
-				world.spawnEntity(beam);
-				beams.put((EntityPlayer) entity, beam);
+				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity);
+				if (target != null) {				
+					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
+					world.spawnEntity(beam);
+					beams.put((EntityPlayer) entity, beam);
+					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
+					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
+					if (!voiceCooldowns.containsKey(entity)) {
+						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+								beam.heal ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
+						voiceCooldowns.put((EntityPlayer) entity, 200);
+					}
+				}
+			}
+			if (beams.containsKey(entity) && beams.get(entity).target != null) {
+				// heal
+				if (beams.get(entity).heal && beams.get(entity).target.getHealth() < beams.get(entity).target.getMaxHealth()) {
+					beams.get(entity).target.heal(0.3f);
+				}
+				// during sound
+				if (entity.ticksExisted % 20 == 0)
+					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
+				// switch sound
+				if (beams.get(entity).prevHeal != beams.get(entity).heal) {
+					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
+							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
+					beams.get(entity).prevHeal = beams.get(entity).heal;
+				}
 			}
 		}
 	}
 
 	@SubscribeEvent
 	public void addToNotRegening(LivingHurtEvent event) {
-		if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote &&
-				ItemMWArmor.SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.MERCY) {
-			notRegening.put((EntityPlayer) event.getEntity(), 20);
-			((EntityPlayer)event.getEntity()).removePotionEffect(MobEffects.REGENERATION);
+		EntityLivingBase target = event.getEntityLiving();
+		Entity source = event.getSource().getEntity();
+
+		// add to notRegening if hurt
+		if (target instanceof EntityPlayer && !target.world.isRemote &&
+				ItemMWArmor.SetManager.playersWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
+			notRegening.put((EntityPlayer) target, 20);
+			target.removePotionEffect(MobEffects.REGENERATION);
+		}
+
+		// increase damage
+		for (EntityMercyBeam beam : beams.values()) {
+			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.world.isRemote &&
+					ItemMWArmor.SetManager.playersWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
+				if (!beam.heal)
+					event.setAmount(event.getAmount()*1.3f);
+				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
+						(ModSoundEvents.hurt, SoundCategory.PLAYERS, source.posX, source.posY, source.posZ, 
+								0.3f, source.world.rand.nextFloat()/2+0.75f)));
+				break;
+			}
 		}
 	}
 
@@ -113,33 +192,69 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 			for (EntityPlayer player : toRemove)
 				notRegening.remove(player);
+			// voiceCooldown
+			toRemove = new ArrayList<EntityPlayer>();
+			for (EntityPlayer player : voiceCooldowns.keySet()) {
+				if (voiceCooldowns.get(player) > 1)
+					voiceCooldowns.put(player, voiceCooldowns.get(player)-1);
+				else
+					toRemove.add(player);
+			}
+			for (EntityPlayer player : toRemove)
+				voiceCooldowns.remove(player);
 		}
 	}
 
-	@SubscribeEvent
-	public void renderStaffBeam(PlayerTickEvent event) {
-		/*if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
-			Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer vertexbuffer = tessellator.getBuffer();
-            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID+":textures/gui/white.png"));
-            GlStateManager.glTexParameteri(3553, 10242, 10497);
-            GlStateManager.glTexParameteri(3553, 10243, 10497);
-            GlStateManager.disableLighting();
-            GlStateManager.disableCull();
-            GlStateManager.disableBlend();
-            GlStateManager.depthMask(true);
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            GlStateManager.pushMatrix();
-            GlStateManager.color(1, 1, 1, 1);
-            vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-            vertexbuffer.pos(0, 0, 0).endVertex();
-            vertexbuffer.pos(5000, 0, 0).endVertex();
-            vertexbuffer.pos(50, 5000, 0).endVertex();
-            vertexbuffer.pos(0, 5000, 0).endVertex();
-            tessellator.draw();
-            GlStateManager.popMatrix();
-		}*/
+	// get entity that player is looking at within 15 blocks - modified from EntityRenderer#getMouseOver
+	public EntityLivingBase getMouseOver(EntityPlayer player) {
+		Entity entity = null;
+		if (player != null) {
+			double d0 = 14;
+			Vec3d vec3d = player.getPositionEyes(1);
 
+			double d1 = d0;
+
+			Vec3d vec3d1 = player.getLook(1.0F);
+			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
+			List<Entity> list = player.world.getEntitiesInAABBexcluding(player, player.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
+				public boolean apply(@Nullable Entity p_apply_1_) {
+					return p_apply_1_ != null && p_apply_1_.canBeCollidedWith();
+				}
+			}));
+			double d2 = d1;
+
+			for (int j = 0; j < list.size(); ++j) {
+				Entity player1 = (Entity)list.get(j);
+				AxisAlignedBB axisalignedbb = player1.getEntityBoundingBox().expandXyz((double)player1.getCollisionBorderSize());
+				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
+
+				if (axisalignedbb.isVecInside(vec3d)) {
+					if (d2 >= 0.0D) {
+						entity = player1;
+						d2 = 0.0D;
+					}
+				}
+				else if (raytraceresult != null) {
+					double d3 = vec3d.distanceTo(raytraceresult.hitVec);
+
+					if (d3 < d2 || d2 == 0.0D) {
+						if (player1.getLowestRidingEntity() == player.getLowestRidingEntity() && !player.canRiderInteract()) {
+							if (d2 == 0.0D) 
+								entity = player1;
+						}
+						else {
+							entity = player1;
+							d2 = d3;
+						}
+					}
+				}
+			}
+		}
+
+		if (entity instanceof EntityLivingBase)
+			return (EntityLivingBase) entity;
+		else
+			return null;
 	}
 
 }

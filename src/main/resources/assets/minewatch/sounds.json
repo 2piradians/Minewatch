@@ -303,5 +303,47 @@
 		"sounds": [
 			"minewatch:mercy_reload"
 		]
+	},
+	"mercy_heal": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_heal_0",
+			"minewatch:mercy_heal_1",
+			"minewatch:mercy_heal_2",
+			"minewatch:mercy_heal_3",
+			"minewatch:mercy_heal_4"
+		]
+	},
+	"mercy_damage": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_damage_0",
+			"minewatch:mercy_damage_1",
+			"minewatch:mercy_damage_2"
+		]
+	},
+	"mercy_hover": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_hover"
+		]
+	},
+	"mercy_beam_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_start"
+		]
+	},
+	"mercy_beam_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_during"
+		]
+	},
+	"mercy_beam_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_stop"
+		]
 	}
 }

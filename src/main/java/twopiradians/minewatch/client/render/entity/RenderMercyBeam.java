@@ -1,9 +1,12 @@
 package twopiradians.minewatch.client.render.entity;
 
+import java.awt.Color;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -13,15 +16,15 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import twopiradians.minewatch.client.model.ModelSoldier76Bullet;
 import twopiradians.minewatch.client.particle.ParticleCircle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 
 public class RenderMercyBeam extends Render<EntityMercyBeam> {
 
-	private final ModelSoldier76Bullet MERCY_BULLET_MODEL = new ModelSoldier76Bullet();
 	private static final ResourceLocation BEAM_TEXTURE = new ResourceLocation(Minewatch.MODID, "textures/entity/mercy_beam.png");
+	private static final Color COLOR_HEAL = new Color(0xCFC77F);
+	private static final Color COLOR_DAMAGE = new Color(0x47A4E9);
 
 	public RenderMercyBeam(RenderManager renderManager) {
 		super(renderManager);
@@ -33,28 +36,26 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 	}
 
 	@Override
-	public void doRender(EntityMercyBeam entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		// render bullet
-		/*GlStateManager.pushMatrix();
-		GlStateManager.translate((float)x, (float)y, (float)z);
-		GlStateManager.scale(0.1F, 0.1F, 0.1F);
-		GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, 1.0F, 0.0F);
-		GlStateManager.rotate(-entity.rotationPitch, 1.0F, 0.0F, 0.0F);
-		this.bindEntityTexture(entity);
-		this.MERCY_BULLET_MODEL.render(entity, 0, 0, 0, 0, entity.rotationPitch, 0.5f);
-		GlStateManager.popMatrix();*/
+	public boolean shouldRender(EntityMercyBeam livingEntity, ICamera camera, double camX, double camY, double camZ) {
+		return true;
+	}
 
+	@Override
+	public void doRender(EntityMercyBeam entity, double x, double y, double z, float entityYaw, float partialTicks) {
+		if (entity.player == null || (!Minewatch.keys.rmb(entity.player) && !Minewatch.keys.lmb(entity.player)))
+			return;
+
+		Color color = entity.heal ? COLOR_HEAL : COLOR_DAMAGE;
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(BEAM_TEXTURE);
 		GlStateManager.pushAttrib();
 		GlStateManager.pushMatrix();
-		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
 		GlStateManager.depthMask(false);
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.color(235/255f, 227/255f, 154/255f, 1);
+		GlStateManager.color(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, 1);
 
 		int k = entity.player.getPrimaryHand() == EnumHandSide.RIGHT ? 1 : -1;
 		float f7 = entity.player.getSwingProgress(partialTicks);
@@ -86,7 +87,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		double d12 = (double)((float)(d6 - d9));
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL);
 		double scale = entity.player == Minecraft.getMinecraft().player && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ? 0.02d : 0.05d;
-		
+
 		// counter viewBobbing (copied from EntityRenderer#applyBobbing)
 		float offsetX = 0;
 		float offsetY = 0;
@@ -105,7 +106,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 			GlStateManager.rotate(Math.abs(MathHelper.cos(f1 * (float)Math.PI - 0.2F) * f2) * 5.0F, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(f3, 1.0F, 0.0F, 0.0F);
 		}
-		
+
 		// right
 		this.renderBeam(entity, vertexbuffer, 0, scale, 0, x+scale, y, z, d10, d11, d12);
 		this.renderBeam(entity, vertexbuffer, 0, -scale, 0, x+scale, y, z, d10, d11, d12);
@@ -126,11 +127,13 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		double posY = y + d11 * (double)(f11 * f11 + f11) * 0.5D + 0.05D;
 		double posZ = z + d12 * (double)f11;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
-			entity.particleStaff = new ParticleCircle(entity.player.world, entity.player.posX+posX, entity.player.posY+posY, entity.player.posZ+posZ, 0, 0, 0, 0xCFC77F, 0xCFC77F, 0.95f, Integer.MAX_VALUE, 0.5f, 0.4f);
+			entity.particleStaff = new ParticleCircle(entity.player.world, entity.player.posX+posX, entity.player.posY+posY, entity.player.posZ+posZ, 
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.95f, Integer.MAX_VALUE, 0.5f, 0.4f);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleStaff);
 		}
 		if (entity.particleTarget == null || !entity.particleTarget.isAlive()) {
-			entity.particleTarget = new ParticleCircle(entity.player.world, entity.player.posX+x, entity.player.posY+y, entity.player.posZ+z, 0, 0, 0, 0xCFC77F, 0xCFC77F, 0.8f, Integer.MAX_VALUE, 7, 5.1f);
+			entity.particleTarget = new ParticleCircle(entity.player.world, entity.player.posX+x, entity.player.posY+y, entity.player.posZ+z, 
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, 7, 5.1f);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleTarget);
 		}
 		float rate = 30;
@@ -138,19 +141,18 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		if (entity.ticksExisted % rate > rate/2)
 			pulse *= -1;
 		entity.particleStaff.oneTickToLive();
-		entity.particleStaff.setRBGColorF(MathHelper.clamp(224/255f+pulse, 0, 1),
-				MathHelper.clamp(224/255f+pulse, 0, 1), 
-				MathHelper.clamp(160/255f+pulse, 0, 1));
+		entity.particleStaff.setRBGColorF(MathHelper.clamp(color.getRed()/255f+pulse, 0, 1),
+				MathHelper.clamp(color.getGreen()/255f+pulse, 0, 1), 
+				MathHelper.clamp(color.getBlue()/255f+pulse, 0, 1));
 		entity.particleStaff.setPosition(entity.player.posX+posX+offsetX, entity.player.posY+posY+offsetY, entity.player.posZ+posZ);
 		entity.particleTarget.oneTickToLive();
-		entity.particleTarget.setRBGColorF(MathHelper.clamp(224/255f+pulse, 0, 1),
-				MathHelper.clamp(224/255f+pulse, 0, 1), 
-				MathHelper.clamp(160/255f+pulse, 0, 1));
+		entity.particleTarget.setRBGColorF(MathHelper.clamp(color.getRed()/255f+pulse, 0, 1),
+				MathHelper.clamp(color.getGreen()/255f+pulse, 0, 1), 
+				MathHelper.clamp(color.getBlue()/255f+pulse, 0, 1));
 		entity.particleTarget.setPosition(entity.player.posX+x+offsetX, entity.player.posY+y+offsetY, entity.player.posZ+z);
 
 		GlStateManager.depthMask(true);
 		GlStateManager.disableBlend();
-		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
 		GlStateManager.popAttrib();
 	}

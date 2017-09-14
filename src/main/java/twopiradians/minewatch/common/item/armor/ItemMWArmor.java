@@ -25,6 +25,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod;
@@ -53,7 +54,8 @@ public class ItemMWArmor extends ItemArmor
 	private ModelPlayer maleModel;
 	@SideOnly(Side.CLIENT)
 	private ModelPlayer femaleModel;
-	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>();
+	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
+	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -254,7 +256,7 @@ public class ItemMWArmor extends ItemArmor
 			}
 		}
 
-		// mercy's regen
+		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
 			if (!ItemMercyWeapon.notRegening.containsKey(player) &&
@@ -264,7 +266,14 @@ public class ItemMWArmor extends ItemArmor
 			else if (Minewatch.keys.jump(player) && player.motionY < 0) {
 				player.motionY *= 0.75f;
 				player.fallDistance *= 0.75f;
+				if (!playersHovering.contains(player) && !world.isRemote) {
+					world.playSound(null, player.posX, player.posY, player.posZ, 
+							ModSoundEvents.mercyHover, SoundCategory.PLAYERS, 0.5f, 1.0f);
+					playersHovering.add(player);
+				}
 			}
+			else if (playersHovering.contains(player))
+				playersHovering.remove(player);
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 

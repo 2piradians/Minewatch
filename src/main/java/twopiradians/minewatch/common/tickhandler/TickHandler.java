@@ -77,7 +77,9 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) {
 			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
 			for (Handler handler : serverHandlers) {
+				System.out.println(serverHandlers.size()+", "+handler.identifier.name());
 				if (handler.onServerTick()) {
+					System.out.println("removing: "+handler.identifier.name());
 					handler.onRemove();
 					handlersToRemove.add(handler);
 				}
@@ -121,7 +123,7 @@ public class TickHandler {
 		public boolean onClientTick() {
 			return --ticksLeft <= 0;
 		}
-		
+
 		public boolean onServerTick() {
 			return --ticksLeft <= 0;
 		}

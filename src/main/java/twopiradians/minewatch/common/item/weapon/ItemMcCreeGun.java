@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,14 +32,15 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			player.onGround = true;
-			SPacketTriggerAbility.move(player, 1.0d, false);
+			if (player == Minecraft.getMinecraft().player)
+				SPacketTriggerAbility.move(player, 1.0d, false);
 			if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
-			Minewatch.proxy.spawnParticlesSmoke(player.world, 
-					player.prevPosX+player.world.rand.nextDouble()-0.5d, 
-					player.prevPosY+player.world.rand.nextDouble(), 
-					player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
-					0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
-			return super.onServerTick();
+				Minewatch.proxy.spawnParticlesSmoke(player.world, 
+						player.prevPosX+player.world.rand.nextDouble()-0.5d, 
+						player.prevPosY+player.world.rand.nextDouble(), 
+						player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
+						0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
+			return super.onClientTick();
 		}
 	};
 	public static final Handler ROLL_SERVER = new Handler(Identifier.MCCREE_ROLL) {

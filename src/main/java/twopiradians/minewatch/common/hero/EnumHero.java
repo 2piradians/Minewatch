@@ -107,7 +107,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Balderich", "Balderich", "TheGuardian755", "http://www.minecraftskins.com/skin/10356345/balderich/")),
 	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+			new Ability(KeyBind.NONE, true, true, 0, 0), 
 			25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, 
 			new Skin("Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
 			new Skin(TextFormatting.DARK_AQUA+"Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),

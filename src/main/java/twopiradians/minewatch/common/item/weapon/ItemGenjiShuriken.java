@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -64,8 +65,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
 					player.getActiveItemStack() != player.getHeldItemMainhand()) 
 				player.setActiveHand(EnumHand.MAIN_HAND);
-			
-			SPacketTriggerAbility.move(player, 1.5f, true);
+
+			if (player == Minecraft.getMinecraft().player)
+				SPacketTriggerAbility.move(player, 1.5f, true);
+
 			if (player instanceof EntityPlayerSP)
 				((EntityPlayerSP)player).movementInput.sneak = false;
 			int numParticles = (int) ((Math.abs(player.chasingPosX-player.prevChasingPosX)+Math.abs(player.chasingPosY-player.prevChasingPosY)+Math.abs(player.chasingPosZ-player.prevChasingPosZ))*20d);
@@ -84,7 +87,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				player.chasingPosY = player.prevPosY;
 				player.chasingPosZ = player.prevPosZ;
 			}
-			return super.onServerTick();
+			return super.onClientTick();
 		}
 
 		@Override
@@ -99,7 +102,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
 					player.getActiveItemStack() != player.getHeldItemMainhand()) 
 				player.setActiveHand(EnumHand.MAIN_HAND);
-			
+
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(1.3d);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 

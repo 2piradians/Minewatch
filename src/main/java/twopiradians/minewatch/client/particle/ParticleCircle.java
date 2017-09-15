@@ -12,7 +12,7 @@ import twopiradians.minewatch.common.Minewatch;
 @SideOnly(Side.CLIENT)
 public class ParticleCircle extends ParticleSimpleAnimated {
 
-	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/mei_blaster");
+	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/circle");
 	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;

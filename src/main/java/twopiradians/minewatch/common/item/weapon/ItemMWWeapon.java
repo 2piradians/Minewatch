@@ -30,6 +30,9 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item {
@@ -41,7 +44,7 @@ public abstract class ItemMWWeapon extends Item {
 	public boolean hasOffhand;
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
-	private HashMap<UUID, Integer> warningCooldown = Maps.newHashMap();
+	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING) {};
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
@@ -76,9 +79,8 @@ public abstract class ItemMWWeapon extends Item {
 			}
 			if (player.world.isRemote)
 				for (EnumHand hand2 : hands)
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) {
+					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) 
 						this.reequipAnimation.put(player.getHeldItem(hand2), 2);
-					}
 			currentAmmo.put(player.getPersistentID(), amount);
 		}
 	}
@@ -128,28 +130,25 @@ public abstract class ItemMWWeapon extends Item {
 			(off != null && off.getItem() == this) ? this.getItemStackDisplayName(off) : 
 				new ItemStack(this).getDisplayName();
 
-		if (!Config.allowGunWarnings)
-			return true;
-		else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
-			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
-					this.warningCooldown.get(player.getPersistentID()) == 0))
-				player.sendMessage(new TextComponentString(TextFormatting.RED+
-						displayName+" must be held in the main-hand and off-hand to work."));
-		} 
-		else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
-			if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
-					this.warningCooldown.get(player.getPersistentID()) == 0))
-				player.sendMessage(new TextComponentString(TextFormatting.RED+
-						displayName+" must be held in the main-hand to work."));
-		}
-		else
-			return true;
+			if (!Config.allowGunWarnings)
+				return true;
+			else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
+				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.world.isRemote)
+					player.sendMessage(new TextComponentString(TextFormatting.RED+
+							displayName+" must be held in the main-hand and off-hand to work."));
+			} 
+			else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
+				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.world.isRemote)
+					player.sendMessage(new TextComponentString(TextFormatting.RED+
+							displayName+" must be held in the main-hand to work."));
+			}
+			else
+				return true;
 
-		if (shouldWarn && (!this.warningCooldown.containsKey(player.getPersistentID()) || 
-				this.warningCooldown.get(player.getPersistentID()) == 0))
-			this.warningCooldown.put(player.getPersistentID(), 60);
+			if (shouldWarn && player.world.isRemote && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null)
+				TickHandler.register(true, WARNING_CLIENT.setEntity(player).setTicks(60));
 
-		return false;
+			return false;
 	}
 
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { }
@@ -198,27 +197,18 @@ public abstract class ItemMWWeapon extends Item {
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
 		if (entity instanceof EntityPlayer && Minewatch.keys.lmb((EntityPlayer) entity)) {
 			EntityPlayer player = (EntityPlayer) entity;
-			boolean dual = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof ItemMWWeapon;
 			EnumHand hand = this.getHand(player, stack);	
-			if (hand != null && ((!dual || Config.allowGunWarnings) || 
+			if (hand != null && (!this.hasOffhand || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
-					onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
+				onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
 		}
-
-		// warning cooldown
-		for (UUID uuid : warningCooldown.keySet())
-			if (warningCooldown.get(uuid) != 0)
-				warningCooldown.put(uuid, Math.max(warningCooldown.get(uuid)-1, 0));
 
 		// deselect ability if it has cooldown
 		if (entity instanceof EntityPlayer)
 			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-				if (ability.keybind.getCooldown((EntityPlayer) entity) > 0 && 
-						ability.toggled.containsKey(entity.getPersistentID()) &&
-						ability.toggled.get(entity.getPersistentID()))
-					ability.toggled.put(entity.getPersistentID(), false);
+				if (ability.keybind.getCooldown((EntityPlayer) entity) > 0)
+					ability.toggle(entity, false);
 
 		// set damage to full if option set to never use durability
 		if (!world.isRemote && Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
@@ -272,8 +262,8 @@ public abstract class ItemMWWeapon extends Item {
 		return false;
 	}
 
-	/**Toggle an ability - will need to be overridden for different heros
-	 * i.e. if Hanzo's scatter ability is toggled, the sonic ability needs to be untoggled*/
+	/*	*//**Toggle an ability - will need to be overridden for different heros
+	 * i.e. if Hanzo's scatter ability is toggled, the sonic ability needs to be untoggled*//*
 	public void toggle(EntityPlayer player, Ability ability, boolean toggle) {
 		if (toggle) 
 			for (Ability ability2 : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
@@ -282,6 +272,6 @@ public abstract class ItemMWWeapon extends Item {
 		boolean isToggled = ability.toggled.containsKey(player.getPersistentID()) ? ability.toggled.get(player.getPersistentID()) : false;
 		if (isToggled != toggle)
 			ability.toggled.put(player.getPersistentID(), toggle);
-	}
+	}*///TODO remove
 
 }

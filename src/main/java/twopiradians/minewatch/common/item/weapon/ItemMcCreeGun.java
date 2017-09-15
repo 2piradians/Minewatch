@@ -1,11 +1,5 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.google.common.collect.Maps;
-
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,25 +11,44 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
 
-	public static HashMap<EntityPlayer, Integer> clientRolling = Maps.newHashMap();
-	public static HashMap<EntityPlayer, Integer> serverRolling = Maps.newHashMap();
+	public static final Handler ROLL_CLIENT = new Handler(Identifier.MCCREE_ROLL) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			player.onGround = true;
+			SPacketTriggerAbility.move(player, 1.0d, false);
+			if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
+			Minewatch.proxy.spawnParticlesSmoke(player.world, 
+					player.prevPosX+player.world.rand.nextDouble()-0.5d, 
+					player.prevPosY+player.world.rand.nextDouble(), 
+					player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
+					0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
+			return super.onServerTick();
+		}
+	};
+	public static final Handler ROLL_SERVER = new Handler(Identifier.MCCREE_ROLL) {
+		@Override
+		public void onRemove() {
+			EnumHero.MCCREE.ability2.keybind.setCooldown(this.player, 160, false);
+		}
+	};
 
 	public ItemMcCreeGun() {
 		super(30);
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -105,58 +118,15 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		// serverRolling
-		ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-		for (EntityPlayer player : serverRolling.keySet()) {
-			if (player == entity) {
-				hero.ability2.toggled.put(player.getPersistentID(), true);
-				if (serverRolling.get(player) > 1)
-					serverRolling.put(player, serverRolling.get(player)-1);
-				else {
-					toRemove.add(player);
-					hero.ability2.keybind.setCooldown((EntityPlayer) entity, 20, false); //TODO 160
-				}
-			}
-		}
-		for (EntityPlayer player : toRemove)
-			serverRolling.remove(player);
-
 		// roll
 		if (isSelected && entity.onGround && entity instanceof EntityPlayer && hero.ability2.isSelected((EntityPlayer) entity) &&
 				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0) &&
-				!serverRolling.containsKey(entity)) {
+				TickHandler.getHandler(entity, Identifier.MCCREE_ROLL) == null) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(2, true, (EntityPlayerMP) entity, 0, 0, 0));
+				Minewatch.network.sendToAll(new SPacketTriggerAbility(2, true, (EntityPlayerMP) entity));
 			this.setCurrentAmmo((EntityPlayer)entity, this.getMaxAmmo((EntityPlayer) entity));
-			serverRolling.put((EntityPlayer) entity, 10);
-		}
-	}
-
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void clientSide(PlayerTickEvent event) {
-		// clientRolling
-		if (event.player.world.isRemote) {
-			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-			for (EntityPlayer player : clientRolling.keySet()) {
-				if (player == event.player && player instanceof EntityPlayerSP) {
-					player.onGround = true;
-					SPacketTriggerAbility.move(player, 1.0d, false);
-					if (clientRolling.get(player) % 3 == 0 && clientRolling.get(player) > 2)
-					Minewatch.proxy.spawnParticlesSmoke(player.world, 
-							player.prevPosX+player.world.rand.nextDouble()-0.5d, 
-							player.prevPosY+player.world.rand.nextDouble(), 
-							player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
-							0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
-					if (clientRolling.get(player) > 1)
-						clientRolling.put(player, clientRolling.get(player)-1);
-					else
-						toRemove.add(player);
-				}
-			}
-			for (EntityPlayer player : toRemove)
-				clientRolling.remove(player);
+			TickHandler.register(false, ROLL_SERVER.setEntity((EntityPlayer) entity).setTicks(10));
 		}
 	}
 

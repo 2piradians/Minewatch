@@ -9,7 +9,11 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.potion.PotionFrozen;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityMeiBlast extends EntityMWThrowable {
 
@@ -54,17 +58,23 @@ public class EntityMeiBlast extends EntityMWThrowable {
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
-				int freezeCount = ModPotions.frozen.clientFreezes.containsKey(result.entityHit) ? ModPotions.frozen.clientFreezes.get(result.entityHit)+1 : 1;
-				ModPotions.frozen.clientFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
-				ModPotions.frozen.clientDelays.put((EntityLivingBase) result.entityHit, 10);
+				Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);
+				if (handler != null) 
+					handler.ticksLeft = Math.min(handler.ticksLeft+1, 30);
+				else
+					TickHandler.register(true, PotionFrozen.FROZEN_CLIENT.setEntity(result.entityHit).setTicks(1));
+				TickHandler.register(true, PotionFrozen.DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
 			if (!this.world.isRemote && 
 					!(result.entityHit instanceof EntityPlayer && ((EntityPlayer)result.entityHit).isCreative())) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
-					int freezeCount = ModPotions.frozen.serverFreezes.containsKey(result.entityHit) ? ModPotions.frozen.serverFreezes.get(result.entityHit)+1 : 1;
-					ModPotions.frozen.serverFreezes.put((EntityLivingBase) result.entityHit, Math.min(freezeCount, 30)); 
-					ModPotions.frozen.serverDelays.put((EntityLivingBase) result.entityHit, 10);
+					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);
+					if (handler != null) 
+						handler.ticksLeft = Math.min(handler.ticksLeft+1, 30);
+					else
+						TickHandler.register(false, PotionFrozen.FROZEN_SERVER.setEntity(result.entityHit).setTicks(1));
+					TickHandler.register(false, PotionFrozen.DELAYS.setEntity(result.entityHit).setTicks(10));
 				}
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);

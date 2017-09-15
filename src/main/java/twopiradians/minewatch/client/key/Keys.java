@@ -267,12 +267,12 @@ public class Keys {
 			UUID uuid = player.getPersistentID();
 
 			// disable lmb if not in game screen
-			if (Minecraft.getMinecraft().currentScreen != null && this.lmb(Minecraft.getMinecraft().player)) {
+			if (Minecraft.getMinecraft().currentScreen != null && this.lmb(player)) {
 				lmb.put(uuid, false);
 				Minewatch.network.sendToServer(new CPacketSyncKeys("LMB", false, uuid));
 			}
 			// disable rmb if not in game screen
-			if (Minecraft.getMinecraft().currentScreen != null && this.rmb(Minecraft.getMinecraft().player)) {
+			if (Minecraft.getMinecraft().currentScreen != null && this.rmb(player)) {
 				rmb.put(uuid, false);
 				Minewatch.network.sendToServer(new CPacketSyncKeys("RMB", false, uuid));
 			}
@@ -294,10 +294,9 @@ public class Keys {
 					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(uuid);
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
-						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
-							boolean toggle = ability.toggled.containsKey(uuid) ? !ability.toggled.get(uuid) : true;
-							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
-							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 1", toggle, uuid));
+						ability.keybind.getCooldown(player) == 0) {
+							ability.toggle(player, !ability.isToggled(player));
+							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 1", ability.isToggled(player), uuid));
 						}
 				}
 			}
@@ -309,10 +308,9 @@ public class Keys {
 					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(uuid);
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 
-						ability.keybind.getCooldown(Minecraft.getMinecraft().player) == 0) {
-							boolean toggle = ability.toggled.containsKey(uuid) ? !ability.toggled.get(uuid) : true;
-							hero.weapon.toggle(Minecraft.getMinecraft().player, ability, toggle);
-							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 2", toggle, uuid));
+						ability.keybind.getCooldown(player) == 0) {
+							ability.toggle(player, !ability.isToggled(player));
+							Minewatch.network.sendToServer(new CPacketSyncKeys("Toggle Ability 2", ability.isToggled(player), uuid));
 						}
 				}
 			}

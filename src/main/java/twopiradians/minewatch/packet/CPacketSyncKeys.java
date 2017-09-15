@@ -86,7 +86,7 @@ public class CPacketSyncKeys implements IMessage
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
 								ability.keybind.getCooldown(player) == 0) 
-									hero.weapon.toggle(player, ability, packet.isKeyPressed);
+									ability.toggle(player, packet.isKeyPressed);
 					}
 					else if (packet.keyName.equals("Toggle Ability 2")) {
 						EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
@@ -94,7 +94,7 @@ public class CPacketSyncKeys implements IMessage
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 
 								ability.keybind.getCooldown(player) == 0) 
-									hero.weapon.toggle(player, ability, packet.isKeyPressed);
+									ability.toggle(player, packet.isKeyPressed);
 					}
 				}
 			});

@@ -92,13 +92,10 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer) {
 			if (!world.isRemote)
 				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
-			if (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
-					!hero.ability3.toggled.get(entity.getPersistentID()))
-				hero.ability3.toggled.put(entity.getPersistentID(), true);
+				hero.ability3.toggle(entity, true);
 		}
-		else if (isSelected && hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
-				hero.ability3.toggled.get(entity.getPersistentID()))
-			hero.ability3.toggled.remove(entity.getPersistentID());
+		else if (isSelected)
+			hero.ability3.toggle(entity, false);
 	}	
 
 	@Override

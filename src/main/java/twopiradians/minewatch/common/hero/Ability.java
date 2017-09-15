@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,11 +21,13 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class Ability {
 
+	//public static HashMap<UUID, Integer> preventToggles = Maps.newHashMap(); TODO
+	
 	public EnumHero hero;
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
-	public HashMap<UUID, Boolean> toggled = Maps.newHashMap();
+	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff
 	public int maxUses;
@@ -52,7 +55,19 @@ public class Ability {
 			return 3;
 	}
 
-	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's dash)*/
+	/**Toggle this ability - untoggles all other abilities*/
+	public void toggle(Entity entity, boolean toggle) {
+		if (toggle) 
+			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+				ability.toggled.remove(entity.getPersistentID());
+		toggled.put(entity.getPersistentID(), toggle);
+	}
+
+	public boolean isToggled(Entity entity) {
+		return toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
+	}
+
+	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
 	public boolean isSelected(EntityPlayer player, KeyBind keybind) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!this.keybind.abilityNotReadyCooldowns.containsKey(player.getPersistentID())) {
@@ -83,7 +98,8 @@ public class Ability {
 		}
 
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
-				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0) &&
+				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
+				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
 				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
 				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
 				keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
@@ -95,6 +111,7 @@ public class Ability {
 		return ret;
 	}
 
+	/**Get number of available uses for multi-use ability (i.e. Tracer's Blink)*/
 	public int getUses(EntityPlayer player) {
 		if (player == null || maxUses == 0)
 			return maxUses;
@@ -104,6 +121,7 @@ public class Ability {
 		return multiAbilityUses.get(player.getPersistentID());
 	}
 
+	/**Use one of the multi-uses*/
 	public void subtractUse(EntityPlayer player) {
 		if (player != null && !player.world.isRemote && getUses(player) > 0 && player instanceof EntityPlayerMP) {
 			multiAbilityUses.put(player.getPersistentID(), multiAbilityUses.get(player.getPersistentID())-1);

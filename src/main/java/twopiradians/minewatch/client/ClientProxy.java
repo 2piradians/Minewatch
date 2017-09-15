@@ -75,9 +75,9 @@ import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
-import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy
 {
@@ -229,7 +229,7 @@ public class ClientProxy extends CommonProxy
 						boolean sword = true;
 						if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							sword = player != null && ItemGenjiShuriken.useSword.containsKey(player);		
+							sword = player != null && TickHandler.getHandler(player, Identifier.GENJI_SWORD) != null;		
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
 					}
@@ -360,8 +360,9 @@ public class ClientProxy extends CommonProxy
 
 	@Override
 	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
-		if (spawnAtPlayer || ItemReaperShotgun.clientTps.containsKey(player)) {
-			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type);
+		if (spawnAtPlayer || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null) {
+			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type, 
+					TickHandler.getHandler(player, Identifier.REAPER_TELEPORT));
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}

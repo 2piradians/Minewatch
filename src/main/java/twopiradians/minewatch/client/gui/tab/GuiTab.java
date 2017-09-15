@@ -249,6 +249,8 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS;
 				return;
 			}
+		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode())
+			this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
 		super.keyTyped(typedChar, keyCode);
 	}
 

@@ -1,6 +1,5 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -31,8 +30,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
@@ -40,12 +37,15 @@ import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ItemMercyWeapon extends ItemMWWeapon {
 
-	public static HashMap<EntityPlayer, Integer> notRegening = Maps.newHashMap();
+	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING) {};
 	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
-	public HashMap<EntityPlayer, Integer> voiceCooldowns = Maps.newHashMap();
+	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN) {};
 
 	public ItemMercyWeapon() {
 		super(20);
@@ -119,7 +119,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
 				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity);
-				if (target != null) {				
+				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
 					world.spawnEntity(beam);
 					beams.put((EntityPlayer) entity, beam);
@@ -127,10 +127,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
-					if (!voiceCooldowns.containsKey(entity)) {
+					if (TickHandler.getHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) == null) {
 						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 								beam.heal ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
-						voiceCooldowns.put((EntityPlayer) entity, 200);
+						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
 					}
 				}
 			}
@@ -161,7 +161,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		// add to notRegening if hurt
 		if (target instanceof EntityPlayer && !target.world.isRemote &&
 				ItemMWArmor.SetManager.playersWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
-			notRegening.put((EntityPlayer) target, 20);
+			TickHandler.register(false, NOT_REGENING_SERVER.setEntity((EntityPlayer) target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
 
@@ -176,32 +176,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 								0.3f, source.world.rand.nextFloat()/2+0.75f)));
 				break;
 			}
-		}
-	}
-
-	@SubscribeEvent
-	public void serverSide(WorldTickEvent event) {
-		if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 6 == 0) {
-			// regeneration
-			ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-			for (EntityPlayer player : notRegening.keySet()) {
-				if (notRegening.get(player) > 1)
-					notRegening.put(player, notRegening.get(player)-1);
-				else
-					toRemove.add(player);
-			}
-			for (EntityPlayer player : toRemove)
-				notRegening.remove(player);
-			// voiceCooldown
-			toRemove = new ArrayList<EntityPlayer>();
-			for (EntityPlayer player : voiceCooldowns.keySet()) {
-				if (voiceCooldowns.get(player) > 1)
-					voiceCooldowns.put(player, voiceCooldowns.get(player)-1);
-				else
-					toRemove.add(player);
-			}
-			for (EntityPlayer player : toRemove)
-				voiceCooldowns.remove(player);
 		}
 	}
 

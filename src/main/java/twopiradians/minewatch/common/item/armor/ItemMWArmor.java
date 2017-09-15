@@ -43,8 +43,9 @@ import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -165,7 +166,7 @@ public class ItemMWArmor extends ItemArmor
 						(fullSet && (!SetManager.playersWearingSets.containsKey(event.player.getPersistentID()) ||
 								SetManager.playersWearingSets.get(event.player.getPersistentID()) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-						ability.toggled.remove(event.player.getPersistentID());
+						ability.toggle(event.player, false);
 
 				// update playersWearingSets
 				if (fullSet) {
@@ -259,7 +260,7 @@ public class ItemMWArmor extends ItemArmor
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
-			if (!ItemMercyWeapon.notRegening.containsKey(player) &&
+			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
 					!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 					player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));

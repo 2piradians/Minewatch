@@ -1,10 +1,6 @@
 package twopiradians.minewatch.common.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,17 +9,27 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
-	private EntityHitHandler handler = new EntityHitHandler();
+	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC) {
+		@Override
+		public boolean onServerTick() {
+			return entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
+					entity.posY, entity.posZ, this.ticksLeft++);
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			return onServerTick();
+		}
+	};
 
 	public EntityHanzoSonicArrow(World worldIn) {
 		super(worldIn);
@@ -84,55 +90,8 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);	
 
-		if (result.entityHit != null && result.entityHit != this.shootingEntity) {
-			if (result.entityHit.world.isRemote)
-				this.handler.clientHitEntities.put(result.entityHit, 0);
-			else
-				this.handler.serverHitEntities.put(result.entityHit, 0);
-		}
-	}
-
-	private static class EntityHitHandler {
-
-		public HashMap<Entity, Integer> serverHitEntities = Maps.newHashMap();
-		public HashMap<Entity, Integer> clientHitEntities = Maps.newHashMap();
-
-		public EntityHitHandler() {
-			MinecraftForge.EVENT_BUS.register(this);
-		}
-
-		@SubscribeEvent
-		public void clientSide(PlayerTickEvent event) {
-			if (event.phase == TickEvent.Phase.END && event.side == Side.CLIENT) {
-				ArrayList<Entity> toRemove = new ArrayList<Entity>();
-				for (Entity entity : clientHitEntities.keySet()) {
-					if (entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
-							entity.posY, entity.posZ, clientHitEntities.get(entity))) 
-						toRemove.add(entity);
-					else
-						clientHitEntities.put(entity, clientHitEntities.get(entity)+1);
-				}
-				for (Entity entity : toRemove)
-					clientHitEntities.remove(entity);
-			}
-		}
-
-		@SubscribeEvent
-		public void serverSide(WorldTickEvent event) {
-			if (event.phase == TickEvent.Phase.END && event.world.getTotalWorldTime() % 3 == 0) {
-				ArrayList<Entity> toRemove = new ArrayList<Entity>();
-				for (Entity entity : serverHitEntities.keySet()) {
-					if (entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
-							entity.posY, entity.posZ, serverHitEntities.get(entity))) 
-						toRemove.add(entity);
-					else
-						serverHitEntities.put(entity, serverHitEntities.get(entity)+1);
-				}
-				for (Entity entity : toRemove)
-					serverHitEntities.remove(entity);
-			}
-		}
-
+		if (result.entityHit != null && result.entityHit != this.shootingEntity) 
+			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setTicks(0));
 	}
 
 }

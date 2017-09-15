@@ -17,12 +17,15 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class Ability {
 
-	//public static HashMap<UUID, Integer> preventToggles = Maps.newHashMap(); TODO
-	
+	public static final Handler ABILITY_USING = new Handler(Identifier.ABILITY_USING) {};
+
 	public EnumHero hero;
 	public KeyBind keybind;
 	public boolean isEnabled;
@@ -57,14 +60,16 @@ public class Ability {
 
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(Entity entity, boolean toggle) {
-		if (toggle) 
-			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-				ability.toggled.remove(entity.getPersistentID());
-		toggled.put(entity.getPersistentID(), toggle);
+		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isToggleable && isEnabled) {
+			if (toggle) 
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+					ability.toggled.remove(entity.getPersistentID());
+			toggled.put(entity.getPersistentID(), toggle);
+		}
 	}
 
 	public boolean isToggled(Entity entity) {
-		return toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
+		return isToggleable && toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
 	}
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
@@ -105,6 +110,9 @@ public class Ability {
 				keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 
+		if (TickHandler.getHandler(player, Identifier.ABILITY_USING) != null && !this.isToggled(player))
+			return false;
+		
 		if (ret && player.world.isRemote)
 			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
 

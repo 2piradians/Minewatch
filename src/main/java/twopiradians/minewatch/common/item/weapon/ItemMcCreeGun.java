@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -58,6 +59,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+		// shoot
 		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player);
@@ -120,13 +122,13 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 		// roll
 		if (isSelected && entity.onGround && entity instanceof EntityPlayer && hero.ability2.isSelected((EntityPlayer) entity) &&
-				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0) &&
-				TickHandler.getHandler(entity, Identifier.MCCREE_ROLL) == null) {
+				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0)) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendToAll(new SPacketTriggerAbility(2, true, (EntityPlayerMP) entity));
 			this.setCurrentAmmo((EntityPlayer)entity, this.getMaxAmmo((EntityPlayer) entity));
 			TickHandler.register(false, ROLL_SERVER.setEntity((EntityPlayer) entity).setTicks(10));
+			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10));
 		}
 	}
 

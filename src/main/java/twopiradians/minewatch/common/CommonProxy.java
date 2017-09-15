@@ -105,7 +105,7 @@ public class CommonProxy {
 	@SubscribeEvent(receiveCanceled=true)
 	public void commandDev(CommandEvent event) {
 		try {
-		if (event.getCommand().getName().equalsIgnoreCase("dev") && 
+		if ((event.getCommand().getName().equalsIgnoreCase("mwdev") || event.getCommand().getName().equalsIgnoreCase("minewatchdev")) && 
 				event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
 				CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
 			event.setCanceled(true);

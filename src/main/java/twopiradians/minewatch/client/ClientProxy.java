@@ -226,7 +226,7 @@ public class ClientProxy extends CommonProxy
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean sword = true;
+						boolean sword = false;
 						if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
 							sword = player != null && TickHandler.getHandler(player, Identifier.GENJI_SWORD) != null;		

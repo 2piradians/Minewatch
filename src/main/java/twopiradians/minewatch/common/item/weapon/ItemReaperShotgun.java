@@ -33,6 +33,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
@@ -123,9 +124,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand) && !world.isRemote && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) == null &&
-				!hero.ability1.isSelected(player)/* && !serverWraiths.containsKey(player)*/ &&
-				!hero.ability2.isSelected(player)) {			
+		if (this.canUse(player, true, hand) && !world.isRemote && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) == null) {			
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, 1F, hand, false);
@@ -184,16 +183,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		/*// don't untoggle while active (try with just client)
-		if (isSelected && clientTps.containsKey(entity))
-			hero.ability1.toggle(entity, true);
-		else if (isSelected && clientWraiths.containsKey(entity))
-			hero.ability2.toggle(entity, true);*///TODO
-
 		if (entity instanceof EntityPlayer && isSelected && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 			EntityPlayer player = (EntityPlayer)entity;
 			// teleport
-			if (hero.ability1.isSelected(player) && !hero.ability2.isSelected(player)) {   
+			if (hero.ability1.isSelected(player)) {   
 				if (world.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
@@ -215,6 +208,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					if (tpVec != null && !world.isRemote && player instanceof EntityPlayerMP) {
 						Minewatch.network.sendToAll(new SPacketTriggerAbility(1, player, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
 						TickHandler.register(false, TPS_SERVER.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)));
+						TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(70));
 						world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 3.0f, 1.0f);
 						PotionEffect effect = new PotionEffect(ModPotions.frozen, 60, 1, false, false);
 						player.addPotionEffect(effect);
@@ -225,15 +219,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				if (Minewatch.keys.rmb(player))
 					hero.ability1.toggle(player, false);
 			}
-			/*// wraith
-			if (hero.ability2.isSelected(player) && !hero.ability1.isSelected(player)) {   
-				if (world.isRemote && !clientWraiths.containsKey(player)) {
-					clientWraiths.put(player, 60);
-				}
-				else if (!world.isRemote && !serverWraiths.containsKey(player)) {
-					serverWraiths.put(player, 60);
-				}
-			}*/
 		}
 	}
 

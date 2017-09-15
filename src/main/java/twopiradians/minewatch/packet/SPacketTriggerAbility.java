@@ -15,7 +15,9 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -109,6 +111,7 @@ public class SPacketTriggerAbility implements IMessage {
 					// Reaper's teleport
 					else if (packet.type == 1 && packetPlayer != null) {
 						TickHandler.register(true, ItemReaperShotgun.TPS_CLIENT.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)));
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
 					}
 					// McCree's roll
@@ -119,6 +122,7 @@ public class SPacketTriggerAbility implements IMessage {
 						}
 						if (packet.bool) {
 							TickHandler.register(true, ItemMcCreeGun.ROLL_CLIENT.setEntity(packetPlayer).setTicks(10));
+							TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10));
 							EnumHero.RenderManager.playersSneaking.put(packetPlayer, 11);
 						}
 						if (packetPlayer == player)
@@ -128,6 +132,7 @@ public class SPacketTriggerAbility implements IMessage {
 					else if (packet.type == 3 && packetPlayer != null) {
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE_CLIENT.setEntity(packetPlayer).setTicks(8));
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8));
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8));
 						EnumHero.RenderManager.playersSneaking.put(packetPlayer, 9);
 						if (packetPlayer == player) 
 							move(packetPlayer, 1.8d, false);
@@ -135,6 +140,7 @@ public class SPacketTriggerAbility implements IMessage {
 					// Genji's use sword
 					else if (packet.type == 4 && packetPlayer != null) {
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks((int) packet.x));
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks((int) packet.x));
 					}
 					// Reinhardt's hammer swing
 					else if (packet.type == 5) {
@@ -155,6 +161,9 @@ public class SPacketTriggerAbility implements IMessage {
 										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
 										EnumHand.MAIN_HAND);
 						}
+					}
+					else if (packet.type == 7) {
+						Minecraft.getMinecraft().displayGuiScreen(new GuiDisplay((int) packet.x));
 					}
 				}
 			});

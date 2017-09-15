@@ -121,7 +121,8 @@ public abstract class ItemMWWeapon extends Item {
 		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
 				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				(player.getActivePotionEffect(ModPotions.frozen) != null && 
-				player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0))
+				player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) ||
+				TickHandler.getHandler(player, Identifier.ABILITY_USING) != null)
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -261,17 +262,5 @@ public abstract class ItemMWWeapon extends Item {
 		}
 		return false;
 	}
-
-	/*	*//**Toggle an ability - will need to be overridden for different heros
-	 * i.e. if Hanzo's scatter ability is toggled, the sonic ability needs to be untoggled*//*
-	public void toggle(EntityPlayer player, Ability ability, boolean toggle) {
-		if (toggle) 
-			for (Ability ability2 : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-				ability2.toggled.remove(player.getPersistentID());
-
-		boolean isToggled = ability.toggled.containsKey(player.getPersistentID()) ? ability.toggled.get(player.getPersistentID()) : false;
-		if (isToggled != toggle)
-			ability.toggled.put(player.getPersistentID(), toggle);
-	}*///TODO remove
 
 }

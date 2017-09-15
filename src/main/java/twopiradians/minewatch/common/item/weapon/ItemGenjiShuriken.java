@@ -30,6 +30,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -59,7 +60,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			SPacketTriggerAbility.move(player, 0.9f, true);
+			// block while striking
+			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
+					player.getActiveItemStack() != player.getHeldItemMainhand()) 
+				player.setActiveHand(EnumHand.MAIN_HAND);
+			
+			SPacketTriggerAbility.move(player, 1.5f, true);
 			if (player instanceof EntityPlayerSP)
 				((EntityPlayerSP)player).movementInput.sneak = false;
 			int numParticles = (int) ((Math.abs(player.chasingPosX-player.prevChasingPosX)+Math.abs(player.chasingPosY-player.prevChasingPosY)+Math.abs(player.chasingPosZ-player.prevChasingPosZ))*20d);
@@ -89,6 +95,11 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public static final Handler STRIKE_SERVER = new Handler(Identifier.GENJI_STRIKE) {
 		@Override
 		public boolean onServerTick() {
+			// block while striking
+			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
+					player.getActiveItemStack() != player.getHeldItemMainhand()) 
+				player.setActiveHand(EnumHand.MAIN_HAND);
+			
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(1.3d);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
@@ -125,8 +136,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0 && 
-				TickHandler.getHandler(player, Identifier.GENJI_DEFLECT) == null) {
+		// throw single shuriken
+		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
@@ -144,8 +155,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		if (!player.world.isRemote && this.canUse(player, true, hand) && 
-				TickHandler.getHandler(player, Identifier.GENJI_DEFLECT) == null) {
+		// throw triple shuriken
+		if (!player.world.isRemote && this.canUse(player, true, hand)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
@@ -167,34 +178,24 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		/*		// don't untoggle while active
-		if (isSelected && serverStriking.containsKey(entity))
-			hero.ability2.toggle(entity, true);
-		else if (isSelected && deflecting.containsKey(entity))
-			hero.ability1.toggle(entity, true);*///TODO
-
-		// block while striking
-		if (isSelected && entity instanceof EntityPlayer && 
-				TickHandler.getHandler(entity, Identifier.GENJI_STRIKE) != null &&
-				((EntityPlayer)entity).getActiveItemStack() != stack) 
-			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
-
-		if (entity instanceof EntityPlayer) {
+		if (entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, null)) {
 			EntityPlayer player = (EntityPlayer)entity;
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
-					TickHandler.getHandler(player, Identifier.GENJI_DEFLECT) == null && entity instanceof EntityPlayerMP) {
+					entity instanceof EntityPlayerMP) {
 				Minewatch.network.sendToAll(new SPacketTriggerAbility(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
-					TickHandler.getHandler(entity, Identifier.GENJI_STRIKE) == null && entity instanceof EntityPlayerMP) {
+					entity instanceof EntityPlayerMP) {
 				TickHandler.register(false, STRIKE_SERVER.setEntity(player).setTicks(8));
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity, 0, 0, 0));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
+				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}
 		}

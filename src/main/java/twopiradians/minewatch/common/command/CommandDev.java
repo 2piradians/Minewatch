@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,12 +19,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class CommandDev implements ICommand {
-	
+
 	public static final ArrayList<UUID> DEVS = new ArrayList<UUID>() {{
 		add(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647")); // Furgl
 		add(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd")); // 2piradians
@@ -34,7 +39,7 @@ public class CommandDev implements ICommand {
 
 	@Override
 	public String getName() {
-		return "dev";
+		return "minewatchdev";
 	}
 
 	@Override
@@ -44,14 +49,12 @@ public class CommandDev implements ICommand {
 
 	@Override
 	public List<String> getAliases() {
-		return new ArrayList<String>();
+		return new ArrayList<String>() {{add("mwdev");}};
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		
-	}
-	
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {}
+
 	/**Actually runs the command (for chat event), returns if message was a valid command (and chat should be hidden)*/
 	public static boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (sender instanceof EntityPlayer && args.length == 2 && args[0].equalsIgnoreCase("hero")) {
@@ -83,6 +86,10 @@ public class CommandDev implements ICommand {
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 			return true;
 		}
+		else if (sender instanceof EntityPlayerMP && args.length == 2 && args[0].equalsIgnoreCase("display")) {
+			if (NumberUtils.isNumber(args[1]))
+				Minewatch.network.sendTo(new SPacketTriggerAbility(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), (EntityPlayerMP) sender);
+		}
 		return false;
 	}
 
@@ -96,9 +103,11 @@ public class CommandDev implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
-			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero");}});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display");}});
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, CommandMinewatch.ALL_HERO_NAMES);
+		else if (args.length == 2 && args[0].equalsIgnoreCase("display"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("0"); add("1"); add("2");}});
 		else
 			return new ArrayList<String>();
 	}

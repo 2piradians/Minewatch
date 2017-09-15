@@ -26,14 +26,26 @@ public class TickHandler {
 	private static ArrayList<Handler> clientHandlers = new ArrayList<Handler>();
 	private static ArrayList<Handler> serverHandlers = new ArrayList<Handler>();
 
+	// stall registration while ticking to prevent possible concurrentmodification
+	private static boolean clientTicking;
+	private static boolean serverTicking;
+	private static ArrayList<Handler> clientHandlersStalled = new ArrayList<Handler>();
+	private static ArrayList<Handler> serverHandlersStalled = new ArrayList<Handler>();
+
 	/**Register a new handler to be tracked each tick, removes duplicate handlers and resets handlers before registering*/
 	public static void register(boolean isRemote, Handler handler) {
 		if (handler != null) {
 			ArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
-			// remove duplicates
-			if (handlerList.contains(handler)) 
-				handlerList.remove(handler);
-			handlerList.add(handler.reset());
+			if (isRemote && clientTicking)
+				clientHandlers.add(handler);
+			else if (!isRemote && serverTicking)
+				serverHandlers.add(handler);
+			else {
+				// remove duplicates
+				if (handlerList.contains(handler)) 
+					handlerList.remove(handler);
+				handlerList.add(handler.reset());
+			}
 		}
 	}
 
@@ -61,6 +73,7 @@ public class TickHandler {
 	public void clientSide(ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
 			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
+			clientTicking = true;
 			for (Handler handler : clientHandlers) {
 				if (handler.onClientTick()) {
 					handler.onRemove();
@@ -69,12 +82,17 @@ public class TickHandler {
 			}
 			for (Handler handler : handlersToRemove)
 				clientHandlers.remove(handler);
+			clientTicking = false;
+			for (Handler handler : clientHandlersStalled)
+				register(true, handler);
+			clientHandlersStalled.clear();
 		}
 	}
 
 	@SubscribeEvent
 	public void serverSide(ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
+			serverTicking = true;
 			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
 			for (Handler handler : serverHandlers) {
 				System.out.println(serverHandlers.size()+", "+handler.identifier.name());
@@ -86,6 +104,10 @@ public class TickHandler {
 			}
 			for (Handler handler : handlersToRemove)
 				serverHandlers.remove(handler);
+			serverTicking = false;
+			for (Handler handler : serverHandlersStalled)
+				register(false, handler);
+			serverHandlersStalled.clear();
 		}
 	}
 

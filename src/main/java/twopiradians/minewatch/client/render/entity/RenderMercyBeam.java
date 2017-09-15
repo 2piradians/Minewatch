@@ -42,10 +42,10 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 
 	@Override
 	public void doRender(EntityMercyBeam entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (entity.player == null || (!Minewatch.keys.rmb(entity.player) && !Minewatch.keys.lmb(entity.player)))
+		if (entity.player == null || (!Minewatch.keys.rmb(entity.player) && !Minewatch.keys.lmb(entity.player) && entity.player == Minecraft.getMinecraft().player))
 			return;
 
-		Color color = entity.heal ? COLOR_HEAL : COLOR_DAMAGE;
+		Color color = entity.isHealing() ? COLOR_HEAL : COLOR_DAMAGE;
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(BEAM_TEXTURE);

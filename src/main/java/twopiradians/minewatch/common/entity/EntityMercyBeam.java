@@ -23,9 +23,9 @@ public class EntityMercyBeam extends Entity {
 
 	private static final DataParameter<Optional<UUID>> PLAYER = EntityDataManager.<Optional<UUID>>createKey(EntityMercyBeam.class, DataSerializers.OPTIONAL_UNIQUE_ID);
 	private static final DataParameter<Integer> TARGET = EntityDataManager.<Integer>createKey(EntityMercyBeam.class, DataSerializers.VARINT);
+	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityMercyBeam.class, DataSerializers.BOOLEAN);
 	public EntityPlayer player;
 	public EntityLivingBase target;
-	public boolean heal;
 	public boolean prevHeal;
 	@SideOnly(Side.CLIENT)
 	public ParticleCircle particleStaff;
@@ -45,15 +45,19 @@ public class EntityMercyBeam extends Entity {
 		this.target = target;
 		this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
 		this.dataManager.set(TARGET, target.getEntityId());
+		this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
 		this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
-		this.prevHeal = heal;
-		this.heal = !Minewatch.keys.rmb(player);
+		this.prevHeal = this.isHealing();
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance) {
 		return true;
+	}
+	
+	public boolean isHealing() {
+		return this.dataManager.get(HEAL);
 	}
 
 	@Override
@@ -80,10 +84,10 @@ public class EntityMercyBeam extends Entity {
 						!ItemMercyWeapon.isStaff(player.getHeldItemOffhand()))) || 
 				Math.sqrt(player.getDistanceSqToEntity(target)) > 15 || !player.canEntityBeSeen(target)))
 			this.setDead();
-		else if (target != null && player != null) {
+		else if (target != null && player != null && !world.isRemote) {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
-			this.prevHeal = heal;
-			this.heal = !Minewatch.keys.rmb(player);
+			this.prevHeal = this.isHealing();
+			this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
 		}
 	}
 
@@ -91,6 +95,7 @@ public class EntityMercyBeam extends Entity {
 	protected void entityInit() {
 		this.getDataManager().register(PLAYER, Optional.absent());
 		this.getDataManager().register(TARGET, Integer.valueOf(0));
+		this.getDataManager().register(HEAL, true);
 	}
 
 	@Override

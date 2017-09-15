@@ -269,7 +269,7 @@ public class ItemMWArmor extends ItemArmor
 				player.fallDistance *= 0.75f;
 				if (!playersHovering.contains(player) && !world.isRemote) {
 					world.playSound(null, player.posX, player.posY, player.posZ, 
-							ModSoundEvents.mercyHover, SoundCategory.PLAYERS, 0.5f, 1.0f);
+							ModSoundEvents.mercyHover, SoundCategory.PLAYERS, 0.2f, 1.0f);
 					playersHovering.add(player);
 				}
 			}

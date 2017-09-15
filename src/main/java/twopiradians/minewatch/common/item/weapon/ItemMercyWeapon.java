@@ -129,14 +129,14 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
 					if (TickHandler.getHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) == null) {
 						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-								beam.heal ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
+								beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
 						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
 					}
 				}
 			}
 			if (beams.containsKey(entity) && beams.get(entity).target != null) {
 				// heal
-				if (beams.get(entity).heal && beams.get(entity).target.getHealth() < beams.get(entity).target.getMaxHealth()) {
+				if (beams.get(entity).isHealing() && beams.get(entity).target.getHealth() < beams.get(entity).target.getMaxHealth()) {
 					beams.get(entity).target.heal(0.3f);
 				}
 				// during sound
@@ -144,10 +144,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
 				// switch sound
-				if (beams.get(entity).prevHeal != beams.get(entity).heal) {
+				if (beams.get(entity).prevHeal != beams.get(entity).isHealing()) {
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
-					beams.get(entity).prevHeal = beams.get(entity).heal;
+					beams.get(entity).prevHeal = beams.get(entity).isHealing();
 				}
 			}
 		}
@@ -169,7 +169,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.world.isRemote &&
 					ItemMWArmor.SetManager.playersWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
-				if (!beam.heal)
+				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
 						(ModSoundEvents.hurt, SoundCategory.PLAYERS, source.posX, source.posY, source.posZ, 

@@ -115,7 +115,7 @@ public class SPacketTriggerAbility implements IMessage {
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
 					}
 					// McCree's roll
-					else if (packet.type == 2 && packetPlayer != null) {//TODO test that particles are server side
+					else if (packet.type == 2 && packetPlayer != null) {
 						if (packetPlayer == player) {
 							player.onGround = true;
 							player.movementInput.sneak = true;

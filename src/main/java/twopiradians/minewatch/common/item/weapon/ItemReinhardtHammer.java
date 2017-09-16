@@ -67,7 +67,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			for (EntityLivingBase entity : 
 				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
 						player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
-				if (entity != player && !player.isOnSameTeam(entity)) 
+				if (entity != player) 
 					this.onLeftClickEntity(stack, player, entity);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 

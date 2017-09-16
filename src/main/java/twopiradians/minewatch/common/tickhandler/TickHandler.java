@@ -37,9 +37,9 @@ public class TickHandler {
 		if (handler != null) {
 			ArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 			if (isRemote && clientTicking)
-				clientHandlers.add(handler);
+				clientHandlersStalled.add(handler);
 			else if (!isRemote && serverTicking)
-				serverHandlers.add(handler);
+				serverHandlersStalled.add(handler);
 			else {
 				// remove duplicates
 				if (handlerList.contains(handler)) 
@@ -49,7 +49,7 @@ public class TickHandler {
 		}
 	}
 
-	/**Unregister a handler*/
+	/**Unregister a handler (possible concurrentmodification if removed during tick)*/
 	public static void unregister(Handler handler) {
 		if (handler != null && handler.entity != null) {
 			ArrayList<Handler> handlerList = handler.entity.world.isRemote ? clientHandlers : serverHandlers;
@@ -95,9 +95,7 @@ public class TickHandler {
 			serverTicking = true;
 			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
 			for (Handler handler : serverHandlers) {
-				System.out.println(serverHandlers.size()+", "+handler.identifier.name());
 				if (handler.onServerTick()) {
-					System.out.println("removing: "+handler.identifier.name());
 					handler.onRemove();
 					handlersToRemove.add(handler);
 				}

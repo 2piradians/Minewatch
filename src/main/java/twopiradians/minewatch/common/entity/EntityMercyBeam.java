@@ -55,7 +55,7 @@ public class EntityMercyBeam extends Entity {
 	public boolean isInRangeToRenderDist(double distance) {
 		return true;
 	}
-	
+
 	public boolean isHealing() {
 		return this.dataManager.get(HEAL);
 	}
@@ -84,10 +84,11 @@ public class EntityMercyBeam extends Entity {
 						!ItemMercyWeapon.isStaff(player.getHeldItemOffhand()))) || 
 				Math.sqrt(player.getDistanceSqToEntity(target)) > 15 || !player.canEntityBeSeen(target)))
 			this.setDead();
-		else if (target != null && player != null && !world.isRemote) {
+		else if (target != null && player != null) {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 			this.prevHeal = this.isHealing();
-			this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
+			if (!this.world.isRemote)
+				this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
 		}
 	}
 

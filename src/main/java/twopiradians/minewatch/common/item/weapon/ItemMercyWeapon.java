@@ -98,6 +98,17 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
+		// health particles
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND) &&
+				world.isRemote && entity.ticksExisted % 5 == 0) {
+			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			for (Entity entity2 : list) 
+				if (entity2 instanceof EntityLivingBase 
+						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
+					Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+		}
+		
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
 			if (beams.containsKey(entity) && (beams.get(entity).isDead || 

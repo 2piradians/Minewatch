@@ -18,6 +18,13 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 
 	protected int lifetime;
 	private EntityLivingBase thrower;
+	
+	private boolean lockedDirection;
+	private float pitch;
+	private float yaw;
+	private double xMotion;
+	private double yMotion;
+	private double zMotion;
 
 	public EntityMWThrowable(World worldIn) {
 		super(worldIn);
@@ -59,13 +66,29 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
 			this.updateFromPacket();
 
-		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
-		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
-		this.prevRotationYaw = this.rotationYaw;
-		this.prevRotationPitch = this.rotationPitch;
+		if (!this.lockedDirection) {
+			float f = MathHelper.sqrt((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
+			this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
+			this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
+			this.prevRotationYaw = this.rotationYaw;
+			this.prevRotationPitch = this.rotationPitch;
+			this.pitch = this.rotationPitch;
+			this.yaw = this.rotationYaw;
+			this.xMotion = this.motionX;
+			this.yMotion = this.motionY;
+			this.zMotion = this.motionZ;
+			this.lockedDirection = true;
+		}
 
 		super.onUpdate();
+		
+		this.rotationPitch = this.pitch;
+		this.prevRotationPitch = this.pitch;
+		this.rotationYaw = this.yaw;
+		this.prevRotationYaw = this.yaw;
+		this.motionX = this.xMotion;
+		this.motionY = this.yMotion;
+		this.motionZ = this.zMotion;
 
 		if (!this.world.isRemote && this.ticksExisted > lifetime && lifetime > 0)
 			this.setDead();

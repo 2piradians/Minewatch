@@ -81,7 +81,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
 			new Skin(TextFormatting.GOLD+"Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/")),
 	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, false, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, 
 			new Skin("Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),

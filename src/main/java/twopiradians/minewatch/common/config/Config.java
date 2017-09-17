@@ -1,14 +1,19 @@
 package twopiradians.minewatch.common.config;
 
 import java.io.File;
+import java.util.UUID;
 
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.packet.CPacketSyncSkins;
 
 public class Config {
 
@@ -63,14 +68,30 @@ public class Config {
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
 
-		for (EnumHero hero : EnumHero.values()) {
-			Property heroTextureProp = config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.textureCredits[0], "Textures for "+hero.name+"'s armor", hero.textureCredits);
-			for (int i=0; i<hero.textureCredits.length; ++i)
-				if (hero.textureCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
-					hero.textureVariation = i;
-			if (hero.textureVariation < 0 || hero.textureVariation > hero.textureCredits.length)
-				hero.textureVariation = 0;
+		UUID uuid = Minewatch.proxy.getClientUUID();
+		if (uuid != null) {
+			for (EnumHero hero : EnumHero.values()) {
+				Property heroTextureProp = getHeroTextureProp(hero);
+				for (int i=0; i<hero.skinCredits.length; ++i)
+					if (hero.skinCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
+						hero.setSkin(uuid, i);
+			}
+			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
+	}
+
+	public static Property getHeroTextureProp(EnumHero hero) {
+		return config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void syncSkins(EntityJoinWorldEvent event) {
+		if (event.getWorld().isRemote && Minewatch.proxy.getClientUUID() != null && 
+				event.getEntity().getPersistentID().toString().equals(Minewatch.proxy.getClientUUID().toString())) {
+			syncConfig();
+			config.save();	
+		}			
 	}
 
 	@SubscribeEvent

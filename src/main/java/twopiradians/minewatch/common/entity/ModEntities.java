@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.entity;
 
 import java.util.UUID;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
@@ -27,5 +28,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(EntityMeiBlast.class, "mei_blast", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(EntityWidowmakerBullet.class, "widowmaker_bullet", id++, Minewatch.instance, 64, 20, true);
+		EntityRegistry.registerModEntity(EntityMercyBullet.class, "mercy_bullet", id++, Minewatch.instance, 64, 20, true);
+		EntityRegistry.registerModEntity(EntityMercyBeam.class, "mercy_beam", id++, Minewatch.instance, 64, 20, true);
 	}
 }

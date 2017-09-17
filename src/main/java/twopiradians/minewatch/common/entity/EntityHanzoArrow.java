@@ -54,7 +54,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (this.worldObj.isRemote && result.entityHit instanceof EntityLivingBase && result.entityHit != this.shootingEntity && 
+		if (this.worldObj.isRemote && result.entityHit != null && result.entityHit != this.shootingEntity && result.entityHit instanceof EntityLivingBase &&
 				((EntityLivingBase)result.entityHit).getHealth() > 0 && this.shootingEntity != null)
 			this.shootingEntity.playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
 		

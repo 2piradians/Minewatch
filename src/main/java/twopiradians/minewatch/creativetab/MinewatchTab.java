@@ -30,5 +30,4 @@ public class MinewatchTab extends CreativeTabs {
 		list.clear();
 		list.addAll(orderedStacks);
 	}
-
 }

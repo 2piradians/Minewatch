@@ -17,10 +17,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EntityGuiPlayer extends AbstractClientPlayer
 {
 	private AbstractClientPlayer player;
+	public int skin;
 	private static ScorePlayerTeam team;
 
-	public EntityGuiPlayer(World worldIn, GameProfile playerProfile, AbstractClientPlayer player) 
-	{
+	public EntityGuiPlayer(World worldIn, GameProfile playerProfile, AbstractClientPlayer player) {
 		super(worldIn, playerProfile);
 		this.player = player;
 		
@@ -32,14 +32,12 @@ public class EntityGuiPlayer extends AbstractClientPlayer
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Team getTeam()
-	{
+	public Team getTeam() {
 		return team;
 	}
 
 	@Override
-	public ResourceLocation getLocationSkin()
-	{
+	public ResourceLocation getLocationSkin() {
 		if (player != null) {
 			NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
 			return networkplayerinfo == null ? DefaultPlayerSkin.getDefaultSkin(this.getUniqueID()) : networkplayerinfo.getLocationSkin();

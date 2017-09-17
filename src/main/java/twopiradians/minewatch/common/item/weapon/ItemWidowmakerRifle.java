@@ -10,7 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -36,6 +35,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	public ItemWidowmakerRifle() {
 		super(30);
+		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
@@ -77,24 +77,13 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
 				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0 &&
-				this.canUse((EntityPlayer) entity, true)) 
+				this.canUse((EntityPlayer) entity, true, getHand((EntityLivingBase) entity, stack))) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
-
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (entity instanceof EntityPlayer && !entity.worldObj.isRemote && stack != null && stack.getItem() instanceof ItemWidowmakerRifle) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
 	}
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true)) {
+		if (this.canUse(player, true, hand)) {
 			// scoped
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.worldObj.isRemote) {

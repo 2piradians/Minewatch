@@ -9,10 +9,8 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -22,15 +20,14 @@ import twopiradians.minewatch.common.hero.EnumHero;
 @SideOnly(Side.CLIENT)
 public class GuiDisplay extends GuiScreen {
 	
-	/**Should display be opened on chat event?*/
-	public static final boolean DISPLAY_GUI = false;
-	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
-	public static final int GUI_MODE = 0;
-
 	private EntityGuiPlayer guiPlayer;
+	
+	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
+	private int mode;
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/white.png");
 
-	public GuiDisplay() {
+	public GuiDisplay(int mode) {
+		this.mode = MathHelper.clamp_int(mode, 0, 2);
 		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer.getGameProfile(), Minecraft.getMinecraft().thePlayer);
 	}
 
@@ -51,7 +48,7 @@ public class GuiDisplay extends GuiScreen {
 
 		for (int i=0; i<EnumHero.values().length; ++i) {
 			EnumHero hero = EnumHero.values()[i];
-			double x = i/perColumn * 200;
+			double x = i/perColumn * 155;
 			double y = -(i%perColumn)*-80+(i/perColumn)+60;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, 0);
@@ -63,7 +60,7 @@ public class GuiDisplay extends GuiScreen {
 				list.set(0, " "+list.get(0)+" ");
 			GlStateManager.translate(-(Minecraft.getMinecraft().fontRendererObj.getStringWidth(list.get(0))-120)/2, 0, 0);
 			list.add("");list.add("");list.add("");list.add("");list.add("");list.add("");
-			if (GUI_MODE == 0 || GUI_MODE == 2) 
+			if (mode == 0 || mode == 2) 
 				this.drawHoveringText(list, 45, -33);
 
 			// equip player
@@ -81,7 +78,7 @@ public class GuiDisplay extends GuiScreen {
 			guiPlayer.rotationYawHead = 0.0F;
 			guiPlayer.renderYawOffset = 0.0F;
 			mc.getRenderManager().setPlayerViewY(-20f);
-			if (GUI_MODE == 0 || GUI_MODE == 1)
+			if (mode == 0 || mode == 1)
 				mc.getRenderManager().doRenderEntity(guiPlayer, 0, 0.05d, 5.0D, 0.0F, 0.01f, true);
 			GlStateManager.scale(1/scale, 1/scale, 1/scale);
 			GlStateManager.popMatrix();
@@ -91,7 +88,7 @@ public class GuiDisplay extends GuiScreen {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x+129, y-38, 0);
 			RenderHelper.enableGUIStandardItemLighting();
-			if (GUI_MODE == 0 || GUI_MODE == 1) {
+			if (mode == 0 || mode == 1) {
 				this.itemRender.renderItemIntoGUI(new ItemStack(hero.token), -20, 5);
 				this.itemRender.renderItemIntoGUI(new ItemStack(hero.helmet), 24, 0);
 				this.itemRender.renderItemIntoGUI(new ItemStack(hero.chestplate), 24, 16);
@@ -103,7 +100,7 @@ public class GuiDisplay extends GuiScreen {
 			}
 
 			// render icon
-			if (GUI_MODE == 0 || GUI_MODE == 2) {
+			if (mode == 0 || mode == 2) {
 				scale = 0.22f;
 				GlStateManager.scale(scale, scale, 1);
 				GlStateManager.translate(-180, 80, 0);
@@ -121,13 +118,4 @@ public class GuiDisplay extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	@Mod.EventBusSubscriber(Side.CLIENT)
-	public static class OpenGuiEvent {
-
-		@SubscribeEvent
-		public static void openGui(ClientChatReceivedEvent event) {
-			if (GuiDisplay.DISPLAY_GUI) 
-				Minecraft.getMinecraft().displayGuiScreen(new GuiDisplay());
-		}
-	}
 }

@@ -3,7 +3,7 @@
   "modid": "minewatch",
   "name": "Minewatch",
   "description": "Overwatch characters in Minecraft.",
-  "version": "3.2.4",
+  "version": "3.3",
   "mcversion": "1.10.2",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
@@ -28,6 +28,7 @@ Armor Texture Credits:
 -McCree texture: PlantyBox, https://www.planetminecraft.com/member/plantybox/ 
 -Mei texture: mareridt, https://www.planetminecraft.com/member/mareridt/ 
 -Widowmaker texture: sir-connor, https://www.planetminecraft.com/member/sir-connor/
+
 ",
   "logoFile": "logo.png",
   "screenshots": [],

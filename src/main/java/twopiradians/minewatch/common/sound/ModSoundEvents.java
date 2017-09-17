@@ -26,9 +26,15 @@ public class ModSoundEvents {
 	public static SoundEvent hanzoScatterArrow;
 	public static SoundEvent reinhardtWeapon;
 	public static SoundEvent genjiShoot;
+	public static SoundEvent genjiDeflect;
+	public static SoundEvent genjiDeflectHit;
+	public static SoundEvent genjiStrike;
+	public static SoundEvent genjiJump;
 	public static SoundEvent tracerShoot;
 	public static SoundEvent tracerBlink;
 	public static SoundEvent mccreeShoot;
+	public static SoundEvent mccreeFlashbang;
+	public static SoundEvent mccreeRoll;
 	public static SoundEvent soldier76Shoot;
 	public static SoundEvent soldier76Helix;
 	public static SoundEvent bastionShoot;
@@ -40,6 +46,13 @@ public class ModSoundEvents {
 	public static SoundEvent widowmakerScopedShoot;
 	public static SoundEvent widowmakerUnscopedShoot;
 	public static SoundEvent widowmakerCharge;
+	public static SoundEvent mercyShoot;
+	public static SoundEvent mercyHeal;
+	public static SoundEvent mercyDamage;
+	public static SoundEvent mercyHover;
+	public static SoundEvent mercyBeamStart;
+	public static SoundEvent mercyBeamDuring;
+	public static SoundEvent mercyBeamStop;
 
 	public static void preInit() {
 		hurt = registerSound("hurt");
@@ -62,11 +75,17 @@ public class ModSoundEvents {
 		hanzoScatterArrow = registerSound("hanzo_scatter_arrow");
 		reinhardtWeapon = registerSound("reinhardt_weapon");
 		genjiShoot = registerSound("genji_shoot");
+		genjiDeflect = registerSound("genji_deflect");
+		genjiDeflectHit = registerSound("genji_deflect_hit");
+		genjiStrike = registerSound("genji_strike");
+		genjiJump = registerSound("genji_jump");
 		EnumHero.GENJI.reloadSound = registerSound("genji_reload");
 		tracerShoot = registerSound("tracer_shoot");
 		tracerBlink = registerSound("tracer_blink");
 		EnumHero.TRACER.reloadSound = registerSound("tracer_reload");
 		mccreeShoot = registerSound("mccree_shoot");
+		mccreeFlashbang = registerSound("mccree_flashbang");
+		mccreeRoll = registerSound("mccree_roll");
 		EnumHero.MCCREE.reloadSound = registerSound("mccree_reload");
 		soldier76Shoot = registerSound("soldier76_shoot");
 		soldier76Helix = registerSound("soldier76_helix");
@@ -83,6 +102,14 @@ public class ModSoundEvents {
 		widowmakerScopedShoot = registerSound("widowmaker_shoot_1");
 		widowmakerCharge = registerSound("widowmaker_charge");
 		EnumHero.WIDOWMAKER.reloadSound = registerSound("widowmaker_reload");
+		mercyShoot = registerSound("mercy_shoot");
+		EnumHero.MERCY.reloadSound = registerSound("mercy_reload");
+		mercyHeal = registerSound("mercy_heal");
+		mercyDamage = registerSound("mercy_damage");
+		mercyHover = registerSound("mercy_hover");
+		mercyBeamStart = registerSound("mercy_beam_start");
+		mercyBeamDuring = registerSound("mercy_beam_during");
+		mercyBeamStop = registerSound("mercy_beam_stop");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

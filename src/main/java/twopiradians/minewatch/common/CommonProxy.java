@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common;
 
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,17 +28,21 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
+import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketPotionEffect;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
+import twopiradians.minewatch.packet.SPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
-public class CommonProxy 
-{
+public class CommonProxy {
+
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
@@ -64,6 +70,9 @@ public class CommonProxy
 		Minewatch.network.registerMessage(SPacketPotionEffect.Handler.class, SPacketPotionEffect.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketTriggerAbility.Handler.class, SPacketTriggerAbility.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
+		Minewatch.network.registerMessage(CPacketSyncSkins.Handler.class, CPacketSyncSkins.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(CPacketSimple.Handler.class, CPacketSimple.class, id++, Side.SERVER);
 	}
 
 	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
@@ -72,13 +81,13 @@ public class CommonProxy
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {}
 	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) {}
-	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
+	public void spawnParticlesCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) {}	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
 	
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new ItemMWToken());
+		MinecraftForge.EVENT_BUS.register(new TickHandler());
 	}
 
 	private void registerCraftingRecipes() {
@@ -96,7 +105,7 @@ public class CommonProxy
 	@SubscribeEvent(receiveCanceled=true)
 	public void commandDev(CommandEvent event) {
 		try {
-		if (event.getCommand().getCommandName().equalsIgnoreCase("dev") && 
+		if ((event.getCommand().getCommandName().equalsIgnoreCase("mwdev") || event.getCommand().getCommandName().equalsIgnoreCase("minewatchdev")) && 
 				event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
 				CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
 			event.setCanceled(true);
@@ -104,6 +113,10 @@ public class CommonProxy
 		catch (Exception e) {}
 	}
 
-	public void mouseClick() { }
+	public void mouseClick() {}
+
+	public UUID getClientUUID() {
+		return null;
+	}
 	
 }

@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
+import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -28,10 +30,11 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
+import twopiradians.minewatch.client.particle.ParticleCircle;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
-import twopiradians.minewatch.client.particle.ParticleMeiBlaster;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
@@ -45,6 +48,8 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
+import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
+import twopiradians.minewatch.client.render.entity.RenderMercyBullet;
 import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76HelixRocket;
@@ -61,6 +66,8 @@ import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
@@ -68,7 +75,9 @@ import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy
 {
@@ -101,6 +110,15 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
+		registerInventoryTab();
+	}
+
+	private static void registerInventoryTab() {
+		if (TabRegistry.getTabList().size() == 0)
+			TabRegistry.registerTab(new InventoryTabVanilla());
+
+		TabRegistry.registerTab(new InventoryTab());
+		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
 
 	private static void registerRenders() {
@@ -203,6 +221,34 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
 			}
+		//change genji model based on active abilities
+			else if (item == EnumHero.GENJI.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {						
+						boolean sword = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							sword = player != null && TickHandler.getHandler(player, Identifier.GENJI_SWORD) != null;		
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_sword_3d", "inventory"));
+			}
+		// change mercy model
+			else if (item == EnumHero.MERCY.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						boolean battleMercy = !ItemMercyWeapon.isStaff(stack);
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (battleMercy ? "_1_3d" : "_0_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
+			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}
@@ -222,6 +268,8 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, RenderMercyBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 	}
 
 	@Override
@@ -239,7 +287,7 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(loc);
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
-		event.getMap().registerSprite(ParticleMeiBlaster.TEXTURE);
+		event.getMap().registerSprite(ParticleCircle.TEXTURE);
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
 	}
@@ -305,16 +353,23 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesMeiBlaster(World world, double x, double y, double z, double motionX, double motionY, double motionZ, float alpha, int maxAge, float initialScale, float finalScale) { 
-		ParticleMeiBlaster particle = new ParticleMeiBlaster(world, x, y, z, motionX, motionY, motionZ, alpha, maxAge, initialScale, finalScale);
+	public void spawnParticlesCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) { 
+		ParticleCircle particle = new ParticleCircle(world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
 	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
-		if (spawnAtPlayer || ItemReaperShotgun.clientTps.containsKey(player)) {
-			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type);
+		if (spawnAtPlayer || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null) {
+			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type, 
+					TickHandler.getHandler(player, Identifier.REAPER_TELEPORT));
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
+
+	@Override
+	public UUID getClientUUID() {
+		return Minecraft.getMinecraft().getSession().getProfile().getId();
+	}
+
 }

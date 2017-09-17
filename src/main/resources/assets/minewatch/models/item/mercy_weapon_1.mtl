@@ -1,0 +1,9 @@
+# Blender MTL File: 'mercy_weapon.blend'
+# Material Count: 1
+
+newmtl A1C927C6B8804AA1
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/mercy_weapon_1_3d
+

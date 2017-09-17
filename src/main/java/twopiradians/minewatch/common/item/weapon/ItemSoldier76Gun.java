@@ -9,7 +9,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -24,13 +23,13 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemSoldier76Gun extends ItemMWWeapon {
-	
+
 	public ItemSoldier76Gun() {
 		super(30);
+		this.savePlayerToNBT = true;
 		this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -50,28 +49,27 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		// shoot
-		if (this.canUse(player, true) && hero.ability1.isSelected(player)) {
-			if (!world.isRemote) {
+		if (this.canUse(playerIn, true, hand) && hero.ability1.isSelected(playerIn)) {
+			if (!worldIn.isRemote) {
 				for (int i=1; i<=3; ++i) {
-					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, 1F, hand, false);
-					world.spawnEntityInWorld(rocket);
+					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(worldIn, playerIn, i);
+					rocket.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 2.0F, 0F, 1F, hand, false);
+					worldIn.spawnEntityInWorld(rocket);
 				}
-				hero.ability1.keybind.setCooldown(player, 160, false); 
-				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
-						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-				if (!(ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero))
-					player.getHeldItem(hand).damageItem(1, player);
+				hero.ability1.keybind.setCooldown(playerIn, 160, false); 
+				worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, ModSoundEvents.soldier76Helix, 
+						SoundCategory.PLAYERS, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/20+0.95f);	
+				playerIn.getHeldItem(hand).damageItem(1, playerIn);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
+				Vec3d vec = EntityMWThrowable.getShootingPos(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, hand);
+				Minewatch.proxy.spawnParticlesSpark(worldIn, vec.xCoord, vec.yCoord, vec.zCoord, 0x2B9191, 0x2B9191, 8, 3);
 			}
 		}
 
-		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+		return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));
 	}
 
 	@Override
@@ -90,29 +88,14 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 				((EntityPlayer)entity).getActiveItemStack() != stack) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (entity instanceof EntityPlayer && !entity.worldObj.isRemote && 
-				stack != null && stack.getItem() instanceof ItemSoldier76Gun) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
-
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer) {
 			if (!world.isRemote)
 				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
-			if (!hero.ability3.toggled.containsKey(entity.getPersistentID()) ||
-					!hero.ability3.toggled.get(entity.getPersistentID()))
-				hero.ability3.toggled.put(entity.getPersistentID(), true);
+			hero.ability3.toggle(entity, true);
 		}
-		else if (isSelected && hero.ability3.toggled.containsKey(entity.getPersistentID()) &&
-				hero.ability3.toggled.get(entity.getPersistentID()))
-			hero.ability3.toggled.remove(entity.getPersistentID());
+		else if (isSelected)
+			hero.ability3.toggle(entity, false);
 	}	
 
 	@Override
@@ -121,7 +104,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			player.setSprinting(false);
 
 		// shoot
-		if (player.ticksExisted % 2 == 0 && this.canUse(player, true)) {
+		if (player.ticksExisted % 2 == 0 && this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);

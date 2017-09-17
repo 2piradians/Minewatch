@@ -40,7 +40,8 @@ public class ParticleAnaHealth extends ParticleSimpleAnimated {
 
 		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (entity.isDead || entity.getHealth() >= entity.getMaxHealth()  ||
-				player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon) {
+				player.getHeldItemMainhand() == null || (player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon &&
+						player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon)) {
 			ClientProxy.healthParticleEntities.remove(entity.getPersistentID());
 			this.setExpired();
 		}

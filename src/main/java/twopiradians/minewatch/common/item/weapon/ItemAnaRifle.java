@@ -70,7 +70,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 19);
+					player.getCooldownTracker().setCooldown(this, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}

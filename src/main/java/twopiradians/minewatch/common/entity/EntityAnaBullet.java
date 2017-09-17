@@ -39,7 +39,7 @@ public class EntityAnaBullet extends EntityMWThrowable {
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
-
+		
 		if (this.worldObj.isRemote && this.ticksExisted > 1) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)

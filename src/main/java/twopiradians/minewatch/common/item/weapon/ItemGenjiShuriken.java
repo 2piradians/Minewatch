@@ -2,6 +2,8 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -13,11 +15,13 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -125,6 +129,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		super(40);
 		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("sword"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn != null && TickHandler.getHandler(entityIn, Identifier.GENJI_SWORD) != null ? 1.0F : 0.0F;
+			}
+		});
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/mercy_weapon_0"
+        "layer0": "minewatch:items/mercy_weapon_1"
     },
 	"display": {
 		 "thirdperson_righthand": {
@@ -24,13 +24,5 @@
             "translation": [ 1.13, 5.2, -1],
             "scale": [ 0.75, 0.75, 0.75 ]
         }
-	},
-    "overrides": [
-        {
-            "predicate": {
-                "gun": 1
-            },
-            "model": "minewatch:item/mercy_weapon_gun"
-        }
-    ]
+	}
 }

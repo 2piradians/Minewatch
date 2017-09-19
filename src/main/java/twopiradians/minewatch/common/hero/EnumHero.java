@@ -222,7 +222,7 @@ public enum EnumHero {
 
 		/**(skin name) by (author)*/
 		public String getCreditText() {
-			return this.skinName+TextFormatting.RESET+" by "+this.author;
+			return TextFormatting.getTextWithoutFormattingCodes(this.skinName+" by "+this.author);
 		}
 	}
 

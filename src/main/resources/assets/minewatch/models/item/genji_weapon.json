@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/genji_weapon"
+        "layer0": "minewatch:items/genji_weapon_0"
     },
 	"display": {
 		 "thirdperson_righthand": {
@@ -24,5 +24,13 @@
             "translation": [ 1.13, 5.2, 2],
             "scale": [ 0.75, 0.75, 0.75 ]
         }
-	}
+	},
+    "overrides": [
+        {
+            "predicate": {
+                "sword": 1
+            },
+            "model": "minewatch:item/genji_weapon_sword"
+        }
+    ]
 }

@@ -73,7 +73,7 @@ public class CPacketSyncKeys implements IMessage
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
 							hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
-							Minewatch.network.sendToAll(new SPacketTriggerAbility(6, packet.isKeyPressed, player));
+							Minewatch.network.sendToAll(new SPacketSimple(6, packet.isKeyPressed, player));
 						}
 					}
 					else if (packet.keyName.equals("LMB"))

@@ -48,8 +48,8 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public void onUpdate() {
 		super.onUpdate();
 
-		if (!this.hasNoGravity() && this.rotationPitch > -50) 
-			this.motionY += 0.04D;
+		if (!this.hasNoGravity() && this.rotationPitch > -50 && this.motionY < 0) 
+			this.motionY = Math.min(this.motionY+0.04D, 0);
 	}
 
 	@Override

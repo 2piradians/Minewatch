@@ -1,22 +1,75 @@
 package twopiradians.minewatch.common.entity;
 
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
-import twopiradians.minewatch.common.potion.PotionFrozen;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
+import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class EntityMeiBlast extends EntityMWThrowable {
 
+	public static final Handler FROZEN = new Handler(Identifier.POTION_FROZEN, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (TickHandler.getHandler(entityLiving, Identifier.POTION_DELAY) != null)
+				return false;
+
+			return entityLiving.isDead ||
+					(entityLiving.getActivePotionEffect(ModPotions.frozen) != null && 
+					entityLiving.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) || super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (entityLiving == null || entityLiving.isDead || 
+					(entityLiving.getActivePotionEffect(ModPotions.frozen) != null && 
+					entityLiving.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) 
+				return true;
+
+			int level = this.ticksLeft / 5;
+			// apply freeze/slowness effect
+			if (this.ticksLeft >= 30) {
+				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
+				entityLiving.setRevengeTarget(null);
+				if (entityLiving instanceof EntityLiving)
+					((EntityLiving)entityLiving).setAttackTarget(null);
+				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
+				TickHandler.interrupt(entityLiving);
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(60),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(60));
+				Minewatch.network.sendToAll(new SPacketSimple(9, entityLiving, true, 60, 0, 0));
+				entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.NEUTRAL, 1.0f, 1.0f);
+				Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entityLiving.posX, entityLiving.posY+entityLiving.height/2, entityLiving.posZ, 0, 0, 0, 0));
+			}
+			else
+				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 10, level, true, true));
+
+			if (TickHandler.hasHandler(entityLiving, Identifier.POTION_DELAY))
+				return false;
+
+			return super.onServerTick();
+		}
+	};
+	public static final Handler DELAYS = new Handler(Identifier.POTION_DELAY, false) {};
+	
 	public EntityMeiBlast(World worldIn) {
 		super(worldIn);
 		this.setSize(0.1f, 0.1f);
@@ -62,8 +115,8 @@ public class EntityMeiBlast extends EntityMWThrowable {
 				if (handler != null) 
 					handler.ticksLeft = Math.min(handler.ticksLeft+1, 30);
 				else
-					TickHandler.register(true, PotionFrozen.FROZEN_CLIENT.setEntity(result.entityHit).setTicks(1));
-				TickHandler.register(true, PotionFrozen.DELAYS.setEntity(result.entityHit).setTicks(10));
+					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
+				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
 			if (!this.world.isRemote && 
 					!(result.entityHit instanceof EntityPlayer && ((EntityPlayer)result.entityHit).isCreative())) {
@@ -73,8 +126,8 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					if (handler != null) 
 						handler.ticksLeft = Math.min(handler.ticksLeft+1, 30);
 					else
-						TickHandler.register(false, PotionFrozen.FROZEN_SERVER.setEntity(result.entityHit).setTicks(1));
-					TickHandler.register(false, PotionFrozen.DELAYS.setEntity(result.entityHit).setTicks(10));
+						TickHandler.register(false, FROZEN.setEntity(result.entityHit).setTicks(1));
+					TickHandler.register(false, DELAYS.setEntity(result.entityHit).setTicks(10));
 				}
 				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);

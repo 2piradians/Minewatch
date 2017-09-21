@@ -29,7 +29,6 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
-import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -44,7 +43,7 @@ public abstract class ItemMWWeapon extends Item {
 	public boolean hasOffhand;
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
-	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING) {};
+	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING, false) {};
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
@@ -120,9 +119,8 @@ public abstract class ItemMWWeapon extends Item {
 	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand) {
 		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
 				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
-				(player.getActivePotionEffect(ModPotions.frozen) != null && 
-				player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) ||
-				TickHandler.getHandler(player, Identifier.ABILITY_USING) != null)
+				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
+				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -134,19 +132,19 @@ public abstract class ItemMWWeapon extends Item {
 			if (!Config.allowGunWarnings)
 				return true;
 			else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
-				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.world.isRemote)
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.world.isRemote)
 					player.sendMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand and off-hand to work."));
 			} 
 			else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
-				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.world.isRemote)
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.world.isRemote)
 					player.sendMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand to work."));
 			}
 			else
 				return true;
 
-			if (shouldWarn && player.world.isRemote && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null)
+			if (shouldWarn && player.world.isRemote && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING))
 				TickHandler.register(true, WARNING_CLIENT.setEntity(player).setTicks(60));
 
 			return false;

@@ -23,6 +23,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemSoldier76Gun extends ItemMWWeapon {
@@ -89,7 +90,8 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// faster sprint
-		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer) {
+		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer && 
+				ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) == hero) {
 			if (!world.isRemote)
 				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
 			hero.ability3.toggle(entity, true);

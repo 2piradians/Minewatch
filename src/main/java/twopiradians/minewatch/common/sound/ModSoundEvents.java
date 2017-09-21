@@ -20,6 +20,7 @@ public class ModSoundEvents {
 	public static SoundEvent reaperTeleportStop;
 	public static SoundEvent reaperTeleportFinal;
 	public static SoundEvent reaperTeleportVoice;
+	public static SoundEvent reaperWraith;
 	public static SoundEvent hanzoShoot;
 	public static SoundEvent hanzoDraw;
 	public static SoundEvent hanzoSonicArrow;
@@ -68,6 +69,7 @@ public class ModSoundEvents {
 		reaperTeleportStop = registerSound("reaper_teleport_stop");
 		reaperTeleportFinal = registerSound("reaper_teleport_final");
 		reaperTeleportVoice = registerSound("reaper_teleport_voice");
+		reaperWraith = registerSound("reaper_wraith");
 		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
 		hanzoShoot = registerSound("hanzo_shoot");
 		hanzoDraw = registerSound("hanzo_draw");

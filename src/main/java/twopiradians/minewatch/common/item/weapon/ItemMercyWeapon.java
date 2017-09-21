@@ -16,12 +16,14 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
@@ -30,6 +32,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
@@ -43,14 +47,20 @@ import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ItemMercyWeapon extends ItemMWWeapon {
 
-	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING) {};
+	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING, false) {};
 	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
-	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN) {};
+	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN, false) {};
 
 	public ItemMercyWeapon() {
 		super(20);
 		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("gun"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return !ItemMercyWeapon.isStaff(stack) ? 1.0F : 0.0F;
+			}
+		});
 	}
 
 	@Override

@@ -20,19 +20,30 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemAnaRifle extends ItemMWWeapon {
 
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID + ":textures/gui/ana_scope_background.png");
+
+	public static final Handler SLEEP = new Handler(Identifier.ANA_SLEEP, true) {
+
+	};
 
 	public ItemAnaRifle() {
 		super(30);
@@ -58,6 +69,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+		// shoot
 		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
@@ -70,7 +82,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 19);
+					player.getCooldownTracker().setCooldown(this, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -82,21 +94,83 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		// health particles
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
-			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
-			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase 
-						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-					Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+
+			// sleep dart
+			if (!world.isRemote && hero.ability2.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND)) {
+				hero.ability2.keybind.setCooldown(player, 24, false); //TODO 240
+				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
+				dart.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, null, true);
+				world.spawnEntity(dart);
+				world.playSound(null, player.posX, player.posY, player.posZ, //TODO add sound
+						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
+						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				if (!player.getCooldownTracker().hasCooldown(this))
+					player.getCooldownTracker().setCooldown(this, 20);
+				if (world.rand.nextInt(10) == 0)
+					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+			}
+
+			// health particles
+			if (world.isRemote && entity.ticksExisted % 5 == 0 && this.canUse(player, false, EnumHand.MAIN_HAND)) {
+				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+				for (Entity entity2 : list) 
+					if (entity2 instanceof EntityLivingBase 
+							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
+						Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+			}
 		}
 
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
 				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+	}
+
+	@SubscribeEvent
+	public void wakeUpSleeping(LivingHurtEvent event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
+		if (handler != null && (event.getSource().getSourceOfDamage() == null || 
+				!(event.getSource().getSourceOfDamage() instanceof EntityAnaSleepDart))) {
+			System.out.println("wake up");
+			TickHandler.unregister(event.getEntity().world.isRemote, handler,
+					TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_INPUT),
+					TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT),
+					TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_ROTATION));
+			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void colorEntities(RenderLivingEvent.Pre<EntityLivingBase> event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
+		if (handler != null) {
+			GlStateManager.pushMatrix();
+			float rotation = 0;//handler.ticksLeft*4f % 180;
+			float percent = rotation/180;
+			GlStateManager.rotate(180, 0, 0, 0);// play around with 0, 90, and 180
+			GlStateManager.rotate(rotation, 0, 0, 1);
+			GlStateManager.rotate(180, 0, 1, 0);
+			GlStateManager.translate(event.getX()*-2f * percent + event.getY() * (1f-percent), 
+					event.getY()*-2f * (1f-percent) + event.getX() * (1f-percent), 
+					0 * (1f-percent));
+			/*GlStateManager.translate(event.getX()*-2f * percent, 
+					-event.getY()*2f * (1f-percent),  works for 0 and 180
+					0* (1f-percent));*/
+			/*System.out.println("rotation: "+rotation+", percent: "+percent);
+			System.out.println(event.getX());*/
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void colorEntities(RenderLivingEvent.Post<EntityLivingBase> event) {
+		if (TickHandler.hasHandler(event.getEntity(), Identifier.ANA_SLEEP)) 
+			GlStateManager.popMatrix();
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -121,7 +195,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
-			
+
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			// scope

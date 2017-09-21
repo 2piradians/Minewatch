@@ -84,6 +84,12 @@
 			"minewatch:reaper_teleport_voice_1"
 		]
 	},
+	"reaper_wraith": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_wraith"
+		]
+	},
 	"hanzo_shoot": {
 		"category": "player",
 		"sounds": [

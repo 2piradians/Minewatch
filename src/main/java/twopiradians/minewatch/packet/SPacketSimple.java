@@ -5,9 +5,12 @@ import java.util.UUID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.math.Vec3d;
@@ -23,9 +26,12 @@ import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
-public class SPacketTriggerAbility implements IMessage {
+public class SPacketSimple implements IMessage {
 
 	private int type;
 	private boolean bool;
@@ -33,29 +39,39 @@ public class SPacketTriggerAbility implements IMessage {
 	private double x;
 	private double y;
 	private double z;
+	private int id;
 
-	public SPacketTriggerAbility() { }
+	public SPacketSimple() { }
 
-	public SPacketTriggerAbility(int type) {
-		this(type, null, 0, 0, 0);
+	public SPacketSimple(int type) {
+		this(type, false, null, 0, 0, 0, null);
 	}
 
-	public SPacketTriggerAbility(int type, boolean bool) {
-		this(type, bool, null, 0, 0, 0);
+	public SPacketSimple(int type, boolean bool) {
+		this(type, bool, null, 0, 0, 0, null);
 	}
 
-	public SPacketTriggerAbility(int type, boolean bool, EntityPlayer player) {
-		this(type, bool, player, 0, 0, 0);
+	public SPacketSimple(int type, Entity entity, boolean bool) {
+		this(type, bool, null, 0, 0, 0, entity);
 	}
 
-	public SPacketTriggerAbility(int type, EntityPlayer player, double x, double y, double z) {
-		this(type, false, player, x, y, z);
+	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
+		this(type, bool, null, x, y, z, entity);
+	}
+	
+	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
+		this(type, bool, player, 0, 0, 0, null);
 	}
 
-	public SPacketTriggerAbility(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
+	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
+		this(type, false, player, x, y, z, null);
+	}
+
+	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
+		this.id = entity == null ? -1 : entity.getEntityId();
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -66,6 +82,7 @@ public class SPacketTriggerAbility implements IMessage {
 		this.type = buf.readInt();
 		this.bool = buf.readBoolean();
 		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+		this.id = buf.readInt();
 		this.x = buf.readDouble();
 		this.y = buf.readDouble();
 		this.z = buf.readDouble();
@@ -76,6 +93,7 @@ public class SPacketTriggerAbility implements IMessage {
 		buf.writeInt(this.type);
 		buf.writeBoolean(this.bool);
 		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
+		buf.writeInt(this.id);
 		buf.writeDouble(this.x);
 		buf.writeDouble(this.y);
 		buf.writeDouble(this.z);
@@ -95,24 +113,27 @@ public class SPacketTriggerAbility implements IMessage {
 		player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
 	}
 
-	public static class Handler implements IMessageHandler<SPacketTriggerAbility, IMessage> {
+	public static class Handler implements IMessageHandler<SPacketSimple, IMessage> {
 		@Override
-		public IMessage onMessage(final SPacketTriggerAbility packet, final MessageContext ctx) {
+		public IMessage onMessage(final SPacketSimple packet, final MessageContext ctx) {
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
 					EntityPlayerSP player = Minecraft.getMinecraft().player;
-					EntityPlayer packetPlayer = packet.uuid == null ? null : Minecraft.getMinecraft().world.getPlayerEntityByUUID(packet.uuid);
+					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
+					Entity entity = packet.id == -1 ? null : player.world.getEntityByID(packet.id);
 
 					// Tracer's dash
 					if (packet.type == 0) 
 						move(player, 9, false);
 					// Reaper's teleport
 					else if (packet.type == 1 && packetPlayer != null) {
-						TickHandler.register(true, ItemReaperShotgun.TPS_CLIENT.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)));
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
+						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
+								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
+						if (player == packetPlayer)
+							ItemReaperShotgun.tpThirdPersonView.put(packetPlayer, Minecraft.getMinecraft().gameSettings.thirdPersonView);
 					}
 					// McCree's roll
 					else if (packet.type == 2 && packetPlayer != null) {
@@ -121,7 +142,7 @@ public class SPacketTriggerAbility implements IMessage {
 							player.movementInput.sneak = true;
 						}
 						if (packet.bool) {
-							TickHandler.register(true, ItemMcCreeGun.ROLL_CLIENT.setEntity(packetPlayer).setTicks(10));
+							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(packetPlayer).setTicks(10));
 							TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10));
 							EnumHero.RenderManager.playersSneaking.put(packetPlayer, 11);
 						}
@@ -130,7 +151,7 @@ public class SPacketTriggerAbility implements IMessage {
 					}
 					// Genji's strike
 					else if (packet.type == 3 && packetPlayer != null) {
-						TickHandler.register(true, ItemGenjiShuriken.STRIKE_CLIENT.setEntity(packetPlayer).setTicks(8));
+						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(packetPlayer).setTicks(8));
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8));
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8));
 						EnumHero.RenderManager.playersSneaking.put(packetPlayer, 9);
@@ -162,8 +183,38 @@ public class SPacketTriggerAbility implements IMessage {
 										EnumHand.MAIN_HAND);
 						}
 					}
+					// open display gui
 					else if (packet.type == 7) {
 						Minecraft.getMinecraft().displayGuiScreen(new GuiDisplay((int) packet.x));
+					}
+					// clear Frozen effect
+					else if (packet.type == 8) {
+						player.removePotionEffect(ModPotions.frozen);
+					}
+					// Mei's freeze / Reaper's tp
+					else if (packet.type == 9 && entity instanceof EntityLivingBase) {
+						if (packet.bool) {
+							((EntityLivingBase) entity).addPotionEffect(new PotionEffect(ModPotions.frozen, (int) packet.x, 0, false, true));
+							TickHandler.interrupt(entity);
+						}
+						if (entity == player)
+							TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks((int) packet.x),
+									Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks((int) packet.x), 
+									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks((int) packet.x));
+					}
+					// Reaper's wraith
+					else if (packet.type == 10 && packetPlayer != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(60),
+								ItemReaperShotgun.WRAITH.setEntity(packetPlayer).setTicks(60));
+						if (player == packetPlayer)
+							ItemReaperShotgun.wraithViewBobbing.put(packetPlayer, Minecraft.getMinecraft().gameSettings.viewBobbing);
+					}
+					// wake up from Ana's sleep dart
+					else if (packet.type == 11 && entity != null && TickHandler.hasHandler(entity, Identifier.ANA_SLEEP)) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ANA_SLEEP),
+								TickHandler.getHandler(entity, Identifier.PREVENT_INPUT),
+								TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+								TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));	
 					}
 				}
 			});

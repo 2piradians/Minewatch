@@ -55,7 +55,7 @@ public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, 
 			new Skin("Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
@@ -89,7 +89,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
 			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/")),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, 
 			new Skin("Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
@@ -222,7 +222,7 @@ public enum EnumHero {
 
 		/**(skin name) by (author)*/
 		public String getCreditText() {
-			return this.skinName+TextFormatting.RESET+" by "+this.author;
+			return TextFormatting.getTextWithoutFormattingCodes(this.skinName+" by "+this.author);
 		}
 	}
 
@@ -339,7 +339,11 @@ public enum EnumHero {
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
-						if (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET) {
+						if (slot == EntityEquipmentSlot.LEGS && 
+								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET) != null && 
+								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemMWArmor) {
+							model.bipedLeftLeg.showModel = false;
+							model.bipedRightLeg.showModel = false;
 							model.bipedLeftLegwear.showModel = false;
 							model.bipedRightLegwear.showModel = false;
 						}

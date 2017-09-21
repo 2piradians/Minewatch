@@ -2,6 +2,8 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -13,11 +15,13 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -37,11 +41,11 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
 
-	public static final Handler DEFLECT_SERVER = new Handler(Identifier.GENJI_DEFLECT) {
+	public static final Handler DEFLECT_SERVER = new Handler(Identifier.GENJI_DEFLECT, true) {
 		@Override
 		public boolean onServerTick() {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(4);
@@ -53,11 +57,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public void onRemove() {
+		public Handler onRemove() {
 			EnumHero.GENJI.ability1.keybind.setCooldown(player, 160, false);
+			return super.onRemove();
 		}
 	};
-	public static final Handler STRIKE_CLIENT = new Handler(Identifier.GENJI_STRIKE) {
+	public static final Handler STRIKE = new Handler(Identifier.GENJI_STRIKE, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
@@ -67,7 +72,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				player.setActiveHand(EnumHand.MAIN_HAND);
 
 			if (player == Minecraft.getMinecraft().player)
-				SPacketTriggerAbility.move(player, 1.5f, true);
+				SPacketSimple.move(player, 1.5f, true);
 
 			if (player instanceof EntityPlayerSP)
 				((EntityPlayerSP)player).movementInput.sneak = false;
@@ -89,13 +94,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			return super.onClientTick();
 		}
-
-		@Override
-		public void onRemove() {
-			player.resetActiveHand();
-		}
-	};
-	public static final Handler STRIKE_SERVER = new Handler(Identifier.GENJI_STRIKE) {
+		
 		@Override
 		public boolean onServerTick() {
 			// block while striking
@@ -114,17 +113,26 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public void onRemove() {
+		public Handler onRemove() {
 			player.resetActiveHand();
-			EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
+			if (!player.world.isRemote)
+				EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
+			return super.onRemove();
 		}
 	};
-	public static final Handler SWORD_CLIENT = new Handler(Identifier.GENJI_SWORD) {};
+	
+	public static final Handler SWORD_CLIENT = new Handler(Identifier.GENJI_SWORD, true) {};
 
 	public ItemGenjiShuriken() {
 		super(40);
 		this.savePlayerToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("sword"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+				return entityIn != null && TickHandler.hasHandler(entityIn, Identifier.GENJI_SWORD) ? 1.0F : 0.0F;
+			}
+		});
 	}
 
 	@Override
@@ -187,7 +195,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
 					entity instanceof EntityPlayerMP) {
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(4, (EntityPlayer) entity, 40, 0, 0));
+				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
@@ -196,9 +204,9 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
 					entity instanceof EntityPlayerMP) {
-				TickHandler.register(false, STRIKE_SERVER.setEntity(player).setTicks(8));
+				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity));
+				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}
 		}

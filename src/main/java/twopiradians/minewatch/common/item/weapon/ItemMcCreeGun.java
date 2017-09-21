@@ -23,17 +23,17 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
 
-	public static final Handler ROLL_CLIENT = new Handler(Identifier.MCCREE_ROLL) {
+	public static final Handler ROLL = new Handler(Identifier.MCCREE_ROLL, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			player.onGround = true;
 			if (player == Minecraft.getMinecraft().player)
-				SPacketTriggerAbility.move(player, 1.0d, false);
+				SPacketSimple.move(player, 1.0d, false);
 			if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
 				Minewatch.proxy.spawnParticlesSmoke(player.world, 
 						player.prevPosX+player.world.rand.nextDouble()-0.5d, 
@@ -42,11 +42,12 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 						0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
 			return super.onClientTick();
 		}
-	};
-	public static final Handler ROLL_SERVER = new Handler(Identifier.MCCREE_ROLL) {
+
 		@Override
-		public void onRemove() {
-			EnumHero.MCCREE.ability2.keybind.setCooldown(this.player, 160, false);
+		public Handler onRemove() {
+			if (!player.world.isRemote)
+				EnumHero.MCCREE.ability2.keybind.setCooldown(this.player, 160, false);
+			return super.onRemove();
 		}
 	};
 
@@ -127,9 +128,9 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				!world.isRemote && (this.canUse((EntityPlayer) entity, true, getHand((EntityPlayer) entity, stack)) || this.getCurrentAmmo((EntityPlayer) entity) == 0)) {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(2, true, (EntityPlayerMP) entity));
+				Minewatch.network.sendToAll(new SPacketSimple(2, true, (EntityPlayerMP) entity));
 			this.setCurrentAmmo((EntityPlayer)entity, this.getMaxAmmo((EntityPlayer) entity));
-			TickHandler.register(false, ROLL_SERVER.setEntity((EntityPlayer) entity).setTicks(10));
+			TickHandler.register(false, ROLL.setEntity((EntityPlayer) entity).setTicks(10));
 			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10));
 		}
 	}

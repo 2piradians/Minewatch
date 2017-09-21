@@ -38,6 +38,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
@@ -81,8 +82,8 @@ public class ItemMWArmor extends ItemArmor
 			entity.ticksExisted = 5; // prevent arm swinging
 		}
 		if (maleModel == null || femaleModel == null) {
-			maleModel = new ModelPlayer(0, false);
-			femaleModel = new ModelPlayer(0, true);
+			maleModel = new ModelMWArmor(0, false);
+			femaleModel = new ModelMWArmor(0, true);
 		}
 		return hero.smallArms ? femaleModel : maleModel;
 	}

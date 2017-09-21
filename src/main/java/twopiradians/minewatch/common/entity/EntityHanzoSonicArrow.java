@@ -18,7 +18,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
-	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC) {
+	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC, false) {
 		@Override
 		public boolean onServerTick() {
 			return entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 

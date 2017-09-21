@@ -19,6 +19,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -40,6 +42,7 @@ import twopiradians.minewatch.client.particle.ParticleSmoke;
 import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
+import twopiradians.minewatch.client.render.entity.RenderAnaSleepDart;
 import twopiradians.minewatch.client.render.entity.RenderBastionBullet;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
@@ -58,6 +61,7 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
@@ -76,6 +80,7 @@ import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
+import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
@@ -229,7 +234,7 @@ public class ClientProxy extends CommonProxy
 						boolean sword = false;
 						if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							sword = player != null && TickHandler.getHandler(player, Identifier.GENJI_SWORD) != null;		
+							sword = player != null && TickHandler.hasHandler(player, Identifier.GENJI_SWORD);		
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
 					}
@@ -259,6 +264,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, RenderHanzoSonicArrow::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoScatterArrow.class, RenderHanzoScatterArrow::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, RenderAnaBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnaSleepDart.class, RenderAnaSleepDart::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
@@ -290,6 +296,12 @@ public class ClientProxy extends CommonProxy
 		event.getMap().registerSprite(ParticleCircle.TEXTURE);
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
+	}
+
+	@Override
+	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch) {
+		FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch);
+		Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
@@ -370,6 +382,11 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public UUID getClientUUID() {
 		return Minecraft.getMinecraft().getSession().getProfile().getId();
+	}
+
+	@Override
+	public EntityPlayer getClientPlayer() {
+		return Minecraft.getMinecraft().player;
 	}
 
 }

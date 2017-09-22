@@ -10,7 +10,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
-import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,8 +17,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
@@ -118,7 +115,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
 					Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
 		}
-		
+
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
 			if (beams.containsKey(entity) && (beams.get(entity).isDead || 
@@ -126,12 +123,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				beams.get(entity).setDead();
 				beams.remove(entity);
 				// stop sound
-				if (entity instanceof EntityPlayerMP) {
-					PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
-					packetbuffer.writeString("player");
-					packetbuffer.writeString("minewatch:mercy_beam_during");
-					((EntityPlayerMP)entity).connection.sendPacket(new SPacketCustomPayload("MC|StopSound", packetbuffer));
-				}
+				if (entity instanceof EntityPlayerMP) 
+					Minewatch.proxy.stopSound((EntityPlayer) entity, ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS);
 				world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 						ModSoundEvents.mercyBeamStop, SoundCategory.PLAYERS, 2.0f, 1.0f);
 			}

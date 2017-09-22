@@ -41,6 +41,27 @@
 			"minewatch:ana_heal"
 		]
 	},
+	"ana_sleep_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_shoot"
+		]
+	},
+	"ana_sleep_hit": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_hit"
+		]
+	},
+	"ana_sleep_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_voice_0",
+			"minewatch:ana_sleep_voice_1",
+			"minewatch:ana_sleep_voice_2",
+			"minewatch:ana_sleep_voice_3"
+		]
+	},
 	"reaper_shoot": {
 		"category": "player",
 		"sounds": [

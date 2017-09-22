@@ -14,6 +14,9 @@ public class ModSoundEvents {
 	public static SoundEvent abilityNotReady;
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
+	public static SoundEvent anaSleepShoot;
+	public static SoundEvent anaSleepHit;
+	public static SoundEvent anaSleepVoice;
 	public static SoundEvent reaperShoot;
 	public static SoundEvent reaperTeleportStart;
 	public static SoundEvent reaperTeleportDuring;
@@ -62,6 +65,9 @@ public class ModSoundEvents {
 		abilityNotReady = registerSound("ability_not_ready");
 		anaShoot = registerSound("ana_shoot");
 		anaHeal = registerSound("ana_heal");
+		anaSleepShoot = registerSound("ana_sleep_shoot");
+		anaSleepHit = registerSound("ana_sleep_hit");
+		anaSleepVoice = registerSound("ana_sleep_voice");
 		EnumHero.ANA.reloadSound = registerSound("ana_reload");
 		reaperShoot = registerSound("reaper_shoot");
 		reaperTeleportStart = registerSound("reaper_teleport_start");

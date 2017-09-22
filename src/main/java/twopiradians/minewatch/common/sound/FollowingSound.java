@@ -18,7 +18,7 @@ public class FollowingSound extends MovingSound {
         this.entity = entity;
         this.volume = volume;
         this.pitch = pitch;
-        this.attenuationType = ISound.AttenuationType.NONE;
+        this.attenuationType = ISound.AttenuationType.LINEAR;
     }
 
     public void update() {

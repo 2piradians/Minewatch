@@ -22,6 +22,7 @@ import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
@@ -58,7 +59,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity);
 	}
-	
+
 	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
 		this(type, bool, player, 0, 0, 0, null);
 	}
@@ -211,10 +212,23 @@ public class SPacketSimple implements IMessage {
 					}
 					// wake up from Ana's sleep dart
 					else if (packet.type == 11 && entity != null && TickHandler.hasHandler(entity, Identifier.ANA_SLEEP)) {
-						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ANA_SLEEP),
-								TickHandler.getHandler(entity, Identifier.PREVENT_INPUT),
-								TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
-								TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));	
+						for (Identifier identifier : new Identifier[] {Identifier.ANA_SLEEP, 
+								Identifier.PREVENT_INPUT, Identifier.PREVENT_MOVEMENT, Identifier.PREVENT_ROTATION}) {
+							TickHandler.Handler handler = TickHandler.getHandler(entity, identifier);
+							if (handler != null)
+								handler.ticksLeft = 10;
+						}
+					}
+					// Ana's sleep dart
+					else if (packet.type == 12 && entity != null) {
+						if (!(entity instanceof EntityPlayer))
+							entity.setRotationYawHead(0);
+						entity.rotationPitch = 0;
+						TickHandler.interrupt(entity);
+						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
+								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(120));//TODO 110+10
 					}
 				}
 			});

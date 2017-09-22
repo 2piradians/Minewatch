@@ -35,7 +35,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleAnaHealth;
-import twopiradians.minewatch.client.particle.ParticleCircle;
+import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleSmoke;
@@ -293,7 +293,8 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(loc);
 		for (ResourceLocation loc : ParticleSpark.TEXTURES)
 			event.getMap().registerSprite(loc);
-		event.getMap().registerSprite(ParticleCircle.TEXTURE);
+		for (Particle particle : Particle.values())
+			event.getMap().registerSprite(particle.loc);
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
 	}
@@ -365,8 +366,8 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) { 
-		ParticleCircle particle = new ParticleCircle(world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale);
+	public void spawnParticlesCustom(Particle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle.loc, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
@@ -387,6 +388,11 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().player;
+	}
+
+	@Override
+	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
+		Minecraft.getMinecraft().getSoundHandler().stop(event.getRegistryName().toString(), category);
 	}
 
 }

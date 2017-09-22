@@ -2,11 +2,16 @@ package twopiradians.minewatch.common;
 
 import java.util.UUID;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -46,6 +51,16 @@ import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class CommonProxy {
 
+	public enum Particle {
+		CIRCLE("circle"), SLEEP("sleep");
+		
+		public ResourceLocation loc;
+		
+		private Particle(String loc) {
+			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+loc);
+		}
+	}
+	
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
@@ -84,8 +99,9 @@ public class CommonProxy {
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {}
 	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
 	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-	public void spawnParticlesCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) {}	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
-	
+	public void spawnParticlesCustom(Particle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
+	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
+
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());
@@ -96,7 +112,7 @@ public class CommonProxy {
 
 	private void registerCraftingRecipes() {
 		RecipeSorter.register("Matching Damage Recipe", ShapelessMatchingDamageRecipe.class, Category.SHAPELESS, "");
-		
+
 		for (EnumHero hero : EnumHero.values()) {
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.helmet), new ItemStack(hero.token), new ItemStack(Items.IRON_HELMET, 1, OreDictionary.WILDCARD_VALUE)));
 			GameRegistry.addRecipe(new ShapelessMatchingDamageRecipe(new ItemStack(hero.chestplate), new ItemStack(hero.token), new ItemStack(Items.IRON_CHESTPLATE, 1, OreDictionary.WILDCARD_VALUE)));
@@ -109,10 +125,10 @@ public class CommonProxy {
 	@SubscribeEvent(receiveCanceled=true)
 	public void commandDev(CommandEvent event) {
 		try {
-		if ((event.getCommand().getName().equalsIgnoreCase("mwdev") || event.getCommand().getName().equalsIgnoreCase("minewatchdev")) && 
-				event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
-				CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
-			event.setCanceled(true);
+			if ((event.getCommand().getName().equalsIgnoreCase("mwdev") || event.getCommand().getName().equalsIgnoreCase("minewatchdev")) && 
+					event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
+					CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
+				event.setCanceled(true);
 		}
 		catch (Exception e) {}
 	}
@@ -130,5 +146,14 @@ public class CommonProxy {
 	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch) {
 		Minewatch.network.sendToAll(new SPacketFollowingSound(entity, event, category, volume, pitch));
 	}
-	
+
+	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
+		if (player instanceof EntityPlayerMP) {
+			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
+			packetbuffer.writeString(category.getName());
+			packetbuffer.writeString(event.getRegistryName().toString());
+			((EntityPlayerMP)player).connection.sendPacket(new SPacketCustomPayload("MC|StopSound", packetbuffer));
+		}
+	}
+
 }

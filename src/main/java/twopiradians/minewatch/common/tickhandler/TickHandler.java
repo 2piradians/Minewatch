@@ -1,6 +1,5 @@
 package twopiradians.minewatch.common.tickhandler;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -77,7 +76,7 @@ public class TickHandler {
 		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
-			if (handler.interruptible)
+			if (handler.interruptible && entity != null && entity == handler.entity) 
 				unregister(entity.world.isRemote, handler);
 		}
 	}
@@ -88,7 +87,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				System.out.println(handler.identifier+": "+handler.ticksLeft+", "+handler.entity.getName());//TODO remove
+				System.out.println(handler); //TODO remove
 				if (handler.onClientTick()) 
 					unregister(true, handler);
 			}
@@ -99,7 +98,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				System.out.println(handler.identifier+": "+handler.ticksLeft+", "+handler.entity.getName());//TODO remove
+				System.out.println(handler); //TODO remove
 				if (handler.onServerTick()) 
 					unregister(false, handler);
 			}
@@ -142,12 +141,12 @@ public class TickHandler {
 		/**Called every tick on client, returns whether the handler should be removed afterwards*/
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			return --ticksLeft <= 0;
+			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
 
 		/**Called every tick on server, returns whether the handler should be removed afterwards*/
 		public boolean onServerTick() {
-			return --ticksLeft <= 0;
+			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
 
 		/**Called before the handler is removed*/
@@ -183,6 +182,11 @@ public class TickHandler {
 			else
 				return false;
 		}
+		
+		@Override
+		public String toString() {
+			return identifier+": "+ticksLeft+(entity == null ? "" : ", "+entity.getName());
+		}
 
 		// methods that are only sometimes used by handlers are below (for convenience)
 
@@ -190,8 +194,12 @@ public class TickHandler {
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
 				this.entityLiving = (EntityLivingBase) entity;
+			else
+				this.entityLiving = null;
 			if (entity instanceof EntityPlayer)
 				this.player = (EntityPlayer) entity;
+			else 
+				this.player = null;
 			return this;
 		}
 

@@ -7,20 +7,19 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.Minewatch;
 
 @SideOnly(Side.CLIENT)
-public class ParticleCircle extends ParticleSimpleAnimated {
+public class ParticleCustom extends ParticleSimpleAnimated {
 
-	public static final ResourceLocation TEXTURE = new ResourceLocation(Minewatch.MODID, "entity/particle/circle");
 	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
 	private float initialScale;
 	private float finalScale;
+	private float rotationSpeed;
 
-	public ParticleCircle(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale) {
+	public ParticleCustom(ResourceLocation texture, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		super(world, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
@@ -32,9 +31,11 @@ public class ParticleCircle extends ParticleSimpleAnimated {
 		this.finalScale = finalScale;
 		this.particleAlpha = alpha;
 		this.initialAlpha = alpha;
+		this.particleAngle = initialRotation;
+		this.rotationSpeed = rotationSpeed;
 		this.setColor(color);
 		this.setColorFade(colorFade);
-		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TEXTURE.toString());
+		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
 		this.setParticleTexture(sprite); 	
 	}
 
@@ -46,6 +47,9 @@ public class ParticleCircle extends ParticleSimpleAnimated {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
+
+		this.prevParticleAngle = this.particleAngle;
+		this.particleAngle += rotationSpeed;
 
 		// color fade (faster than vanilla)
 		this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;

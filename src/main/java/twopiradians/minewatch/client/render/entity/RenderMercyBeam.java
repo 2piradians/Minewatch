@@ -16,7 +16,8 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import twopiradians.minewatch.client.particle.ParticleCircle;
+import twopiradians.minewatch.client.particle.ParticleCustom;
+import twopiradians.minewatch.common.CommonProxy.Particle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 
@@ -127,13 +128,13 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		double posY = y + d11 * (double)(f11 * f11 + f11) * 0.5D + 0.05D;
 		double posZ = z + d12 * (double)f11;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
-			entity.particleStaff = new ParticleCircle(entity.player.world, entity.player.posX+posX, entity.player.posY+posY, entity.player.posZ+posZ, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.95f, Integer.MAX_VALUE, 0.5f, 0.4f);
+			entity.particleStaff = new ParticleCustom(Particle.CIRCLE.loc, entity.player.world, entity.player.posX+posX, entity.player.posY+posY, entity.player.posZ+posZ, 
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.95f, Integer.MAX_VALUE, 0.5f, 0.4f, 0, 0.1f);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleStaff);
 		}
 		if (entity.particleTarget == null || !entity.particleTarget.isAlive()) {
-			entity.particleTarget = new ParticleCircle(entity.player.world, entity.player.posX+x, entity.player.posY+y, entity.player.posZ+z, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, 7, 5.1f);
+			entity.particleTarget = new ParticleCustom(Particle.CIRCLE.loc, entity.player.world, entity.player.posX+x, entity.player.posY+y, entity.player.posZ+z, 
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, 7, 5.1f, 0, 0.1f);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleTarget);
 		}
 		float rate = 30;

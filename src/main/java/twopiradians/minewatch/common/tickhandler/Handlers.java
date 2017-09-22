@@ -10,11 +10,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
@@ -39,23 +41,9 @@ public class Handlers {
 			return this;
 		}
 		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
-			this.setRotations();
-			return super.onClientTick();
-		}
-		@Override
 		public boolean onServerTick() {
-			this.setRotations();
+			Handlers.setRotations(entityLiving);
 			return super.onServerTick();
-		}
-		public void setRotations() {
-			if (entityLiving != null && rotations.containsKey(entityLiving)) {
-				Triple<Float, Float, Float> triple = rotations.get(entityLiving);
-				entityLiving.rotationPitch = triple.getLeft();
-				entityLiving.rotationYaw = triple.getMiddle();
-				entityLiving.rotationYawHead = triple.getRight();
-			}
 		}
 		@Override
 		public Handler onRemove() {
@@ -63,6 +51,27 @@ public class Handlers {
 			return this;
 		}
 	};
+	
+	public static void setRotations(EntityLivingBase entityLiving) {
+		if (entityLiving != null && rotations.containsKey(entityLiving)) {
+			Triple<Float, Float, Float> triple = rotations.get(entityLiving);
+			entityLiving.prevRotationPitch = triple.getLeft();
+			entityLiving.prevRotationYaw = triple.getMiddle();
+			entityLiving.prevRotationYawHead = triple.getRight();
+			entityLiving.rotationPitch = triple.getLeft();
+			entityLiving.rotationYaw = triple.getMiddle();
+			entityLiving.rotationYawHead = triple.getRight();
+		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void rotate(RenderLivingEvent.Pre<EntityLivingBase> event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_ROTATION);
+		if (handler != null) 
+			Handlers.setRotations(event.getEntity());
+			
+	}
 
 	private static HashMap<EntityLivingBase, Triple<Float, Float, Float>> rotations = Maps.newHashMap();
 
@@ -134,6 +143,11 @@ public class Handlers {
 		}
 		@Override
 		public boolean onServerTick() {
+			// prevent jumping
+			if (entity instanceof EntitySlime)
+				entity.onGround = false;
+			entity.motionY = Math.min(0, entity.motionY);
+			entity.fallDistance *= 0.5f;
 			// slowness
 			if (this.entityLiving != null) {
 				PotionEffect effect = this.entityLiving.getActivePotionEffect(MobEffects.SLOWNESS);

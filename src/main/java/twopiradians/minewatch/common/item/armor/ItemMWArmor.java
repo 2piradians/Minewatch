@@ -16,6 +16,7 @@ import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,6 +27,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod;
@@ -47,6 +49,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -58,6 +61,7 @@ public class ItemMWArmor extends ItemArmor
 	private ModelPlayer femaleModel;
 	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
 	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
+	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -241,9 +245,11 @@ public class ItemMWArmor extends ItemArmor
 		// genji jump boost/double jump
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
+			// jump boost
 			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
+			// double jump
 			else if (world.isRemote && player.onGround)
 				playersJumped.remove(player);
 			else if (Minewatch.keys.jump(player) && !player.onGround && !player.isOnLadder() && 
@@ -258,12 +264,35 @@ public class ItemMWArmor extends ItemArmor
 			}
 		}
 
+		// genji/hanzo wall climb
+		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+				(SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
+				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
+			// reset climbing
+			if (player.onGround)
+				playersClimbing.remove(player);
+			else if (player.isCollidedHorizontally && !player.capabilities.isFlying && Minewatch.keys.jump(player)) {
+				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
+				if (ticks <= 17) {
+					if (ticks % 4 == 0) { // reset fall distance and play sound
+						Minewatch.network.sendToServer(new CPacketSimple(0, player));
+						player.fallDistance = 0.0F;
+					}
+					player.motionX = MathHelper.clamp(player.motionX, -0.15D, 0.15D);
+					player.motionZ = MathHelper.clamp(player.motionZ, -0.15D, 0.15D);
+					player.motionY = Math.max(0.2d, player.motionY);
+					player.move(MoverType.SELF, player.motionX, player.motionY, player.motionZ);
+					playersClimbing.put(player, ticks);
+				}
+			}
+		}
+
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
 			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
-					!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
-					player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
+			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
+			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
 			else if (Minewatch.keys.jump(player) && player.motionY < 0) {
 				player.motionY *= 0.75f;

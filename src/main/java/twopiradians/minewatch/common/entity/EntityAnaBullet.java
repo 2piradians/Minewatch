@@ -40,7 +40,8 @@ public class EntityAnaBullet extends EntityMWThrowable {
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote && this.ticksExisted > 1) {
+		if (this.world.isRemote && (this.ticksExisted > 1 || !(this.getThrower() instanceof EntityPlayer) || 
+				!Minewatch.keys.rmb((EntityPlayer) this.getThrower()))) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 

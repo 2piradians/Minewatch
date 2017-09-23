@@ -12,6 +12,7 @@ public class ModSoundEvents {
 	public static SoundEvent abilityRecharge;
 	public static SoundEvent abilityMultiRecharge;
 	public static SoundEvent abilityNotReady;
+	public static SoundEvent wallClimb;
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
 	public static SoundEvent anaSleepShoot;
@@ -63,6 +64,7 @@ public class ModSoundEvents {
 		abilityRecharge = registerSound("ability_recharge");
 		abilityMultiRecharge = registerSound("ability_multi_recharge");
 		abilityNotReady = registerSound("ability_not_ready");
+		wallClimb = registerSound("wall_climb");
 		anaShoot = registerSound("ana_shoot");
 		anaHeal = registerSound("ana_heal");
 		anaSleepShoot = registerSound("ana_sleep_shoot");

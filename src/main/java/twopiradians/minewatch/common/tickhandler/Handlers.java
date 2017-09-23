@@ -14,6 +14,7 @@ import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -25,11 +26,30 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class Handlers {
 
+	/**Set mainhand active (for item use action)*/
+	public static final Handler ACTIVE_HAND = new Handler(Identifier.ACTIVE_HAND, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (player != null && player.getHeldItemMainhand() != null && 
+					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+					!player.isHandActive()) 
+				player.setActiveHand(EnumHand.MAIN_HAND);
+			return super.onClientTick();
+		}
+		@Override
+		public Handler onRemove() {
+			player.resetActiveHand();
+			return this;
+		}
+	};
+	
 	/**Locks entity's current pitch/yaw*/
 	public static final Handler PREVENT_ROTATION = new Handler(Identifier.PREVENT_ROTATION, true) {
 		@Override

@@ -23,6 +23,15 @@
 			"minewatch:ability_not_ready"
 		]
 	},
+	"wall_climb": {
+		"category": "player",
+		"sounds": [
+			"minewatch:wall_climb_0",
+			"minewatch:wall_climb_1",
+			"minewatch:wall_climb_2",
+			"minewatch:wall_climb_3"
+		]
+	},
 	"ana_shoot": {
 		"category": "player",
 		"sounds": [

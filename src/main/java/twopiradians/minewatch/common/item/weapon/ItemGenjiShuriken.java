@@ -21,11 +21,14 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -94,7 +97,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			return super.onClientTick();
 		}
-		
+
 		@Override
 		public boolean onServerTick() {
 			// block while striking
@@ -106,7 +109,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 			for (Entity entityCollided : list) 
-				if (entityCollided instanceof EntityLivingBase) 
+				if (entityCollided instanceof EntityLivingBase)
 					if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*ItemMWWeapon.damageScale))
 						entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
@@ -120,7 +123,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			return super.onRemove();
 		}
 	};
-	
+
 	public static final Handler SWORD_CLIENT = new Handler(Identifier.GENJI_SWORD, true) {};
 
 	public ItemGenjiShuriken() {
@@ -243,7 +246,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				((IThrowableEntity) entity).setThrower(player);
 
 			player.world.playSound(null, player.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
-			player.setActiveHand(EnumHand.MAIN_HAND);
+			Minewatch.network.sendToAll(new SPacketSimple(13, false, player));
 			return true;
 		}
 		return false;

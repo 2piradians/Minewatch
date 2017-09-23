@@ -139,7 +139,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND)) {
-				hero.ability2.keybind.setCooldown(player, 24, false); //TODO 240
+				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
 				dart.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
 						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, true);

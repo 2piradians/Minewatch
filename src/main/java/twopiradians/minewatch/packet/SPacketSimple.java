@@ -12,8 +12,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -228,7 +231,16 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
-								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(120));//TODO 110+10
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(120));
+					}
+					// Genji's deflect
+					else if (packet.type == 13 && packetPlayer != null) {
+						// spawn sweep particle
+						double d0 = (double)(-MathHelper.sin(packetPlayer.rotationYaw * 0.017453292F));
+						double d1 = (double)MathHelper.cos(packetPlayer.rotationYaw * 0.017453292F);
+						packetPlayer.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, packetPlayer.posX + d0, packetPlayer.posY + (double)packetPlayer.height * 0.8D, packetPlayer.posZ + d1, 0, d0, 0.0D, new int[0]);
+						if (packetPlayer == player)
+							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(packetPlayer).setTicks(5));
 					}
 				}
 			});

@@ -26,6 +26,7 @@ public class Config {
 	public static int tokenDropRate;
 	public static boolean allowGunWarnings;
 	public static boolean customCrosshairs;
+	public static boolean projectilesCauseKnockback;
 	public static double guiScale;
 	public static int durabilityOptionArmors;
 	public static int durabilityOptionWeapons;
@@ -39,23 +40,26 @@ public class Config {
 	}
 
 	public static void syncConfig() {
-		Property use3DModelsprop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models?");
+		Property use3DModelsprop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
 		use3DModelsprop.setRequiresMcRestart(true);
 		useObjModels = use3DModelsprop.getBoolean();
 
 		Property allowGunWarningsProp = config.get(Configuration.CATEGORY_GENERAL, "Restrict weapon usage", true, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand). This also prevents weapons from different heroes from being mixed and matched.");
 		allowGunWarnings = allowGunWarningsProp.getBoolean();
 
-		Property customCrosshairsProp = config.get(Configuration.CATEGORY_GENERAL, "Custom Crosshairs", true, "Should weapons change your crosshair.");
+		Property customCrosshairsProp = config.get(Configuration.CATEGORY_GENERAL, "Custom crosshairs", true, "Should weapons change your crosshair.");
 		customCrosshairs = customCrosshairsProp.getBoolean();
+		
+		Property projectilesCauseKnockbackProp = config.get(Configuration.CATEGORY_GENERAL, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies.");
+		projectilesCauseKnockback = projectilesCauseKnockbackProp.getBoolean();
 
-		Property tokenDropRateProp = config.get(Configuration.CATEGORY_GENERAL, "Token Drop Rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
+		Property tokenDropRateProp = config.get(Configuration.CATEGORY_GENERAL, "Token drop rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
 		tokenDropRate = tokenDropRateProp.getInt();
 
-		Property damageScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
+		Property damageScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
 		ItemMWWeapon.damageScale = (float) (0.1d * damageScaleProp.getDouble());
 
-		Property guiScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Gui Scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
+		Property guiScaleProp = config.get(Configuration.CATEGORY_GENERAL, "Gui scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
 		Config.guiScale = guiScaleProp.getDouble();
 
 		Property durabilityArmorsProp = config.get(Configuration.CATEGORY_GENERAL, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
@@ -81,7 +85,7 @@ public class Config {
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {
-		return config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" Texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
+		return config.get(Config.CATEGORY_HERO_TEXTURES, hero.name+" texture", hero.skinCredits[0], "Textures for "+hero.name+"'s armor", hero.skinCredits);
 	}
 
 	@SubscribeEvent

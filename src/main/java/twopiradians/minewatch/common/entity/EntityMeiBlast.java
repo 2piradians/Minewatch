@@ -2,11 +2,8 @@ package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -14,7 +11,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.Particle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.Handlers;
@@ -107,8 +103,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (result.entityHit instanceof EntityLivingBase && this.getThrower() != null &&
-				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
+		if (this.shouldHit(result.entityHit)) {
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
@@ -119,8 +114,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
 				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
-			if (!this.world.isRemote && 
-					!(result.entityHit instanceof EntityPlayer && ((EntityPlayer)result.entityHit).isCreative())) {
+			if (this.attemptImpact(result.entityHit, 2.25f, true)) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);
@@ -129,16 +123,9 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					else
 						TickHandler.register(false, FROZEN.setEntity(result.entityHit).setTicks(1));
 					TickHandler.register(false, DELAYS.setEntity(result.entityHit).setTicks(10));
-				}
-				double prev = ((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
-				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 2.25f*ItemMWWeapon.damageScale);
-				((EntityLivingBase) result.entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
+				}			
 				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			}
-			else
-				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			this.setDead();
 		}
 	}
 

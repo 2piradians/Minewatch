@@ -191,7 +191,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void rotateSleeping(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
-		if (handler != null) {
+		if (handler != null && event.getEntity().getHealth() > 0) {
 			GlStateManager.pushMatrix();
 			float rotation = handler.ticksLeft > 9 ? Math.min((handler.initialTicks-handler.ticksLeft)*4f, 90) :
 				handler.ticksLeft*10f;
@@ -205,7 +205,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void rotateSleeping(RenderLivingEvent.Post<EntityLivingBase> event) {
-		if (TickHandler.hasHandler(event.getEntity(), Identifier.ANA_SLEEP)) 
+		if (TickHandler.hasHandler(event.getEntity(), Identifier.ANA_SLEEP) && event.getEntity().getHealth() > 0) 
 			GlStateManager.popMatrix();
 	}
 

@@ -21,14 +21,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -40,6 +37,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -192,12 +190,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, null)) {
+		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP) {
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
@@ -206,7 +204,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP) {
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
 				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));
@@ -265,7 +263,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onKill(LivingDeathEvent event) {
 		// remove strike cooldown if killed by Genji
 		if (event.getEntityLiving() != null && !event.getEntityLiving().world.isRemote && 
-				event.getSource().getEntity() instanceof EntityPlayer) 
+				event.getSource().getEntity() instanceof EntityPlayer && 
+				ItemMWArmor.SetManager.playersWearingSets.get(event.getSource().getEntity()) == EnumHero.GENJI) 
 			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getEntity(), 0, false);
 	}
 

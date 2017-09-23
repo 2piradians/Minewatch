@@ -98,9 +98,8 @@ public abstract class ItemMWWeapon extends Item {
 		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			player.getCooldownTracker().setCooldown(this, reloadTime);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
-			if (hero.reloadSound != null)
-				player.world.playSound(null, player.posX, player.posY, player.posZ, 
-						hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
+			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
+				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
 						player.world.rand.nextFloat()/2+0.75f);
 		}
 	}

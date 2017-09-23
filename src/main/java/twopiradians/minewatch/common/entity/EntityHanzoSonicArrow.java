@@ -90,7 +90,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);	
 
-		if (result.entityHit != null && result.entityHit != this.shootingEntity) 
+		if (this.shouldHit(result.entityHit)) 
 			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setTicks(0));
 	}
 

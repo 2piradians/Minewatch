@@ -39,8 +39,8 @@ public class Ability {
 				UUID uuid = player.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
-					if (ability.multiAbilityUses.get(uuid) < ability.maxUses)
-						TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(ability).setEntity(player).setTicks(ability.useCooldown));
+					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
+						this.setTicks(ability.useCooldown);
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);
@@ -49,7 +49,7 @@ public class Ability {
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
 									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
 			}
-			return super.onRemove();
+			return this.ticksLeft <= 0 ? super.onRemove() : null;
 		}
 	};
 
@@ -88,9 +88,9 @@ public class Ability {
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
 	public boolean isSelected(EntityPlayer player, KeyBind keybind) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
-				!this.keybind.abilityNotReadyCooldowns.containsKey(player.getPersistentID())) {
+				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
-			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
 		KeyBind prev = this.keybind;
@@ -100,19 +100,16 @@ public class Ability {
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
 			this.keybind = KeyBind.ABILITY_1;
-
-		if (ret && player.world.isRemote)
-			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
-
+		
 		return ret;
 	}
 
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityPlayer player) {
-		if (player.world.isRemote && keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
-				!keybind.abilityNotReadyCooldowns.containsKey(player.getPersistentID())) {
+		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
+				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
-			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
@@ -127,7 +124,7 @@ public class Ability {
 			return false;
 
 		if (ret && player.world.isRemote)
-			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 
 		return ret;
 	}

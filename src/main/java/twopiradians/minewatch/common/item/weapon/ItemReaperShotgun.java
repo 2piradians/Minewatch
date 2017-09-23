@@ -242,10 +242,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (entity instanceof EntityPlayer && isSelected && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+		if (entity instanceof EntityPlayer && isSelected) {
 			EntityPlayer player = (EntityPlayer)entity;
 			// teleport
-			if (hero.ability1.isSelected(player)) {   
+			if (hero.ability1.isSelected(player) && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {   
 				if (world.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
@@ -280,7 +280,8 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					hero.ability1.toggle(player, false);
 			}
 			// wraith
-			else if (hero.ability2.isSelected(player) && !world.isRemote && player instanceof EntityPlayerMP) {
+			else if (hero.ability2.isSelected(player) && !world.isRemote && player instanceof EntityPlayerMP &&
+					 this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60),
 						WRAITH.setEntity(player).setTicks(60));
 				Minewatch.network.sendTo(new SPacketSimple(10, false, player), (EntityPlayerMP) player);

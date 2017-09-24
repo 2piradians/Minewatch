@@ -159,10 +159,6 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		Vec3d vec = EntityMWThrowable.getShootingPos(shooter, pitch, yaw, hand);
 		this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 
-		/*float f = MathHelper.sqrt((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
-		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
-		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));*/
-
 		// correct trajectory of fast entities (received in render class)
 		if (!this.world.isRemote && this.ticksExisted == 0 && sendPacket) {
 			Minewatch.network.sendToAll(
@@ -230,12 +226,8 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 					}
 					else
 						damaged = ((EntityLivingBase)entityHit).attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
-					// play damage sound
-					if (damaged)
-						((EntityPlayerMP)this.getThrower()).connection.sendPacket((new SPacketSoundEffect
-								(ModSoundEvents.hurt, SoundCategory.PLAYERS, this.getThrower().posX, this.getThrower().posY, 
-										this.getThrower().posZ, 0.3f, this.world.rand.nextFloat()/2+0.75f)));
-					else
+
+					if (!damaged)
 						return false;
 				}
 				this.setDead();

@@ -1,10 +1,12 @@
 package twopiradians.minewatch.common.tickhandler;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +25,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -70,6 +72,19 @@ public class TickHandler {
 		return getHandler(entity, identifier) != null;
 	}
 
+	/**Get all registered handlers by their entity and/or identifier*/
+	public static ArrayList<Handler> getHandlers(Entity entity, Identifier identifier) {
+		ArrayList<Handler> handlers = new ArrayList<Handler>();
+		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+			Handler handler = it.next();
+			if ((entity == null || handler.entity == entity) &&
+					(identifier == null || identifier == handler.identifier))
+				handlers.add(handler);
+		}
+		return handlers;
+	}
+
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
 	 * Used by stuns/similar to cancel active abilities*/
 	public static void interrupt(Entity entity) {
@@ -84,13 +99,20 @@ public class TickHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) 
+		if (event.phase == TickEvent.Phase.END) {
+			//EnumHero.RenderManager.entityDamage.clear();
+			if (Minecraft.getMinecraft().player != null) {
+				ArrayList<Handler> handlers = TickHandler.getHandlers(Minecraft.getMinecraft().player, Identifier.HERO_MESSAGES);
+				if (!handlers.isEmpty())
+					System.out.println(handlers); //TODO remove
+			}
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//System.out.println(handler); //TODO remove
 				if (handler.onClientTick()) 
 					unregister(true, handler);
 			}
+		}
 	}
 
 	@SubscribeEvent
@@ -128,6 +150,10 @@ public class TickHandler {
 		public Vec3d position;
 		@Nullable
 		public Ability ability;
+		@Nullable
+		public double number;
+		@Nullable
+		public String string;
 
 		public Handler(boolean interruptible) {
 			this(Identifier.NONE, interruptible);
@@ -174,7 +200,8 @@ public class TickHandler {
 		/**Overridden to check that only entities, identifiers, and world.isRemote are equal*/
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof Handler && this.identifier == ((Handler)obj).identifier)
+			if (obj instanceof Handler && this.identifier == ((Handler)obj).identifier && 
+					(this.string == null || this.string == ((Handler)obj).string))
 				if (this.entity != null && ((Handler)obj).entity != null)
 					return this.entity == ((Handler)obj).entity && this.entity.world.isRemote == ((Handler)obj).entity.world.isRemote;
 				else 
@@ -210,6 +237,16 @@ public class TickHandler {
 
 		public Handler setAbility(Ability ability) {
 			this.ability = ability;
+			return this;
+		}
+
+		public Handler setNumber(double number) {
+			this.number = number;
+			return this;
+		}
+
+		public Handler setString(String string) {
+			this.string = string;
 			return this;
 		}
 

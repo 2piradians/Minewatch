@@ -1,4 +1,16 @@
 {
+	"kill": {
+		"category": "player",
+		"sounds": [
+			"minewatch:kill"
+		]
+	},
+	"headshot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:headshot"
+		]
+	},
 	"hurt": {
 		"category": "player",
 		"sounds": [

@@ -9,13 +9,17 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -30,6 +34,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -64,6 +69,10 @@ public class SPacketSimple implements IMessage {
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
 		this(type, bool, player, 0, 0, 0, null);
+	}
+
+	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
+		this(type, bool, player, x, y, z, null);
 	}
 
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
@@ -145,19 +154,19 @@ public class SPacketSimple implements IMessage {
 							player.movementInput.sneak = true;
 						}
 						if (packet.bool) {
-							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(packetPlayer).setTicks(10));
-							TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10));
-							EnumHero.RenderManager.playersSneaking.put(packetPlayer, 11);
+							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(packetPlayer).setTicks(10),
+									Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10), 
+									EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(11));
 						}
 						if (packetPlayer == player)
 							move(packetPlayer, 1.0d, false);
 					}
 					// Genji's strike
 					else if (packet.type == 3 && packetPlayer != null) {
-						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(packetPlayer).setTicks(8));
-						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8));
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8));
-						EnumHero.RenderManager.playersSneaking.put(packetPlayer, 9);
+						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(packetPlayer).setTicks(8),
+								ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8),
+								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8), 
+								EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(9));
 						if (packetPlayer == player) 
 							move(packetPlayer, 1.8d, false);
 					}
@@ -240,6 +249,26 @@ public class SPacketSimple implements IMessage {
 						packetPlayer.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, packetPlayer.posX + d0, packetPlayer.posY + (double)packetPlayer.height * 0.8D, packetPlayer.posZ + d1, 0, d0, 0.0D, new int[0]);
 						if (packetPlayer == player)
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(packetPlayer).setTicks(5));
+					}
+					// Kill/assist messages
+					else if (packet.type == 14 && packetPlayer == player && entity != null) {
+						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
+								setString(new String(TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ELIMINATED " : "ASSIST ") +
+										TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName()) +
+										TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x).toUpperCase()).
+								setEntity(player).setTicks(60));
+						TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
+						player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
+					}
+					// Damage entity
+					else if (packet.type == 15 && packetPlayer == player) {
+						TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
+						if (handler == null || handler.ticksLeft < 11)
+							TickHandler.register(true, EnumHero.RenderManager.HIT_OVERLAY.setEntity(player).setTicks(10).setNumber(packet.x));
+						else 
+							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
+						// play damage sound
+						player.playSound(ModSoundEvents.hurt, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f);
 					}
 				}
 			});

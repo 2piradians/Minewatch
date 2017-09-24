@@ -8,6 +8,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
 
+	public static SoundEvent kill;
+	public static SoundEvent headshot;
 	public static SoundEvent hurt;
 	public static SoundEvent abilityRecharge;
 	public static SoundEvent abilityMultiRecharge;
@@ -60,6 +62,8 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStop;
 
 	public static void preInit() {
+		kill = registerSound("kill");
+		headshot = registerSound("headshot");
 		hurt = registerSound("hurt");
 		abilityRecharge = registerSound("ability_recharge");
 		abilityMultiRecharge = registerSound("ability_multi_recharge");

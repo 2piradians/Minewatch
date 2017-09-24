@@ -292,24 +292,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
-	public void passiveHeal(LivingHurtEvent event) {
-		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer) {
-			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
-			if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
-					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
-				try {
-					float damage = event.getAmount();
-					damage = CombatRules.getDamageAfterAbsorb(damage, (float)player.getTotalArmorValue(), (float)player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-					damage = this.applyPotionDamageCalculations(player, event.getSource(), damage);
-					if (damage >= 0) 
-						player.heal(damage * 0.2f);
-				}
-				catch (Exception e) {}
-			}
-		}
-	}
-
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
 		return (Minewatch.proxy.getClientPlayer() != null && 
@@ -362,25 +344,21 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				TickHandler.getHandler(Minecraft.getMinecraft().player, Identifier.REAPER_TELEPORT).ticksLeft > 0) 
 			event.setNewfov(event.getFov()+0.8f);
 	}
-
-	/**Copied from EntityLivingBase bc it's protected*/
-	private float applyPotionDamageCalculations(EntityPlayer player, DamageSource source, float damage) {
-		if (source.isDamageAbsolute())
-			return damage;
-		else {
-			if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD) {
-				int i = (player.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
-				int j = 25 - i;
-				float f = damage * (float)j;
-				damage = f / 25.0F;
-			}
-			if (damage <= 0.0F)
-				return 0.0F;
-			else {
-				int k = EnchantmentHelper.getEnchantmentModifierDamage(player.getArmorInventoryList(), source);
-				if (k > 0)
-					damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
-				return damage;
+	
+	@SubscribeEvent
+	public void damageEntities(LivingHurtEvent event) {
+		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
+			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+			if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
+					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
+				try {
+					float damage = event.getAmount();
+					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+					damage = EnumHero.RenderManager.applyPotionDamageCalculations(player, event.getSource(), damage);
+					if (damage > 0) 
+						player.heal(damage * 0.2f);
+				}
+				catch (Exception e) {}
 			}
 		}
 	}

@@ -251,7 +251,7 @@ public class ItemMWArmor extends ItemArmor
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
 			// double jump
-			else if (world.isRemote && player.onGround)
+			else if (world.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
 				playersJumped.remove(player);
 			else if (Minewatch.keys.jump(player) && !player.onGround && !player.isOnLadder() && 
 					player.motionY < 0.0d && !playersJumped.contains(player)) {
@@ -272,7 +272,7 @@ public class ItemMWArmor extends ItemArmor
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
 			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))))
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava())
 				playersClimbing.remove(player);
 			else if (player.isCollidedHorizontally && !player.capabilities.isFlying && Minewatch.keys.jump(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;

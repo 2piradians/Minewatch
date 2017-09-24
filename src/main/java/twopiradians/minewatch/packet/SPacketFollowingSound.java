@@ -6,7 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -33,7 +32,7 @@ public class SPacketFollowingSound implements IMessage{
 	@Override
 	public void fromBytes(ByteBuf buf) {
         this.sound = SoundEvent.REGISTRY.getObjectById(buf.readInt());
-        this.category = SoundCategory.valueOf(ByteBufUtils.readUTF8String(buf));
+        this.category = SoundCategory.values()[buf.readInt()];
         this.entity = buf.readInt();
         this.volume = buf.readFloat();
         this.pitch = buf.readFloat();
@@ -42,7 +41,7 @@ public class SPacketFollowingSound implements IMessage{
 	@Override
 	public void toBytes(ByteBuf buf) {
         buf.writeInt(SoundEvent.REGISTRY.getIDForObject(this.sound));
-        ByteBufUtils.writeUTF8String(buf, this.category.getName());
+        buf.writeInt(this.category.ordinal());
         buf.writeInt(this.entity);
         buf.writeFloat(this.volume);
         buf.writeFloat(this.pitch);

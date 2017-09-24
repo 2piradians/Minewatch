@@ -33,7 +33,7 @@ public class SPacketSyncAmmo implements IMessage{
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		this.hero = EnumHero.valueOf(ByteBufUtils.readUTF8String(buf));
+		this.hero = EnumHero.values()[buf.readInt()];
 		this.player = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.hand = EnumHand.valueOf(ByteBufUtils.readUTF8String(buf));
 		this.ammo = buf.readInt();
@@ -46,6 +46,7 @@ public class SPacketSyncAmmo implements IMessage{
 
 	@Override
 	public void toBytes(ByteBuf buf) {
+		buf.writeInt(hero.ordinal());
 		ByteBufUtils.writeUTF8String(buf, hero.name());
 		ByteBufUtils.writeUTF8String(buf, player.toString());
 		ByteBufUtils.writeUTF8String(buf, hand.toString());

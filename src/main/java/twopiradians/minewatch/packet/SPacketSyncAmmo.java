@@ -47,7 +47,6 @@ public class SPacketSyncAmmo implements IMessage{
 	@Override
 	public void toBytes(ByteBuf buf) {
 		buf.writeInt(hero.ordinal());
-		ByteBufUtils.writeUTF8String(buf, hero.name());
 		ByteBufUtils.writeUTF8String(buf, player.toString());
 		ByteBufUtils.writeUTF8String(buf, hand.toString());
 		buf.writeInt(this.ammo);

@@ -44,7 +44,7 @@ public class Keys {
 		public final Handler COOLDOWNS = new Handler(identifier, false) {
 			@Override
 			public Handler onRemove() {
-				if (player.world.isRemote) {
+				if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
 					if (silentRecharge.contains(player.getPersistentID()))
 						silentRecharge.remove(player.getPersistentID());
 					else

@@ -50,7 +50,13 @@ public class TickHandler {
 			Handler handler = it.next();
 			if (handler != null) {
 				CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
-				handlerList.remove(handler.onRemove());
+				try {
+					handlerList.remove(handler.onRemove());
+				}
+				catch (Exception e) {
+					handlerList.remove(handler);
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -103,8 +109,13 @@ public class TickHandler {
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//System.out.println(handler); //TODO uncomment
-				if (handler.onClientTick()) 
-					unregister(true, handler);
+				try {
+					if (handler.onClientTick()) 
+						unregister(true, handler);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 	}
 
@@ -114,8 +125,13 @@ public class TickHandler {
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//System.out.println(handler); //TODO uncomment
-				if (handler.onServerTick()) 
-					unregister(false, handler);
+				try {
+					if (handler.onServerTick()) 
+						unregister(false, handler);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 	}
 
@@ -246,7 +262,7 @@ public class TickHandler {
 			this.string = string;
 			return this;
 		}
-		
+
 		public Handler setBoolean(Boolean bool) {
 			this.bool = bool;
 			return this;

@@ -318,7 +318,7 @@ public enum EnumHero {
 		return null;
 	}
 
-	@Mod.EventBusSubscriber(Side.CLIENT)
+	@Mod.EventBusSubscriber
 	public static class RenderManager {
 
 		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};

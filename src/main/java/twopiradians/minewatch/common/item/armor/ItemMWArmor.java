@@ -297,7 +297,7 @@ public class ItemMWArmor extends ItemArmor
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (Minewatch.keys.jump(player) && player.motionY < 0) {
+			else if (Minewatch.keys.jump(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
 				player.motionY *= 0.75f;
 				player.fallDistance *= 0.75f;
 				if (!playersHovering.contains(player) && !world.isRemote) {

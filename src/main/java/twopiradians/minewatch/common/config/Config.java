@@ -36,7 +36,7 @@ public class Config {
 	public static int trackKillsOption;
 
 	public static void preInit(final File file) {
-		config = new Configuration(file);
+		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
 		config.load();
 
 		//If loaded version < CONFIG_VERSION, delete it
@@ -57,6 +57,8 @@ public class Config {
 	}
 
 	public static void syncConfig() {
+		System.out.println("SYNCING CONFIG================================="); //TODO remove
+		
 		Property use3DModelsprop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
 		use3DModelsprop.setRequiresMcRestart(true);
 		useObjModels = use3DModelsprop.getBoolean();

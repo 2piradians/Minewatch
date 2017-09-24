@@ -35,6 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -217,7 +218,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
-				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d) {
+				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d &&
+				!(entity instanceof EntityMWThrowable && ((EntityMWThrowable)entity).notDeflectible)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
 			entity.motionX = player.getLookVec().xCoord*velScale;	

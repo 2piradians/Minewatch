@@ -205,10 +205,8 @@ public class SPacketSimple implements IMessage {
 					}
 					// Mei's freeze / Reaper's tp
 					else if (packet.type == 9 && entity instanceof EntityLivingBase) {
-						if (packet.bool) {
+						if (packet.bool) 
 							((EntityLivingBase) entity).addPotionEffect(new PotionEffect(ModPotions.frozen, (int) packet.x, 0, false, true));
-							TickHandler.interrupt(entity);
-						}
 						if (entity == player)
 							TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks((int) packet.x),
 									Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks((int) packet.x), 
@@ -235,7 +233,6 @@ public class SPacketSimple implements IMessage {
 						if (!(entity instanceof EntityPlayer))
 							entity.setRotationYawHead(0);
 						entity.rotationPitch = 0;
-						TickHandler.interrupt(entity);
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
@@ -256,7 +253,7 @@ public class SPacketSimple implements IMessage {
 						String string = null;
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
-							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName());
+									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName());
 						else
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName()) +
@@ -290,6 +287,10 @@ public class SPacketSimple implements IMessage {
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound
 						player.playSound(ModSoundEvents.hurt, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f);
+					}
+					// Interrupt
+					else if (packet.type == 16 && entity != null) {
+						TickHandler.interrupt(entity);
 					}
 				}
 			});

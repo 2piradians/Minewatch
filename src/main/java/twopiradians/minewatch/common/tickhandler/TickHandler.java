@@ -18,7 +18,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.actors.threadpool.Arrays;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 /**Used to easily create/manage tick timers and other tick-dependent things*/
 public class TickHandler {
@@ -93,13 +95,15 @@ public class TickHandler {
 
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
 	 * Used by stuns/similar to cancel active abilities*/
-	public static void interrupt(Entity entity) {
+	public static void interrupt(Entity entity) {//TODO packet to clients
 		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
 			if (handler.interruptible && entity != null && entity == handler.entity) 
 				unregister(entity.world.isRemote, handler);
 		}
+		if (!entity.world.isRemote)
+			Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 	}
 
 	@SideOnly(Side.CLIENT)

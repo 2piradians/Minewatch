@@ -22,6 +22,7 @@ import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
 
+	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
 

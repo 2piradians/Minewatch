@@ -56,9 +56,7 @@ public class Config {
 		config.save();
 	}
 
-	public static void syncConfig() {
-		System.out.println("SYNCING CONFIG================================="); //TODO remove
-		
+	public static void syncConfig() {		
 		Property use3DModelsprop = config.get(Configuration.CATEGORY_GENERAL, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
 		use3DModelsprop.setRequiresMcRestart(true);
 		useObjModels = use3DModelsprop.getBoolean();

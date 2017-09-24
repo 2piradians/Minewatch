@@ -69,12 +69,12 @@ public class EntityMeiBlast extends EntityMWThrowable {
 	
 	public EntityMeiBlast(World worldIn) {
 		super(worldIn);
-		this.notDeflectible = true;
 		this.setSize(0.1f, 0.1f);
 	}
 
 	public EntityMeiBlast(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.notDeflectible = true;
 		this.setNoGravity(true);
 		this.lifetime = 5;
 	}

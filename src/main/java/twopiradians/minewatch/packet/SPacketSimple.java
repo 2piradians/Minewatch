@@ -261,19 +261,21 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
 								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
-						TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
-						player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
-						TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
-						if (handler == null)
-							TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
-						else if (handler.number < 6) {
-							handler.setTicks(40);
-							handler.setNumber(handler.number+1);
-							if (handler.number > 1 && handler.number < 7) {
-								for (SoundEvent event : ModSoundEvents.multikill)
-									Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
-								Minewatch.proxy.playFollowingSound(player, 
-										ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f);
+						if (entity != player) {
+							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
+							player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
+							TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
+							if (handler == null)
+								TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
+							else if (handler.number < 6) {
+								handler.setTicks(40);
+								handler.setNumber(handler.number+1);
+								if (handler.number > 1 && handler.number < 7) {
+									for (SoundEvent event : ModSoundEvents.multikill)
+										Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
+									Minewatch.proxy.playFollowingSound(player, 
+											ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f);
+								}
 							}
 						}
 

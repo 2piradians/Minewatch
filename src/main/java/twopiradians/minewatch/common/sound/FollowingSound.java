@@ -22,7 +22,7 @@ public class FollowingSound extends MovingSound {
     }
 
     public void update() {
-        if (!this.entity.isDead) {
+        if (this.entity != null && !this.entity.isDead) {
             this.xPosF = (float)this.entity.posX;
             this.yPosF = (float)this.entity.posY;
             this.zPosF = (float)this.entity.posZ;

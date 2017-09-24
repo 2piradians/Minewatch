@@ -7,10 +7,8 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -20,7 +18,6 @@ import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {

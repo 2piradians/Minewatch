@@ -1,4 +1,34 @@
 {
+	"multikill_2": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_2"
+		]
+	},
+	"multikill_3": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_3"
+		]
+	},
+	"multikill_4": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_4"
+		]
+	},
+	"multikill_5": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_5"
+		]
+	},
+	"multikill_6": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_6"
+		]
+	},
 	"kill": {
 		"category": "player",
 		"sounds": [

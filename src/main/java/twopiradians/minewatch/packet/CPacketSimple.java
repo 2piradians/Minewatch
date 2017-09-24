@@ -57,7 +57,7 @@ public class CPacketSimple implements IMessage {
 					if (packet.type == 0 && packetPlayer != null) {
 						packetPlayer.fallDistance = 0;
 						packetPlayer.world.playSound(null, packetPlayer.getPosition(), ModSoundEvents.wallClimb, 
-								SoundCategory.PLAYERS, 0.6f, 1.0f);
+								SoundCategory.PLAYERS, 0.9f, 1.0f);
 					}
 				}
 			});

@@ -9,14 +9,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
@@ -26,6 +25,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -251,14 +251,35 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(packetPlayer).setTicks(5));
 					}
 					// Kill/assist messages
-					else if (packet.type == 14 && packetPlayer == player && entity != null) {
+					else if (packet.type == 14 && packetPlayer == player && entity != null && 
+							(Config.trackKillsOption == 0 || (Config.trackKillsOption == 1 && entity instanceof EntityPlayer))) {
+						String string = null;
+						if (packet.x == -1)
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
+							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName());
+						else
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
+							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName()) +
+							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
-								setString(new String(TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ELIMINATED " : "ASSIST ") +
-										TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName()) +
-										TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x).toUpperCase()).
-								setEntity(player).setTicks(60));
+								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
+								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 						player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
+						TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
+						if (handler == null)
+							TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
+						else if (handler.number < 6) {
+							handler.setTicks(40);
+							handler.setNumber(handler.number+1);
+							if (handler.number > 1 && handler.number < 7) {
+								for (SoundEvent event : ModSoundEvents.multikill)
+									Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
+								Minewatch.proxy.playFollowingSound(player, 
+										ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f);
+							}
+						}
+
 					}
 					// Damage entity
 					else if (packet.type == 15 && packetPlayer == player) {

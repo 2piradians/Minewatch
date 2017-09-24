@@ -74,7 +74,7 @@ public abstract class ItemMWWeapon extends Item {
 			if (player instanceof EntityPlayerMP) {
 				EnumHand hand = player.getHeldItemMainhand() != null && 
 						player.getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-				Minewatch.network.sendTo(new SPacketSyncAmmo(player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player);
+				Minewatch.network.sendTo(new SPacketSyncAmmo(hero, player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player); 
 			}
 			if (player.world.isRemote)
 				for (EnumHand hand2 : hands)

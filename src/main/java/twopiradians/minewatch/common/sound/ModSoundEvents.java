@@ -8,6 +8,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
 
+	public static SoundEvent[] multikill = new SoundEvent[5];
 	public static SoundEvent kill;
 	public static SoundEvent headshot;
 	public static SoundEvent hurt;
@@ -62,6 +63,8 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStop;
 
 	public static void preInit() {
+		for (int i=2; i<7; ++i)
+			multikill[i-2] = registerSound("multikill_"+i);
 		kill = registerSound("kill");
 		headshot = registerSound("headshot");
 		hurt = registerSound("hurt");

@@ -27,6 +27,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -258,7 +259,7 @@ public class ItemMWArmor extends ItemArmor
 					player.jump();
 					player.motionY += 0.2d;
 					playersJumped.add(player);
-					player.playSound(ModSoundEvents.genjiJump, 0.4f, world.rand.nextFloat()/6f+0.9f);
+					player.playSound(ModSoundEvents.genjiJump, 0.8f, world.rand.nextFloat()/6f+0.9f);
 				}
 				player.fallDistance = 0;
 			}
@@ -269,7 +270,9 @@ public class ItemMWArmor extends ItemArmor
 				(SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
 			// reset climbing
-			if (player.onGround)
+			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
+			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))))
 				playersClimbing.remove(player);
 			else if (player.isCollidedHorizontally && !player.capabilities.isFlying && Minewatch.keys.jump(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;

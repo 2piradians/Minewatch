@@ -6,11 +6,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -25,7 +25,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -99,20 +99,13 @@ public class TickHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) {
-			//EnumHero.RenderManager.entityDamage.clear();
-			if (Minecraft.getMinecraft().player != null) {
-				ArrayList<Handler> handlers = TickHandler.getHandlers(Minecraft.getMinecraft().player, Identifier.HERO_MESSAGES);
-				if (!handlers.isEmpty())
-					System.out.println(handlers); //TODO remove
-			}
+		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO remove
+				//System.out.println(handler); //TODO uncomment
 				if (handler.onClientTick()) 
 					unregister(true, handler);
 			}
-		}
 	}
 
 	@SubscribeEvent
@@ -120,7 +113,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO remove
+				//System.out.println(handler); //TODO uncomment
 				if (handler.onServerTick()) 
 					unregister(false, handler);
 			}
@@ -154,6 +147,8 @@ public class TickHandler {
 		public double number;
 		@Nullable
 		public String string;
+		@Nullable
+		public Boolean bool;
 
 		public Handler(boolean interruptible) {
 			this(Identifier.NONE, interruptible);
@@ -212,7 +207,9 @@ public class TickHandler {
 
 		@Override
 		public String toString() {
-			return identifier+": "+ticksLeft+(entity == null ? "" : ", "+entity.getName());
+			return identifier+": "+ticksLeft+(entity == null ? "" : ", "+entity.getName())+
+					(string == null ? "" : ", "+TextFormatting.getTextWithoutFormattingCodes(string))+
+					(number == 0 ? "" : ", "+number);
 		}
 
 		// methods that are only sometimes used by handlers are below (for convenience)
@@ -247,6 +244,11 @@ public class TickHandler {
 
 		public Handler setString(String string) {
 			this.string = string;
+			return this;
+		}
+		
+		public Handler setBoolean(Boolean bool) {
+			this.bool = bool;
 			return this;
 		}
 

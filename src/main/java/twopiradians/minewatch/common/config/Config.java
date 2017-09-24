@@ -18,9 +18,12 @@ import twopiradians.minewatch.packet.CPacketSyncSkins;
 public class Config {
 
 	public static final String CATEGORY_HERO_TEXTURES = "config.heroTextures";
+	/**Version of this config - if loaded version is less than this, delete the config*/
+	private static final float CONFIG_VERSION = 3.3F;
 
 	private static final String[] DURABILITY_OPTIONS = new String[] {"Normally", "When not wearing full set", "Never"};
-
+	private static final String[] TRACK_KILLS_OPTIONS = new String[] {"For everything", "For players", "Never"};
+	
 	public static Configuration config;
 	public static boolean useObjModels;
 	public static int tokenDropRate;
@@ -30,10 +33,24 @@ public class Config {
 	public static double guiScale;
 	public static int durabilityOptionArmors;
 	public static int durabilityOptionWeapons;
+	public static int trackKillsOption;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file);
 		config.load();
+
+		//If loaded version < CONFIG_VERSION, delete it
+		String version = Config.config.getLoadedConfigVersion();
+		try {
+			if (version == null || Float.parseFloat(version) < CONFIG_VERSION) 
+				for (String category : Config.config.getCategoryNames())
+					Config.config.removeCategory(Config.config.getCategory(category));
+		}
+		catch (Exception e) {
+			for (String category : Config.config.getCategoryNames())
+				Config.config.removeCategory(Config.config.getCategory(category));
+		}
+
 		config.setCategoryComment(Config.CATEGORY_HERO_TEXTURES, "Choose textures for each hero's armor. If you'd like to submit your own skin to be used as a texture, please message us!");
 		syncConfig();
 		config.save();
@@ -49,7 +66,7 @@ public class Config {
 
 		Property customCrosshairsProp = config.get(Configuration.CATEGORY_GENERAL, "Custom crosshairs", true, "Should weapons change your crosshair.");
 		customCrosshairs = customCrosshairsProp.getBoolean();
-		
+
 		Property projectilesCauseKnockbackProp = config.get(Configuration.CATEGORY_GENERAL, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies.");
 		projectilesCauseKnockback = projectilesCauseKnockbackProp.getBoolean();
 
@@ -71,6 +88,11 @@ public class Config {
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
+		
+		Property trackKillsProp = config.get(Configuration.CATEGORY_GENERAL, "Track kills and damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
+		for (int i=0; i<TRACK_KILLS_OPTIONS.length; ++i)
+			if (trackKillsProp.getString().equals(TRACK_KILLS_OPTIONS[i]))
+				Config.trackKillsOption = i;
 
 		UUID uuid = Minewatch.proxy.getClientUUID();
 		if (uuid != null) {

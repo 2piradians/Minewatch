@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.hero;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -321,9 +323,17 @@ public enum EnumHero {
 
 		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
 		public static HashMap<EntityLivingBase, HashMap<EntityPlayerMP, Float>> entityDamage = Maps.newHashMap();
-		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {};
+		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
+			@Override
+			@SideOnly(Side.CLIENT)
+			public boolean onClientTick() {
+				ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
+				return handlers.indexOf(this) <= 3 ? --this.ticksLeft <= 0 : false;
+			}
+		};
 		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
 		public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
+		public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
@@ -390,7 +400,7 @@ public enum EnumHero {
 						GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
 						GlStateManager.scale(1/scale, 1/scale, 1);
 					}
-					
+
 					// kill overlay
 					handler = TickHandler.getHandler(player, Identifier.KILL_OVERLAY);
 					if (handler != null) {
@@ -401,16 +411,29 @@ public enum EnumHero {
 						GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
 						GlStateManager.scale(1/scale, 1/scale, 1);
 					}
-					
+
 					// eliminate/assist text overlay
-					handler = TickHandler.getHandler(player, Identifier.HERO_MESSAGES);
-					if (handler != null && handler.string != null) {
-						double scale = 1f;
-						GlStateManager.scale(scale, scale, 1);
-						FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
-						font.drawString(handler.string, (float)((width/2/scale) - font.getStringWidth(handler.string)/2), (float) (height/1.5f/scale), new Color(1, 1, 1, 0.7f-(handler.ticksLeft >= 5 ? 0 : (1f-handler.ticksLeft/5f)*0.7f)).getRGB(), false);
+					double yOffset = 0;
+					ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
+					for (int i=0; i<Math.min(3, handlers.size()); ++i) {
+						handler = handlers.get(i);
+						if (handler != null && handler.string != null) {
+							float alpha = 0.7f;
+							if (handler.ticksLeft < 15)
+								alpha -= (1f-(handler.ticksLeft-10)/5f)*alpha;
+							else if (handler.ticksLeft > handler.initialTicks-8)
+								alpha -= (1f-(handler.initialTicks-handler.ticksLeft+1)/8f)*alpha;
+							if (alpha > 0) {
+								double scale = handler.bool ? 0.8f :1f;
+								GlStateManager.scale(scale, scale, 1);
+								FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
+								font.drawString(handler.string, (float)((width/2/scale) - font.getStringWidth(handler.string)/2), (float) (height/1.6f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), false);
+								GlStateManager.scale(1/scale, 1/scale, 1);
+							}
+							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
+						}
 					}
-					
+
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
 				}
@@ -668,8 +691,13 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		public static void damageEntities(LivingHurtEvent event) {
-			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP && event.getEntityLiving() != null) {
-				EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+			EntityPlayerMP player = null;
+			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP)
+				player = ((EntityPlayerMP)event.getSource().getSourceOfDamage());
+			else if (event.getSource().getSourceOfDamage() instanceof IThrowableEntity && 
+					((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower() instanceof EntityPlayerMP)
+				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
+			if (player != null && event.getEntityLiving() != null) {
 				if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != null) {
 					try {
 						float damage = event.getAmount();
@@ -678,9 +706,9 @@ public enum EnumHero {
 						damage = Math.min(damage, event.getEntityLiving().getHealth());
 						if (damage > 0) {
 							HashMap<EntityPlayerMP, Float> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
-							damageMap.put((EntityPlayerMP) player, damageMap.get(player) == null ? damage : damageMap.get(player) + damage);
+							damageMap.put(player, damageMap.get(player) == null ? damage : damageMap.get(player) + damage);
 							entityDamage.put(event.getEntityLiving(), damageMap);
-							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), (EntityPlayerMP) player);
+							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), player);
 						}
 					}
 					catch (Exception e) {
@@ -702,9 +730,12 @@ public enum EnumHero {
 						damage = entityDamage.get(event.getEntityLiving()).get(player);
 					}
 				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
-					Minewatch.network.sendTo(new SPacketSimple(14, mostDamage == player, player,
+					Minewatch.network.sendTo(new SPacketSimple(14, mostDamage != player, player,
 					(int)MathHelper.clamp(entityDamage.get(event.getEntityLiving()).get(player)/event.getEntityLiving().getMaxHealth()*100f, 0, 100),
 					0, 0, event.getEntityLiving()), player);
+				if (event.getEntityLiving() instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
+							0, 0, mostDamage), (EntityPlayerMP) event.getEntityLiving());
 				entityDamage.remove(event.getEntityLiving());
 			}
 		}

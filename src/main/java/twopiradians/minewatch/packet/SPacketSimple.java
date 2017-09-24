@@ -261,7 +261,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
 								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
-						if (entity != player) {
+						if (packet.x != -1) {
 							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
 							TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);

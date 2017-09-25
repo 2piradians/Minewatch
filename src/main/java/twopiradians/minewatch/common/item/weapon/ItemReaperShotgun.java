@@ -282,7 +282,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					 this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60),
 						WRAITH.setEntity(player).setTicks(60));
-				Minewatch.network.sendTo(new SPacketSimple(10, false, player), (EntityPlayerMP) player);
+				Minewatch.network.sendToAll(new SPacketSimple(10, false, player));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
 				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperWraith, SoundCategory.PLAYERS, 1, 1);

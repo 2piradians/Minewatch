@@ -182,6 +182,13 @@ public class Handlers {
 				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.ticksLeft, 200, true, false));
 			return super.reset();
 		}
+		@Override
+		public Handler onRemove() {
+			// remove slowness
+			if (this.entityLiving != null)
+					entityLiving.removeActivePotionEffect(MobEffects.SLOWNESS);
+			return super.onRemove();
+		}
 	};
 
 	@SubscribeEvent

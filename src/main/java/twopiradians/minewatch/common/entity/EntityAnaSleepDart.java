@@ -56,7 +56,7 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 					Handlers.PREVENT_INPUT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_MOVEMENT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_ROTATION.setEntity(result.entityHit).setTicks(120));
-			Minewatch.network.sendTo(new SPacketSimple(12, result.entityHit, false), (EntityPlayerMP) this.getThrower());
+			Minewatch.network.sendToAll(new SPacketSimple(12, result.entityHit, false));
 			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f);
 		}

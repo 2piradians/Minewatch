@@ -220,7 +220,8 @@ public class SPacketSimple implements IMessage {
 							ItemReaperShotgun.wraithViewBobbing.put(packetPlayer, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
 					// wake up from Ana's sleep dart
-					else if (packet.type == 11 && entity != null && TickHandler.hasHandler(entity, Identifier.ANA_SLEEP)) {
+					else if (packet.type == 11 && entity != null) {
+						System.out.println("received");
 						for (Identifier identifier : new Identifier[] {Identifier.ANA_SLEEP, 
 								Identifier.PREVENT_INPUT, Identifier.PREVENT_MOVEMENT, Identifier.PREVENT_ROTATION}) {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, identifier);

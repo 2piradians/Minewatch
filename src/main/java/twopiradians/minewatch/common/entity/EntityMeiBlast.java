@@ -22,7 +22,7 @@ import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class EntityMeiBlast extends EntityMWThrowable {
 
-	public static final Handler FROZEN = new Handler(Identifier.POTION_FROZEN, false) {//TODO make non-deflectable field
+	public static final Handler FROZEN = new Handler(Identifier.POTION_FROZEN, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {

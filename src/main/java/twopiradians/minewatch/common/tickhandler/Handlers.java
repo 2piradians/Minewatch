@@ -49,7 +49,7 @@ public class Handlers {
 			return this;
 		}
 	};
-	
+
 	/**Locks entity's current pitch/yaw*/
 	public static final Handler PREVENT_ROTATION = new Handler(Identifier.PREVENT_ROTATION, true) {
 		@Override
@@ -71,7 +71,7 @@ public class Handlers {
 			return this;
 		}
 	};
-	
+
 	public static void setRotations(EntityLivingBase entityLiving) {
 		if (entityLiving != null && rotations.containsKey(entityLiving)) {
 			Triple<Float, Float, Float> triple = rotations.get(entityLiving);
@@ -81,27 +81,64 @@ public class Handlers {
 			entityLiving.rotationPitch = triple.getLeft();
 			entityLiving.rotationYaw = triple.getMiddle();
 			entityLiving.rotationYawHead = triple.getRight();
+			entityLiving.prevRenderYawOffset = triple.getMiddle();
+			entityLiving.renderYawOffset = triple.getMiddle();
 		}
 	}
-	
+
+	private float prevRotationPitch;
+	private float prevRotationYaw;
+	private float prevRotationYawHead;
+	private float rotationPitch;
+	private float rotationYaw;
+	private float rotationYawHead;
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void rotate(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_ROTATION);
-		if (handler != null) 
+		if (handler != null) {
+			// save rotations to allow camera rotation
+			if (event.getEntity() == Minecraft.getMinecraft().getRenderViewEntity() &&
+					Minecraft.getMinecraft().gameSettings.thirdPersonView != 0) {
+				this.prevRotationPitch = event.getEntity().prevRotationPitch;
+				this.prevRotationYaw = event.getEntity().prevRotationYaw;
+				this.prevRotationYawHead = event.getEntity().prevRotationYawHead;
+				this.rotationPitch = event.getEntity().rotationPitch;
+				this.rotationYaw = event.getEntity().rotationYaw;
+				this.rotationYawHead = event.getEntity().rotationYawHead;
+			}
+			// rotate to locked position only for render
 			Handlers.setRotations(event.getEntity());
-			
+		}
 	}
 
-	private static HashMap<EntityLivingBase, Triple<Float, Float, Float>> rotations = Maps.newHashMap();
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void rotate(RenderLivingEvent.Post<EntityLivingBase> event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_ROTATION);
+		if (handler != null && event.getEntity() == Minecraft.getMinecraft().getRenderViewEntity() &&
+				Minecraft.getMinecraft().gameSettings.thirdPersonView != 0) {
+			// restore rotations to allow camera rotation
+			event.getEntity().prevRotationPitch = this.prevRotationPitch;
+			event.getEntity().prevRotationYaw = this.prevRotationYaw;
+			event.getEntity().prevRotationYawHead = this.prevRotationYawHead;
+			event.getEntity().rotationPitch = this.rotationPitch;
+			event.getEntity().rotationYaw = this.rotationYaw;
+			event.getEntity().rotationYawHead = this.rotationYawHead;
+		}
+	}
 
-	/**Stop player from moving camera*/
+	public static HashMap<EntityLivingBase, Triple<Float, Float, Float>> rotations = Maps.newHashMap();
+
+	/**Stop player from moving camera in first person*/
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void viewEvent(EntityViewRenderEvent.CameraSetup event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player != null && rotations.containsKey(player) &&
-				TickHandler.hasHandler(player, Identifier.PREVENT_ROTATION)) {
+				TickHandler.hasHandler(player, Identifier.PREVENT_ROTATION) &&
+				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			Triple<Float, Float, Float> triple = rotations.get(player);
 			player.rotationPitch = triple.getLeft();
 			player.rotationYaw = triple.getMiddle();
@@ -111,17 +148,14 @@ public class Handlers {
 		}
 	}
 
-	/**Stop player from using mouse buttons while frozen*/
+	/**Stop player from using mouse buttons*/
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void mouseEvent(MouseEvent event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		// prevent rotations
-		if ((event.getDx() != 0 || event.getDy() != 0) && player != null && 
-				TickHandler.hasHandler(player, Identifier.PREVENT_ROTATION))
-			event.setCanceled(true);
-		// prevent clicking
-		else if ((event.isButtonstate() || event.getDwheel() != 0) && player != null && 
+		// prevent clicking / scrolling
+		if ((event.getDx() != 0 || event.getDy() != 0 ||
+				event.isButtonstate() || event.getDwheel() != 0) && player != null && 
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT))
 			event.setCanceled(true);
 	}
@@ -159,6 +193,8 @@ public class Handlers {
 			entity.onGround = true;
 			if (player != null)
 				player.capabilities.isFlying = false;
+			entity.motionY = Math.min(0, entity.motionY);
+			entity.fallDistance *= 0.5f;
 			return super.onClientTick();
 		}
 		@Override
@@ -177,16 +213,10 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
-		public Handler reset() {
-			if (this.entityLiving != null && !this.entityLiving.world.isRemote)
-				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.ticksLeft, 200, true, false));
-			return super.reset();
-		}
-		@Override
 		public Handler onRemove() {
 			// remove slowness
-			if (this.entityLiving != null)
-					entityLiving.removeActivePotionEffect(MobEffects.SLOWNESS);
+			if (this.entityLiving != null && !this.entityLiving.world.isRemote)
+				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
 			return super.onRemove();
 		}
 	};

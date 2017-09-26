@@ -94,8 +94,8 @@ public class TickHandler {
 	}
 
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
-	 * Used by stuns/similar to cancel active abilities*/
-	public static void interrupt(Entity entity) {//TODO packet to clients
+	 * Used by stuns/similar to cancel active abilities - only needs to be called on SERVER*/
+	public static void interrupt(Entity entity) {
 		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
@@ -112,7 +112,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				System.out.println(handler); //TODO uncomment
+				//System.out.println(handler); //TODO comment
 				try {
 					if (handler.onClientTick()) 
 						unregister(true, handler);
@@ -128,7 +128,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				System.out.println(handler); //TODO uncomment
+				//System.out.println(handler); //TODO comment
 				try {
 					if (handler.onServerTick()) 
 						unregister(false, handler);

@@ -2,6 +2,8 @@ package twopiradians.minewatch.packet;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.tuple.Triple;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -221,7 +223,6 @@ public class SPacketSimple implements IMessage {
 					}
 					// wake up from Ana's sleep dart
 					else if (packet.type == 11 && entity != null) {
-						System.out.println("received");
 						for (Identifier identifier : new Identifier[] {Identifier.ANA_SLEEP, 
 								Identifier.PREVENT_INPUT, Identifier.PREVENT_MOVEMENT, Identifier.PREVENT_ROTATION}) {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, identifier);
@@ -231,13 +232,12 @@ public class SPacketSimple implements IMessage {
 					}
 					// Ana's sleep dart
 					else if (packet.type == 12 && entity != null) {
-						if (!(entity instanceof EntityPlayer))
-							entity.setRotationYawHead(0);
-						entity.rotationPitch = 0;
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(120));
+						if (entity instanceof EntityLivingBase) 
+							Handlers.rotations.put((EntityLivingBase) entity, Triple.of(0f, 0f, 0f));
 					}
 					// Genji's deflect
 					else if (packet.type == 13 && packetPlayer != null) {

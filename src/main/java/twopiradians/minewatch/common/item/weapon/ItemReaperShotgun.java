@@ -148,6 +148,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 		@Override
 		public boolean onServerTick() {
+			if (this.ticksLeft <= 50 && this.ticksLeft >= 25)
+				player.hurtResistantTime = (int) (player.maxHurtResistantTime*2.1f); 
+			else if (this.ticksLeft == 24)
+				player.hurtResistantTime = 0;
 			if (this.ticksLeft == 40) {
 				if (player.isRiding())
 					player.dismountRidingEntity();

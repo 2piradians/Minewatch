@@ -31,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -189,9 +190,14 @@ public class ItemMWArmor extends ItemArmor
 			}
 		}
 
-	}
+		@SubscribeEvent
+		public static void genjiFall(LivingFallEvent event) {
+			if (event.getEntity() instanceof EntityPlayer && 
+					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
+				event.setDistance(event.getDistance()*0.8f);
+		}
 
-	// DEV SPAWN ARMOR ===============================================
+	}
 
 	@Override
 	@SideOnly(Side.CLIENT)

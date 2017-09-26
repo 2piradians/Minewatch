@@ -1,8 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
+import org.apache.commons.lang3.tuple.Triple;
+
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
@@ -48,14 +49,13 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower()))) {
-			if (!(result.entityHit instanceof EntityPlayer))
-				result.entityHit.setRotationYawHead(0);
-			result.entityHit.rotationPitch = 0;
 			TickHandler.interrupt(result.entityHit);
 			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_INPUT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_MOVEMENT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_ROTATION.setEntity(result.entityHit).setTicks(120));
+			if (result.entityHit instanceof EntityLivingBase) 
+				Handlers.rotations.put((EntityLivingBase) result.entityHit, Triple.of(0f, 0f, 0f));
 			Minewatch.network.sendToAll(new SPacketSimple(12, result.entityHit, false));
 			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f);

@@ -14,8 +14,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSpawnParticle;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
@@ -26,7 +26,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true) && !world.isRemote) {
+		if (this.canUse(player, true, hand) && !world.isRemote) {
 			for (int i=0; i<2; i++) {
 				EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 0F, hand, false);
@@ -47,16 +47,13 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 		
 		// dash
-		if (isSelected && entity instanceof EntityPlayer && 
-				(hero.ability2.isSelected((EntityPlayer) entity) || 
-						hero.ability2.isSelected((EntityPlayer) entity, Keys.KeyBind.RMB)) &&
-				!world.isRemote && (this.canUse((EntityPlayer) entity, true) || this.getCurrentAmmo((EntityPlayer) entity) == 0)) {
-			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, 
-					SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
+		if (isSelected && entity instanceof EntityPlayer && (hero.ability2.isSelected((EntityPlayer) entity) || hero.ability2.isSelected((EntityPlayer) entity, Keys.KeyBind.RMB)) &&
+				!world.isRemote && (this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND) || this.getCurrentAmmo((EntityPlayer) entity) == 0)) {
+			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
 			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketTriggerAbility(0), (EntityPlayerMP) entity);
+				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
 			hero.ability2.subtractUse((EntityPlayer) entity);
-			hero.ability2.keybind.setCooldown((EntityPlayer) entity, 5, true); 
+			hero.ability2.keybind.setCooldown((EntityPlayer) entity, 3, true); 
 		}
 	}
 

@@ -3,21 +3,35 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
 
+	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
+
+	private boolean lockedDirection;
+	private float pitch;
+	private float yaw;
+	private double xMotion;
+	private double yMotion;
+	private double zMotion;
 
 	public EntityMWThrowable(World worldIn) {
 		super(worldIn);
@@ -59,13 +73,29 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
 			this.updateFromPacket();
 
-		float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
-		this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
-		this.prevRotationYaw = this.rotationYaw;
-		this.prevRotationPitch = this.rotationPitch;
+		if (!this.lockedDirection) {
+			float f = MathHelper.sqrt((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
+			this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
+			this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
+			this.prevRotationYaw = this.rotationYaw;
+			this.prevRotationPitch = this.rotationPitch;
+			this.pitch = this.rotationPitch;
+			this.yaw = this.rotationYaw;
+			this.xMotion = this.motionX;
+			this.yMotion = this.motionY;
+			this.zMotion = this.motionZ;
+			this.lockedDirection = true;
+		}
 
 		super.onUpdate();
+
+		this.rotationPitch = this.pitch;
+		this.prevRotationPitch = this.pitch;
+		this.rotationYaw = this.yaw;
+		this.prevRotationYaw = this.yaw;
+		this.motionX = this.xMotion;
+		this.motionY = this.yMotion;
+		this.motionZ = this.zMotion;
 
 		if (!this.world.isRemote && this.ticksExisted > lifetime && lifetime > 0)
 			this.setDead();
@@ -153,6 +183,72 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 	public void setThrower(Entity entity) {
 		if (entity instanceof EntityLivingBase)
 			this.thrower = (EntityLivingBase) entity;
+	}
+
+	/**Should this entity be hit by this projectile*/
+	public boolean shouldHit(Entity entityHit) {
+		return this.getThrower() instanceof EntityPlayer && 
+				this.shouldHit(entityHit, DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()));
+	}
+
+	/**Should this entity be hit by this projectile*/
+	public boolean shouldHit(Entity entityHit, DamageSource source) {
+		return entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
+				entityHit != this.getThrower() && ((EntityLivingBase)entityHit).getHealth() > 0 &&
+				!entityHit.isEntityInvulnerable(source);
+	}
+
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
+	 *  If damage is negative, entity will be healed by that amount*/
+	public boolean attemptImpact(Entity entityHit, float damage, boolean neverKnockback) {
+		return this.getThrower() instanceof EntityPlayer && 
+				this.attemptImpact(entityHit, damage, neverKnockback, DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()));
+	}
+
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
+	 * If damage is negative, entity will be healed by that amount*/
+	public boolean attemptImpact(Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+		// should entity be hit
+		if (this.shouldHit(entityHit, source)) {
+			if (!this.world.isRemote && this.getThrower() instanceof EntityPlayerMP) {
+				// heal
+				if (damage < 0)
+					((EntityLivingBase)entityHit).heal(Math.abs(damage*ItemMWWeapon.damageScale));
+				else {
+					boolean damaged = false;
+					if (!Config.projectilesCauseKnockback || neverKnockback) {
+						double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
+						((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
+						damaged = ((EntityLivingBase)entityHit).attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+						((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
+					}
+					else
+						damaged = ((EntityLivingBase)entityHit).attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+
+					if (!damaged)
+						return false;
+				}
+				this.setDead();
+				return true;
+			}
+
+			// correct position of projectile - for fixing particles
+			Vec3d vec3d = new Vec3d(this.posX, this.posY, this.posZ);
+			Vec3d vec3d1 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+			AxisAlignedBB aabb = entityHit.getEntityBoundingBox().grow(0.3D);
+			RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
+			if (ray != null) {
+				this.posX = ray.hitVec.x;
+				this.posY = ray.hitVec.y;
+				this.posZ = ray.hitVec.z;
+				this.motionX = this.motionY = this.motionZ = 0;
+			}
+
+			this.setDead();
+		}
+
+
+		return false;
 	}
 
 }

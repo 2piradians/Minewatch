@@ -13,7 +13,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ParticleReaperTeleport extends ParticleSimpleAnimated {
@@ -33,13 +35,15 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 	private Vec3d offset;
 	private float randomNumber;
 	private int type;
+	private Handler handler;
 
 	/**type: 0 = base, 1 = inside, 2 = outside, 3 = small outside*/
-	public ParticleReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {
-		super(world, spawnAtPlayer ? player.posX : ItemReaperShotgun.clientTps.get(player).getSecond().x, 
-				spawnAtPlayer ? player.posY : ItemReaperShotgun.clientTps.get(player).getSecond().y, 
-						spawnAtPlayer ? player.posZ : ItemReaperShotgun.clientTps.get(player).getSecond().z, 0, 0, 0);
-		this.origin = spawnAtPlayer ? player.getPositionVector() : ItemReaperShotgun.clientTps.get(player).getSecond();
+	public ParticleReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type, Handler handler) {
+		super(world, spawnAtPlayer ? player.posX : handler.position.x, 
+				spawnAtPlayer ? player.posY : handler.position.y, 
+						spawnAtPlayer ? player.posZ : handler.position.z, 0, 0, 0);
+		this.handler = handler;
+		this.origin = spawnAtPlayer ? player.getPositionVector() : handler.position;
 		double t = 2d*Math.PI*world.rand.nextDouble();
 		double u = world.rand.nextDouble()+world.rand.nextDouble();
 		double r = u > 1 ? 2-u : u;
@@ -129,8 +133,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 				this.particleScale -= 0.07f;
 		}
 
-		if (player == null || player.isDead || !ItemReaperShotgun.clientTps.containsKey(player)/* || 
-				(spawnAtPlayer && ItemReaperShotgun.clientTps.get(player).getFirst() < 0 && ItemReaperShotgun.clientTps.get(player).getFirst() != -1)*/)
+		if (player == null || player.isDead || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != handler)
 			this.setExpired();
 		else {
 			if (type == 1)
@@ -146,7 +149,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 				this.posZ = 2 * offset.z * Math.sin(rotateSpeed * this.particleAge * Math.PI/180) + origin.z;
 			}
 
-			this.origin = spawnAtPlayer ? player.getPositionVector() : ItemReaperShotgun.clientTps.get(player).getSecond();
+			this.origin = spawnAtPlayer ? player.getPositionVector() : handler.position;
 
 			this.offset = this.offset.addVector(motionX, motionY, motionZ);
 

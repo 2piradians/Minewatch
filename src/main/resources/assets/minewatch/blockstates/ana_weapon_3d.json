@@ -34,7 +34,7 @@
           },
           "ground": {
             "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
-       		"translation": [ 0, 1, 0.2 ],
+       		"translation": [ 0.75, 1, 0.2 ],
        		"scale": [1.5, 1.5, 1.5 ]
           },
           "fixed": {

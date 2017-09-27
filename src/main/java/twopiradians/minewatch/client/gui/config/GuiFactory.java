@@ -11,7 +11,7 @@ public class GuiFactory implements IModGuiFactory {
 	@Override
 	public void initialize(Minecraft minecraftInstance) {}
 
-/*	@Override
+	/*@Override
 	public Class<? extends GuiScreen> mainConfigGuiClass() {
 		return MinewatchGuiConfig.class;
 	}*/
@@ -21,7 +21,7 @@ public class GuiFactory implements IModGuiFactory {
 		return null;
 	}
 
-	/*@SuppressWarnings("deprecation")
+/*	@SuppressWarnings("deprecation")
 	@Override
 	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
 		return null;

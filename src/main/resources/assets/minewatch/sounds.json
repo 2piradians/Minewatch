@@ -1,4 +1,46 @@
 {
+	"multikill_2": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_2"
+		]
+	},
+	"multikill_3": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_3"
+		]
+	},
+	"multikill_4": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_4"
+		]
+	},
+	"multikill_5": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_5"
+		]
+	},
+	"multikill_6": {
+		"category": "player",
+		"sounds": [
+			"minewatch:multikill_6"
+		]
+	},
+	"kill": {
+		"category": "player",
+		"sounds": [
+			"minewatch:kill"
+		]
+	},
+	"headshot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:headshot"
+		]
+	},
 	"hurt": {
 		"category": "player",
 		"sounds": [
@@ -23,6 +65,15 @@
 			"minewatch:ability_not_ready"
 		]
 	},
+	"wall_climb": {
+		"category": "player",
+		"sounds": [
+			"minewatch:wall_climb_0",
+			"minewatch:wall_climb_1",
+			"minewatch:wall_climb_2",
+			"minewatch:wall_climb_3"
+		]
+	},
 	"ana_shoot": {
 		"category": "player",
 		"sounds": [
@@ -39,6 +90,27 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:ana_heal"
+		]
+	},
+	"ana_sleep_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_shoot"
+		]
+	},
+	"ana_sleep_hit": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_hit"
+		]
+	},
+	"ana_sleep_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ana_sleep_voice_0",
+			"minewatch:ana_sleep_voice_1",
+			"minewatch:ana_sleep_voice_2",
+			"minewatch:ana_sleep_voice_3"
 		]
 	},
 	"reaper_shoot": {
@@ -82,6 +154,12 @@
 		"sounds": [
 			"minewatch:reaper_teleport_voice_0",
 			"minewatch:reaper_teleport_voice_1"
+		]
+	},
+	"reaper_wraith": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reaper_wraith"
 		]
 	},
 	"hanzo_shoot": {
@@ -128,6 +206,36 @@
 			"minewatch:genji_reload"
 		]
 	},
+	"genji_deflect": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_deflect_0",
+			"minewatch:genji_deflect_1",
+			"minewatch:genji_deflect_2"
+		]
+	},
+	"genji_deflect_hit": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_deflect_hit_0",
+			"minewatch:genji_deflect_hit_1",
+			"minewatch:genji_deflect_hit_2"
+		]
+	},
+	"genji_strike": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_strike_0",
+			"minewatch:genji_strike_1"
+		]
+	},
+	"genji_jump": {
+		"category": "player",
+		"sounds": [
+			"minewatch:genji_jump_0",
+			"minewatch:genji_jump_1"
+		]
+	},
 	"tracer_shoot": {
 		"category": "player",
 		"sounds": [
@@ -156,6 +264,20 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:mccree_reload"
+		]
+	},
+	"mccree_roll": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_roll"
+		]
+	},
+	"mccree_flashbang": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mccree_flashbang_0",
+			"minewatch:mccree_flashbang_1",
+			"minewatch:mccree_flashbang_2"
 		]
 	},
 	"soldier76_shoot": {
@@ -246,6 +368,60 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:widowmaker_charge"
+		]
+	},
+	"mercy_shoot": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_shoot"
+		]
+	},
+	"mercy_reload": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_reload"
+		]
+	},
+	"mercy_heal": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_heal_0",
+			"minewatch:mercy_heal_1",
+			"minewatch:mercy_heal_2",
+			"minewatch:mercy_heal_3",
+			"minewatch:mercy_heal_4"
+		]
+	},
+	"mercy_damage": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_damage_0",
+			"minewatch:mercy_damage_1",
+			"minewatch:mercy_damage_2"
+		]
+	},
+	"mercy_hover": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_hover"
+		]
+	},
+	"mercy_beam_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_start"
+		]
+	},
+	"mercy_beam_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_during"
+		]
+	},
+	"mercy_beam_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_beam_stop"
 		]
 	}
 }

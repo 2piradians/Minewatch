@@ -3,10 +3,14 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
@@ -48,15 +52,16 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public void onUpdate() {
 		super.onUpdate();
 
-		if (!this.hasNoGravity() && this.rotationPitch > -50) 
-			this.motionY += 0.04D;
+		if (!this.hasNoGravity() && this.rotationPitch > -50 && this.motionY < 0) 
+			this.motionY = Math.min(this.motionY+0.04D, 0);
 	}
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (this.world.isRemote && result.entityHit instanceof EntityLivingBase && result.entityHit != this.shootingEntity && 
-				((EntityLivingBase)result.entityHit).getHealth() > 0 && this.shootingEntity != null)
-			this.shootingEntity.playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
+		if (this.shouldHit(result.entityHit) && this.getThrower() instanceof EntityPlayerMP)
+			((EntityPlayerMP)this.getThrower()).connection.sendPacket((new SPacketSoundEffect
+					(ModSoundEvents.hurt, SoundCategory.PLAYERS, this.getThrower().posX, this.getThrower().posY, 
+							this.getThrower().posZ, 0.3f, this.world.rand.nextFloat()/2+0.75f)));
 		
 		super.onHit(result);
 	}
@@ -78,6 +83,14 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public void setThrower(Entity entity) {
 		if (entity instanceof EntityLivingBase)
 			this.shootingEntity = (EntityLivingBase) entity;
+	}
+	
+	// copied from EntityMWThrowable 
+	/**Should this entity be hit by this projectile*/
+	public boolean shouldHit(Entity entityHit) {
+		return entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
+				entityHit != this.getThrower() && ((EntityLivingBase)entityHit).getHealth() > 0 &&
+				!entityHit.isEntityInvulnerable(DamageSource.causeArrowDamage(this, this.getThrower()));
 	}
 
 }

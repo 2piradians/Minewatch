@@ -1,16 +1,12 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityWidowmakerBullet extends EntityMWThrowable {
 
@@ -39,7 +35,7 @@ public class EntityWidowmakerBullet extends EntityMWThrowable {
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
-		
+
 		if (this.getDataManager().get(SCOPED)) {
 			if (this.world.isRemote && this.ticksExisted > 1) {
 				int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
@@ -68,16 +64,8 @@ public class EntityWidowmakerBullet extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
-				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
-			if (!this.world.isRemote) {
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
-				if (!this.dataManager.get(SCOPED))
-					((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-			}
-			else
-				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			this.setDead();
-		}
+		if (this.attemptImpact(result.entityHit, damage, false)) 
+			if (!this.dataManager.get(SCOPED))
+				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 	}
 }

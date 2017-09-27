@@ -2,13 +2,13 @@
 {
   "modid": "minewatch",
   "name": "Minewatch",
-  "description": "Overwatch characters in Minecraft.",
-  "version": "3.2.4",
-  "mcversion": "1.12.2",
+  "description": "Minewatch brings Minecraft and Overwatch together! Overwatch character armor and weapons usable in Minecraft.",
+  "version": "3.3",
+  "mcversion": "1.11.2",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
   "authorList": ["2piradians, Furgl"],
-  "credits": "Blizzard Entertainment, Battle.net, and Overwatch for the main content of this mod.
+  "credits": "All characters, weapons, models, and sounds featured in this mod belong to Blizzard Entertainment, Battle.net, and Overwatch. We do not take credit for any of these features; this mod is solely a re-imagining of Overwatch in Minecraft. 
   
 Model Credits:
 -Reaper Shotgun and Reinhardt Hammer: https://www.reddit.com/user/Kamyflex 
@@ -18,17 +18,8 @@ Model Credits:
 -Hanzo Arrow: Overwatch - Hanzo's Arrow by beyondmatter is licensed under CC Attribution 
 -McCree Pistol, Soldier Rifle, Widowmaker Rifle, Bastion Recon and Turret by Rexx Art 
 
-Armor Texture Credits:
--Tracer, Genji, Hanzo, and Bastion textures: Ringoster, https://www.planetminecraft.com/member/ringoster/ 
--Soldier texture: sixfootblue, https://www.planetminecraft.com/member/sixfootblue/ 
--Reaper texture: Aegeah, https://www.planetminecraft.com/member/aegeah/ 
--Alternate Reaper texture: _Phantom, https://www.planetminecraft.com/member/_phantom/ 
--Reinhardt texture: Kohicup, https://www.planetminecraft.com/member/kohicup/ 
--Ana texture: Drzzter, https://www.planetminecraft.com/member/drzzter/ 
--McCree texture: PlantyBox, https://www.planetminecraft.com/member/plantybox/ 
--Mei texture: mareridt, https://www.planetminecraft.com/member/mareridt/ 
--Widowmaker texture: sir-connor, https://www.planetminecraft.com/member/sir-connor/
-
+Hero Skin Credits:
+-Credit for each skin can be found by clicking on the ? button next to the skin in the inventory tab
 ",
   "logoFile": "logo.png",
   "screenshots": [],

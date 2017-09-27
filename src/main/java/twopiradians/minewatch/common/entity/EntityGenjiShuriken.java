@@ -1,13 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityGenjiShuriken extends EntityMWThrowable {
 
@@ -41,23 +37,14 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.getThrower() instanceof EntityPlayer && result.entityHit != this.getThrower()) {
-			if (result.entityHit instanceof EntityLivingBase && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
-				if (!this.world.isRemote) {
-					((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 28F*ItemMWWeapon.damageScale);
-					((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-				}
-				else 
-					this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.world.rand.nextFloat()/2+0.75f);
-			}
+		if (this.attemptImpact(result.entityHit, 28, false)) 
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 
+		if (this.world.isRemote && (result.entityHit == null || this.shouldHit(result.entityHit)))
 			Minewatch.proxy.spawnParticlesSpark(world, 
 					result.entityHit == null ? result.hitVec.x : posX, 
 							result.entityHit == null ? result.hitVec.y : posY, 
 									result.entityHit == null ? result.hitVec.z : posZ, 
 											0xC8E682, 0x709233, 5, 5);
-			
-			this.setDead();
-		}
 	}
 }

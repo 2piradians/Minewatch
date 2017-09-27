@@ -1,0 +1,36 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "minewatch:items/mercy_weapon_0"
+    },
+	"display": {
+		 "thirdperson_righthand": {
+            "rotation": [ 75, -90, 0 ],
+			"translation": [ 0, 5, 3 ],
+			"scale": [ 1, 1, 1 ]
+        },
+        "thirdperson_lefthand": {
+			"rotation": [ 75, 90, 0 ],
+			"translation": [ 0, 5, 3 ],
+			"scale": [ 1, 1, 1 ]
+        },
+		 "firstperson_righthand": {
+            "rotation": [ 0, -80, 0 ],
+            "translation": [ 1.13, 5.2, -1],
+            "scale": [ 0.75, 0.75, 0.75 ]
+        },
+        "firstperson_lefthand": {
+            "rotation": [ 0, 100, 0 ],
+            "translation": [ 1.13, 5.2, -1],
+            "scale": [ 0.75, 0.75, 0.75 ]
+        }
+	},
+    "overrides": [
+        {
+            "predicate": {
+                "gun": 1
+            },
+            "model": "minewatch:item/mercy_weapon_gun"
+        }
+    ]
+}

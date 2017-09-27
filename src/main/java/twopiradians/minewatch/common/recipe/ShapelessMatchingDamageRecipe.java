@@ -10,13 +10,13 @@ import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.NonNullList;
 
 public class ShapelessMatchingDamageRecipe extends ShapelessRecipes {
-	
+
 	private ItemStack recipeOutput;
 
 	public ShapelessMatchingDamageRecipe(String group, ItemStack output, NonNullList<Ingredient> ingredients) {
 		super(group, output, ingredients);
 		this.recipeOutput = output;
-}
+	}
 
 	@Override
 	@Nullable

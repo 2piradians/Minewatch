@@ -1,0 +1,8 @@
+# Blender MTL File: 'genji_sword.blend'
+# Material Count: 1
+
+newmtl E5E69AE358236C24.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/genji_sword_3d

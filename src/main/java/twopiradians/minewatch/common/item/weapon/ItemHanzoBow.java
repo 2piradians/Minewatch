@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.item.weapon;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -10,7 +9,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -26,9 +24,10 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemHanzoBow extends ItemMWWeapon {
-	
+
 	public ItemHanzoBow() {
 		super(0);
+		this.savePlayerToNBT = true;
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -101,7 +100,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// sonic arrow
 						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80*damageScale));
+							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 							hero.ability2.keybind.setCooldown(player, 400, false); 
 
@@ -111,7 +110,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// scatter arrow
 						else if (hero.ability1.isSelected(player)) {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-							entityarrow.setDamage(125*((double)i/160*damageScale));
+							entityarrow.setDamage((75 - (75 - 22) * (1f-f))/3f * ItemMWWeapon.damageScale);
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
 							hero.ability1.keybind.setCooldown(player, 200, false); 
 
@@ -122,11 +121,10 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);
-							entityarrow.setDamage(125*((double)i/80*damageScale));
+							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
 							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
 						}
-						if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != hero)
-							stack.damageItem(1, player);
+						stack.damageItem(1, player);
 						worldIn.spawnEntity(entityarrow);
 					}
 
@@ -158,25 +156,6 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {	
-		super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
-
-		// set player in nbt for model changer (in ModItems) to reference
-		if (entityIn instanceof EntityPlayer && !entityIn.world.isRemote && 
-				stack != null && stack.getItem() instanceof ItemHanzoBow) {
-			if (!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-
-			NBTTagCompound nbt = stack.getTagCompound();
-
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entityIn.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entityIn.getPersistentID());
-				stack.setTagCompound(nbt);
-			}
-		}
-	}
-
-	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand handIn) {
 		ItemStack itemstack = player.getHeldItem(handIn);	
 		boolean flag = !this.findAmmo(player).isEmpty();
@@ -187,7 +166,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		if (!player.capabilities.isCreativeMode && !flag) {
 			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
-		else if (this.canUse(player, true)) {
+		else if (this.canUse(player, true, handIn)) {
 			player.setActiveHand(handIn);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);

@@ -25,6 +25,7 @@ public class ModSoundEvents {
 	public static SoundEvent mccreeReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mccree_reload")).setRegistryName("mccree_reload");
 	public static SoundEvent soldier76Shoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "soldier76_shoot")).setRegistryName("soldier76_shoot");
 	public static SoundEvent soldier76Reload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "soldier76_reload")).setRegistryName("soldier76_reload");
+
 	public static SoundEvent hurt = new SoundEvent(new ResourceLocation(Minewatch.MODID, "hurt")).setRegistryName("hurt");
 	public static SoundEvent anaHeal = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_heal")).setRegistryName("ana_heal");
 	public static SoundEvent hanzoSonicArrow = new SoundEvent(new ResourceLocation(Minewatch.MODID, "hanzo_sonic_arrow")).setRegistryName("hanzo_sonic_arrow");
@@ -53,6 +54,32 @@ public class ModSoundEvents {
 	public static SoundEvent widowmakerCharge = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_charge")).setRegistryName("widowmaker_charge");
 	public static SoundEvent widowmakerReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "widowmaker_reload")).setRegistryName("widowmaker_reload");
 
+	public static SoundEvent[] multikill = new SoundEvent[5];
+	static {
+		for (int i = 2; i < 7; ++i)
+			multikill[i-2] = new SoundEvent(new ResourceLocation(Minewatch.MODID, "multikill_"+i)).setRegistryName("multikill_"+i);
+	}
+	public static SoundEvent kill = new SoundEvent(new ResourceLocation(Minewatch.MODID, "kill")).setRegistryName("kill");
+	public static SoundEvent headshot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "headshot")).setRegistryName("headshot");
+	public static SoundEvent wallClimb = new SoundEvent(new ResourceLocation(Minewatch.MODID, "wall_climb")).setRegistryName("wall_climb");
+	public static SoundEvent anaSleepShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_sleep_shoot")).setRegistryName("ana_sleep_shoot");
+	public static SoundEvent anaSleepHit = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_sleep_hit")).setRegistryName("ana_sleep_hit");
+	public static SoundEvent anaSleepVoice = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_sleep_voice")).setRegistryName("ana_sleep_voice");
+	public static SoundEvent reaperWraith = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_wraith")).setRegistryName("reaper_wraith");
+	public static SoundEvent genjiDeflect = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_deflect")).setRegistryName("genji_deflect");
+	public static SoundEvent genjiDeflectHit = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_deflect_hit")).setRegistryName("genji_deflect_hit");
+	public static SoundEvent genjiStrike = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_strike")).setRegistryName("genji_strike");
+	public static SoundEvent genjiJump = new SoundEvent(new ResourceLocation(Minewatch.MODID, "genji_jump")).setRegistryName("genji_jump");
+	public static SoundEvent mccreeFlashbang = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mccree_flashbang")).setRegistryName("mccree_flashbang");
+	public static SoundEvent mccreeRoll = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mccree_roll")).setRegistryName("mccree_roll");
+	public static SoundEvent mercyShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_shoot")).setRegistryName("mercy_shoot");
+	public static SoundEvent mercyHeal = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_heal")).setRegistryName("mercy_heal");
+	public static SoundEvent mercyDamage = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_damage")).setRegistryName("mercy_damage");
+	public static SoundEvent mercyHover = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_hover")).setRegistryName("mercy_hover");
+	public static SoundEvent mercyBeamStart = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_beam_start")).setRegistryName("mercy_beam_start");
+	public static SoundEvent mercyBeamDuring = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_beam_during")).setRegistryName("mercy_beam_during");
+	public static SoundEvent mercyBeamStop = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_beam_stop")).setRegistryName("mercy_beam_stop");
+	public static SoundEvent mercyReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_reload")).setRegistryName("mercy_reload");
 
 	public static void postInit() {
 		EnumHero.ANA.reloadSound = anaReload;
@@ -64,6 +91,7 @@ public class ModSoundEvents {
 		EnumHero.BASTION.reloadSound = bastionReload;
 		EnumHero.MEI.reloadSound = meiReload;
 		EnumHero.WIDOWMAKER.reloadSound = widowmakerReload;
+		EnumHero.MERCY.reloadSound = mercyReload;
 	}
 
 	@Mod.EventBusSubscriber
@@ -86,6 +114,7 @@ public class ModSoundEvents {
 			event.getRegistry().register(mccreeReload);
 			event.getRegistry().register(soldier76Shoot);
 			event.getRegistry().register(soldier76Reload);
+
 			event.getRegistry().register(hurt);
 			event.getRegistry().register(anaHeal);
 			event.getRegistry().register(hanzoSonicArrow);
@@ -111,6 +140,29 @@ public class ModSoundEvents {
 			event.getRegistry().register(widowmakerScopedShoot);
 			event.getRegistry().register(widowmakerUnscopedShoot);
 			event.getRegistry().register(widowmakerCharge);
+
+			for (int i=2; i<7; ++i)
+				event.getRegistry().register(multikill[i-2]);
+			event.getRegistry().register(kill);
+			event.getRegistry().register(headshot);
+			event.getRegistry().register(wallClimb);
+			event.getRegistry().register(anaSleepShoot);
+			event.getRegistry().register(anaSleepHit);
+			event.getRegistry().register(anaSleepVoice);
+			event.getRegistry().register(reaperWraith);
+			event.getRegistry().register(genjiDeflect);
+			event.getRegistry().register(genjiDeflectHit);
+			event.getRegistry().register(genjiStrike);
+			event.getRegistry().register(genjiJump);
+			event.getRegistry().register(mccreeFlashbang);
+			event.getRegistry().register(mccreeRoll);
+			event.getRegistry().register(mercyShoot);
+			event.getRegistry().register(mercyHeal);
+			event.getRegistry().register(mercyDamage);
+			event.getRegistry().register(mercyHover);
+			event.getRegistry().register(mercyBeamStart);
+			event.getRegistry().register(mercyBeamDuring);
+			event.getRegistry().register(mercyBeamStop);
 		}
 	}
 }

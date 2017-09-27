@@ -1,5 +1,7 @@
 itemGroup.tabMinewatch=Minewatch
-config.heroTextures=Hero Textures
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Hero Skins
 effect.frozen=Frozen
 
 item.reaper_token.name=Reaper Token
@@ -80,11 +82,19 @@ item.widowmaker_leggings.name=Widowmaker Leggings
 item.widowmaker_boots.name=Widowmaker Boots
 item.widowmaker_weapon.name=Widow's Kiss
 
+item.mercy_token.name=Mercy Token
+item.mercy_helmet.name=Mercy Helmet
+item.mercy_chestplate.name=Mercy Chestplate
+item.mercy_leggings.name=Mercy Leggings
+item.mercy_boots.name=Mercy Boots
+item.mercy_weapon.name=Mercy's Weapon
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
+entity.ana_sleep_dart.name=Ana Sleep Dart
 entity.genji_shuriken.name=Genji Shuriken
 entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet
@@ -94,3 +104,5 @@ entity.soldier76_helix_rocket.name=Soldier 76 Helix Rocket
 entity.bastion_bullet.name=Bastion Bullet
 entity.mei_blast.name=Mei Blast
 entity.mei_icicle.name=Mei Icicle
+entity.mercy_bullet.name=Mercy Bullet
+entity.mercy_beam.name=Mercy Beam

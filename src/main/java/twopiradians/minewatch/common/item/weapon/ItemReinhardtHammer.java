@@ -19,7 +19,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
 
@@ -63,7 +63,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		if (!world.isRemote && this.canUse(player, true, hand) && !hero.ability1.isSelected(player) &&
 				hand == EnumHand.MAIN_HAND) {
 			if (player instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketTriggerAbility(5), (EntityPlayerMP) player);
+				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
 				player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, 
 						player.getEntityBoundingBox().offset(player.getLookVec().xCoord*3, player.getLookVec().yCoord*3, player.getLookVec().zCoord*3).expand(2.0D, 1D, 2.0D))) 

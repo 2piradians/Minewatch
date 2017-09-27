@@ -19,6 +19,7 @@ public class ModItems {
 
 	public static ArrayList<Item> jsonModelItems  = new ArrayList<Item>();
 	public static ArrayList<Item> objModelItems  = new ArrayList<Item>();
+	public static ArrayList<Item> allItems  = new ArrayList<Item>();
 	
 	public static Item genji_shuriken_single; // used for projectile
 
@@ -50,6 +51,7 @@ public class ModItems {
 			objModelItems.add(item);
 		else
 			jsonModelItems.add(item);
+		allItems.add(item);
 		item.setUnlocalizedName(unlocalizedName);
 		item.setRegistryName(Minewatch.MODID, unlocalizedName);
 		if (addToTab) {

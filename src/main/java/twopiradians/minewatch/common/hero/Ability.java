@@ -8,10 +8,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -24,7 +20,7 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class Ability {
 
-	public static final Handler ABILITY_USING = new Handler(Identifier.ABILITY_USING) {};
+	public static final Handler ABILITY_USING = new Handler(Identifier.ABILITY_USING, true) {};
 
 	public EnumHero hero;
 	public KeyBind keybind;
@@ -36,7 +32,26 @@ public class Ability {
 	public int maxUses;
 	private int useCooldown;
 	public HashMap<UUID, Integer> multiAbilityUses = Maps.newHashMap();
-	private HashMap<UUID, Integer> multiAbilityCooldowns = Maps.newHashMap();
+	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
+		@Override
+		public Handler onRemove() {
+			if (!player.worldObj.isRemote) {
+				UUID uuid = player.getPersistentID();
+				if (ability.multiAbilityUses.containsKey(uuid)) {
+					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
+					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
+						this.setTicks(ability.useCooldown);
+				}
+				else
+					ability.multiAbilityUses.put(uuid, ability.maxUses);
+				if (player instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(
+							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
+									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
+			}
+			return this.ticksLeft <= 0 ? super.onRemove() : null;
+		}
+	};
 
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable, int maxUses, int useCooldown) {
 		this.keybind = keybind;
@@ -44,11 +59,9 @@ public class Ability {
 		this.isToggleable = isToggleable;
 		this.maxUses = maxUses;
 		this.useCooldown = useCooldown;
-
-		if (this.maxUses > 0) 
-			MinecraftForge.EVENT_BUS.register(this);
 	}
 
+	/**Returns this ability's number relative to the hero's ability set*/
 	public int getNumber() {
 		if (hero.ability1 == this)
 			return 1;
@@ -75,9 +88,9 @@ public class Ability {
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
 	public boolean isSelected(EntityPlayer player, KeyBind keybind) {
 		if (player.worldObj.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
-				!this.keybind.abilityNotReadyCooldowns.containsKey(player.getPersistentID())) {
+				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
-			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
 		KeyBind prev = this.keybind;
@@ -87,19 +100,16 @@ public class Ability {
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
 			this.keybind = KeyBind.ABILITY_1;
-
-		if (ret && player.worldObj.isRemote)
-			this.keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
-
+		
 		return ret;
 	}
 
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityPlayer player) {
-		if (player.worldObj.isRemote && keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
-				!keybind.abilityNotReadyCooldowns.containsKey(player.getPersistentID())) {
+		if (player.worldObj.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
+				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
-			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
@@ -112,9 +122,9 @@ public class Ability {
 
 		if (TickHandler.getHandler(player, Identifier.ABILITY_USING) != null && !this.isToggled(player))
 			return false;
-		
+
 		if (ret && player.worldObj.isRemote)
-			keybind.abilityNotReadyCooldowns.put(player.getPersistentID(), 20);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 
 		return ret;
 	}
@@ -133,38 +143,12 @@ public class Ability {
 	public void subtractUse(EntityPlayer player) {
 		if (player != null && !player.worldObj.isRemote && getUses(player) > 0 && player instanceof EntityPlayerMP) {
 			multiAbilityUses.put(player.getPersistentID(), multiAbilityUses.get(player.getPersistentID())-1);
-			if (!multiAbilityCooldowns.containsKey(player.getPersistentID()))
-				multiAbilityCooldowns.put(player.getPersistentID(), useCooldown);
+			if (!TickHandler.hasHandler(player, Identifier.ABILITY_MULTI_COOLDOWNS))
+				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(player).setTicks(useCooldown));
 			Minewatch.network.sendTo(
 					new SPacketSyncAbilityUses(player.getPersistentID(), hero, getNumber(), 
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
 		}
-	}
-
-	@SubscribeEvent
-	public void onPlayerTick(PlayerTickEvent event) {
-		if (event.phase == Phase.END && !event.player.worldObj.isRemote) 
-			for (UUID uuid : multiAbilityCooldowns.keySet()) 
-				if (uuid.equals(event.player.getPersistentID())) {
-					if (multiAbilityCooldowns.get(uuid) > 1)
-						multiAbilityCooldowns.put(uuid, Math.max(multiAbilityCooldowns.get(uuid)-1, 0));
-					else {
-						multiAbilityCooldowns.remove(uuid);
-
-						if (this.multiAbilityUses.containsKey(uuid)) {
-							this.multiAbilityUses.put(uuid, Math.min(maxUses, multiAbilityUses.get(uuid)+1));
-							if (this.multiAbilityUses.get(uuid) < maxUses)
-								this.multiAbilityCooldowns.put(uuid, useCooldown);
-						}
-						else
-							this.multiAbilityUses.put(uuid, maxUses);
-						if (event.player instanceof EntityPlayerMP)
-							Minewatch.network.sendTo(
-									new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, getNumber(), 
-											multiAbilityUses.get(event.player.getPersistentID()), true), (EntityPlayerMP) event.player);
-					}
-					break;
-				}
 	}
 
 }

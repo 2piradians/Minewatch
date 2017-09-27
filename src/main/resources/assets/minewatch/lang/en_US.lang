@@ -1,5 +1,7 @@
 itemGroup.tabMinewatch=Minewatch
-config.heroTextures=Hero Textures
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Hero Skins
 effect.frozen=Frozen
 
 item.reaper_token.name=Reaper Token
@@ -92,6 +94,7 @@ entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow
 entity.reaper_bullet.name=Reaper Bullet
 entity.ana_bullet.name=Ana Bullet
+entity.ana_sleep_dart.name=Ana Sleep Dart
 entity.genji_shuriken.name=Genji Shuriken
 entity.genji_shuriken_single.name=Genji Shuriken
 entity.tracer_bullet.name=Tracer Bullet

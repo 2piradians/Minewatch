@@ -14,7 +14,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.particle.ParticleCircle;
+import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
@@ -28,9 +28,9 @@ public class EntityMercyBeam extends Entity {
 	public EntityLivingBase target;
 	public boolean prevHeal;
 	@SideOnly(Side.CLIENT)
-	public ParticleCircle particleStaff;
+	public ParticleCustom particleStaff;
 	@SideOnly(Side.CLIENT)
-	public ParticleCircle particleTarget;
+	public ParticleCustom particleTarget;
 
 	public EntityMercyBeam(World worldIn) {
 		super(worldIn);

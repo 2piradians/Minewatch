@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -29,7 +30,6 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
-import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -44,7 +44,7 @@ public abstract class ItemMWWeapon extends Item {
 	public boolean hasOffhand;
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
-	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING) {};
+	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING, false) {};
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
@@ -75,7 +75,7 @@ public abstract class ItemMWWeapon extends Item {
 			if (player instanceof EntityPlayerMP) {
 				EnumHand hand = player.getHeldItemMainhand() != null && 
 						player.getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-				Minewatch.network.sendTo(new SPacketSyncAmmo(player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player);
+				Minewatch.network.sendTo(new SPacketSyncAmmo(hero, player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player); 
 			}
 			if (player.worldObj.isRemote)
 				for (EnumHand hand2 : hands)
@@ -99,9 +99,8 @@ public abstract class ItemMWWeapon extends Item {
 		if (player != null && !player.worldObj.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			player.getCooldownTracker().setCooldown(this, reloadTime);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
-			if (hero.reloadSound != null)
-				player.worldObj.playSound(null, player.posX, player.posY, player.posZ, 
-						hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
+			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
+				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
 						player.worldObj.rand.nextFloat()/2+0.75f);
 		}
 	}
@@ -120,9 +119,8 @@ public abstract class ItemMWWeapon extends Item {
 	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand) {
 		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
 				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
-				(player.getActivePotionEffect(ModPotions.frozen) != null && 
-				player.getActivePotionEffect(ModPotions.frozen).getDuration() > 0) ||
-				TickHandler.getHandler(player, Identifier.ABILITY_USING) != null)
+				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
+				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -134,19 +132,19 @@ public abstract class ItemMWWeapon extends Item {
 			if (!Config.allowGunWarnings)
 				return true;
 			else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
-				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.worldObj.isRemote)
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.worldObj.isRemote)
 					player.addChatMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand and off-hand to work."));
 			} 
 			else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
-				if (shouldWarn && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null && player.worldObj.isRemote)
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.worldObj.isRemote)
 					player.addChatMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand to work."));
 			}
 			else
 				return true;
 
-			if (shouldWarn && player.worldObj.isRemote && TickHandler.getHandler(player, Identifier.WEAPON_WARNING) == null)
+			if (shouldWarn && player.worldObj.isRemote && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING))
 				TickHandler.register(true, WARNING_CLIENT.setEntity(player).setTicks(60));
 
 			return false;
@@ -240,6 +238,19 @@ public abstract class ItemMWWeapon extends Item {
 		return 1;
 	}
 
+	/**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*/
+	public static Vec3d getPositionEyes(Entity entity, float partialTicks)  {
+		if (partialTicks == 1.0F)
+			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
+		else {
+			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
+			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
+			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
+			return new Vec3d(d0, d1, d2);
+
+		}
+	}
+	
 	// DEV SPAWN ARMOR ===============================================
 
 	@Override

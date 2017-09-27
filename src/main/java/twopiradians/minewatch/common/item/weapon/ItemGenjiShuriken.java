@@ -35,17 +35,19 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
 
-	public static final Handler DEFLECT_SERVER = new Handler(Identifier.GENJI_DEFLECT) {
+	public static final Handler DEFLECT_SERVER = new Handler(Identifier.GENJI_DEFLECT, true) {
 		@Override
 		public boolean onServerTick() {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(4);
@@ -57,11 +59,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public void onRemove() {
+		public Handler onRemove() {
 			EnumHero.GENJI.ability1.keybind.setCooldown(player, 160, false);
+			return super.onRemove();
 		}
 	};
-	public static final Handler STRIKE_CLIENT = new Handler(Identifier.GENJI_STRIKE) {
+	public static final Handler STRIKE = new Handler(Identifier.GENJI_STRIKE, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
@@ -71,7 +74,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				player.setActiveHand(EnumHand.MAIN_HAND);
 
 			if (player == Minecraft.getMinecraft().thePlayer)
-				SPacketTriggerAbility.move(player, 1.5f, true);
+				SPacketSimple.move(player, 1.5f, true);
 
 			if (player instanceof EntityPlayerSP)
 				((EntityPlayerSP)player).movementInput.sneak = false;
@@ -95,12 +98,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public void onRemove() {
-			player.resetActiveHand();
-		}
-	};
-	public static final Handler STRIKE_SERVER = new Handler(Identifier.GENJI_STRIKE) {
-		@Override
 		public boolean onServerTick() {
 			// block while striking
 			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
@@ -111,19 +108,22 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 			for (Entity entityCollided : list) 
-				if (entityCollided instanceof EntityLivingBase) 
+				if (entityCollided instanceof EntityLivingBase)
 					if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*ItemMWWeapon.damageScale))
 						entityCollided.worldObj.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.worldObj.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
 		}
 
 		@Override
-		public void onRemove() {
+		public Handler onRemove() {
 			player.resetActiveHand();
-			EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
+			if (!player.worldObj.isRemote)
+				EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
+			return super.onRemove();
 		}
 	};
-	public static final Handler SWORD_CLIENT = new Handler(Identifier.GENJI_SWORD) {};
+
+	public static final Handler SWORD_CLIENT = new Handler(Identifier.GENJI_SWORD, true) {};
 
 	public ItemGenjiShuriken() {
 		super(40);
@@ -132,7 +132,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		this.addPropertyOverride(new ResourceLocation("sword"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && TickHandler.getHandler(entityIn, Identifier.GENJI_SWORD) != null ? 1.0F : 0.0F;
+				return entityIn != null && TickHandler.hasHandler(entityIn, Identifier.GENJI_SWORD) ? 1.0F : 0.0F;
 			}
 		});
 	}
@@ -167,37 +167,37 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}
 
 	@Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
 		// throw triple shuriken
-		if (!playerIn.worldObj.isRemote && this.canUse(playerIn, true, hand)) {
-			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(playerIn)); i++) {
-				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(playerIn.worldObj, playerIn);
-				shuriken.setAim(playerIn, playerIn.rotationPitch, playerIn.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
-				playerIn.worldObj.spawnEntityInWorld(shuriken);
+		if (!player.worldObj.isRemote && this.canUse(player, true, hand)) {
+			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
+				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.worldObj, player);
+				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
+				player.worldObj.spawnEntityInWorld(shuriken);
 			}
-			playerIn.worldObj.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, 
-					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, 1.0f, playerIn.worldObj.rand.nextFloat()/2+0.75f);
-			this.subtractFromCurrentAmmo(playerIn, 3, hand);
-			if (worldIn.rand.nextInt(8) == 0)
-				playerIn.getHeldItem(hand).damageItem(1, playerIn);
-			if (!playerIn.getCooldownTracker().hasCooldown(this))
-				playerIn.getCooldownTracker().setCooldown(this, 15);
+			player.worldObj.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, 1.0f, player.worldObj.rand.nextFloat()/2+0.75f);
+			this.subtractFromCurrentAmmo(player, 3, hand);
+			if (world.rand.nextInt(8) == 0)
+				player.getHeldItem(hand).damageItem(1, player);
+			if (!player.getCooldownTracker().hasCooldown(this))
+				player.getCooldownTracker().setCooldown(this, 15);
 		}
 
-		return new ActionResult(EnumActionResult.PASS, playerIn.getHeldItem(hand));
+		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, null)) {
+		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP) {
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(4, (EntityPlayer) entity, 40, 0, 0));
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
@@ -205,10 +205,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP) {
-				TickHandler.register(false, STRIKE_SERVER.setEntity(player).setTicks(8));
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
-				Minewatch.network.sendToAll(new SPacketTriggerAbility(3, true, (EntityPlayer) entity));
+				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}
 		}
@@ -218,7 +218,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
-				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d) {
+				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d &&
+				!(entity instanceof EntityMWThrowable && ((EntityMWThrowable)entity).notDeflectible)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
 			entity.motionX = player.getLookVec().xCoord*velScale;	
@@ -245,7 +246,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				((IThrowableEntity) entity).setThrower(player);
 
 			player.worldObj.playSound(null, player.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, player.worldObj.rand.nextFloat()/6f+0.9f);
-			player.setActiveHand(EnumHand.MAIN_HAND);
+			Minewatch.network.sendToAll(new SPacketSimple(13, false, player));
 			return true;
 		}
 		return false;
@@ -264,7 +265,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onKill(LivingDeathEvent event) {
 		// remove strike cooldown if killed by Genji
 		if (event.getEntityLiving() != null && !event.getEntityLiving().worldObj.isRemote && 
-				event.getSource().getEntity() instanceof EntityPlayer) 
+				event.getSource().getEntity() instanceof EntityPlayer && 
+				ItemMWArmor.SetManager.playersWearingSets.get(event.getSource().getEntity()) == EnumHero.GENJI) 
 			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getEntity(), 0, false);
 	}
 

@@ -23,7 +23,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.packet.SPacketTriggerAbility;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class CommandDev implements ICommand {
 
@@ -88,7 +88,7 @@ public class CommandDev implements ICommand {
 		}
 		else if (sender instanceof EntityPlayerMP && args.length == 2 && args[0].equalsIgnoreCase("display")) {
 			if (NumberUtils.isNumber(args[1]))
-				Minewatch.network.sendTo(new SPacketTriggerAbility(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), (EntityPlayerMP) sender);
+				Minewatch.network.sendTo(new SPacketSimple(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), (EntityPlayerMP) sender);
 		}
 		return false;
 	}

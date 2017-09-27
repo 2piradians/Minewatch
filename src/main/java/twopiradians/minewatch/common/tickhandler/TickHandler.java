@@ -1,6 +1,8 @@
 package twopiradians.minewatch.common.tickhandler;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
@@ -8,105 +10,133 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.actors.threadpool.Arrays;
+import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 /**Used to easily create/manage tick timers and other tick-dependent things*/
 public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL;
 	}
 
-	private static ArrayList<Handler> clientHandlers = new ArrayList<Handler>();
-	private static ArrayList<Handler> serverHandlers = new ArrayList<Handler>();
-
-	// stall registration while ticking to prevent possible concurrentmodification
-	private static boolean clientTicking;
-	private static boolean serverTicking;
-	private static ArrayList<Handler> clientHandlersStalled = new ArrayList<Handler>();
-	private static ArrayList<Handler> serverHandlersStalled = new ArrayList<Handler>();
+	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
+	private static CopyOnWriteArrayList<Handler> serverHandlers = new CopyOnWriteArrayList<Handler>();
 
 	/**Register a new handler to be tracked each tick, removes duplicate handlers and resets handlers before registering*/
-	public static void register(boolean isRemote, Handler handler) {
-		if (handler != null) {
-			ArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
-			if (isRemote && clientTicking)
-				clientHandlersStalled.add(handler);
-			else if (!isRemote && serverTicking)
-				serverHandlersStalled.add(handler);
-			else {
-				// remove duplicates
-				if (handlerList.contains(handler)) 
-					handlerList.remove(handler);
-				handlerList.add(handler.reset());
-			}
+	public static void register(boolean isRemote, Handler... handlers) {
+		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
+			Handler handler = it.next();
+			CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+			// remove duplicates
+			if (handlerList.contains(handler)) 
+				handlerList.remove(handler);
+			handlerList.add(handler.reset());
 		}
 	}
 
-	/**Unregister a handler (possible concurrentmodification if removed during tick)*/
-	public static void unregister(Handler handler) {
-		if (handler != null && handler.entity != null) {
-			ArrayList<Handler> handlerList = handler.entity.worldObj.isRemote ? clientHandlers : serverHandlers;
-			handlerList.remove(handler);
+	/**Unregister a handler
+	 * Note: this must use a registered Handler, not a static field Handler (needs entity)*/
+	public static void unregister(boolean isRemote, Handler... handlers) {
+		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
+			Handler handler = it.next();
+			if (handler != null) {
+				CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+				try {
+					handlerList.remove(handler.onRemove());
+				}
+				catch (Exception e) {
+					handlerList.remove(handler);
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
-		ArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
-		for (Handler handler : handlerList)
+		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
+		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+			Handler handler = it.next();
 			if ((entity == null || handler.entity == entity) &&
 					(identifier == null || identifier == handler.identifier))
 				return handler;
+		}
 		return null;
+	}
+
+	public static boolean hasHandler(Entity entity, Identifier identifier) {
+		return getHandler(entity, identifier) != null;
+	}
+
+	/**Get all registered handlers by their entity and/or identifier*/
+	public static ArrayList<Handler> getHandlers(Entity entity, Identifier identifier) {
+		ArrayList<Handler> handlers = new ArrayList<Handler>();
+		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
+		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+			Handler handler = it.next();
+			if ((entity == null || handler.entity == entity) &&
+					(identifier == null || identifier == handler.identifier))
+				handlers.add(handler);
+		}
+		return handlers;
+	}
+
+	/**Unregister all Handlers linked to this entity that are marked as interruptible.
+	 * Used by stuns/similar to cancel active abilities - only needs to be called on SERVER*/
+	public static void interrupt(Entity entity) {
+		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
+		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+			Handler handler = it.next();
+			if (handler.interruptible && entity != null && entity == handler.entity) 
+				unregister(entity.worldObj.isRemote, handler);
+		}
+		if (!entity.worldObj.isRemote)
+			Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) {
-			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
-			clientTicking = true;
-			for (Handler handler : clientHandlers) {
-				if (handler.onClientTick()) {
-					handler.onRemove();
-					handlersToRemove.add(handler);
+		if (event.phase == TickEvent.Phase.END) 
+			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				//System.out.println(handler); //TODO comment
+				try {
+					if (handler.onClientTick()) 
+						unregister(true, handler);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
-			for (Handler handler : handlersToRemove)
-				clientHandlers.remove(handler);
-			clientTicking = false;
-			for (Handler handler : clientHandlersStalled)
-				register(true, handler);
-			clientHandlersStalled.clear();
-		}
 	}
 
 	@SubscribeEvent
 	public void serverSide(ServerTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) {
-			serverTicking = true;
-			ArrayList<Handler> handlersToRemove = new ArrayList<Handler>();
-			for (Handler handler : serverHandlers) {
-				if (handler.onServerTick()) {
-					handler.onRemove();
-					handlersToRemove.add(handler);
+		if (event.phase == TickEvent.Phase.END) 
+			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				//System.out.println(handler); //TODO comment
+				try {
+					if (handler.onServerTick()) 
+						unregister(false, handler);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
-			for (Handler handler : handlersToRemove)
-				serverHandlers.remove(handler);
-			serverTicking = false;
-			for (Handler handler : serverHandlersStalled)
-				register(false, handler);
-			serverHandlersStalled.clear();
-		}
 	}
 
 	/**Note: reuse instances (i.e. make static instances) so duplicates can be replaced, 
@@ -119,6 +149,8 @@ public class TickHandler {
 		public int initialTicks;
 		/**Number of ticks until this handler will be removed*/
 		public int ticksLeft;
+		/**Can this handler be interrupted by things like Mei's freeze, Ana's sleep dart, McCree's stun, etc.*/
+		public boolean interruptible;
 
 		// variables that are only sometimes used by handlers are below
 		@Nullable
@@ -129,28 +161,38 @@ public class TickHandler {
 		public EntityPlayer player;
 		@Nullable
 		public Vec3d position;
+		@Nullable
+		public Ability ability;
+		@Nullable
+		public double number;
+		@Nullable
+		public String string;
+		@Nullable
+		public Boolean bool;
 
-		public Handler() {
-			this(Identifier.NONE);
+		public Handler(boolean interruptible) {
+			this(Identifier.NONE, interruptible);
 		}
 
-		public Handler(Identifier identifier) {
+		public Handler(Identifier identifier, boolean interruptible) {
 			this.identifier = identifier;
+			this.interruptible = interruptible;
 		}
 
-		/**Called every tick, returns whether the handler should be removed afterwards*/
+		/**Called every tick on client, returns whether the handler should be removed afterwards*/
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			return --ticksLeft <= 0;
+			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
 
+		/**Called every tick on server, returns whether the handler should be removed afterwards*/
 		public boolean onServerTick() {
-			return --ticksLeft <= 0;
+			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
 
 		/**Called before the handler is removed*/
-		public void onRemove() {
-
+		public Handler onRemove() {
+			return this;
 		}
 
 		/**Called when registered by the tick handler, used to reset counter and clone (to allow multiple instances)*/
@@ -170,10 +212,11 @@ public class TickHandler {
 			return this;
 		}
 
-		/**Overridden to check that only entities are equal and world.isRemote is equal*/
+		/**Overridden to check that only entities, identifiers, and world.isRemote are equal*/
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof Handler && this.identifier == ((Handler)obj).identifier)
+			if (obj instanceof Handler && this.identifier == ((Handler)obj).identifier && 
+					(this.string == null || this.string == ((Handler)obj).string))
 				if (this.entity != null && ((Handler)obj).entity != null)
 					return this.entity == ((Handler)obj).entity && this.entity.worldObj.isRemote == ((Handler)obj).entity.worldObj.isRemote;
 				else 
@@ -182,19 +225,50 @@ public class TickHandler {
 				return false;
 		}
 
+		@Override
+		public String toString() {
+			return identifier+": "+ticksLeft+(entity == null ? "" : ", "+entity.getName())+
+					(string == null ? "" : ", "+TextFormatting.getTextWithoutFormattingCodes(string))+
+					(number == 0 ? "" : ", "+number);
+		}
+
 		// methods that are only sometimes used by handlers are below (for convenience)
 
 		public Handler setEntity(Entity entity) {
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
 				this.entityLiving = (EntityLivingBase) entity;
+			else
+				this.entityLiving = null;
 			if (entity instanceof EntityPlayer)
 				this.player = (EntityPlayer) entity;
+			else 
+				this.player = null;
 			return this;
 		}
 
 		public Handler setPosition(Vec3d position) {
 			this.position = position;
+			return this;
+		}
+
+		public Handler setAbility(Ability ability) {
+			this.ability = ability;
+			return this;
+		}
+
+		public Handler setNumber(double number) {
+			this.number = number;
+			return this;
+		}
+
+		public Handler setString(String string) {
+			this.string = string;
+			return this;
+		}
+
+		public Handler setBoolean(Boolean bool) {
+			this.bool = bool;
 			return this;
 		}
 

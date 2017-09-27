@@ -8,18 +8,26 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
 
+	public static SoundEvent[] multikill = new SoundEvent[5];
+	public static SoundEvent kill;
+	public static SoundEvent headshot;
 	public static SoundEvent hurt;
 	public static SoundEvent abilityRecharge;
 	public static SoundEvent abilityMultiRecharge;
 	public static SoundEvent abilityNotReady;
+	public static SoundEvent wallClimb;
 	public static SoundEvent anaShoot;
 	public static SoundEvent anaHeal;
+	public static SoundEvent anaSleepShoot;
+	public static SoundEvent anaSleepHit;
+	public static SoundEvent anaSleepVoice;
 	public static SoundEvent reaperShoot;
 	public static SoundEvent reaperTeleportStart;
 	public static SoundEvent reaperTeleportDuring;
 	public static SoundEvent reaperTeleportStop;
 	public static SoundEvent reaperTeleportFinal;
 	public static SoundEvent reaperTeleportVoice;
+	public static SoundEvent reaperWraith;
 	public static SoundEvent hanzoShoot;
 	public static SoundEvent hanzoDraw;
 	public static SoundEvent hanzoSonicArrow;
@@ -55,12 +63,20 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStop;
 
 	public static void preInit() {
+		for (int i=2; i<7; ++i)
+			multikill[i-2] = registerSound("multikill_"+i);
+		kill = registerSound("kill");
+		headshot = registerSound("headshot");
 		hurt = registerSound("hurt");
 		abilityRecharge = registerSound("ability_recharge");
 		abilityMultiRecharge = registerSound("ability_multi_recharge");
 		abilityNotReady = registerSound("ability_not_ready");
+		wallClimb = registerSound("wall_climb");
 		anaShoot = registerSound("ana_shoot");
 		anaHeal = registerSound("ana_heal");
+		anaSleepShoot = registerSound("ana_sleep_shoot");
+		anaSleepHit = registerSound("ana_sleep_hit");
+		anaSleepVoice = registerSound("ana_sleep_voice");
 		EnumHero.ANA.reloadSound = registerSound("ana_reload");
 		reaperShoot = registerSound("reaper_shoot");
 		reaperTeleportStart = registerSound("reaper_teleport_start");
@@ -68,6 +84,7 @@ public class ModSoundEvents {
 		reaperTeleportStop = registerSound("reaper_teleport_stop");
 		reaperTeleportFinal = registerSound("reaper_teleport_final");
 		reaperTeleportVoice = registerSound("reaper_teleport_voice");
+		reaperWraith = registerSound("reaper_wraith");
 		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
 		hanzoShoot = registerSound("hanzo_shoot");
 		hanzoDraw = registerSound("hanzo_draw");

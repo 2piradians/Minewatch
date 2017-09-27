@@ -1,13 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityMercyBullet extends EntityMWThrowable {
 
@@ -47,21 +43,14 @@ public class EntityMercyBullet extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
-				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
-			if (!this.worldObj.isRemote) {
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 20f*ItemMWWeapon.damageScale);
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-			}
-			else
-				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
+		if (this.attemptImpact(result.entityHit, 20, false)) 
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 
-			this.setDead();
-		}
-		Minewatch.proxy.spawnParticlesSpark(worldObj, 
-				result.entityHit == null ? result.hitVec.xCoord : posX, 
-						result.entityHit == null ? result.hitVec.yCoord : posY, 
-								result.entityHit == null ? result.hitVec.zCoord : posZ, 
-										0xE39684, 0xE26E53, 5, 5);
+		if (this.worldObj.isRemote && (result.entityHit == null || this.shouldHit(result.entityHit)))
+			Minewatch.proxy.spawnParticlesSpark(worldObj, 
+					result.entityHit == null ? result.hitVec.xCoord : posX, 
+							result.entityHit == null ? result.hitVec.yCoord : posY, 
+									result.entityHit == null ? result.hitVec.zCoord : posZ, 
+											0xE39684, 0xE26E53, 5, 5);
 	}
 }

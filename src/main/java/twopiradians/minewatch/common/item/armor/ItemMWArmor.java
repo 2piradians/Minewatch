@@ -26,8 +26,11 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -38,6 +41,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
@@ -46,6 +50,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -57,6 +62,7 @@ public class ItemMWArmor extends ItemArmor
 	private ModelPlayer femaleModel;
 	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
 	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
+	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -81,8 +87,8 @@ public class ItemMWArmor extends ItemArmor
 			entity.ticksExisted = 5; // prevent arm swinging
 		}
 		if (maleModel == null || femaleModel == null) {
-			maleModel = new ModelPlayer(0, false);
-			femaleModel = new ModelPlayer(0, true);
+			maleModel = new ModelMWArmor(0, false);
+			femaleModel = new ModelMWArmor(0, true);
 		}
 		return hero.smallArms ? femaleModel : maleModel;
 	}
@@ -183,9 +189,14 @@ public class ItemMWArmor extends ItemArmor
 			}
 		}
 
-	}
+		@SubscribeEvent
+		public static void genjiFall(LivingFallEvent event) {
+			if (event.getEntity() instanceof EntityPlayer && 
+					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
+				event.setDistance(event.getDistance()*0.8f);
+		}
 
-	// DEV SPAWN ARMOR ===============================================
+	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -240,10 +251,12 @@ public class ItemMWArmor extends ItemArmor
 		// genji jump boost/double jump
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
+			// jump boost
 			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
-			else if (world.isRemote && player.onGround)
+			// double jump
+			else if (world.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
 				playersJumped.remove(player);
 			else if (Minewatch.keys.jump(player) && !player.onGround && !player.isOnLadder() && 
 					player.motionY < 0.0d && !playersJumped.contains(player)) {
@@ -251,9 +264,34 @@ public class ItemMWArmor extends ItemArmor
 					player.jump();
 					player.motionY += 0.2d;
 					playersJumped.add(player);
-					player.playSound(ModSoundEvents.genjiJump, 0.4f, world.rand.nextFloat()/6f+0.9f);
+					player.playSound(ModSoundEvents.genjiJump, 0.8f, world.rand.nextFloat()/6f+0.9f);
 				}
 				player.fallDistance = 0;
+			}
+		}
+
+		// genji/hanzo wall climb
+		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+				(SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
+				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
+			// reset climbing
+			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
+			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava())
+				playersClimbing.remove(player);
+			else if (player.isCollidedHorizontally && !player.capabilities.isFlying && Minewatch.keys.jump(player)) {
+				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
+				if (ticks <= 17) {
+					if (ticks % 4 == 0) { // reset fall distance and play sound
+						Minewatch.network.sendToServer(new CPacketSimple(0, player));
+						player.fallDistance = 0.0F;
+					}
+					player.motionX = MathHelper.clamp_double(player.motionX, -0.15D, 0.15D);
+					player.motionZ = MathHelper.clamp_double(player.motionZ, -0.15D, 0.15D);
+					player.motionY = Math.max(0.2d, player.motionY);
+					player.moveEntity(player.motionX, player.motionY, player.motionZ);
+					playersClimbing.put(player, ticks);
+				}
 			}
 		}
 
@@ -261,10 +299,10 @@ public class ItemMWArmor extends ItemArmor
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
 			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
-					!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
-					player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
+			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
+			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (Minewatch.keys.jump(player) && player.motionY < 0) {
+			else if (Minewatch.keys.jump(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
 				player.motionY *= 0.75f;
 				player.fallDistance *= 0.75f;
 				if (!playersHovering.contains(player) && !world.isRemote) {

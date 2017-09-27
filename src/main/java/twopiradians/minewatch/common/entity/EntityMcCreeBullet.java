@@ -1,13 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class EntityMcCreeBullet extends EntityMWThrowable {
 
@@ -41,16 +37,7 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (result.entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer &&
-				result.entityHit != this.getThrower() && ((EntityLivingBase)result.entityHit).getHealth() > 0) {
-			if (!this.worldObj.isRemote) {
-				float damage = 70 - (70 - 21) * ((float)this.ticksExisted / lifetime);
-				((EntityLivingBase)result.entityHit).attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), damage*ItemMWWeapon.damageScale);
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
-			}
-			else
-				this.getThrower().playSound(ModSoundEvents.hurt, 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+0.75f);
-			this.setDead();
-		}
+		if (this.attemptImpact(result.entityHit, 70 - (70 - 21) * ((float)this.ticksExisted / lifetime), false)) 
+			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 	}
 }

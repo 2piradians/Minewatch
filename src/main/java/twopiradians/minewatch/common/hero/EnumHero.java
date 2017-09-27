@@ -8,26 +8,37 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.CombatRules;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -49,13 +60,15 @@ import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, 
 			new Skin("Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
@@ -89,7 +102,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
 			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/")),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
 			8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, 
 			new Skin("Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
@@ -305,41 +318,38 @@ public enum EnumHero {
 		return null;
 	}
 
-	@Mod.EventBusSubscriber(Side.CLIENT)
+	@Mod.EventBusSubscriber
 	public static class RenderManager {
 
-		public static HashMap<EntityPlayer, Integer> playersSneaking = Maps.newHashMap();
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void clientSide(PlayerTickEvent event) {
-			// playersSneaking
-			if (event.player.worldObj.isRemote) {
-				ArrayList<EntityPlayer> toRemove = new ArrayList<EntityPlayer>();
-				for (EntityPlayer player : playersSneaking.keySet()) {
-					if (player == event.player) {
-						if (playersSneaking.get(player) > 1)
-							playersSneaking.put(player, playersSneaking.get(player)-1);
-						else
-							toRemove.add(player);
-					}
-				}
-				for (EntityPlayer player : toRemove)
-					playersSneaking.remove(player);
+		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
+		public static HashMap<EntityLivingBase, HashMap<EntityPlayerMP, Float>> entityDamage = Maps.newHashMap();
+		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
+			@Override
+			@SideOnly(Side.CLIENT)
+			public boolean onClientTick() {
+				ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
+				return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 			}
-		}
+		};
+		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
+		public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
+		public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
 			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
 				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
-				if (event.getEntity() instanceof EntityPlayer && playersSneaking.containsKey((EntityPlayer)event.getEntity()))
+				if (event.getEntity() instanceof EntityPlayer && TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
 					model.isSneak = true;
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
-						if (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET) {
+						if (slot == EntityEquipmentSlot.LEGS && 
+								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET) != null && 
+								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemMWArmor) {
+							model.bipedLeftLeg.showModel = false;
+							model.bipedRightLeg.showModel = false;
 							model.bipedLeftLegwear.showModel = false;
 							model.bipedRightLegwear.showModel = false;
 						}
@@ -364,6 +374,9 @@ public enum EnumHero {
 		@SideOnly(Side.CLIENT)
 		public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
 			if (event.getType() == ElementType.CROSSHAIRS && Config.guiScale > 0) {
+				double height = event.getResolution().getScaledHeight_double();
+				double width = event.getResolution().getScaledWidth_double();
+				int imageSize = 256;
 				EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
 				EnumHand hand = null;
@@ -372,7 +385,62 @@ public enum EnumHero {
 						hand = hand2;
 				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
+				if (hero != null) {
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+					GlStateManager.enableAlpha();
+
+					// hit overlay
+					Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
+					if (handler != null) {
+						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 3 ? 0 : (1f-handler.ticksLeft/3f)*0.7f));
+						double scale = MathHelper.clamp_double(0.014f*handler.number, 0.03f, 0.25f);
+						GlStateManager.scale(scale, scale, 1);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/hit_overlay.png"));
+						GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
+						GlStateManager.scale(1/scale, 1/scale, 1);
+					}
+
+					// kill overlay
+					handler = TickHandler.getHandler(player, Identifier.KILL_OVERLAY);
+					if (handler != null) {
+						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 5 ? 0 : (1f-handler.ticksLeft/5f)*0.7f));
+						double scale = 0.1f;
+						GlStateManager.scale(scale, scale, 1);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/kill_overlay.png"));
+						GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
+						GlStateManager.scale(1/scale, 1/scale, 1);
+					}
+
+					// eliminate/assist text overlay
+					double yOffset = 0;
+					ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
+					for (int i=0; i<Math.min(6, handlers.size()); ++i) {
+						handler = handlers.get(i);
+						if (handler != null && handler.string != null) {
+							float alpha = 0.7f;
+							if (handler.ticksLeft < 15)
+								alpha -= (1f-(handler.ticksLeft-10)/5f)*alpha;
+							else if (handler.ticksLeft > handler.initialTicks-8)
+								alpha -= (1f-(handler.initialTicks-handler.ticksLeft+1)/8f)*alpha;
+							if (alpha > 0) {
+								double scale = handler.bool ? 0.8f :1f;
+								GlStateManager.scale(scale, scale, 1);
+								FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
+								font.drawString(handler.string, (float)((width/2/scale) - font.getStringWidth(handler.string)/2), (float) (height/1.6f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), false);
+								GlStateManager.scale(1/scale, 1/scale, 1);
+							}
+							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
+						}
+					}
+
+					GlStateManager.disableBlend();
+					GlStateManager.popMatrix();
+				}
+
 				if (weapon != null) {
+					GlStateManager.color(1, 1, 1, 1f);
+
 					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player)) &&
 							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.pushMatrix();
@@ -620,6 +688,80 @@ public enum EnumHero {
 				}
 			}
 		}
+
+		@SubscribeEvent
+		public static void damageEntities(LivingHurtEvent event) {
+			EntityPlayerMP player = null;
+			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP)
+				player = ((EntityPlayerMP)event.getSource().getSourceOfDamage());
+			else if (event.getSource().getSourceOfDamage() instanceof IThrowableEntity && 
+					((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower() instanceof EntityPlayerMP)
+				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
+			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
+				if (!player.worldObj.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != null) {
+					try {
+						float damage = event.getAmount();
+						damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+						damage = applyPotionDamageCalculations(player, event.getSource(), damage);
+						damage = Math.min(damage, event.getEntityLiving().getHealth());
+						if (damage > 0) {
+							HashMap<EntityPlayerMP, Float> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
+							damageMap.put(player, damageMap.get(player) == null ? damage : damageMap.get(player) + damage);
+							entityDamage.put(event.getEntityLiving(), damageMap);
+							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), player);
+						}
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+
+		@SubscribeEvent
+		public static void deathMessages(LivingDeathEvent event) {
+			if (event.getEntityLiving() != null && entityDamage.containsKey(event.getEntityLiving())) {
+				EntityPlayer mostDamage = null;
+				float damage = 0;
+				// find who dealt most damage
+				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
+					if (mostDamage == null || entityDamage.get(event.getEntityLiving()).get(player) > damage) {
+						mostDamage = player;
+						damage = entityDamage.get(event.getEntityLiving()).get(player);
+					}
+				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
+					Minewatch.network.sendTo(new SPacketSimple(14, mostDamage != player, player,
+					(int)MathHelper.clamp_double(entityDamage.get(event.getEntityLiving()).get(player)/event.getEntityLiving().getMaxHealth()*100f, 0, 100),
+					0, 0, event.getEntityLiving()), player);
+				if (event.getEntityLiving() instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
+							0, 0, mostDamage), (EntityPlayerMP) event.getEntityLiving());
+				entityDamage.remove(event.getEntityLiving());
+			}
+		}
+
+		/**Copied from EntityLivingBase bc it's protected*/
+		public static float applyPotionDamageCalculations(EntityPlayer player, DamageSource source, float damage) {
+			if (source.isDamageAbsolute())
+				return damage;
+			else {
+				if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.outOfWorld) {
+					int i = (player.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
+					int j = 25 - i;
+					float f = damage * (float)j;
+					damage = f / 25.0F;
+				}
+				if (damage <= 0.0F)
+					return 0.0F;
+				else {
+					int k = EnchantmentHelper.getEnchantmentModifierDamage(player.getArmorInventoryList(), source);
+					if (k > 0)
+						damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
+					return damage;
+				}
+			}
+		}
+
 	}
 
 	public void displayInfoScreen(ScaledResolution resolution) {

@@ -7,6 +7,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.minewatch.common.CommonProxy.Particle;
 import twopiradians.minewatch.common.Minewatch;
 
 public class SPacketSpawnParticle implements IMessage{
@@ -74,12 +75,12 @@ public class SPacketSpawnParticle implements IMessage{
 								packet.x, packet.y, packet.z, packet.color, packet.colorFade, packet.scale, packet.maxAge);
 					else if (packet.type == 2)
 						for (int i=0; i<3; ++i)
-							Minewatch.proxy.spawnParticlesCircle(world, 
+							Minewatch.proxy.spawnParticlesCustom(Particle.CIRCLE, world, 
 									packet.x+world.rand.nextDouble()-0.5d, 
 									packet.y+world.rand.nextDouble()-0.5d, 
 									packet.z+world.rand.nextDouble()-0.5d, 
 									0, 0.01f, 0, 0x5BC8E0, 0xAED4FF,
-									world.rand.nextFloat(), 5, 20f, 25f);
+									world.rand.nextFloat(), 5, 20f, 25f, 0, 0);
 				}
 			});
 			return null;

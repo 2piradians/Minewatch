@@ -183,8 +183,7 @@ public class GuiTab extends GuiScreen {
 			else if (button.displayString.equals("Options"))
 				try {
 					Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().mainConfigGuiClass().getConstructor(GuiScreen.class).newInstance(this));
-				}
-				catch (Exception e) {} 
+				} catch (Exception e) {} 
 			break;
 		case GALLERY:
 			if (button.displayString.equals("Back"))

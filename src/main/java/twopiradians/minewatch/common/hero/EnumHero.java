@@ -108,7 +108,7 @@ public enum EnumHero {
 			new Skin("Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
 			new Skin("Classic", "Reaper (PlayOfTheGame)", "_Phantom", "https://www.planetminecraft.com/skin/reaper-playofthegame-overwatch/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Shiver", "Reaper shiver holiday skin ( Overwatch)", "Hiccup415", "https://www.planetminecraft.com/skin/reaper-shiver-holiday-skin-overwatch/"), 
-			new Skin(TextFormatting.GOLD+"Mariachi", "Mariachi skin Reaper (OverwWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
+			new Skin(TextFormatting.GOLD+"Mariachi", "Mariachi skin Reaper (OverWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
 			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/")),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
@@ -293,7 +293,9 @@ public enum EnumHero {
 			skins.put(uuid.toString(), skin);
 			// sync to config
 			Property prop = Config.getHeroTextureProp(this);
-			if (!this.skinInfo[skin].getCreditText().equals(prop.getString())) {
+			if (Minewatch.proxy.getClientUUID() != null && 
+					Minewatch.proxy.getClientUUID().toString().equals(uuid.toString()) && 
+					!this.skinInfo[skin].getCreditText().equals(prop.getString())) {
 				prop.set(this.skinInfo[skin].getCreditText());
 				Config.config.save();
 			}

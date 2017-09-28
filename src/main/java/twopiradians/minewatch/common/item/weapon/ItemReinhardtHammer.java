@@ -66,7 +66,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
 				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
+						player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).grow(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
 					this.onLeftClickEntity(stack, player, entity);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 

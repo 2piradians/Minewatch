@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -215,7 +216,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}	
 
 	private static boolean deflect(EntityPlayer player, Entity entity) {
-		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+		if ((entity instanceof EntityArrow || entity instanceof IProjectile ||
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d &&

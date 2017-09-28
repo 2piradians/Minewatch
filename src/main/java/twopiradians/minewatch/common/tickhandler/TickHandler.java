@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.tickhandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,7 +18,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.actors.threadpool.Arrays;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.packet.SPacketSimple;

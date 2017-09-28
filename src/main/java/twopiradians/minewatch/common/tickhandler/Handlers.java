@@ -193,6 +193,9 @@ public class Handlers {
 			entity.onGround = true;
 			if (player != null)
 				player.capabilities.isFlying = false;
+			entity.motionX = 0;
+			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			entity.fallDistance *= 0.5f;
 			return super.onClientTick();
@@ -202,6 +205,9 @@ public class Handlers {
 			// prevent jumping
 			if (entity instanceof EntitySlime)
 				entity.onGround = false;
+			entity.motionX = 0;
+			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			entity.fallDistance *= 0.5f;
 			// slowness

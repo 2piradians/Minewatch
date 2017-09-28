@@ -61,6 +61,7 @@ public class CommonProxy {
 		}
 	}
 	
+	//PORT add registerEventListeners();
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);

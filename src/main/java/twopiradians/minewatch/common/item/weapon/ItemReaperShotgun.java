@@ -283,7 +283,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			}
 			// wraith
 			else if (hero.ability2.isSelected(player) && !world.isRemote && player instanceof EntityPlayerMP &&
-					 this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+					this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60),
 						WRAITH.setEntity(player).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(10, false, player));
@@ -314,6 +314,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
+					//PORT scale x2
 					GlStateManager.scale(width/256d, height/256d, 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;
@@ -346,7 +347,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				TickHandler.getHandler(Minecraft.getMinecraft().player, Identifier.REAPER_TELEPORT).ticksLeft > 0) 
 			event.setNewfov(event.getFov()+0.8f);
 	}
-	
+
 	@SubscribeEvent
 	public void damageEntities(LivingHurtEvent event) {
 		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
@@ -364,5 +365,5 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			}
 		}
 	}
-
+	
 }

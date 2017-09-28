@@ -221,6 +221,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 	}
 
+	//PORT correct scope scale
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {

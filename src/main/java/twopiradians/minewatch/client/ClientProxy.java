@@ -131,6 +131,7 @@ public class ClientProxy extends CommonProxy
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
+	//PORT change to event registration
 	private static void registerObjRenders() {		
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling

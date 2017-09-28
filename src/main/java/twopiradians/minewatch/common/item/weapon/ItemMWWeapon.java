@@ -237,6 +237,20 @@ public abstract class ItemMWWeapon extends Item {
 		return 1;
 	}
 
+	//PORT keep for 1.10 PosEyes vec
+	/*
+	*//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
+	private Vec3d getPositionEyes(Entity entity, float partialTicks)  {
+		if (partialTicks == 1.0F)
+			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
+		else {
+			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
+			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
+			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
+			return new Vec3d(d0, d1, d2);
+		}
+	}*/
+	
 	// DEV SPAWN ARMOR ===============================================
 
 	@Override

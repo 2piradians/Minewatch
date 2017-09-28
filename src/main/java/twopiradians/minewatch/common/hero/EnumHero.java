@@ -328,7 +328,7 @@ public enum EnumHero {
 			@SideOnly(Side.CLIENT)
 			public boolean onClientTick() {
 				ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
-				return handlers.indexOf(this) <= 3 ? --this.ticksLeft <= 0 : false;
+				return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 			}
 		};
 		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
@@ -415,7 +415,7 @@ public enum EnumHero {
 					// eliminate/assist text overlay
 					double yOffset = 0;
 					ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
-					for (int i=0; i<Math.min(3, handlers.size()); ++i) {
+					for (int i=0; i<Math.min(6, handlers.size()); ++i) {
 						handler = handlers.get(i);
 						if (handler != null && handler.string != null) {
 							float alpha = 0.7f;

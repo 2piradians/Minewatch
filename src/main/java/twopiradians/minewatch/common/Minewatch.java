@@ -16,7 +16,8 @@ import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.2/update.json")
+//PORT change json location
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.11.2/update.json")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";

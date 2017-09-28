@@ -302,8 +302,10 @@ public class ClientProxy extends CommonProxy
 
 	@Override
 	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch) {
-		FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch);
-		Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+		if (entity != null && event != null && category != null) {
+			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch);
+			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+		}
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/

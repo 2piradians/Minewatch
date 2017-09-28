@@ -226,8 +226,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (event.getType() == ElementType.ALL && player != null && 
-				player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
+		if (event.getType() == ElementType.ALL && player != null &&
 				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
@@ -252,7 +251,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				GlStateManager.popMatrix();
 			}
 			// scope
-			if (Minewatch.keys.rmb(player) && this.getCurrentAmmo((EntityPlayer) player) > 0) {
+			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
+					Minewatch.keys.rmb(player) && this.getCurrentAmmo((EntityPlayer) player) > 0) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				// scope

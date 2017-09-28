@@ -146,6 +146,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
 								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
+						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, false, 0);
 						if (player == packetPlayer)
 							ItemReaperShotgun.tpThirdPersonView.put(packetPlayer, Minecraft.getMinecraft().gameSettings.thirdPersonView);
 					}

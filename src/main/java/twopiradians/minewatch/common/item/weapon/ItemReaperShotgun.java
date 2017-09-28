@@ -351,6 +351,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void damageEntities(LivingHurtEvent event) {
 		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
 			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+			// heal reaper
 			if (!player.worldObj.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
 					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
 				try {
@@ -362,6 +363,9 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				catch (Exception e) {}
 			}
+			// cancel attack in wraith
+			if (!player.worldObj.isRemote && TickHandler.hasHandler(event.getEntityLiving(), Identifier.REAPER_WRAITH))
+				event.setCanceled(true);
 		}
 	}
 }

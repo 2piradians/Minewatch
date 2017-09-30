@@ -35,6 +35,7 @@ import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
+import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -304,6 +305,10 @@ public class SPacketSimple implements IMessage {
 					// add opped button to tab
 					else if (packet.type == 18) {
 						GuiTab.addOppedButton();
+					}
+					// Mercy's Angel
+					else if (packet.type == 19 && packetPlayer != null) {
+						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(200).setEntity(packetPlayer));
 					}
 				}
 			});

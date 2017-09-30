@@ -164,7 +164,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Talon", "Widowmaker Talon Skin - IISavageDreamzII", "StarryDreamz", "https://www.planetminecraft.com/skin/widowmaker-talon-skin-iisavagedreamzii/")),
 	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, true, false, 0, 0), 
 			0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
 			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
 			new Skin("Classic", "Mercy", "FireBoltCreeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
@@ -172,16 +172,12 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
 			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
 			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
-	JUNKRAT("Junkrat", false, new Ability(KeyBind.NONE, false, false, 0, 0), //TODO 
-			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
+	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), //TODO 
 			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
-			0, 20, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
-			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
-			new Skin("Classic", "Mercy", "FireBoltCreeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
-			new Skin(TextFormatting.GOLD+"Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
-			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
-			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
-			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/"));
+			new Ability(KeyBind.NONE, false, false, 0, 0), 
+			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
+			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/"));
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 

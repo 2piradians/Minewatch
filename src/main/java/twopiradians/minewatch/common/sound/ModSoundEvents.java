@@ -63,6 +63,8 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStart;
 	public static SoundEvent mercyBeamDuring;
 	public static SoundEvent mercyBeamStop;
+	
+	public static SoundEvent junkratShoot;
 
 	public static void preInit() {
 		for (int i=2; i<7; ++i)
@@ -129,6 +131,8 @@ public class ModSoundEvents {
 		mercyBeamStart = registerSound("mercy_beam_start");
 		mercyBeamDuring = registerSound("mercy_beam_during");
 		mercyBeamStop = registerSound("mercy_beam_stop");
+		junkratShoot = registerSound("junkrat_shoot");
+		EnumHero.JUNKRAT.reloadSound = registerSound("junkrat_reload");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

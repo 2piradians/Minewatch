@@ -89,6 +89,13 @@ item.mercy_leggings.name=Mercy Leggings
 item.mercy_boots.name=Mercy Boots
 item.mercy_weapon.name=Mercy's Weapon
 
+item.junkrat_token.name=Junkrat Token
+item.junkrat_helmet.name=Junkrat Helmet
+item.junkrat_chestplate.name=Junkrat Chestplate
+item.junkrat_leggings.name=Junkrat Leggings
+item.junkrat_boots.name=Junkrat Boots
+item.junkrat_weapon.name=Junkrat's Launcher
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow

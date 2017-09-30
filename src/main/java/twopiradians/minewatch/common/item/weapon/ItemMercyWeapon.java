@@ -42,12 +42,35 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMercyWeapon extends ItemMWWeapon {
 
 	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING, false) {};
 	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
 	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN, false) {};
+	
+	public static final Handler ANGEL = new Handler(Identifier.MERCY_ANGEL, true) {
+		@SideOnly(Side.CLIENT)
+		@Override
+		public boolean onClientTick() {
+			if (entity == null || position == null)
+				return true;
+			
+			entity.motionX = (position.xCoord - entity.posX)/10;
+			entity.motionY = (position.yCoord - entity.posY)/10;
+			entity.motionZ = (position.zCoord - entity.posZ)/10;
+			entity.velocityChanged = true;
+			
+			return super.onClientTick() || Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; // || near position;		
+		}
+		
+		@Override
+		public boolean onServerTick() {
+			
+			return super.onServerTick();
+		}
+	};
 
 	public ItemMercyWeapon() {
 		super(20);
@@ -133,7 +156,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (isStaff(stack) && 
 					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity);
+				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity, 15);
 				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
 					world.spawnEntity(beam);
@@ -165,6 +188,18 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					beams.get(entity).prevHeal = beams.get(entity).isHealing();
 				}
 			}
+			
+			// angel
+			if (hero.ability3.isSelected((EntityPlayer) entity) && entity instanceof EntityPlayerMP) {
+				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity, 30);
+				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
+					hero.ability3.keybind.setCooldown((EntityPlayer) entity, 30, false);
+					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
+					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(200).setEntity(entity));
+					Minewatch.network.sendTo(new SPacketSimple(19, false, (EntityPlayer) entity, vec.xCoord, vec.yCoord, vec.zCoord), (EntityPlayerMP) entity);
+				}
+			}
+			
 		}
 	}
 
@@ -195,10 +230,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	}
 
 	// get entity that player is looking at within 15 blocks - modified from EntityRenderer#getMouseOver
-	public EntityLivingBase getMouseOver(EntityPlayer player) {
+	public EntityLivingBase getMouseOver(EntityPlayer player, int distance) {
 		Entity entity = null;
 		if (player != null) {
-			double d0 = 14;
+			double d0 = distance - 1;
 			Vec3d vec3d = player.getPositionEyes(1);
 
 			double d1 = d0;

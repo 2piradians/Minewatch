@@ -15,15 +15,8 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class ItemJunkratLauncher extends ItemMWWeapon {
 	
 	public ItemJunkratLauncher() {
-		super(40);
-		this.savePlayerToNBT = true;
-		/*this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn == null ? 0.0F : (!(entityIn.getActiveItemStack().getItem() instanceof ItemHanzoBow) ? 0.0F :
-					(float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 10.0F);
-			}
-		});*/
+		super(30);
+	
 	}
 	
 	@Override
@@ -34,7 +27,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.bastionShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 						world.rand.nextFloat()/3+0.8f);	
 
 				this.subtractFromCurrentAmmo(player, 1);

@@ -38,6 +38,6 @@ public class EntityMcCreeBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 70 - (70 - 21) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

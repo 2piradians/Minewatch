@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -193,8 +194,9 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 
 	/**Should this entity be hit by this projectile*/
 	public boolean shouldHit(Entity entityHit, DamageSource source) {
-		return entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
-				entityHit != this.getThrower() && ((EntityLivingBase)entityHit).getHealth() > 0 &&
+		return ((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
+				entityHit instanceof EntityDragonPart) && this.getThrower() instanceof EntityPlayer && 
+				entityHit != this.getThrower() &&
 				!entityHit.isEntityInvulnerable(source);
 	}
 
@@ -212,18 +214,18 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		if (this.shouldHit(entityHit, source)) {
 			if (!this.world.isRemote && this.getThrower() instanceof EntityPlayerMP) {
 				// heal
-				if (damage < 0)
+				if (damage < 0 && entityHit instanceof EntityLivingBase)
 					((EntityLivingBase)entityHit).heal(Math.abs(damage*ItemMWWeapon.damageScale));
-				else {
+				else if (damage > 0) {
 					boolean damaged = false;
-					if (!Config.projectilesCauseKnockback || neverKnockback) {
+					if (!Config.projectilesCauseKnockback || neverKnockback && entityHit instanceof EntityLivingBase) {
 						double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 						((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-						damaged = ((EntityLivingBase)entityHit).attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+						damaged = entityHit.attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
 						((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 					}
 					else
-						damaged = ((EntityLivingBase)entityHit).attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+						damaged = entityHit.attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
 
 					if (!damaged)
 						return false;

@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
@@ -133,7 +134,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
 				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity);
-				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target)) {				
+				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
 					world.spawnEntity(beam);
 					beams.put((EntityPlayer) entity, beam);

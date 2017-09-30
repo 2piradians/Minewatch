@@ -58,7 +58,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 			super.onHit(result);
 
 		if (this.shouldHit(result.entityHit))
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 
 		// scatter
 		if (this.scatter && !this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityPlayer) {

@@ -1,6 +1,8 @@
 package twopiradians.minewatch.common.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -37,8 +39,8 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 28, false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+		if (this.attemptImpact(result.entityHit, 28, false))
+			result.entityHit.hurtResistantTime = 0;
 
 		if (this.world.isRemote && (result.entityHit == null || this.shouldHit(result.entityHit)))
 			Minewatch.proxy.spawnParticlesSpark(world, 

@@ -84,6 +84,13 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			}
 		}
 	}
+	
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return (Minewatch.proxy.getClientPlayer() != null && 
+				TickHandler.hasHandler(Minewatch.proxy.getClientPlayer(), Identifier.MCCREE_ROLL)) ? 
+						true : super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand hand) {

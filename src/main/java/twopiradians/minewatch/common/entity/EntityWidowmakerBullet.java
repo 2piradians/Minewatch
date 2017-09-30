@@ -66,6 +66,6 @@ public class EntityWidowmakerBullet extends EntityMWThrowable {
 
 		if (this.attemptImpact(result.entityHit, damage, false)) 
 			if (!this.dataManager.get(SCOPED))
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+				result.entityHit.hurtResistantTime = 0;
 	}
 }

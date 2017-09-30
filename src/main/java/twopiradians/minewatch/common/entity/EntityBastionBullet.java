@@ -38,6 +38,6 @@ public class EntityBastionBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 20 - (20 - 6) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

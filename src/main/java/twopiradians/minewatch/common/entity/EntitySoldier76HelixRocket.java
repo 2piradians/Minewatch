@@ -81,7 +81,7 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 				!(result.entityHit instanceof EntitySoldier76HelixRocket)) {
 			// direct hit damage (explosions do plenty of damage - direct can't be much)
 			if (this.attemptImpact(result.entityHit, 1, false)) 
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 10;
+				result.entityHit.hurtResistantTime = 10;
 
 			// explosion
 			Explosion explosion = new Explosion(world, this.getThrower(), posX, posY, posZ, 1.8f, false, true);

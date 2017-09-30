@@ -89,7 +89,7 @@ public class Config {
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
 		
-		// SERVER-SIDE
+		// SERVER-SIDE (make sure all new options are synced with command)
 		
 		Property allowGunWarningsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
 		allowGunWarnings = allowGunWarningsProp.getBoolean();

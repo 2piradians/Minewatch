@@ -39,6 +39,6 @@ public class EntityTracerBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

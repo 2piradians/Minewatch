@@ -1,0 +1,8 @@
+# Blender MTL File: 'junkrat_weapon.blend'
+# Material Count: 1
+
+newmtl B4A12BBA474C141C.002
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/junkrat_weapon_3d

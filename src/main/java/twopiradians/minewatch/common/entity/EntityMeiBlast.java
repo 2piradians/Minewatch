@@ -1,7 +1,10 @@
 package twopiradians.minewatch.common.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
@@ -105,6 +108,8 @@ public class EntityMeiBlast extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.shouldHit(result.entityHit)) {
+			if (result.entityHit instanceof EntityDragonPart && ((EntityDragonPart)result.entityHit).entityDragonObj instanceof EntityDragon)
+				result.entityHit = (Entity) ((EntityDragonPart)result.entityHit).entityDragonObj;
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {

@@ -50,6 +50,7 @@ import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
+import twopiradians.minewatch.common.item.weapon.ItemJunkratLauncher;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
@@ -165,6 +166,16 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
 			0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
+			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
+			new Skin("Classic", "Mercy", "FireBoltCreeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
+			new Skin(TextFormatting.GOLD+"Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
+			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
+			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
+			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
+	JUNKRAT("Junkrat", false, new Ability(KeyBind.NONE, false, false, 0, 0), //TODO 
+			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
+			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
+			0, 20, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
 			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
 			new Skin("Classic", "Mercy", "FireBoltCreeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
 			new Skin(TextFormatting.GOLD+"Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),

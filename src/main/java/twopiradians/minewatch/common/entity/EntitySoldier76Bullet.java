@@ -38,6 +38,6 @@ public class EntitySoldier76Bullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 19 - (19 - 5.7f) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

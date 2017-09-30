@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
+import twopiradians.minewatch.client.gui.tab.GuiTab;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
@@ -295,6 +296,14 @@ public class SPacketSimple implements IMessage {
 					// Interrupt
 					else if (packet.type == 16 && entity != null) {
 						TickHandler.interrupt(entity);
+					}
+					// sync config
+					else if (packet.type == 17) {
+						Minewatch.network.sendToServer(new CPacketSyncConfig());
+					}
+					// add opped button to tab
+					else if (packet.type == 18) {
+						GuiTab.addOppedButton();
 					}
 				}
 			});

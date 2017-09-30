@@ -38,6 +38,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketFollowingSound;
@@ -90,6 +91,7 @@ public class CommonProxy {
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(CPacketSyncSkins.Handler.class, CPacketSyncSkins.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(CPacketSyncConfig.Handler.class, CPacketSyncConfig.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(CPacketSimple.Handler.class, CPacketSimple.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(SPacketFollowingSound.Handler.class, SPacketFollowingSound.class, id++, Side.CLIENT);
 	}

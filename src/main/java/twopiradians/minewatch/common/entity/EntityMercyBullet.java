@@ -44,7 +44,7 @@ public class EntityMercyBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 20, false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 
 		if (this.world.isRemote && (result.entityHit == null || this.shouldHit(result.entityHit)))
 			Minewatch.proxy.spawnParticlesSpark(world, 

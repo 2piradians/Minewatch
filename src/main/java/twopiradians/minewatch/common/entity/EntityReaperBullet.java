@@ -39,6 +39,6 @@ public class EntityReaperBullet extends EntityMWThrowable {
 		super.onImpact(result);
 
 		if (this.attemptImpact(result.entityHit, 7 - (7 - 2) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

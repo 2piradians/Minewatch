@@ -2,7 +2,10 @@ package twopiradians.minewatch.common.entity;
 
 import org.apache.commons.lang3.tuple.Triple;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
@@ -48,7 +51,8 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower()))) {
+		if (this.attemptImpact(result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
+				result.entityHit.isNonBoss()) {
 			TickHandler.interrupt(result.entityHit);
 			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_INPUT.setEntity(result.entityHit).setTicks(120),

@@ -94,7 +94,7 @@ item.junkrat_helmet.name=Junkrat Helmet
 item.junkrat_chestplate.name=Junkrat Chestplate
 item.junkrat_leggings.name=Junkrat Leggings
 item.junkrat_boots.name=Junkrat Boots
-item.junkrat_weapon.name=Junkrat's Launcher
+item.junkrat_weapon.name=Junkrat's Frag Launcher
 
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
@@ -113,3 +113,4 @@ entity.mei_blast.name=Mei Blast
 entity.mei_icicle.name=Mei Icicle
 entity.mercy_bullet.name=Mercy Bullet
 entity.mercy_beam.name=Mercy Beam
+entity.junkrat_grenade.name=Junkrat Grenade

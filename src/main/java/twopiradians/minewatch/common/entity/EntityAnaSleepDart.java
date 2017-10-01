@@ -2,10 +2,7 @@ package twopiradians.minewatch.common.entity;
 
 import org.apache.commons.lang3.tuple.Triple;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;

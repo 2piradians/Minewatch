@@ -101,7 +101,8 @@ public enum EnumHero {
 			new Skin("Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),
 			new Skin("Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
 			new Skin(TextFormatting.GOLD+"Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
-			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/")),
+			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/"),
+			new Skin(TextFormatting.GOLD+"Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/")),
 	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
 			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
@@ -172,11 +173,12 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
 			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
 			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
-	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), //TODO 
+	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
-			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
+			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, 
 			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin(TextFormatting.GOLD+"Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
 			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/"));
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();

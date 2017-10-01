@@ -1,4 +1,10 @@
 {
+	"gui_hover": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_hover"
+		]
+	},
 	"multikill_2": {
 		"category": "player",
 		"sounds": [

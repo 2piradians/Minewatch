@@ -4,14 +4,14 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
-public class EntityMeiIcicle extends EntityMWThrowable {
+public class EntityJunkratGrenade extends EntityMWThrowable {
 
-	public EntityMeiIcicle(World worldIn) {
+	public EntityJunkratGrenade(World worldIn) {
 		super(worldIn);
 		this.setSize(0.1f, 0.1f);
 	}
 
-	public EntityMeiIcicle(World worldIn, EntityLivingBase throwerIn) {
+	public EntityJunkratGrenade(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
 		this.setNoGravity(true);
 		this.lifetime = 40;

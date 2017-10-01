@@ -4,26 +4,26 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.ModEntities;
 
-public class RenderMeiIcicle extends RenderOBJModel<EntityMeiIcicle> { 
+public class RenderJunkratGrenade extends RenderOBJModel<EntityJunkratGrenade> {
 
-	public RenderMeiIcicle(RenderManager renderManager) {
+	public RenderJunkratGrenade(RenderManager renderManager) {
 		super(renderManager);
-	}
-
-	@Override
-	protected ResourceLocation getEntityModel() {
-		return new ResourceLocation(Minewatch.MODID, "entity/mei_icicle.obj");
 	}
 	
 	@Override
-	protected void preRender(EntityMeiIcicle entity, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected ResourceLocation getEntityModel() {
+		return new ResourceLocation(Minewatch.MODID, "entity/junkrat_grenade.obj");
+	}
+	
+	@Override
+	protected void preRender(EntityJunkratGrenade entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
 			entity.updateFromPacket();
 		
-		GlStateManager.translate(0, 0.06d, 0.5d);
-		GlStateManager.scale(2, 2, 2);		
+		//GlStateManager.translate(0, 0.06d, 0.5d);
+		GlStateManager.scale(20, 20, 20);		
 	}
 }

@@ -49,6 +49,7 @@ import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
 import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
 import twopiradians.minewatch.client.render.entity.RenderInvisible;
+import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
@@ -67,6 +68,7 @@ import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
@@ -277,6 +279,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, RenderMercyBullet::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratGrenade.class, RenderJunkratGrenade::new);
 	}
 
 	@Override
@@ -298,6 +301,7 @@ public class ClientProxy extends CommonProxy
 			event.getMap().registerSprite(particle.loc);
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
 	}
 
 	@Override

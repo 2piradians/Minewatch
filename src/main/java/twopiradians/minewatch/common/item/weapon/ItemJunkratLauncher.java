@@ -8,7 +8,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -23,9 +23,9 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		if (this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
 			if (!world.isRemote) {
-				EntityBastionBullet bullet = new EntityBastionBullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
-				world.spawnEntity(bullet);
+				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
+				grenade.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
+				world.spawnEntity(grenade);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 						world.rand.nextFloat()/3+0.8f);	

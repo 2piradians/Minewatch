@@ -29,24 +29,28 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 
 	private IBakedModel bakedModel;
 	private VertexLighterFlat lighter;
-
-	public RenderOBJModel(RenderManager renderManager) {
+	
+	protected RenderOBJModel(RenderManager renderManager) {
 		super(renderManager);
-		this.lighter = new VertexLighterFlat(Minecraft.getMinecraft().getBlockColors());
-		IModel model = ModelLoaderRegistry.getModelOrMissing(this.getEntityModel());
-		this.bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
 	}
 
 	@Override
-	protected abstract ResourceLocation getEntityTexture(T entity);
+	protected ResourceLocation getEntityTexture(T entity) {
+		return null;
+	}
+	
 	protected abstract ResourceLocation getEntityModel();
 	protected abstract void preRender(T entity, double x, double y, double z, float entityYaw, float partialTicks);
 
 	/**Adapted from ForgeBlockModelRenderer#render*/
 	@Override
-	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {		
-		this.bindEntityTexture(entity);
-
+	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {	
+		if (this.lighter == null) {
+			this.lighter = new VertexLighterFlat(Minecraft.getMinecraft().getBlockColors());
+			IModel model = ModelLoaderRegistry.getModelOrLogError(this.getEntityModel(), "Minewatch is missing a model. Please report this to the owners.");
+			this.bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+		}
+		
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.pushMatrix();
 		GlStateManager.rotate(180, 0, 0, 1);
@@ -83,7 +87,7 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		}
 
 		VertexBuffer.setTranslation(0, 0, 0);
-		tessellator.draw();
+		tessellator.draw();	
 		GlStateManager.popMatrix();
 		RenderHelper.enableStandardItemLighting();
 	}

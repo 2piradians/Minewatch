@@ -1,32 +1,45 @@
 package twopiradians.minewatch.common.entity;
 
+import java.util.List;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
-public abstract class EntityMWThrowable extends EntityThrowable implements IThrowableEntity {
+public abstract class EntityMWThrowable extends Entity implements IThrowableEntity {
 
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
 
+	protected boolean shouldLockDirection = true;
 	private boolean lockedDirection;
 	private float pitch;
 	private float yaw;
@@ -39,15 +52,22 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 	}
 
 	public EntityMWThrowable(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+		super(worldIn);
 		this.thrower = throwerIn;
-		this.ignoreEntity = this;
+		this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
+		//this.ignoreEntity = this;
 	}
 
 	@Override
 	public boolean isImmuneToExplosions() {
 		return true;
 	}
+	
+	@SideOnly(Side.CLIENT)
+    public boolean isInRangeToRenderDist(double distance){
+        return distance < 600;
+    }
+
 
 	public void updateFromPacket() {
 		SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
@@ -74,7 +94,7 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		if (this.ticksExisted == 1 && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
 			this.updateFromPacket();
 
-		if (!this.lockedDirection) {
+		if (!this.lockedDirection && this.shouldLockDirection) {
 			float f = MathHelper.sqrt((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 			this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 			this.rotationPitch = (float)(MathHelper.atan2(this.motionY, (double)f) * (180D / Math.PI));
@@ -88,18 +108,70 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 			this.lockedDirection = true;
 		}
 
-		super.onUpdate();
+        this.prevPosX = this.posX;
+        this.prevPosY = this.posY;
+        this.prevPosZ = this.posZ;
+        this.prevRotationPitch = this.rotationPitch;
+        this.prevRotationYaw = this.rotationYaw;
+		
+		if (this.hasNoGravity())
+			this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
+		else
+			this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+		this.checkForImpact();
 
-		this.rotationPitch = this.pitch;
-		this.prevRotationPitch = this.pitch;
-		this.rotationYaw = this.yaw;
-		this.prevRotationYaw = this.yaw;
-		this.motionX = this.xMotion;
-		this.motionY = this.yMotion;
-		this.motionZ = this.zMotion;
+		if (this.shouldLockDirection) {
+			this.rotationPitch = this.pitch;
+			this.prevRotationPitch = this.pitch;
+			this.rotationYaw = this.yaw;
+			this.prevRotationYaw = this.yaw;
+			this.motionX = this.xMotion;
+			this.motionY = this.yMotion;
+			this.motionZ = this.zMotion;
+		}
 
 		if (!this.world.isRemote && this.ticksExisted > lifetime && lifetime > 0)
 			this.setDead();
+	}
+
+	/**Copied from EntityThrowable*/
+	private void checkForImpact() {
+		Vec3d vec3d = new Vec3d(this.posX, this.posY, this.posZ);
+		Vec3d vec3d1 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+		RayTraceResult raytraceresult = this.world.rayTraceBlocks(vec3d, vec3d1);
+		vec3d = new Vec3d(this.posX, this.posY, this.posZ);
+		vec3d1 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+
+		if (raytraceresult != null)
+			vec3d1 = new Vec3d(raytraceresult.hitVec.xCoord, raytraceresult.hitVec.yCoord, raytraceresult.hitVec.zCoord);
+
+		Entity entity = null;
+		List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expandXyz(1.0D));
+		double d0 = 0.0D;
+
+		for (int i = 0; i < list.size(); ++i) {
+			Entity entity1 = (Entity)list.get(i);
+
+			if (entity1.canBeCollidedWith()) {
+				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expandXyz(0.30000001192092896D);
+				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+
+				if (raytraceresult1 != null) {
+					double d1 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
+
+					if (d1 < d0 || d0 == 0.0D) {
+						entity = entity1;
+						d0 = d1;
+					}
+				}
+			}
+		}
+
+		if (entity != null)
+			raytraceresult = new RayTraceResult(entity);
+
+		if (raytraceresult != null) 
+			this.onImpact(raytraceresult);
 	}
 
 	public static Vec3d getShootingPos(EntityLivingBase entity, float pitch, float yaw, EnumHand hand) {
@@ -165,11 +237,32 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 		}
 	}
 
-	@Override
+	/**Copied from EntityThrowable*/
+	public void setThrowableHeading(double x, double y, double z, float velocity, float inaccuracy) {
+		float f = MathHelper.sqrt(x * x + y * y + z * z);
+		x = x / (double)f;
+		y = y / (double)f;
+		z = z / (double)f;
+		x = x + this.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
+		y = y + this.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
+		z = z + this.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
+		x = x * (double)velocity;
+		y = y * (double)velocity;
+		z = z * (double)velocity;
+		this.motionX = x;
+		this.motionY = y;
+		this.motionZ = z;
+		float f1 = MathHelper.sqrt(x * x + z * z);
+		this.rotationYaw = (float)(MathHelper.atan2(x, z) * (180D / Math.PI));
+		this.rotationPitch = (float)(MathHelper.atan2(y, (double)f1) * (180D / Math.PI));
+		this.prevRotationYaw = this.rotationYaw;
+		this.prevRotationPitch = this.rotationPitch;
+	}
+
 	protected void onImpact(RayTraceResult result) {
+		System.out.println("on impact"+ result);
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			Block block = this.world.getBlockState(result.getBlockPos()).getBlock();
-
 			if (!block.isPassable(this.world, result.getBlockPos())) 
 				this.setDead();
 		}
@@ -252,5 +345,14 @@ public abstract class EntityMWThrowable extends EntityThrowable implements IThro
 
 		return false;
 	}
+
+	@Override
+	protected void entityInit() {}
+
+	@Override
+	protected void readEntityFromNBT(NBTTagCompound compound) {}
+
+	@Override
+	protected void writeEntityToNBT(NBTTagCompound compound) {}
 
 }

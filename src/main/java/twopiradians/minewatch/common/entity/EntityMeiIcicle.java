@@ -4,7 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
-public class EntityMeiIcicle extends EntityMWThrowable {
+public class EntityMeiIcicle extends EntityMWThrowable {//TODO try as entityarrow?
 
 	public EntityMeiIcicle(World worldIn) {
 		super(worldIn);
@@ -18,9 +18,12 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 	}
 
 	@Override
-	public void onUpdate() {		
-		/*super.onUpdate();
+	public void onUpdate() {	
+		/*this.rotationPitch++;
+		this.rotationYaw++;*/
 
+		super.onUpdate();
+/*
 		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
 			for (int i=0; i<numParticles; ++i)
@@ -34,8 +37,8 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
-		super.onImpact(result);
+		/*super.onImpact(result);
 
-		this.attemptImpact(result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);
+		this.attemptImpact(result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);*/
 	}
 }

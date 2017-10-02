@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -40,7 +42,7 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 	}
 	
 	protected abstract ResourceLocation getEntityModel();
-	protected abstract void preRender(T entity, double x, double y, double z, float entityYaw, float partialTicks);
+	protected abstract void preRender(T entity, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks);
 
 	/**Adapted from ForgeBlockModelRenderer#render*/
 	@Override
@@ -53,20 +55,24 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.pushMatrix();
+		
+		Tessellator tessellator = Tessellator.getInstance();
+		VertexBuffer buffer = tessellator.getBuffer();
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+		
+		GlStateManager.bindTexture(8);
 		GlStateManager.rotate(180, 0, 0, 1);
 		GlStateManager.translate((float)-x, (float)-y, (float)z);
+		this.preRender(entity, buffer, x, y, z, entityYaw, partialTicks);
 		GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, -1.0F, 0.0F);
 		GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
-		this.preRender(entity, x, y, z, entityYaw, partialTicks);
-		Tessellator tessellator = Tessellator.getInstance();
-		VertexBuffer VertexBuffer = tessellator.getBuffer();
-		VertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-		VertexBuffer.setTranslation(0, -0.05d, 0);
 
-		lighter.setParent(new VertexBufferConsumer(VertexBuffer));
+		lighter.setParent(new VertexBufferConsumer(buffer));
 		lighter.setWorld(entity.world);
 		lighter.setState(Blocks.AIR.getDefaultState());
-		lighter.setBlockPos(new BlockPos(entity.posX, 255, entity.posZ));
+		lighter.setBlockPos(new BlockPos(entity.posX, entity.posY, entity.posZ));
+		//lighter.setQuadOrientation(EnumFacing.EAST);
+		
 		boolean empty = true;
 		List<BakedQuad> quads = bakedModel.getQuads(null, null, 0);
 		if(!quads.isEmpty()) {
@@ -86,8 +92,9 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			}
 		}
 
-		VertexBuffer.setTranslation(0, 0, 0);
+		buffer.setTranslation(0, 0, 0);
 		tessellator.draw();	
+		GlStateManager.bindTexture(0);
 		GlStateManager.popMatrix();
 		RenderHelper.enableStandardItemLighting();
 	}

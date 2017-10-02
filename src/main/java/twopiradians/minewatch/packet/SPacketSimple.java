@@ -29,6 +29,7 @@ import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -309,6 +310,10 @@ public class SPacketSimple implements IMessage {
 					// Mercy's Angel
 					else if (packet.type == 19 && packetPlayer != null) {
 						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(200).setEntity(packetPlayer));
+					}
+					// Junkrat's grenade
+					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {
+						((EntityJunkratGrenade)entity).explode();
 					}
 				}
 			});

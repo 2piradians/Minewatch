@@ -22,14 +22,14 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-		if (this.world.isRemote && this.ticksExisted > 1) {
+		if (this.world.isRemote) {
 			int numParticles = scatter ? (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d) : 20;
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
 		}
 		
 		super.onUpdate();

@@ -5,9 +5,9 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 
 public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 
@@ -84,12 +84,14 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 				result.entityHit.hurtResistantTime = 10;
 
 			// explosion
-			Explosion explosion = new Explosion(world, this.getThrower(), posX, posY, posZ, 1.8f, false, true);
-			explosion.doExplosionA();
-			explosion.clearAffectedBlockPositions();
-			explosion.doExplosionB(true);
-			if (this.world.isRemote)
-				Minewatch.proxy.spawnParticlesSmoke(world, posX, posY, posZ, 0x62E2FC, 0x203B7E, 25, 10);
+			if (this.world.isRemote) {
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
+						0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
+				//TODO sounds
+			}
+			else 
+				Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
+						1.6f, 40f, 80f, 80f, result.entityHit, 120f);
 			this.setDead();
 		}
 	}

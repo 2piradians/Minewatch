@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -34,12 +33,9 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.key.Keys;
-import twopiradians.minewatch.client.particle.ParticleAnaHealth;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
-import twopiradians.minewatch.client.particle.ParticleSmoke;
-import twopiradians.minewatch.client.particle.ParticleSpark;
 import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
 import twopiradians.minewatch.client.render.entity.RenderAnaSleepDart;
@@ -289,25 +285,25 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@SubscribeEvent
-	public void stitcherEventPre(TextureStitchEvent.Pre event) {
-		event.getMap().registerSprite(ParticleAnaHealth.TEXTURE);
+	public void stitchEventPre(TextureStitchEvent.Pre event) {
 		event.getMap().registerSprite(ParticleHanzoSonic.TEXTURE);
 		event.getMap().registerSprite(ParticleTrail.TEXTURE);
-		for (ResourceLocation loc : ParticleSmoke.TEXTURES)
-			event.getMap().registerSprite(loc);
-		for (ResourceLocation loc : ParticleSpark.TEXTURES)
-			event.getMap().registerSprite(loc);
-		for (Particle particle : Particle.values())
-			event.getMap().registerSprite(particle.loc);
+		for (EnumParticle particle : EnumParticle.values()) {
+			if (particle.variations == 1)
+				event.getMap().registerSprite(particle.loc);
+			else 
+				for (int i=0; i<particle.variations; ++i)
+					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
+		}
 		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
 			event.getMap().registerSprite(loc);
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
 	}
 
 	@Override
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch) {
+	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
 		if (entity != null && event != null && category != null) {
-			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch);
+			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 		}
 	}
@@ -327,15 +323,6 @@ public class ClientProxy extends CommonProxy
 				net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.player);
 			}
 			mc.player.swingArm(EnumHand.MAIN_HAND);
-		}
-	}
-
-	@Override
-	public void spawnParticlesAnaHealth(EntityLivingBase entity) {
-		if (!healthParticleEntities.contains(entity.getPersistentID())) {
-			ParticleAnaHealth particle = new ParticleAnaHealth(entity);
-			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
-			healthParticleEntities.add(entity.getPersistentID());
 		}
 	}
 
@@ -361,20 +348,18 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
-		ParticleSmoke particle = new ParticleSmoke(world, x, y, z, color, colorFade, scale, maxAge);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
+		if (!enumParticle.equals(EnumParticle.HEALTH) || !healthParticleEntities.contains(followEntity.getPersistentID())) {
+			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+			if (enumParticle.equals(EnumParticle.HEALTH))
+				healthParticleEntities.add(followEntity.getPersistentID());
+		}
 	}
 
 	@Override
-	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {
-		ParticleSpark particle = new ParticleSpark(world, x, y, z, color, colorFade, scale, maxAge);
-		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
-	}
-
-	@Override
-	public void spawnParticlesCustom(Particle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle.loc, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 

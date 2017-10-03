@@ -441,5 +441,50 @@
 		"sounds": [
 			"minewatch:junkrat_reload"
 		]
+	},
+	"junkrat_laugh": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_laugh_0",
+			"minewatch:junkrat_laugh_1",
+			"minewatch:junkrat_laugh_2",
+			"minewatch:junkrat_laugh_3"
+		]
+	},
+	"junkrat_grenade_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_bounce"
+		]
+	},
+	"junkrat_grenade_explode": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_explode"
+		]
+	},
+	"junkrat_grenade_tick_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_0"
+		]
+	},
+	"junkrat_grenade_tick_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_1"
+		]
+	},
+	"junkrat_grenade_tick_2": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_2"
+		]
+	},
+	"junkrat_grenade_tick_3": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_3"
+		]
 	}
 }

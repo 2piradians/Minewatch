@@ -50,7 +50,6 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
@@ -195,7 +194,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-			Minewatch.network.sendToAllAround(new SPacketSpawnParticle(0, vec.xCoord, vec.yCoord, vec.zCoord, 0xD93B1A, 0x510D30, 5, 5), 
+			Minewatch.network.sendToAllAround(new SPacketSimple(21, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 
 			this.subtractFromCurrentAmmo(player, 1, hand);
@@ -268,7 +267,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					Vec3d tpVec = this.getTeleportPos(player);
 					if (tpVec != null && player instanceof EntityPlayerMP) {
 						Minewatch.network.sendToAll(new SPacketSimple(1, player, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
-						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f);
+						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)),
 								Ability.ABILITY_USING.setEntity(player).setTicks(70),
 								Handlers.PREVENT_INPUT.setEntity(player).setTicks(70),
@@ -289,7 +288,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				Minewatch.network.sendToAll(new SPacketSimple(10, false, player));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
-				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperWraith, SoundCategory.PLAYERS, 1, 1);
+				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperWraith, SoundCategory.PLAYERS, 1, 1, false);
 			}
 		}
 	}
@@ -314,7 +313,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
-					//PORT scale x2
+					//PORT scale x event.getResolution().getScaleFactor()
 					GlStateManager.scale(width/256d, height/256d, 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;

@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 
 public class EntityGenjiShuriken extends EntityMWThrowable {
 
@@ -41,10 +42,9 @@ public class EntityGenjiShuriken extends EntityMWThrowable {
 			result.entityHit.hurtResistantTime = 0;
 
 		if (this.world.isRemote && (result.entityHit == null || this.shouldHit(result.entityHit)))
-			Minewatch.proxy.spawnParticlesSpark(world, 
-					result.entityHit == null ? result.hitVec.xCoord : posX, 
-							result.entityHit == null ? result.hitVec.yCoord : posY, 
-									result.entityHit == null ? result.hitVec.zCoord : posZ, 
-											0xC8E682, 0x709233, 5, 5);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, result.entityHit == null ? result.hitVec.xCoord : posX, 
+					result.entityHit == null ? result.hitVec.yCoord : posY, 
+							result.entityHit == null ? result.hitVec.zCoord : posZ, 
+									0, 0, 0, 0xC8E682, 0x709233, 0.7f, 5, 5, 4.5f, world.rand.nextFloat(), 0.01f);
 	}
 }

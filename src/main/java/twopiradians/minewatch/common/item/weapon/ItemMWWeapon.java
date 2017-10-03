@@ -100,7 +100,7 @@ public abstract class ItemMWWeapon extends Item {
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
 				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
-						player.world.rand.nextFloat()/2+0.75f);
+						player.world.rand.nextFloat()/2+0.75f, false);
 		}
 	}
 

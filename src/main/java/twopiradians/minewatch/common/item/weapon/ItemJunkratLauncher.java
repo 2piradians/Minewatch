@@ -8,6 +8,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -23,7 +24,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		if (this.canUse(player, true, hand)) {
 			if (!world.isRemote) {
 				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
-				grenade.setAim(player, player.rotationPitch, player.rotationYaw, 1F, 0.3F, 2F, hand, false);
+				grenade.setAim(player, player.rotationPitch, player.rotationYaw, 1.5F, 0.3F, 2F, hand, false);
 				world.spawnEntity(grenade);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -36,7 +37,8 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0xFFEF89, 0x5A575A, 5, 1);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord,
+						0, 0, 0, 0xFF9D1A, 0x964D21, 0.7f, 5, 5, 4.5f, world.rand.nextFloat(), 0.01f);
 			}
 		}
 	}

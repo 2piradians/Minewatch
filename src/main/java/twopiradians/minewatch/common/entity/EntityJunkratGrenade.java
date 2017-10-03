@@ -1,78 +1,104 @@
 package twopiradians.minewatch.common.entity;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityJunkratGrenade extends EntityMWThrowable {
 
-	private int bounces;
+	public int bounces;
 	private int explodeTimer;
 
 	public EntityJunkratGrenade(World worldIn) {
 		super(worldIn);
 		this.setSize(0.12f, 0.12f);
-		this.shouldLockDirection = false;
+		this.explodeTimer = -1;
 	}
 
 	public EntityJunkratGrenade(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
 		this.setSize(0.12f, 0.12f);
-		this.lifetime = Integer.MAX_VALUE;
-		this.shouldLockDirection = false;
+		this.lifetime = 1200;
+		this.explodeTimer = -1;
 	}
 
 	@Override
-	public void onUpdate() {
-		super.onUpdate();
-
+	public void onUpdate() {		
+		// set explode timer
+		if (this.bounces >= 3 && this.explodeTimer == -1)
+			this.explodeTimer = 12;
+		
+		// gravity
 		this.motionY -= 0.04D;
 
+		// spin forward in the direction it's moving
 		float f = MathHelper.sqrt((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = this.prevRotationPitch-f*1000f;
-		double d1 = this.inWater ? 0.6d : 0.95d;
+
+		// gradual slowdown
+		double d1 = this.inWater ? 0.6d : 0.97d;
 		this.motionX *= d1;
 		this.motionY *= d1;
 		this.motionZ *= d1;
 
 		this.pushOutOfBlocks(this.posX, (this.getEntityBoundingBox().minY + this.getEntityBoundingBox().maxY) / 2.0D, this.posZ);
 
-		System.out.println(this.world.isRemote+": "+this.explodeTimer+", "+this.bounces);
+		// explode
+		if (this.explodeTimer != -1 && --this.explodeTimer == 0) 
+			this.explode(null);
 
-		if (!this.world.isRemote && (--this.explodeTimer == 0 || (this.explodeTimer < 0 && this.onGround))) 
-			this.explode();
+		// bounce if rolling on ground
+		if (this.onGround)
+			this.motionY = 0.2d;
 
-		/*
+		// initial particle spawn / sound start
+		if (this.world.isRemote && this.firstUpdate) {
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, this, 0xFFDF89, 0xFFDF89, 0.5f, Integer.MAX_VALUE, 2.5f, 2.5f, 0, 1);
+		}
+
+		// trail/spark particles
 		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
-						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
-		}*/
+						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						0, 0, 0, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
+
+			if (this.world.rand.nextInt(3) == 0)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
+						this.posX+(world.rand.nextDouble()-0.5d)*0.1d, 
+						this.posY+(world.rand.nextDouble()-0.5d)*0.1d, 
+						this.posZ+(world.rand.nextDouble()-0.5d)*0.1d, 
+						(world.rand.nextDouble()-0.5d)*0.1d, world.rand.nextDouble()*0.1d, (world.rand.nextDouble()-0.5d)*0.1d, 
+						0xFFDF89, 0xFFDF89, 1, 10, 0.5f, 0.2f, 0, 1);
+		}
+
+		super.onUpdate();
+
 	}
 
-	public void explode() {
-		// explosion
-		Explosion explosion = new Explosion(world, this.getThrower(), posX, posY, posZ, 1.8f, false, true);
-		explosion.doExplosionA();
-		explosion.clearAffectedBlockPositions();
-		explosion.doExplosionB(true);
+	public void explode(@Nullable Entity directHit) {
 		if (this.world.isRemote) {
-			
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, 
+					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
+					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 10, 10, 0, 0);
 		}
 		else {
-			Minewatch.network.sendToAll(new SPacketSimple(20, this, false));
-			this.setDead();
+			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
+					1.6f, 0f, 12.5f, 80f, directHit, 120f);
 		}
+		this.setDead();
 	}
 
 	@Override
@@ -81,17 +107,19 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
 				this.motionY *= -1.1d;
 			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-				this.motionZ *= -1.1d;
+				this.motionZ *= -0.7d;
 			else 
-				this.motionX *= -1.1d;
-			if (this.bounces++ >= 3)
-				this.explodeTimer = 10;
+				this.motionX *= -0.7d;
+			
+			// sync bounces
+			if (!this.world.isRemote && bounces < 3) 
+				Minewatch.network.sendToAll(new SPacketSimple(20, this, false, Math.min(3, ++bounces), 0, 0));
 		}
-		else if (!this.world.isRemote && this.shouldHit(result.entityHit))
-			this.explode();
-		//super.onImpact(result);
-
-		//this.attemptImpact(result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);
+		// direct hit explosion
+		else if (!this.world.isRemote && this.shouldHit(result.entityHit)) {
+			this.explode(result.entityHit);
+			Minewatch.network.sendToAll(new SPacketSimple(20, this, true));
+		}
 	}
 
 }

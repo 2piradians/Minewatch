@@ -12,7 +12,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.Particle;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -21,7 +21,6 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class EntityMeiBlast extends EntityMWThrowable {
 
@@ -57,7 +56,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(9, entityLiving, true, 60, 0, 0));
 				entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.NEUTRAL, 1.0f, 1.0f);
-				Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entityLiving.posX, entityLiving.posY+entityLiving.height/2, entityLiving.posZ, 0, 0, 0, 0));
+				Minewatch.network.sendToAll(new SPacketSimple(23, entityLiving, false, entityLiving.posX, entityLiving.posY+entityLiving.height/2, entityLiving.posZ));
 			}
 			else
 				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 10, level, true, true));
@@ -89,7 +88,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*2d);
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesCustom(Particle.CIRCLE, this.world, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d,

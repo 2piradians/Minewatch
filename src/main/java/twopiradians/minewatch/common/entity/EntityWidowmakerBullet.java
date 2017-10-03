@@ -37,14 +37,14 @@ public class EntityWidowmakerBullet extends EntityMWThrowable {
 		super.onUpdate();
 
 		if (this.getDataManager().get(SCOPED)) {
-			if (this.world.isRemote && this.ticksExisted > 1) {
+			if (this.world.isRemote) {
 				int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 				for (int i=0; i<numParticles; ++i)
 					Minewatch.proxy.spawnParticlesTrail(this.world, 
 							this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 							this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 							this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-							0, 0, 0, 0xFF0000, 0xB2B2B2, 0.5f, 15, 1);
+							0, 0, 0, 0xFF0000, 0xB2B2B2, this.ticksExisted == 1 ? 0.3f : 0.5f, 15, this.ticksExisted == 1 ? 0.01f : 1);
 			}
 		}
 		else {

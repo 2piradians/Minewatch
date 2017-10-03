@@ -68,8 +68,6 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
-
 		if (this.inGround && doEffect(world, shootingEntity, null, posX, posY, posZ, timeInGround))
 			this.setDead();
 		else if (!this.inGround && this.world.isRemote) {
@@ -79,11 +77,13 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*5d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20, 1);
+						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
+						0, 0, 0, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
 		}
+		
+		super.onUpdate();
 	}
 
 	@Override

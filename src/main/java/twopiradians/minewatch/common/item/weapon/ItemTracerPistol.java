@@ -15,7 +15,6 @@ import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
@@ -33,7 +32,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				player.world.spawnEntity(bullet);
 			}
 			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-			Minewatch.network.sendToAllAround(new SPacketSpawnParticle(1, vec.xCoord, vec.yCoord, vec.zCoord, 0x4AFDFD, 0x4AFDFD, 3, 1), 
+			Minewatch.network.sendToAllAround(new SPacketSimple(22, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
 			this.subtractFromCurrentAmmo(player, 1);

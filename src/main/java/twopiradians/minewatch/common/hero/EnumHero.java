@@ -67,7 +67,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
-	// do not change order - this is the order in ability_overlay.png
+	// do not change order - this is the order in ability_overlay.png TODO round up %, Entity.zombie.name w/zombie villager?
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
@@ -403,7 +403,8 @@ public enum EnumHero {
 
 					// hit overlay
 					Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
-					if (handler != null) {
+					if (handler != null &&
+							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 3 ? 0 : (1f-handler.ticksLeft/3f)*0.7f));
 						double scale = MathHelper.clamp(0.014f*handler.number, 0.03f, 0.25f);
 						GlStateManager.scale(scale, scale, 1);
@@ -414,7 +415,8 @@ public enum EnumHero {
 
 					// kill overlay
 					handler = TickHandler.getHandler(player, Identifier.KILL_OVERLAY);
-					if (handler != null) {
+					if (handler != null &&
+							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 5 ? 0 : (1f-handler.ticksLeft/5f)*0.7f));
 						double scale = 0.1f;
 						GlStateManager.scale(scale, scale, 1);
@@ -449,11 +451,11 @@ public enum EnumHero {
 					GlStateManager.popMatrix();
 				}
 
-				if (weapon != null) {
+				if (weapon != null &&
+						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					GlStateManager.color(1, 1, 1, 1f);
 
-					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player)) &&
-							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player))) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
 

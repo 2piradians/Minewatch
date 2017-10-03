@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity;
 import org.apache.commons.lang3.tuple.Triple;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
@@ -32,15 +31,14 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote && (this.ticksExisted > 1 || !(this.getThrower() instanceof EntityPlayer) || 
-				!Minewatch.keys.rmb((EntityPlayer) this.getThrower()))) {
+		if (this.world.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x6FE8E6, 0xECFDFE, 0.5f, 8, 1);
+						0, 0, 0, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
 		}
 	}
 
@@ -58,8 +56,8 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 			if (result.entityHit instanceof EntityLivingBase) 
 				Handlers.rotations.put((EntityLivingBase) result.entityHit, Triple.of(0f, 0f, 0f));
 			Minewatch.network.sendToAll(new SPacketSimple(12, result.entityHit, false));
-			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f);
-			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f);
+			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f, false);
 		}
 	}
 }

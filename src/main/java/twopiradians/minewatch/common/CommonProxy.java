@@ -1,8 +1,12 @@
 package twopiradians.minewatch.common;
 
+import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import io.netty.buffer.Unpooled;
+import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,9 +15,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
@@ -32,6 +41,7 @@ import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -43,7 +53,6 @@ import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.SPacketFollowingSound;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSpawnParticle;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
@@ -52,16 +61,21 @@ import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class CommonProxy {
 
-	public enum Particle {
-		CIRCLE("circle"), SLEEP("sleep");
-		
-		public ResourceLocation loc;
-		
-		private Particle(String loc) {
+	public enum EnumParticle {
+		CIRCLE("circle", 1, 1), SLEEP("sleep", 1, 1), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", 1, 1),
+		EXPLOSION("explosion", 16, 1);
+
+		public final ResourceLocation loc;
+		public final int frames;
+		public final int variations;
+
+		private EnumParticle(String loc, int frames, int variations) {
 			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+loc);
+			this.frames = frames;
+			this.variations = variations;
 		}
 	}
-	
+
 	//PORT add registerEventListeners();
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
@@ -86,7 +100,6 @@ public class CommonProxy {
 		Minewatch.network.registerMessage(SPacketSyncAmmo.Handler.class, SPacketSyncAmmo.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncSpawningEntity.Handler.class, SPacketSyncSpawningEntity.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncCooldown.Handler.class, SPacketSyncCooldown.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(SPacketSpawnParticle.Handler.class, SPacketSpawnParticle.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSimple.Handler.class, SPacketSimple.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
@@ -96,13 +109,11 @@ public class CommonProxy {
 		Minewatch.network.registerMessage(SPacketFollowingSound.Handler.class, SPacketFollowingSound.class, id++, Side.CLIENT);
 	}
 
-	public void spawnParticlesAnaHealth(EntityLivingBase entity) { }
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {}
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {}
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {}
-	public void spawnParticlesSmoke(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-	public void spawnParticlesSpark(World world, double x, double y, double z, int color, int colorFade, float scale, int maxAge) {}
-	public void spawnParticlesCustom(Particle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
 	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {
@@ -146,8 +157,8 @@ public class CommonProxy {
 		return null;
 	}
 
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch) {
-		Minewatch.network.sendToAll(new SPacketFollowingSound(entity, event, category, volume, pitch));
+	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
+		Minewatch.network.sendToAll(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat));
 	}
 
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
@@ -156,6 +167,59 @@ public class CommonProxy {
 			packetbuffer.writeString(category.getName());
 			packetbuffer.writeString(event.getRegistryName().toString());
 			((EntityPlayerMP)player).connection.sendPacket(new SPacketCustomPayload("MC|StopSound", packetbuffer));
+		}
+	}
+
+	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}
+	 * @param directHit 
+	 * @param directHitDamage */
+	public void createExplosion(World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage) {
+		if (!world.isRemote) {
+			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
+
+			float f3 = size * 2.0F;
+			int k1 = MathHelper.floor(x - (double)f3 - 1.0D);
+			int l1 = MathHelper.floor(x + (double)f3 + 1.0D);
+			int i2 = MathHelper.floor(y - (double)f3 - 1.0D);
+			int i1 = MathHelper.floor(y + (double)f3 + 1.0D);
+			int j2 = MathHelper.floor(z - (double)f3 - 1.0D);
+			int j1 = MathHelper.floor(z + (double)f3 + 1.0D);
+			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB((double)k1, (double)i2, (double)j2, (double)l1, (double)i1, (double)j1));
+			net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(world, explosion, list, f3);
+			Vec3d vec3d = new Vec3d(x, y, z);
+
+			for (int k2 = 0; k2 < list.size(); ++k2) {
+				Entity entity = (Entity)list.get(k2);
+
+				if (!entity.isImmuneToExplosions()) {
+					double d12 = entity.getDistance(x, y, z) / (double)f3;
+
+					if (d12 <= 1.0D) {
+						double d5 = entity.posX - x;
+						double d7 = entity.posY + (double)entity.getEyeHeight() - y;
+						double d9 = entity.posZ - z;
+						double d13 = (double)MathHelper.sqrt(d5 * d5 + d7 * d7 + d9 * d9);
+
+						if (d13 != 0.0D) {
+							d5 = d5 / d13;
+							d7 = d7 / d13;
+							d9 = d9 / d13;
+							double d14 = (double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
+							double d10 = (1.0D - d12) * d14;
+							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
+							entity.attackEntityFrom(DamageSource.causeExplosionDamage(explosion), damage*ItemMWWeapon.damageScale);
+							double d11 = d10;
+
+							if (entity instanceof EntityLivingBase)
+								d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
+
+							entity.motionX += d5 * d11;
+							entity.motionY += d7 * d11;
+							entity.motionZ += d9 * d11;
+						}
+					}
+				}
+			}
 		}
 	}
 

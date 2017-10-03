@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
@@ -33,13 +34,13 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		public boolean onClientTick() {
 			player.onGround = true;
 			if (player == Minecraft.getMinecraft().player)
-				SPacketSimple.move(player, 1.0d, false);
+				SPacketSimple.move(player, 0.6d, false);
 			if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
-				Minewatch.proxy.spawnParticlesSmoke(player.world, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, player.world, 
 						player.prevPosX+player.world.rand.nextDouble()-0.5d, 
 						player.prevPosY+player.world.rand.nextDouble(), 
 						player.prevPosZ+player.world.rand.nextDouble()-0.5d, 
-						0xB4907B, 0xE6C4AC, 15+player.world.rand.nextInt(5), 10);
+						0, 0, 0, 0xB4907B, 0xE6C4AC, 0.7f, 10, 15+player.world.rand.nextInt(5), 15+player.world.rand.nextInt(5), 0, 0);
 			return super.onClientTick();
 		}
 
@@ -80,11 +81,12 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0xFFEF89, 0x5A575A, 5, 1);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
+						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
 		return (Minewatch.proxy.getClientPlayer() != null && 
@@ -121,7 +123,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			else if (hand != null) {
 				entity.rotationPitch--;
 				Vec3d vec = EntityMWThrowable.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0xFFEF89, 0x5A575A, 5, 1);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 
+						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 			}
 		}
 	}

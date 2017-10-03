@@ -37,7 +37,7 @@ public class ParticleTrail extends ParticleSimpleAnimated {
 	@Override
     public void onUpdate() {
 		super.onUpdate();
-		
+
 		this.particleScale *= 0.98f;
 		
 		// color fade (faster than vanilla)

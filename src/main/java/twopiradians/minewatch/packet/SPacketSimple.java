@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
@@ -165,7 +166,7 @@ public class SPacketSimple implements IMessage {
 									EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(11));
 						}
 						if (packetPlayer == player)
-							move(packetPlayer, 1.0d, false);
+							move(packetPlayer, 0.6d, false);
 					}
 					// Genji's strike
 					else if (packet.type == 3 && packetPlayer != null) {
@@ -279,7 +280,7 @@ public class SPacketSimple implements IMessage {
 									for (SoundEvent event : ModSoundEvents.multikill)
 										Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
 									Minewatch.proxy.playFollowingSound(player, 
-											ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f);
+											ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 								}
 							}
 						}
@@ -311,9 +312,48 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 19 && packetPlayer != null) {
 						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(200).setEntity(packetPlayer));
 					}
-					// Junkrat's grenade
+					// Junkrat's grenade bounce
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {
-						((EntityJunkratGrenade)entity).explode();
+						// direct hit
+						if (packet.bool) {
+							((EntityJunkratGrenade)entity).explode(null);
+							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeExplode, 
+									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						// bounce
+						else {
+							((EntityJunkratGrenade)entity).bounces = (int) packet.x;
+							if (packet.x < 3)
+								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.junkratGrenadeTick[(int) packet.x], 
+										SoundCategory.PLAYERS, 1.0f, 1.0f, true);
+							else
+								entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeTick[3], 
+										SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY, entity.posZ,
+									0, 0, 0, 0xFCCD75, 0xFFDA93, 0.7f, 2, 3, 2.5f, entity.world.rand.nextFloat(), 0.01f);
+							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeBounce, 
+									SoundCategory.PLAYERS, 0.7f, 1.0f, false);
+						}
+					}
+					// Reaper's shoot particle
+					else if (packet.type == 21 && packetPlayer != null) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, packetPlayer.world, packet.x, packet.y, packet.z, 
+								0, 0, 0, 0xD93B1A, 0x510D30, 1, 5, 5, 4, 0, 0);
+					}
+					// Tracer's shoot particle
+					else if (packet.type == 22 && packetPlayer != null) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, packetPlayer.world, packet.x, packet.y, packet.z, 
+								0, 0, 0, 0x4AFDFD, 0x4AFDFD, 1, 3, 4, 1, packetPlayer.world.rand.nextFloat(), 0.01f);
+					}
+					// Frozen particles
+					else if (packet.type == 23 && entity != null) {
+						for (int i=0; i<3; ++i)
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
+									packet.x+entity.world.rand.nextDouble()-0.5d, 
+									packet.y+entity.world.rand.nextDouble()-0.5d, 
+									packet.z+entity.world.rand.nextDouble()-0.5d, 
+									0, 0.01f, 0, 0x5BC8E0, 0xAED4FF,
+									entity.world.rand.nextFloat(), 5, 20f, 25f, 0, 0);
 					}
 				}
 			});

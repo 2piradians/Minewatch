@@ -32,6 +32,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
@@ -120,7 +121,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0xEF5D1F, 0xEF5D1F, 3, 3);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
+						0, 0, 0, 0xEF5D1F, 0xEF5D1F, 0.7f, 3, 4, 3, world.rand.nextFloat(), 0.01f);
 			}
 		}
 	}
@@ -137,7 +139,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase 
 						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-					Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, 3, 3, 0, 0);
 		}
 
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {

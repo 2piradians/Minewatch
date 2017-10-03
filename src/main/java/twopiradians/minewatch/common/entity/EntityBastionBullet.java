@@ -20,9 +20,8 @@ public class EntityBastionBullet extends EntityMWThrowable {
 
 	@Override
 	public void onUpdate() {		
-		super.onUpdate();
-
 		if (this.world.isRemote) {
+			System.out.println("particles");
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(this.world, 
@@ -31,12 +30,14 @@ public class EntityBastionBullet extends EntityMWThrowable {
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
 						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
 		}
+		
+		super.onUpdate();
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
-
+		
 		if (this.attemptImpact(result.entityHit, 20 - (20 - 6) * ((float)this.ticksExisted / lifetime), false)) 
 			result.entityHit.hurtResistantTime = 0;
 	}

@@ -28,7 +28,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.Particle;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
@@ -54,7 +54,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().player && player != null &&
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					Vec3d eyes = player.getPositionEyes(Minecraft.getMinecraft().getRenderPartialTicks()).add(player.getLookVec());
-					Minewatch.proxy.spawnParticlesCustom(Particle.SLEEP, player.world, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.world, 
 							eyes.xCoord+player.world.rand.nextFloat()-0.5f, 
 							eyes.yCoord+player.world.rand.nextFloat()-0.5f, 
 							eyes.zCoord+player.world.rand.nextFloat()-0.5f, 
@@ -63,7 +63,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				}
 				// sleep particles over entity
 				if (this.ticksLeft % 7 == 0) 
-					Minewatch.proxy.spawnParticlesCustom(Particle.SLEEP, entity.world, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, entity.world, 
 							entity.posX-entity.getEyeHeight()/2d, 
 							entity.posY+entity.width/2d, 
 							entity.posZ+entity.width/2d, 
@@ -73,7 +73,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 							(int) ((entity.world.rand.nextInt(20)+10)*Math.max(entity.width, 1)), 2, 4, 
 							(entity.world.rand.nextFloat()-0.5f)*0.8f, (entity.world.rand.nextFloat()-0.5f)*0.05f);
 				// smokey particles on entity
-				Minewatch.proxy.spawnParticlesCustom(Particle.CIRCLE, entity.world, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
 						entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.height, 
 						entity.posY+0.2f, 
 						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
@@ -160,7 +160,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				for (Entity entity2 : list) 
 					if (entity2 instanceof EntityLivingBase 
 							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-						Minewatch.proxy.spawnParticlesAnaHealth((EntityLivingBase) entity2);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, 3, 3, 0, 0);
 			}
 		}
 

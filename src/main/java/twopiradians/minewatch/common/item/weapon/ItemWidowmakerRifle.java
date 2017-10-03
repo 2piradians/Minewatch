@@ -24,6 +24,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -101,7 +102,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				}
 				else {
 					Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-					Minewatch.proxy.spawnParticlesSpark(player.world, vec.xCoord, vec.yCoord, vec.zCoord, 0xF9394F, 0x5A575A, 5, 1);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
+							0, 0, 0, 0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0);
 					player.stopActiveHand();
 				}
 			}
@@ -118,7 +120,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				}
 				else {
 					Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-					Minewatch.proxy.spawnParticlesSpark(world, vec.xCoord, vec.yCoord, vec.zCoord, 0xF9394F, 0x5A575A, 5, 1);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
+							0, 0, 0, 0xF9394F, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 				}
 			}
 		}

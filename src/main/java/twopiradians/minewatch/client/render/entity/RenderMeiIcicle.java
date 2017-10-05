@@ -25,6 +25,6 @@ public class RenderMeiIcicle extends RenderOBJModel<EntityMeiIcicle> {
 			entity.updateFromPacket();
 		
 		GlStateManager.scale(2, 2, 2);		
-		buffer.setTranslation(0, 0.0d, 0.25d);
+		buffer.setTranslation(0, -0.02d, 0);
 	}
 }

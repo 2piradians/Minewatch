@@ -150,7 +150,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// throw single shuriken
-		if (!player.world.isRemote && this.canUse(player, true, hand) && player.ticksExisted % 3 == 0) {
+		if (!player.world.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
@@ -169,7 +169,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		// throw triple shuriken
-		if (!player.world.isRemote && this.canUse(player, true, hand)) {
+		if (!player.world.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
 				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
@@ -196,7 +196,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
 				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
@@ -205,7 +205,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
-					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND)) {
+					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
 				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));

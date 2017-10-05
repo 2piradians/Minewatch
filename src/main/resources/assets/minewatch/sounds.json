@@ -451,6 +451,12 @@
 			"minewatch:junkrat_laugh_3"
 		]
 	},
+	"junkrat_death": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_death"
+		]
+	},
 	"junkrat_grenade_bounce": {
 	"category": "player",
 		"sounds": [

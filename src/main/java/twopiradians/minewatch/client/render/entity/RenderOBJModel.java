@@ -58,7 +58,8 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		VertexBuffer buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 		
-		GlStateManager.bindTexture(8);
+		//GlStateManager.bindTexture(9); //MAGIC NUMBER AND IDK IF IT ALWAYS WORKS
+		GlStateManager.bindTexture(GL11.GL_POLYGON);
 		GlStateManager.rotate(180, 0, 0, 1);
 		GlStateManager.translate((float)-x, (float)-y, (float)z);
 		this.preRender(entity, buffer, x, y, z, entityYaw, partialTicks);
@@ -69,7 +70,6 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		lighter.setWorld(entity.world);
 		lighter.setState(Blocks.AIR.getDefaultState());
 		lighter.setBlockPos(new BlockPos(entity.posX, entity.posY, entity.posZ));
-		//lighter.setQuadOrientation(EnumFacing.EAST);
 		
 		boolean empty = true;
 		List<BakedQuad> quads = bakedModel.getQuads(null, null, 0);

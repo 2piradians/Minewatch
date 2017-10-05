@@ -71,14 +71,18 @@ public class CPacketSyncConfig implements IMessage {
 					EntityPlayer player = packet.uuid == null ? null : ctx.getServerHandler().playerEntity.world.getPlayerEntityByUUID(packet.uuid);
 
 					if (player != null) {
-						Config.allowGunWarnings = packet.allowGunWarnings;
-						Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
-						Config.tokenDropRate = packet.tokenDropRate;
-						ItemMWWeapon.damageScale = packet.damageScale;
-						Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
-						Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
-						Config.config.save();
-						player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
+						if (player.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
+							Config.allowGunWarnings = packet.allowGunWarnings;
+							Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
+							Config.tokenDropRate = packet.tokenDropRate;
+							ItemMWWeapon.damageScale = packet.damageScale;
+							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
+							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
+							Config.config.save();
+							player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
+						}
+						else
+							player.sendMessage(new TextComponentString(TextFormatting.RED+"You do not have permission to do that."));
 					}
 				}
 			});

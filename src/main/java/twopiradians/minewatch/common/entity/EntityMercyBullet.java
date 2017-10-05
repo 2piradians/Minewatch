@@ -3,8 +3,8 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 
 public class EntityMercyBullet extends EntityMWThrowable {
 

@@ -28,7 +28,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -113,7 +113,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) 
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO comment
+				//System.out.println(handler); 
 				try {
 					if (handler.onClientTick()) 
 						unregister(true, handler);
@@ -129,7 +129,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO comment
+				//System.out.println(handler);
 				try {
 					if (handler.onServerTick()) 
 						unregister(false, handler);
@@ -245,6 +245,20 @@ public class TickHandler {
 				this.player = (EntityPlayer) entity;
 			else 
 				this.player = null;
+			return this;
+		}
+
+		public Handler setEntityLiving(EntityLivingBase entity) {
+			this.entityLiving = (EntityLivingBase) entity;
+			if (entity instanceof EntityPlayer)
+				this.player = (EntityPlayer) entity;
+			else 
+				this.player = null;
+			return this;
+		}
+
+		public Handler setPlayer(EntityPlayer entity) {
+			this.player = (EntityPlayer) entity;
 			return this;
 		}
 

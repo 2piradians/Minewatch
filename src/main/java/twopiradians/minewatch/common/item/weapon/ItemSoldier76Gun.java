@@ -19,8 +19,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
@@ -52,8 +52,8 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		// shoot
-		if (this.canUse(player, true, hand) && hero.ability1.isSelected(player)) {
+		// helix rockets
+		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
@@ -108,7 +108,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			player.setSprinting(false);
 
 		// shoot
-		if (player.ticksExisted % 2 == 0 && this.canUse(player, true, hand)) {
+		if (player.ticksExisted % 2 == 0 && this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);

@@ -103,7 +103,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand) && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
+		// shoot
+		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 				hero.playersUsingAlt.get(player.getPersistentID())) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player);
@@ -132,14 +133,16 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
 		// health particles
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND) &&
+		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
 				world.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase 
-						&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, 3, 3, 0, 0);
+				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
+						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+					float size = Math.min(entity2.height, entity2.width)*9f;
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
+				}
 		}
 
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {

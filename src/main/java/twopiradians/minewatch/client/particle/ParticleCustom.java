@@ -4,8 +4,11 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSimpleAnimated;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -52,13 +55,16 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setColorFade(colorFade);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
-		this.setParticleTexture(sprite); 	
+		this.setParticleTexture(sprite);
 	}
 
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 		this.followEntity = followEntity;
 		this.followEntity();
+		this.prevPosX = this.posX;
+		this.prevPosY = this.posY;
+		this.prevPosZ = this.posZ;
 	}
 
 	@Override
@@ -83,26 +89,23 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
 	}
-	
+
 	public void followEntity() {
 		if (this.followEntity != null) {
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				EntityPlayer player = Minecraft.getMinecraft().player;
-				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()  ||
+				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
+						((EntityLivingBase) followEntity).getHealth() <= 0 ||
 						player.getHeldItemMainhand() == null || (player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon &&
 						player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon)) {
 					ClientProxy.healthParticleEntities.remove(followEntity.getPersistentID());
 					this.setExpired();
 				}
-				else 
-					this.setPosition(followEntity.posX, followEntity.posY+followEntity.height+0.8d, followEntity.posZ);
 			}
-			else {
-				if (this.followEntity.isDead)
-					this.setExpired();
-				else 
-					this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
-			}
+			else if (this.followEntity.isDead)
+				this.setExpired();
+
+			this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 		}
 	}
 
@@ -130,16 +133,17 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			int col = (frame-1) % framesPerRow;
 			double uSize = (this.particleTexture.getMaxU()-this.particleTexture.getMinU()) / framesPerRow;
 			double vSize = (this.particleTexture.getMaxV()-this.particleTexture.getMinV()) / framesPerRow;
-			
+
 			float f = (float) (this.particleTexture.getMinU()+uSize*col);
 			float f1 = (float) (f+uSize);
 			float f2 = (float) (this.particleTexture.getMinV()+vSize*row);
 			float f3 = (float) (f2+vSize);
 			float f4 = 0.1F * this.particleScale;
-
+			
 			float f5 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)partialTicks - interpPosX);
 			float f6 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)partialTicks - interpPosY);
 			float f7 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)partialTicks - interpPosZ);
+			
 			int i = this.getBrightnessForRender(partialTicks);
 			int j = i >> 16 & 65535;
 			int k = i & 65535;
@@ -161,6 +165,16 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
+		
+			// disable depth for health particles
+			if (enumParticle.equals(EnumParticle.HEALTH)) {
+				Tessellator tessellator = Tessellator.getInstance();
+                VertexBuffer vertexbuffer = tessellator.getBuffer();
+				GlStateManager.disableDepth();
+				tessellator.draw();
+				GlStateManager.enableDepth();
+                vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+			}
 		}
 	}
 

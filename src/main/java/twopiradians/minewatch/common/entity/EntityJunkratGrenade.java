@@ -5,17 +5,20 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityJunkratGrenade extends EntityMWThrowable {
 
 	public int bounces;
-	private int explodeTimer;
+	public int explodeTimer;
+	public boolean isDeathGrenade;
 
 	public EntityJunkratGrenade(World worldIn) {
 		super(worldIn);
@@ -33,8 +36,14 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 	@Override
 	public void onUpdate() {		
 		// set explode timer
-		if (this.bounces >= 3 && this.explodeTimer == -1)
-			this.explodeTimer = 12;
+		if (this.explodeTimer == -1 && this.bounces >= 3)
+			this.explodeTimer = 10;
+
+		// explode if not moving
+		if (!this.world.isRemote && this.explodeTimer == -1 && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) < 0.01d) {
+			this.bounces = 3;
+			Minewatch.network.sendToAll(new SPacketSimple(20, this, false, 3, 0, 0));
+		}
 		
 		// gravity
 		this.motionY -= 0.04D;
@@ -85,7 +94,6 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 		}
 
 		super.onUpdate();
-
 	}
 
 	public void explode(@Nullable Entity directHit) {
@@ -93,10 +101,13 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, 
 					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
 					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 10, 10, 0, 0);
+			if (this.isDeathGrenade)
+				this.world.playSound(this.posX, this.posY, this.posZ, ModSoundEvents.junkratGrenadeExplode, 
+						SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 		}
 		else {
 			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-					1.6f, 0f, 12.5f, 80f, directHit, 120f);
+					1.6f, 0f, 12.5f, 80f, directHit, 120f, true);
 		}
 		this.setDead();
 	}
@@ -104,19 +115,20 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 	@Override
 	protected void onImpact(RayTraceResult result) {		
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+			// bounce
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
 				this.motionY *= -1.1d;
 			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
 				this.motionZ *= -0.7d;
 			else 
 				this.motionX *= -0.7d;
-			
+
 			// sync bounces
 			if (!this.world.isRemote && bounces < 3) 
 				Minewatch.network.sendToAll(new SPacketSimple(20, this, false, Math.min(3, ++bounces), 0, 0));
 		}
 		// direct hit explosion
-		else if (!this.world.isRemote && this.shouldHit(result.entityHit)) {
+		else if (!this.world.isRemote && this.shouldHit(result.entityHit) && !this.isDeathGrenade) {
 			this.explode(result.entityHit);
 			Minewatch.network.sendToAll(new SPacketSimple(20, this, true));
 		}

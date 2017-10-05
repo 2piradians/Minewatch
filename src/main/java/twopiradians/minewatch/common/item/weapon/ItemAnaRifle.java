@@ -108,7 +108,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand)) {
+		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
@@ -138,7 +138,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
-					this.canUse(player, true, EnumHand.MAIN_HAND)) {
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
 				dart.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
@@ -154,13 +154,15 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			}
 
 			// health particles
-			if (world.isRemote && entity.ticksExisted % 5 == 0 && this.canUse(player, false, EnumHand.MAIN_HAND)) {
+			if (world.isRemote && entity.ticksExisted % 5 == 0 && this.canUse(player, false, EnumHand.MAIN_HAND, true)) {
 				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 				for (Entity entity2 : list) 
-					if (entity2 instanceof EntityLivingBase 
-							&& ((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()) 
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, 3, 3, 0, 0);
+					if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
+							((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+						float size = Math.min(entity2.height, entity2.width)*9f;
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
+					}
 			}
 		}
 
@@ -168,6 +170,10 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
 				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		// unset active hand while reloading
+		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
+				isSelected && this.getCurrentAmmo((EntityPlayer) entity) == 0)
+			((EntityPlayer)entity).resetActiveHand();
 	}
 
 	@SubscribeEvent
@@ -256,18 +262,16 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				// scope
-				GlStateManager.color(1, 1, 1, 0.6f);
-				double scale = 2;
+				double scale = Math.max(height/256d, width/256d);
 				GlStateManager.scale(scale, scale, 1);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 				GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
 				GlStateManager.scale(1/scale, 1/scale, 1);
 				// background
-				GlStateManager.color(1, 1, 1, 1f);
 				scale = Math.max(height/imageSize, width/imageSize);
-				GlStateManager.scale(scale, scale, 1);
+				GlStateManager.scale(width/256d, height/256d, 1);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-				GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
+				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
 				GlStateManager.popMatrix();
 			}
 		}

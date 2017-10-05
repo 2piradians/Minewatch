@@ -27,6 +27,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -38,6 +39,8 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,7 +70,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
-	// do not change order - this is the order in ability_overlay.png TODO round up %, Entity.zombie.name w/zombie villager?
+	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
 			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
 			new Ability(KeyBind.NONE, false, false, 0, 0), 
@@ -333,7 +336,7 @@ public enum EnumHero {
 	public static class RenderManager {
 
 		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
-		public static HashMap<EntityLivingBase, HashMap<EntityPlayerMP, Float>> entityDamage = Maps.newHashMap();
+		public static HashMap<EntityLivingBase, HashMap<UUID, Tuple<Float, Integer>>> entityDamage = Maps.newHashMap();
 		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
 			@Override
 			@SideOnly(Side.CLIENT)
@@ -534,7 +537,7 @@ public enum EnumHero {
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						double scale = 0.35d*Config.guiScale;
+						double scale = 0.25d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
 						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
@@ -551,7 +554,7 @@ public enum EnumHero {
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						double scale = 1d*Config.guiScale;
+						double scale = 0.67d*Config.guiScale;
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
@@ -703,6 +706,19 @@ public enum EnumHero {
 		}
 
 		@SubscribeEvent
+		public static void serverSide(ServerTickEvent event) {
+			// decrement timer for damage
+			if (event.phase == TickEvent.Phase.END) {
+				for (EntityLivingBase entity : entityDamage.keySet()) 
+					for (UUID uuid : entityDamage.get(entity).keySet()) {
+						Tuple<Float, Integer> tup = entityDamage.get(entity).get(uuid);
+						entityDamage.get(entity).put(uuid, new Tuple(tup.getFirst(), tup.getSecond()-1));
+					}
+			}
+		}
+
+
+		@SubscribeEvent
 		public static void damageEntities(LivingHurtEvent event) {
 			EntityPlayerMP player = null;
 			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP)
@@ -718,8 +734,8 @@ public enum EnumHero {
 						damage = applyPotionDamageCalculations(player, event.getSource(), damage);
 						damage = Math.min(damage, event.getEntityLiving().getHealth());
 						if (damage > 0) {
-							HashMap<EntityPlayerMP, Float> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
-							damageMap.put(player, damageMap.get(player) == null ? damage : damageMap.get(player) + damage);
+							HashMap<UUID, Tuple<Float, Integer>> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
+							damageMap.put(player.getPersistentID(), new Tuple(damageMap.get(player.getPersistentID()) == null ? damage : damageMap.get(player.getPersistentID()).getFirst() + damage, 200));
 							entityDamage.put(event.getEntityLiving(), damageMap);
 							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), player);
 						}
@@ -734,21 +750,28 @@ public enum EnumHero {
 		@SubscribeEvent
 		public static void deathMessages(LivingDeathEvent event) {
 			if (event.getEntityLiving() != null && entityDamage.containsKey(event.getEntityLiving())) {
-				EntityPlayer mostDamage = null;
+				UUID mostDamage = null;
 				float damage = 0;
 				// find who dealt most damage
-				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
-					if (mostDamage == null || entityDamage.get(event.getEntityLiving()).get(player) > damage) {
-						mostDamage = player;
-						damage = entityDamage.get(event.getEntityLiving()).get(player);
+				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) 
+					if ((mostDamage == null || entityDamage.get(event.getEntityLiving()).get(uuid).getFirst() > damage) &&
+							entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
+						mostDamage = uuid;
+						damage = entityDamage.get(event.getEntityLiving()).get(uuid).getFirst();
 					}
-				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
-					Minewatch.network.sendTo(new SPacketSimple(14, mostDamage != player, player,
-					(int)MathHelper.clamp(entityDamage.get(event.getEntityLiving()).get(player)/event.getEntityLiving().getMaxHealth()*100f, 0, 100),
-					0, 0, event.getEntityLiving()), player);
+				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) {
+					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
+					if (player instanceof EntityPlayerMP) {
+						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
+						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0)
+							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
+									(int)MathHelper.clamp(percent, 0, 100),
+									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
+					}
+				}
 				if (event.getEntityLiving() instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
-							0, 0, mostDamage), (EntityPlayerMP) event.getEntityLiving());
+							0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
 				entityDamage.remove(event.getEntityLiving());
 			}
 		}

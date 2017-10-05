@@ -16,7 +16,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class CPacketSimple implements IMessage {
-	
+
 	private int type;
 	private UUID uuid;
 
@@ -25,7 +25,7 @@ public class CPacketSimple implements IMessage {
 	public CPacketSimple(int type) {
 		this(type, null);
 	}
-	
+
 	public CPacketSimple(int type, EntityPlayer player) {
 		this.type = type;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
@@ -61,9 +61,9 @@ public class CPacketSimple implements IMessage {
 								SoundCategory.PLAYERS, 0.9f, 1.0f);
 					}
 					// check if opped
-					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null &&
-							packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile())) {
-						Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
+					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null) {
+						if (packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile()))
+							Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
 					}
 				}
 			});

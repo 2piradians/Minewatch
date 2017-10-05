@@ -147,6 +147,7 @@ public class SPacketSimple implements IMessage {
 						move(player, 9, false);
 					// Reaper's teleport
 					else if (packet.type == 1 && packetPlayer != null) {
+						packetPlayer.rotationPitch = 0;
 						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
 								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
@@ -257,12 +258,13 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
 							(Config.trackKillsOption == 0 || (Config.trackKillsOption == 1 && entity instanceof EntityPlayer))) {
 						String string = null;
+						String name = entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
-									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName());
+									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
-							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(entity.getName()) +
+							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
 								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
@@ -354,6 +356,11 @@ public class SPacketSimple implements IMessage {
 									packet.z+entity.world.rand.nextDouble()-0.5d, 
 									0, 0.01f, 0, 0x5BC8E0, 0xAED4FF,
 									entity.world.rand.nextFloat(), 5, 20f, 25f, 0, 0);
+					}
+					// Junkrat death grenades
+					else if (packet.type == 24 && entity instanceof EntityJunkratGrenade) {
+						((EntityJunkratGrenade)entity).explodeTimer = (int) packet.x;
+						((EntityJunkratGrenade)entity).isDeathGrenade = true;
 					}
 				}
 			});

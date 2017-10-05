@@ -7,8 +7,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -29,7 +29,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 	
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand)) {
+		// shoot
+		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player);
 				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);

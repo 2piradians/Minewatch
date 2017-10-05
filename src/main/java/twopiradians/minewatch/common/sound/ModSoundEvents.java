@@ -65,6 +65,7 @@ public class ModSoundEvents {
 	
 	public static SoundEvent junkratShoot;
 	public static SoundEvent junkratLaugh;
+	public static SoundEvent junkratDeath;
 	public static SoundEvent junkratGrenadeBounce;
 	public static SoundEvent junkratGrenadeExplode;
 	public static SoundEvent[] junkratGrenadeTick = new SoundEvent[4];
@@ -137,6 +138,7 @@ public class ModSoundEvents {
 		mercyBeamStop = registerSound("mercy_beam_stop");
 		junkratShoot = registerSound("junkrat_shoot");
 		junkratLaugh = registerSound("junkrat_laugh");
+		junkratDeath = registerSound("junkrat_death");
 		junkratGrenadeBounce = registerSound("junkrat_grenade_bounce");
 		junkratGrenadeExplode = registerSound("junkrat_grenade_explode");
 		for (int i=0; i<junkratGrenadeTick.length; ++i)

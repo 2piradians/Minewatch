@@ -8,8 +8,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
@@ -23,7 +23,8 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand) && !world.isRemote) {
+		// shoot
+		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player);
 			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.3F, 2.5F, hand, false);
 			world.spawnEntity(bullet);
@@ -40,7 +41,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		// shoot
-		if (this.canUse(player, true, hand)) {
+		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
 				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, 0F, hand, false);

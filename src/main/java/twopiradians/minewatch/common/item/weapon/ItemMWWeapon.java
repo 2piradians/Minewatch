@@ -115,9 +115,9 @@ public abstract class ItemMWWeapon extends Item {
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
-	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand) {
-		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
-				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
+	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+		if (player == null || (player.getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
+				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
 				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
 			return false;
@@ -237,9 +237,25 @@ public abstract class ItemMWWeapon extends Item {
 		return 1;
 	}
 
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
+        return false;
+    }
+	
+	@Override
+	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+		return false;
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public boolean hasEffect(ItemStack stack) {
+		return super.hasEffect(stack); //XXX will be used with golden weapons
+	}
+
 	//PORT keep for 1.10 PosEyes vec
 	/*
-	*//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
+	 *//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
 	private Vec3d getPositionEyes(Entity entity, float partialTicks)  {
 		if (partialTicks == 1.0F)
 			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
@@ -250,7 +266,7 @@ public abstract class ItemMWWeapon extends Item {
 			return new Vec3d(d0, d1, d2);
 		}
 	}*/
-	
+
 	// DEV SPAWN ARMOR ===============================================
 
 	@Override

@@ -206,7 +206,7 @@ public class Keys {
 					if (!(main.getItem() instanceof ItemReinhardtHammer))
 						event.setCanceled(true);
 					else {
-						if (((ItemMWWeapon) main.getItem()).canUse(player, false, EnumHand.MAIN_HAND)) 
+						if (((ItemMWWeapon) main.getItem()).canUse(player, false, EnumHand.MAIN_HAND, false)) 
 							((ItemMWWeapon) main.getItem()).onItemLeftClick(main, player.world, player, EnumHand.MAIN_HAND);
 						event.setCanceled(true);
 					}

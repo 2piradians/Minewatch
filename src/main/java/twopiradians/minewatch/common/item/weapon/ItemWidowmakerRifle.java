@@ -23,8 +23,8 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -77,14 +77,18 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0 &&
-				this.canUse((EntityPlayer) entity, true, getHand((EntityLivingBase) entity, stack))) 
+				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		// unset active hand while reloading
+		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
+				isSelected && this.getCurrentAmmo((EntityPlayer) entity) == 0)
+			((EntityPlayer)entity).resetActiveHand();
 	}
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand)) {
+		// shoot
+		if (this.canUse(player, true, hand, false)) {
 			// scoped
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
@@ -158,15 +162,13 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
 			Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
 			// scope
-			GlStateManager.color(1, 1, 1, 0.7f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
 			// background
-			GlStateManager.color(1, 1, 1, 0.7f);
-			double scale = Math.max(height/imageSize, width/imageSize);
-			GlStateManager.scale(scale, scale, 1);
+			GlStateManager.disableAlpha();
+			GlStateManager.scale(width/256d, height/256d, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-			GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
+			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
 			GlStateManager.popMatrix();
 		}
 	}

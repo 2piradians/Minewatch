@@ -1,13 +1,14 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 
 public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 
@@ -84,14 +85,14 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 				result.entityHit.hurtResistantTime = 10;
 
 			// explosion
-			if (this.world.isRemote) {
+			if (this.world.isRemote) 
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
 						0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
-				//TODO sounds
-			}
-			else 
+			else {
 				Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-						1.6f, 40f, 80f, 80f, result.entityHit, 120f);
+						1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true);
+				this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+			}
 			this.setDead();
 		}
 	}

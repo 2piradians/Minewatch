@@ -63,7 +63,7 @@ public class CommonProxy {
 
 	public enum EnumParticle {
 		CIRCLE("circle", 1, 1), SLEEP("sleep", 1, 1), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", 1, 1),
-		EXPLOSION("explosion", 16, 1);
+		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal", 1, 1), ANA_DAMAGE("ana_damage", 1, 4);
 
 		public final ResourceLocation loc;
 		public final int frames;
@@ -173,7 +173,7 @@ public class CommonProxy {
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}
 	 * @param directHit 
 	 * @param directHitDamage */
-	public void createExplosion(World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage) {
+	public void createExplosion(World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
 		if (!world.isRemote) {
 			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
 
@@ -191,7 +191,8 @@ public class CommonProxy {
 			for (int k2 = 0; k2 < list.size(); ++k2) {
 				Entity entity = (Entity)list.get(k2);
 
-				if (!entity.isImmuneToExplosions()) {
+				if (!entity.isImmuneToExplosions() && (!(entity instanceof EntityLivingBase) || 
+						((EntityLivingBase)entity).getHealth() > 0)) {
 					double d12 = entity.getDistance(x, y, z) / (double)f3;
 
 					if (d12 <= 1.0D) {
@@ -210,12 +211,16 @@ public class CommonProxy {
 							entity.attackEntityFrom(DamageSource.causeExplosionDamage(explosion), damage*ItemMWWeapon.damageScale);
 							double d11 = d10;
 
+							if (resetHurtResist)
+								entity.hurtResistantTime = 0;
+
 							if (entity instanceof EntityLivingBase)
 								d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
 							entity.motionX += d5 * d11;
 							entity.motionY += d7 * d11;
 							entity.motionZ += d9 * d11;
+							entity.velocityChanged = true;
 						}
 					}
 				}

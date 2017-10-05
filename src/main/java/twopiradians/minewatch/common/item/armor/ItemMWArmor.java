@@ -31,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -46,12 +47,14 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -197,6 +200,26 @@ public class ItemMWArmor extends ItemArmor
 				event.setDistance(event.getDistance()*0.8f);
 		}
 
+		@SubscribeEvent
+		public static void junkratDeath(LivingDeathEvent event) {
+			if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote &&
+					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
+				event.getEntity().world.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
+						SoundCategory.PLAYERS, 1.0f, 1.0f);
+				for (int i=0; i<6; ++i) {
+					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().world, 
+							(EntityLivingBase) event.getEntity());
+					grenade.explodeTimer = 20+i*2;
+					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
+					grenade.motionX = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionY = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionZ = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					event.getEntity().world.spawnEntity(grenade);
+					grenade.isDeathGrenade = true;
+					Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
+				}
+			}
+		}
 	}
 
 	@Override

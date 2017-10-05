@@ -7,8 +7,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -21,7 +21,8 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 	
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand)) {
+		// shoot
+		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
 				grenade.setAim(player, player.rotationPitch, player.rotationYaw, 1.5F, 0.3F, 2F, hand, false);
@@ -34,6 +35,8 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 12);
+				if (world.rand.nextInt(20) == 0)
+					Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratLaugh, SoundCategory.PLAYERS, 1f, 1.0f, false);
 			}
 			else {
 				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);

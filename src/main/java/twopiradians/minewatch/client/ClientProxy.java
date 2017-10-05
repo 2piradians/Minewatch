@@ -5,9 +5,11 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -16,6 +18,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -80,10 +84,11 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
-public class ClientProxy extends CommonProxy
-{
+public class ClientProxy extends CommonProxy {
+
 	public static ArrayList<UUID> healthParticleEntities = new ArrayList<UUID>();
 
 	@Override
@@ -253,6 +258,23 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
 				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
 			}
+		// Reaper's tp
+			else if (item == EnumHero.REAPER.weapon) {
+				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						boolean tping = false;
+						if (stack.hasTagCompound()) {
+							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
+							tping = handler != null && handler.ticksLeft != -1;
+						}
+						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (tping ? "_1_3d" : "_0_3d"), "inventory");
+					}
+				});
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
+				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
+			}
 			else
 				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
 	}
@@ -288,6 +310,8 @@ public class ClientProxy extends CommonProxy
 	public void stitchEventPre(TextureStitchEvent.Pre event) {
 		event.getMap().registerSprite(ParticleHanzoSonic.TEXTURE);
 		event.getMap().registerSprite(ParticleTrail.TEXTURE);
+		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
+			event.getMap().registerSprite(loc);
 		for (EnumParticle particle : EnumParticle.values()) {
 			if (particle.variations == 1)
 				event.getMap().registerSprite(particle.loc);
@@ -295,8 +319,6 @@ public class ClientProxy extends CommonProxy
 				for (int i=0; i<particle.variations; ++i)
 					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
 		}
-		for (ResourceLocation loc : ParticleReaperTeleport.TEXTURES)
-			event.getMap().registerSprite(loc);
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
 	}
 
@@ -384,7 +406,12 @@ public class ClientProxy extends CommonProxy
 
 	@Override
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
-		Minecraft.getMinecraft().getSoundHandler().stop(event.getRegistryName().toString(), category);
+		if (player instanceof EntityPlayerSP) {
+			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
+			packetbuffer.writeString(category.getName());
+			packetbuffer.writeString(event.getRegistryName().toString());
+			((EntityPlayerSP)player).connection.handleCustomPayload(new SPacketCustomPayload("MC|StopSound", packetbuffer));
+		}
 	}
 
 }

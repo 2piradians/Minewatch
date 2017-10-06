@@ -199,7 +199,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
 				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
 				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
-				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 
@@ -207,7 +207,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (isSelected && !world.isRemote && hero.ability2.isSelected((EntityPlayer) entity) &&
 					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
-				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
 				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}

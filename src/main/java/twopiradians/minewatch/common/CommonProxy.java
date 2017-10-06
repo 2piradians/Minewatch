@@ -37,6 +37,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
@@ -171,9 +172,10 @@ public class CommonProxy {
 	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}
+	 * @param mwEntity 
 	 * @param directHit 
 	 * @param directHitDamage */
-	public void createExplosion(World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
+	public void createExplosion(EntityMWThrowable mwEntity, World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
 		if (!world.isRemote) {
 			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
 
@@ -208,19 +210,20 @@ public class CommonProxy {
 							double d14 = (double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
-							entity.attackEntityFrom(DamageSource.causeExplosionDamage(explosion), damage*ItemMWWeapon.damageScale);
 							double d11 = d10;
+							if (mwEntity.attemptImpact(entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
+									(entity == exploder && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode))) {
+								if (resetHurtResist)
+									entity.hurtResistantTime = 0;
 
-							if (resetHurtResist)
-								entity.hurtResistantTime = 0;
+								if (entity instanceof EntityLivingBase)
+									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
-							if (entity instanceof EntityLivingBase)
-								d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
-
-							entity.motionX += d5 * d11;
-							entity.motionY += d7 * d11;
-							entity.motionZ += d9 * d11;
-							entity.velocityChanged = true;
+								entity.motionX += d5 * d11;
+								entity.motionY += d7 * d11;
+								entity.motionZ += d9 * d11;
+								entity.velocityChanged = true;
+							}
 						}
 					}
 				}

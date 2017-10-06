@@ -49,19 +49,20 @@ public class TickHandler {
 	/**Unregister a handler
 	 * Note: this must use a registered Handler, not a static field Handler (needs entity)*/
 	public static void unregister(boolean isRemote, Handler... handlers) {
-		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if (handler != null) {
-				CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
-				try {
-					handlerList.remove(handler.onRemove());
-				}
-				catch (Exception e) {
-					handlerList.remove(handler);
-					e.printStackTrace();
+		if (handlers != null)
+			for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if (handler != null) {
+					CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+					try {
+						handlerList.remove(handler.onRemove());
+					}
+					catch (Exception e) {
+						handlerList.remove(handler);
+						e.printStackTrace();
+					}
 				}
 			}
-		}
 	}
 
 	/**Get a registered handler by its entity and/or identifier*/

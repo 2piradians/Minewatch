@@ -149,7 +149,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 1 && packetPlayer != null) {
 						packetPlayer.rotationPitch = 0;
 						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
-								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70));
+								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70).setAbility(EnumHero.REAPER.ability1));
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
 						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, false, 0);
 						if (player == packetPlayer)
@@ -163,7 +163,7 @@ public class SPacketSimple implements IMessage {
 						}
 						if (packet.bool) {
 							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(packetPlayer).setTicks(10),
-									Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10), 
+									Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10).setAbility(EnumHero.MCCREE.ability2), 
 									EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(11));
 						}
 						if (packetPlayer == player)
@@ -173,7 +173,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 3 && packetPlayer != null) {
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(packetPlayer).setTicks(8),
 								ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8),
-								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8), 
+								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
 								EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(9));
 						if (packetPlayer == player) 
 							move(packetPlayer, 1.8d, false);
@@ -222,7 +222,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Reaper's wraith
 					else if (packet.type == 10 && packetPlayer != null) {
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(60),
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(60).setAbility(EnumHero.REAPER.ability2),
 								ItemReaperShotgun.WRAITH.setEntity(packetPlayer).setTicks(60));
 						if (player == packetPlayer)
 							ItemReaperShotgun.wraithViewBobbing.put(packetPlayer, Minecraft.getMinecraft().gameSettings.viewBobbing);
@@ -312,7 +312,13 @@ public class SPacketSimple implements IMessage {
 					}
 					// Mercy's Angel
 					else if (packet.type == 19 && packetPlayer != null) {
-						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(200).setEntity(packetPlayer));
+						if (packet.bool)
+							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.mercyAngelVoice, 
+									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.mercyAngel, 
+								SoundCategory.PLAYERS, 1.0f, 1.0f, true);
+						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75).setEntity(packetPlayer),
+								Ability.ABILITY_USING.setTicks(75).setEntity(packetPlayer).setAbility(EnumHero.MERCY.ability3));
 					}
 					// Junkrat's grenade bounce
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {

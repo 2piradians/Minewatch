@@ -59,7 +59,7 @@ public class Keys {
 			this.identifier = identifier;
 			COOLDOWNS.identifier = identifier;
 		}
-		
+
 		public int getCooldown(EntityPlayer player) {
 			Handler handler = TickHandler.getHandler(player, identifier);
 			return handler == null ? 0 : handler.ticksLeft;

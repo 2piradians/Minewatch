@@ -142,7 +142,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				Minewatch.network.sendToAll(new SPacketSimple(2, true, (EntityPlayerMP) entity));
 			this.setCurrentAmmo((EntityPlayer)entity, this.getMaxAmmo((EntityPlayer) entity));
 			TickHandler.register(false, ROLL.setEntity((EntityPlayer) entity).setTicks(10));
-			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10));
+			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(hero.ability2));
 		}
 	}
 

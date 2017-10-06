@@ -318,7 +318,6 @@ public class ItemMWArmor extends ItemArmor
 				}
 			}
 		}
-
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
@@ -335,7 +334,7 @@ public class ItemMWArmor extends ItemArmor
 					playersHovering.add(player);
 				}
 			}
-			else if (playersHovering.contains(player))
+			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
 		// tracer chestplate particles

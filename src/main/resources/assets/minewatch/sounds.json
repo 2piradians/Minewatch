@@ -412,6 +412,21 @@
 			"minewatch:mercy_hover"
 		]
 	},
+	"mercy_angel": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_angel"
+		]
+	},
+	"mercy_angel_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_angel_voice_0",
+			"minewatch:mercy_angel_voice_1",
+			"minewatch:mercy_angel_voice_2",
+			"minewatch:mercy_angel_voice_3"
+		]
+	},
 	"mercy_beam_start": {
 		"category": "player",
 		"sounds": [

@@ -274,7 +274,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						Minewatch.network.sendToAll(new SPacketSimple(1, player, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
 						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)),
-								Ability.ABILITY_USING.setEntity(player).setTicks(70),
+								Ability.ABILITY_USING.setEntity(player).setTicks(70).setAbility(EnumHero.REAPER.ability1),
 								Handlers.PREVENT_INPUT.setEntity(player).setTicks(70),
 								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(70), 
 								Handlers.PREVENT_ROTATION.setEntity(player).setTicks(70));
@@ -288,7 +288,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			// wraith
 			else if (hero.ability2.isSelected(player) && !world.isRemote && player instanceof EntityPlayerMP &&
 					this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
-				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60),
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2),
 						WRAITH.setEntity(player).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(10, false, player));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);

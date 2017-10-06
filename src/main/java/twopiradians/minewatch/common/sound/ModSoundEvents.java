@@ -59,6 +59,8 @@ public class ModSoundEvents {
 	public static SoundEvent mercyHeal;
 	public static SoundEvent mercyDamage;
 	public static SoundEvent mercyHover;
+	public static SoundEvent mercyAngel;
+	public static SoundEvent mercyAngelVoice;
 	public static SoundEvent mercyBeamStart;
 	public static SoundEvent mercyBeamDuring;
 	public static SoundEvent mercyBeamStop;
@@ -133,6 +135,8 @@ public class ModSoundEvents {
 		mercyHeal = registerSound("mercy_heal");
 		mercyDamage = registerSound("mercy_damage");
 		mercyHover = registerSound("mercy_hover");
+		mercyAngel = registerSound("mercy_angel");
+		mercyAngelVoice = registerSound("mercy_angel_voice");
 		mercyBeamStart = registerSound("mercy_beam_start");
 		mercyBeamDuring = registerSound("mercy_beam_during");
 		mercyBeamStop = registerSound("mercy_beam_stop");

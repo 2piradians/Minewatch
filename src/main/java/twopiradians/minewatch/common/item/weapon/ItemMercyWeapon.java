@@ -37,6 +37,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -50,26 +51,47 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING, false) {};
 	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
 	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN, false) {};
-	
+
 	public static final Handler ANGEL = new Handler(Identifier.MERCY_ANGEL, true) {
-		@SideOnly(Side.CLIENT)
 		@Override
+		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (entity == null || position == null)
 				return true;
 			
+			entity.fallDistance = 0;
 			entity.motionX = (position.xCoord - entity.posX)/10;
 			entity.motionY = (position.yCoord - entity.posY)/10;
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
-			
-			return super.onClientTick() || Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; // || near position;		
+
+			return super.onClientTick() || Minewatch.keys.jump(player) ||
+					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; 	
 		}
-		
 		@Override
 		public boolean onServerTick() {
+			if (entity == null || position == null)
+				return true;
 			
-			return super.onServerTick();
+			entity.fallDistance = 0;
+			entity.motionX = (position.xCoord - entity.posX)/10;
+			entity.motionY = (position.yCoord - entity.posY)/10;
+			entity.motionZ = (position.zCoord - entity.posZ)/10;
+
+			return super.onServerTick() || Minewatch.keys.jump(player) ||
+					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2;
+		}
+		@Override
+		public Handler onRemove() {
+			if (this.player != null) {
+				if (!this.player.world.isRemote)
+					EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
+				else
+					Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
+				TickHandler.unregister(this.player.world.isRemote, 
+						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
+			}
+			return super.onRemove();
 		}
 	};
 
@@ -170,7 +192,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
-					if (TickHandler.getHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) == null) {
+					if (!TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN)) {
 						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 								beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
 						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
@@ -193,18 +215,22 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					beams.get(entity).prevHeal = beams.get(entity).isHealing();
 				}
 			}
-			
+
 			// angel
-			if (hero.ability3.isSelected((EntityPlayer) entity) && entity instanceof EntityPlayerMP) {
+			if (hero.ability3.isSelected((EntityPlayer) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
 				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity, 30);
 				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
-					hero.ability3.keybind.setCooldown((EntityPlayer) entity, 30, false);
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
-					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(200).setEntity(entity));
-					Minewatch.network.sendTo(new SPacketSimple(19, false, (EntityPlayer) entity, vec.xCoord, vec.yCoord, vec.zCoord), (EntityPlayerMP) entity);
+					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
+							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));
+					boolean playSound = !TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) &&
+							world.rand.nextInt(3) == 0;
+					if (playSound)
+						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
+					Minewatch.network.sendToAll(new SPacketSimple(19, playSound, (EntityPlayer) entity, vec.xCoord, vec.yCoord, vec.zCoord));
 				}
 			}
-			
+
 		}
 	}
 

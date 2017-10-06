@@ -106,7 +106,7 @@ public class EntityJunkratGrenade extends EntityMWThrowable {
 						SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 		}
 		else {
-			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
+			Minewatch.proxy.createExplosion(this, world, this.getThrower(), posX, posY, posZ, 
 					1.6f, 0f, 12.5f, 80f, directHit, 120f, true);
 		}
 		this.setDead();

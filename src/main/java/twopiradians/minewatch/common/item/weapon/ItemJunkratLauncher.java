@@ -10,22 +10,23 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
+import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemJunkratLauncher extends ItemMWWeapon {
-	
+
 	public ItemJunkratLauncher() {
 		super(30);
 	}
-	
+
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
-				grenade.setAim(player, player.rotationPitch, player.rotationYaw, 1.5F, 0.3F, 2F, hand, false);
+				EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 1.5F, 0.3F, 2F, hand, false);
 				world.spawnEntity(grenade);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -39,17 +40,36 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 					Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratLaugh, SoundCategory.PLAYERS, 1f, 1.0f, false);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord,
 						0, 0, 0, 0xFF9D1A, 0x964D21, 0.7f, 5, 5, 4.5f, world.rand.nextFloat(), 0.01f);
 			}
 		}
 	}
-	
+
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+
+			// steel trap
+			if (!world.isRemote && hero.ability1.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				hero.ability1.keybind.setCooldown(player, 240, false); 
+				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
+				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 1.0F, 0.1F, 0F, null, false);
+				trap.rotationPitch = 180;
+				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				world.spawnEntity(trap);
+				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				hero.ability1.keybind.setCooldown(player, 20, false); //TODO 200
+				if (hero.ability1.entity != null)
+					hero.ability1.entity.isDead = true;
+				hero.ability1.entity = trap;
+			}
+		}
 	}	
-	
+
 }

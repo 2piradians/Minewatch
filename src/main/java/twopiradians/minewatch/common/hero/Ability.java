@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -26,6 +27,7 @@ public class Ability {
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
+	public EntityLivingBaseMW entity;
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff
@@ -53,6 +55,10 @@ public class Ability {
 		}
 	};
 
+	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable) {
+		this(keybind, isEnabled, isToggleable, 0, 0);
+	}
+	
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable, int maxUses, int useCooldown) {
 		this.keybind = keybind;
 		this.isEnabled = isEnabled;
@@ -117,7 +123,7 @@ public class Ability {
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
 				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
 				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
-				keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
+				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
@@ -150,6 +156,12 @@ public class Ability {
 					new SPacketSyncAbilityUses(player.getPersistentID(), hero, getNumber(), 
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
 		}
+	}
+	
+	public boolean showKeybind(EntityPlayer player) {
+		return keybind.getCooldown(player) <= 0 && 
+				(!isSelected(player) || (isToggled(player) && !TickHandler.hasHandler(player, Identifier.ABILITY_USING))) &&
+				(maxUses == 0 || getUses(player) > 0);
 	}
 
 }

@@ -16,13 +16,14 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.SPacketSimple;
 
-public class EntityMeiBlast extends EntityMWThrowable {
+public class EntityMeiBlast extends EntityMW {
 
 	public static final Handler FROZEN = new Handler(Identifier.POTION_FROZEN, false) {
 		@Override
@@ -94,11 +95,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d,
 						motionX/10d, motionY/10d, motionZ/10d, 0x5BC8E0, 0xAED4FF, 0.8f, 3, 2.5f, 2f, 0, 0);
 			if (this.world.rand.nextInt(5) == 0)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*world.rand.nextDouble()*0.8d, 
-						this.posY+(this.prevPosY-this.posY)*world.rand.nextDouble()*0.8d, 
-						this.posZ+(this.prevPosZ-this.posZ)*world.rand.nextDouble()*0.8d,
-						motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5, 1);
+				EntityHelper.spawnTrailParticles(this, 1, 0.8d, motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5, 1);
 		}
 	}
 
@@ -106,7 +103,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.shouldHit(result.entityHit)) {
+		if (result.entityHit != null) {
 			if (result.entityHit instanceof EntityDragonPart && ((EntityDragonPart)result.entityHit).entityDragonObj instanceof EntityDragon)
 				result.entityHit = (Entity) ((EntityDragonPart)result.entityHit).entityDragonObj;
 			if (this.world.isRemote && 
@@ -119,7 +116,7 @@ public class EntityMeiBlast extends EntityMWThrowable {
 					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
 				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
-			if (this.attemptImpact(result.entityHit, 2.25f, true)) {
+			if (EntityHelper.attemptImpact(this, result.entityHit, 2.25f, true)) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);

@@ -11,9 +11,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTracerPistol extends ItemMWWeapon {
@@ -29,10 +29,10 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			for (int i=0; i<2; i++) {
 				EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 0F, hand, false);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 2F, 1.0F, 0F, hand, false);
 				player.world.spawnEntity(bullet);
 			}
-			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 			Minewatch.network.sendToAllAround(new SPacketSimple(22, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	

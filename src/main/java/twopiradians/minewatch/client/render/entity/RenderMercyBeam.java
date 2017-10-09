@@ -33,7 +33,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntityMercyBeam entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/ana_bullet.png");
+		return null;
 	}
 
 	@Override

@@ -31,6 +31,8 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -41,9 +43,9 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.Handlers;
 
 public class SPacketSimple implements IMessage {
 
@@ -54,42 +56,56 @@ public class SPacketSimple implements IMessage {
 	private double y;
 	private double z;
 	private int id;
+	private int id2;
 
 	public SPacketSimple() { }
 
 	public SPacketSimple(int type) {
-		this(type, false, null, 0, 0, 0, null);
+		this(type, false, null, 0, 0, 0, null, null);
 	}
 
 	public SPacketSimple(int type, boolean bool) {
-		this(type, bool, null, 0, 0, 0, null);
+		this(type, bool, null, 0, 0, 0, null, null);
 	}
 
 	public SPacketSimple(int type, Entity entity, boolean bool) {
-		this(type, bool, null, 0, 0, 0, entity);
+		this(type, bool, null, 0, 0, 0, entity, null);
+	}
+
+	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2) {
+		this(type, bool, null, 0, 0, 0, entity, entity2);
 	}
 
 	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
-		this(type, bool, null, x, y, z, entity);
+		this(type, bool, null, x, y, z, entity, null);
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
-		this(type, bool, player, 0, 0, 0, null);
+		this(type, bool, player, 0, 0, 0, null, null);
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
-		this(type, bool, player, x, y, z, null);
-	}
-
-	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
-		this(type, false, player, x, y, z, null);
+		this(type, bool, player, x, y, z, null, null);
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity) {
+		this(type, bool, player, x, y, z, entity, null);
+	}
+
+	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
+		this(type, false, player, x, y, z, null, null);
+	}
+
+	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, Entity entity) {
+		this(type, false, player, x, y, z, entity, null);
+	}
+
+	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
 		this.id = entity == null ? -1 : entity.getEntityId();
+		this.id2 = entity2 == null ? -1 : entity2.getEntityId();
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -101,6 +117,7 @@ public class SPacketSimple implements IMessage {
 		this.bool = buf.readBoolean();
 		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.id = buf.readInt();
+		this.id2 = buf.readInt();
 		this.x = buf.readDouble();
 		this.y = buf.readDouble();
 		this.z = buf.readDouble();
@@ -112,6 +129,7 @@ public class SPacketSimple implements IMessage {
 		buf.writeBoolean(this.bool);
 		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
 		buf.writeInt(this.id);
+		buf.writeInt(this.id2);
 		buf.writeDouble(this.x);
 		buf.writeDouble(this.y);
 		buf.writeDouble(this.z);
@@ -141,6 +159,7 @@ public class SPacketSimple implements IMessage {
 					EntityPlayerSP player = Minecraft.getMinecraft().player;
 					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
 					Entity entity = packet.id == -1 ? null : player.world.getEntityByID(packet.id);
+					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// Tracer's dash
 					if (packet.type == 0) 
@@ -272,17 +291,19 @@ public class SPacketSimple implements IMessage {
 						if (packet.x != -1) {
 							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
-							TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
-							if (handler == null)
-								TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
-							else if (handler.number < 6) {
-								handler.setTicks(40);
-								handler.setNumber(handler.number+1);
-								if (handler.number > 1 && handler.number < 7) {
-									for (SoundEvent event : ModSoundEvents.multikill)
-										Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
-									Minewatch.proxy.playFollowingSound(player, 
-											ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							if (!(entity instanceof EntityLivingBaseMW)) {
+								TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
+								if (handler == null)
+									TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
+								else if (handler.number < 6) {
+									handler.setTicks(40);
+									handler.setNumber(handler.number+1);
+									if (handler.number > 1 && handler.number < 7) {
+										for (SoundEvent event : ModSoundEvents.multikill)
+											Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
+										Minewatch.proxy.playFollowingSound(player, 
+												ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+									}
 								}
 							}
 						}
@@ -367,6 +388,12 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 24 && entity instanceof EntityJunkratGrenade) {
 						((EntityJunkratGrenade)entity).explodeTimer = (int) packet.x;
 						((EntityJunkratGrenade)entity).isDeathGrenade = true;
+					}
+					// Junkrat trap
+					else if (packet.type == 25 && entity instanceof EntityJunkratTrap && entity2 instanceof EntityLivingBase) {
+						((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
+						TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
+								EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
 					}
 				}
 			});

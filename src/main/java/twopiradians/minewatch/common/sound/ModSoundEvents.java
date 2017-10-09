@@ -71,6 +71,10 @@ public class ModSoundEvents {
 	public static SoundEvent junkratGrenadeBounce;
 	public static SoundEvent junkratGrenadeExplode;
 	public static SoundEvent[] junkratGrenadeTick = new SoundEvent[4];
+	public static SoundEvent junkratTrapThrow;
+	public static SoundEvent junkratTrapLand;
+	public static SoundEvent junkratTrapTrigger;
+	public static SoundEvent junkratTrapBreak;
 
 	public static void preInit() {
 		guiHover = registerSound("gui_hover");
@@ -148,6 +152,10 @@ public class ModSoundEvents {
 		for (int i=0; i<junkratGrenadeTick.length; ++i)
 			junkratGrenadeTick[i] = registerSound("junkrat_grenade_tick_"+i);
 		EnumHero.JUNKRAT.reloadSound = registerSound("junkrat_reload");
+		junkratTrapThrow = registerSound("junkrat_trap_throw");
+		junkratTrapLand = registerSound("junkrat_trap_land");
+		junkratTrapTrigger = registerSound("junkrat_trap_trigger");
+		junkratTrapBreak = registerSound("junkrat_trap_break");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

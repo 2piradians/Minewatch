@@ -1,4 +1,4 @@
-package twopiradians.minewatch.common.tickhandler;
+package twopiradians.minewatch.common.util;
 
 import java.util.HashMap;
 
@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 

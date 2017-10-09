@@ -9,7 +9,6 @@ import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -19,6 +18,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
@@ -58,7 +58,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (this.shouldHit(result.entityHit) && this.getThrower() instanceof EntityPlayerMP)
+		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit) && this.getThrower() instanceof EntityPlayerMP)
 			((EntityPlayerMP)this.getThrower()).connection.sendPacket((new SPacketSoundEffect
 					(ModSoundEvents.hurt, SoundCategory.PLAYERS, this.getThrower().posX, this.getThrower().posY, 
 							this.getThrower().posZ, 0.3f, this.world.rand.nextFloat()/2+0.75f)));
@@ -83,14 +83,6 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public void setThrower(Entity entity) {
 		if (entity instanceof EntityLivingBase)
 			this.shootingEntity = (EntityLivingBase) entity;
-	}
-	
-	// copied from EntityMWThrowable 
-	/**Should this entity be hit by this projectile*/
-	public boolean shouldHit(Entity entityHit) {
-		return entityHit instanceof EntityLivingBase && this.getThrower() instanceof EntityPlayer && 
-				entityHit != this.getThrower() && ((EntityLivingBase)entityHit).getHealth() > 0 &&
-				!entityHit.isEntityInvulnerable(DamageSource.causeArrowDamage(this, this.getThrower()));
 	}
 
 }

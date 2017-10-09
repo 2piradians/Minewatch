@@ -3,9 +3,9 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntityBastionBullet extends EntityMWThrowable {
+public class EntityBastionBullet extends EntityMW {
 
 	public EntityBastionBullet(World worldIn) {
 		super(worldIn);
@@ -19,26 +19,18 @@ public class EntityBastionBullet extends EntityMWThrowable {
 	}
 
 	@Override
-	public void onUpdate() {		
-		if (this.world.isRemote) {
-			System.out.println("particles");
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
-		}
-		
+	public void onUpdate() {
 		super.onUpdate();
+
+		if (this.world.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
-		
-		if (this.attemptImpact(result.entityHit, 20 - (20 - 6) * ((float)this.ticksExisted / lifetime), false)) 
+
+		if (EntityHelper.attemptImpact(this, result.entityHit, 20 - (20 - 6) * ((float)this.ticksExisted / lifetime), false)) 
 			result.entityHit.hurtResistantTime = 0;
 	}
 }

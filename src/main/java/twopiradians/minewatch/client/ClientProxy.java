@@ -1,5 +1,6 @@
 package twopiradians.minewatch.client;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -41,24 +42,12 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleTrail;
-import twopiradians.minewatch.client.render.entity.RenderAnaBullet;
-import twopiradians.minewatch.client.render.entity.RenderAnaSleepDart;
-import twopiradians.minewatch.client.render.entity.RenderBastionBullet;
+import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
-import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
-import twopiradians.minewatch.client.render.entity.RenderHanzoScatterArrow;
-import twopiradians.minewatch.client.render.entity.RenderHanzoSonicArrow;
-import twopiradians.minewatch.client.render.entity.RenderInvisible;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
-import twopiradians.minewatch.client.render.entity.RenderMcCreeBullet;
+import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
-import twopiradians.minewatch.client.render.entity.RenderMercyBullet;
-import twopiradians.minewatch.client.render.entity.RenderReaperBullet;
-import twopiradians.minewatch.client.render.entity.RenderSoldier76Bullet;
-import twopiradians.minewatch.client.render.entity.RenderSoldier76HelixRocket;
-import twopiradians.minewatch.client.render.entity.RenderTracerBullet;
-import twopiradians.minewatch.client.render.entity.RenderWidowmakerBullet;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
@@ -69,6 +58,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
@@ -280,24 +270,25 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void registerEntityRenders() {
-		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, RenderReaperBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, RenderHanzoArrow::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, RenderHanzoSonicArrow::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoScatterArrow.class, RenderHanzoScatterArrow::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, RenderAnaBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityAnaSleepDart.class, RenderAnaSleepDart::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 2));
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, new RenderFactory("hanzo_arrow"));
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, new RenderFactory("hanzo_sonic_arrow"));
+		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoScatterArrow.class, new RenderFactory("hanzo_arrow"));
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnaSleepDart.class, new RenderFactory("soldier76_helix_rocket", 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, RenderTracerBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, RenderMcCreeBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, RenderSoldier76Bullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, RenderSoldier76HelixRocket::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, RenderBastionBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, RenderInvisible::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, new RenderFactory("soldier76_helix_rocket", 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, RenderWidowmakerBullet::new);
-		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, RenderMercyBullet::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratGrenade.class, RenderJunkratGrenade::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratTrap.class, RenderJunkratTrap::new);
 	}
 
 	@Override
@@ -320,6 +311,7 @@ public class ClientProxy extends CommonProxy {
 					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
 		}
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_trap"));
 	}
 
 	@Override
@@ -412,6 +404,8 @@ public class ClientProxy extends CommonProxy {
 			packetbuffer.writeString(event.getRegistryName().toString());
 			((EntityPlayerSP)player).connection.handleCustomPayload(new SPacketCustomPayload("MC|StopSound", packetbuffer));
 		}
+		else
+			super.stopSound(player, event, category);
 	}
 
 }

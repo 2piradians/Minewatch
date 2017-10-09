@@ -9,8 +9,9 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntitySoldier76HelixRocket extends EntityMWThrowable {
+public class EntitySoldier76HelixRocket extends EntityMW {
 
 	private static final DataParameter<Integer> NUMBER = EntityDataManager.<Integer>createKey(EntitySoldier76HelixRocket.class, DataSerializers.VARINT);
 
@@ -63,25 +64,17 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 		this.posY += this.motionY + Math.sin((yaw + separateThree + this.ticksExisted * speed) * Math.PI / 180) * size;
 		this.posZ += this.motionZ + Math.cos((yaw + separateThree + ticks) * toRadians) * Math.sin((pitch + separateThree + ticks) * toRadians) * size + Math.sin(yaw * toRadians) * size/2;
 
-		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 4, 1);
-		}
+		if (this.world.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if ((result.entityHit == null || this.shouldHit(result.entityHit)) && 
-				!(result.entityHit instanceof EntitySoldier76HelixRocket)) {
+		if (!(result.entityHit instanceof EntitySoldier76HelixRocket)) {
 			// direct hit damage (explosions do plenty of damage - direct can't be much)
-			if (this.attemptImpact(result.entityHit, 1, false)) 
+			if (EntityHelper.attemptImpact(this, result.entityHit, 1, false)) 
 				result.entityHit.hurtResistantTime = 10;
 
 			// explosion
@@ -89,7 +82,7 @@ public class EntitySoldier76HelixRocket extends EntityMWThrowable {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
 						0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
 			else {
-				Minewatch.proxy.createExplosion(this, world, this.getThrower(), posX, posY, posZ, 
+				Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
 						1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true);
 				this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 			}

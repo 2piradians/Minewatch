@@ -10,11 +10,12 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.SPacketSimple;
 
-public class EntityAnaSleepDart extends EntityMWThrowable {
+public class EntityAnaSleepDart extends EntityMW {
 
 	public EntityAnaSleepDart(World worldIn) {
 		super(worldIn);
@@ -31,22 +32,15 @@ public class EntityAnaSleepDart extends EntityMWThrowable {
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
-		}
+		if (this.world.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
+		if (EntityHelper.attemptImpact(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
 				result.entityHit.isNonBoss()) {
 			TickHandler.interrupt(result.entityHit);
 			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),

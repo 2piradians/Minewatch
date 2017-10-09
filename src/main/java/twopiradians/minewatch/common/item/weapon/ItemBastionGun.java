@@ -10,8 +10,8 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemBastionGun extends ItemMWWeapon {
 	
@@ -33,7 +33,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 2F, hand, false);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.bastionShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -45,7 +45,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 					player.getCooldownTracker().setCooldown(this, 3);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
 						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 			}

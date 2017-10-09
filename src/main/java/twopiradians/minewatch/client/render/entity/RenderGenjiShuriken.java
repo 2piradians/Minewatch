@@ -4,21 +4,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 
-public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
-{	
+public class RenderGenjiShuriken extends RenderSimple<EntityGenjiShuriken> {
+	
 	private final RenderItem itemRenderer;
 
-	public RenderGenjiShuriken(RenderManager renderManager) {
-		super(renderManager);
+	public RenderGenjiShuriken(RenderManager manager) {
+		super(manager, null, "", 0, 0, 0);
 		this.itemRenderer = Minecraft.getMinecraft().getRenderItem();
 	}
 
@@ -26,14 +22,9 @@ public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
 		return new ItemStack(ModItems.genji_shuriken_single);
 	}
 
-	protected ResourceLocation getEntityTexture(EntityGenjiShuriken entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/genji_shuriken.png");   
-	}
-
 	@Override
 	public void doRender(EntityGenjiShuriken entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			entity.updateFromPacket();
+		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
 		GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y+.05f, (float)z);

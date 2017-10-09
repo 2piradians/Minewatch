@@ -42,21 +42,21 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
-	public static HashMap<EntityPlayer, Boolean> wraithViewBobbing = Maps.newHashMap();
+	public static HashMap<EntityPlayer, Boolean> wraithViewBobbing = Maps.newHashMap();//TODO try preloading wraith textures
 	public static final Handler WRAITH = new Handler(Identifier.REAPER_WRAITH, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -191,13 +191,13 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				!hero.ability1.isSelected(player)) {			
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, 1F, hand, false);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, 1F, hand, false);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
-			Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 			Minewatch.network.sendToAllAround(new SPacketSimple(21, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 

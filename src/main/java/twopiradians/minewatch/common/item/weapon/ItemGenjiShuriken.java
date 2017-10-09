@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
+import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -43,6 +43,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
@@ -152,7 +153,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		// throw single shuriken
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-			shuriken.setAim(player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
+			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -172,7 +173,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-				shuriken.setAim(player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
+				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
 				player.world.spawnEntity(shuriken);
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -219,7 +220,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d &&
-				!(entity instanceof EntityMWThrowable && ((EntityMWThrowable)entity).notDeflectible)) {
+				!(entity instanceof EntityMW && ((EntityMW)entity).notDeflectible)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
 			entity.motionX = player.getLookVec().xCoord*velScale;	

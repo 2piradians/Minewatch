@@ -114,6 +114,7 @@ public class GuiTab extends GuiScreen {
 		GlStateManager.pushMatrix();
 		// background
 		this.drawDefaultBackground();
+		GlStateManager.color(1, 1, 1, 1);
 		mc.getTextureManager().bindTexture(BACKGROUND);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiTab.X_SIZE, GuiTab.Y_SIZE);
 

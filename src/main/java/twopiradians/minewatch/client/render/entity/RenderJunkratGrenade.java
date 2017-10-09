@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.ModEntities;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderJunkratGrenade extends RenderOBJModel<EntityJunkratGrenade> {
 
@@ -15,14 +16,14 @@ public class RenderJunkratGrenade extends RenderOBJModel<EntityJunkratGrenade> {
 	}
 	
 	@Override
-	protected ResourceLocation getEntityModel() {
-		return new ResourceLocation(Minewatch.MODID, "entity/junkrat_grenade.obj");
+	protected ResourceLocation[] getEntityModels() {
+		return new ResourceLocation[] {new ResourceLocation(Minewatch.MODID, "entity/junkrat_grenade.obj")};
 	}
 	
 	@Override
-	protected void preRender(EntityJunkratGrenade entity, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected void preRender(EntityJunkratGrenade entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {
 		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			entity.updateFromPacket();
+			EntityHelper.updateFromPacket(entity);
 		
 		GlStateManager.translate(0, -0.06d, 0);
 		GlStateManager.scale(2, 2, 2);	

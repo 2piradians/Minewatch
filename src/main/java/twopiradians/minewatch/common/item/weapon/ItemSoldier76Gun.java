@@ -21,11 +21,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemSoldier76Gun extends ItemMWWeapon {
 
@@ -57,7 +57,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, i);
-					rocket.setAim(player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, 1F, hand, false);
+					EntityHelper.setAim(rocket, player, player.rotationPitch, player.rotationYaw, 2.0F, 0F, 1F, hand, false);
 					world.spawnEntity(rocket);
 				}
 				hero.ability1.keybind.setCooldown(player, 160, false);
@@ -66,7 +66,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 				player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
 						0, 0, 0, 0x2B9191, 0x2B9191, 0.7f, 3, 8, 7.5f, 0, 0);
 			}
@@ -111,7 +111,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (player.ticksExisted % 2 == 0 && this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 5.0F, 1.2F, 1F, hand, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
@@ -120,7 +120,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
 						0, 0, 0, 0x4AFDFD, 0x4AFDFD, 0.7f, 1, 5, 4.5f, 0, 0);
 			}

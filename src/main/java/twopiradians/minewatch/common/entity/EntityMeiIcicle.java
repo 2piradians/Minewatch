@@ -11,9 +11,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
-public class EntityMeiIcicle extends EntityMWThrowable {
+public class EntityMeiIcicle extends EntityMW {
 
 	private int xTile;
 	private int yTile;
@@ -40,22 +41,15 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 	public void onUpdate() {
 		super.onUpdate();
 
-		if (this.world.isRemote && !this.inGround) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
-						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
-		}
+		if (this.world.isRemote && !this.inGround) 
+			EntityHelper.spawnTrailParticles(this, 10, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
 
 		// in ground
 
 		if (this.inGround && this.lifetime == 40) {
 			this.lifetime = 1240;
 			if (this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-				this.updateFromPacket();
+				EntityHelper.updateFromPacket(this);
 		}
 
 		BlockPos blockpos = new BlockPos(this.xTile, this.yTile, this.zTile);
@@ -113,6 +107,6 @@ public class EntityMeiIcicle extends EntityMWThrowable {
 			}
 		}
 		else
-			this.attemptImpact(result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);
+			EntityHelper.attemptImpact(this, result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);
 	}
 }

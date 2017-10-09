@@ -37,17 +37,16 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.Handlers;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
@@ -175,7 +174,7 @@ public class CommonProxy {
 	 * @param mwEntity 
 	 * @param directHit 
 	 * @param directHitDamage */
-	public void createExplosion(EntityMWThrowable mwEntity, World world, @Nullable Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
+	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
 		if (!world.isRemote) {
 			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
 
@@ -211,7 +210,7 @@ public class CommonProxy {
 							double d10 = (1.0D - d12) * d14;
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
-							if (mwEntity.attemptImpact(entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
+							if (EntityHelper.attemptDamage(exploder, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
 									(entity == exploder && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode))) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;

@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
@@ -22,21 +22,14 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-		if (this.world.isRemote) {
-			int numParticles = scatter ? (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d) : 20;
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+world.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
-		}
-		
 		super.onUpdate();
+
+		if (this.world.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
 
 		if (this.inGround)
 			this.inGround = false;
-		
+
 		if (!this.world.isRemote && !this.scatter && this.ticksExisted > 100) 
 			this.setDead();
 
@@ -57,7 +50,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		else
 			super.onHit(result);
 
-		if (this.shouldHit(result.entityHit))
+		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit))
 			result.entityHit.hurtResistantTime = 0;
 
 		// scatter
@@ -66,7 +59,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 				EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
 				entityarrow.setDamage(this.getDamage());
 				entityarrow.copyLocationAndAnglesFrom(this);
-				
+
 				entityarrow.motionX = this.motionX;
 				entityarrow.motionY = this.motionY;
 				entityarrow.motionZ = this.motionZ;

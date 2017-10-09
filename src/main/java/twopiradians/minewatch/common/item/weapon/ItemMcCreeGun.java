@@ -16,7 +16,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -24,6 +23,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
@@ -67,7 +67,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player);
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 0F, hand, true);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 0F, hand, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -80,7 +80,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
 						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 			}
@@ -110,7 +110,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 					hand = hand2;
 			if (!entity.world.isRemote && hand != null) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
-				bullet.setAim((EntityPlayer) entity, entity.rotationPitch, entity.rotationYaw, 5.0F, 1.5F, 1F, hand, true);
+				EntityHelper.setAim(bullet, (EntityLivingBase) entity, entity.rotationPitch, entity.rotationYaw, 5.0F, 1.5F, 1F, hand, true);
 				entity.world.spawnEntity(bullet);				
 				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
 						SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
@@ -123,7 +123,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			} 
 			else if (hand != null) {
 				entity.rotationPitch--;
-				Vec3d vec = EntityMWThrowable.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, hand);
+				Vec3d vec = EntityHelper.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, hand);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 
 						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 			}

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -24,12 +25,15 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
+import twopiradians.minewatch.common.entity.ModEntities;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 
-	private IBakedModel bakedModel;
+	// Note: Make sure to register new textures in ClientProxy#stitchEventPre
+	private IBakedModel[] bakedModels;
 	private VertexLighterFlat lighter;
-	
+
 	protected RenderOBJModel(RenderManager renderManager) {
 		super(renderManager);
 	}
@@ -38,63 +42,69 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 	protected ResourceLocation getEntityTexture(T entity) {
 		return null;
 	}
-	
-	protected abstract ResourceLocation getEntityModel();
-	protected abstract void preRender(T entity, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks);
+
+	protected abstract ResourceLocation[] getEntityModels();
+	protected abstract void preRender(T entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks);
 
 	/**Adapted from ForgeBlockModelRenderer#render*/
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {	
 		if (this.lighter == null) {
 			this.lighter = new VertexLighterFlat(Minecraft.getMinecraft().getBlockColors());
-			IModel model = ModelLoaderRegistry.getModelOrLogError(this.getEntityModel(), "Minewatch is missing a model. Please report this to the owners.");
-			this.bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+			this.bakedModels = new IBakedModel[this.getEntityModels().length];
+			for (int i=0; i<this.getEntityModels().length; ++i) {
+				IModel model = ModelLoaderRegistry.getModelOrLogError(this.getEntityModels()[i], "Minewatch is missing a model. Please report this to the mod authors.");
+				this.bakedModels[i] = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+			}
 		}
 		
-		RenderHelper.disableStandardItemLighting();
-		GlStateManager.pushMatrix();
-		
-		Tessellator tessellator = Tessellator.getInstance();
-		VertexBuffer buffer = tessellator.getBuffer();
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-		
-		//GlStateManager.bindTexture(9); //MAGIC NUMBER AND IDK IF IT ALWAYS WORKS
-		GlStateManager.bindTexture(GL11.GL_POLYGON);
-		GlStateManager.rotate(180, 0, 0, 1);
-		GlStateManager.translate((float)-x, (float)-y, (float)z);
-		this.preRender(entity, buffer, x, y, z, entityYaw, partialTicks);
-		GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, -1.0F, 0.0F);
-		GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			EntityHelper.updateFromPacket(entity);
 
-		lighter.setParent(new VertexBufferConsumer(buffer));
-		lighter.setWorld(entity.world);
-		lighter.setState(Blocks.AIR.getDefaultState());
-		lighter.setBlockPos(new BlockPos(entity.posX, entity.posY, entity.posZ));
-		
-		boolean empty = true;
-		List<BakedQuad> quads = bakedModel.getQuads(null, null, 0);
-		if(!quads.isEmpty()) {
-			lighter.updateBlockInfo();
-			empty = false;
-			for(BakedQuad quad : quads)
-				quad.pipe(lighter);
-		}
-		for(EnumFacing side : EnumFacing.values()) {
-			quads = bakedModel.getQuads(null, side, 0);
+		for (int i=0; i<this.bakedModels.length; ++i) {
+			RenderHelper.disableStandardItemLighting();
+			GlStateManager.pushMatrix();
+			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			
+			Tessellator tessellator = Tessellator.getInstance();
+			VertexBuffer buffer = tessellator.getBuffer();
+			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+
+			GlStateManager.rotate(180, 0, 0, 1);
+			GlStateManager.translate((float)-x, (float)-y, (float)z);
+			GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, -1.0F, 0.0F);
+			this.preRender(entity, i, buffer, x, y, z, entityYaw, partialTicks);
+			GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+
+			lighter.setParent(new VertexBufferConsumer(buffer));
+			lighter.setWorld(entity.world);
+			lighter.setState(Blocks.AIR.getDefaultState());
+			lighter.setBlockPos(new BlockPos(entity.posX, entity.posY, entity.posZ));
+
+			boolean empty = true;
+			List<BakedQuad> quads = this.bakedModels[i].getQuads(null, null, 0);
 			if(!quads.isEmpty()) {
-				if(empty) 
-					lighter.updateBlockInfo();
+				lighter.updateBlockInfo();
 				empty = false;
 				for(BakedQuad quad : quads)
 					quad.pipe(lighter);
 			}
-		}
+			for(EnumFacing side : EnumFacing.values()) {
+				quads = this.bakedModels[i].getQuads(null, side, 0);
+				if(!quads.isEmpty()) {
+					if(empty) 
+						lighter.updateBlockInfo();
+					empty = false;
+					for(BakedQuad quad : quads)
+						quad.pipe(lighter);
+				}
+			}
 
-		buffer.setTranslation(0, 0, 0);
-		tessellator.draw();	
-		GlStateManager.bindTexture(0);
-		GlStateManager.popMatrix();
-		RenderHelper.enableStandardItemLighting();
+			buffer.setTranslation(0, 0, 0);
+			tessellator.draw();	
+			GlStateManager.popMatrix();
+			RenderHelper.enableStandardItemLighting();
+		}
 	}
 
 }

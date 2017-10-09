@@ -36,6 +36,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemAnaRifle extends ItemMWWeapon {
@@ -113,7 +114,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 						hero.playersUsingAlt.get(player.getPersistentID()));
-				bullet.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 10F, 0.1F, 0F,
 						Minewatch.keys.rmb(player) ? null : hand, true);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -141,7 +142,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
-				dart.setAim(player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
 						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, true);
 				world.spawnEntity(dart);
 				world.playSound(null, player.posX, player.posY, player.posZ, 

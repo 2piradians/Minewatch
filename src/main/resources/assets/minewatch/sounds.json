@@ -507,5 +507,29 @@
 		"sounds": [
 			"minewatch:junkrat_grenade_tick_3"
 		]
+	},
+	"junkrat_trap_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_throw"
+		]
+	},
+	"junkrat_trap_land": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_land"
+		]
+	},
+	"junkrat_trap_trigger": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger"
+		]
+	},
+	"junkrat_trap_break": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_break"
+		]
 	}
 }

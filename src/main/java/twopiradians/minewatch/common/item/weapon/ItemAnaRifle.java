@@ -114,8 +114,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 						hero.playersUsingAlt.get(player.getPersistentID()));
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 10F, 0.1F, 0F,
-						Minewatch.keys.rmb(player) ? null : hand, true);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, player.getActiveItemStack() == stack ? -1f : 90f, 0, 0F, 
+						Minewatch.keys.rmb(player) ? null : hand, false); //TODO true 10f 0.1f
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
@@ -136,13 +136,13 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
-
+			
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
-				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 10.0F, 0.1F, 0F, 
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 3F, 0F, 0F, 
 						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, true);
 				world.spawnEntity(dart);
 				world.playSound(null, player.posX, player.posY, player.posZ, 

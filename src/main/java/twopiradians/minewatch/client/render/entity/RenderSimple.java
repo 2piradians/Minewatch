@@ -9,8 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelSimple;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderSimple<T extends Entity> extends Render<T> {
 
@@ -32,8 +30,8 @@ public class RenderSimple<T extends Entity> extends Render<T> {
 
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {			
-		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			EntityHelper.updateFromPacket(entity);
+	/*	if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
+			EntityHelper.updateFromPacket(entity);*/
 
 		if (this.MODEL != null) {
 			float scale = 0.05f;
@@ -43,7 +41,7 @@ public class RenderSimple<T extends Entity> extends Render<T> {
 			GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, 1.0F, 0.0F, 0.0F);
 			this.bindEntityTexture(entity);
 			if (this.COLOR != null)
-				GlStateManager.color(COLOR.getRed()/255f, COLOR.getGreen()/255f, COLOR.getBlue()/255f, 1);
+				GlStateManager.color(COLOR.getRed()/255f, COLOR.getGreen()/255f, COLOR.getBlue()/255f, 1f);
 			this.MODEL.render(entity, 0, 0, entity.ticksExisted, entity.getRotationYawHead(), entity.rotationPitch, scale);
 			GlStateManager.popMatrix();
 		}

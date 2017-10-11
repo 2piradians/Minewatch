@@ -10,12 +10,12 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityMercyBullet extends EntityMW {
 
 	public EntityMercyBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
 	public EntityMercyBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
@@ -25,8 +25,8 @@ public class EntityMercyBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) {
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xE39684, 0xE26E53, 1.5f, 2, 1);
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xF7F489, 0xF4EF5A, 0.8f, 2, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xE39684, 0xE26E53, 1.5f, 2, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xF7F489, 0xF4EF5A, 0.8f, 2, 1);
 		}
 	}
 

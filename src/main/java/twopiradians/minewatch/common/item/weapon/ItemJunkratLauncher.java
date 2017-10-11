@@ -12,7 +12,10 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemJunkratLauncher extends ItemMWWeapon {
 
@@ -57,16 +60,22 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			// steel trap
 			if (!world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				for (EntityPlayer player2 : world.playerEntities) 
+					Minewatch.proxy.stopSound(player2, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
 				hero.ability1.keybind.setCooldown(player, 240, false); 
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
 				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 1.0F, 0.1F, 0F, null, false);
-				trap.rotationPitch = 180;
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(trap);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 20, false); //TODO 200
-				if (hero.ability1.entity != null)
+				if (hero.ability1.entity instanceof EntityJunkratTrap && hero.ability1.entity.isEntityAlive()) {
+					TickHandler.unregister(false, 
+							TickHandler.getHandler(((EntityJunkratTrap)hero.ability1.entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
+							TickHandler.getHandler(((EntityJunkratTrap)hero.ability1.entity).trappedEntity, Identifier.JUNKRAT_TRAP));
+					Minewatch.network.sendToDimension(new SPacketSimple(26, hero.ability1.entity, false), world.provider.getDimension());
 					hero.ability1.entity.isDead = true;
+				}
 				hero.ability1.entity = trap;
 			}
 		}

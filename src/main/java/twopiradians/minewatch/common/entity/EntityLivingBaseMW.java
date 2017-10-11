@@ -26,6 +26,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	protected int lifetime;
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
+	public boolean isFriendly;
 
 	public EntityLivingBaseMW(World worldIn) {
 		this(worldIn, null);
@@ -51,7 +52,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		this.prevRotationYaw = this.rotationYaw;
 
 		// move
-		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower());
+		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
 		if (result != null)
 			this.onImpact(result);
 		else {
@@ -86,7 +87,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		if (source.getSourceOfDamage() == null || EntityHelper.shouldHit(source.getSourceOfDamage(), this, source))
+		if (source.getSourceOfDamage() == null || EntityHelper.shouldHit(source.getSourceOfDamage(), this, false, source))
 			return super.attackEntityFrom(source, amount);
 		else 
 			return false;

@@ -25,7 +25,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
 
 		if (this.inGround)
 			this.inGround = false;
@@ -50,7 +50,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		else
 			super.onHit(result);
 
-		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit))
+		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false))
 			result.entityHit.hurtResistantTime = 0;
 
 		// scatter

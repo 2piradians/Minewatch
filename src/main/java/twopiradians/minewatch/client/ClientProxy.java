@@ -353,10 +353,10 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
+	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
 		int i = Minecraft.getMinecraft().gameSettings.particleSetting;
 		if (i == 0 || world.rand.nextInt(i*2) == 0) {
-			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge, alpha);
+			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge, initialAge, alpha);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}

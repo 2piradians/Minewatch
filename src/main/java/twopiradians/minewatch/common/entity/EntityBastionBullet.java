@@ -8,14 +8,14 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityBastionBullet extends EntityMW {
 
 	public EntityBastionBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
 	public EntityBastionBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 15;
+		this.lifetime = 50;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class EntityBastionBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
 	}
 
 	@Override

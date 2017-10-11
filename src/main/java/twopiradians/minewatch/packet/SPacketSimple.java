@@ -395,6 +395,18 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
 								EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
 					}
+					// Junkrat trap destroyed
+					else if (packet.type == 26 && entity instanceof EntityJunkratTrap) {
+						if (packet.bool)
+							for (int i=0; i<30; ++i)
+								entity.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, 
+										entity.posX+(entity.world.rand.nextDouble()-0.5d)*1d, entity.posY+entity.world.rand.nextDouble()*1d, entity.posZ+(entity.world.rand.nextDouble()-0.5d)*1d, 0, 0, 0, new int[0]);
+						else
+							TickHandler.unregister(true, 
+									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.JUNKRAT_TRAP));
+						entity.setDead();
+					}
 				}
 			});
 			return null;

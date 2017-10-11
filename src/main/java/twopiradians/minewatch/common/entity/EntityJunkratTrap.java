@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -54,8 +53,11 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 
 	@Override
 	public void onUpdate() {
+		if (this.onGround)
+			this.rotationPitch = 0;
+		
 		// prevOnGround
-		if (prevOnGround != onGround)
+		if (prevOnGround != onGround && onGround)
 			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
 		this.prevOnGround = this.onGround;
 
@@ -76,7 +78,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 				this.onGround && this.getThrower() instanceof EntityLivingBase) {
 			List<Entity> entities = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expandXyz(0.5d));
 			for (Entity entity : entities) 
-				if (!(entity instanceof EntityLivingBaseMW) && entity instanceof EntityLivingBase && EntityHelper.shouldHit(this.getThrower(), entity) && 
+				if (!(entity instanceof EntityLivingBaseMW) && entity instanceof EntityLivingBase && EntityHelper.shouldHit(this.getThrower(), entity, false) && 
 						!TickHandler.hasHandler(entity, Identifier.JUNKRAT_TRAP) && EntityHelper.attemptDamage(this.getThrower(), entity, 80, true)) {
 					if (((EntityLivingBase)entity).getHealth() > 0) {
 						this.trappedEntity = (EntityLivingBase) entity;
@@ -101,11 +103,8 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		// check to set dead
 		if (!this.world.isRemote && !(this.getThrower() instanceof EntityLivingBase))
 			this.setDead();
-		else if (!this.world.isRemote && this.trappedEntity != null && this.trappedEntity.getHealth() <= 0) {
-			for (EntityPlayer player : world.playerEntities) 
-				Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
+		else if (!this.world.isRemote && this.trappedEntity != null && this.trappedEntity.getHealth() <= 0) 
 			this.setDead();
-		}
 
 		super.onUpdate();
 	}
@@ -124,12 +123,12 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	@Override
 	public void setDead() {
 		this.isDead = true;
-		if (!this.world.isRemote) 
+		if (!this.world.isRemote) {
+			for (EntityPlayer player : world.playerEntities) 
+				Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
 			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapBreak, SoundCategory.PLAYERS, 1.0f, 1.0f);
-		else
-			for (int i=0; i<30; ++i)
-				this.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, 
-						posX+(rand.nextDouble()-0.5d)*1d, posY+rand.nextDouble()*1d, posZ+(rand.nextDouble()-0.5d)*1d, 0, 0, 0, new int[0]);
+			Minewatch.network.sendToDimension(new SPacketSimple(26, this, true, posX, posY, posZ), this.world.provider.getDimension());
+		}
 	}
 
 }

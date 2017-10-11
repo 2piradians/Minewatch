@@ -14,16 +14,17 @@ public class EntityWidowmakerBullet extends EntityMW {
 	private int damage;
 
 	public EntityWidowmakerBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null, false, 0);
 	}
 
 	public EntityWidowmakerBullet(World worldIn, EntityLivingBase throwerIn, boolean scoped, int damage) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 20;
 		this.damage = damage;
-		this.getDataManager().set(SCOPED, scoped);
+		if (!this.world.isRemote)
+			this.getDataManager().set(SCOPED, scoped);
 	}
 
 	@Override
@@ -38,9 +39,9 @@ public class EntityWidowmakerBullet extends EntityMW {
 
 		if (this.world.isRemote) 
 			if (this.getDataManager().get(SCOPED)) 
-				EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0xFF0000, 0xB2B2B2, this.ticksExisted == 1 ? 0.3f : 0.5f, 15, this.ticksExisted == 1 ? 0.01f : 1);
+				EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFF0000, 0xB2B2B2, 0.5f, 15, 0.8f);
 			else 
-				EntityHelper.spawnTrailParticles(this, 10, 0, 0xFF0000, 0xFF0000, 0.5f, 1, 0.01f);
+				EntityHelper.spawnTrailParticles(this, 5, 0, 0xFF0000, 0xFF0000, 0.5f, 1, 0.5f);
 	}
 
 	@Override

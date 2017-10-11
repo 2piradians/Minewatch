@@ -72,9 +72,9 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 
 			GlStateManager.rotate(180, 0, 0, 1);
 			GlStateManager.translate((float)-x, (float)-y, (float)z);
-			GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, -1.0F, 0.0F);
+			GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, 1.0F, 0.0F);
 			this.preRender(entity, i, buffer, x, y, z, entityYaw, partialTicks);
-			GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(-(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks), 1.0F, 0.0F, 0.0F);
 
 			lighter.setParent(new VertexBufferConsumer(buffer));
 			lighter.setWorld(entity.world);

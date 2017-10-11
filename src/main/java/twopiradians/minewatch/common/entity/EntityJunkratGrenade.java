@@ -22,9 +22,7 @@ public class EntityJunkratGrenade extends EntityMW {
 	public boolean isDeathGrenade;
 
 	public EntityJunkratGrenade(World worldIn) {
-		super(worldIn);
-		this.setSize(0.12f, 0.12f);
-		this.explodeTimer = -1;
+		this(worldIn, null);
 	}
 
 	public EntityJunkratGrenade(World worldIn, EntityLivingBase throwerIn) {
@@ -78,7 +76,7 @@ public class EntityJunkratGrenade extends EntityMW {
 
 		// trail/spark particles
 		if (this.world.isRemote) {
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
 
 			if (this.world.rand.nextInt(3) == 0)
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 

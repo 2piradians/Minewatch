@@ -169,9 +169,9 @@ public class Handlers {
 		if (event.getSource().getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getSource().getEntity(), Identifier.PREVENT_INPUT)) {
 			if (event.getEntity() instanceof EntityLiving)
-				((EntityLiving)event.getSource().getEntity()).setAttackTarget(null);
-			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget(null);
-			event.setCanceled(true);
+				((EntityLiving)event.getSource().getEntity()).setAttackTarget((EntityLivingBase) event.getSource().getEntity());
+			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget((EntityLivingBase) event.getSource().getEntity());
+			event.setCanceled(true); // TODO test
 		}
 	}
 
@@ -180,8 +180,8 @@ public class Handlers {
 		if (event.getTarget() != null && event.getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_INPUT)) {
 			if (event.getEntity() instanceof EntityLiving)
-				((EntityLiving)event.getEntity()).setAttackTarget(null);
-			((EntityLivingBase) event.getEntity()).setRevengeTarget(null);
+				((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase) event.getEntity());
+			((EntityLivingBase) event.getEntity()).setRevengeTarget((EntityLivingBase) event.getEntity());
 		}
 	}
 

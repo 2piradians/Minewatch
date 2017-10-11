@@ -68,12 +68,14 @@ public class TickHandler {
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
-		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
-		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if ((entity == null || handler.entity == entity) &&
-					(identifier == null || identifier == handler.identifier))
-				return handler;
+		if (entity != null) {
+			CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if ((entity == null || handler.entity == entity) &&
+						(identifier == null || identifier == handler.identifier))
+					return handler;
+			}
 		}
 		return null;
 	}
@@ -98,14 +100,16 @@ public class TickHandler {
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
 	 * Used by stuns/similar to cancel active abilities - only needs to be called on SERVER*/
 	public static void interrupt(Entity entity) {
-		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
-		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if (handler.interruptible && entity != null && entity == handler.entity) 
-				unregister(entity.world.isRemote, handler);
+		if (entity != null) {
+			CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if (handler.interruptible && entity != null && entity == handler.entity) 
+					unregister(entity.world.isRemote, handler);
+			}
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 		}
-		if (!entity.world.isRemote)
-			Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 	}
 
 	@SideOnly(Side.CLIENT)

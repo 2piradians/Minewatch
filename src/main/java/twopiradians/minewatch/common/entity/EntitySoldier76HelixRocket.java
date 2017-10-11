@@ -16,13 +16,14 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	private static final DataParameter<Integer> NUMBER = EntityDataManager.<Integer>createKey(EntitySoldier76HelixRocket.class, DataSerializers.VARINT);
 
 	public EntitySoldier76HelixRocket(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null, -1);
 	}
 
 	public EntitySoldier76HelixRocket(World worldIn, EntityLivingBase throwerIn, int number) {
 		super(worldIn, throwerIn);
-		this.getDataManager().set(NUMBER, number);
+		this.setSize(0.1f, 0.1f);
+		if (!worldIn.isRemote && number != -1)
+			this.getDataManager().set(NUMBER, number);
 		this.setNoGravity(true);
 		this.lifetime = 60;
 	}
@@ -65,7 +66,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 		this.posZ += this.motionZ + Math.cos((yaw + separateThree + ticks) * toRadians) * Math.sin((pitch + separateThree + ticks) * toRadians) * size + Math.sin(yaw * toRadians) * size/2;
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
 	}
 
 	@Override

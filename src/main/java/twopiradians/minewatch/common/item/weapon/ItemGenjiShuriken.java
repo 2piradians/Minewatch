@@ -85,12 +85,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 						player.prevChasingPosX+(player.chasingPosX-player.prevChasingPosX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
 						player.prevChasingPosY+(player.chasingPosY-player.prevChasingPosY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d-0.2d, 
 						player.prevChasingPosZ+(player.chasingPosZ-player.prevChasingPosZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
-						0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+						0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 0, 1);
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.prevChasingPosX+(player.chasingPosX-player.prevChasingPosX)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
 						player.prevChasingPosY+(player.chasingPosY-player.prevChasingPosY)*i/numParticles+player.height/2+(player.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
 						player.prevChasingPosZ+(player.chasingPosZ-player.prevChasingPosZ)*i/numParticles+(player.world.rand.nextDouble()-0.5d)*0.1d, 
-						0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 1);
+						0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 0, 1);
 				player.chasingPosX = player.prevPosX;
 				player.chasingPosY = player.prevPosY;
 				player.chasingPosZ = player.prevPosZ;

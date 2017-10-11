@@ -58,7 +58,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit) && this.getThrower() instanceof EntityPlayerMP)
+		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false) && this.getThrower() instanceof EntityPlayerMP)
 			((EntityPlayerMP)this.getThrower()).connection.sendPacket((new SPacketSoundEffect
 					(ModSoundEvents.hurt, SoundCategory.PLAYERS, this.getThrower().posX, this.getThrower().posY, 
 							this.getThrower().posZ, 0.3f, this.world.rand.nextFloat()/2+0.75f)));

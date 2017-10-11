@@ -33,21 +33,23 @@ public class EntityMercyBeam extends Entity {
 	public ParticleCustom particleTarget;
 
 	public EntityMercyBeam(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
-		this.ignoreFrustumCheck = true;
+		this(worldIn, null, null);
 	}
 
 	public EntityMercyBeam(World worldIn, EntityPlayer player, EntityLivingBase target) {
 		super(worldIn);
+		this.setSize(0.1f, 0.1f);
+		this.ignoreFrustumCheck = true;
 		this.setNoGravity(true);
 		this.player = player;
 		this.target = target;
-		this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
-		this.dataManager.set(TARGET, target.getEntityId());
-		this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
 		this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 		this.prevHeal = this.isHealing();
+		if (player != null && target != null) {
+			this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
+			this.dataManager.set(TARGET, target.getEntityId());
+			this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
+		}
 	}
 
 	@Override

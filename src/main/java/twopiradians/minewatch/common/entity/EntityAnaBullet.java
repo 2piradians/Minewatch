@@ -55,7 +55,7 @@ public class EntityAnaBullet extends EntityMW {
 			this.getDataManager().set(HEAL, heal);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
-		this.lifetime = 40;
+		this.lifetime = 40; 
 	}
 
 	@Override
@@ -66,11 +66,13 @@ public class EntityAnaBullet extends EntityMW {
 
 	@Override
 	public void onUpdate() {
+		this.isFriendly = this.getDataManager().get(HEAL);
+		
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, this.getDataManager().get(HEAL) ? 0xFFFCC7 : 0x9361D4, this.getDataManager().get(HEAL) ? 0xEAE7B9 : 0xEBBCFF, 
-					this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
+					this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1);
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class EntityAnaBullet extends EntityMW {
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;
 
 		// heal
-		if (this.getDataManager().get(HEAL)) {
+		if (this.isFriendly) {
 			EntityHelper.attemptImpact(this, result.entityHit, -75, true);
 			// particles / sounds
 			if (this.world.isRemote && result.entityHit != null) {

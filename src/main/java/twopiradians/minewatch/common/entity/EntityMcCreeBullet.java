@@ -8,12 +8,12 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityMcCreeBullet extends EntityMW {
 
 	public EntityMcCreeBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
 	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
@@ -23,7 +23,7 @@ public class EntityMcCreeBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
 	}
 
 	@Override

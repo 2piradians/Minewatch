@@ -6,8 +6,6 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
@@ -19,7 +17,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -183,7 +180,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (isStaff(stack) && 
 					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity, 15);
+				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityPlayer) entity, 15, true);
+				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
 				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
 					world.spawnEntity(beam);
@@ -218,7 +216,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 			// angel
 			if (hero.ability3.isSelected((EntityPlayer) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
-				EntityLivingBase target = this.getMouseOver((EntityPlayer) entity, 30);
+				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityPlayer) entity, 30, true);
+				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
 				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
@@ -258,58 +257,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				break;
 			}
 		}
-	}
-
-	// get entity that player is looking at within 15 blocks - modified from EntityRenderer#getMouseOver
-	public EntityLivingBase getMouseOver(EntityPlayer player, int distance) {
-		Entity entity = null;
-		if (player != null) {
-			double d0 = distance - 1;
-			Vec3d vec3d = player.getPositionEyes(1);
-
-			double d1 = d0;
-
-			Vec3d vec3d1 = player.getLook(1.0F);
-			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
-			List<Entity> list = player.world.getEntitiesInAABBexcluding(player, player.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
-				public boolean apply(@Nullable Entity p_apply_1_) {
-					return p_apply_1_ != null && p_apply_1_.canBeCollidedWith();
-				}
-			}));
-			double d2 = d1;
-
-			for (int j = 0; j < list.size(); ++j) {
-				Entity player1 = (Entity)list.get(j);
-				AxisAlignedBB axisalignedbb = player1.getEntityBoundingBox().expandXyz((double)player1.getCollisionBorderSize());
-				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
-
-				if (axisalignedbb.isVecInside(vec3d)) {
-					if (d2 >= 0.0D) {
-						entity = player1;
-						d2 = 0.0D;
-					}
-				}
-				else if (raytraceresult != null) {
-					double d3 = vec3d.distanceTo(raytraceresult.hitVec);
-
-					if (d3 < d2 || d2 == 0.0D) {
-						if (player1.getLowestRidingEntity() == player.getLowestRidingEntity() && !player.canRiderInteract()) {
-							if (d2 == 0.0D) 
-								entity = player1;
-						}
-						else {
-							entity = player1;
-							d2 = d3;
-						}
-					}
-				}
-			}
-		}
-
-		if (entity instanceof EntityLivingBase)
-			return (EntityLivingBase) entity;
-		else
-			return null;
 	}
 
 }

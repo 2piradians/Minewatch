@@ -23,18 +23,20 @@ public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {
 	}
 
 	@Override
-	protected void preRender(EntityJunkratTrap entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected void preRender(EntityJunkratTrap entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {		
+		GlStateManager.rotate(180, 1, 0, 0);
+		
 		// rotate while thrown
 		if (!entity.onGround)
 			GlStateManager.rotate((float) Math.sqrt(entity.motionX*entity.motionX+entity.motionY*entity.motionY+entity.motionZ*entity.motionZ)*1000f, 1, 0, 0);
 		
 		float angle = entity.onGround ? entity.trappedTicks <= 7 ? entity.trappedTicks * 7.5f % 60 : 60 : 30;
 		if (model == 0) {
-			GlStateManager.translate(0, 0, angle / 800);
+			GlStateManager.translate(0, 0, -angle / 800);
 			GlStateManager.rotate(angle, 1, 0, 0);
 		}
 		else if (model == 2) {
-			GlStateManager.translate(0, 0, -angle / 800);
+			GlStateManager.translate(0, 0, angle / 800);
 			GlStateManager.rotate(angle, -1, 0, 0);
 		}
 	}

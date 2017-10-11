@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -9,12 +8,12 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityReaperBullet extends EntityMW {
 
 	public EntityReaperBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
-	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
+	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 5;
 	}
@@ -24,7 +23,7 @@ public class EntityReaperBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 1, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 1, 1);
 	}
 
 	@Override

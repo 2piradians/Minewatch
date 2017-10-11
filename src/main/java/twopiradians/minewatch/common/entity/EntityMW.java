@@ -8,7 +8,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Rotations;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
@@ -17,10 +22,12 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
+    public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
+	public boolean isFriendly;
 
 	public EntityMW(World worldIn) {
 		this(worldIn, null);
@@ -33,20 +40,41 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 	}
+	
+	@Override
+	protected void entityInit() {
+		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+	}
 
 	@Override
-	public void onUpdate() {	
-		if (this.firstUpdate && this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
-			EntityHelper.updateFromPacket(this);
+    public void notifyDataManagerChange(DataParameter<?> key) {
+		if (key == VELOCITY) {
+			System.out.println("received: "+this.dataManager.get(VELOCITY).getX()+", "+this.dataManager.get(VELOCITY).getY()+", "+this.dataManager.get(VELOCITY).getZ());
+			this.motionX = this.dataManager.get(VELOCITY).getX();
+			this.motionY = this.dataManager.get(VELOCITY).getY();
+			this.motionZ = this.dataManager.get(VELOCITY).getZ();
+			this.prevRotationPitch = this.rotationPitch;
+			this.prevRotationYaw = this.rotationYaw;
+		}
+    }
+	
+	@Override
+	public void onUpdate() {
+		//System.out.println(ticksExisted+", x: "+motionX+", y: "+motionY+", z: "+motionZ);//TODO
+		System.out.println("distance: "+Math.sqrt(this.getPositionVector().squareDistanceTo(prevPosX, prevPosY, prevPosZ)));
+		System.out.println("speed: "+new Vec3d(motionX, motionY, motionZ).lengthVector());
 
-		this.prevPosX = this.posX;
+	/*	if (this.firstUpdate && this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
+			EntityHelper.updateFromPacket(this);
+		*/
+		this.prevPosX = this.posX; 
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
 		this.prevRotationPitch = this.rotationPitch;
 		this.prevRotationYaw = this.rotationYaw;
 
 		// move if not collided
-		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower());
+		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
 		if (result != null)
 			this.onImpact(result);
 		else {
@@ -85,7 +113,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance){
-		return distance < 600;
+		return distance < 3000;
 	}
 
 	@Override
@@ -98,9 +126,6 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		if (entity instanceof EntityLivingBase)
 			this.thrower = (EntityLivingBase) entity;
 	}
-
-	@Override
-	protected void entityInit() {}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {}

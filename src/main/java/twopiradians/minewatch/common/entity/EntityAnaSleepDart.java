@@ -18,12 +18,12 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class EntityAnaSleepDart extends EntityMW {
 
 	public EntityAnaSleepDart(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
 	public EntityAnaSleepDart(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
@@ -33,7 +33,7 @@ public class EntityAnaSleepDart extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
 	}
 
 	@Override

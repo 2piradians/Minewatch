@@ -10,12 +10,12 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityGenjiShuriken extends EntityMW {
 
 	public EntityGenjiShuriken(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null);
 	}
 
 	public EntityGenjiShuriken(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
@@ -25,7 +25,7 @@ public class EntityGenjiShuriken extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 30, 0.05d, 0xC8E682, 0x709233, 0.5f, 4, 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xC8E682, 0x709233, 0.5f, 4, 1);
 	}
 
 	@Override

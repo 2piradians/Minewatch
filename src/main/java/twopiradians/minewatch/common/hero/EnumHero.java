@@ -522,193 +522,190 @@ public enum EnumHero {
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
 				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
-				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && 
-						player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
-						((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == hero ?
-								(ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
+				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
-								// hero information screen
-								if (hero != null && weapon != null && weapon.hero == hero && Minewatch.keys.heroInformation(player))
-									hero.displayInfoScreen(event.getResolution());
-								else {
-									if (hero != null) {
-										// display icon
-										GlStateManager.pushMatrix();
-										GlStateManager.color(1, 1, 1, 1);
-										GlStateManager.enableDepth();
-										GlStateManager.enableAlpha();
+				// hero information screen
+				if (hero != null && weapon != null && weapon.hero == hero && Minewatch.keys.heroInformation(player))
+					hero.displayInfoScreen(event.getResolution());
+				else {
+					if (hero != null) {
+						// display icon
+						GlStateManager.pushMatrix();
+						GlStateManager.color(1, 1, 1, 1);
+						GlStateManager.enableDepth();
+						GlStateManager.enableAlpha();
 
-										double scale = 0.25d*Config.guiScale;
-										GlStateManager.scale(scale, scale, 1);
-										GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
-										Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-										GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-										Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-										GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+						double scale = 0.25d*Config.guiScale;
+						GlStateManager.scale(scale, scale, 1);
+						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
-										GlStateManager.popMatrix();
-									}
+						GlStateManager.popMatrix();
+					}
 
-									// display abilities/weapon
-									if (weapon != null) {
-										GlStateManager.pushMatrix();
-										GlStateManager.enableDepth();
-										GlStateManager.enableAlpha();
+					// display abilities/weapon
+					if (weapon != null) {
+						GlStateManager.pushMatrix();
+						GlStateManager.enableDepth();
+						GlStateManager.enableAlpha();
 
-										double scale = 0.67d*Config.guiScale;
-										GlStateManager.scale(1*scale, 4*scale, 1);
-										GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
-										Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-										int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
-												weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
-										int vertical = 11;
-										// weapon
-										GuiUtils.drawTexturedModalRect(0, 0, 1, (index+1)+index*vertical, 122, vertical, 0);
+						double scale = 0.67d*Config.guiScale;
+						GlStateManager.scale(1*scale, 4*scale, 1);
+						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
+						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
+								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
+						int vertical = 11;
+						// weapon
+						GuiUtils.drawTexturedModalRect(0, 0, 1, (index+1)+index*vertical, 122, vertical, 0);
 
-										if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID())) {
-											// slot 1
-											if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
-												GlStateManager.color(0.4f, 0.4f, 0.4f);
-											else if (hero.ability1.isSelected(player)) {
-												GlStateManager.color(0.8f, 0.6f, 0);
-												GlStateManager.translate(1, 1, 0);
-											}
-											GuiUtils.drawTexturedModalRect(-50, -2, 124, (index+1)+index*vertical, 40, vertical, 0);
-											if (!hero.ability1.isEnabled && hero.ability1.keybind != KeyBind.NONE) 
-												GuiUtils.drawTexturedModalRect(-28, 0, 65, 1015, 12, 9, 0);
-											GlStateManager.color(1, 1, 1);
-											if (hero.ability1.isSelected(player)) 
-												GlStateManager.translate(-1, -1, 0);
-											// slot 2
-											if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
-												GlStateManager.color(0.4f, 0.4f, 0.4f);
-											else if (hero.ability2.isSelected(player)) {
-												GlStateManager.color(0.8f, 0.6f, 0);
-												GlStateManager.translate(1, 1, 0);
-											}
-											GuiUtils.drawTexturedModalRect(-87, -2, 165, (index+1)+index*vertical, 40, vertical, 0);
-											if (!hero.ability2.isEnabled && hero.ability2.keybind != KeyBind.NONE) {
-												GlStateManager.translate(0, 0.3f, 0);
-												GuiUtils.drawTexturedModalRect(-65, -1, 65, 1015, 12, 9, 0);
-												GlStateManager.translate(0, -0.3f, 0);
-											}
-											GlStateManager.color(1, 1, 1);
-											if (hero.ability2.isSelected(player)) 
-												GlStateManager.translate(-1, -1, 0);
-											// slot 3
-											if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
-												GlStateManager.color(0.4f, 0.4f, 0.4f);
-											else if (hero.ability3.isSelected(player)) {
-												GlStateManager.color(0.8f, 0.6f, 0);
-												GlStateManager.translate(1, 1, 0);
-											}
-											GuiUtils.drawTexturedModalRect(-124, -2, 206, (index+1)+index*vertical, 40, vertical, 0);
-											if (!hero.ability3.isEnabled && hero.ability3.keybind != KeyBind.NONE) {
-												GlStateManager.translate(0, 0.5f, 0);
-												GuiUtils.drawTexturedModalRect(-102, -2, 65, 1015, 12, 9, 0);
-												GlStateManager.translate(0, -0.5f, 0);
-											}
-											GlStateManager.color(1, 1, 1);
-											if (hero.ability3.isSelected(player))
-												GlStateManager.translate(-1, -1, 0);
+						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID())) {
+							// slot 1
+							if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
+								GlStateManager.color(0.4f, 0.4f, 0.4f);
+							else if (hero.ability1.isSelected(player)) {
+								GlStateManager.color(0.8f, 0.6f, 0);
+								GlStateManager.translate(1, 1, 0);
+							}
+							GuiUtils.drawTexturedModalRect(-50, -2, 124, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.ability1.isEnabled && hero.ability1.keybind != KeyBind.NONE) 
+								GuiUtils.drawTexturedModalRect(-28, 0, 65, 1015, 12, 9, 0);
+							GlStateManager.color(1, 1, 1);
+							if (hero.ability1.isSelected(player)) 
+								GlStateManager.translate(-1, -1, 0);
+							// slot 2
+							if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
+								GlStateManager.color(0.4f, 0.4f, 0.4f);
+							else if (hero.ability2.isSelected(player)) {
+								GlStateManager.color(0.8f, 0.6f, 0);
+								GlStateManager.translate(1, 1, 0);
+							}
+							GuiUtils.drawTexturedModalRect(-87, -2, 165, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.ability2.isEnabled && hero.ability2.keybind != KeyBind.NONE) {
+								GlStateManager.translate(0, 0.3f, 0);
+								GuiUtils.drawTexturedModalRect(-65, -1, 65, 1015, 12, 9, 0);
+								GlStateManager.translate(0, -0.3f, 0);
+							}
+							GlStateManager.color(1, 1, 1);
+							if (hero.ability2.isSelected(player)) 
+								GlStateManager.translate(-1, -1, 0);
+							// slot 3
+							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
+								GlStateManager.color(0.4f, 0.4f, 0.4f);
+							else if (hero.ability3.isSelected(player)) {
+								GlStateManager.color(0.8f, 0.6f, 0);
+								GlStateManager.translate(1, 1, 0);
+							}
+							GuiUtils.drawTexturedModalRect(-124, -2, 206, (index+1)+index*vertical, 40, vertical, 0);
+							if (!hero.ability3.isEnabled && hero.ability3.keybind != KeyBind.NONE) {
+								GlStateManager.translate(0, 0.5f, 0);
+								GuiUtils.drawTexturedModalRect(-102, -2, 65, 1015, 12, 9, 0);
+								GlStateManager.translate(0, -0.5f, 0);
+							}
+							GlStateManager.color(1, 1, 1);
+							if (hero.ability3.isSelected(player))
+								GlStateManager.translate(-1, -1, 0);
 
-											// keybinds 
-											int width1 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability1.keybind.getKeyName());
-											int width2 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability2.keybind.getKeyName());
-											int width3 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability3.keybind.getKeyName());
-											// background
-											// slot 1
-											if (hero.ability1.showKeybind(player)) {
-												if (hero.ability1.keybind.getKeyName() != "")
-													GuiUtils.drawTexturedModalRect(-58, 7, 0, 1019, 40, 5, 0);
-												else if (hero.ability1.keybind == KeyBind.RMB)
-													GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
-											}
-											if (hero.ability1.maxUses > 0)
-												GuiUtils.drawTexturedModalRect(-30, -10, 81, 1015, 20, 9, 0);
-											if (hero.ability1.entity != null && hero.ability1.entity.isEntityAlive()) 
-												GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
-											// slot 2
-											if (hero.ability2.showKeybind(player)) {
-												if (hero.ability2.keybind.getKeyName() != "")
-													GuiUtils.drawTexturedModalRect(-98, 6, 0, 1019, 40, 5, 0);
-											}
-											if (hero.ability2.maxUses > 0)
-												GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
-											if (hero.ability2.entity != null && hero.ability2.entity.isEntityAlive()) 
-												GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
-											// slot 3
-											if (hero.ability3.showKeybind(player)) {
-												if (hero.ability3.keybind.getKeyName() != "")
-													GuiUtils.drawTexturedModalRect(-137, 5, 0, 1019, 40, 5, 0);
-											}
-											if (hero.ability3.maxUses > 0)
-												GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
-											if (hero.ability3.entity != null && hero.ability3.entity.isEntityAlive()) 
-												GuiUtils.drawTexturedModalRect(hero.ability3.maxUses > 0 ? -103 : -106, hero.ability3.maxUses > 0 ? -16 : -11, 101, 1015, 20, 9, 0);
-											// text
-											GlStateManager.scale(1, 0.25d, 1);
-											GlStateManager.rotate(4.5f, 0, 0, 1);
-											// slot 1
-											if (hero.ability1.showKeybind(player)) 
-												Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
-											if (hero.ability1.maxUses > 0)
-												Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability1.getUses(player)), -99, -15, 0);
-											// slot 2
-											if (hero.ability2.showKeybind(player)) 
-												Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
-											if (hero.ability2.maxUses > 0)
-												Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability2.getUses(player)), -62, -14, 0);
-											// slot 3
-											if (hero.ability3.showKeybind(player)) 
-												Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
-											if (hero.ability3.maxUses > 0)
-												Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability3.getUses(player)), -23, -16, 0);
+							// keybinds 
+							int width1 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability1.keybind.getKeyName());
+							int width2 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability2.keybind.getKeyName());
+							int width3 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability3.keybind.getKeyName());
+							// background
+							// slot 1
+							if (hero.ability1.showKeybind(player)) {
+								if (hero.ability1.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-58, 7, 0, 1019, 40, 5, 0);
+								else if (hero.ability1.keybind == KeyBind.RMB)
+									GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
+							}
+							if (hero.ability1.maxUses > 0)
+								GuiUtils.drawTexturedModalRect(-30, -10, 81, 1015, 20, 9, 0);
+							if (hero.ability1.entity != null && hero.ability1.entity.isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
+							// slot 2
+							if (hero.ability2.showKeybind(player)) {
+								if (hero.ability2.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-98, 6, 0, 1019, 40, 5, 0);
+							}
+							if (hero.ability2.maxUses > 0)
+								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
+							if (hero.ability2.entity != null && hero.ability2.entity.isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
+							// slot 3
+							if (hero.ability3.showKeybind(player)) {
+								if (hero.ability3.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-137, 5, 0, 1019, 40, 5, 0);
+							}
+							if (hero.ability3.maxUses > 0)
+								GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
+							if (hero.ability3.entity != null && hero.ability3.entity.isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability3.maxUses > 0 ? -103 : -106, hero.ability3.maxUses > 0 ? -16 : -11, 101, 1015, 20, 9, 0);
+							// text
+							GlStateManager.scale(1, 0.25d, 1);
+							GlStateManager.rotate(4.5f, 0, 0, 1);
+							// slot 1
+							if (hero.ability1.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
+							if (hero.ability1.maxUses > 0)
+								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability1.getUses(player)), -99, -15, 0);
+							// slot 2
+							if (hero.ability2.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
+							if (hero.ability2.maxUses > 0)
+								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability2.getUses(player)), -62, -14, 0);
+							// slot 3
+							if (hero.ability3.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
+							if (hero.ability3.maxUses > 0)
+								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability3.getUses(player)), -23, -16, 0);
 
-											// cooldowns
-											scale = 2d;
-											GlStateManager.scale(scale, scale, 1);
-											if (hero.ability1.keybind.getCooldown(player) > 0) { 
-												String num = String.valueOf((int)Math.ceil(hero.ability1.keybind.getCooldown(player)/20d));
-												int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-												Minecraft.getMinecraft().fontRendererObj.drawString(num, -14-width/2, 4, 0xFFFFFF);
-											}
-											if (hero.ability2.keybind.getCooldown(player) > 0) { 
-												String num = String.valueOf((int)Math.ceil(hero.ability2.keybind.getCooldown(player)/20d));
-												int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-												Minecraft.getMinecraft().fontRendererObj.drawString(num, -33-width/2, 4, 0xFFFFFF);
-											}
-											if (hero.ability3.keybind.getCooldown(player) > 0) { 
-												String num = String.valueOf((int)Math.ceil(hero.ability3.keybind.getCooldown(player)/20d));
-												int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-												Minecraft.getMinecraft().fontRendererObj.drawString(num, -51-width/2, 4, 0xFFFFFF);
-											}
-										}
-										// ammo
-										if (weapon.getMaxAmmo(player) > 0) {
-											if (weapon.hero != hero || hero == null) { // adjust things that were skipped
-												GlStateManager.scale(1, 0.25d, 1);
-												GlStateManager.rotate(4.5f, 0, 0, 1);
-												scale = 2d;
-												GlStateManager.scale(scale, scale, 1);
-											}
+							// cooldowns
+							scale = 2d;
+							GlStateManager.scale(scale, scale, 1);
+							if (hero.ability1.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability1.keybind.getCooldown(player)/20d));
+								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
+								Minecraft.getMinecraft().fontRendererObj.drawString(num, -14-width/2, 4, 0xFFFFFF);
+							}
+							if (hero.ability2.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability2.keybind.getCooldown(player)/20d));
+								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
+								Minecraft.getMinecraft().fontRendererObj.drawString(num, -33-width/2, 4, 0xFFFFFF);
+							}
+							if (hero.ability3.keybind.getCooldown(player) > 0) { 
+								String num = String.valueOf((int)Math.ceil(hero.ability3.keybind.getCooldown(player)/20d));
+								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
+								Minecraft.getMinecraft().fontRendererObj.drawString(num, -51-width/2, 4, 0xFFFFFF);
+							}
+						}
+						// ammo
+						if (weapon.getMaxAmmo(player) > 0) {
+							if (weapon.hero != hero || hero == null) { // adjust things that were skipped
+								GlStateManager.scale(1, 0.25d, 1);
+								GlStateManager.rotate(4.5f, 0, 0, 1);
+								scale = 2d;
+								GlStateManager.scale(scale, scale, 1);
+							}
 
-											scale = 0.9d;
-											GlStateManager.scale(scale, scale, 1);
-											int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
-													String.valueOf(weapon.getCurrentAmmo(player)));
-											Minecraft.getMinecraft().fontRendererObj.drawString(
-													String.valueOf(weapon.getCurrentAmmo(player)), 30-width, -11, 0xFFFFFF);
-											scale = 0.6d;
-											GlStateManager.scale(scale, scale, 1);
-											Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -13, 0x00D5FF);
-											Minecraft.getMinecraft().fontRendererObj.drawString(
-													String.valueOf(weapon.getMaxAmmo(player)), 59, -13, 0xFFFFFF);
-										}
+							scale = 0.9d;
+							GlStateManager.scale(scale, scale, 1);
+							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
+									String.valueOf(weapon.getCurrentAmmo(player)));
+							Minecraft.getMinecraft().fontRendererObj.drawString(
+									String.valueOf(weapon.getCurrentAmmo(player)), 30-width, -11, 0xFFFFFF);
+							scale = 0.6d;
+							GlStateManager.scale(scale, scale, 1);
+							Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -13, 0x00D5FF);
+							Minecraft.getMinecraft().fontRendererObj.drawString(
+									String.valueOf(weapon.getMaxAmmo(player)), 59, -13, 0xFFFFFF);
+						}
 
-										GlStateManager.popMatrix();
-									}
-								}
+						GlStateManager.popMatrix();
+					}
+				}
 			}
 		}
 

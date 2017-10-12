@@ -394,6 +394,11 @@ public class SPacketSimple implements IMessage {
 						((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
 						TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
 								EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
+						if (((EntityJunkratTrap)entity).getThrower() == player) {
+							Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS);
+							Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerOwner, SoundCategory.PLAYERS, 1, 1, false);
+							Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerVoice, SoundCategory.PLAYERS, 1, 1, false);
+						}
 					}
 					// Junkrat trap destroyed
 					else if (packet.type == 26 && entity instanceof EntityJunkratTrap) {

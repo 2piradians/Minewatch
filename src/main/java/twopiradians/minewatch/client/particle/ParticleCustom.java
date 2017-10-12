@@ -19,6 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 @SideOnly(Side.CLIENT)
@@ -88,12 +89,14 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.particleAngle += rotationSpeed;
 		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
+		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
+			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
 	}
 
 	public void followEntity() {
 		if (this.followEntity != null) {
+			EntityPlayer player = Minecraft.getMinecraft().player;
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
-				EntityPlayer player = Minecraft.getMinecraft().player;
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
 						((EntityLivingBase) followEntity).getHealth() <= 0 ||
 						player.getHeldItemMainhand() == null || (player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon &&
@@ -101,11 +104,18 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					ClientProxy.healthParticleEntities.remove(followEntity.getPersistentID());
 					this.setExpired();
 				}
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 			}
-			else if (this.followEntity.isDead)
+			else if (this.enumParticle.equals(EnumParticle.JUNKRAT_TRAP)) {
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+1.5d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
+				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null)
+					this.setExpired();
+			}
+			else
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
+			
+			if (!this.followEntity.isEntityAlive())
 				this.setExpired();
-
-			this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 		}
 	}
 
@@ -139,11 +149,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			float f2 = (float) (this.particleTexture.getMinV()+vSize*row);
 			float f3 = (float) (f2+vSize);
 			float f4 = 0.1F * this.particleScale;
-			
+
 			float f5 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)partialTicks - interpPosX);
 			float f6 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)partialTicks - interpPosY);
 			float f7 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)partialTicks - interpPosZ);
-			
+
 			int i = this.getBrightnessForRender(partialTicks);
 			int j = i >> 16 & 65535;
 			int k = i & 65535;
@@ -165,15 +175,15 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-		
+
 			// disable depth for health particles
-			if (enumParticle.equals(EnumParticle.HEALTH)) {
+			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();
-                VertexBuffer vertexbuffer = tessellator.getBuffer();
+				VertexBuffer vertexbuffer = tessellator.getBuffer();
 				GlStateManager.disableDepth();
 				tessellator.draw();
 				GlStateManager.enableDepth();
-                vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+				vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 			}
 		}
 	}

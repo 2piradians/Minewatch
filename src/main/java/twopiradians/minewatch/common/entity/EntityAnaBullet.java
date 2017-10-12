@@ -96,9 +96,10 @@ public class EntityAnaBullet extends EntityMW {
 			}
 		}
 		// damage
-		else if (result.entityHit instanceof EntityLivingBase) {
-			EntityHelper.attemptImpact(this, result.entityHit, 0, true);
+		else if (result.entityHit != null) {
+			EntityHelper.moveToEntityHit(this, result.entityHit);
 			TickHandler.register(this.world.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
+			this.setDead();
 		}
 	}
 }

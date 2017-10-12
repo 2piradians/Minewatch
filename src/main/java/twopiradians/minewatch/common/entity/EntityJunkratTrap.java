@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -55,10 +56,13 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	public void onUpdate() {
 		if (this.onGround)
 			this.rotationPitch = 0;
-		
-		// prevOnGround
-		if (prevOnGround != onGround && onGround)
+
+		// prevOnGround and normal particle
+		if (prevOnGround != onGround && onGround) {
 			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			if (world.isRemote)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
+		}
 		this.prevOnGround = this.onGround;
 
 		// don't impact when not on ground (bc it jumps around a bit)
@@ -90,6 +94,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 					}
 					else
 						this.setDead();
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_TRIGGERED, world, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 					break;
 				}
 		}
@@ -103,7 +108,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		// check to set dead
 		if (!this.world.isRemote && !(this.getThrower() instanceof EntityLivingBase))
 			this.setDead();
-		else if (!this.world.isRemote && this.trappedEntity != null && this.trappedEntity.getHealth() <= 0) 
+		else if (!this.world.isRemote && this.trappedEntity != null && (this.trappedEntity.getHealth() <= 0 || !this.onGround)) 
 			this.setDead();
 
 		super.onUpdate();
@@ -115,6 +120,14 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 			return super.attackEntityFrom(source, amount);
 		else 
 			return false;
+	}
+
+	@Override
+	public void onDeath(DamageSource cause) {
+		super.onDeath(cause);
+
+		if (this.world.isRemote)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_DESTROYED, world, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 	}
 
 	@Override

@@ -70,7 +70,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
-	// do not change order - this is the order in ability_overlay.png
+	// do not change order - this is the order in ability_overlay.png TODO count damage per tick
 	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 

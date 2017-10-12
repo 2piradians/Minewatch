@@ -526,10 +526,34 @@
 			"minewatch:junkrat_trap_trigger"
 		]
 	},
+	"junkrat_trap_trigger_owner": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger_owner"
+		]
+	},
 	"junkrat_trap_break": {
 	"category": "player",
 		"sounds": [
 			"minewatch:junkrat_trap_break"
+		]
+	},
+	"junkrat_trap_placed_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_placed_voice_0",
+			"minewatch:junkrat_trap_placed_voice_1",
+			"minewatch:junkrat_trap_placed_voice_2",
+			"minewatch:junkrat_trap_placed_voice_3"
+		]
+	},
+	"junkrat_trap_trigger_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger_voice_0",
+			"minewatch:junkrat_trap_trigger_voice_1",
+			"minewatch:junkrat_trap_trigger_voice_2",
+			"minewatch:junkrat_trap_trigger_voice_3"
 		]
 	}
 }

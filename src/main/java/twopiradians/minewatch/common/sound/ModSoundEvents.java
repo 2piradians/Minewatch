@@ -75,6 +75,9 @@ public class ModSoundEvents {
 	public static SoundEvent junkratTrapLand;
 	public static SoundEvent junkratTrapTrigger;
 	public static SoundEvent junkratTrapBreak;
+	public static SoundEvent junkratTrapTriggerOwner;
+	public static SoundEvent junkratTrapTriggerVoice;
+	public static SoundEvent junkratTrapPlacedVoice;
 
 	public static void preInit() {
 		guiHover = registerSound("gui_hover");
@@ -156,6 +159,9 @@ public class ModSoundEvents {
 		junkratTrapLand = registerSound("junkrat_trap_land");
 		junkratTrapTrigger = registerSound("junkrat_trap_trigger");
 		junkratTrapBreak = registerSound("junkrat_trap_break");
+		junkratTrapTriggerOwner = registerSound("junkrat_trap_trigger_owner");
+		junkratTrapTriggerVoice = registerSound("junkrat_trap_trigger_voice");
+		junkratTrapPlacedVoice = registerSound("junkrat_trap_placed_voice");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

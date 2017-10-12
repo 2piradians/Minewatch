@@ -254,10 +254,8 @@ public class EntityHelper {
 		// correct position of projectile - for fixing particles
 		else if (shouldHit(projectile.getThrower(), entityHit, damage <= 0, source) && projectile.world.isRemote) {
 			moveToEntityHit(projectile, entityHit);
-
 			projectile.setDead();
 		}
-
 		return false;
 	}
 	

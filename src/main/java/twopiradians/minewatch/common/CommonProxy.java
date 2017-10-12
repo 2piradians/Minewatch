@@ -61,17 +61,33 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 public class CommonProxy {
 
 	public enum EnumParticle {
-		CIRCLE("circle", 1, 1), SLEEP("sleep", 1, 1), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", 1, 1),
-		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal", 1, 1), ANA_DAMAGE("ana_damage", 1, 4);
+		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
+		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
+		JUNKRAT_TRAP("junkrat_trap", true), JUNKRAT_TRAP_TRIGGERED("junkrat_trap_triggered", true), 
+		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true);
 
 		public final ResourceLocation loc;
 		public final int frames;
 		public final int variations;
+		public boolean disableDepth;
 
+		private EnumParticle(String loc) {
+			this(loc, 1, 1, false);
+		}
+		
+		private EnumParticle(String loc, boolean disableDepth) {
+			this(loc, 1, 1, disableDepth);
+		}
+		
 		private EnumParticle(String loc, int frames, int variations) {
+			this(loc, frames, variations, false);
+		}
+		
+		private EnumParticle(String loc, int frames, int variations, boolean disableDepth) {
 			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+loc);
 			this.frames = frames;
 			this.variations = variations;
+			this.disableDepth = disableDepth;
 		}
 	}
 
@@ -156,7 +172,7 @@ public class CommonProxy {
 	}
 
 	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		Minewatch.network.sendToAll(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat));
+		Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat), entity.world.provider.getDimension());
 	}
 
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {

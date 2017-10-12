@@ -27,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -34,6 +35,9 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID + ":textures/gui/widowmaker_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID + ":textures/gui/widowmaker_scope_background.png");
+
+	private boolean prevScoped;
+	private float unscopedSensitivity;
 
 	public ItemWidowmakerRifle() {
 		super(30);
@@ -135,18 +139,23 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void changeFOV(FOVModifier event) {
-		if (event.getEntity() instanceof EntityPlayer && (((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null && 
-				((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this && 
-				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) && 
-				Minewatch.keys.rmb((EntityPlayer) event.getEntity()) && 
-				this.getCurrentAmmo((EntityPlayer) event.getEntity()) > 0) {
+		if (event.getEntity() instanceof EntityPlayer && 
+				isScoped((EntityPlayer) event.getEntity(), ((EntityPlayer) event.getEntity()).getHeldItemMainhand()) && 
+				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			event.setFOV(20f);
 		}
 	}
-	
+
 	/**Returns power: 0 - 1*/
 	public double getPower(EntityPlayer player) {
 		return MathHelper.clamp((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount()-10)/15d, 0, 1);
+	}
+
+	/**Is this player scoping with the stack*/
+	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
+		return player != null && player.getHeldItemMainhand() != null && 
+				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
+				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}
 
 	//PORT correct scope scale
@@ -154,28 +163,43 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (event.getType() == ElementType.ALL && player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
-				Minewatch.keys.rmb(player) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 &&
-				this.getCurrentAmmo(player) > 0) {
-			double height = event.getResolution().getScaledHeight_double();
-			double width = event.getResolution().getScaledWidth_double();
-			int imageSize = 256;
+		if (event.getType() == ElementType.ALL && player != null) {
+			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
+					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
+			
+			// change mouse sensitivity
+			if (scoped != prevScoped) {
+				if (scoped) {
+					this.unscopedSensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity / 2f;
+				}
+				else
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity;
+				this.prevScoped = scoped;
+			}
 
-			// power
-			GlStateManager.pushMatrix();
-			GlStateManager.enableBlend();
-			int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) (getPower(player)*100d) : 0;
-			int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
-			Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
-			// scope
-			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
-			GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
-			// background
-			GlStateManager.disableAlpha();
-			GlStateManager.scale(width/256d, height/256d, 1);
-			Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
-			GlStateManager.popMatrix();
+			// render scope
+			if (scoped) {
+				double height = event.getResolution().getScaledHeight_double();
+				double width = event.getResolution().getScaledWidth_double();
+				int imageSize = 256;
+
+				// power
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) (getPower(player)*100d) : 0;
+				int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
+				Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
+				// scope
+				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
+				GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
+				// background
+				GlStateManager.disableAlpha();
+				GlStateManager.scale(width/256d, height/256d, 1);
+				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
+				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
+				GlStateManager.popMatrix();
+			}
 		}
 	}
 }

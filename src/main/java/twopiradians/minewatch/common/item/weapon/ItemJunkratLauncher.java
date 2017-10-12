@@ -29,7 +29,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
-				EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 17.5f, 0.6F, hand);
+				EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 35f, 0.6F, hand);
 				world.spawnEntity(grenade);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -68,7 +68,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(trap);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
-				hero.ability1.keybind.setCooldown(player, 20, false); //TODO 200
+				hero.ability1.keybind.setCooldown(player, 200, false);
 				if (hero.ability1.entity instanceof EntityJunkratTrap && hero.ability1.entity.isEntityAlive()) {
 					TickHandler.unregister(false, 
 							TickHandler.getHandler(((EntityJunkratTrap)hero.ability1.entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
@@ -77,6 +77,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 					hero.ability1.entity.isDead = true;
 				}
 				hero.ability1.entity = trap;
+				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			}
 		}
 	}	

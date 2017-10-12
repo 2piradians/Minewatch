@@ -32,6 +32,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -45,6 +46,9 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_scope_background.png");
 	private static final ResourceLocation SLEEP_OVERLAY = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_sleep.png");
 	private static final ResourceLocation SLEEP_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_sleep_background.png");
+
+	private boolean prevScoped;
+	private float unscopedSensitivity;
 
 	public static final Handler SLEEP = new Handler(Identifier.ANA_SLEEP, true) {
 		@SideOnly(Side.CLIENT)
@@ -136,7 +140,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
-			
+
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
@@ -161,7 +165,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				for (Entity entity2 : list) 
 					if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
 							((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
-						float size = Math.min(entity2.height, entity2.width)*9f;
+						float size = Math.min(entity2.height, entity2.width)*8f;
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 					}
 			}
@@ -228,52 +232,73 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 	}
 
+	/**Is this player scoping with the stack*/
+	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
+		return player != null && player.getHeldItemMainhand() != null && 
+				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
+				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0;
+	}
+
 	//PORT correct scope scale
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (event.getType() == ElementType.ALL && player != null &&
-				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-			double height = event.getResolution().getScaledHeight_double();
-			double width = event.getResolution().getScaledWidth_double();
-			int imageSize = 256;
+		if (event.getType() == ElementType.ALL && player != null) {
+			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
+					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
 
-			Handler handler = TickHandler.getHandler(player, Identifier.ANA_SLEEP);
-			if (handler != null) {
-				// sleep overlay
-				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
-				GlStateManager.color(1, 1, 1, 0.9f);
-				double scale = 0.5f;
-				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_OVERLAY);
-				GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/3/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
-				// background 
-				GlStateManager.color(1, 1, 1, 1f);
-				scale = Math.max(height/imageSize, width/imageSize)*2;
-				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_BACKGROUND);
-				GuiUtils.drawTexturedModalRect((int) ((width/scale-imageSize/2)), (int) ((height/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
-				GlStateManager.popMatrix();
+			// change mouse sensitivity
+			if (scoped != prevScoped) {
+				if (scoped) {
+					this.unscopedSensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity / 2f;
+				}
+				else
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity;
+				this.prevScoped = scoped;
 			}
-			// scope
-			if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this &&
-					Minewatch.keys.rmb(player) && this.getCurrentAmmo((EntityPlayer) player) > 0) {
-				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
+
+			if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+				double height = event.getResolution().getScaledHeight_double();
+				double width = event.getResolution().getScaledWidth_double();
+				int imageSize = 256;
+
+				Handler handler = TickHandler.getHandler(player, Identifier.ANA_SLEEP);
+				if (handler != null) {
+					// sleep overlay
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+					GlStateManager.color(1, 1, 1, 0.9f);
+					double scale = 0.5f;
+					GlStateManager.scale(scale, scale, 1);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_OVERLAY);
+					GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/3/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
+					// background 
+					GlStateManager.color(1, 1, 1, 1f);
+					scale = Math.max(height/imageSize, width/imageSize)*2;
+					GlStateManager.scale(scale, scale, 1);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_BACKGROUND);
+					GuiUtils.drawTexturedModalRect((int) ((width/scale-imageSize/2)), (int) ((height/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
+					GlStateManager.popMatrix();
+				}
 				// scope
-				double scale = Math.max(height/256d, width/256d);
-				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
-				GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
-				GlStateManager.scale(1/scale, 1/scale, 1);
-				// background
-				scale = Math.max(height/imageSize, width/imageSize);
-				GlStateManager.scale(width/256d, height/256d, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
-				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
-				GlStateManager.popMatrix();
+				if (isScoped(player, player.getHeldItemMainhand())) {
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+					// scope
+					double scale = Math.max(height/256d, width/256d);
+					GlStateManager.scale(scale, scale, 1);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
+					GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
+					GlStateManager.scale(1/scale, 1/scale, 1);
+					// background
+					scale = Math.max(height/imageSize, width/imageSize);
+					GlStateManager.scale(width/256d, height/256d, 1);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE_BACKGROUND);
+					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, imageSize, imageSize, 0);
+					GlStateManager.popMatrix();
+				}
 			}
 		}
 	}

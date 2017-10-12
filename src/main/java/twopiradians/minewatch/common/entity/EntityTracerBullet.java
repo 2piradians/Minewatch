@@ -30,7 +30,7 @@ public class EntityTracerBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime), false)) 
+		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 1.5f, 6, 11, 30)) 
 			result.entityHit.hurtResistantTime = 0;
 	}
 }

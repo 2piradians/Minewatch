@@ -22,6 +22,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemHanzoBow extends ItemMWWeapon {
 
@@ -100,8 +101,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// sonic arrow
 						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
-							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+							entityarrow.setDamage(125 - (125 - 29) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null);
 							hero.ability2.keybind.setCooldown(player, 400, false); 
 
 							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
@@ -110,8 +111,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// scatter arrow
 						else if (hero.ability1.isSelected(player)) {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-							entityarrow.setDamage((75 - (75 - 22) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
+							entityarrow.setDamage(75 - (75 - 22) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null);
 							hero.ability1.keybind.setCooldown(player, 200, false); 
 
 							if (worldIn.rand.nextBoolean())
@@ -121,8 +122,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);
-							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+							entityarrow.setDamage(125 - (125 - 29) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null);
 						}
 						stack.damageItem(1, player);
 						worldIn.spawnEntity(entityarrow);

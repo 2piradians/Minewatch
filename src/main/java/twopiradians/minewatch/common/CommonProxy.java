@@ -57,7 +57,6 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
 import twopiradians.minewatch.packet.SPacketSyncSkins;
-import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class CommonProxy {
 
@@ -98,7 +97,6 @@ public class CommonProxy {
 		int id = 0;
 		Minewatch.network.registerMessage(CPacketSyncKeys.Handler.class, CPacketSyncKeys.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(SPacketSyncAmmo.Handler.class, SPacketSyncAmmo.class, id++, Side.CLIENT);
-		Minewatch.network.registerMessage(SPacketSyncSpawningEntity.Handler.class, SPacketSyncSpawningEntity.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncCooldown.Handler.class, SPacketSyncCooldown.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSimple.Handler.class, SPacketSimple.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);

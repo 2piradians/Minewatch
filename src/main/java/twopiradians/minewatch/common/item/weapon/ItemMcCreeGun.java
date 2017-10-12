@@ -66,8 +66,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 5.0F, 0.3F, 0F, hand, true);
+				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, false);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -109,8 +109,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				if (((EntityPlayer)entity).getHeldItem(hand2) == stack)
 					hand = hand2;
 			if (!entity.world.isRemote && hand != null) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity);
-				EntityHelper.setAim(bullet, (EntityLivingBase) entity, entity.rotationPitch, entity.rotationYaw, 5.0F, 1.5F, 1F, hand, true);
+				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity, true);
+				EntityHelper.setAim(bullet, (EntityLivingBase) entity, entity.rotationPitch, entity.rotationYaw, -1, 3F, hand);
 				entity.world.spawnEntity(bullet);				
 				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
 						SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	

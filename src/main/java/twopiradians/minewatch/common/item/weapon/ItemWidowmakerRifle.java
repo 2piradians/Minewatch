@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
@@ -59,7 +60,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
 		if (player.world.isRemote) {
-			int time = this.getMaxItemUseDuration(stack)-count;
+			int time = this.getMaxItemUseDuration(stack)-count-10;
 			if (time == 4) 
 				player.playSound(ModSoundEvents.widowmakerCharge, 0.3f, 1f);
 			else if (time == 10)
@@ -93,8 +94,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, true, 
-							(int) (12+(120d-12d)*Math.min((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount())/15d, 1)));//120-12
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 8.0F, 0F, 0F, null, true);
+							(int) (12+(120d-12d)*getPower(player)));
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
 					if (!player.getCooldownTracker().hasCooldown(this))
@@ -115,7 +116,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			else if (!Minewatch.keys.rmb(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, false, 13);
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 3.0F, 1F, 1F, hand, true);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 2, hand);
 					world.spawnEntity(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);
@@ -142,6 +143,11 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			event.setFOV(20f);
 		}
 	}
+	
+	/**Returns power: 0 - 1*/
+	public double getPower(EntityPlayer player) {
+		return MathHelper.clamp((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount()-10)/15d, 0, 1);
+	}
 
 	//PORT correct scope scale
 	@SideOnly(Side.CLIENT)
@@ -158,7 +164,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			// power
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
-			int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) Math.min((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount())/15d*100d, 100) : 0;
+			int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) (getPower(player)*100d) : 0;
 			int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
 			Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
 			// scope

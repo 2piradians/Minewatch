@@ -13,7 +13,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
@@ -49,7 +48,6 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	@Override
     public void notifyDataManagerChange(DataParameter<?> key) {
 		if (key == VELOCITY) {
-			System.out.println("received: "+this.dataManager.get(VELOCITY).getX()+", "+this.dataManager.get(VELOCITY).getY()+", "+this.dataManager.get(VELOCITY).getZ());
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
@@ -60,13 +58,6 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	
 	@Override
 	public void onUpdate() {
-		//System.out.println(ticksExisted+", x: "+motionX+", y: "+motionY+", z: "+motionZ);//TODO
-		System.out.println("distance: "+Math.sqrt(this.getPositionVector().squareDistanceTo(prevPosX, prevPosY, prevPosZ)));
-		System.out.println("speed: "+new Vec3d(motionX, motionY, motionZ).lengthVector());
-
-	/*	if (this.firstUpdate && this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
-			EntityHelper.updateFromPacket(this);
-		*/
 		this.prevPosX = this.posX; 
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;

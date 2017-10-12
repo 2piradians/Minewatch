@@ -191,7 +191,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				!hero.ability1.isSelected(player)) {			
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 3.0F, 4F, 1F, hand, false);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 8F, hand);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, player.posX, player.posY, player.posZ, 

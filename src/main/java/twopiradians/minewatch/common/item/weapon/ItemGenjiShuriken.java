@@ -150,10 +150,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		// throw single shuriken
+		// throw single shuriken TODO make triple w/ delay
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw, 3F, 1.0F, 1F, hand, false);
+			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw, 60, 1, hand);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -173,7 +173,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 3F, 1.0F, 0F, hand, false);
+				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 60, 1, hand);
 				player.world.spawnEntity(shuriken);
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 

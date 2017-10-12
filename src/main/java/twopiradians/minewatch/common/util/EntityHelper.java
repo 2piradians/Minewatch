@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
@@ -26,32 +27,9 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class EntityHelper {
-
-	/**Update entity's position from the spawning packet*/
-	public static void updateFromPacket(Entity entity) {//TODO particles on impact
-		SPacketSyncSpawningEntity packet = ModEntities.spawningEntityPacket;
-		if (packet != null) {
-			entity.rotationPitch = packet.pitch;
-			entity.prevRotationPitch = packet.pitch;
-			entity.rotationYaw = packet.yaw;
-			entity.prevRotationYaw = packet.yaw;
-			entity.motionX = packet.motionX;
-			entity.motionY = packet.motionY;
-			entity.motionZ = packet.motionZ;
-			entity.posX = packet.posX;
-			entity.posY = packet.posY;
-			entity.posZ = packet.posZ;
-			entity.prevPosX = packet.posX;
-			entity.prevPosY = packet.posY;
-			entity.prevPosZ = packet.posZ;
-			ModEntities.spawningEntityUUID = null;
-		}
-	}
 
 	/**Copied from EntityThrowable*/
 	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
@@ -93,10 +71,10 @@ public class EntityHelper {
 	}
 
 	/**Get the position that an entity should be thrown/shot from*/
-	public static Vec3d getShootingPos(EntityLivingBase entity, float pitch, float yaw, EnumHand hand) {
-		Vec3d look = entity.getLookVec();
+	public static Vec3d getShootingPos(EntityLivingBase entity, float pitch, float yaw, EnumHand hand) {//TODO improve
+		Vec3d look = getLook(pitch, yaw);
 		double x = entity.posX;
-		double y = entity.posY + (double)entity.getEyeHeight() - 0.10000000149011612D;
+		double y = entity.posY + (double)entity.getEyeHeight() - 0.13D;
 		double z = entity.posZ;
 
 		if (hand == EnumHand.MAIN_HAND) {
@@ -135,73 +113,81 @@ public class EntityHelper {
 				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
 			}
 		}
+		else
+			look = look.scale(0.25d);
 
 		return new Vec3d(x+look.xCoord, y+look.yCoord, z+look.zCoord);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, float adjustment, EnumHand hand, boolean sendPacket) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, EnumHand hand) {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand);
 
+		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
+		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
+
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
-		RayTraceResult blockTrace = EntityHelper.getMouseOverBlock(shooter, 512);
+		RayTraceResult blockTrace = EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
 		if (blockTrace != null && blockTrace.typeOfHit == RayTraceResult.Type.BLOCK)
 			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.xCoord, blockTrace.hitVec.yCoord, blockTrace.hitVec.zCoord));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
-		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, 512, friendly);
+		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, 512, friendly, pitch, yaw);
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
 			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.xCoord, entityTrace.hitVec.yCoord, entityTrace.hitVec.zCoord));
 
 		double x, y, z;
 		// block is closest
 		if (blockDistance < entityDistance && blockDistance < Double.MAX_VALUE) {
-			System.out.println("Block: "+shooter.world.getBlockState(blockTrace.getBlockPos()).getBlock().getLocalizedName()+", "+blockDistance);
 			x = blockTrace.hitVec.xCoord - vec.xCoord;
 			y = blockTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
 			z = blockTrace.hitVec.zCoord - vec.zCoord;
 		}
 		// entity is closest
 		else if (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE) {
-			System.out.println("Entity: "+entityTrace.entityHit.getName()+", "+entityDistance);// TODO
 			x = entityTrace.hitVec.xCoord - vec.xCoord;
 			y = entityTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
 			z = entityTrace.hitVec.zCoord - vec.zCoord;
 		}
 		// not looking at block/entity
 		else {
-			System.out.println("none");	
-			//x = -Math.sin((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
-			//y = -Math.sin(pitch * Math.PI/180);
-			//z = Math.cos((yaw+Math.copySign(adjustment, hand == EnumHand.MAIN_HAND ? -yaw : yaw)) * Math.PI/180) * Math.cos(pitch * Math.PI/180);
-			Vec3d look = shooter.getLook(1).scale(50);
+			Vec3d look = getLook(pitch, yaw).scale(metersPerSecond == -1 ? 100 : 1);
 			x = look.xCoord;
 			y = look.yCoord;
 			z = look.zCoord;
 		}
 
 		entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord);
-		setThrowableHeading(entity, x, y, z, metersPerSecond, inaccuracy);
 
 		// send velocity to server/client
-		if (entity.hasNoGravity()) {
-			Vec3d scaledVelocity = new Vec3d(x, y, z);
-			if (metersPerSecond != -1) // hitscan if -1
-				scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d*3d);
-			System.out.println(scaledVelocity.lengthVector());
-			System.out.println("original: x: "+x+", y: "+y+", z: "+z);
-			System.out.println("scaled: "+scaledVelocity);
-			entity.getDataManager().set(EntityMW.VELOCITY, new Rotations((float)scaledVelocity.xCoord, (float)scaledVelocity.yCoord, (float)scaledVelocity.zCoord));
-		}
+		Vec3d scaledVelocity = new Vec3d(x, y, z);
+		if (metersPerSecond != -1) // hitscan if -1
+			scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d);
+		DataParameter<Rotations> data = entity instanceof EntityMW ? EntityMW.VELOCITY : 
+			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY : 
+				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.VELOCITY : null;
+		if (data != null)
+			entity.getDataManager().set(data, new Rotations((float)scaledVelocity.xCoord, (float)scaledVelocity.yCoord, (float)scaledVelocity.zCoord));
+		else
+			System.out.println("Missing velocity parameter for: "+entity);
 
-		/*// correct trajectory of fast entities (received in render class)
-		if (!entity.world.isRemote && entity.ticksExisted == 0 && sendPacket) {
-			Minewatch.network.sendToAll(new SPacketSyncSpawningEntity(entity.getPersistentID(), 
-					entity.rotationPitch, entity.rotationYaw, entity.motionX, entity.motionY, entity.motionZ, 
-					entity.posX, entity.posY, entity.posZ));
-		}*/
+		// set rotations
+		if (entity instanceof EntityHanzoArrow) {
+			float f = MathHelper.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ);
+			entity.rotationYaw = (float)(MathHelper.atan2(entity.motionX, entity.motionZ) * (180D / Math.PI));
+			entity.rotationPitch = (float)(MathHelper.atan2(entity.motionY, (double)f) * (180D / Math.PI));
+			entity.prevRotationYaw = entity.rotationYaw;
+			entity.prevRotationPitch = entity.rotationPitch;
+		}
+		else {
+			float f = MathHelper.sqrt(x * x + z * z);
+			entity.rotationYaw = -(float)(MathHelper.atan2(x, z) * (180D / Math.PI));
+			entity.rotationPitch = -(float)(MathHelper.atan2(y, (double)f) * (180D / Math.PI));
+			entity.prevRotationYaw = entity.rotationYaw;
+			entity.prevRotationPitch = entity.rotationPitch;
+		}
 	}
 
 	/**Is an entity friendly - i.e. will it heal or damage*/
@@ -267,20 +253,37 @@ public class EntityHelper {
 		}
 		// correct position of projectile - for fixing particles
 		else if (shouldHit(projectile.getThrower(), entityHit, damage <= 0, source) && projectile.world.isRemote) {
-			Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
-			Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
-			AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
-			RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
-			if (ray != null) {
-				projectile.posX = ray.hitVec.xCoord;
-				projectile.posY = ray.hitVec.yCoord;
-				projectile.posZ = ray.hitVec.zCoord;
-			}
+			moveToEntityHit(projectile, entityHit);
 
 			projectile.setDead();
 		}
 
 		return false;
+	}
+	
+	/**Attempts do damage with falloff returns true if successful on server*/
+	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
+		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
+			EntityHelper.moveToEntityHit(projectile, entityHit);
+			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
+			if (distance <= maxFalloff && attemptImpact(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
+				return true;
+			projectile.setDead();
+		}
+		return false;
+	}
+
+	/**Move projectile to where it would collide with the entityHit - for fixing particles on impact*/
+	public static void moveToEntityHit(Entity projectile, Entity entityHit) {
+		Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
+		Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
+		AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
+		RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
+		if (ray != null) {
+			projectile.posX = ray.hitVec.xCoord;
+			projectile.posY = ray.hitVec.yCoord;
+			projectile.posZ = ray.hitVec.zCoord;
+		}
 	}
 
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
@@ -298,7 +301,7 @@ public class EntityHelper {
 				return true;
 			}
 			// damage
-			else if (damage >= 0) {
+			else if (damage > 0) {
 				boolean damaged = false;
 				if (!Config.projectilesCauseKnockback || neverKnockback && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
@@ -341,20 +344,31 @@ public class EntityHelper {
 	/**Get block that shooter is looking at within distance blocks - modified from Entity#rayTrace*/
 	@Nullable
 	public static RayTraceResult getMouseOverBlock(EntityLivingBase shooter, double distance) {
+		return getMouseOverBlock(shooter, distance, shooter.rotationPitch, shooter.rotationYawHead);
+	}
+
+	/**Get block that shooter is looking at within distance blocks - modified from Entity#rayTrace*/
+	@Nullable
+	public static RayTraceResult getMouseOverBlock(EntityLivingBase shooter, double distance, float pitch, float yawHead) {
 		Vec3d vec3d = shooter.getPositionEyes(1);
-		Vec3d vec3d1 = shooter.getLook(1);
+		Vec3d vec3d1 = getLook(pitch, yawHead);
 		Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * distance, vec3d1.yCoord * distance, vec3d1.zCoord * distance);
 		return shooter.world.rayTraceBlocks(vec3d, vec3d2, false, true, true);
 	}
 
 	/**Get entity that shooter is looking at within distance blocks - modified from EntityRenderer#getMouseOver*/
 	public static RayTraceResult getMouseOverEntity(EntityLivingBase shooter, int distance, boolean friendly) {
+		return getMouseOverEntity(shooter, distance, friendly, shooter.rotationPitch, shooter.rotationYawHead);
+	}
+
+	/**Get entity that shooter is looking at within distance blocks - modified from EntityRenderer#getMouseOver*/
+	public static RayTraceResult getMouseOverEntity(EntityLivingBase shooter, int distance, boolean friendly, float pitch, float yawHead) {
 		RayTraceResult result = null;
 		if (shooter != null) {
 			double d0 = distance - 1;
 			Vec3d vec3d = shooter.getPositionEyes(1);
 			double d1 = d0;
-			Vec3d vec3d1 = shooter.getLook(1.0F);
+			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
 			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
@@ -395,6 +409,15 @@ public class EntityHelper {
 			return result;
 		else
 			return null;
+	}
+
+	/**Copied from Entity#getvectorForRotation to make public*/
+	public static Vec3d getLook(float pitch, float yawHead) {
+		float f = MathHelper.cos(-yawHead * 0.017453292F - (float)Math.PI);
+		float f1 = MathHelper.sin(-yawHead * 0.017453292F - (float)Math.PI);
+		float f2 = -MathHelper.cos(-pitch * 0.017453292F);
+		float f3 = MathHelper.sin(-pitch * 0.017453292F);
+		return new Vec3d((double)(f1 * f2), (double)f3, (double)(f * f2));
 	}
 
 }

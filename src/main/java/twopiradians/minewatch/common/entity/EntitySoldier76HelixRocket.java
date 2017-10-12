@@ -42,6 +42,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 		double speed = 100d;
 		double size = 0.3d;
 
+		// TODO improve
 		double separateThree = (num - 2) * 360 / 3;
 		double toRadians = Math.PI / 180;
 		double ticks = this.ticksExisted * speed;

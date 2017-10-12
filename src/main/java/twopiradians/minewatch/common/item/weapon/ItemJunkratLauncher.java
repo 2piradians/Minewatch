@@ -29,7 +29,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player);
-				EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 1.5F, 0.3F, 2F, hand, false);
+				EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 17.5f, 0.6F, hand);
 				world.spawnEntity(grenade);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -64,7 +64,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 					Minewatch.proxy.stopSound(player2, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
 				hero.ability1.keybind.setCooldown(player, 240, false); 
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
-				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 1.0F, 0.1F, 0F, null, false);
+				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 15, 0, null);
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(trap);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

@@ -49,7 +49,7 @@ public class EntityMeiBlast extends EntityMW {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
 				entityLiving.setRevengeTarget(null);
 				if (entityLiving instanceof EntityLiving)
-					((EntityLiving)entityLiving).setAttackTarget(null);
+					((EntityLiving)entityLiving).setAttackTarget(entityLiving);
 				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
 				TickHandler.interrupt(entityLiving);
 				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),
@@ -79,7 +79,7 @@ public class EntityMeiBlast extends EntityMW {
 		this.setSize(0.1f, 0.1f);
 		this.notDeflectible = true;
 		this.setNoGravity(true);
-		this.lifetime = 5;
+		this.lifetime = 8;
 	}
 
 	@Override

@@ -177,7 +177,7 @@ public class Handlers {
 
 	@SubscribeEvent
 	public void preventTargeting(LivingSetAttackTargetEvent event) {
-		if (event.getTarget() != null && event.getEntity() instanceof EntityLivingBase &&
+		if (event.getTarget() != event.getEntity() && event.getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_INPUT)) {
 			if (event.getEntity() instanceof EntityLiving)
 				((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase) event.getEntity());

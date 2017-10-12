@@ -1,7 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -15,7 +17,7 @@ public class EntitySoldier76Bullet extends EntityMW {
 		super(worldIn, throwerIn);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 15;
+		this.lifetime = 3;
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class EntitySoldier76Bullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 19 - (19 - 5.7f) * ((float)this.ticksExisted / lifetime), false)) 
+		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 5.7f, 19, 30, 55)) 
 			result.entityHit.hurtResistantTime = 0;
 	}
 }

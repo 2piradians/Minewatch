@@ -26,15 +26,17 @@ public class RenderGenjiShuriken extends RenderSimple<EntityGenjiShuriken> {
 	public void doRender(EntityGenjiShuriken entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
+		double scale = 0.5d;
 		GlStateManager.pushMatrix();
-        GlStateManager.translate((float)x, (float)y+.05f, (float)z);
+        GlStateManager.translate((float)x, (float)y+0.05d, (float)z);
         GlStateManager.enableRescaleNormal();
-        GlStateManager.scale(0.5d, 0.5d, 0.5d);
-        GlStateManager.rotate(entity.ticksExisted*10, 0.2F, 0.0F, 1.0F);
-        GlStateManager.rotate(entityYaw, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(90, 1, 0, 0);
-
-        this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.GROUND);
+        GlStateManager.scale(scale, scale, scale);
+		GlStateManager.rotate(-(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks), 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, 1.0F, 0.0F, 0.0F);
+		GlStateManager.rotate(90, 0, 1, 0);
+		GlStateManager.rotate(entity.ticksExisted*50f, 0, 0, 1);
+		
+        this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.FIXED);
 
         GlStateManager.disableRescaleNormal();
         GlStateManager.popMatrix();

@@ -75,7 +75,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 			if (this.ticksExisted % 2 == 0)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, posX, posY, posZ, false, true);
 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, this.ticksExisted == 1 ? 0.8f : 1, 20, this.ticksExisted == 1 ? 0.01f : 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 		}
 
 		super.onUpdate();

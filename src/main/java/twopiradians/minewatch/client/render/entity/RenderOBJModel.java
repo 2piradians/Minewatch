@@ -25,8 +25,6 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
-import twopiradians.minewatch.common.entity.ModEntities;
-import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 
@@ -58,9 +56,6 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			}
 		}
 		
-		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			EntityHelper.updateFromPacket(entity);
-
 		for (int i=0; i<this.bakedModels.length; ++i) {
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.pushMatrix();

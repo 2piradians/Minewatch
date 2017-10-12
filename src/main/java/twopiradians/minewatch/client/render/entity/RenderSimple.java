@@ -30,10 +30,7 @@ public class RenderSimple<T extends Entity> extends Render<T> {
 
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {			
-	/*	if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			EntityHelper.updateFromPacket(entity);*/
-
-		if (this.MODEL != null) {
+		if (this.MODEL != null && (entity.ticksExisted > 1 || !entity.hasNoGravity())) {
 			float scale = 0.05f;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate((float)x, (float)y + scale, (float)z);

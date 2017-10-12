@@ -11,9 +11,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
@@ -22,6 +26,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityLivingBaseMW extends EntityLivingBase implements IThrowableEntity {
 
+    public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
@@ -39,12 +44,26 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 	}
+	
+	@Override
+    public void notifyDataManagerChange(DataParameter<?> key) {
+		if (key == VELOCITY) {
+			this.motionX = this.dataManager.get(VELOCITY).getX();
+			this.motionY = this.dataManager.get(VELOCITY).getY();
+			this.motionZ = this.dataManager.get(VELOCITY).getZ();
+			this.prevRotationPitch = this.rotationPitch;
+			this.prevRotationYaw = this.rotationYaw;
+		}
+    }
+	
+	@Override
+	protected void entityInit() {
+		super.entityInit();
+		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+	}
 
 	@Override
 	public void onUpdate() {	
-		if (this.firstUpdate && this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID))
-			EntityHelper.updateFromPacket(this);
-
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;

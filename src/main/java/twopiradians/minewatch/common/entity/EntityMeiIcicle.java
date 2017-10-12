@@ -6,13 +6,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
-import twopiradians.minewatch.packet.SPacketSyncSpawningEntity;
 
 public class EntityMeiIcicle extends EntityMW {
 
@@ -46,11 +44,8 @@ public class EntityMeiIcicle extends EntityMW {
 
 		// in ground
 
-		if (this.inGround && this.lifetime == 40) {
+		if (this.inGround && this.lifetime == 40) 
 			this.lifetime = 1240;
-			if (this.world.isRemote && this.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-				EntityHelper.updateFromPacket(this);
-		}
 
 		BlockPos blockpos = new BlockPos(this.xTile, this.yTile, this.zTile);
 		IBlockState iblockstate = this.world.getBlockState(blockpos);
@@ -99,14 +94,13 @@ public class EntityMeiIcicle extends EntityMW {
 
 			if (iblockstate.getMaterial() != Material.AIR)
 				this.inTile.onEntityCollidedWithBlock(this.world, blockpos, iblockstate, this);
-
-			if (!this.world.isRemote && this.world instanceof WorldServer) {
-				Minewatch.network.sendToAll(new SPacketSyncSpawningEntity(this.getPersistentID(), 
-						this.rotationPitch, this.rotationYaw, this.motionX, this.motionY, this.motionZ, 
-						this.posX, this.posY, this.posZ));
+		}
+		else {
+			if (EntityHelper.shouldHit(getThrower(), result.entityHit, false)) {
+				EntityHelper.moveToEntityHit(this, result.entityHit);
+				double distance = this.getPositionVector().distanceTo(new Vec3d(prevPosX, prevPosY, prevPosZ));
+				EntityHelper.attemptImpact(this, result.entityHit, (float) (75-(75-22) * MathHelper.clamp((distance-26) / (55-26), 0, 1)), false); 
 			}
 		}
-		else
-			EntityHelper.attemptImpact(this, result.entityHit, 75 - (75 - 22) * ((float)this.ticksExisted / lifetime), false);
 	}
 }

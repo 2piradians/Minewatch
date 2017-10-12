@@ -127,7 +127,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				hero.playersUsingAlt.get(player.getPersistentID())) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 2.0F, 0.3F, 0F, hand, true);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.mercyShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

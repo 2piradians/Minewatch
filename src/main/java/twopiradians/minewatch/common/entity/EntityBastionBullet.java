@@ -1,7 +1,9 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -15,7 +17,7 @@ public class EntityBastionBullet extends EntityMW {
 		super(worldIn, throwerIn);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 50;
+		this.lifetime = 3;
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class EntityBastionBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 20 - (20 - 6) * ((float)this.ticksExisted / lifetime), false)) 
+		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 6, 20, 26, 50)) 
 			result.entityHit.hurtResistantTime = 0;
 	}
 }

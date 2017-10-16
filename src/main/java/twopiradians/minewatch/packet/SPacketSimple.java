@@ -199,8 +199,11 @@ public class SPacketSimple implements IMessage {
 					}
 					// Genji's use sword
 					else if (packet.type == 4 && packetPlayer != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemGenjiShuriken.DEFLECT.setEntity(packetPlayer).setTicks((int) packet.x));
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks((int) packet.x));
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks((int) packet.x));
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks((int) packet.x).
+								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null));
 					}
 					// Reinhardt's hammer swing
 					else if (packet.type == 5) {

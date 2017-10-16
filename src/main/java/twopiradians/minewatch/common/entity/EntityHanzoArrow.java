@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
@@ -42,8 +44,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			this.prevRotationPitch = this.rotationPitch;
-			this.prevRotationYaw = this.rotationYaw;
+			EntityHelper.setRotations(this);
 		}
 	}
 
@@ -63,7 +64,8 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 			}
 			
 			// stop moving so particles don't keep going
-			if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) {
+			if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false) &&
+					!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
 				this.motionX = 0;
 				this.motionY = 0;
 				this.motionZ = 0;

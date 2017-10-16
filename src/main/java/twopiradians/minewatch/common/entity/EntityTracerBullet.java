@@ -15,7 +15,7 @@ public class EntityTracerBullet extends EntityMW {
 		super(worldIn, throwerIn);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 15;
+		this.lifetime = 3;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class EntityTracerBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0, 0x5EDCE5, 0x007acc, 0.5f, 1, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0, 0x5EDCE5, 0x007acc, 0.5f, 2, 0.8f);
 	}
 
 	@Override

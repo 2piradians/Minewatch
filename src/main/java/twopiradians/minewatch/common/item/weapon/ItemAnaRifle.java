@@ -119,7 +119,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 						hero.playersUsingAlt.get(player.getPersistentID()));
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, player.getActiveItemStack() == stack ? -1f : 90f, 0,  
-						Minewatch.keys.rmb(player) ? null : hand);
+						Minewatch.keys.rmb(player) ? null : hand, 9, 0.27f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
@@ -146,8 +146,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
-				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 3F, 0F, 
-						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND);
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, 
+						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, 9, 0.27f);
 				world.spawnEntity(dart);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 

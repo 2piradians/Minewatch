@@ -1,9 +1,7 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -25,7 +23,7 @@ public class EntityReaperBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 1, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
 	}
 
 	@Override

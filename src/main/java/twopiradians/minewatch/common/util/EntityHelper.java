@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
@@ -28,6 +29,8 @@ import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHelper {
 
@@ -71,58 +74,24 @@ public class EntityHelper {
 	}
 
 	/**Get the position that an entity should be thrown/shot from*/
-	public static Vec3d getShootingPos(EntityLivingBase entity, float pitch, float yaw, EnumHand hand) {//TODO improve
-		Vec3d look = getLook(pitch, yaw);
-		double x = entity.posX;
-		double y = entity.posY + (double)entity.getEyeHeight() - 0.13D;
-		double z = entity.posZ;
-
-		if (hand == EnumHand.MAIN_HAND) {
-			look = look.rotateYaw(-0.5f);
-			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
-				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				y = y + Math.sin(pitch*Math.PI/180)/8;
-				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
-				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				y = y + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
-				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 70) {
-				x = x - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
-				y = y + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
-				z = z - Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
-			}
+	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		if (hand == null) {
+			horizontalAdjust = 0;
+			verticalAdjust = 10f;
 		}
-		else if (hand == EnumHand.OFF_HAND) {
-			look = look.rotateYaw(0.5f);
-			if (Math.abs(pitch) >= 20 && Math.abs(pitch) < 50) {
-				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				y = y + Math.sin(pitch*Math.PI/180)/8;
-				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 50 && Math.abs(pitch) < 70) {
-				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/8;
-				y = y + Math.sin(pitch*Math.PI/180)/20 - (pitch < 0 ? 0.2d : 0);
-				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/8;
-			}
-			else if (Math.abs(pitch) >= 70) {
-				x = x + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.cos(yaw*Math.PI/180)/4;
-				y = y + Math.sin(pitch*Math.PI/180)/30 - (pitch < 0 ? 0.2d : -0.2d);
-				z = z + Math.sin(Math.abs(pitch)*Math.PI/180)*Math.sin(yaw*Math.PI/180)/4;
-			}
-		}
-		else
-			look = look.scale(0.25d);
-
-		return new Vec3d(x+look.xCoord, y+look.yCoord, z+look.zCoord);
+		else if (hand == EnumHand.OFF_HAND)
+			horizontalAdjust *= -1;
+		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
+		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
+		if (pitch+verticalAdjust > 90)
+			horizontalVec = horizontalVec.scale(-1);
+		return shooter.getPositionVector().add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, EnumHand hand) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		boolean friendly = isFriendly(entity);
-		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand);
+		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
@@ -165,29 +134,32 @@ public class EntityHelper {
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
 		if (metersPerSecond != -1) // hitscan if -1
 			scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d);
-		DataParameter<Rotations> data = entity instanceof EntityMW ? EntityMW.VELOCITY : 
-			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY : 
-				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.VELOCITY : null;
+		DataParameter<Rotations> data = getVelocityParameter(entity);
 		if (data != null)
 			entity.getDataManager().set(data, new Rotations((float)scaledVelocity.xCoord, (float)scaledVelocity.yCoord, (float)scaledVelocity.zCoord));
 		else
 			System.out.println("Missing velocity parameter for: "+entity);
+	}
 
-		// set rotations
-		if (entity instanceof EntityHanzoArrow) {
-			float f = MathHelper.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ);
-			entity.rotationYaw = (float)(MathHelper.atan2(entity.motionX, entity.motionZ) * (180D / Math.PI));
-			entity.rotationPitch = (float)(MathHelper.atan2(entity.motionY, (double)f) * (180D / Math.PI));
-			entity.prevRotationYaw = entity.rotationYaw;
-			entity.prevRotationPitch = entity.rotationPitch;
+	/**Get DataParemeter for setting velocity for entity*/
+	public static DataParameter<Rotations> getVelocityParameter(Entity entity) {
+		return entity instanceof EntityMW ? EntityMW.VELOCITY : 
+			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY : 
+				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.VELOCITY : null;
+	}
+
+	/**Set rotations based on entity's motion*/
+	public static void setRotations(Entity entity) {
+		Vec3d vec = new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize();
+		float f = MathHelper.sqrt(vec.xCoord * vec.xCoord + vec.zCoord * vec.zCoord);
+		entity.rotationYaw = (float)(MathHelper.atan2(vec.xCoord, vec.zCoord) * (180D / Math.PI));
+		entity.rotationPitch = (float)(MathHelper.atan2(vec.yCoord, (double)f) * (180D / Math.PI));
+		if (!(entity instanceof EntityArrow)) {
+			entity.rotationYaw *= -1;
+			entity.rotationPitch *= -1;
 		}
-		else {
-			float f = MathHelper.sqrt(x * x + z * z);
-			entity.rotationYaw = -(float)(MathHelper.atan2(x, z) * (180D / Math.PI));
-			entity.rotationPitch = -(float)(MathHelper.atan2(y, (double)f) * (180D / Math.PI));
-			entity.prevRotationYaw = entity.rotationYaw;
-			entity.prevRotationPitch = entity.rotationPitch;
-		}
+		entity.prevRotationYaw = entity.rotationYaw;
+		entity.prevRotationPitch = entity.rotationPitch;
 	}
 
 	/**Is an entity friendly - i.e. will it heal or damage*/
@@ -196,32 +168,10 @@ public class EntityHelper {
 				(entity instanceof EntityLivingBaseMW && ((EntityLivingBaseMW)entity).isFriendly);
 	}
 
-	/**Copied from EntityThrowable*/
-	public static void setThrowableHeading(Entity entity, double x, double y, double z, float velocity, float inaccuracy) {
-		float f = MathHelper.sqrt(x * x + y * y + z * z);
-		x = x / (double)f;
-		y = y / (double)f;
-		z = z / (double)f;
-		x = x + entity.world.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
-		y = y + entity.world.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
-		z = z + entity.world.rand.nextGaussian() * 0.007499999832361937D * (double)inaccuracy;
-		x = x * (double)velocity;
-		y = y * (double)velocity;
-		z = z * (double)velocity;
-		entity.motionX = x;
-		entity.motionY = y;
-		entity.motionZ = z;
-		float f1 = MathHelper.sqrt(x * x + z * z);
-		entity.rotationYaw = -(float)(MathHelper.atan2(x, z) * (180D / Math.PI));
-		entity.rotationPitch = -(float)(MathHelper.atan2(y, (double)f1) * (180D / Math.PI));
-		entity.prevRotationYaw = entity.rotationYaw;
-		entity.prevRotationPitch = entity.rotationPitch;
-	}
-
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
-		DamageSource source = getDamageSource(thrower);
+		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
 		return source != null && shouldHit(thrower, entityHit, friendly, source);
 	}
 
@@ -239,7 +189,7 @@ public class EntityHelper {
 	 * If damage is negative, entity will be healed by that amount
 	 * Uses default DamageSources (player/mob damage)*/
 	public static <T extends Entity & IThrowableEntity> boolean attemptImpact(T projectile, Entity entityHit, float damage, boolean neverKnockback) {
-		DamageSource source = getDamageSource(projectile.getThrower());
+		DamageSource source = projectile != null && projectile.getThrower() instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(projectile, (EntityLivingBase) projectile.getThrower()) : null;
 		return source != null && attemptImpact(projectile, entityHit, damage, neverKnockback, source);
 	}
 
@@ -254,11 +204,13 @@ public class EntityHelper {
 		// correct position of projectile - for fixing particles
 		else if (shouldHit(projectile.getThrower(), entityHit, damage <= 0, source) && projectile.world.isRemote) {
 			moveToEntityHit(projectile, entityHit);
-			projectile.setDead();
+			// don't kill on client if deflecting
+			if (!TickHandler.hasHandler(entityHit, Identifier.GENJI_DEFLECT))
+				projectile.setDead();
 		}
 		return false;
 	}
-	
+
 	/**Attempts do damage with falloff returns true if successful on server*/
 	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
 		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
@@ -266,7 +218,10 @@ public class EntityHelper {
 			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
 			if (distance <= maxFalloff && attemptImpact(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
 				return true;
-			projectile.setDead();
+			// don't kill if deflecting
+			else if (!TickHandler.hasHandler(entityHit, Identifier.GENJI_DEFLECT)) {
+				projectile.setDead();
+			}
 		}
 		return false;
 	}
@@ -285,7 +240,7 @@ public class EntityHelper {
 	}
 
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
-		DamageSource source = getDamageSource(thrower);
+		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
 		return source != null && attemptDamage(thrower, entityHit, damage, neverKnockback, source);
 	}
 
@@ -299,7 +254,7 @@ public class EntityHelper {
 				return true;
 			}
 			// damage
-			else if (damage > 0) {
+			else if (damage >= 0) {
 				boolean damaged = false;
 				if (!Config.projectilesCauseKnockback || neverKnockback && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
@@ -315,12 +270,6 @@ public class EntityHelper {
 		}
 
 		return false;
-	}
-
-	/**Get damage source for this entity (player/mob damage)*/
-	public static DamageSource getDamageSource(Entity thrower) {
-		return thrower instanceof EntityPlayer ? DamageSource.causePlayerDamage((EntityPlayer) thrower) :
-			thrower instanceof EntityLivingBase ? DamageSource.causeMobDamage((EntityLivingBase) thrower) : null;
 	}
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/

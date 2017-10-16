@@ -12,7 +12,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 @SideOnly(Side.CLIENT)
 public class ModelMWArmor extends ModelPlayer {
 
-	public ModelMWArmor(float modelSize, boolean smallArmsIn) {
+	public ModelMWArmor(float modelSize, boolean smallArmsIn) {//TODO recolor w/mei's freeze
 		super(modelSize, smallArmsIn);
 	}
 

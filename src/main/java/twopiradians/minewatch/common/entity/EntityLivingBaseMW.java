@@ -11,6 +11,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -51,8 +52,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			this.prevRotationPitch = this.rotationPitch;
-			this.prevRotationYaw = this.rotationYaw;
+			EntityHelper.setRotations(this);
 		}
     }
 	
@@ -151,13 +151,18 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	}
 	
 	@Override
+	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
+	@Override
+	public boolean writeToNBTAtomically(NBTTagCompound compound) {return false;}
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {}
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {return compound;}
+	@Override
 	public void setItemStackToSlot(EntityEquipmentSlot slotIn, ItemStack stack) {}
-	
 	@Override
 	public void knockBack(Entity entityIn, float strength, double xRatio, double zRatio) {}
-
 	@Override
 	public void fall(float distance, float damageMultiplier) {}
-
 
 }

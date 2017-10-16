@@ -6,15 +6,20 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntitySoldier76HelixRocket extends EntityMW {
 
 	private static final DataParameter<Integer> NUMBER = EntityDataManager.<Integer>createKey(EntitySoldier76HelixRocket.class, DataSerializers.VARINT);
-
+	/**non-spiral position*/
+	private Vec3d vec;
+	
 	public EntitySoldier76HelixRocket(World worldIn) {
 		this(worldIn, null, -1);
 	}
@@ -25,7 +30,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 		if (!worldIn.isRemote && number != -1)
 			this.getDataManager().set(NUMBER, number);
 		this.setNoGravity(true);
-		this.lifetime = 60;
+		this.lifetime = Integer.MAX_VALUE;// 60;
 	}
 
 	@Override
@@ -35,37 +40,19 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	}
 
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {
 		super.onUpdate();
+		
+		// spiral rotation
+		if (vec == null)
+			vec = this.getPositionVector();
+		else
+			vec = vec.addVector(this.motionX, this.motionY, this.motionZ);
 
-		int num = this.getDataManager().get(NUMBER);
-		double speed = 100d;
-		double size = 0.3d;
-
-		// TODO improve
-		double separateThree = (num - 2) * 360 / 3;
-		double toRadians = Math.PI / 180;
-		double ticks = this.ticksExisted * speed;
-		double yaw = this.rotationYaw;
-		double pitch = this.rotationPitch;
-
-		if (this.ticksExisted == 1) {
-			if (Math.abs(pitch) >= 30 && Math.abs(pitch) <= 70) {
-				this.posX += size * (Math.sin(Math.abs(pitch) * toRadians + Math.PI/4) * Math.cos((yaw + separateThree) * toRadians));                
-				this.posY += size * Math.cos((pitch + separateThree) * toRadians) * Math.cos(pitch * toRadians);
-				this.posZ += size * (Math.sin(Math.abs(pitch) * toRadians + Math.PI/4) * Math.sin((yaw + separateThree) * toRadians));
-			}
-			else {
-				this.posX += size * (Math.sin(pitch * toRadians) * Math.sin((yaw + separateThree) * toRadians) + Math.cos(pitch * toRadians) * Math.cos(yaw * toRadians) * Math.signum(num - 2));                
-				this.posY += size * Math.cos((pitch + separateThree) * toRadians) * Math.cos(pitch * toRadians);
-				this.posZ += size * (Math.sin(pitch * toRadians) * Math.cos((yaw + separateThree) * toRadians) - Math.cos(pitch * toRadians) * Math.sin(yaw * toRadians) * Math.signum(num - 2));
-			}
-		}
-
-		this.posX += this.motionX + Math.cos((yaw + separateThree + ticks) * toRadians) * Math.cos((pitch + separateThree + ticks) * toRadians) * size - Math.cos(yaw * toRadians) * size/2;                
-		this.posY += this.motionY + Math.sin((yaw + separateThree + this.ticksExisted * speed) * Math.PI / 180) * size;
-		this.posZ += this.motionZ + Math.cos((yaw + separateThree + ticks) * toRadians) * Math.sin((pitch + separateThree + ticks) * toRadians) * size + Math.sin(yaw * toRadians) * size/2;
-
+		float verticalAdjust = this.ticksExisted*30f + this.getDataManager().get(NUMBER)*120f;
+		Vec3d vec2 = vec.add(EntityHelper.getLook(this.rotationPitch+verticalAdjust, this.rotationYaw+90).scale(0.2d));
+		this.setPosition(vec2.xCoord, vec2.yCoord, vec2.zCoord);
+		
 		if (this.world.isRemote) 
 			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
 	}
@@ -79,16 +66,18 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 			if (EntityHelper.attemptImpact(this, result.entityHit, 1, false)) 
 				result.entityHit.hurtResistantTime = 10;
 
-			// explosion
-			if (this.world.isRemote) 
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
-						0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
-			else {
-				Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-						1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true);
-				this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
+				// explosion
+				if (this.world.isRemote) 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
+							0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
+				else {
+					Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
+							1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true);
+					this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+				}
+				this.setDead();
 			}
-			this.setDead();
 		}
 	}
 }

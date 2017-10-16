@@ -17,6 +17,7 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
@@ -24,6 +25,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +37,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -48,7 +51,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
 
-	public static final Handler DEFLECT_SERVER = new Handler(Identifier.GENJI_DEFLECT, true) {
+	public static final Handler DEFLECT = new Handler(Identifier.GENJI_DEFLECT, true) {
 		@Override
 		public boolean onServerTick() {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(4);
@@ -153,7 +156,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		// throw single shuriken TODO make triple w/ delay
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw, 60, 1, hand);
+			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw, 60, 1, hand, 15, 0.6f);
 			player.world.spawnEntity(shuriken);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -173,7 +176,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player);
-				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 60, 1, hand);
+				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYaw + (1 - i)*8, 60, 1, hand, 15, 0.6f);
 				player.world.spawnEntity(shuriken);
 			}
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -198,8 +201,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected((EntityPlayer) entity) &&
 					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
-				Minewatch.network.sendToAll(new SPacketSimple(4, (EntityPlayer) entity, 40, 0, 0));
-				TickHandler.register(false, DEFLECT_SERVER.setEntity(player).setTicks(40));
+				Minewatch.network.sendToDimension(new SPacketSimple(4, true, (EntityPlayer) entity, 40, 0, 0), world.provider.getDimension());
+				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
@@ -209,7 +212,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 					entity instanceof EntityPlayerMP && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
-				Minewatch.network.sendToAll(new SPacketSimple(3, true, (EntityPlayer) entity));
+				Minewatch.network.sendToDimension(new SPacketSimple(3, true, (EntityPlayer) entity), world.provider.getDimension());
 				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
 			}
 		}
@@ -219,16 +222,16 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
-				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ)) < -0.1d &&
-				!(entity instanceof EntityMW && ((EntityMW)entity).notDeflectible)) {
+				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.4d &&
+				!(entity instanceof EntityMW && ((((EntityMW)entity).notDeflectible) || 
+						!EntityHelper.shouldHit(((EntityMW)entity).getThrower(), player, false)))) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
 			entity.motionX = player.getLookVec().xCoord*velScale;	
 			entity.motionY = player.getLookVec().yCoord*velScale;	
 			entity.motionZ = player.getLookVec().zCoord*velScale;		
-			entity.velocityChanged = true;
 
-			if (entity instanceof EntityArrow) { 
+			if (entity instanceof EntityArrow && !(entity instanceof EntityHanzoArrow)) { 
 				EntityArrow ent = (EntityArrow) entity;
 				ent.shootingEntity = player;
 				// undo motion slowing done after event in EntityArrow#onHit
@@ -245,9 +248,15 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
-
+			if (entity instanceof EntityMW)
+				((EntityMW)entity).lifetime *= 2;
+			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
+			if (data != null) 
+				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
+			else
+				entity.velocityChanged = true;
 			player.world.playSound(null, player.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
-			Minewatch.network.sendToAll(new SPacketSimple(13, false, player));
+			Minewatch.network.sendToDimension(new SPacketSimple(13, false, player), player.world.provider.getDimension());
 			return true;
 		}
 		return false;
@@ -256,8 +265,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	@SubscribeEvent
 	public void deflectAttack(LivingAttackEvent event) {
 		if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote && 
-				TickHandler.getHandler(event.getEntity(), Identifier.GENJI_DEFLECT) != null) {
-			if (deflect((EntityPlayer) event.getEntity(), event.getSource().getSourceOfDamage()))
+				TickHandler.hasHandler(event.getEntity(), Identifier.GENJI_DEFLECT)) {
+			if (deflect((EntityPlayer) event.getEntity(), event.getSource().getSourceOfDamage())) 
 				event.setCanceled(true);
 		}
 	}

@@ -27,7 +27,7 @@ public class Ability {
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
-	public EntityLivingBaseMW entity;
+	public HashMap<EntityPlayer, EntityLivingBaseMW> entities = Maps.newHashMap();
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff

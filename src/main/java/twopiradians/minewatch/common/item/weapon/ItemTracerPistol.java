@@ -29,10 +29,10 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			for (int i=0; i<2; i++) {
 				EntityTracerBullet bullet = new EntityTracerBullet(player.world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 2, hand);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 2, hand, 7, 0.58f);
 				player.world.spawnEntity(bullet);
 			}
-			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 7, 0.65f);
 			Minewatch.network.sendToAllAround(new SPacketSimple(22, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	

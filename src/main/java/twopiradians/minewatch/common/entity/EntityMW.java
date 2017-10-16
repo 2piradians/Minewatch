@@ -14,6 +14,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,9 +22,9 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
-    public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
-	protected int lifetime;
+	public int lifetime;
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
 	public boolean isFriendly;
@@ -39,23 +40,22 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 	}
-	
+
 	@Override
 	protected void entityInit() {
 		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
 	}
 
 	@Override
-    public void notifyDataManagerChange(DataParameter<?> key) {
+	public void notifyDataManagerChange(DataParameter<?> key) {
 		if (key == VELOCITY) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			this.prevRotationPitch = this.rotationPitch;
-			this.prevRotationYaw = this.rotationYaw;
+			EntityHelper.setRotations(this);
 		}
-    }
-	
+	}
+
 	@Override
 	public void onUpdate() {
 		this.prevPosX = this.posX; 
@@ -90,11 +90,11 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			}
 		}
 	}
-	
+
 	@Override
-    public float getEyeHeight() {
-        return this.height/2f;
-    }
+	public float getEyeHeight() {
+		return this.height/2f;
+	}
 
 	@Override
 	public boolean isImmuneToExplosions() {
@@ -119,8 +119,15 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	}
 
 	@Override
+	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
+	@Override
+	public boolean writeToNBTAtomically(NBTTagCompound compound) {return false;}
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {}
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {return compound;}
+	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {}
-
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {}
 

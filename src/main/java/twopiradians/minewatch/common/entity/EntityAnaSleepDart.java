@@ -33,7 +33,7 @@ public class EntityAnaSleepDart extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x6FE8E6, 0xECFDFE, this.ticksExisted == 1 ? 0.3f : 0.5f, 8, this.ticksExisted == 1 ? 0.01f : 1);
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x6FE8E6, 0xECFDFE, 0.5f, 8, 1);
 	}
 
 	@Override

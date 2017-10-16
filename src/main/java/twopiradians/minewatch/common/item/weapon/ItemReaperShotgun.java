@@ -191,13 +191,13 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				!hero.ability1.isSelected(player)) {			
 			for (int i=0; i<20; i++) {
 				EntityReaperBullet bullet = new EntityReaperBullet(world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 8F, hand);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 8F, hand, 14, 0.55f);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
-			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
+			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 14, 0.55f);
 			Minewatch.network.sendToAllAround(new SPacketSimple(21, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
 					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
 

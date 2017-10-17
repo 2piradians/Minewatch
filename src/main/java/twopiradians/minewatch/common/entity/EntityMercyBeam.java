@@ -43,9 +43,9 @@ public class EntityMercyBeam extends Entity {
 		this.setNoGravity(true);
 		this.player = player;
 		this.target = target;
-		this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 		this.prevHeal = this.isHealing();
 		if (player != null && target != null) {
+			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 			this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
 			this.dataManager.set(TARGET, target.getEntityId());
 			this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));

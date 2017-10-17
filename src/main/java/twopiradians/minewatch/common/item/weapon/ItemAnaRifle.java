@@ -115,7 +115,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
-				EntityAnaBullet bullet = new EntityAnaBullet(world, player, 
+				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
 						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 						hero.playersUsingAlt.get(player.getPersistentID()));
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, player.getActiveItemStack() == stack ? -1f : 90f, 0,  
@@ -145,7 +145,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 240, false); 
-				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player);
+				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, 
 						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, 9, 0.27f);
 				world.spawnEntity(dart);

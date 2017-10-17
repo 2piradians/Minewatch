@@ -4,8 +4,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityWidowmakerBullet extends EntityMW {
@@ -14,17 +17,23 @@ public class EntityWidowmakerBullet extends EntityMW {
 	private int damage;
 
 	public EntityWidowmakerBullet(World worldIn) {
-		this(worldIn, null, false, 0);
+		this(worldIn, null, -1, false, 0);
 	}
 
-	public EntityWidowmakerBullet(World worldIn, EntityLivingBase throwerIn, boolean scoped, int damage) {
-		super(worldIn, throwerIn);
+	public EntityWidowmakerBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean scoped, int damage) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 20;
 		this.damage = damage;
 		if (!this.world.isRemote)
 			this.getDataManager().set(SCOPED, scoped);
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+				0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0, hand, 4, 0.4f);
 	}
 
 	@Override

@@ -10,11 +10,11 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityGenjiShuriken extends EntityMW {
 
 	public EntityGenjiShuriken(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityGenjiShuriken(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityGenjiShuriken(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.15f, 0.15f);
 		this.setNoGravity(true);
 		this.lifetime = 40;

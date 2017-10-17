@@ -126,7 +126,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
 				hero.playersUsingAlt.get(player.getPersistentID())) {
 			if (!world.isRemote) {
-				EntityMercyBullet bullet = new EntityMercyBullet(world, player);
+				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -138,11 +138,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					player.getCooldownTracker().setCooldown(this, 5);
 				if (world.rand.nextInt(20) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
-			}
-			else {// TODO make shoot particles follow player
-				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 8.5f, 0.6f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
-						0, 0, 0, 0xEF5D1F, 0xEF5D1F, 0.7f, 3, 4, 3, world.rand.nextFloat(), 0.01f);
 			}
 		}
 	}

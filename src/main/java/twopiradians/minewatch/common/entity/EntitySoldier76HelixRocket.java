@@ -5,6 +5,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -21,11 +22,11 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	private Vec3d vec;
 	
 	public EntitySoldier76HelixRocket(World worldIn) {
-		this(worldIn, null, -1);
+		this(worldIn, null, -1, -1);
 	}
 
-	public EntitySoldier76HelixRocket(World worldIn, EntityLivingBase throwerIn, int number) {
-		super(worldIn, throwerIn);
+	public EntitySoldier76HelixRocket(World worldIn, EntityLivingBase throwerIn, int hand, int number) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		if (!worldIn.isRemote && number != -1)
 			this.getDataManager().set(NUMBER, number);
@@ -37,6 +38,12 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	protected void entityInit() {
 		super.entityInit();
 		this.getDataManager().register(NUMBER, Integer.valueOf(0));
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+				0x2B9191, 0x2B9191, 0.7f, 3, 8, 7.5f, 0, 0, hand, 12, 0.45f);
 	}
 
 	@Override

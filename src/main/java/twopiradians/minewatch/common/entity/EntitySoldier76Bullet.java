@@ -1,21 +1,30 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntitySoldier76Bullet extends EntityMW {
 
 	public EntitySoldier76Bullet(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntitySoldier76Bullet(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntitySoldier76Bullet(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 3;
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+				0x4AFDFD, 0x4AFDFD, 0.7f, 1, 5, 4.5f, 0, 0, hand, 12, 0.45f);
 	}
 
 	@Override

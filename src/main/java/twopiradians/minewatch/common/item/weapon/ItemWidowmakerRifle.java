@@ -14,7 +14,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -24,7 +23,6 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -97,7 +95,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			// scoped
 			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
-					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, true, 
+					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, 2, true, 
 							(int) (12+(120d-12d)*getPower(player)));
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 0, 0);
 					player.world.spawnEntity(bullet);
@@ -109,28 +107,19 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 						stack.damageItem(1, player);
 					player.stopActiveHand();
 				}
-				else {
-					Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, null, 0, 0);
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
-							0, 0, 0, 0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0);
+				else 
 					player.stopActiveHand();
-				}
 			}
 			// unscoped
 			else if (!Minewatch.keys.rmb(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
-					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, false, 13);
+					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 5, hand, 6, 0.43f);
 					world.spawnEntity(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);
 					if (world.rand.nextInt(30) == 0)
 						player.getHeldItem(hand).damageItem(1, player);
-				}
-				else {
-					Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 6, 0.48f);
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
-							0, 0, 0, 0xF9394F, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
 				}
 			}
 		}

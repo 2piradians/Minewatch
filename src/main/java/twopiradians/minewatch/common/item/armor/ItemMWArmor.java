@@ -208,7 +208,7 @@ public class ItemMWArmor extends ItemArmor
 						SoundCategory.PLAYERS, 1.0f, 1.0f);
 				for (int i=0; i<6; ++i) {
 					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().world, 
-							(EntityLivingBase) event.getEntity());
+							(EntityLivingBase) event.getEntity(), -1);
 					grenade.explodeTimer = 20+i*2;
 					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
 					grenade.motionX = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;

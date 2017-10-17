@@ -7,12 +7,15 @@ import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Items;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
@@ -73,19 +76,30 @@ public class EntityHelper {
 		return raytraceresult;
 	}
 
-	/**Get the position that an entity should be thrown/shot from*/
+	/**Get the position that an entity should be thrown/shot from*/ 
 	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		// adjust based on hand
 		if (hand == null) {
 			horizontalAdjust = 0;
 			verticalAdjust = 10f;
 		}
 		else if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
+
+		// adjust based on fov (only client-side: mainly for muzzle particles and Mercy beam)
+		if (shooter.world.isRemote && shooter instanceof EntityPlayer) {
+			float fovSettings = Minewatch.keys.fov((EntityPlayer)shooter)-70f;
+			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
+			horizontalAdjust += fov / 80f;
+			verticalAdjust += fov / 4f;
+		}
+
 		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
 		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
 		if (pitch+verticalAdjust > 90)
 			horizontalVec = horizontalVec.scale(-1);
-		return shooter.getPositionVector().add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
+		Vec3d posVec = new Vec3d(shooter.lastTickPosX+(shooter.posX-shooter.lastTickPosX)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosY+(shooter.posY-shooter.lastTickPosY)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosZ+(shooter.posZ-shooter.lastTickPosZ)*Minewatch.proxy.getRenderPartialTicks());
+		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
@@ -365,6 +379,28 @@ public class EntityHelper {
 		float f2 = -MathHelper.cos(-pitch * 0.017453292F);
 		float f3 = MathHelper.sin(-pitch * 0.017453292F);
 		return new Vec3d((double)(f1 * f2), (double)f3, (double)(f * f2));
+	}
+
+	/**Copied from {@link AbstractClientPlayer#getFovModifier()} to make public*/
+	public static float getFovModifier(EntityPlayer player) {
+		float f = 1.0F;
+		if (player.capabilities.isFlying)
+			f *= 1.1F;
+		IAttributeInstance iattributeinstance = player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		f = (float)((double)f * ((iattributeinstance.getAttributeValue() / (double)player.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
+		if (player.capabilities.getWalkSpeed() == 0.0F || Float.isNaN(f) || Float.isInfinite(f))
+			f = 1.0F;
+		if (player.isHandActive() && player.getActiveItemStack().getItem() == Items.BOW) {
+			int i = player.getItemInUseMaxCount();
+			float f1 = (float)i / 20.0F;
+			if (f1 > 1.0F)
+				f1 = 1.0F;
+			else
+				f1 = f1 * f1;
+
+			f *= 1.0F - f1 * 0.15F;
+		}
+		return net.minecraftforge.client.ForgeHooksClient.getOffsetFOV(player, f);
 	}
 
 }

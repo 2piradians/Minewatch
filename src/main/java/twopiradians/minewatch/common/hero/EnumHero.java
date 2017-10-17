@@ -727,9 +727,12 @@ public enum EnumHero {
 			EntityPlayerMP player = null;
 			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP)
 				player = ((EntityPlayerMP)event.getSource().getSourceOfDamage());
+			else if (event.getSource().getEntity() instanceof EntityPlayerMP)
+				player = ((EntityPlayerMP)event.getSource().getEntity());
 			else if (event.getSource().getSourceOfDamage() instanceof IThrowableEntity && 
 					((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower() instanceof EntityPlayerMP)
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
+			
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
 				if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != null) {
 					try {

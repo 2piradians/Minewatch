@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -22,14 +23,20 @@ public class EntityJunkratGrenade extends EntityMW {
 	public boolean isDeathGrenade;
 
 	public EntityJunkratGrenade(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityJunkratGrenade(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityJunkratGrenade(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.12f, 0.12f);
 		this.lifetime = 1200;
 		this.explodeTimer = -1;
+	}
+
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
+				0xFF9D1A, 0x964D21, 0.7f, 5, 5, 4.5f, world.rand.nextFloat(), 0.01f, hand, 10, 0.5f);
 	}
 
 	@Override

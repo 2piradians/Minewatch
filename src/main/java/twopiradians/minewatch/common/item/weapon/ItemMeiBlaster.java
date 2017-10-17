@@ -6,10 +6,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -25,7 +22,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
-			EntityMeiBlast bullet = new EntityMeiBlast(world, player);
+			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 20, 0.6F, hand, 14, 0.8f);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -43,7 +40,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false)) {//TODO delay
 			if (!world.isRemote) {
-				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
+				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
 				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYaw, 100, 0.4F, hand, 8, 0.35f);
 				world.spawnEntity(icicle);
 				if (!player.getCooldownTracker().hasCooldown(this))
@@ -53,11 +50,6 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 				this.subtractFromCurrentAmmo(player, 25, hand);
-			}
-			else {
-				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 10, 0.55f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
-						0, 0, 0, 0x2B9191, 0x2B9191, 0.7f, 3, 3, 2.5f, world.rand.nextFloat(), 0.01f);
 			}
 		}
 

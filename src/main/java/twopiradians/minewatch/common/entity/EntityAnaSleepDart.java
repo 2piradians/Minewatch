@@ -18,11 +18,11 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class EntityAnaSleepDart extends EntityMW {
 
 	public EntityAnaSleepDart(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityAnaSleepDart(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityAnaSleepDart(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 10;

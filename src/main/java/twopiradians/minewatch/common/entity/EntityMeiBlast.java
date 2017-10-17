@@ -71,11 +71,11 @@ public class EntityMeiBlast extends EntityMW {
 	public static final Handler DELAYS = new Handler(Identifier.POTION_DELAY, false) {};
 	
 	public EntityMeiBlast(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityMeiBlast(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityMeiBlast(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.notDeflectible = true;
 		this.setNoGravity(true);

@@ -45,12 +45,12 @@ public class EntityAnaBullet extends EntityMW {
 	};
 
 	public EntityAnaBullet(World worldIn) {
-		this(worldIn, null, false);
+		this(worldIn, null, -1, false);
 
 	}
 
-	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, boolean heal) {
-		super(worldIn, throwerIn);
+	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean heal) {
+		super(worldIn, throwerIn, hand);
 		if (!worldIn.isRemote)
 			this.getDataManager().set(HEAL, heal);
 		this.setNoGravity(true);

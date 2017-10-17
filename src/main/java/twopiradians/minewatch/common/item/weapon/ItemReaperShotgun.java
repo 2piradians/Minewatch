@@ -38,7 +38,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -186,26 +185,24 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && !world.isRemote && 
+		if (this.canUse(player, true, hand, false) && 
 				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) == null && 
-				!hero.ability1.isSelected(player)) {			
-			for (int i=0; i<20; i++) {
-				EntityReaperBullet bullet = new EntityReaperBullet(world, player);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 8F, hand, 14, 0.55f);
-				world.spawnEntity(bullet);
+				!hero.ability1.isSelected(player)) {
+			if (!world.isRemote) {
+				for (int i=0; i<20; i++) {
+					EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand.ordinal());
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 8F, hand, 14, 0.55f);
+					world.spawnEntity(bullet);
+				}
+				world.playSound(null, player.posX, player.posY, player.posZ, 
+						ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
+						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				this.subtractFromCurrentAmmo(player, 1, hand);
+				if (!player.getCooldownTracker().hasCooldown(this))
+					player.getCooldownTracker().setCooldown(this, 11);
+				if (world.rand.nextInt(8) == 0)
+					player.getHeldItem(hand).damageItem(1, player);
 			}
-			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
-					world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
-			Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 14, 0.55f);
-			Minewatch.network.sendToAllAround(new SPacketSimple(21, false, player, vec.xCoord, vec.yCoord, vec.zCoord), 
-					new TargetPoint(world.provider.getDimension(), player.posX, player.posY, player.posZ, 128));
-
-			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (!player.getCooldownTracker().hasCooldown(this))
-				player.getCooldownTracker().setCooldown(this, 11);
-			if (world.rand.nextInt(8) == 0)
-				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
 
@@ -373,7 +370,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				event.setCanceled(true);
 		}
 	}
-	
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void blockWhileTping(RenderLivingEvent.Pre<EntityPlayer> event) {

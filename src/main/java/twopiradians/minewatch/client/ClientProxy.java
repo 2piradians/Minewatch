@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -359,6 +360,12 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
+	
+	@Override
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
+			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
+			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+	}
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
@@ -393,6 +400,11 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().player;
+	}
+	
+	@Override
+	public float getRenderPartialTicks() {
+		return Minecraft.getMinecraft().getRenderPartialTicks();
 	}
 
 	@Override

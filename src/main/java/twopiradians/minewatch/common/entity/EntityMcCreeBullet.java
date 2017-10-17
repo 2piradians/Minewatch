@@ -1,8 +1,11 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityMcCreeBullet extends EntityMW {
@@ -10,15 +13,21 @@ public class EntityMcCreeBullet extends EntityMW {
 	private boolean fanTheHammer;
 
 	public EntityMcCreeBullet(World worldIn) {
-		this(worldIn, null, false);
+		this(worldIn, null, -1, false);
 	}
 
-	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn, boolean fanTheHammer) {
-		super(worldIn, throwerIn);
+	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean fanTheHammer) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 3;
 		this.fanTheHammer = fanTheHammer;
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
+				0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0, hand, 10, 0.4f);
 	}
 
 	@Override

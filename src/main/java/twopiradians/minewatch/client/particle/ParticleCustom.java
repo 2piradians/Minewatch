@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -21,6 +22,7 @@ import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
@@ -35,6 +37,9 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Nullable
 	private Entity followEntity;
 	private EnumParticle enumParticle;
+	private float verticalAdjust;
+	private float horizontalAdjust;
+	private EnumHand hand;
 
 	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		super(world, x, y, z, 0, 0, 0);
@@ -59,13 +64,20 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setParticleTexture(sprite);
 	}
 
-	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+		this.hand = hand;
+		this.verticalAdjust = verticalAdjust;
+		this.horizontalAdjust = horizontalAdjust;
 		this.followEntity = followEntity;
 		this.followEntity();
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
+	}
+	
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
+		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0);
 	}
 
 	@Override
@@ -76,7 +88,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-
+		
 		// follow entity
 		this.followEntity();
 
@@ -87,7 +99,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 		this.prevParticleAngle = this.particleAngle;
 		this.particleAngle += rotationSpeed;
-		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
+		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.05f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
 		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
 			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
@@ -111,6 +123,13 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null)
 					this.setExpired();
 			}
+			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
+				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
+				this.prevPosX = this.posX;
+				this.prevPosY = this.posY;
+				this.prevPosZ = this.posZ;
+			}
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 			
@@ -132,11 +151,18 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	public void oneTickToLive() {
 		this.particleMaxAge = this.particleAge + 3;
 		this.particleAlpha = this.initialAlpha;
+		this.prevPosX = this.posX;
+		this.prevPosY = this.posY;
+		this.prevPosZ = this.posZ;
 	}
 
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (this.particleTexture != null) {
+			// update muzzle every render so it's always rendered accurately
+			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
+				this.followEntity();
+			
 			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
@@ -170,7 +196,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-
+			
 			buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();

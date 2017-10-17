@@ -367,16 +367,10 @@ public class SPacketSimple implements IMessage {
 									SoundCategory.PLAYERS, 0.7f, 1.0f, false);
 						}
 					}
-					// Reaper's shoot particle
-					else if (packet.type == 21 && packetPlayer != null) {
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, packetPlayer.world, packet.x, packet.y, packet.z, 
-								0, 0, 0, 0xD93B1A, 0x510D30, 1, 5, 5, 4, 0, 0);
-					}
-					// Tracer's shoot particle
-					else if (packet.type == 22 && packetPlayer != null) {
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, packetPlayer.world, packet.x, packet.y, packet.z, 
-								0, 0, 0, 0x4AFDFD, 0x4AFDFD, 1, 3, 4, 1, packetPlayer.world.rand.nextFloat(), 0.01f);
-					}
+					// Unused
+					else if (packet.type == 21 && packetPlayer != null) {}
+					// Unused
+					else if (packet.type == 22 && packetPlayer != null) {}
 					// Frozen particles
 					else if (packet.type == 23 && entity != null) {
 						for (int i=0; i<3; ++i)

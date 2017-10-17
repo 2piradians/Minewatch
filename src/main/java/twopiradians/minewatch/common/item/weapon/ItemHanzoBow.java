@@ -61,9 +61,9 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		}*/
 	}
 
-	private boolean isArrow(ItemStack stack) {
+	/*private boolean isArrow(ItemStack stack) {
 		return stack != null && stack.getItem() instanceof ItemArrow;
-	}
+	}*/
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {

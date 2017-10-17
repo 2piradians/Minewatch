@@ -1,21 +1,30 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityReaperBullet extends EntityMW {
 
 	public EntityReaperBullet(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
 		this.lifetime = 2;
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, world, shooter, 
+				0xD93B1A, 0x510D30, 0.3f, 5, 5, 4, 0, 0, hand, 14, 0.5f);
 	}
 
 	@Override
@@ -23,7 +32,7 @@ public class EntityReaperBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
+			EntityHelper.spawnTrailParticles(this, 2, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -64,26 +63,19 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false)) {
-			if (!world.isRemote) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, false);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand, 10, 0.5f);
-				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-						world.rand.nextFloat()/2+0.75f);	
+		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, hand.ordinal(), false);
+			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand, 10, 0.5f);
+			world.spawnEntity(bullet);
+			world.playSound(null, player.posX, player.posY, player.posZ, 
+					ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
+					world.rand.nextFloat()/2+0.75f);	
 
-				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 9);
-				if (world.rand.nextInt(6) == 0)
-					player.getHeldItem(hand).damageItem(1, player);
-			}
-			else {
-				Vec3d vec = EntityHelper.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand, 10, 0.5f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, vec.xCoord, vec.yCoord, vec.zCoord, 
-						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
-			}
+			this.subtractFromCurrentAmmo(player, 1, hand);
+			if (!player.getCooldownTracker().hasCooldown(this))
+				player.getCooldownTracker().setCooldown(this, 9);
+			if (world.rand.nextInt(6) == 0)
+				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
 
@@ -109,7 +101,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				if (((EntityPlayer)entity).getHeldItem(hand2) == stack)
 					hand = hand2;
 			if (!entity.world.isRemote && hand != null) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity, true);
+				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity, hand.ordinal(), true);
 				EntityHelper.setAim(bullet, (EntityLivingBase) entity, entity.rotationPitch, entity.rotationYaw, -1, 3F, hand, 10, 0.5f);
 				entity.world.spawnEntity(bullet);				
 				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
@@ -121,12 +113,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				if (entity.world.rand.nextInt(25) == 0)
 					entity.getHeldItem(hand).damageItem(1, entity);
 			} 
-			else if (hand != null) {
+			else 
 				entity.rotationPitch--;
-				Vec3d vec = EntityHelper.getShootingPos(entity, entity.rotationPitch, entity.rotationYaw, hand, 10, 0.5f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 
-						0, 0, 0, 0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0);
-			}
 		}
 	}
 

@@ -11,10 +11,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,6 +23,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Integer> HAND = EntityDataManager.<Integer>createKey(EntityMW.class, DataSerializers.VARINT);
 	public boolean notDeflectible;
 	public int lifetime;
 	private EntityLivingBase thrower;
@@ -30,20 +31,23 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public boolean isFriendly;
 
 	public EntityMW(World worldIn) {
-		this(worldIn, null);
+		this(worldIn, null, -1);
 	}
 
-	public EntityMW(World worldIn, @Nullable EntityLivingBase throwerIn) {
+	/**@param hand -1 no muzzle, 0 main-hand, 1 off-hand, 2 middle*/
+	public EntityMW(World worldIn, @Nullable EntityLivingBase throwerIn, int hand) {
 		super(worldIn);
 		if (throwerIn != null) {
 			this.thrower = throwerIn;
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
+		this.dataManager.set(HAND, hand);
 	}
 
 	@Override
 	protected void entityInit() {
 		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+		this.dataManager.register(HAND, -1);
 	}
 
 	@Override
@@ -52,9 +56,18 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);
+			EntityHelper.setRotations(this);		
 		}
+		// muzzle particle
+		else if (key == HAND && this.world.isRemote && this.ticksExisted == 0 && 
+				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase)
+			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
+					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
+
 	}
+
+	/**Spawn muzzle particles when first spawning*/
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {}
 
 	@Override
 	public void onUpdate() {
@@ -114,7 +127,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	@Override
 	public void setThrower(Entity entity) {
-		if (entity instanceof EntityLivingBase)
+		if (entity instanceof EntityLivingBase) 
 			this.thrower = (EntityLivingBase) entity;
 	}
 

@@ -247,5 +247,5 @@ public class CommonProxy {
 		return 1;
 	}
 
-	public void openGui() {}
+	public void openWildCardGui() {}
 }

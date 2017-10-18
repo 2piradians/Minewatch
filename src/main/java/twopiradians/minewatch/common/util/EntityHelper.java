@@ -31,7 +31,6 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
@@ -264,7 +263,7 @@ public class EntityHelper {
 		if (shouldHit(thrower, entityHit, damage <= 0) && !thrower.world.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
-				((EntityLivingBase)entityHit).heal(Math.abs(damage*ItemMWWeapon.damageScale));
+				((EntityLivingBase)entityHit).heal(Math.abs(damage*Config.damageScale));
 				return true;
 			}
 			// damage
@@ -273,11 +272,11 @@ public class EntityHelper {
 				if (!Config.projectilesCauseKnockback || neverKnockback && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-					damaged = entityHit.attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				}
 				else
-					damaged = entityHit.attackEntityFrom(source, damage*ItemMWWeapon.damageScale);
+					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
 
 				return damaged;
 			}

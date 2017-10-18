@@ -36,6 +36,7 @@ import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityMW;
@@ -113,7 +114,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			for (Entity entityCollided : list) 
 				if (entityCollided instanceof EntityLivingBase)
-					if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*ItemMWWeapon.damageScale))
+					if (((EntityLivingBase)entityCollided).attackEntityFrom(DamageSource.causePlayerDamage(player), 50F*Config.damageScale))
 						entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
 		}

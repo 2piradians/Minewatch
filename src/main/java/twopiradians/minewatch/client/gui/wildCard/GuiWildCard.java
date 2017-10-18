@@ -15,8 +15,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
-public class GuiWildCard extends GuiScreen 
-{
+public class GuiWildCard extends GuiScreen {
+
 	/** The X size of the inventory window in pixels. */
 	private static final int X_SIZE = 512/2;
 	/** The Y size of the inventory window in pixels. */
@@ -48,8 +48,8 @@ public class GuiWildCard extends GuiScreen
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1, 1, 1, 1);
 
 		// background
 		this.drawDefaultBackground();
@@ -57,9 +57,7 @@ public class GuiWildCard extends GuiScreen
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiWildCard.X_SIZE, GuiWildCard.Y_SIZE);
 
 		// buttons
-		for (GuiButton button : this.buttonList) {
-			button.drawButton(mc, mouseX, mouseY);
-		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 
 		// text
 		double textScale = 1.2d;
@@ -69,17 +67,18 @@ public class GuiWildCard extends GuiScreen
 		GlStateManager.translate(-0.7F, -0.2f, 0);
 		this.fontRendererObj.drawString(TextFormatting.ITALIC+"Select a token to receive in exchange", (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+18)/textScale), 0x7F7F7F, false);
 		this.fontRendererObj.drawString(TextFormatting.ITALIC+" for the Wild Card Token.", (int) ((this.guiLeft+48)/textScale), (int) ((this.guiTop+30)/textScale), 0x7F7F7F, false);
-
-		GlStateManager.translate(0, 0, 0);
 		GlStateManager.scale(1/textScale, 1/textScale, 1);
-		for (GuiButton button : this.buttonList) {
-			if (button.isMouseOver()) {
-				ArrayList<String> list = new ArrayList<String>();
-				list.add(((GuiButtonWildCard)button).hero.name);
-				this.drawHoveringText(list, button.xPosition - (((GuiButtonWildCard)button).hero.name.length() - (((GuiButtonWildCard)button).hero.name.length() == 3 ? 1 : 0))*2, button.yPosition+51);
+
+		// hover text
+		for (GuiButton button : this.buttonList) 
+			if (button.isMouseOver() && button instanceof GuiButtonWildCard) {
+				String name = ((GuiButtonWildCard)button).hero.equals(EnumHero.SOLDIER76) ? "Soldier: 76" :
+					((GuiButtonWildCard)button).hero.name;
+				this.drawHoveringText(new ArrayList<String>() {{add(name);}}, 
+						button.xPosition-mc.fontRendererObj.getStringWidth(name)/2+4, button.yPosition+51);
+				break;
 			}
-		}
-		
+
 		GlStateManager.popMatrix();	
 	}
 
@@ -88,4 +87,5 @@ public class GuiWildCard extends GuiScreen
 		if (mc.player != null && ((GuiButtonWildCard)button).hero != null)
 			Minewatch.network.sendToServer(new CPacketSimple(2, mc.player, ((GuiButtonWildCard)button).hero.ordinal(), 0, 0));
 	}
+
 }

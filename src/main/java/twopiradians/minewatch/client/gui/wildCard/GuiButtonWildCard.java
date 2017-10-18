@@ -5,13 +5,16 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.tab.GuiTab.Screen;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-public class GuiButtonWildCard extends GuiButton 
-{
+@SideOnly(Side.CLIENT)
+public class GuiButtonWildCard extends GuiButton {
+	
 	protected Screen screen;
 	public EnumHero hero;
 
@@ -22,7 +25,6 @@ public class GuiButtonWildCard extends GuiButton
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {	
-		
 		boolean prev = this.hovered;
 		this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
@@ -30,7 +32,8 @@ public class GuiButtonWildCard extends GuiButton
 			mc.player.playSound(ModSoundEvents.guiHover, 0.8f, 1.0f);
 
 		GlStateManager.pushMatrix();
-		if (this.hovered)
+		GlStateManager.color(1, 1, 1, 1);
+		if (this.hovered) 
 			GlStateManager.translate(-4, -3, 0);
 		double scale = this.hovered ? 0.15d : 0.12d;
 		GlStateManager.scale(scale, scale, 1);
@@ -39,4 +42,5 @@ public class GuiButtonWildCard extends GuiButton
 		
 		GlStateManager.popMatrix();
 	}
+	
 }

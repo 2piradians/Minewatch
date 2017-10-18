@@ -98,7 +98,7 @@ public class GuiTab extends GuiScreen {
 		// Screen.GALLERY_HERO_SKINS
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO_SKINS));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
-		for (int i=0; i<6; ++i) {
+		for (int i=0; i<=6; ++i) {
 			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5, this.guiTop+40+i*22, 100, 20, "", Screen.GALLERY_HERO_SKINS)); 
 			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+40+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
 		}

@@ -35,7 +35,7 @@ public class CPacketSimple implements IMessage {
 	public CPacketSimple(int type, EntityPlayer player) {
 		this(type, player, 2, 0, 0);
 	}
-	
+
 	public CPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
 		this.type = type;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
@@ -73,7 +73,7 @@ public class CPacketSimple implements IMessage {
 				public void run() {
 					EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
-					
+
 					// reset fall distance
 					if (packet.type == 0 && packetPlayer != null) {
 						packetPlayer.fallDistance = 0;
@@ -86,13 +86,24 @@ public class CPacketSimple implements IMessage {
 							Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
 					}
 					// Wild Card Token selection
-					else if (packet.type == 2 && packetPlayer != null && 
-							(packetPlayer.getHeldItemMainhand().getItem() instanceof ItemMWToken.ItemWildCardToken || packetPlayer.getHeldItemOffhand().getItem() instanceof ItemMWToken.ItemWildCardToken)) {
-						if (packetPlayer.getHeldItemMainhand().getItem() instanceof ItemMWToken.ItemWildCardToken)
-							packetPlayer.getHeldItemMainhand().shrink(1);
-						else
-							packetPlayer.getHeldItemOffhand().shrink(1);
-						packetPlayer.inventory.addItemStackToInventory(new ItemStack(EnumHero.values()[(int) packet.x].token));
+					else if (packet.type == 2 && packetPlayer != null && packet.x >= 0 && packet.x < EnumHero.values().length) {
+						// take wild card and give token
+						for (ItemStack stack : packetPlayer.getHeldEquipment())
+							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
+							stack.getCount() > 0) {
+								stack.shrink(1);
+								packetPlayer.inventory.addItemStackToInventory(
+										new ItemStack(EnumHero.values()[(int) packet.x].token));
+								break;
+							}
+						// close screen if no wild cards left
+						boolean hasWildCard = false;
+						for (ItemStack stack : packetPlayer.getHeldEquipment())
+							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
+							stack.getCount() > 0)
+								hasWildCard = true;
+						if (!hasWildCard)
+							packetPlayer.closeScreen();
 					}
 				}
 			});

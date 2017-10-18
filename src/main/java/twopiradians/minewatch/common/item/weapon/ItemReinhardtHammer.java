@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.SPacketSimple;
 
@@ -32,7 +33,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*damageScale-1, 0));
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*Config.damageScale-1, 0));
 		return multimap;
 	}
 
@@ -49,7 +50,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		// swing
 		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*damageScale);
+			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*Config.damageScale);
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 

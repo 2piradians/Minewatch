@@ -421,7 +421,7 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void openGui() {
+	public void openWildCardGui() {
 		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
 	}
 }

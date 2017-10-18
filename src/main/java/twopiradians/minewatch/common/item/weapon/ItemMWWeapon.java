@@ -36,9 +36,6 @@ import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item {
 
-	/**Used to uniformly scale damage for all weapons/abilities*/
-	public static float damageScale;
-
 	public EnumHero hero;
 	public boolean hasOffhand;
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
@@ -253,7 +250,7 @@ public abstract class ItemMWWeapon extends Item {
 		return super.hasEffect(stack); //XXX will be used with golden weapons
 	}
 
-	//PORT keep for 1.10 PosEyes vec
+	//PORT keep for 1.10 PosEyes vec (is this needed anymore?)
 	/*
 	 *//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
 	private Vec3d getPositionEyes(Entity entity, float partialTicks)  {

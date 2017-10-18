@@ -22,13 +22,23 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWToken extends Item {
 	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
+        return false;
+    }
+	
+	@Override
+	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+		return false;
+	}
+	
 	@SubscribeEvent
 	public void onEvent(LivingDropsEvent event) {
 		if (!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityLiving 
 				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < Config.tokenDropRate * (1 + event.getLootingLevel())) {
 			int i = event.getEntityLiving().world.rand.nextInt(EnumHero.values().length);
 			ItemStack stack;
-			if (Config.wildCardRate != 0 && event.getEntityLiving().getEntityWorld().rand.nextInt(100) < Config.wildCardRate)
+			if (event.getEntityLiving().getEntityWorld().rand.nextInt(100) < Config.wildCardRate)
 				stack = new ItemStack(ModItems.wild_card_token);
 			else 
 				stack = new ItemStack(EnumHero.values()[i].token);
@@ -42,9 +52,8 @@ public class ItemMWToken extends Item {
 		
 		@Override
 		public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-			
 			if (world.isRemote)
-				Minewatch.proxy.openGui();
+				Minewatch.proxy.openWildCardGui();
 			
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}

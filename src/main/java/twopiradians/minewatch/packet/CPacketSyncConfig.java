@@ -14,7 +14,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class CPacketSyncConfig implements IMessage {
 
@@ -34,7 +33,7 @@ public class CPacketSyncConfig implements IMessage {
 			this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
 			this.tokenDropRate = Config.tokenDropRate;
 			this.wildCardRate = Config.wildCardRate;
-			this.damageScale = ItemMWWeapon.damageScale;
+			this.damageScale = Config.damageScale;
 			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
 			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
 		}
@@ -80,7 +79,7 @@ public class CPacketSyncConfig implements IMessage {
 							Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
 							Config.tokenDropRate = packet.tokenDropRate;
 							Config.wildCardRate = packet.wildCardRate;
-							ItemMWWeapon.damageScale = packet.damageScale;
+							Config.damageScale = packet.damageScale;
 							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
 							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
 							Config.config.save();

@@ -21,6 +21,7 @@ public class ModItems {
 	public static ArrayList<Item> objModelItems  = new ArrayList<Item>();
 	public static ArrayList<Item> allItems  = new ArrayList<Item>();
 	
+	public static Item wild_card_token;
 	public static Item genji_shuriken_single; // used for projectile
 
 	public static void preInit () {
@@ -41,6 +42,8 @@ public class ModItems {
 			hero.token = (ItemMWToken) registerItem(new ItemMWToken(), 
 					hero.name.toLowerCase()+"_token", true, false);
 		}
+		
+		wild_card_token = registerItem(new ItemMWToken.ItemWildCardToken(), "wild_card_token", true, false);
 		
 		genji_shuriken_single = registerItem(new ItemGenjiShuriken(), "genji_shuriken_single", false, true);
 		((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;

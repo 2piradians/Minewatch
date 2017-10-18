@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
+import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
@@ -419,4 +420,8 @@ public class ClientProxy extends CommonProxy {
 			super.stopSound(player, event, category);
 	}
 
+	@Override
+	public void openGui() {
+		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+	}
 }

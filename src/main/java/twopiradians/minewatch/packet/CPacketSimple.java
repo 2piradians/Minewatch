@@ -5,6 +5,7 @@ import java.util.UUID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
@@ -13,35 +14,54 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class CPacketSimple implements IMessage {
 
 	private int type;
 	private UUID uuid;
+	private double x;
+	private double y;
+	private double z;
 
 	public CPacketSimple() {}
 
 	public CPacketSimple(int type) {
-		this(type, null);
+		this(type, null, 1, 0, 0);
 	}
 
 	public CPacketSimple(int type, EntityPlayer player) {
+		this(type, player, 2, 0, 0);
+	}
+	
+	public CPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
 		this.type = type;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		this.type = buf.readInt();
 		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+		this.x = buf.readDouble();
+		this.y = buf.readDouble();
+		this.z = buf.readDouble();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
 		buf.writeInt(this.type);
 		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
+		buf.writeDouble(this.x);
+		buf.writeDouble(this.y);
+		buf.writeDouble(this.z);
 	}
+
 
 	public static class Handler implements IMessageHandler<CPacketSimple, IMessage> {
 		@Override
@@ -64,6 +84,15 @@ public class CPacketSimple implements IMessage {
 					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null) {
 						if (packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile()))
 							Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
+					}
+					// Wild Card Token selection
+					else if (packet.type == 2 && packetPlayer != null && 
+							(packetPlayer.getHeldItemMainhand().getItem() instanceof ItemMWToken.ItemWildCardToken || packetPlayer.getHeldItemOffhand().getItem() instanceof ItemMWToken.ItemWildCardToken)) {
+						if (packetPlayer.getHeldItemMainhand().getItem() instanceof ItemMWToken.ItemWildCardToken)
+							packetPlayer.getHeldItemMainhand().shrink(1);
+						else
+							packetPlayer.getHeldItemOffhand().shrink(1);
+						packetPlayer.inventory.addItemStackToInventory(new ItemStack(EnumHero.values()[(int) packet.x].token));
 					}
 				}
 			});

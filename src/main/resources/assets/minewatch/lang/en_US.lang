@@ -96,6 +96,8 @@ item.junkrat_leggings.name=Junkrat Leggings
 item.junkrat_boots.name=Junkrat Boots
 item.junkrat_weapon.name=Junkrat's Frag Launcher
 
+item.wild_card_token.name=Wild Card Token
+
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow
 entity.hanzo_scatter_arrow.name=Hanzo Scatter Arrow

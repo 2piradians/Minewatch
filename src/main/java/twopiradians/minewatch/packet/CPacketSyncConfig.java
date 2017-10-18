@@ -21,7 +21,8 @@ public class CPacketSyncConfig implements IMessage {
 	private UUID uuid;
 	private boolean allowGunWarnings;
 	private boolean projectilesCauseKnockback;
-	private int tokenDropRate;
+	private double tokenDropRate;
+	private double wildCardRate;
 	private float damageScale;
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
@@ -32,6 +33,7 @@ public class CPacketSyncConfig implements IMessage {
 			this.allowGunWarnings = Config.allowGunWarnings;
 			this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
 			this.tokenDropRate = Config.tokenDropRate;
+			this.wildCardRate = Config.wildCardRate;
 			this.damageScale = ItemMWWeapon.damageScale;
 			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
 			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
@@ -44,6 +46,7 @@ public class CPacketSyncConfig implements IMessage {
 		this.allowGunWarnings = buf.readBoolean();
 		this.projectilesCauseKnockback = buf.readBoolean();
 		this.tokenDropRate = buf.readInt();
+		this.wildCardRate = buf.readDouble();
 		this.damageScale = buf.readFloat();
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
@@ -54,7 +57,8 @@ public class CPacketSyncConfig implements IMessage {
 		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
 		buf.writeBoolean(this.allowGunWarnings);
 		buf.writeBoolean(this.projectilesCauseKnockback);
-		buf.writeInt(this.tokenDropRate);
+		buf.writeDouble(this.tokenDropRate);
+		buf.writeDouble(this.wildCardRate);
 		buf.writeFloat(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
@@ -75,6 +79,7 @@ public class CPacketSyncConfig implements IMessage {
 							Config.allowGunWarnings = packet.allowGunWarnings;
 							Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
 							Config.tokenDropRate = packet.tokenDropRate;
+							Config.wildCardRate = packet.wildCardRate;
 							ItemMWWeapon.damageScale = packet.damageScale;
 							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
 							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;

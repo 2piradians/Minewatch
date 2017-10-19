@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -81,9 +82,10 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		tessellator.draw();
 
 		// spawn/position particles
-		double posX = entity.player.lastTickPosX + (entity.player.posX - entity.player.lastTickPosX) * (double)partialTicks;
-		double posY = entity.player.lastTickPosY + (entity.player.posY - entity.player.lastTickPosY) * (double)partialTicks;
-		double posZ = entity.player.lastTickPosZ + (entity.player.posZ - entity.player.lastTickPosZ) * (double)partialTicks;
+		EntityPlayer player = Minecraft.getMinecraft().player;
+		double posX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
+		double posY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
+		double posZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
 			entity.particleStaff = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, vec.xCoord, vec.yCoord+0.05d, vec.zCoord, 
 					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f);

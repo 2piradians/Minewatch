@@ -60,7 +60,8 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
 			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
-			if (world.isRemote)
+			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
+					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
 		}
 		this.prevOnGround = this.onGround;
@@ -131,7 +132,8 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	public void onDeath(DamageSource cause) {
 		super.onDeath(cause);
 
-		if (this.world.isRemote)
+		if (this.world.isRemote && this.getThrower() instanceof EntityPlayer && 
+				this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_DESTROYED, world, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 	}
 

@@ -269,7 +269,7 @@ public class EntityHelper {
 			// damage
 			else if (damage >= 0) {
 				boolean damaged = false;
-				if (!Config.projectilesCauseKnockback || neverKnockback && entityHit instanceof EntityLivingBase) {
+				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);

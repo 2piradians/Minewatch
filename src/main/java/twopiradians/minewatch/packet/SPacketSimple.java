@@ -162,8 +162,10 @@ public class SPacketSimple implements IMessage {
 					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// Tracer's dash
-					if (packet.type == 0) 
+					if (packet.type == 0) {
+						player.setSneaking(false);
 						move(player, 9, false);
+					}
 					// Reaper's teleport
 					else if (packet.type == 1 && packetPlayer != null) {
 						packetPlayer.rotationPitch = 0;

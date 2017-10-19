@@ -44,6 +44,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		// dash
 		if (isSelected && entity instanceof EntityPlayer && (hero.ability2.isSelected((EntityPlayer) entity) || hero.ability2.isSelected((EntityPlayer) entity, Keys.KeyBind.RMB)) &&
 				!world.isRemote && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
+			entity.setSneaking(false);
 			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);

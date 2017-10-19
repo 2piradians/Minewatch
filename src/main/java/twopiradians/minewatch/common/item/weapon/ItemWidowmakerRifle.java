@@ -142,7 +142,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && 
+		return player != null && player.getHeldItemMainhand() != null && player.onGround && //TODO change like ana
 				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}

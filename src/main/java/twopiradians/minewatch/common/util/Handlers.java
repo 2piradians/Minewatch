@@ -168,10 +168,10 @@ public class Handlers {
 	public void preventAttacking(LivingAttackEvent event) {
 		if (event.getSource().getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getSource().getEntity(), Identifier.PREVENT_INPUT)) {
-			if (event.getEntity() instanceof EntityLiving)
+			if (event.getSource().getEntity() instanceof EntityLiving)
 				((EntityLiving)event.getSource().getEntity()).setAttackTarget((EntityLivingBase) event.getSource().getEntity());
 			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget((EntityLivingBase) event.getSource().getEntity());
-			event.setCanceled(true); // TODO test
+			event.setCanceled(true); 
 		}
 	}
 

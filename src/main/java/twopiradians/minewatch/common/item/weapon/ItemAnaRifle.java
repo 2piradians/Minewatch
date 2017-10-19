@@ -236,7 +236,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && 
+		return player != null && player.onGround && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
 				!TickHandler.hasHandler(player, Identifier.ABILITY_USING);

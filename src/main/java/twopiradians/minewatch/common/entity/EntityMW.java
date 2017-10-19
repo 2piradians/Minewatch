@@ -42,7 +42,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 		this.dataManager.set(HAND, hand);
-	}
+	}//FIXME mercy healing sound effect following you
 
 	@Override
 	protected void entityInit() {

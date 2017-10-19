@@ -45,7 +45,6 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
 			EntityHelper.setRotations(this);
-			System.out.println(this.world.isRemote+": x: "+this.motionX+", y : "+this.motionY+", z: "+this.motionZ);
 		}
 	}
 

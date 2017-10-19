@@ -80,11 +80,11 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
+				isScoped((EntityPlayer) entity, stack)) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
-				isSelected && this.getCurrentAmmo((EntityPlayer) entity) == 0)
+				!isScoped((EntityPlayer) entity, stack))
 			((EntityPlayer)entity).resetActiveHand();
 	}
 
@@ -142,7 +142,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && player.onGround && //TODO change like ana
+		return player != null && player.getHeldItemMainhand() != null && player.onGround && 
 				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}

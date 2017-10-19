@@ -72,8 +72,7 @@ public class PotionFrozen extends Potion {
 	public void colorEntities(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.POTION_FROZEN) || 
 				(event.getEntity().getActivePotionEffect(ModPotions.frozen) != null && 
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0) &&
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getAmplifier() == 0) {
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
 			int freeze = TickHandler.getHandler(event.getEntity(), Identifier.POTION_FROZEN) != null ? 
 					TickHandler.getHandler(event.getEntity(), Identifier.POTION_FROZEN).ticksLeft : 30;
 					event.getEntity().maxHurtTime = -1;

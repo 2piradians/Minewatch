@@ -781,7 +781,7 @@ public enum EnumHero {
 									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
 					}
 				}
-				if (event.getEntityLiving() instanceof EntityPlayerMP)
+				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)
 					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
 							0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
 				entityDamage.remove(event.getEntityLiving());

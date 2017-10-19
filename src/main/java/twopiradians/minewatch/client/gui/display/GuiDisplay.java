@@ -48,7 +48,7 @@ public class GuiDisplay extends GuiScreen {
 
 		for (int i=0; i<EnumHero.values().length; ++i) {
 			EnumHero hero = EnumHero.values()[i];
-			double x = i/perColumn * 155;
+			double x = i/perColumn * 155 - 20;
 			double y = -(i%perColumn)*-80+(i/perColumn)+60;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, 0);
@@ -101,6 +101,7 @@ public class GuiDisplay extends GuiScreen {
 
 			// render icon
 			if (mode == 0 || mode == 2) {
+				GlStateManager.enableBlend();
 				scale = 0.22f;
 				GlStateManager.scale(scale, scale, 1);
 				GlStateManager.translate(-180, 80, 0);
@@ -108,6 +109,7 @@ public class GuiDisplay extends GuiScreen {
 				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
 				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+				GlStateManager.disableBlend();
 			}
 
 			GlStateManager.popMatrix();

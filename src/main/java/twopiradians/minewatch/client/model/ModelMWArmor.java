@@ -20,12 +20,13 @@ public class ModelMWArmor extends ModelPlayer {
 
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 		Handler handler = null;
 		EntityLivingBase entityLiving = entityIn instanceof EntityLivingBase ? (EntityLivingBase) entityIn : null;
 		// Reaper's wraith
 		if (TickHandler.hasHandler(entityIn, Identifier.REAPER_WRAITH)) { 
 			handler = TickHandler.getHandler(entityIn, Identifier.REAPER_WRAITH);
-			GlStateManager.enableBlend();
 			float delay = 10;
 			float color = handler.ticksLeft > (60-delay) ? 1f-(1f-(handler.ticksLeft-60+delay)/delay)*0.6f : 
 				handler.ticksLeft < delay ? 1f-handler.ticksLeft/delay*0.6f : 0.4f;
@@ -34,7 +35,6 @@ public class ModelMWArmor extends ModelPlayer {
 		// Reaper's teleport
 		else if (TickHandler.hasHandler(entityIn, Identifier.REAPER_TELEPORT)) { 
 			handler = TickHandler.getHandler(entityIn, Identifier.REAPER_TELEPORT);
-			GlStateManager.enableBlend();
 			float delay = 10;
 			float color = (handler.ticksLeft > (40-delay) && handler.ticksLeft < (40+delay)) ? 
 					Math.abs((handler.ticksLeft-40)/(delay*2f)) : 1f;
@@ -55,6 +55,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 		GlStateManager.disableBlend();
 		GlStateManager.color(1, 1, 1, 1);
+		GlStateManager.popMatrix();
 	}
 
 }

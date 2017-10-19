@@ -205,7 +205,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				Minewatch.network.sendToDimension(new SPacketSimple(4, true, (EntityPlayer) entity, 40, 0, 0), world.provider.getDimension());
 				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
-				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			}
 
 			// strike
@@ -214,13 +214,13 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
 				Minewatch.network.sendToDimension(new SPacketSimple(3, true, (EntityPlayer) entity), world.provider.getDimension());
-				world.playSound(null, entity.getPosition(), ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 2f, 1.0f);
+				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			}
 		}
 	}	
 
 	private static boolean deflect(EntityPlayer player, Entity entity) {
-		if ((entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+		if (!entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.4d &&

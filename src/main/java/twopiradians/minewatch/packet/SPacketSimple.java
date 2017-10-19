@@ -367,8 +367,10 @@ public class SPacketSimple implements IMessage {
 									SoundCategory.PLAYERS, 0.7f, 1.0f, false);
 						}
 					}
-					// Unused
-					else if (packet.type == 21 && packetPlayer != null) {}
+					// Shoot Ana's sleep dart
+					else if (packet.type == 21 && packetPlayer == player && player != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks((int)packet.x).setAbility(EnumHero.ANA.ability2));
+					}
 					// Unused
 					else if (packet.type == 22 && packetPlayer != null) {}
 					// Frozen particles
@@ -388,14 +390,18 @@ public class SPacketSimple implements IMessage {
 					}
 					// Junkrat trap
 					else if (packet.type == 25 && entity instanceof EntityJunkratTrap && entity2 instanceof EntityLivingBase) {
-						((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
-						TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
-								EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
-						if (((EntityJunkratTrap)entity).getThrower() == player) {
-							Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS);
-							Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerOwner, SoundCategory.PLAYERS, 1, 1, false);
-							Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerVoice, SoundCategory.PLAYERS, 1, 1, false);
+						if (packet.bool) {
+							((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
+							TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
+									EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
+							if (((EntityJunkratTrap)entity).getThrower() == player) {
+								Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS);
+								Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerOwner, SoundCategory.PLAYERS, 1, 1, false);
+								Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerVoice, SoundCategory.PLAYERS, 1, 1, false);
+							}
 						}
+						if (packetPlayer == player && player != null)
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_TRIGGERED, player.world, entity.posX, entity.posY+1.5d, entity.posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 					}
 					// Junkrat trap destroyed
 					else if (packet.type == 26 && entity instanceof EntityJunkratTrap) {

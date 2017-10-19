@@ -40,11 +40,12 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
-		if (key == VELOCITY) {
+		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
 			EntityHelper.setRotations(this);
+			System.out.println(this.world.isRemote+": x: "+this.motionX+", y : "+this.motionY+", z: "+this.motionZ);
 		}
 	}
 

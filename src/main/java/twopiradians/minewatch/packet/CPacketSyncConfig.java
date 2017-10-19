@@ -44,7 +44,7 @@ public class CPacketSyncConfig implements IMessage {
 		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.allowGunWarnings = buf.readBoolean();
 		this.projectilesCauseKnockback = buf.readBoolean();
-		this.tokenDropRate = buf.readInt();
+		this.tokenDropRate = buf.readDouble();
 		this.wildCardRate = buf.readDouble();
 		this.damageScale = buf.readFloat();
 		this.durabilityOptionsArmor = buf.readInt();

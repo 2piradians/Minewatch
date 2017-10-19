@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
@@ -32,6 +33,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -144,18 +146,20 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				hero.ability2.keybind.setCooldown(player, 240, false); 
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
-				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, 
-						Minewatch.keys.rmb(player) ? null : EnumHand.MAIN_HAND, 9, 0.27f);
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
 				world.spawnEntity(dart);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				if (player instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(new SPacketSimple(21, false, player, 10, 0, 0), (EntityPlayerMP) player);
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				hero.ability2.keybind.setCooldown(player, 240, false); 
 			}
 
 			// health particles
@@ -173,11 +177,11 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				Minewatch.keys.rmb((EntityPlayer)entity) && isSelected && this.getCurrentAmmo((EntityPlayer) entity) > 0) 
+				isScoped((EntityPlayer) entity, stack)) 
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
-				isSelected && this.getCurrentAmmo((EntityPlayer) entity) == 0)
+				!isScoped((EntityPlayer) entity, stack))
 			((EntityPlayer)entity).resetActiveHand();
 	}
 
@@ -223,11 +227,9 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void changeFOV(FOVModifier event) {
-		if (event.getEntity() instanceof EntityPlayer && (((EntityPlayer)event.getEntity()).getHeldItemMainhand() != null 
-				&& ((EntityPlayer)event.getEntity()).getHeldItemMainhand().getItem() == this && 
-				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) && 
-				Minewatch.keys.rmb((EntityPlayer) event.getEntity()) && 
-				this.getCurrentAmmo((EntityPlayer) event.getEntity()) > 0) {
+		if (event.getEntity() instanceof EntityPlayer && 
+				isScoped((EntityPlayer) event.getEntity(), ((EntityPlayer)event.getEntity()).getHeldItemMainhand()) &&
+				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			event.setFOV(20f);
 		}
 	}
@@ -236,7 +238,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0;
+				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
+				!TickHandler.hasHandler(player, Identifier.ABILITY_USING);
 	}
 
 	//PORT correct scope scale

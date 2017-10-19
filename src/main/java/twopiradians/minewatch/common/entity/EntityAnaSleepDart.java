@@ -49,7 +49,7 @@ public class EntityAnaSleepDart extends EntityMW {
 					Handlers.PREVENT_ROTATION.setEntity(result.entityHit).setTicks(120));
 			if (result.entityHit instanceof EntityLivingBase) 
 				Handlers.rotations.put((EntityLivingBase) result.entityHit, Triple.of(0f, 0f, 0f));
-			Minewatch.network.sendToAll(new SPacketSimple(12, result.entityHit, false));
+			Minewatch.network.sendToDimension(new SPacketSimple(12, result.entityHit, false), this.world.provider.getDimension());
 			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f, false);
 		}

@@ -61,7 +61,10 @@ public class Keys {
 		}
 
 		public int getCooldown(EntityPlayer player) {
-			Handler handler = TickHandler.getHandler(player, identifier);
+			Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
+			if (handler != null && handler.ability != null && handler.ability.keybind == this)
+				return 0;
+			handler = TickHandler.getHandler(player, identifier);
 			return handler == null ? 0 : handler.ticksLeft;
 		}
 

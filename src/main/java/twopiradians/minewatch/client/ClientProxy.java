@@ -73,6 +73,7 @@ import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.sound.FollowingSound;
@@ -211,9 +212,7 @@ public class ClientProxy extends CommonProxy {
 						boolean scoping = false;
 						if (stack.hasTagCompound()) {
 							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							scoping = (player != null && player.getHeldItemMainhand() != null && 
-									player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-									(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0);		
+							scoping = ItemAnaRifle.isScoped(player, stack);		
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
 					}

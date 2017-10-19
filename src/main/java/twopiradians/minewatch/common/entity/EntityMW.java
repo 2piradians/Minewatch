@@ -52,14 +52,14 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
-		if (key == VELOCITY) {
+		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);		
+			EntityHelper.setRotations(this);	
 		}
 		// muzzle particle
-		else if (key == HAND && this.world.isRemote && this.ticksExisted == 0 && 
+		else if (key.getId() == HAND.getId() && this.world.isRemote && this.ticksExisted == 0 && !this.isDead && 
 				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase)
 			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
 					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());

@@ -89,12 +89,17 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 						this.lifetime = this.ticksExisted + 70;
 						TickHandler.register(false, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity),
 								TRAPPED.setTicks(70).setEntity(entity));
-						Minewatch.network.sendToAll(new SPacketSimple(25, this, false, this.trappedEntity));
+						Minewatch.network.sendToAll(new SPacketSimple(25, true, 
+								this.getThrower() instanceof EntityPlayer ? (EntityPlayer)this.getThrower() : null, 
+										0, 0, 0, this, this.trappedEntity));
 						world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS, 1.0f, 1.0f);
 					}
-					else
+					else {
 						this.setDead();
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_TRIGGERED, world, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+						Minewatch.network.sendToAll(new SPacketSimple(25, false, 
+								this.getThrower() instanceof EntityPlayer ? (EntityPlayer)this.getThrower() : null, 
+										0, 0, 0, this, this.trappedEntity));
+					}
 					break;
 				}
 		}

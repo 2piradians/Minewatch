@@ -48,7 +48,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	
 	@Override
     public void notifyDataManagerChange(DataParameter<?> key) {
-		if (key == VELOCITY) {
+		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();

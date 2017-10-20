@@ -6,13 +6,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMWThrowable;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemMeiBlaster extends ItemMWWeapon {
 
@@ -22,9 +20,10 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
-		if (this.canUse(player, true, hand) && !world.isRemote) {
-			EntityMeiBlast bullet = new EntityMeiBlast(world, player);
-			bullet.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.3F, 2.5F, hand, false);
+		// shoot
+		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
+			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 20, 0.6F, hand, 14, 0.8f);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.meiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/3, 
@@ -39,10 +38,10 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		// shoot
-		if (this.canUse(player, true, hand)) {
+		if (this.canUse(player, true, hand, false)) {//TODO delay
 			if (!world.isRemote) {
-				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player);
-				icicle.setAim(player, player.rotationPitch, player.rotationYaw, 2F, 0.2F, 0F, hand, false);
+				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
+				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYaw, 100, 0.4F, hand, 8, 0.35f);
 				world.spawnEntity(icicle);
 				if (!player.getCooldownTracker().hasCooldown(this))
 					player.getCooldownTracker().setCooldown(this, 24);
@@ -51,10 +50,6 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 				this.subtractFromCurrentAmmo(player, 25, hand);
-			}
-			else {
-				Vec3d vec = EntityMWThrowable.getShootingPos(player, player.rotationPitch, player.rotationYaw, hand);
-				Minewatch.proxy.spawnParticlesSpark(world, vec.x, vec.y, vec.z, 0x2B9191, 0x2B9191, 3, 3);
 			}
 		}
 

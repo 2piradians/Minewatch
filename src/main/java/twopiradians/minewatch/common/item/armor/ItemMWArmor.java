@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -47,12 +48,14 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -198,11 +201,31 @@ public class ItemMWArmor extends ItemArmor
 				event.setDistance(event.getDistance()*0.8f);
 		}
 
+		@SubscribeEvent
+		public static void junkratDeath(LivingDeathEvent event) {
+			if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote &&
+					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
+				event.getEntity().world.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
+						SoundCategory.PLAYERS, 1.0f, 1.0f);
+				for (int i=0; i<6; ++i) {
+					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().world, 
+							(EntityLivingBase) event.getEntity(), -1);
+					grenade.explodeTimer = 20+i*2;
+					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
+					grenade.motionX = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionY = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionZ = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
+					event.getEntity().world.spawnEntity(grenade);
+					grenade.isDeathGrenade = true;
+					Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
+				}
+			}
+		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {		
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 		super.addInformation(stack, worldIn, tooltip, flagIn);
@@ -296,7 +319,6 @@ public class ItemMWArmor extends ItemArmor
 				}
 			}
 		}
-
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
@@ -313,7 +335,7 @@ public class ItemMWArmor extends ItemArmor
 					playersHovering.add(player);
 				}
 			}
-			else if (playersHovering.contains(player))
+			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
 		// tracer chestplate particles
@@ -326,7 +348,7 @@ public class ItemMWArmor extends ItemArmor
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
 						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 0, 1);
 		}
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set

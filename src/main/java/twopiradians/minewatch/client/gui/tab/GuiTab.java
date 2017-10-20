@@ -26,6 +26,8 @@ import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 
 @SideOnly(Side.CLIENT)
@@ -35,10 +37,11 @@ public class GuiTab extends GuiScreen {
 		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO;
 	};
 
+	public static GuiTab activeTab;
 	/** The X size of the inventory window in pixels. */
 	private static final int X_SIZE = 512/2;
 	/** The Y size of the inventory window in pixels. */
-	private static final int Y_SIZE = 379/2;
+	private static final int Y_SIZE = 444/2;
 	private EntityGuiPlayer guiPlayer;
 	private int guiLeft;
 	private int guiTop;
@@ -50,6 +53,7 @@ public class GuiTab extends GuiScreen {
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/inventory_tab.png");
 
 	public GuiTab() {
+		GuiTab.activeTab = this;
 		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().world, Minecraft.getMinecraft().player.getGameProfile(), Minecraft.getMinecraft().player);
 		mainScreenHero = EnumHero.values()[guiPlayer.world.rand.nextInt(EnumHero.values().length)];
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
@@ -75,13 +79,15 @@ public class GuiTab extends GuiScreen {
 		// Screen.MAIN
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-15, 80, 20, "Hero Gallery", Screen.MAIN));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+15, 80, 20, "Options", Screen.MAIN));
-		// Screen.GALLERY
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
-		int spaceBetweenX = 40;
-		int spaceBetweenY = 55;
+		if (!this.mc.isSingleplayer())
+			Minewatch.network.sendToServer(new CPacketSimple(1, mc.player));
+			// Screen.GALLERY
+			this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
+		int spaceBetweenX = 39;
+		int spaceBetweenY = 53;
 		int perRow = 6;
 		for (int i=0; i<EnumHero.values().length; ++i) 
-			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+8)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+37+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.values()[i]));
+			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+11)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+32+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.values()[i]));
 		// Screen.GALLERY_HERO
 		this.buttonList.add(new GuiButtonGalleryHero(1, this.guiLeft+12, this.guiTop+40, 100, 20, "", Screen.GALLERY_HERO)); //Skins
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));
@@ -92,9 +98,9 @@ public class GuiTab extends GuiScreen {
 		// Screen.GALLERY_HERO_SKINS
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO_SKINS));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
-		for (int i=0; i<6; ++i) {
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5, this.guiTop+28+i*22, 100, 20, "", Screen.GALLERY_HERO_SKINS)); 
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+28+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
+		for (int i=0; i<=6; ++i) {
+			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5, this.guiTop+40+i*22, 100, 20, "", Screen.GALLERY_HERO_SKINS)); 
+			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+40+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
 		}
 		// Screen.GALLERY_HERO_SKINS_INFO
 		this.buttonOKGHSI = new GuiButtonTab(0, 0, 0, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO); 
@@ -108,6 +114,7 @@ public class GuiTab extends GuiScreen {
 		GlStateManager.pushMatrix();
 		// background
 		this.drawDefaultBackground();
+		GlStateManager.color(1, 1, 1, 1);
 		mc.getTextureManager().bindTexture(BACKGROUND);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiTab.X_SIZE, GuiTab.Y_SIZE);
 
@@ -115,7 +122,7 @@ public class GuiTab extends GuiScreen {
 		case MAIN:
 			this.drawTexturedModalRect(this.guiLeft, this.guiTop+2, 0, 230, 130, 24);
 			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
-			this.drawCenteredString(fontRenderer, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 165, 0x7F7F7F);
+			this.drawCenteredString(fontRenderer, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
 			break;
 		case GALLERY:
 			double textScale = 1.5d;
@@ -182,6 +189,8 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY;
 			else if (button.displayString.equals("Options"))
 				Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().createConfigGui(this));
+			else if (button.displayString.equals("") && button instanceof GuiButtonTab)
+				Minewatch.network.sendToServer(new CPacketSyncConfig());
 			break;
 		case GALLERY:
 			if (button.displayString.equals("Back"))
@@ -264,9 +273,14 @@ public class GuiTab extends GuiScreen {
 		this.guiPlayer.skin = skin;
 		// draw hero
 		int x = this.guiLeft + 190;
-		int y = this.guiTop + 150;
+		int y = this.guiTop + 165;
 		int scale = 60;
 		GuiInventory.drawEntityOnScreen(x, y, scale, -mouseX+x, -mouseY+y-this.guiPlayer.eyeHeight*scale, this.guiPlayer);
+	}
+
+	public static void addOppedButton() {
+		if (activeTab != null)
+			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+92, activeTab.guiTop+GuiTab.Y_SIZE/2-20+15, 20, 20, "", Screen.MAIN));
 	}
 
 }

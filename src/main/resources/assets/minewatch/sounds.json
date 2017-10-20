@@ -1,4 +1,10 @@
 {
+	"gui_hover": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_hover"
+		]
+	},
 	"multikill_2": {
 		"category": "player",
 		"sounds": [
@@ -406,6 +412,21 @@
 			"minewatch:mercy_hover"
 		]
 	},
+	"mercy_angel": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_angel"
+		]
+	},
+	"mercy_angel_voice": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mercy_angel_voice_0",
+			"minewatch:mercy_angel_voice_1",
+			"minewatch:mercy_angel_voice_2",
+			"minewatch:mercy_angel_voice_3"
+		]
+	},
 	"mercy_beam_start": {
 		"category": "player",
 		"sounds": [
@@ -422,6 +443,117 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:mercy_beam_stop"
+		]
+	},
+	"junkrat_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_shoot"
+		]
+	},
+	"junkrat_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_reload"
+		]
+	},
+	"junkrat_laugh": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_laugh_0",
+			"minewatch:junkrat_laugh_1",
+			"minewatch:junkrat_laugh_2",
+			"minewatch:junkrat_laugh_3"
+		]
+	},
+	"junkrat_death": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_death"
+		]
+	},
+	"junkrat_grenade_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_bounce"
+		]
+	},
+	"junkrat_grenade_explode": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_explode"
+		]
+	},
+	"junkrat_grenade_tick_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_0"
+		]
+	},
+	"junkrat_grenade_tick_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_1"
+		]
+	},
+	"junkrat_grenade_tick_2": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_2"
+		]
+	},
+	"junkrat_grenade_tick_3": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_grenade_tick_3"
+		]
+	},
+	"junkrat_trap_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_throw"
+		]
+	},
+	"junkrat_trap_land": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_land"
+		]
+	},
+	"junkrat_trap_trigger": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger"
+		]
+	},
+	"junkrat_trap_trigger_owner": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger_owner"
+		]
+	},
+	"junkrat_trap_break": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_break"
+		]
+	},
+	"junkrat_trap_placed_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_placed_voice_0",
+			"minewatch:junkrat_trap_placed_voice_1",
+			"minewatch:junkrat_trap_placed_voice_2",
+			"minewatch:junkrat_trap_placed_voice_3"
+		]
+	},
+	"junkrat_trap_trigger_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_trap_trigger_voice_0",
+			"minewatch:junkrat_trap_trigger_voice_1",
+			"minewatch:junkrat_trap_trigger_voice_2",
+			"minewatch:junkrat_trap_trigger_voice_3"
 		]
 	}
 }

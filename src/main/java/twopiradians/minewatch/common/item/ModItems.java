@@ -24,6 +24,7 @@ public class ModItems {
 	public static ArrayList<Item> objModelItems  = new ArrayList<Item>();
 	public static ArrayList<Item> allItems  = new ArrayList<Item>();
 
+	public static Item wild_card_token;
 	public static Item genji_shuriken_single; // used for projectile
 
 	@Mod.EventBusSubscriber
@@ -32,14 +33,24 @@ public class ModItems {
 		@SubscribeEvent
 		public static void registerItems(RegistryEvent.Register<Item> event) {
 			for (EnumHero hero : EnumHero.values()) {
-				hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, hero.armorReductionAmounts, 0, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
-				hero.helmet = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.HEAD),	hero.name.toLowerCase()+"_helmet", true, false);
-				hero.chestplate = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.CHEST), hero.name.toLowerCase()+"_chestplate", true, false);
-				hero.leggings = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.LEGS), hero.name.toLowerCase()+"_leggings", true, false);
-				hero.boots = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.FEET), hero.name.toLowerCase()+"_boots", true, false);
-				hero.weapon = (ItemMWWeapon) registerItem(event.getRegistry(), hero.weapon, hero.name.toLowerCase()+"_weapon", true, true);
-				hero.token = (ItemMWToken) registerItem(event.getRegistry(), new ItemMWToken(), hero.name.toLowerCase()+"_token", true, false);
+				hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), 
+						Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, hero.armorReductionAmounts, 0, 
+						SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
+				hero.helmet = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.HEAD),
+						hero.name.toLowerCase()+"_helmet", true, false);
+				hero.chestplate = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.CHEST), 
+						hero.name.toLowerCase()+"_chestplate", true, false);
+				hero.leggings = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.LEGS), 
+						hero.name.toLowerCase()+"_leggings", true, false);
+				hero.boots = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.FEET), 
+						hero.name.toLowerCase()+"_boots", true, false);
+				hero.weapon = (ItemMWWeapon) registerItem(event.getRegistry(), hero.weapon, 
+						hero.name.toLowerCase()+"_weapon", true, true);
+				hero.token = (ItemMWToken) registerItem(event.getRegistry(), new ItemMWToken(), 
+						hero.name.toLowerCase()+"_token", true, false);
 			}
+
+			wild_card_token = registerItem(event.getRegistry(), new ItemMWToken.ItemWildCardToken(), "wild_card_token", true, false);
 
 			genji_shuriken_single = registerItem(event.getRegistry(), new ItemGenjiShuriken(), "genji_shuriken_single", false, true);
 			((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;

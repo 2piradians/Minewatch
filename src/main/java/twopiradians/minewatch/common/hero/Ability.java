@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -26,6 +27,7 @@ public class Ability {
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
+	public HashMap<EntityPlayer, EntityLivingBaseMW> entities = Maps.newHashMap();
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff
@@ -53,6 +55,10 @@ public class Ability {
 		}
 	};
 
+	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable) {
+		this(keybind, isEnabled, isToggleable, 0, 0);
+	}
+	
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable, int maxUses, int useCooldown) {
 		this.keybind = keybind;
 		this.isEnabled = isEnabled;
@@ -73,7 +79,7 @@ public class Ability {
 
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(Entity entity, boolean toggle) {
-		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isToggleable && isEnabled) {
+		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isEnabled) {
 			if (toggle) 
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(entity.getPersistentID());
@@ -82,7 +88,7 @@ public class Ability {
 	}
 
 	public boolean isToggled(Entity entity) {
-		return isToggleable && toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
+		return toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
 	}
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
@@ -117,11 +123,12 @@ public class Ability {
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
 				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
 				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
-				keybind.getCooldown(player) == 0 && (keybind.isKeyDown(player) ||
+				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 
-		if (TickHandler.getHandler(player, Identifier.ABILITY_USING) != null && !this.isToggled(player))
-			return false;
+		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
+		if (handler != null && handler.ability != null)
+			return this == handler.ability;
 
 		if (ret && player.world.isRemote)
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
@@ -149,6 +156,12 @@ public class Ability {
 					new SPacketSyncAbilityUses(player.getPersistentID(), hero, getNumber(), 
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
 		}
+	}
+	
+	public boolean showKeybind(EntityPlayer player) {
+		return keybind.getCooldown(player) <= 0 && 
+				(!isSelected(player) || (isToggled(player) && !TickHandler.hasHandler(player, Identifier.ABILITY_USING))) &&
+				(maxUses == 0 || getUses(player) > 0);
 	}
 
 }

@@ -10,6 +10,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
 
+
+
 	public static SoundEvent anaShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_shoot")).setRegistryName("ana_shoot");
 	public static SoundEvent anaReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "ana_reload")).setRegistryName("ana_reload");
 	public static SoundEvent reaperShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "reaper_shoot")).setRegistryName("reaper_shoot");
@@ -81,6 +83,28 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStop = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_beam_stop")).setRegistryName("mercy_beam_stop");
 	public static SoundEvent mercyReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_reload")).setRegistryName("mercy_reload");
 
+	public static SoundEvent guiHover = new SoundEvent(new ResourceLocation(Minewatch.MODID, "gui_hover")).setRegistryName("gui_hover");	
+	public static SoundEvent mercyAngel = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_angel")).setRegistryName("mercy_angel");
+	public static SoundEvent mercyAngelVoice = new SoundEvent(new ResourceLocation(Minewatch.MODID, "mercy_angel_voice")).setRegistryName("mercy_angel_voice");
+	public static SoundEvent junkratShoot = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_shoot")).setRegistryName("junkrat_shoot");
+	public static SoundEvent junkratLaugh = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_laugh")).setRegistryName("junkrat_laugh");
+	public static SoundEvent junkratDeath = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_death")).setRegistryName("junkrat_death");
+	public static SoundEvent junkratGrenadeBounce = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_grenade_bounce")).setRegistryName("junkrat_grenade_bounce");
+	public static SoundEvent junkratGrenadeExplode = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_grenade_explode")).setRegistryName("junkrat_grenade_explode");
+	public static SoundEvent[] junkratGrenadeTick = new SoundEvent[4];
+	static {
+		for (int i=0; i<junkratGrenadeTick.length; ++i)
+			junkratGrenadeTick[i] = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_grenade_tick_"+i)).setRegistryName("junkrat_grenade_tick_"+i);
+	}
+	public static SoundEvent junkratReload = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_reload")).setRegistryName("junkrat_reload");
+	public static SoundEvent junkratTrapThrow = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_throw")).setRegistryName("junkrat_trap_throw");
+	public static SoundEvent junkratTrapLand = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_land")).setRegistryName("junkrat_trap_land");
+	public static SoundEvent junkratTrapTrigger = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_trigger")).setRegistryName("junkrat_trap_trigger");
+	public static SoundEvent junkratTrapBreak = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_break")).setRegistryName("junkrat_trap_break");
+	public static SoundEvent junkratTrapTriggerOwner = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_trigger_owner")).setRegistryName("junkrat_trap_trigger_owner");
+	public static SoundEvent junkratTrapTriggerVoice = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_trigger_voice")).setRegistryName("junkrat_trap_trigger_voice");
+	public static SoundEvent junkratTrapPlacedVoice = new SoundEvent(new ResourceLocation(Minewatch.MODID, "junkrat_trap_placed_voice")).setRegistryName("junkrat_trap_placed_voice");
+
 	public static void postInit() {
 		EnumHero.ANA.reloadSound = anaReload;
 		EnumHero.REAPER.reloadSound = reaperReload;
@@ -92,8 +116,8 @@ public class ModSoundEvents {
 		EnumHero.MEI.reloadSound = meiReload;
 		EnumHero.WIDOWMAKER.reloadSound = widowmakerReload;
 		EnumHero.MERCY.reloadSound = mercyReload;
+		EnumHero.JUNKRAT.reloadSound = junkratReload;
 	}
-
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 
@@ -163,6 +187,25 @@ public class ModSoundEvents {
 			event.getRegistry().register(mercyBeamStart);
 			event.getRegistry().register(mercyBeamDuring);
 			event.getRegistry().register(mercyBeamStop);
+			
+			event.getRegistry().register(guiHover);	
+			event.getRegistry().register(mercyAngel);
+			event.getRegistry().register(mercyAngelVoice);
+			event.getRegistry().register(junkratShoot);
+			event.getRegistry().register(junkratLaugh);
+			event.getRegistry().register(junkratDeath);
+			event.getRegistry().register(junkratGrenadeBounce);
+			event.getRegistry().register(junkratGrenadeExplode);
+			for (int i=0; i<junkratGrenadeTick.length; ++i)
+				event.getRegistry().register(junkratGrenadeTick[i]);
+			event.getRegistry().register(junkratReload);
+			event.getRegistry().register(junkratTrapThrow);
+			event.getRegistry().register(junkratTrapLand);
+			event.getRegistry().register(junkratTrapTrigger);
+			event.getRegistry().register(junkratTrapBreak);
+			event.getRegistry().register(junkratTrapTriggerOwner);
+			event.getRegistry().register(junkratTrapTriggerVoice);
+			event.getRegistry().register(junkratTrapPlacedVoice);
 		}
 	}
 }

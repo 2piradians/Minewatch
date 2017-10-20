@@ -8,6 +8,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import twopiradians.minewatch.client.gui.tab.GuiTab.Screen;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class GuiButtonGallery extends GuiButtonTab {
 
@@ -22,8 +23,12 @@ public class GuiButtonGallery extends GuiButtonTab {
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {		
 		this.visible = GuiTab.currentScreen == screen;
+		boolean prev = this.hovered;
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
+        if (visible && hovered && prev != hovered)
+        	mc.player.playSound(ModSoundEvents.guiHover, 0.8f, 1.0f);
+        
 		//super.drawButton(mc, mouseX, mouseY);
 		//this.hovered = true;
         
@@ -33,8 +38,8 @@ public class GuiButtonGallery extends GuiButtonTab {
 				GlStateManager.translate(-5, -3, 0);
 			GlStateManager.color(1, 1, 1);
 			double iconScale = 0.52d;
-			double bothScale = this.hovered ? 0.44d : 0.34d;
-			double textScale = this.hovered ? 0.68d : 0.55f;
+			double bothScale = this.hovered ? 0.42d : 0.32d;
+			double textScale = this.hovered ? 0.68d : 0.49f;
 			GlStateManager.scale(bothScale, bothScale, 1);
 			// icon
 			GlStateManager.scale(iconScale, iconScale, 1);
@@ -46,16 +51,16 @@ public class GuiButtonGallery extends GuiButtonTab {
 			GuiUtils.drawTexturedModalRect((int) ((this.x-8)/bothScale), (int) (this.y/bothScale), 45, 45, 160, 155, 0);
 			GlStateManager.color(hero.color.getRed()/255f, hero.color.getGreen()/255f, hero.color.getBlue()/255f);
 			double percent = hero.skinInfo.length/hero.skinInfo.length;
-			GuiUtils.drawTexturedModalRect((int) ((this.x-(this.hovered ? 3 : 4))/bothScale), (int) ((this.y+(this.hovered ? 58 : 45))/bothScale), 0, 0, (int) (percent*118), 20, 0);
+			GuiUtils.drawTexturedModalRect((int) ((this.x-(this.hovered ? 3 : 4))/bothScale), (int) ((this.y+(this.hovered ? 56 : 43))/bothScale), 0, 0, (int) (percent*118), 20, 0);
 			// text
 			if (this.hovered)
 				GlStateManager.translate(18, 26, 0);
 			GlStateManager.scale(1/bothScale, 1/bothScale, 1);
 			GlStateManager.scale(textScale, textScale, 1);
 			String text = TextFormatting.ITALIC+""+TextFormatting.BOLD+(hero == EnumHero.SOLDIER76 ? "Soldier: 76" : hero.name).toUpperCase();
-			mc.fontRenderer.drawString(text, (int) ((this.x+17)/textScale)-mc.fontRenderer.getStringWidth(text)/2, (int) ((this.y+38)/textScale), 0x293440);
+			mc.fontRenderer.drawString(text, (int) ((this.x+15)/textScale)-mc.fontRenderer.getStringWidth(text)/2, (int) ((this.y+37)/textScale), 0x293440);
 			text = TextFormatting.BOLD+""+hero.skinInfo.length+"/"+hero.skinInfo.length;
-			mc.fontRenderer.drawString(text, (int) ((this.x+15)/textScale)-mc.fontRenderer.getStringWidth(text)/2, (int) ((this.y+(this.hovered ? 48 : 46))/textScale), 0xFFFFFF, true);
+			mc.fontRenderer.drawString(text, (int) ((this.x+14)/textScale)-mc.fontRenderer.getStringWidth(text)/2, (int) ((this.y+(this.hovered ? 47 : 45))/textScale), 0xFFFFFF, true);
 			GlStateManager.popMatrix();
 		}
 

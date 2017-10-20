@@ -4,41 +4,42 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntityTracerBullet extends EntityMWThrowable {
+public class EntityTracerBullet extends EntityMW {
 
 	public EntityTracerBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null, -1);
 	}
 
-	public EntityTracerBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
-		super(worldIn, throwerIn);
+	public EntityTracerBullet(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 15;
+		this.lifetime = 3;						
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+				0x4AFDFD, 0x4AFDFD, 1, 3, 4, 1, world.rand.nextFloat(), 0.01f, hand, 7, 0.6f);
 	}
 
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles, 
-						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 0.5f, 1, 1);
-		}
+		if (this.world.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 5, 0, 0x5EDCE5, 0x007acc, 0.5f, 2, 0.8f);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 6 - (6 - 1.5f) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 1.5f, 6, 11, 30)) 
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

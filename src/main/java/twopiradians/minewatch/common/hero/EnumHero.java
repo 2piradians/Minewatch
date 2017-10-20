@@ -27,6 +27,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -38,6 +39,8 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,6 +53,7 @@ import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
+import twopiradians.minewatch.common.item.weapon.ItemJunkratLauncher;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
@@ -66,71 +70,77 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
-	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	// do not change order - this is the order in ability_overlay.png TODO count damage per tick
+	ANA("Ana", true, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, 
 			new Skin("Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
+			new Skin("Classic", "Until The End - Ana [Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/until-the-end-ana-overwatch/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Ghoul", "Ana Ghoul Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11300611/ana-ghoul-skin/"), 
 			new Skin(TextFormatting.DARK_PURPLE+"Merciful", "Ana Merciful", "QuantumQuark", "http://www.minecraftskins.com/skin/11038160/ana-merciful/"), 
 			new Skin(TextFormatting.GOLD+"Captain Amari", "Captain Amari", "yana2princess", "http://www.minecraftskins.com/skin/11380464/captain-amari/")), 
-	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	GENJI("Genji", false, new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, 0x95EF42, false, 
 			new Skin("Classic", "Overwatch- Genji", "Ringoster", "https://www.planetminecraft.com/skin/genji-3709302/"), 
 			new Skin(TextFormatting.DARK_PURPLE+"Carbon Fiber", "Genji: Carbon Fiber", "EP_Schnellnut", "https://www.planetminecraft.com/skin/genji-carbon-fiber/"), 
 			new Skin(TextFormatting.GOLD+"Young Genji", "Young Genji", "Aegeah", "https://www.planetminecraft.com/skin/young-genji/"), 
 			new Skin(TextFormatting.GOLD+"Blackwatch", "GENJI - BLACKWATCH! [Overwatch]", "Thinkingz", "https://www.planetminecraft.com/skin/genji---blackwatch-overwatch/"), 
 			new Skin(TextFormatting.GOLD+"Sentai", "Sentai Genji", "Blastronaut360", "http://www.minecraftskins.com/skin/11247630/sentai-genji/"),
-			new Skin(TextFormatting.GOLD+"Nomad", "Nomad Genji Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-nomad-genji-overwatch/")),
-	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+			new Skin(TextFormatting.GOLD+"Nomad", "Nomad Genji Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-nomad-genji-overwatch/"),
+			new Skin(TextFormatting.GOLD+"Oni", "Oni Genji Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11298711/oni-genji-skin/")),
+	HANZO("Hanzo", false, new Ability(KeyBind.ABILITY_2, true, true), 
+			new Ability(KeyBind.ABILITY_1, true, true), 
+			new Ability(KeyBind.NONE, false, false), 
 			0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, 0xB6B589, false, 
 			new Skin("Classic", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/"), 
 			new Skin(TextFormatting.GOLD+"Cyber Ninja", "Cyber Ninja Hanzo", "Arctrooper7802", "http://www.minecraftskins.com/skin/11071427/cyber-ninja-hanzo/"), 
 			new Skin(TextFormatting.GOLD+"Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
 			new Skin(TextFormatting.GOLD+"Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/")),
-	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	MCCREE("McCree", false, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, 
 			new Skin("Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),
 			new Skin("Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
 			new Skin(TextFormatting.GOLD+"Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
-			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/")),
-	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, true, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/"),
+			new Skin(TextFormatting.GOLD+"Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/")),
+	REAPER("Reaper", false, new Ability(KeyBind.ABILITY_2, true, true), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, 
 			new Skin("Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
 			new Skin("Classic", "Reaper (PlayOfTheGame)", "_Phantom", "https://www.planetminecraft.com/skin/reaper-playofthegame-overwatch/"),
+			new Skin("Classic", "Reaper | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/reaper-overwatch-3652548/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Shiver", "Reaper shiver holiday skin ( Overwatch)", "Hiccup415", "https://www.planetminecraft.com/skin/reaper-shiver-holiday-skin-overwatch/"), 
 			new Skin(TextFormatting.GOLD+"Mariachi", "Mariachi skin Reaper (OverWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
-			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/")),
-	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 
+			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
+			new Skin(TextFormatting.GOLD+"Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/")),
+	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false), 
+			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, false, true), 
 			0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, 
 			new Skin("Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
 			new Skin(TextFormatting.GOLD+"Lionhardt", "LionHardt Reinhardt", "ReinhardtWillhelm", "http://www.minecraftskins.com/skin/8764321/lionhardt-reinhardt/"),
 			new Skin(TextFormatting.GOLD+"Stonehardt", "Reinhardt - Overwatch", "Baccup", "https://www.planetminecraft.com/skin/reinhardt---overwatch/"),
 			new Skin(TextFormatting.GOLD+"Balderich", "Balderich", "TheGuardian755", "http://www.minecraftskins.com/skin/10356345/balderich/")),
-	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.NONE, true, true, 0, 0), 
+	SOLDIER76("Soldier76", false, new Ability(KeyBind.RMB, true, false), 
+			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.NONE, true, true), 
 			25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, 
 			new Skin("Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
+			new Skin("Classic", "Soldier 76", "Knap", "https://www.planetminecraft.com/skin/soldier-76-3820018/"),
 			new Skin(TextFormatting.DARK_AQUA+"Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Golden", "Golden Soldier 76", "riddler55", "http://www.minecraftskins.com/skin/10930005/golden-soldier-76/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Bone", "Soldier 76 Bone SKin", "BagelSki", "http://www.minecraftskins.com/skin/9737491/soldier-76-bone-skin/"),
 			new Skin(TextFormatting.GOLD+"Strike Commander", "Strike Commander Morrison - Soldier 76 - Overwatch", "Obvial", "https://www.planetminecraft.com/skin/strike-commander-morrison-3938568/"),
 			new Skin(TextFormatting.GOLD+"Grill Master: 76", "Grill Master 76 (Soldier 76 Summer Games 2017)", "InfamousHN", "https://www.planetminecraft.com/skin/grill-master-76-soldier-76-summer-games-2017/")),
-	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), 
+	TRACER("Tracer", false, new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false, 3, 60), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+			new Ability(KeyBind.NONE, false, false), 
 			40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, 0xD89441, true, 
 			new Skin("Classic", "Tracer- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/tracer--overwatch-feat-19-transparency/"),
 			new Skin(TextFormatting.GOLD+"Graffiti", "Graffiti Tracer (Overwatch)", "RyutoMatsuki", "https://www.planetminecraft.com/skin/graffiti-tracer-overwatch-better-in-preview-3982890/"),
@@ -138,39 +148,47 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
 			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
 			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
-	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, false, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
 			new Skin("Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
 			new Skin(TextFormatting.GOLD+"Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
-	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, true, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, true, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, false, true), 
+			new Ability(KeyBind.NONE, false, false), 
 			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, 
 			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "mareridt", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
-	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
-			new Ability(KeyBind.NONE, false, false, 0, 0), 
+	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, false, false), 
+			new Ability(KeyBind.NONE, false, false), 
 			30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, 0x9A68A3, true, 
 			new Skin("Classic", "Widowmaker - Overwatch: 1.8 Skin, Female", "sir-connor", "https://www.planetminecraft.com/skin/widowmaker---overwatch-18-skin-female/"),
+			new Skin("Classic", "Widowmaker (Overwatch) ... ONE SHOT, ONE KILL", "KAWAI_Murderer", "https://www.planetminecraft.com/skin/widowmaker-overwatch-one-shot-one-kill/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Winter", "Winter Widowmaker", "Nudle", "https://www.planetminecraft.com/skin/winter-widowmaker/"),
 			new Skin(TextFormatting.GOLD+"Huntress", "Ouh La La", "Katalisa", "https://www.planetminecraft.com/skin/huntress-widowmaker/"),
 			new Skin(TextFormatting.GOLD+"Cote d'Azur", "Widowmaker: Cote d'Azur", "Althestane", "https://www.planetminecraft.com/skin/widowmaker-c-te-d-azur/"),
 			new Skin(TextFormatting.GOLD+"Talon", "Widowmaker Talon Skin - IISavageDreamzII", "StarryDreamz", "https://www.planetminecraft.com/skin/widowmaker-talon-skin-iisavagedreamzii/")),
-	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_2, false, false, 0, 0), 
-			new Ability(KeyBind.ABILITY_1, false, false, 0, 0), 
+	MERCY("Mercy", true, new Ability(KeyBind.NONE, false, false), 
+			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
 			0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, 
 			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
 			new Skin("Classic", "Mercy", "FireBoltCreeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
 			new Skin(TextFormatting.GOLD+"Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
 			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
 			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
-			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/"));
+			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
+	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, false, false, 2, 160), 
+			new Ability(KeyBind.NONE, false, false), 
+			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, 
+			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin(TextFormatting.GOLD+"Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
+			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/"));
 
 	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
 
@@ -324,7 +342,7 @@ public enum EnumHero {
 	public static class RenderManager {
 
 		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
-		public static HashMap<EntityLivingBase, HashMap<EntityPlayerMP, Float>> entityDamage = Maps.newHashMap();
+		public static HashMap<EntityLivingBase, HashMap<UUID, Tuple<Float, Integer>>> entityDamage = Maps.newHashMap();
 		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
 			@Override
 			@SideOnly(Side.CLIENT)
@@ -389,12 +407,14 @@ public enum EnumHero {
 
 				if (hero != null) {
 					GlStateManager.pushMatrix();
+					GlStateManager.color(1, 1, 1, 1);
 					GlStateManager.enableBlend();
 					GlStateManager.enableAlpha();
 
 					// hit overlay
 					Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
-					if (handler != null) {
+					if (handler != null &&
+							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 3 ? 0 : (1f-handler.ticksLeft/3f)*0.7f));
 						double scale = MathHelper.clamp(0.014f*handler.number, 0.03f, 0.25f);
 						GlStateManager.scale(scale, scale, 1);
@@ -405,7 +425,8 @@ public enum EnumHero {
 
 					// kill overlay
 					handler = TickHandler.getHandler(player, Identifier.KILL_OVERLAY);
-					if (handler != null) {
+					if (handler != null &&
+							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 5 ? 0 : (1f-handler.ticksLeft/5f)*0.7f));
 						double scale = 0.1f;
 						GlStateManager.scale(scale, scale, 1);
@@ -440,11 +461,11 @@ public enum EnumHero {
 					GlStateManager.popMatrix();
 				}
 
-				if (weapon != null) {
+				if (weapon != null &&
+						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					GlStateManager.color(1, 1, 1, 1f);
 
-					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player)) &&
-							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player))) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
 
@@ -507,11 +528,7 @@ public enum EnumHero {
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
 				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
-				EnumHand hand = null;
-				for (EnumHand hand2 : EnumHand.values())
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
-						hand = hand2;
-				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
+				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 				// hero information screen
 				if (hero != null && weapon != null && weapon.hero == hero && Minewatch.keys.heroInformation(player))
@@ -520,10 +537,11 @@ public enum EnumHero {
 					if (hero != null) {
 						// display icon
 						GlStateManager.pushMatrix();
+						GlStateManager.color(1, 1, 1, 1);
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						double scale = 0.35d*Config.guiScale;
+						double scale = 0.25d*Config.guiScale;
 						GlStateManager.scale(scale, scale, 1);
 						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
@@ -540,7 +558,7 @@ public enum EnumHero {
 						GlStateManager.enableDepth();
 						GlStateManager.enableAlpha();
 
-						double scale = 1d*Config.guiScale;
+						double scale = 0.67d*Config.guiScale;
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
@@ -603,44 +621,50 @@ public enum EnumHero {
 							int width3 = Minecraft.getMinecraft().fontRenderer.getStringWidth(hero.ability3.keybind.getKeyName());
 							// background
 							// slot 1
-							if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.ability1.keybind.getKeyName() != "")
-								GuiUtils.drawTexturedModalRect(-58, 7, 0, 1019, 40, 5, 0);
-							else if (hero.ability1.keybind == KeyBind.RMB)
-								GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
+							if (hero.ability1.showKeybind(player)) {
+								if (hero.ability1.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-58, 7, 0, 1019, 40, 5, 0);
+								else if (hero.ability1.keybind == KeyBind.RMB)
+									GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
+							}
 							if (hero.ability1.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-30, -10, 81, 1015, 20, 9, 0);
-							GlStateManager.color(1, 1, 1);
+							if (hero.ability1.entities.get(player) != null && hero.ability1.entities.get(player).isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
 							// slot 2
-							if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.ability2.keybind.getKeyName() != "")
-								GuiUtils.drawTexturedModalRect(-98, 6, 0, 1019, 40, 5, 0);
+							if (hero.ability2.showKeybind(player)) {
+								if (hero.ability2.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-98, 6, 0, 1019, 40, 5, 0);
+							}
 							if (hero.ability2.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
-							GlStateManager.color(1, 1, 1);
+							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
 							// slot 3
-							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							if (hero.ability3.keybind.getKeyName() != "")
-								GuiUtils.drawTexturedModalRect(-137, 5, 0, 1019, 40, 5, 0);
+							if (hero.ability3.showKeybind(player)) {
+								if (hero.ability3.keybind.getKeyName() != "")
+									GuiUtils.drawTexturedModalRect(-137, 5, 0, 1019, 40, 5, 0);
+							}
 							if (hero.ability3.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
-							GlStateManager.color(1, 1, 1);
+							if (hero.ability3.entities.get(player) != null && hero.ability3.entities.get(player).isEntityAlive()) 
+								GuiUtils.drawTexturedModalRect(hero.ability3.maxUses > 0 ? -103 : -106, hero.ability3.maxUses > 0 ? -16 : -11, 101, 1015, 20, 9, 0);
 							// text
 							GlStateManager.scale(1, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// slot 1
-							Minecraft.getMinecraft().fontRenderer.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
+							if (hero.ability1.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRenderer.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
 							if (hero.ability1.maxUses > 0)
 								Minecraft.getMinecraft().fontRenderer.drawString(String.valueOf(hero.ability1.getUses(player)), -99, -15, 0);
 							// slot 2
-							Minecraft.getMinecraft().fontRenderer.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
+							if (hero.ability2.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRenderer.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
 							if (hero.ability2.maxUses > 0)
 								Minecraft.getMinecraft().fontRenderer.drawString(String.valueOf(hero.ability2.getUses(player)), -62, -14, 0);
 							// slot 3
-							Minecraft.getMinecraft().fontRenderer.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
+							if (hero.ability3.showKeybind(player)) 
+								Minecraft.getMinecraft().fontRenderer.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
 							if (hero.ability3.maxUses > 0)
 								Minecraft.getMinecraft().fontRenderer.drawString(String.valueOf(hero.ability3.getUses(player)), -23, -16, 0);
 
@@ -692,13 +716,29 @@ public enum EnumHero {
 		}
 
 		@SubscribeEvent
+		public static void serverSide(ServerTickEvent event) {
+			// decrement timer for damage
+			if (event.phase == TickEvent.Phase.END) {
+				for (EntityLivingBase entity : entityDamage.keySet()) 
+					for (UUID uuid : entityDamage.get(entity).keySet()) {
+						Tuple<Float, Integer> tup = entityDamage.get(entity).get(uuid);
+						entityDamage.get(entity).put(uuid, new Tuple(tup.getFirst(), tup.getSecond()-1));
+					}
+			}
+		}
+
+
+		@SubscribeEvent
 		public static void damageEntities(LivingHurtEvent event) {
 			EntityPlayerMP player = null;
 			if (event.getSource().getTrueSource() instanceof EntityPlayerMP)
 				player = ((EntityPlayerMP)event.getSource().getTrueSource());
+			else if (event.getSource().getTrueSource() instanceof EntityPlayerMP)
+				player = ((EntityPlayerMP)event.getSource().getTrueSource());
 			else if (event.getSource().getTrueSource() instanceof IThrowableEntity && 
 					((IThrowableEntity) event.getSource().getTrueSource()).getThrower() instanceof EntityPlayerMP)
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getTrueSource()).getThrower();
+			
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
 				if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != null) {
 					try {
@@ -707,8 +747,8 @@ public enum EnumHero {
 						damage = applyPotionDamageCalculations(player, event.getSource(), damage);
 						damage = Math.min(damage, event.getEntityLiving().getHealth());
 						if (damage > 0) {
-							HashMap<EntityPlayerMP, Float> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
-							damageMap.put(player, damageMap.get(player) == null ? damage : damageMap.get(player) + damage);
+							HashMap<UUID, Tuple<Float, Integer>> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
+							damageMap.put(player.getPersistentID(), new Tuple(damageMap.get(player.getPersistentID()) == null ? damage : damageMap.get(player.getPersistentID()).getFirst() + damage, 200));
 							entityDamage.put(event.getEntityLiving(), damageMap);
 							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), player);
 						}
@@ -723,21 +763,28 @@ public enum EnumHero {
 		@SubscribeEvent
 		public static void deathMessages(LivingDeathEvent event) {
 			if (event.getEntityLiving() != null && entityDamage.containsKey(event.getEntityLiving())) {
-				EntityPlayer mostDamage = null;
+				UUID mostDamage = null;
 				float damage = 0;
 				// find who dealt most damage
-				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
-					if (mostDamage == null || entityDamage.get(event.getEntityLiving()).get(player) > damage) {
-						mostDamage = player;
-						damage = entityDamage.get(event.getEntityLiving()).get(player);
+				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) 
+					if ((mostDamage == null || entityDamage.get(event.getEntityLiving()).get(uuid).getFirst() > damage) &&
+							entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
+						mostDamage = uuid;
+						damage = entityDamage.get(event.getEntityLiving()).get(uuid).getFirst();
 					}
-				for (EntityPlayerMP player : entityDamage.get(event.getEntityLiving()).keySet()) 
-					Minewatch.network.sendTo(new SPacketSimple(14, mostDamage != player, player,
-					(int)MathHelper.clamp(entityDamage.get(event.getEntityLiving()).get(player)/event.getEntityLiving().getMaxHealth()*100f, 0, 100),
-					0, 0, event.getEntityLiving()), player);
-				if (event.getEntityLiving() instanceof EntityPlayerMP)
+				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) {
+					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
+					if (player instanceof EntityPlayerMP) {
+						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
+						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0)
+							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
+									(int)MathHelper.clamp(percent, 0, 100),
+									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
+					}
+				}
+				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)
 					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
-							0, 0, mostDamage), (EntityPlayerMP) event.getEntityLiving());
+							0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
 				entityDamage.remove(event.getEntityLiving());
 			}
 		}

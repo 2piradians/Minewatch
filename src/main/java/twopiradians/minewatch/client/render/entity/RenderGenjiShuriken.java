@@ -4,21 +4,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.item.ModItems;
 
-public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
-{	
+public class RenderGenjiShuriken extends RenderSimple<EntityGenjiShuriken> {
+	
 	private final RenderItem itemRenderer;
 
-	public RenderGenjiShuriken(RenderManager renderManager) {
-		super(renderManager);
+	public RenderGenjiShuriken(RenderManager manager) {
+		super(manager, null, "", 0, 0, 0);
 		this.itemRenderer = Minecraft.getMinecraft().getRenderItem();
 	}
 
@@ -26,24 +22,21 @@ public class RenderGenjiShuriken extends Render<EntityGenjiShuriken>
 		return new ItemStack(ModItems.genji_shuriken_single);
 	}
 
-	protected ResourceLocation getEntityTexture(EntityGenjiShuriken entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/genji_shuriken.png");   
-	}
-
 	@Override
 	public void doRender(EntityGenjiShuriken entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (entity.ticksExisted == 0 && entity.getPersistentID().equals(ModEntities.spawningEntityUUID)) 
-			entity.updateFromPacket();
+		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
+		double scale = 0.5d;
 		GlStateManager.pushMatrix();
-        GlStateManager.translate((float)x, (float)y+.05f, (float)z);
+        GlStateManager.translate((float)x, (float)y+0.05d, (float)z);
         GlStateManager.enableRescaleNormal();
-        GlStateManager.scale(0.5d, 0.5d, 0.5d);
-        GlStateManager.rotate(entity.ticksExisted*10, 0.2F, 0.0F, 1.0F);
-        GlStateManager.rotate(entityYaw, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(90, 1, 0, 0);
-
-        this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.GROUND);
+        GlStateManager.scale(scale, scale, scale);
+		GlStateManager.rotate(-(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks), 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, 1.0F, 0.0F, 0.0F);
+		GlStateManager.rotate(90, 0, 1, 0);
+		GlStateManager.rotate(entity.ticksExisted*50f, 0, 0, 1);
+		
+        this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.FIXED);
 
         GlStateManager.disableRescaleNormal();
         GlStateManager.popMatrix();

@@ -4,41 +4,42 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntityReaperBullet extends EntityMWThrowable {
+public class EntityReaperBullet extends EntityMW {
 
 	public EntityReaperBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null, -1);
 	}
 
-	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn, EnumHand hand) {
-		super(worldIn, throwerIn);
+	public EntityReaperBullet(World worldIn, EntityLivingBase throwerIn, int hand) {
+		super(worldIn, throwerIn, hand);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 5;
+		this.lifetime = 2;
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, worldObj, shooter, 
+				0xD93B1A, 0x510D30, 0.3f, 5, 5, 4, 0, 0, hand, 14, 0.5f);
 	}
 
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.worldObj.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*10d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.worldObj, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0xAF371E, 0xFFC26E, 0.3f, 1, 1);
-		}
+		if (this.worldObj.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 2, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 7 - (7 - 2) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 2, 7, 11, 20))
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

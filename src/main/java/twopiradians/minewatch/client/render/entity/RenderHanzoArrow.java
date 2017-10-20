@@ -7,14 +7,17 @@ import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
 
 public class RenderHanzoArrow extends RenderArrow {
-
-	public RenderHanzoArrow(RenderManager renderManager) {
-		super(renderManager);
+	
+	private final ResourceLocation TEXTURE;
+	
+	public RenderHanzoArrow(RenderManager manager, String texture) {
+		super(manager);
+		this.TEXTURE = new ResourceLocation(Minewatch.MODID, "textures/entity/"+texture+".png");
 	}
 
 	@Override
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return new ResourceLocation(Minewatch.MODID, "textures/entity/hanzo_arrow.png");
+		return TEXTURE;
 	}
 	
 }

@@ -21,14 +21,24 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 public class CPacketSyncKeys implements IMessage
 {
 	private boolean isKeyPressed;
+	private float fov;
 	private UUID player;
 	private String keyName;
 
 	public CPacketSyncKeys() {}
 
 	public CPacketSyncKeys(String keyName, boolean isKeyPressed, UUID player) {
+		this(keyName, isKeyPressed, 70f, player);
+	}
+	
+	public CPacketSyncKeys(String keyName, float fov, UUID player) {
+		this(keyName, false, fov, player);
+	}
+	
+	public CPacketSyncKeys(String keyName, boolean isKeyPressed, float fov, UUID player) {
 		this.keyName = keyName;
 		this.isKeyPressed = isKeyPressed;
+		this.fov = fov;
 		this.player = player;
 	}
 
@@ -36,6 +46,7 @@ public class CPacketSyncKeys implements IMessage
 	public void fromBytes(ByteBuf buf) {
 		this.keyName = ByteBufUtils.readUTF8String(buf);
 		this.isKeyPressed = buf.readBoolean();
+		this.fov = buf.readFloat();
 		this.player = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 	}
 
@@ -43,6 +54,7 @@ public class CPacketSyncKeys implements IMessage
 	public void toBytes(ByteBuf buf) {
 		ByteBufUtils.writeUTF8String(buf, keyName);
 		buf.writeBoolean(this.isKeyPressed);
+		buf.writeFloat(fov);
 		ByteBufUtils.writeUTF8String(buf, player.toString());
 	}
 
@@ -68,6 +80,8 @@ public class CPacketSyncKeys implements IMessage
 						Minewatch.keys.ultimate.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Jump"))
 						Minewatch.keys.jump.put(packet.player, packet.isKeyPressed);
+					else if (packet.keyName.equals("Fov"))
+						Minewatch.keys.fov.put(packet.player, packet.fov);
 					else if (packet.keyName.equals("Alt Weapon")) {
 						ItemStack main = player.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {

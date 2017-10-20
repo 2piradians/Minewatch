@@ -59,9 +59,12 @@ public class Keys {
 			this.identifier = identifier;
 			COOLDOWNS.identifier = identifier;
 		}
-		
+
 		public int getCooldown(EntityPlayer player) {
-			Handler handler = TickHandler.getHandler(player, identifier);
+			Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
+			if (handler != null && handler.ability != null && handler.ability.keybind == this)
+				return 0;
+			handler = TickHandler.getHandler(player, identifier);
 			return handler == null ? 0 : handler.ticksLeft;
 		}
 
@@ -123,6 +126,7 @@ public class Keys {
 	public HashMap<UUID, Boolean> lmb = Maps.newHashMap();
 	public HashMap<UUID, Boolean> rmb = Maps.newHashMap();
 	public HashMap<UUID, Boolean> jump = Maps.newHashMap();
+	public HashMap<UUID, Float> fov = Maps.newHashMap();
 
 	public Keys() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -187,6 +191,12 @@ public class Keys {
 			return jump.containsKey(player.getPersistentID()) ? jump.get(player.getPersistentID()) : false;
 			return false;
 	}
+	
+	public float fov(EntityPlayer player) {
+		if (player != null)
+			return fov.containsKey(player.getPersistentID()) ? fov.get(player.getPersistentID()) : 70f;
+			return 70f;
+	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
@@ -203,10 +213,10 @@ public class Keys {
 				lmb.put(uuid, event.isButtonstate());
 				Minewatch.network.sendToServer(new CPacketSyncKeys("LMB", event.isButtonstate(), uuid));
 				if (event.isButtonstate())
-					 if (!(main != null && main.getItem() instanceof ItemReinhardtHammer))
+					if (!(main.getItem() instanceof ItemReinhardtHammer))
 						event.setCanceled(true);
 					else {
-						 if (main != null && ((ItemMWWeapon) main.getItem()).canUse(player, false, EnumHand.MAIN_HAND)) 
+						if (((ItemMWWeapon) main.getItem()).canUse(player, false, EnumHand.MAIN_HAND, false)) 
 							((ItemMWWeapon) main.getItem()).onItemLeftClick(main, player.worldObj, player, EnumHand.MAIN_HAND);
 						event.setCanceled(true);
 					}
@@ -233,16 +243,17 @@ public class Keys {
 	@SideOnly(Side.CLIENT)
 	public void updateKeys(ClientTickEvent event) {
 		if (event.phase == Phase.END && Minecraft.getMinecraft().thePlayer != null) {
-			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayerSP player = mc.thePlayer;
 			UUID uuid = player.getPersistentID();
 
 			// disable lmb if not in game screen
-			if (Minecraft.getMinecraft().currentScreen != null && this.lmb(player)) {
+			if (mc.currentScreen != null && this.lmb(player)) {
 				lmb.put(uuid, false);
 				Minewatch.network.sendToServer(new CPacketSyncKeys("LMB", false, uuid));
 			}
 			// disable rmb if not in game screen
-			if (Minecraft.getMinecraft().currentScreen != null && this.rmb(player)) {
+			if (mc.currentScreen != null && this.rmb(player)) {
 				rmb.put(uuid, false);
 				Minewatch.network.sendToServer(new CPacketSyncKeys("RMB", false, uuid));
 			}
@@ -293,6 +304,10 @@ public class Keys {
 			if (!jump.containsKey(uuid) || player.movementInput.jump != jump.get(uuid)) {
 				jump.put(uuid, player.movementInput.jump);
 				Minewatch.network.sendToServer(new CPacketSyncKeys("Jump", player.movementInput.jump, uuid));
+			}
+			if (!fov.containsKey(uuid) || mc.gameSettings.fovSetting != fov.get(uuid)) {
+				fov.put(uuid, mc.gameSettings.fovSetting);
+				Minewatch.network.sendToServer(new CPacketSyncKeys("Fov", mc.gameSettings.fovSetting, uuid));
 			}
 		}
 	}

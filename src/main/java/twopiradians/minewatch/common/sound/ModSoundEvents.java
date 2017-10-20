@@ -7,7 +7,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
-
+	
+	public static SoundEvent guiHover;
 	public static SoundEvent[] multikill = new SoundEvent[5];
 	public static SoundEvent kill;
 	public static SoundEvent headshot;
@@ -58,11 +59,28 @@ public class ModSoundEvents {
 	public static SoundEvent mercyHeal;
 	public static SoundEvent mercyDamage;
 	public static SoundEvent mercyHover;
+	public static SoundEvent mercyAngel;
+	public static SoundEvent mercyAngelVoice;
 	public static SoundEvent mercyBeamStart;
 	public static SoundEvent mercyBeamDuring;
 	public static SoundEvent mercyBeamStop;
+	
+	public static SoundEvent junkratShoot;
+	public static SoundEvent junkratLaugh;
+	public static SoundEvent junkratDeath;
+	public static SoundEvent junkratGrenadeBounce;
+	public static SoundEvent junkratGrenadeExplode;
+	public static SoundEvent[] junkratGrenadeTick = new SoundEvent[4];
+	public static SoundEvent junkratTrapThrow;
+	public static SoundEvent junkratTrapLand;
+	public static SoundEvent junkratTrapTrigger;
+	public static SoundEvent junkratTrapBreak;
+	public static SoundEvent junkratTrapTriggerOwner;
+	public static SoundEvent junkratTrapTriggerVoice;
+	public static SoundEvent junkratTrapPlacedVoice;
 
 	public static void preInit() {
+		guiHover = registerSound("gui_hover");
 		for (int i=2; i<7; ++i)
 			multikill[i-2] = registerSound("multikill_"+i);
 		kill = registerSound("kill");
@@ -124,9 +142,26 @@ public class ModSoundEvents {
 		mercyHeal = registerSound("mercy_heal");
 		mercyDamage = registerSound("mercy_damage");
 		mercyHover = registerSound("mercy_hover");
+		mercyAngel = registerSound("mercy_angel");
+		mercyAngelVoice = registerSound("mercy_angel_voice");
 		mercyBeamStart = registerSound("mercy_beam_start");
 		mercyBeamDuring = registerSound("mercy_beam_during");
 		mercyBeamStop = registerSound("mercy_beam_stop");
+		junkratShoot = registerSound("junkrat_shoot");
+		junkratLaugh = registerSound("junkrat_laugh");
+		junkratDeath = registerSound("junkrat_death");
+		junkratGrenadeBounce = registerSound("junkrat_grenade_bounce");
+		junkratGrenadeExplode = registerSound("junkrat_grenade_explode");
+		for (int i=0; i<junkratGrenadeTick.length; ++i)
+			junkratGrenadeTick[i] = registerSound("junkrat_grenade_tick_"+i);
+		EnumHero.JUNKRAT.reloadSound = registerSound("junkrat_reload");
+		junkratTrapThrow = registerSound("junkrat_trap_throw");
+		junkratTrapLand = registerSound("junkrat_trap_land");
+		junkratTrapTrigger = registerSound("junkrat_trap_trigger");
+		junkratTrapBreak = registerSound("junkrat_trap_break");
+		junkratTrapTriggerOwner = registerSound("junkrat_trap_trigger_owner");
+		junkratTrapTriggerVoice = registerSound("junkrat_trap_trigger_voice");
+		junkratTrapPlacedVoice = registerSound("junkrat_trap_placed_voice");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

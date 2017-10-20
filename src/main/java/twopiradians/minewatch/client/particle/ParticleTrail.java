@@ -17,35 +17,51 @@ public class ParticleTrail extends ParticleSimpleAnimated {
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
+	private float maxAge;
+	private float age;
+	private float initialScale;
+	private int initialColor;
 	
-	public ParticleTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
+	public ParticleTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
 		super(world, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
 		this.motionZ = motionZ;
 		this.particleGravity = 0.01f;
-		this.particleMaxAge = maxAge;
+		this.age = initialAge;
+		this.maxAge = maxAge;
+		this.particleMaxAge = Integer.MAX_VALUE;
 		this.particleScale = scale;
+		this.initialScale = scale;
 		this.particleAlpha = alpha;
 		this.initialAlpha = alpha;
+		this.initialColor = color;
 		this.setColor(color);
 		this.setColorFade(colorFade);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TEXTURE.toString());
 		this.setParticleTexture(sprite); 
+		this.onUpdate();
 	}
 	
 	@Override
     public void onUpdate() {
 		super.onUpdate();
+
+        float agePercent = this.age / this.maxAge;
 		
-		this.particleScale *= 0.98f;
+		this.particleScale = (1f-agePercent/2f) * this.initialScale;
 		
-		// color fade (faster than vanilla)
-        this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.3F;
-        this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * 0.3F;
-        this.particleBlue += (this.fadeTargetBlue - this.particleBlue) * 0.3F;
+		// color fade
+		this.setColor(this.initialColor);
+        this.particleRed += (this.fadeTargetRed - this.particleRed) * agePercent;
+        this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * agePercent;
+        this.particleBlue += (this.fadeTargetBlue - this.particleBlue) * agePercent;
 		
-		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.1f);
+		this.particleAlpha = (1f-agePercent) * this.initialAlpha;
+		
+        if (this.age++ >= this.maxAge)
+            this.setExpired();
+
 	}
 	
 	@Override

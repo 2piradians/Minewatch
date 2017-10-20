@@ -22,6 +22,7 @@ import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemHanzoBow extends ItemMWWeapon {
 
@@ -44,9 +45,9 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
-		if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
-			return new ItemStack(Items.ARROW);
-		else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
+		//if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
+		return new ItemStack(Items.ARROW);
+		/*else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
 			return player.getHeldItem(EnumHand.OFF_HAND);
 		else if (this.isArrow(player.getHeldItem(EnumHand.MAIN_HAND)))
 			return player.getHeldItem(EnumHand.MAIN_HAND);
@@ -56,13 +57,13 @@ public class ItemHanzoBow extends ItemMWWeapon {
 				if (this.isArrow(itemstack))
 					return itemstack;
 			}
-			return null;
-		}
+			return ItemStack.EMPTY;
+		}*/
 	}
 
-	private boolean isArrow(@Nullable ItemStack stack) {
+	/*private boolean isArrow(ItemStack stack) {
 		return stack != null && stack.getItem() instanceof ItemArrow;
-	}
+	}*/
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
@@ -100,8 +101,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// sonic arrow
 						if (hero.ability2.isSelected(player)) {
 							entityarrow = new EntityHanzoSonicArrow(worldIn, player);
-							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+							entityarrow.setDamage(125 - (125 - 29) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 							hero.ability2.keybind.setCooldown(player, 400, false); 
 
 							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
@@ -110,8 +111,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// scatter arrow
 						else if (hero.ability1.isSelected(player)) {
 							entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
-							entityarrow.setDamage((75 - (75 - 22) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 2F, 0F);
+							entityarrow.setDamage(75 - (75 - 22) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 							hero.ability1.keybind.setCooldown(player, 200, false); 
 
 							if (worldIn.rand.nextBoolean())
@@ -121,8 +122,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						// regular arrow
 						else { 
 							entityarrow = new EntityHanzoArrow(worldIn, player);
-							entityarrow.setDamage((125 - (125 - 29) * (1f-f))/3f * ItemMWWeapon.damageScale);
-							entityarrow.setAim(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 4F, 0F);
+							entityarrow.setDamage(125 - (125 - 29) * (1f-f));
+							EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						}
 						stack.damageItem(1, player);
 						worldIn.spawnEntityInWorld(entityarrow);
@@ -166,7 +167,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		if (!player.capabilities.isCreativeMode && !flag) {
 			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
 		}
-		else if (this.canUse(player, true, handIn)) {
+		else if (this.canUse(player, true, handIn, true)) {
 			player.setActiveHand(handIn);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);

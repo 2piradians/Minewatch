@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +28,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -48,30 +49,33 @@ public class TickHandler {
 	/**Unregister a handler
 	 * Note: this must use a registered Handler, not a static field Handler (needs entity)*/
 	public static void unregister(boolean isRemote, Handler... handlers) {
-		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if (handler != null) {
-				CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
-				try {
-					handlerList.remove(handler.onRemove());
-				}
-				catch (Exception e) {
-					handlerList.remove(handler);
-					e.printStackTrace();
+		if (handlers != null)
+			for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if (handler != null) {
+					CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+					try {
+						handlerList.remove(handler.onRemove());
+					}
+					catch (Exception e) {
+						handlerList.remove(handler);
+						e.printStackTrace();
+					}
 				}
 			}
-		}
 	}
 
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
-		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
-		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if ((entity == null || handler.entity == entity) &&
-					(identifier == null || identifier == handler.identifier))
-				return handler;
+		if (entity != null) {
+			CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
+			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if ((entity == null || handler.entity == entity) &&
+						(identifier == null || identifier == handler.identifier))
+					return handler;
+			}
 		}
 		return null;
 	}
@@ -96,23 +100,25 @@ public class TickHandler {
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
 	 * Used by stuns/similar to cancel active abilities - only needs to be called on SERVER*/
 	public static void interrupt(Entity entity) {
-		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
-		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
-			Handler handler = it.next();
-			if (handler.interruptible && entity != null && entity == handler.entity) 
-				unregister(entity.worldObj.isRemote, handler);
+		if (entity != null) {
+			CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
+			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
+				Handler handler = it.next();
+				if (handler.interruptible && entity != null && entity == handler.entity) 
+					unregister(entity.worldObj.isRemote, handler);
+			}
+			if (!entity.worldObj.isRemote)
+				Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 		}
-		if (!entity.worldObj.isRemote)
-			Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) 
+		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) 
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO comment
+				//System.out.println(handler); 
 				try {
 					if (handler.onClientTick()) 
 						unregister(true, handler);
@@ -128,7 +134,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) 
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); //TODO comment
+				//System.out.println(handler);
 				try {
 					if (handler.onServerTick()) 
 						unregister(false, handler);
@@ -244,6 +250,20 @@ public class TickHandler {
 				this.player = (EntityPlayer) entity;
 			else 
 				this.player = null;
+			return this;
+		}
+
+		public Handler setEntityLiving(EntityLivingBase entity) {
+			this.entityLiving = (EntityLivingBase) entity;
+			if (entity instanceof EntityPlayer)
+				this.player = (EntityPlayer) entity;
+			else 
+				this.player = null;
+			return this;
+		}
+
+		public Handler setPlayer(EntityPlayer entity) {
+			this.player = (EntityPlayer) entity;
 			return this;
 		}
 

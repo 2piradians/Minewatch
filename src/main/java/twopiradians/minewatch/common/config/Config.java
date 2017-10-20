@@ -12,13 +12,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 
 public class Config {
 
 	/**Version of this config - if loaded version is less than this, delete the config*/
-	private static final float CONFIG_VERSION = 3.3F;
+	private static final float CONFIG_VERSION = 3.4F;
 	
 	public static final String CATEGORY_SERVER_SIDE = "config.server-side";
 	public static final String CATEGORY_CLIENT_SIDE = "config.client-side";
@@ -29,7 +28,9 @@ public class Config {
 	
 	public static Configuration config;
 	public static boolean useObjModels;
-	public static int tokenDropRate;
+	public static float damageScale;
+	public static double tokenDropRate;
+	public static double wildCardRate;
 	public static boolean allowGunWarnings;
 	public static boolean customCrosshairs;
 	public static boolean projectilesCauseKnockback;
@@ -89,7 +90,7 @@ public class Config {
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
 		
-		// SERVER-SIDE
+		// SERVER-SIDE (make sure all new options are synced with command)
 		
 		Property allowGunWarningsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
 		allowGunWarnings = allowGunWarningsProp.getBoolean();
@@ -97,11 +98,14 @@ public class Config {
 		Property projectilesCauseKnockbackProp = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
 		projectilesCauseKnockback = projectilesCauseKnockbackProp.getBoolean();
 
-		Property tokenDropRateProp = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop rate", 100, "Average number of mobs to kill for one token.", 1, 10000);
+		Property tokenDropRateProp = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
 		tokenDropRate = tokenDropRateProp.getInt();
+		
+		Property wildCardRateProp = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a wild card token.", 0, 100);
+		wildCardRate = wildCardRateProp.getInt();
 
 		Property damageScaleProp = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
-		ItemMWWeapon.damageScale = (float) (0.1d * damageScaleProp.getDouble());
+		Config.damageScale = (float) (0.1d * damageScaleProp.getDouble());
 
 		Property durabilityArmorsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)

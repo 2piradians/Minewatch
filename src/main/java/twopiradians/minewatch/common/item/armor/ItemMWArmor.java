@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -45,12 +46,14 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor 
@@ -122,7 +125,7 @@ public class ItemMWArmor extends ItemArmor
 		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
 		public static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
 
-		/**Clear cooldowns of players logging in (for when switching worlds)*/
+		/**Clear cooldowns of players logging in (for when switching worldObjs)*/
 		@SubscribeEvent
 		public static void resetCooldowns(PlayerLoggedInEvent event) {
 			for (KeyBind key : Keys.KeyBind.values()) 
@@ -196,6 +199,26 @@ public class ItemMWArmor extends ItemArmor
 				event.setDistance(event.getDistance()*0.8f);
 		}
 
+		@SubscribeEvent
+		public static void junkratDeath(LivingDeathEvent event) {
+			if (event.getEntity() instanceof EntityPlayer && !event.getEntity().worldObj.isRemote &&
+					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
+				event.getEntity().worldObj.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
+						SoundCategory.PLAYERS, 1.0f, 1.0f);
+				for (int i=0; i<6; ++i) {
+					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().worldObj, 
+							(EntityLivingBase) event.getEntity(), -1);
+					grenade.explodeTimer = 20+i*2;
+					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
+					grenade.motionX = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionY = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionZ = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					event.getEntity().worldObj.spawnEntityInWorld(grenade);
+					grenade.isDeathGrenade = true;
+					Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -207,9 +230,9 @@ public class ItemMWArmor extends ItemArmor
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
 		// delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
-		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
@@ -220,7 +243,7 @@ public class ItemMWArmor extends ItemArmor
 		if (Config.durabilityOptionArmors == 2 && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
 
-		super.onUpdate(stack, world, entity, slot, isSelected);
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 	}
 
 	/**Delete dev spawned dropped items*/
@@ -294,7 +317,6 @@ public class ItemMWArmor extends ItemArmor
 				}
 			}
 		}
-
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
@@ -311,7 +333,7 @@ public class ItemMWArmor extends ItemArmor
 					playersHovering.add(player);
 				}
 			}
-			else if (playersHovering.contains(player))
+			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
 		// tracer chestplate particles
@@ -324,7 +346,7 @@ public class ItemMWArmor extends ItemArmor
 						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
 						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 0, 1);
 		}
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set

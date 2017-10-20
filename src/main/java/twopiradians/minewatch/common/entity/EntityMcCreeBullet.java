@@ -1,43 +1,50 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntityMcCreeBullet extends EntityMWThrowable {
+public class EntityMcCreeBullet extends EntityMW {
+
+	private boolean fanTheHammer;
 
 	public EntityMcCreeBullet(World worldIn) {
-		super(worldIn);
-		this.setSize(0.1f, 0.1f);
+		this(worldIn, null, -1, false);
 	}
 
-	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn) {
-		super(worldIn, throwerIn);
+	public EntityMcCreeBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean fanTheHammer) {
+		super(worldIn, throwerIn, hand);
+		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 40;
+		this.lifetime = 3;
+		this.fanTheHammer = fanTheHammer;
+	}
+	
+	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, (EntityLivingBase) getThrower(), 
+				0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0, hand, 10, 0.4f);
 	}
 
 	@Override
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.worldObj.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*30d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.worldObj, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posY+(this.prevPosY-this.posY)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
-		}
+		if (this.worldObj.isRemote) 
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
 	}
 
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.attemptImpact(result.entityHit, 70 - (70 - 21) * ((float)this.ticksExisted / lifetime), false)) 
-			((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
+		if (this.fanTheHammer && EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 13.5f, 45, 18, 30))
+				result.entityHit.hurtResistantTime = 0;
+		else if (!this.fanTheHammer && EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 21, 70, 22, 45))
+			result.entityHit.hurtResistantTime = 0;
 	}
 }

@@ -15,6 +15,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
@@ -68,29 +69,23 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
-
 		if (this.inGround && doEffect(worldObj, shootingEntity, null, posX, posY, posZ, timeInGround))
 			this.setDead();
 		else if (!this.inGround && this.worldObj.isRemote) {
 			if (this.ticksExisted % 2 == 0)
 				Minewatch.proxy.spawnParticlesHanzoSonic(worldObj, posX, posY, posZ, false, true);
 
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*5d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(this.worldObj, 
-						this.posX+(this.lastTickPosX-this.posX)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posY+(this.lastTickPosY-this.posY)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						this.posZ+(this.lastTickPosZ-this.posZ)*i/numParticles+worldObj.rand.nextDouble()*0.05d, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 20, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 		}
+
+		super.onUpdate();
 	}
 
 	@Override
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);	
 
-		if (this.shouldHit(result.entityHit)) 
+		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) 
 			TickHandler.register(result.entityHit.worldObj.isRemote, SONIC.setEntity(result.entityHit).setTicks(0));
 	}
 

@@ -16,13 +16,13 @@ import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-//PORT change json location
+//PORT change json location, search for scala library
 @Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.10.2/update.json")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.3.1";
+    public static final String VERSION = "3.4";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tab = new MinewatchTab("tabMinewatch");

@@ -17,13 +17,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.Particle;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSpawnParticle;
 
 public class PotionFrozen extends Potion {
 
@@ -60,7 +59,7 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToAll(new SPacketSpawnParticle(2, entity.posX, entity.posY+entity.height/2, entity.posZ, 0, 0, 0, 0));
+		Minewatch.network.sendToAll(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ));
 		entity.worldObj.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
 
 		// remove potion effect on client
@@ -73,8 +72,7 @@ public class PotionFrozen extends Potion {
 	public void colorEntities(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.POTION_FROZEN) || 
 				(event.getEntity().getActivePotionEffect(ModPotions.frozen) != null && 
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0) &&
-				event.getEntity().getActivePotionEffect(ModPotions.frozen).getAmplifier() == 0) {
+				event.getEntity().getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
 			int freeze = TickHandler.getHandler(event.getEntity(), Identifier.POTION_FROZEN) != null ? 
 					TickHandler.getHandler(event.getEntity(), Identifier.POTION_FROZEN).ticksLeft : 30;
 					event.getEntity().maxHurtTime = -1;
@@ -91,7 +89,7 @@ public class PotionFrozen extends Potion {
 								(rand.nextDouble()-0.5d)*0.5d, 
 								new int[0]);
 					if (rand.nextInt(70 - freeze*2) == 0)
-						Minewatch.proxy.spawnParticlesCustom(Particle.CIRCLE, event.getEntity().worldObj, 
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, event.getEntity().worldObj, 
 								event.getEntity().posX+rand.nextDouble()-0.5d, 
 								event.getEntity().posY+rand.nextDouble()-0.5d+event.getEntity().height/2, 
 								event.getEntity().posZ+rand.nextDouble()-0.5d, 

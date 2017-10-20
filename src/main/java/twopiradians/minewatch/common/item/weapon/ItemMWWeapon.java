@@ -37,9 +37,6 @@ import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item {
 
-	/**Used to uniformly scale damage for all weapons/abilities*/
-	public static float damageScale;
-
 	public EnumHero hero;
 	public boolean hasOffhand;
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
@@ -101,7 +98,7 @@ public abstract class ItemMWWeapon extends Item {
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
 				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
-						player.worldObj.rand.nextFloat()/2+0.75f);
+						player.worldObj.rand.nextFloat()/2+0.75f, false);
 		}
 	}
 
@@ -116,9 +113,9 @@ public abstract class ItemMWWeapon extends Item {
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
-	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand) {
-		if (player == null || player.getCooldownTracker().hasCooldown(this) || 
-				(this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
+	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+		if (player == null || (player.getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
+				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
 				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
 			return false;
@@ -238,7 +235,20 @@ public abstract class ItemMWWeapon extends Item {
 		return 1;
 	}
 
-	/**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*/
+	@Override
+	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+		return false;
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public boolean hasEffect(ItemStack stack) {
+		return super.hasEffect(stack); //XXX will be used with golden weapons
+	}
+
+	//PORT keep for 1.10 PosEyes vec (is this needed anymore?)
+	
+	//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
 	public static Vec3d getPositionEyes(Entity entity, float partialTicks)  {
 		if (partialTicks == 1.0F)
 			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
@@ -247,10 +257,9 @@ public abstract class ItemMWWeapon extends Item {
 			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
 			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
 			return new Vec3d(d0, d1, d2);
-
 		}
 	}
-	
+
 	// DEV SPAWN ARMOR ===============================================
 
 	@Override

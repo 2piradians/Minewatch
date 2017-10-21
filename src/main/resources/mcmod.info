@@ -4,7 +4,7 @@
   "name": "Minewatch",
   "description": "Minewatch brings Minecraft and Overwatch together! Overwatch character armor and weapons usable in Minecraft.",
   "version": "3.4",
-  "mcversion": "1.11.2",
+  "mcversion": "1.10.2",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
   "authorList": ["2piradians, Furgl"],

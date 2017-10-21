@@ -316,7 +316,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					//PORT scale x event.getResolution().getScaleFactor()
-					GlStateManager.scale(width/256d*2, height/256d*2, 1);
+					GlStateManager.scale(width/256d*event.getResolution().getScaleFactor(), height/256d*event.getResolution().getScaleFactor(), 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;
 					if (firstImage < 6) {

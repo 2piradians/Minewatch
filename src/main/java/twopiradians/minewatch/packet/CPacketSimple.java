@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
@@ -88,14 +89,17 @@ public class CPacketSimple implements IMessage {
 					// Wild Card Token selection
 					else if (packet.type == 2 && packetPlayer != null && packet.x >= 0 && packet.x < EnumHero.values().length) {
 						// take wild card and give token
-						for (ItemStack stack : packetPlayer.getHeldEquipment())
+						for (EnumHand hand : EnumHand.values()) {
+							ItemStack stack = packetPlayer.getHeldItem(hand);
 							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
-							stack.stackSize > 0) {
-								--stack.stackSize;
+									stack.stackSize > 0) {
+								if (--stack.stackSize <= 0)
+									player.setHeldItem(hand, null);
 								packetPlayer.inventory.addItemStackToInventory(
 										new ItemStack(EnumHero.values()[(int) packet.x].token));
 								break;
 							}
+						}
 						// close screen if no wild cards left
 						boolean hasWildCard = false;
 						for (ItemStack stack : packetPlayer.getHeldEquipment())

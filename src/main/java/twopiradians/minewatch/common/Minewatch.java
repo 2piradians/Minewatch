@@ -17,7 +17,7 @@ import twopiradians.minewatch.common.command.CommandMinewatch;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
 //PORT change json location, search for scala library
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.1/update.json")
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.1/update.json", acceptedMinecraftVersions="[1.12,1.13)")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";

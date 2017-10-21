@@ -56,6 +56,7 @@ public class CommandDev implements ICommand {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {}
 
 	/**Actually runs the command (for chat event), returns if message was a valid command (and chat should be hidden)*/
+	@SuppressWarnings("deprecation")
 	public static boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (sender instanceof EntityPlayer && args.length == 2 && args[0].equalsIgnoreCase("hero")) {
 			EnumHero hero = null;

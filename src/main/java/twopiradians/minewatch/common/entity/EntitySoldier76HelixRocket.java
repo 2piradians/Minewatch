@@ -31,7 +31,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 		if (!worldIn.isRemote && number != -1)
 			this.getDataManager().set(NUMBER, number);
 		this.setNoGravity(true);
-		this.lifetime = Integer.MAX_VALUE;// 60;
+		this.lifetime = 60;
 	}
 
 	@Override

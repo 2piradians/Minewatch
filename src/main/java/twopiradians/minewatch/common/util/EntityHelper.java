@@ -35,7 +35,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHelper {
-
+//TODO move poseyes here and change all references to use it
 	/**Copied from EntityThrowable*/
 	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
 		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);

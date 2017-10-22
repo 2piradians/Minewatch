@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -47,9 +46,6 @@ public class EntityMeiBlast extends EntityMW {
 			// apply freeze/slowness effect
 			if (this.ticksLeft >= 30) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-				entityLiving.setRevengeTarget(null);
-				if (entityLiving instanceof EntityLiving)
-					((EntityLiving)entityLiving).setAttackTarget(entityLiving);
 				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
 				TickHandler.interrupt(entityLiving);
 				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),

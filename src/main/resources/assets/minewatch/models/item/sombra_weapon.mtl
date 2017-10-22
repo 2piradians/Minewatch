@@ -1,0 +1,32 @@
+# Blender MTL File: 'sombra_weapon.blend'
+# Material Count: 5
+
+newmtl 7609BDE1C843F8C6.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/sombra_weapon_3d_1
+
+newmtl 8444E824C35587F6.002
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/sombra_weapon_3d_2
+
+newmtl 8444E824C35587F6.003
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/sombra_weapon_3d_2
+
+newmtl B51E5AFD27A23946.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/sombra_weapon_3d_0
+
+newmtl C90873CAC96BBD83.001
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/sombra_weapon_3d_0

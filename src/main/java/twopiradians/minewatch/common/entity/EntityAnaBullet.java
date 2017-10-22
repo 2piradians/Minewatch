@@ -21,7 +21,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityAnaBullet extends EntityMW {
 
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityAnaBullet.class, DataSerializers.BOOLEAN);
-	public static Handler DAMAGE = new Handler(Identifier.ANA_DAMAGE, false) {
+	public static final Handler DAMAGE = new Handler(Identifier.ANA_DAMAGE, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {

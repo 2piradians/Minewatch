@@ -70,7 +70,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {}
 
 	@Override
-	public void onUpdate() {
+	public void onUpdate() {		
 		this.prevPosX = this.posX; 
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;

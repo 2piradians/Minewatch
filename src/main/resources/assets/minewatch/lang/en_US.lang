@@ -96,6 +96,13 @@ item.junkrat_leggings.name=Junkrat Leggings
 item.junkrat_boots.name=Junkrat Boots
 item.junkrat_weapon.name=Junkrat's Frag Launcher
 
+item.sombra_token.name=Sombra Token
+item.sombra_helmet.name=Sombra Helmet
+item.sombra_chestplate.name=Sombra Chestplate
+item.sombra_leggings.name=Sombra Leggings
+item.sombra_boots.name=Sombra Boots
+item.sombra_weapon.name=Sombra's Machine Pistol
+
 item.wild_card_token.name=Wild Card Token
 
 entity.hanzo_arrow.name=Hanzo Arrow

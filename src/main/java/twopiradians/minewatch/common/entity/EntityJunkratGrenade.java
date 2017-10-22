@@ -130,8 +130,9 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		// direct hit explosion
 		else if (!this.world.isRemote && result.entityHit != null && !this.isDeathGrenade) {
+			EntityHelper.moveToEntityHit(this, result.entityHit);
 			this.explode(result.entityHit);
-			Minewatch.network.sendToAll(new SPacketSimple(20, this, true));
+			Minewatch.network.sendToDimension(new SPacketSimple(20, this, true, result.entityHit), world.provider.getDimension());
 		}
 	}
 

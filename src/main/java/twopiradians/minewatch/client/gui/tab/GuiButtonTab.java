@@ -18,7 +18,7 @@ public class GuiButtonTab extends GuiButton {
 	}
 	
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {//String.valueOf('\u21c4')
+	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		this.visible = GuiTab.currentScreen == screen;
 		super.drawButton(mc, mouseX, mouseY);
 		

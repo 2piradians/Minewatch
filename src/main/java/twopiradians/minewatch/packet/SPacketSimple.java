@@ -45,6 +45,7 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 
 public class SPacketSimple implements IMessage {
@@ -349,7 +350,8 @@ public class SPacketSimple implements IMessage {
 					// Junkrat's grenade bounce
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {
 						// direct hit
-						if (packet.bool) {
+						if (packet.bool && entity2 instanceof Entity) {
+							EntityHelper.moveToEntityHit(entity, entity2);
 							((EntityJunkratGrenade)entity).explode(null);
 							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeExplode, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f, false);

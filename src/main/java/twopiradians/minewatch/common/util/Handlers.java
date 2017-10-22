@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +20,6 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
-import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -161,28 +159,14 @@ public class Handlers {
 			event.setCanceled(true);
 	}
 
-	/**Prevents attacking, using abilities, targeting, clicking, and scrolling*/
+	/**Prevents attacking, using abilities, clicking, and scrolling*/
 	public static final Handler PREVENT_INPUT = new Handler(Identifier.PREVENT_INPUT, true) {};
 
 	@SubscribeEvent
 	public void preventAttacking(LivingAttackEvent event) {
 		if (event.getSource().getEntity() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getSource().getEntity(), Identifier.PREVENT_INPUT)) {
-			if (event.getSource().getEntity() instanceof EntityLiving)
-				((EntityLiving)event.getSource().getEntity()).setAttackTarget((EntityLivingBase) event.getSource().getEntity());
-			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget((EntityLivingBase) event.getSource().getEntity());
+				TickHandler.hasHandler(event.getSource().getEntity(), Identifier.PREVENT_INPUT)) 
 			event.setCanceled(true); 
-		}
-	}
-
-	@SubscribeEvent
-	public void preventTargeting(LivingSetAttackTargetEvent event) {
-		if (event.getTarget() != event.getEntity() && event.getEntity() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_INPUT)) {
-			if (event.getEntity() instanceof EntityLiving)
-				((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase) event.getEntity());
-			((EntityLivingBase) event.getEntity()).setRevengeTarget((EntityLivingBase) event.getEntity());
-		}
 	}
 
 	/**Prevents moving, jumping, flying, and ender teleporting*/

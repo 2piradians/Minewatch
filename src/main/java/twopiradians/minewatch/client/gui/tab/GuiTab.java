@@ -36,7 +36,7 @@ import twopiradians.minewatch.packet.CPacketSyncSkins;
 public class GuiTab extends GuiScreen {
 
 	public enum Screen {
-		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO, MAPS, MAPS_INFO;
+		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO, MAPS, MAPS_INFO, SUBMIT;
 	};
 
 	public static GuiTab activeTab;
@@ -74,18 +74,20 @@ public class GuiTab extends GuiScreen {
 		TabRegistry.addTabsToList(this.buttonList);
 
 		// Screen.MAIN
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-15, 80, 20, "Maps", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+10, 80, 20, "Hero Gallery", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+35, 80, 20, "Options", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-25, 95, 20, "Maps", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+0, 95, 20, "Hero Gallery", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+25, 95, 20, "Options", Screen.MAIN));
 		if (!this.mc.isSingleplayer())
 			Minewatch.network.sendToServer(new CPacketSimple(1, mc.player));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+50, 95, 20, "Submit a Skin/Map", Screen.MAIN));
 		// Screen.MAPS
-		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-40, this.height-25, 60, 20, "Play", Screen.MAPS));
-		this.buttonList.add(new GuiButtonTab(0, this.width/2-30+40, this.height-25, 60, 20, "Info", Screen.MAPS));
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-25, 60, 20, "Info", Screen.MAPS));
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30+70, this.height-25, 60, 20, "Back", Screen.MAPS));
 		this.buttonList.add(new GuiButtonMapArrow(0, 10, this.height-37, 20, 32, "", Screen.MAPS));
 		this.buttonList.add(new GuiButtonMapArrow(1, this.width-30, this.height-37, 20, 32, "", Screen.MAPS));
 		// Screen.MAPS_INFO
-		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-30, 60, 20, "OK", Screen.MAPS_INFO));
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-25, 60, 20, "OK", Screen.MAPS_INFO));
 		// Screen.GALLERY
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
 		int spaceBetweenX = 39;
@@ -108,6 +110,9 @@ public class GuiTab extends GuiScreen {
 		}
 		// Screen.GALLERY_HERO_SKINS_INFO
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO));
+		// Screen.SUBMIT
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-96/2, this.guiTop+Y_SIZE-60, 96, 20, "Submit a Skin/Map", Screen.SUBMIT));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.SUBMIT));
 	}
 
 	@Override
@@ -174,6 +179,11 @@ public class GuiTab extends GuiScreen {
 		case GALLERY_HERO_SKINS_INFO:
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
+		case SUBMIT:
+			String text = "First of all, we would like to thank all of the creators of the skins and maps featured in this mod; without them, we wouldn't be able to offer such a wide variety of amazing skins and maps! \n\n" + 
+					TextFormatting.GOLD+TextFormatting.BOLD+"If you enjoy any of the maps or like any of the skins, please show your appreciation to their creator(s) by giving their post a diamond/upvote or leaving them a nice comment!";
+			this.drawHoveringText(mc.fontRendererObj.listFormattedStringToWidth(text, 235), this.guiLeft, this.guiTop+30);
+			GlStateManager.disableLighting();
 		}
 		GlStateManager.popMatrix();
 
@@ -201,6 +211,8 @@ public class GuiTab extends GuiScreen {
 				Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().createConfigGui(this));
 			else if (button.displayString.equals("") && button instanceof GuiButtonTab)
 				Minewatch.network.sendToServer(new CPacketSyncConfig());
+			else if (button.displayString.equals("Submit a Skin/Map"))
+				GuiTab.currentScreen = Screen.SUBMIT;
 			break;
 		case MAPS:
 			if (button.displayString.equals("Play"))
@@ -208,6 +220,8 @@ public class GuiTab extends GuiScreen {
 						new ClickEvent(Action.OPEN_URL, GuiTab.currentMap.url))));
 			else if (button.displayString.equals("Info"))
 				GuiTab.currentScreen = Screen.MAPS_INFO;
+			else if (button.displayString.equals("Back"))
+				GuiTab.currentScreen = Screen.MAIN;
 			else if (button instanceof GuiButtonMapArrow) {
 				int index = GuiTab.currentMap.ordinal() + (button.id == 0 ? -1 : 1);
 				if (index < 0)
@@ -216,7 +230,7 @@ public class GuiTab extends GuiScreen {
 					index = 0;
 				GuiTab.currentMap = MinecraftMap.values()[index];
 			}
-					
+
 			break;
 		case MAPS_INFO:
 			if (button.displayString.equals("OK"))
@@ -265,6 +279,13 @@ public class GuiTab extends GuiScreen {
 			if (button.displayString.equals("OK"))
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS;
 			break;
+		case SUBMIT:
+			if (button.displayString.equals("Submit a Skin/Map"))
+				this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
+						new ClickEvent(Action.OPEN_URL, "https://minecraft.curseforge.com/projects/minewatch#title-2"))));
+			else if (button.displayString.equals("Back"))
+				GuiTab.currentScreen = Screen.MAIN;
+			break;
 		}
 	}
 
@@ -293,9 +314,15 @@ public class GuiTab extends GuiScreen {
 			case GALLERY_HERO_SKINS_INFO:
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS;
 				return;
+			case SUBMIT:
+				GuiTab.currentScreen = Screen.MAIN;
+				return;
 			}
-		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode())
+		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
 			this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
+			for (AbstractTab tab : TabRegistry.getTabList())
+				tab.visible = true;
+		}
 		super.keyTyped(typedChar, keyCode);
 	}
 

@@ -24,7 +24,7 @@ public class EntitySombraBullet extends EntityMW {
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
-				0xFEFEFC, 0xF37BFF, 0.7f, 1, 2, 1, 0, 0, hand, 9, 0.41f);
+				0xF37BFF, 0xF37BFF, 0.7f, 1, 2, 1, 0, 0, hand, 9, 0.41f);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class EntitySombraBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xFFF1F1, 0xF0BDC2, 0.5f, 1, 1);
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xFFF1F1, 0xF37BFF, 0.5f, 1, 1);
 	}
 
 	@Override

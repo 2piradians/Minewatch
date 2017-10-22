@@ -21,7 +21,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand, 12, 0.43f);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 1.5F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.sombraShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

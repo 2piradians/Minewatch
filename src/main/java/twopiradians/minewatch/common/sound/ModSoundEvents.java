@@ -64,7 +64,6 @@ public class ModSoundEvents {
 	public static SoundEvent mercyBeamStart;
 	public static SoundEvent mercyBeamDuring;
 	public static SoundEvent mercyBeamStop;
-	
 	public static SoundEvent junkratShoot;
 	public static SoundEvent junkratLaugh;
 	public static SoundEvent junkratDeath;
@@ -78,8 +77,13 @@ public class ModSoundEvents {
 	public static SoundEvent junkratTrapTriggerOwner;
 	public static SoundEvent junkratTrapTriggerVoice;
 	public static SoundEvent junkratTrapPlacedVoice;
+	
+	public static SoundEvent sombraShoot;
 
 	public static void preInit() {
+		for (EnumHero hero : EnumHero.values())
+			hero.reloadSound = registerSound(hero.name.toLowerCase()+"_reload"+(hero.equals(EnumHero.BASTION) ? "_0" : ""));
+		
 		guiHover = registerSound("gui_hover");
 		for (int i=2; i<7; ++i)
 			multikill[i-2] = registerSound("multikill_"+i);
@@ -95,7 +99,6 @@ public class ModSoundEvents {
 		anaSleepShoot = registerSound("ana_sleep_shoot");
 		anaSleepHit = registerSound("ana_sleep_hit");
 		anaSleepVoice = registerSound("ana_sleep_voice");
-		EnumHero.ANA.reloadSound = registerSound("ana_reload");
 		reaperShoot = registerSound("reaper_shoot");
 		reaperTeleportStart = registerSound("reaper_teleport_start");
 		reaperTeleportDuring = registerSound("reaper_teleport_during");
@@ -103,7 +106,6 @@ public class ModSoundEvents {
 		reaperTeleportFinal = registerSound("reaper_teleport_final");
 		reaperTeleportVoice = registerSound("reaper_teleport_voice");
 		reaperWraith = registerSound("reaper_wraith");
-		EnumHero.REAPER.reloadSound = registerSound("reaper_reload");
 		hanzoShoot = registerSound("hanzo_shoot");
 		hanzoDraw = registerSound("hanzo_draw");
 		hanzoSonicArrow = registerSound("hanzo_sonic_arrow");
@@ -114,31 +116,23 @@ public class ModSoundEvents {
 		genjiDeflectHit = registerSound("genji_deflect_hit");
 		genjiStrike = registerSound("genji_strike");
 		genjiJump = registerSound("genji_jump");
-		EnumHero.GENJI.reloadSound = registerSound("genji_reload");
 		tracerShoot = registerSound("tracer_shoot");
 		tracerBlink = registerSound("tracer_blink");
-		EnumHero.TRACER.reloadSound = registerSound("tracer_reload");
 		mccreeShoot = registerSound("mccree_shoot");
 		mccreeFlashbang = registerSound("mccree_flashbang");
 		mccreeRoll = registerSound("mccree_roll");
-		EnumHero.MCCREE.reloadSound = registerSound("mccree_reload");
 		soldier76Shoot = registerSound("soldier76_shoot");
 		soldier76Helix = registerSound("soldier76_helix");
-		EnumHero.SOLDIER76.reloadSound = registerSound("soldier76_reload");
 		bastionShoot = registerSound("bastion_shoot");
-		EnumHero.BASTION.reloadSound = registerSound("bastion_reload_0");
 		bastionTurretReload = registerSound("bastion_reload_1");
 		meiShoot = registerSound("mei_shoot_0");
-		EnumHero.MEI.reloadSound = registerSound("mei_reload");
 		meiIcicleShoot = registerSound("mei_shoot_1");
 		meiFreeze = registerSound("mei_freeze");
 		meiUnfreeze = registerSound("mei_unfreeze");
 		widowmakerUnscopedShoot = registerSound("widowmaker_shoot_0");
 		widowmakerScopedShoot = registerSound("widowmaker_shoot_1");
 		widowmakerCharge = registerSound("widowmaker_charge");
-		EnumHero.WIDOWMAKER.reloadSound = registerSound("widowmaker_reload");
 		mercyShoot = registerSound("mercy_shoot");
-		EnumHero.MERCY.reloadSound = registerSound("mercy_reload");
 		mercyHeal = registerSound("mercy_heal");
 		mercyDamage = registerSound("mercy_damage");
 		mercyHover = registerSound("mercy_hover");
@@ -154,7 +148,6 @@ public class ModSoundEvents {
 		junkratGrenadeExplode = registerSound("junkrat_grenade_explode");
 		for (int i=0; i<junkratGrenadeTick.length; ++i)
 			junkratGrenadeTick[i] = registerSound("junkrat_grenade_tick_"+i);
-		EnumHero.JUNKRAT.reloadSound = registerSound("junkrat_reload");
 		junkratTrapThrow = registerSound("junkrat_trap_throw");
 		junkratTrapLand = registerSound("junkrat_trap_land");
 		junkratTrapTrigger = registerSound("junkrat_trap_trigger");
@@ -162,6 +155,8 @@ public class ModSoundEvents {
 		junkratTrapTriggerOwner = registerSound("junkrat_trap_trigger_owner");
 		junkratTrapTriggerVoice = registerSound("junkrat_trap_trigger_voice");
 		junkratTrapPlacedVoice = registerSound("junkrat_trap_placed_voice");
+		
+		sombraShoot = registerSound("sombra_shoot");
 	}
 	
 	private static SoundEvent registerSound(String soundName) {

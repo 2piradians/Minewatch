@@ -555,5 +555,17 @@
 			"minewatch:junkrat_trap_trigger_voice_2",
 			"minewatch:junkrat_trap_trigger_voice_3"
 		]
+	},
+	"sombra_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_reload"
+		]
+	},
+	"sombra_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_shoot"
+		]
 	}
 }

@@ -168,13 +168,13 @@ public class Handlers {
 	public void preventAttacking(LivingAttackEvent event) {
 		if (event.getSource().getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getSource().getEntity(), Identifier.PREVENT_INPUT)) {
-			if (event.getSource().getEntity() instanceof EntityLiving)
+			/*if (event.getSource().getEntity() instanceof EntityLiving)
 				((EntityLiving)event.getSource().getEntity()).setAttackTarget((EntityLivingBase) event.getSource().getEntity());
-			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget((EntityLivingBase) event.getSource().getEntity());
+			((EntityLivingBase) event.getSource().getEntity()).setRevengeTarget((EntityLivingBase) event.getSource().getEntity());*/
 			event.setCanceled(true); 
 		}
 	}
-
+/*
 	@SubscribeEvent
 	public void preventTargeting(LivingSetAttackTargetEvent event) {
 		if (event.getTarget() != event.getEntity() && event.getEntity() instanceof EntityLivingBase &&
@@ -184,7 +184,7 @@ public class Handlers {
 			((EntityLivingBase) event.getEntity()).setRevengeTarget((EntityLivingBase) event.getEntity());
 		}
 	}
-
+*/
 	/**Prevents moving, jumping, flying, and ender teleporting*/
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override

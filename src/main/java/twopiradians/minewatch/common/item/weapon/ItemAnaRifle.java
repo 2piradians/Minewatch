@@ -193,7 +193,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			for (Identifier identifier : new Identifier[] {Identifier.ANA_SLEEP, 
 					Identifier.PREVENT_INPUT, Identifier.PREVENT_MOVEMENT, Identifier.PREVENT_ROTATION}) {
 				handler = TickHandler.getHandler(event.getEntity(), identifier);
-				if (handler != null)
+				if (handler != null && handler.ticksLeft > 10)
 					handler.ticksLeft = 10;
 			}
 			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
+import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.config.GuiFactory;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
+import twopiradians.minewatch.client.gui.tab.Maps.MinecraftMap;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -34,7 +36,7 @@ import twopiradians.minewatch.packet.CPacketSyncSkins;
 public class GuiTab extends GuiScreen {
 
 	public enum Screen {
-		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO;
+		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO, MAPS, MAPS_INFO;
 	};
 
 	public static GuiTab activeTab;
@@ -46,11 +48,10 @@ public class GuiTab extends GuiScreen {
 	private int guiLeft;
 	private int guiTop;
 	private EnumHero mainScreenHero;
-	private GuiButtonTab buttonOKGHSI;
-	private GuiButtonTab buttonOKGHI;
 	public static EnumHero galleryHero;
 	public static Screen currentScreen;
-	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/inventory_tab.png");
+	public static MinecraftMap currentMap;
+	public static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/inventory_tab.png");
 
 	public GuiTab() {
 		GuiTab.activeTab = this;
@@ -59,11 +60,7 @@ public class GuiTab extends GuiScreen {
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
 			guiPlayer.setItemStackToSlot(slot, mainScreenHero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(mainScreenHero.getEquipment(slot)));
 		GuiTab.currentScreen = Screen.MAIN;
-	}
-
-	@Override
-	public boolean doesGuiPauseGame() {
-		return false;
+		GuiTab.currentMap = MinecraftMap.values()[0];
 	}
 
 	@Override
@@ -77,12 +74,20 @@ public class GuiTab extends GuiScreen {
 		TabRegistry.addTabsToList(this.buttonList);
 
 		// Screen.MAIN
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-15, 80, 20, "Hero Gallery", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+15, 80, 20, "Options", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-15, 80, 20, "Maps", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+10, 80, 20, "Hero Gallery", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+35, 80, 20, "Options", Screen.MAIN));
 		if (!this.mc.isSingleplayer())
 			Minewatch.network.sendToServer(new CPacketSimple(1, mc.player));
-			// Screen.GALLERY
-			this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
+		// Screen.MAPS
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-40, this.height-25, 60, 20, "Play", Screen.MAPS));
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30+40, this.height-25, 60, 20, "Info", Screen.MAPS));
+		this.buttonList.add(new GuiButtonMapArrow(0, 10, this.height-37, 20, 32, "", Screen.MAPS));
+		this.buttonList.add(new GuiButtonMapArrow(1, this.width-30, this.height-37, 20, 32, "", Screen.MAPS));
+		// Screen.MAPS_INFO
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-30, 60, 20, "OK", Screen.MAPS_INFO));
+		// Screen.GALLERY
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
 		int spaceBetweenX = 39;
 		int spaceBetweenY = 53;
 		int perRow = 6;
@@ -93,8 +98,7 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO)); 
 		// Screen.GALLERY_HERO_INFO
-		this.buttonOKGHI = new GuiButtonTab(0, 0, 0, 40, 20, "OK", Screen.GALLERY_HERO_INFO); 
-		this.buttonList.add(this.buttonOKGHI);
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_INFO));
 		// Screen.GALLERY_HERO_SKINS
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO_SKINS));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
@@ -103,8 +107,7 @@ public class GuiTab extends GuiScreen {
 			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+40+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
 		}
 		// Screen.GALLERY_HERO_SKINS_INFO
-		this.buttonOKGHSI = new GuiButtonTab(0, 0, 0, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO); 
-		this.buttonList.add(this.buttonOKGHSI);
+		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO));
 	}
 
 	@Override
@@ -123,6 +126,19 @@ public class GuiTab extends GuiScreen {
 			this.drawTexturedModalRect(this.guiLeft, this.guiTop+2, 0, 230, 130, 24);
 			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
+			break;
+		case MAPS:
+			currentMap.drawBackground(this);
+			// bottom part
+			this.drawGradientRect(0, this.height-42, this.width, this.height, -1072689136, -804253680);
+			this.drawCenteredString(mc.fontRendererObj, "Map "+(currentMap.ordinal()+1)+"/"+MinecraftMap.values().length, this.width/2, this.height-37, 0xFFFFFF);
+			break;
+		case MAPS_INFO:
+			currentMap.drawBackground(this);
+			// map info
+			this.drawDefaultBackground();
+			int textHeight = mc.fontRendererObj.getWordWrappedHeight(currentMap.map.info, 300);
+			mc.fontRendererObj.drawSplitString(currentMap.map.info, this.width/2-150, this.height/2-textHeight/2, 300, 0xFFFFFF);
 			break;
 		case GALLERY:
 			double textScale = 1.5d;
@@ -143,12 +159,7 @@ public class GuiTab extends GuiScreen {
 			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_INFO:
-			ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
-			galleryHero.displayInfoScreen(res);
-			// draw and position OK button manually
-			this.buttonOKGHI.xPosition = (int) (res.getScaledWidth_double()/2 - this.buttonOKGHI.width/2);
-			this.buttonOKGHI.yPosition = res.getScaledHeight() - this.buttonOKGHI.height - 10;
-			this.buttonOKGHI.drawButton(mc, mouseX, mouseY);
+			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		case GALLERY_HERO_SKINS:
 			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
@@ -161,18 +172,15 @@ public class GuiTab extends GuiScreen {
 			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_SKINS_INFO:
-			res = new ScaledResolution(Minecraft.getMinecraft());
-			galleryHero.displayInfoScreen(res);
-			// draw and position OK button manually
-			this.buttonOKGHSI.xPosition = (int) (res.getScaledWidth_double()/2 - this.buttonOKGHSI.width/2);
-			this.buttonOKGHSI.yPosition = res.getScaledHeight() - this.buttonOKGHSI.height - 10;
-			this.buttonOKGHSI.drawButton(mc, mouseX, mouseY);
+			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		}
 		GlStateManager.popMatrix();
 
-		if (currentScreen != Screen.GALLERY_HERO_INFO && currentScreen != Screen.GALLERY_HERO_SKINS_INFO)
-			super.drawScreen(mouseX, mouseY, partialTicks);
+		for (AbstractTab tab : TabRegistry.getTabList())
+			tab.visible = currentScreen != Screen.GALLERY_HERO_INFO && currentScreen != Screen.GALLERY_HERO_SKINS_INFO &&
+			currentScreen != Screen.MAPS && currentScreen != Screen.MAPS_INFO;
+		super.drawScreen(mouseX, mouseY, partialTicks);
 
 		// draw hovered button above others
 		if (GuiTab.currentScreen == Screen.GALLERY)
@@ -185,12 +193,34 @@ public class GuiTab extends GuiScreen {
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (GuiTab.currentScreen) {
 		case MAIN:
-			if (button.displayString.equals("Hero Gallery"))
+			if (button.displayString.equals("Maps"))
+				GuiTab.currentScreen = Screen.MAPS;
+			else if (button.displayString.equals("Hero Gallery"))
 				GuiTab.currentScreen = Screen.GALLERY;
 			else if (button.displayString.equals("Options"))
 				Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().createConfigGui(this));
 			else if (button.displayString.equals("") && button instanceof GuiButtonTab)
 				Minewatch.network.sendToServer(new CPacketSyncConfig());
+			break;
+		case MAPS:
+			if (button.displayString.equals("Play"))
+				this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
+						new ClickEvent(Action.OPEN_URL, GuiTab.currentMap.url))));
+			else if (button.displayString.equals("Info"))
+				GuiTab.currentScreen = Screen.MAPS_INFO;
+			else if (button instanceof GuiButtonMapArrow) {
+				int index = GuiTab.currentMap.ordinal() + (button.id == 0 ? -1 : 1);
+				if (index < 0)
+					index = MinecraftMap.values().length-1;
+				else if (index >= MinecraftMap.values().length)
+					index = 0;
+				GuiTab.currentMap = MinecraftMap.values()[index];
+			}
+					
+			break;
+		case MAPS_INFO:
+			if (button.displayString.equals("OK"))
+				GuiTab.currentScreen = Screen.MAPS;
 			break;
 		case GALLERY:
 			if (button.displayString.equals("Back"))
@@ -242,6 +272,12 @@ public class GuiTab extends GuiScreen {
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		if (keyCode == Keyboard.KEY_ESCAPE)
 			switch (GuiTab.currentScreen) {
+			case MAPS:
+				GuiTab.currentScreen = Screen.MAIN;
+				return;
+			case MAPS_INFO:
+				GuiTab.currentScreen = Screen.MAPS;
+				return;
 			case GALLERY:
 				GuiTab.currentScreen = Screen.MAIN;
 				return;

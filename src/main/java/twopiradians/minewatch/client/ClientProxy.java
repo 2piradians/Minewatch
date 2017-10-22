@@ -119,7 +119,7 @@ public class ClientProxy extends CommonProxy {
 		if (TabRegistry.getTabList().size() == 0)
 			TabRegistry.registerTab(new InventoryTabVanilla());
 
-		TabRegistry.registerTab(new InventoryTab());
+		TabRegistry.registerTab(InventoryTab.INSTANCE);
 		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
 

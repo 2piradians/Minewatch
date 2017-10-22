@@ -79,7 +79,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 		// move if not collided
 		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null)
+		if (result != null && result.typeOfHit != RayTraceResult.Type.MISS)
 			this.onImpact(result);
 		else {
 			if (this.hasNoGravity())

@@ -86,7 +86,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) == hero) {
+				ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero) {
 			if (!world.isRemote)
 				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
 			hero.ability3.toggle(entity, true);

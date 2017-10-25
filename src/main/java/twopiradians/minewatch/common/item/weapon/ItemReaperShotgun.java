@@ -14,6 +14,7 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -40,6 +41,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -354,7 +356,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
 			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
 			// heal reaper
-			if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
+			if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero &&
 					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
 				try {
 					float damage = event.getAmount();
@@ -379,6 +381,27 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
 			model.leftArmPose = ModelBiped.ArmPose.BLOCK;
 			model.rightArmPose = ModelBiped.ArmPose.BLOCK;
+		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+		// wraith
+		if (TickHandler.hasHandler(entity, Identifier.REAPER_WRAITH)) { 
+			Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_WRAITH);
+			float delay = 10;
+			float color = handler.ticksLeft > (60-delay) ? 1f-(1f-(handler.ticksLeft-60+delay)/delay)*0.6f : 
+				handler.ticksLeft < delay ? 1f-handler.ticksLeft/delay*0.6f : 0.4f;
+			GlStateManager.color(color-0.1f, color-0.1f, color-0.1f, color);
+		}
+		// teleport
+		else if (TickHandler.hasHandler(entity, Identifier.REAPER_TELEPORT)) { 
+			Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_TELEPORT);
+			float delay = 10;
+			float color = (handler.ticksLeft > (40-delay) && handler.ticksLeft < (40+delay)) ? 
+					Math.abs((handler.ticksLeft-40)/(delay*2f)) : 1f;
+					GlStateManager.color(color, color, color, color);
 		}
 	}
 

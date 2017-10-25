@@ -95,7 +95,7 @@ public class CPacketSyncKeys implements IMessage
 					else if (packet.keyName.equals("RMB"))
 						Minewatch.keys.rmb.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Toggle Ability 1")) {
-						EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
+						EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(packet.player);
 						if (hero != null)
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
@@ -103,7 +103,7 @@ public class CPacketSyncKeys implements IMessage
 									ability.toggle(player, packet.isKeyPressed);
 					}
 					else if (packet.keyName.equals("Toggle Ability 2")) {
-						EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
+						EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(packet.player);
 						if (hero != null)
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 

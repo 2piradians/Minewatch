@@ -235,7 +235,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 		// add to notRegening if hurt
 		if (target instanceof EntityPlayer && !target.world.isRemote &&
-				ItemMWArmor.SetManager.playersWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
+				ItemMWArmor.SetManager.entitiesWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity((EntityPlayer) target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
@@ -243,7 +243,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.world.isRemote &&
-					ItemMWArmor.SetManager.playersWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
+					ItemMWArmor.SetManager.entitiesWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect

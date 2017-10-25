@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import com.google.common.collect.ImmutableMap;
+
 import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
@@ -14,6 +16,9 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -27,12 +32,17 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.client.model.obj.OBJModel;
+import net.minecraftforge.client.model.obj.OBJModel.Material;
+import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -40,6 +50,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
@@ -50,6 +61,7 @@ import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
+import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
@@ -72,9 +84,11 @@ import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.sound.FollowingSound;
@@ -92,11 +106,7 @@ public class ClientProxy extends CommonProxy {
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
 		registerObjRenders();
 		registerEntityRenders();
-		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
-		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
-		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
-		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);
+		createKeybinds();
 	}
 
 	@Override
@@ -108,6 +118,15 @@ public class ClientProxy extends CommonProxy {
 		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
 		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
 		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
+
+		for (Item item : ModItems.objModelItems)
+			if (item instanceof ItemMWWeapon)
+				Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+					@Override
+					public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+						return ((ItemMWWeapon)item).getColorFromItemStack(stack, tintIndex);
+					}
+				}, item);
 	}
 
 	@Override
@@ -116,7 +135,44 @@ public class ClientProxy extends CommonProxy {
 		registerInventoryTab();
 	}
 
-	private static void registerInventoryTab() {
+	@SubscribeEvent
+	public void modelBake(ModelBakeEvent event) {
+		for (ModelResourceLocation modelLocation : event.getModelRegistry().getKeys()) 
+			if (modelLocation.getResourceDomain().equals(Minewatch.MODID) &&
+					modelLocation.getResourcePath().contains("3d")) {
+				if (event.getModelRegistry().getObject(modelLocation) instanceof OBJBakedModel) {
+					OBJBakedModel model = (OBJBakedModel) event.getModelRegistry().getObject(modelLocation);
+					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), model.getState(), DefaultVertexFormats.ITEM, getTextures(model.getModel())));
+				}
+			}
+	}
+
+	public static ImmutableMap<String, TextureAtlasSprite> getTextures(OBJModel model) {
+		ImmutableMap.Builder<String, TextureAtlasSprite> builder = ImmutableMap.builder();
+		builder.put(ModelLoader.White.LOCATION.toString(), ModelLoader.White.INSTANCE);
+		TextureAtlasSprite missing = ModelLoader.defaultTextureGetter().apply(new ResourceLocation("missingno"));
+		for (String materialName : model.getMatLib().getMaterialNames()) {
+			Material material = model.getMatLib().getMaterial(materialName);
+			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
+				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
+				builder.put(materialName, missing);
+			}
+			else
+				builder.put(materialName, ModelLoader.defaultTextureGetter().apply(material.getTexture().getTextureLocation()));
+		}
+		builder.put("missingno", missing);
+		return builder.build();
+	}
+
+	private void createKeybinds() {
+		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+	}
+
+	private void registerInventoryTab() {
 		if (TabRegistry.getTabList().size() == 0)
 			TabRegistry.registerTab(new InventoryTabVanilla());
 
@@ -124,13 +180,13 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
 
-	private static void registerRenders() {
+	private void registerRenders() {
 		for (Item item : ModItems.jsonModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
 	//PORT change to event registration
-	private static void registerObjRenders() {		
+	private void registerObjRenders() {		
 		for (Item item : ModItems.objModelItems)
 			// change bow model while pulling
 			if (item == EnumHero.HANZO.weapon) {
@@ -138,15 +194,13 @@ public class ClientProxy extends CommonProxy {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
 						int model = 0;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							if (player != null) {
-								model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
-								if (player.getActiveItemStack() == null || !player.getActiveItemStack().equals(stack))
-									model = 0;
-								else if (model > 4)
-									model = 4;
-							}
+						EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
+						if (player != null) {
+							model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
+							if (player.getActiveItemStack() == null || !player.getActiveItemStack().equals(stack))
+								model = 0;
+							else if (model > 4)
+								model = 4;
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + model + "_3d", "inventory");
 					}
@@ -162,11 +216,8 @@ public class ClientProxy extends CommonProxy {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean blocking = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							blocking = player != null ? player.isSprinting() : false;
-						}
+						EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
+						boolean blocking = player != null ? player.isSprinting() : false;
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (blocking ? "_blocking_3d" : "_3d"), "inventory");
 					}
 				});
@@ -179,10 +230,6 @@ public class ClientProxy extends CommonProxy {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
 						boolean turret = false;
-						/*if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							turret = player != null ? EnumHero.BASTION.ability2.isSelected(player) : false;
-						}*/
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (turret ? "_1_3d" : "_0_3d"), "inventory");
 					}
 				});
@@ -194,11 +241,7 @@ public class ClientProxy extends CommonProxy {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean scoping = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							scoping = ItemWidowmakerRifle.isScoped(player, stack);
-						}
+						boolean scoping = ItemWidowmakerRifle.isScoped(ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack), stack);
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
 					}
 				});
@@ -210,11 +253,7 @@ public class ClientProxy extends CommonProxy {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean scoping = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							scoping = ItemAnaRifle.isScoped(player, stack);		
-						}
+						boolean scoping = ItemAnaRifle.isScoped(ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack), stack);		
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
 					}
 				});
@@ -228,7 +267,7 @@ public class ClientProxy extends CommonProxy {
 					public ModelResourceLocation getModelLocation(ItemStack stack) {						
 						boolean sword = false;
 						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
 							sword = player != null && TickHandler.hasHandler(player, Identifier.GENJI_SWORD);		
 						}
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
@@ -256,7 +295,7 @@ public class ClientProxy extends CommonProxy {
 					public ModelResourceLocation getModelLocation(ItemStack stack) {
 						boolean tping = false;
 						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+							EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
 							Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
 							tping = handler != null && handler.ticksLeft != -1;
 						}
@@ -286,6 +325,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerMine.class, RenderWidowmakerMine::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratGrenade.class, RenderJunkratGrenade::new);
@@ -314,6 +354,8 @@ public class ClientProxy extends CommonProxy {
 		}
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_trap"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_blue"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red"));
 	}
 
 	@Override
@@ -364,11 +406,11 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
-	
+
 	@Override
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
-			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
-			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
@@ -405,7 +447,7 @@ public class ClientProxy extends CommonProxy {
 	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().player;
 	}
-	
+
 	@Override
 	public float getRenderPartialTicks() {
 		return Minecraft.getMinecraft().getRenderPartialTicks();

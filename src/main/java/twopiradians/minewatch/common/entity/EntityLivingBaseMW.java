@@ -27,12 +27,13 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityLivingBaseMW extends EntityLivingBase implements IThrowableEntity {
 
-    public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
 	public boolean isFriendly;
+	protected ArrayList<RayTraceResult.Type> ignoreImpacts = new ArrayList<RayTraceResult.Type>() {{add(RayTraceResult.Type.MISS);}};
 
 	public EntityLivingBaseMW(World worldIn) {
 		this(worldIn, null);
@@ -45,17 +46,17 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 	}
-	
+
 	@Override
-    public void notifyDataManagerChange(DataParameter<?> key) {
+	public void notifyDataManagerChange(DataParameter<?> key) {
 		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
 			EntityHelper.setRotations(this);
 		}
-    }
-	
+	}
+
 	@Override
 	protected void entityInit() {
 		super.entityInit();
@@ -72,9 +73,11 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 		// move
 		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null)
+		if (result != null && !this.ignoreImpacts.contains(result.typeOfHit)) {
+			EntityHelper.moveToEntityHit(this, result.entityHit);
 			this.onImpact(result);
-		else {
+		}
+		else if (Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else
@@ -88,7 +91,8 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (this.recentlyHit > 0)
 			--this.recentlyHit;
 
-		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0))
+		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
+				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
 
 		this.firstUpdate = false;
@@ -103,7 +107,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
 		if ((source.getSourceOfDamage() == null || EntityHelper.shouldHit(source.getSourceOfDamage(), this, false, source)) &&
@@ -123,7 +127,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (entity instanceof EntityLivingBase)
 			this.thrower = (EntityLivingBase) entity;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance){
@@ -141,15 +145,15 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	}
 
 	@Override
-    protected float getSoundVolume() {
-        return 0F;
-    }
-	
+	protected float getSoundVolume() {
+		return 0F;
+	}
+
 	@Override
 	public EnumHandSide getPrimaryHand() {
 		return EnumHandSide.RIGHT;
 	}
-	
+
 	@Override
 	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
 	@Override

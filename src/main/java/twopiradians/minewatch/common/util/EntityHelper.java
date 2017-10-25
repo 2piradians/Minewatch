@@ -35,7 +35,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHelper {
-//TODO move poseyes here and change all references to use it
+	//TODO move poseyes here and change all references to use it
 	/**Copied from EntityThrowable*/
 	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
 		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
@@ -193,9 +193,11 @@ public class EntityHelper {
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly, DamageSource source) {
 		if (entityHit instanceof IThrowableEntity)
 			return shouldHit(thrower, ((IThrowableEntity)entityHit).getThrower(), friendly, source);
-		return ((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && thrower != null && entityHit != thrower &&
-				!entityHit.isEntityInvulnerable(source);
+		else if (thrower instanceof IThrowableEntity)
+			return shouldHit(((IThrowableEntity)thrower).getThrower(), entityHit, friendly, source);
+		return thrower != null && entityHit != null && ((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
+				entityHit instanceof EntityDragonPart) && (entityHit != thrower || !friendly) &&
+				!friendly != thrower.isOnSameTeam(entityHit) && !entityHit.isEntityInvulnerable(source); //TODO test same team (w/attacking and sombra's invis)
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
@@ -241,14 +243,16 @@ public class EntityHelper {
 
 	/**Move projectile to where it would collide with the entityHit - for fixing particles on impact*/
 	public static void moveToEntityHit(Entity projectile, Entity entityHit) {
-		Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
-		Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
-		AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
-		RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
-		if (ray != null) {
-			projectile.posX = ray.hitVec.xCoord;
-			projectile.posY = ray.hitVec.yCoord;
-			projectile.posZ = ray.hitVec.zCoord;
+		if (projectile != null && entityHit != null) {
+			Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
+			Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
+			AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
+			RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
+			if (ray != null) {
+				projectile.posX = ray.hitVec.xCoord;
+				projectile.posY = ray.hitVec.yCoord;
+				projectile.posZ = ray.hitVec.zCoord;
+			}
 		}
 	}
 

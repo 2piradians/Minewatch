@@ -79,16 +79,19 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 		// move if not collided
 		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null)
+		if (result != null && result.typeOfHit != RayTraceResult.Type.MISS) {
+			EntityHelper.moveToEntityHit(this, result.entityHit);
 			this.onImpact(result);
-		else {
+		}
+		else if (Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else
 				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 		}
 
-		if (!this.world.isRemote && this.ticksExisted > lifetime && lifetime > 0)
+		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
+				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
 
 		this.firstUpdate = false;

@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -7,9 +9,15 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemMeiBlaster extends ItemMWWeapon {
@@ -54,6 +62,21 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+		// frozen coloring
+		if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
+				(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
+				entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+			int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
+					TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
+					entity.maxHurtTime = -1;
+					entity.hurtTime = -1;
+					GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
+		}
 	}
 
 }

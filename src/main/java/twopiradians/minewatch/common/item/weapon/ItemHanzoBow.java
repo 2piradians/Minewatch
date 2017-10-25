@@ -45,7 +45,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
-		//if (ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
+		//if (ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero)
 			return new ItemStack(Items.ARROW);
 		/*else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
 			return player.getHeldItem(EnumHand.OFF_HAND);
@@ -76,7 +76,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		if (entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entityLiving;
 			boolean flag = player.capabilities.isCreativeMode || 
-					ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero;
+					ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero;
 			ItemStack itemstack = this.findAmmo(player);
 
 			int i = this.getMaxItemUseDuration(stack) - timeLeft;

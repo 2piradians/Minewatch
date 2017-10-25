@@ -121,8 +121,8 @@ public class Ability {
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
-				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
-				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
+				ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) &&
+				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) &&
 				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 

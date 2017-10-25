@@ -5,9 +5,15 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Matrix4f;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -23,6 +29,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
@@ -156,7 +163,7 @@ public abstract class ItemMWWeapon extends Item {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
@@ -210,7 +217,7 @@ public abstract class ItemMWWeapon extends Item {
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
-				SetManager.playersWearingSets.get(entity.getPersistentID()) == hero)
+				SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 	}
 
@@ -235,10 +242,10 @@ public abstract class ItemMWWeapon extends Item {
 	}
 
 	@Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
-        return false;
-    }
-	
+	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
+		return false;
+	}
+
 	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;
@@ -248,6 +255,30 @@ public abstract class ItemMWWeapon extends Item {
 	@Override
 	public boolean hasEffect(ItemStack stack) {
 		return super.hasEffect(stack); //XXX will be used with golden weapons
+	}
+
+	/**Called before armor is rendered - mainly used for coloring / alpha*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {}
+
+	/**Called before weapon is rendered
+	 * @param cameraTransformType */
+	@SideOnly(Side.CLIENT)
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
+
+	@SideOnly(Side.CLIENT)
+	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		return -1;
+	}
+
+	/**Get player from stack's nbt*/
+	@Nullable
+	public static EntityPlayer getPlayer(World world, ItemStack stack) {
+		if (stack != null && stack.hasTagCompound() &&
+				stack.getTagCompound().getUniqueId("player") != null)
+			return world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
+		else
+			return null;
 	}
 
 	//PORT keep for 1.10 PosEyes vec (is this needed anymore?)

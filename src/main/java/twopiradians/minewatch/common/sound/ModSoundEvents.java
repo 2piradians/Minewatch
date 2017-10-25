@@ -7,7 +7,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModSoundEvents {
-	
+
 	public static SoundEvent guiHover;
 	public static SoundEvent[] multikill = new SoundEvent[5];
 	public static SoundEvent kill;
@@ -77,13 +77,17 @@ public class ModSoundEvents {
 	public static SoundEvent junkratTrapTriggerOwner;
 	public static SoundEvent junkratTrapTriggerVoice;
 	public static SoundEvent junkratTrapPlacedVoice;
-	
+
 	public static SoundEvent sombraShoot;
+	public static SoundEvent sombraInvisibleStart;
+	public static SoundEvent sombraInvisibleStop;
+	public static SoundEvent sombraInvisibleVoice;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
-			hero.reloadSound = registerSound(hero.name.toLowerCase()+"_reload"+(hero.equals(EnumHero.BASTION) ? "_0" : ""));
-		
+			if (hero != EnumHero.HANZO && hero != EnumHero.REINHARDT)
+				hero.reloadSound = registerSound(hero.name.toLowerCase()+"_reload"+(hero.equals(EnumHero.BASTION) ? "_0" : ""));
+
 		guiHover = registerSound("gui_hover");
 		for (int i=2; i<7; ++i)
 			multikill[i-2] = registerSound("multikill_"+i);
@@ -155,10 +159,13 @@ public class ModSoundEvents {
 		junkratTrapTriggerOwner = registerSound("junkrat_trap_trigger_owner");
 		junkratTrapTriggerVoice = registerSound("junkrat_trap_trigger_voice");
 		junkratTrapPlacedVoice = registerSound("junkrat_trap_placed_voice");
-		
+
 		sombraShoot = registerSound("sombra_shoot");
+		sombraInvisibleStart = registerSound("sombra_invisible_start");
+		sombraInvisibleStop = registerSound("sombra_invisible_stop");
+		sombraInvisibleVoice = registerSound("sombra_invisible_voice");
 	}
-	
+
 	private static SoundEvent registerSound(String soundName) {
 		ResourceLocation loc = new ResourceLocation(Minewatch.MODID, soundName);
 		SoundEvent sound = new SoundEvent(loc);

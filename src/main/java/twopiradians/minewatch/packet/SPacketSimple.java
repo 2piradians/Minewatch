@@ -41,6 +41,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -418,6 +419,17 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.JUNKRAT_TRAP));
 						entity.setDead();
+					}
+					// Sombra's Invisibility
+					else if (packet.type == 27 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
+									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3));
+							if (entity == player)
+								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else if (entity instanceof EntityLivingBase)
+							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
 					}
 				}
 			});

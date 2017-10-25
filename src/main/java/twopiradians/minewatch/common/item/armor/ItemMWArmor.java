@@ -121,7 +121,7 @@ public class ItemMWArmor extends ItemArmor
 	@Mod.EventBusSubscriber
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
-		public static HashMap<UUID, EnumHero> playersWearingSets = Maps.newHashMap();	
+		public static HashMap<UUID, EnumHero> entitiesWearingSets = Maps.newHashMap();	
 
 		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
 		public static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
@@ -150,7 +150,7 @@ public class ItemMWArmor extends ItemArmor
 					key.setCooldown(event.player, 0, false);
 		}
 
-		/**Update playersWearingSets each tick
+		/**Update entitiesWearingSets each tick
 		 * This way it's only checked once per tick, no matter what:
 		 * very useful for checking if HUDs should be rendered*/
 		@SubscribeEvent
@@ -173,14 +173,14 @@ public class ItemMWArmor extends ItemArmor
 				// clear toggles when switching to set or if not holding weapon
 				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
-						(fullSet && (!SetManager.playersWearingSets.containsKey(event.player.getPersistentID()) ||
-								SetManager.playersWearingSets.get(event.player.getPersistentID()) != hero)))
+						(fullSet && (!SetManager.entitiesWearingSets.containsKey(event.player.getPersistentID()) ||
+								SetManager.entitiesWearingSets.get(event.player.getPersistentID()) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						ability.toggle(event.player, false);
 
-				// update playersWearingSets
+				// update entitiesWearingSets
 				if (fullSet) {
-					SetManager.playersWearingSets.put(event.player.getPersistentID(), hero);
+					SetManager.entitiesWearingSets.put(event.player.getPersistentID(), hero);
 					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
 						for (KeyBind key : Keys.KeyBind.values()) 
 							if (key.getCooldown(event.player) > 0)
@@ -189,21 +189,21 @@ public class ItemMWArmor extends ItemArmor
 					}
 				}
 				else
-					SetManager.playersWearingSets.remove(event.player.getPersistentID());
+					SetManager.entitiesWearingSets.remove(event.player.getPersistentID());
 			}
 		}
 
 		@SubscribeEvent
 		public static void genjiFall(LivingFallEvent event) {
 			if (event.getEntity() instanceof EntityPlayer && 
-					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
+					SetManager.entitiesWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
 				event.setDistance(event.getDistance()*0.8f);
 		}
 
 		@SubscribeEvent
 		public static void junkratDeath(LivingDeathEvent event) {
 			if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote &&
-					SetManager.playersWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
+					SetManager.entitiesWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
 				event.getEntity().world.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
 						SoundCategory.PLAYERS, 1.0f, 1.0f);
 				for (int i=0; i<6; ++i) {
@@ -274,7 +274,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// genji jump boost/double jump
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
+				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
 			// jump boost
 			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
@@ -296,8 +296,8 @@ public class ItemMWArmor extends ItemArmor
 
 		// genji/hanzo wall climb
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				(SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
-				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
+				(SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
+				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
 			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
@@ -320,7 +320,7 @@ public class ItemMWArmor extends ItemArmor
 		}
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
+				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
 			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
@@ -352,7 +352,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
-				SetManager.playersWearingSets.get(player.getPersistentID()) == hero)
+				SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 	}
 

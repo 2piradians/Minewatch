@@ -567,5 +567,27 @@
 		"sounds": [
 			"minewatch:sombra_shoot"
 		]
+	},
+	"sombra_invisible_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_start"
+		]
+	},
+	"sombra_invisible_stop": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_stop"
+		]
+	},
+	"sombra_invisible_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_voice_0",
+			"minewatch:sombra_invisible_voice_1",
+			"minewatch:sombra_invisible_voice_2",
+			"minewatch:sombra_invisible_voice_3",
+			"minewatch:sombra_invisible_voice_4"
+		]
 	}
 }

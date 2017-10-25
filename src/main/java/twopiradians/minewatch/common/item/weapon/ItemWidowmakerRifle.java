@@ -25,6 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -86,6 +87,25 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
 				!isScoped((EntityPlayer) entity, stack))
 			((EntityPlayer)entity).resetActiveHand();
+
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+
+			// venom mine
+			if (!world.isRemote && hero.ability1.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				hero.ability1.keybind.setCooldown(player, 240, false); 
+				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 19, 0, null, 0, 0);
+				world.spawnEntity(mine);
+				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				hero.ability1.keybind.setCooldown(player, 30, false); //TODO
+				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
+						hero.ability1.entities.get(player).isEntityAlive()) 
+					hero.ability1.entities.get(player).setDead();
+				hero.ability1.entities.put(player, mine);
+			}
+		}
 	}
 
 	@Override
@@ -155,7 +175,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
-			
+
 			// change mouse sensitivity
 			if (scoped != prevScoped) {
 				if (scoped) {

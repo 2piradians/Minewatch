@@ -31,7 +31,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public EntityHanzoArrow(World worldIn, EntityLivingBase shooter) {
 		super(worldIn, shooter);
 		if (shooter instanceof EntityPlayer 
-				&& (ItemMWArmor.SetManager.playersWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
+				&& (ItemMWArmor.SetManager.entitiesWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
 				((EntityPlayer)shooter).capabilities.isCreativeMode))
 			this.pickupStatus = EntityTippedArrow.PickupStatus.DISALLOWED;
 		else

@@ -277,7 +277,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		// remove strike cooldown if killed by Genji
 		if (event.getEntityLiving() != null && !event.getEntityLiving().world.isRemote && 
 				event.getSource().getEntity() instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.playersWearingSets.get(event.getSource().getEntity()) == EnumHero.GENJI) 
+				ItemMWArmor.SetManager.entitiesWearingSets.get(event.getSource().getEntity()) == EnumHero.GENJI) 
 			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getEntity(), 0, false);
 	}
 

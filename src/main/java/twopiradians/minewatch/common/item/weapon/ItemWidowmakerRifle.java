@@ -97,12 +97,13 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				hero.ability1.keybind.setCooldown(player, 240, false); 
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 19, 0, null, 0, 0);
+				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
-				hero.ability1.keybind.setCooldown(player, 30, false); //TODO
+				hero.ability1.keybind.setCooldown(player, 300, false); 
 				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
 						hero.ability1.entities.get(player).isEntityAlive()) 
-					hero.ability1.entities.get(player).setDead();
+					hero.ability1.entities.get(player).isDead = true;
 				hero.ability1.entities.put(player, mine);
 			}
 		}
@@ -134,7 +135,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			else if (!Minewatch.keys.rmb(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 5, hand, 6, 0.43f);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 3, hand, 6, 0.43f);
 					world.spawnEntity(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);

@@ -61,7 +61,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		}
 		@Override
 		public Handler onRemove() {
-			EnumHero.SOMBRA.ability3.keybind.setCooldown(player, 12, false); // TODO
+			EnumHero.SOMBRA.ability3.keybind.setCooldown(player, 120, false); 
 			Handler handler = TickHandler.getHandler(entity, Identifier.ABILITY_USING);
 			if (handler != null && handler.ability == EnumHero.SOMBRA.ability3 && entity != null)
 				TickHandler.unregister(entity.world.isRemote, handler);

@@ -67,7 +67,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 			GlStateManager.translate(0, 0.02d, 0);
 			GlStateManager.rotate((entity.ticksExisted+partialTicks)*2, 0, 1, 0);
 		}
-		return model == 0 || (model == 1 && !EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false)) ||
+		return (model == 0 && entity.onGround) || (model == 1 && !EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false)) ||
 				(model == 2 && EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false));
 	}
 }

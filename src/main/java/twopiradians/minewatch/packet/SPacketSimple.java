@@ -33,6 +33,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -430,6 +431,14 @@ public class SPacketSimple implements IMessage {
 						}
 						else if (entity instanceof EntityLivingBase)
 							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
+					}
+					// Widowmaker's venom trap
+					else if (packet.type == 28 && entity != null && entity2 instanceof EntityLivingBase) {
+						TickHandler.register(true, EntityWidowmakerMine.POISONED.setTicks(100).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
+						if (entity2 == player && player != null) {
+							((EntityLivingBase)entity).setGlowing(true);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.world, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+						}
 					}
 				}
 			});

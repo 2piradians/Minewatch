@@ -376,6 +376,31 @@
 			"minewatch:widowmaker_charge"
 		]
 	},
+	"widowmaker_mine_throw": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_throw"
+		]
+	},
+	"widowmaker_mine_land": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_land"
+		]
+	},
+	"widowmaker_mine_trigger": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_trigger"
+		]
+	},
+	"widowmaker_mine_destroyed": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_destroyed_0",
+			"minewatch:widowmaker_mine_destroyed_1"
+		]
+	},
 	"mercy_shoot": {
 		"category": "player",
 		"sounds": [

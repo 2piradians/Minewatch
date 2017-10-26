@@ -82,6 +82,10 @@ public class ModSoundEvents {
 	public static SoundEvent sombraInvisibleStart;
 	public static SoundEvent sombraInvisibleStop;
 	public static SoundEvent sombraInvisibleVoice;
+	public static SoundEvent widowmakerMineThrow;
+	public static SoundEvent widowmakerMineLand;
+	public static SoundEvent widowmakerMineTrigger;
+	public static SoundEvent widowmakerMineDestroyed;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
@@ -164,6 +168,10 @@ public class ModSoundEvents {
 		sombraInvisibleStart = registerSound("sombra_invisible_start");
 		sombraInvisibleStop = registerSound("sombra_invisible_stop");
 		sombraInvisibleVoice = registerSound("sombra_invisible_voice");
+		widowmakerMineThrow = registerSound("widowmaker_mine_throw");
+		widowmakerMineLand = registerSound("widowmaker_mine_land");
+		widowmakerMineTrigger = registerSound("widowmaker_mine_trigger");
+		widowmakerMineDestroyed = registerSound("widowmaker_mine_destroyed");
 	}
 
 	private static SoundEvent registerSound(String soundName) {

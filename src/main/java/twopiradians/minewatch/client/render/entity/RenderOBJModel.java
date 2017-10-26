@@ -1,12 +1,8 @@
 package twopiradians.minewatch.client.render.entity;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,11 +23,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.ModelProcessingHelper;
 import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 
@@ -68,8 +63,8 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 		for (int i=0; i<this.bakedModels.length; ++i) {
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.pushMatrix();
-			GlStateManager.enableBlend();
 			GlStateManager.shadeModel(GL11.GL_SMOOTH);
+			GlStateManager.disableBlend();
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
 			Tessellator tessellator = Tessellator.getInstance();
@@ -85,7 +80,14 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 				lighter.setParent(new VertexBufferConsumer(buffer));
 				lighter.setWorld(entity.world);
 				lighter.setState(Blocks.AIR.getDefaultState());
-				lighter.setBlockPos(new BlockPos(entity.posX, entity.posY, entity.posZ));
+				BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
+				if (entity instanceof EntityWidowmakerMine && ((EntityWidowmakerMine)entity).facing != null) {
+					pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
+					double adjustZ = ((EntityWidowmakerMine)entity).facing == EnumFacing.SOUTH ? -0.5d : 0;
+					double adjustX = ((EntityWidowmakerMine)entity).facing == EnumFacing.EAST ? -0.5d : 0;
+					pos = pos.add(adjustX, 0, adjustZ).offset(((EntityWidowmakerMine)entity).facing.getOpposite());
+				}
+				lighter.setBlockPos(pos);
 
 				boolean empty = true;
 				List<BakedQuad> quads = this.bakedModels[i].getQuads(null, null, 0);
@@ -109,7 +111,6 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			buffer.setTranslation(0, 0, 0);
 			tessellator.draw();	
 
-			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 			RenderHelper.enableStandardItemLighting();
 		}

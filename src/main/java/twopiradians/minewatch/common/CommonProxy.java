@@ -65,7 +65,9 @@ public class CommonProxy {
 		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
 		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
 		JUNKRAT_TRAP("junkrat_trap", true), JUNKRAT_TRAP_TRIGGERED("junkrat_trap_triggered", true), 
-		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true);
+		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
+		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
+		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true);
 
 		public final ResourceLocation loc;
 		public final int frames;

@@ -196,8 +196,9 @@ public class EntityHelper {
 		else if (thrower instanceof IThrowableEntity)
 			return shouldHit(((IThrowableEntity)thrower).getThrower(), entityHit, friendly, source);
 		return thrower != null && entityHit != null && ((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && (entityHit != thrower || !friendly) &&
-				!friendly != thrower.isOnSameTeam(entityHit) && !entityHit.isEntityInvulnerable(source); //TODO test same team (w/attacking and sombra's invis)
+				entityHit instanceof EntityDragonPart) && (entityHit != thrower || friendly) &&
+				(thrower.getTeam() == null || entityHit.getTeam() == null || 
+				thrower.isOnSameTeam(entityHit) == friendly) && !entityHit.isEntityInvulnerable(source); //TODO test same team (w/attacking and sombra's invis)
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
@@ -264,7 +265,7 @@ public class EntityHelper {
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
-		if (shouldHit(thrower, entityHit, damage <= 0) && !thrower.world.isRemote) {
+		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.world.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
 				((EntityLivingBase)entityHit).heal(Math.abs(damage*Config.damageScale));
@@ -281,7 +282,7 @@ public class EntityHelper {
 				}
 				else
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
-
+				
 				return damaged;
 			}
 		}

@@ -24,7 +24,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 20;
+		this.lifetime = 1;
 		this.damage = damage;
 		if (!this.world.isRemote)
 			this.getDataManager().set(SCOPED, scoped);

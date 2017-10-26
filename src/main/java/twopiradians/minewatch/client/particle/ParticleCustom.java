@@ -123,6 +123,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null)
 					this.setExpired();
 			}
+			else if (this.enumParticle.equals(EnumParticle.WIDOWMAKER_MINE))
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+1d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);

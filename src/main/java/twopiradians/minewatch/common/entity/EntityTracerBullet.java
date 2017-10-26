@@ -18,7 +18,7 @@ public class EntityTracerBullet extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 3;						
+		this.lifetime = 1;						
 	}
 	
 	@Override

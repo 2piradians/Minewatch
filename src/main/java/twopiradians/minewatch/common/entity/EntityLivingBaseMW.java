@@ -78,7 +78,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.onImpact(result);
 		}
 		else if (Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
-			if (this.hasNoGravity())
+			if (this.hasNoGravity() || this instanceof EntityWidowmakerMine)
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else
 				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
@@ -153,7 +153,11 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	public EnumHandSide getPrimaryHand() {
 		return EnumHandSide.RIGHT;
 	}
-
+	
+	@Override
+    public boolean canBeCollidedWith() {return false;}
+    @Override
+    public boolean canBePushed() {return false;}
 	@Override
 	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
 	@Override

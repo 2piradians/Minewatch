@@ -75,7 +75,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
 	}
-	
+
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0);
 	}
@@ -88,7 +88,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		
+
 		// follow entity
 		this.followEntity();
 
@@ -120,11 +120,19 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if (this.enumParticle.equals(EnumParticle.JUNKRAT_TRAP)) {
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+1.5d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
-				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null)
+				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null || !this.followEntity.onGround)
 					this.setExpired();
 			}
-			else if (this.enumParticle.equals(EnumParticle.WIDOWMAKER_MINE))
+			else if (this.enumParticle.equals(EnumParticle.WIDOWMAKER_MINE)) {
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+1d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
+				if (!this.followEntity.onGround)
+					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.SOMBRA_TRANSPOSER)) {
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+1d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
+				if (!this.followEntity.onGround)
+					this.setExpired();
+			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
@@ -134,7 +142,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
-			
+
 			if (!this.followEntity.isEntityAlive())
 				this.setExpired();
 		}
@@ -164,7 +172,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
-			
+
 			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
@@ -198,7 +206,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-			
+
 			buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();

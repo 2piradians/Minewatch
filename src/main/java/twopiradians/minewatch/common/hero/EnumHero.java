@@ -192,7 +192,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
 			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/")),
 	SOMBRA("Sombra", false, new Ability(KeyBind.RMB, false, false), 
-			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			60, 0, new int[] {2,2,2,2}, new ItemSombraMachinePistol(), Crosshair.CIRCLE_SMALL, 0x745ABB, true, 
 			new Skin("Classic", "Boop!", "Nutellah", "https://www.planetminecraft.com/skin/boop-3851181/"),
@@ -597,7 +597,8 @@ public enum EnumHero {
 							// slot 2
 							if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.ability2.isSelected(player)) {
+							else if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) {
 								GlStateManager.color(0.8f, 0.6f, 0);
 								GlStateManager.translate(1, 1, 0);
 							}
@@ -650,7 +651,8 @@ public enum EnumHero {
 							}
 							if (hero.ability2.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
-							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive()) 
+							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive() && !(hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
 							// slot 3
 							if (hero.ability3.showKeybind(player)) {

@@ -421,11 +421,11 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.JUNKRAT_TRAP));
 						entity.setDead();
 					}
-					// Sombra's Invisibility
+					// Sombra's invisibility
 					else if (packet.type == 27 && entity != null) {
 						if (packet.bool) {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
-									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3));
+									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3).setBoolean(true));
 							if (entity == player)
 								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						}
@@ -439,6 +439,11 @@ public class SPacketSimple implements IMessage {
 							((EntityLivingBase)entity).setGlowing(true);
 							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.world, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 						}
+					}
+					// Sombra's teleport
+					else if (packet.type == 29 && packetPlayer != null) {
+						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
+								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
 					}
 				}
 			});

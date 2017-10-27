@@ -614,5 +614,33 @@
 			"minewatch:sombra_invisible_voice_3",
 			"minewatch:sombra_invisible_voice_4"
 		]
+	},
+	"sombra_translocator_land": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_land"
+		]
+	},
+	"sombra_translocator_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_throw_0",
+			"minewatch:sombra_translocator_throw_1",
+			"minewatch:sombra_translocator_throw_2"
+		]
+	},
+	"sombra_translocator_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_during"
+		]
+	},
+	"sombra_translocator_teleport": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_teleport_0",
+			"minewatch:sombra_translocator_teleport_1",
+			"minewatch:sombra_translocator_teleport_2"
+		]
 	}
 }

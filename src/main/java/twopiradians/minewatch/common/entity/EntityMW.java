@@ -79,7 +79,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 		// move if not collided
 		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null && result.typeOfHit != RayTraceResult.Type.MISS) {
+		if (result != null && isValidImpact(result)) {
 			EntityHelper.moveToEntityHit(this, result.entityHit);
 			this.onImpact(result);
 		}
@@ -95,6 +95,11 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.setDead();
 
 		this.firstUpdate = false;
+	}
+
+	/**Should this impact prevent movement this tick*/
+	protected boolean isValidImpact(RayTraceResult result) {
+		return result.typeOfHit != RayTraceResult.Type.MISS;
 	}
 
 	protected void onImpact(RayTraceResult result) {

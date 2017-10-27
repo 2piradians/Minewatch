@@ -18,7 +18,7 @@ public class EntitySombraBullet extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 1;
+		this.lifetime = 1; 
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class EntitySombraBullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	protected void onImpact(RayTraceResult result) {// TODO hit particles
 		super.onImpact(result);
 
 		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 2.4f, 8f, 15, 25)) 

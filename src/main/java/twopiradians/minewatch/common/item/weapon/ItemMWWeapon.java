@@ -119,10 +119,11 @@ public abstract class ItemMWWeapon extends Item {
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 		if (player == null || (player.getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
-				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
+				(handler != null && !handler.bool))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();

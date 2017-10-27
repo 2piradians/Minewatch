@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -25,7 +26,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.EntitySombraBullet;
+import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -37,6 +40,31 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemSombraMachinePistol extends ItemMWWeapon {
 
+	public static final Handler TELEPORT = new Handler(Identifier.SOMBRA_TELEPORT, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
+				if (this.ticksLeft == 8) 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.world, 
+							this.entityLiving.posX, this.entityLiving.posY+this.entityLiving.height/2d, this.entityLiving.posZ, 0, 0, 0, 0x9F62E5, 0x8E77BC, 1f, 15, 25, 1, 0, 0);
+				else if (this.ticksLeft == 2)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.world, this.entityLiving, 
+							0x9F62E5, 0x8E77BC, 1f, 10, 5, 40, 0, 0);
+			}
+
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (this.ticksLeft == 5 && this.entityLiving != null) {
+				entityLiving.fallDistance = 0;
+				entityLiving.setPositionAndUpdate(this.position.xCoord, this.position.yCoord, this.position.zCoord);
+			}
+
+			return super.onServerTick();
+		}
+	};
 	public static final Handler INVISIBLE = new Handler(Identifier.SOMBRA_INVISIBLE, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -103,18 +131,47 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			EntityPlayer player = (EntityPlayer) entity;
 
 			// cancel invisibility
+			Handler handler = TickHandler.getHandler(player, Identifier.SOMBRA_INVISIBLE);
 			if (hero.ability3.keybind.isKeyDown(player) || KeyBind.RMB.isKeyDown(player)) {
-				Handler handler = TickHandler.getHandler(player, Identifier.SOMBRA_INVISIBLE);
 				if (handler != null && handler.initialTicks-handler.ticksLeft > 30)
 					cancelInvisibility(player);
 			}
 
 			// invisibility
-			if (!world.isRemote && hero.ability3.isSelected(player) && 
+			if (handler == null && !world.isRemote && hero.ability3.isSelected(player) && hero.ability3.keybind.isKeyDown(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, INVISIBLE.setEntity(player).setTicks(130),
-						Ability.ABILITY_USING.setEntity(player).setTicks(130).setAbility(hero.ability3));
+						Ability.ABILITY_USING.setEntity(player).setTicks(130).setAbility(hero.ability3).setBoolean(true));
 				Minewatch.network.sendToDimension(new SPacketSimple(27, player, true), world.provider.getDimension());
+			}
+
+			// translocator
+			if (!world.isRemote && hero.ability2.isSelected(player) && hero.ability2.keybind.isKeyDown(player) &&
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				// teleport
+				Entity translocator = hero.ability2.entities.get(player);
+				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
+					if (translocator.ticksExisted > 10) {
+						Minewatch.proxy.stopSound(player, ModSoundEvents.sombraTranslocatorDuring, SoundCategory.PLAYERS);
+						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.sombraTranslocatorTeleport, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
+								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
+						Minewatch.network.sendToDimension(new SPacketSimple(29, false, player, 
+								translocator.posX, translocator.posY, translocator.posZ), world.provider.getDimension());
+						translocator.setDead();
+						hero.ability2.keybind.setCooldown(player, 80, false);
+					}
+				}
+				// throw new translocator
+				else {
+					translocator = new EntitySombraTranslocator(world, player);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
+					world.playSound(null, player.getPosition(), ModSoundEvents.sombraTranslocatorThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+					world.spawnEntity(translocator);
+					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+					hero.ability2.entities.put(player, translocator);
+					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
+				}
 			}
 		}
 	}
@@ -137,15 +194,20 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
-		// invisibility
+		// invisibility / teleport
+		float time = 14;
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
+		if (handler == null) {
+			handler = TickHandler.getHandler(entity, Identifier.SOMBRA_TELEPORT);
+			time = 5;
+		}
 		if (handler != null) {
 			GlStateManager.enableCull();
 			float percent = 1f;
-			if (handler.ticksLeft > handler.initialTicks-14)
-				percent = (handler.initialTicks-handler.ticksLeft) / 14f;
-			else if (handler.ticksLeft < 14)
-				percent = handler.ticksLeft / 14f;
+			if (handler.ticksLeft > handler.initialTicks-time)
+				percent = (handler.initialTicks-handler.ticksLeft) / time;
+			else if (handler.ticksLeft < time)
+				percent = handler.ticksLeft / time;
 			// full alpha if not friendly
 			float alpha = EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false) ? 1 : 0.5f;
 			GlStateManager.color((255f-20f*percent)/255f, (255f-109f*percent)/255f, (255f-3f*percent)/255f, 1f-percent*alpha);
@@ -167,7 +229,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
 		EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
-		return TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE) ? 0xFB8AFE : -1;
+		return TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE) ||
+				TickHandler.hasHandler(player, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
 	}
 
 }

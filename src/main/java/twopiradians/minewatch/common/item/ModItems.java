@@ -26,6 +26,8 @@ public class ModItems {
 
 	public static void preInit () {
 		for (EnumHero hero : EnumHero.values()) {
+			hero.token = (ItemMWToken) registerItem(new ItemMWToken(), 
+					hero.name.toLowerCase()+"_token", true, false);
 			hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), 
 					Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, hero.armorReductionAmounts, 0, 
 					SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
@@ -39,8 +41,6 @@ public class ModItems {
 					hero.name.toLowerCase()+"_boots", true, false);
 			hero.weapon = (ItemMWWeapon) registerItem(hero.weapon, 
 					hero.name.toLowerCase()+"_weapon", true, true);
-			hero.token = (ItemMWToken) registerItem(new ItemMWToken(), 
-					hero.name.toLowerCase()+"_token", true, false);
 		}
 		
 		wild_card_token = registerItem(new ItemMWToken.ItemWildCardToken(), "wild_card_token", true, false);

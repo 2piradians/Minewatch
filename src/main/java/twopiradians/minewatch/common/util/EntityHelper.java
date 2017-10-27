@@ -27,6 +27,7 @@ import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
@@ -55,7 +56,7 @@ public class EntityHelper {
 			Entity entity1 = (Entity)list.get(i);
 
 			if (entity1.canBeCollidedWith() && shouldHit(thrower, entity1, friendly)) {
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expandXyz(0.30000001192092896D);
+				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox();
 				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
 
 				if (raytraceresult1 != null) {
@@ -131,7 +132,7 @@ public class EntityHelper {
 		else if (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE) {
 			x = entityTrace.hitVec.xCoord - vec.xCoord;
 			y = entityTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
-			z = entityTrace.hitVec.zCoord - vec.zCoord;
+			z = entityTrace.hitVec.zCoord - vec.zCoord; 
 		}
 		// not looking at block/entity
 		else {
@@ -244,15 +245,16 @@ public class EntityHelper {
 
 	/**Move projectile to where it would collide with the entityHit - for fixing particles on impact*/
 	public static void moveToEntityHit(Entity projectile, Entity entityHit) {
-		if (projectile != null && entityHit != null) {
+		if (projectile != null && entityHit != null && 
+				!projectile.getEntityBoundingBox().intersectsWith(entityHit.getEntityBoundingBox())) {
 			Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
 			Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
-			AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
-			RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
+			AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.001D);
+			RayTraceResult ray = aabb.calculateIntercept(vec3d, vec3d1);
 			if (ray != null) {
 				projectile.posX = ray.hitVec.xCoord;
 				projectile.posY = ray.hitVec.yCoord;
-				projectile.posZ = ray.hitVec.zCoord;
+				projectile.posZ = ray.hitVec.zCoord; 
 			}
 		}
 	}

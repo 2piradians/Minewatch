@@ -21,13 +21,14 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class Ability {
 
+	/**boolean represents if it should allow other abilities to be used while using this one*/
 	public static final Handler ABILITY_USING = new Handler(Identifier.ABILITY_USING, true) {};
 
 	public EnumHero hero;
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
-	public HashMap<EntityPlayer, EntityLivingBaseMW> entities = Maps.newHashMap();
+	public HashMap<EntityPlayer, Entity> entities = Maps.newHashMap();
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff
@@ -127,7 +128,7 @@ public class Ability {
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (handler != null && handler.ability != null)
+		if (handler != null && handler.ability != null && !handler.bool)
 			return this == handler.ability;
 
 		if (ret && player.world.isRemote)
@@ -158,9 +159,10 @@ public class Ability {
 		}
 	}
 	
+	/**Should the keybind be visible? - not unable to be used*/
 	public boolean showKeybind(EntityPlayer player) {
 		return keybind.getCooldown(player) <= 0 && 
-				(!isSelected(player) || (isToggled(player) && !TickHandler.hasHandler(player, Identifier.ABILITY_USING))) &&
+				(!isSelected(player) || (isToggled(player))) &&
 				(maxUses == 0 || getUses(player) > 0);
 	}
 

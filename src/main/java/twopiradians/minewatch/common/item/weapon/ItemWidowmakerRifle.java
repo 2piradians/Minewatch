@@ -94,7 +94,6 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			// venom mine
 			if (!world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				hero.ability1.keybind.setCooldown(player, 240, false); 
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 19, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);

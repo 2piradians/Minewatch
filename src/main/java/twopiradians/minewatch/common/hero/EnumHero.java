@@ -184,7 +184,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
 			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
 	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, true, false), 
-			new Ability(KeyBind.ABILITY_1, false, false, 2, 160), 
+			new Ability(KeyBind.ABILITY_1, true, false, 2, 160), 
 			new Ability(KeyBind.NONE, false, false), 
 			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, 
 			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),

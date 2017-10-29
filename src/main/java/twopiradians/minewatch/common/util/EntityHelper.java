@@ -27,7 +27,6 @@ import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
@@ -36,7 +35,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHelper {
-	//TODO move poseyes here and change all references to use it
+	
 	/**Copied from EntityThrowable*/
 	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
 		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
@@ -91,7 +90,7 @@ public class EntityHelper {
 			float fovSettings = Minewatch.keys.fov((EntityPlayer)shooter)-70f;
 			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
 			horizontalAdjust += fov / 80f;
-			verticalAdjust += fov / 4f;
+			verticalAdjust += fov / 5f;
 		}
 
 		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
@@ -284,7 +283,7 @@ public class EntityHelper {
 				}
 				else
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
-				
+
 				return damaged;
 			}
 		}
@@ -317,7 +316,7 @@ public class EntityHelper {
 	/**Get block that shooter is looking at within distance blocks - modified from Entity#rayTrace*/
 	@Nullable
 	public static RayTraceResult getMouseOverBlock(EntityLivingBase shooter, double distance, float pitch, float yawHead) {
-		Vec3d vec3d = shooter.getPositionEyes(1);
+		Vec3d vec3d = getPositionEyes(shooter);
 		Vec3d vec3d1 = getLook(pitch, yawHead);
 		Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * distance, vec3d1.yCoord * distance, vec3d1.zCoord * distance);
 		return shooter.world.rayTraceBlocks(vec3d, vec3d2, false, true, true);
@@ -333,7 +332,7 @@ public class EntityHelper {
 		RayTraceResult result = null;
 		if (shooter != null) {
 			double d0 = distance - 1;
-			Vec3d vec3d = shooter.getPositionEyes(1);
+			Vec3d vec3d = getPositionEyes(shooter);
 			double d1 = d0;
 			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
@@ -407,6 +406,21 @@ public class EntityHelper {
 			f *= 1.0F - f1 * 0.15F;
 		}
 		return net.minecraftforge.client.ForgeHooksClient.getOffsetFOV(player, f);
+	}
+
+	/**Copied from {@link Entity#getPositionEyes(float)} to make public*/
+	public static Vec3d getPositionEyes(EntityLivingBase entity) {
+		float partialTicks = Minewatch.proxy.getRenderPartialTicks(); 
+		if (entity == null)
+			return Vec3d.ZERO;
+		else if (partialTicks == 1.0F)
+			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
+		else {
+			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
+			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
+			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
+			return new Vec3d(d0, d1, d2);
+		}
 	}
 
 }

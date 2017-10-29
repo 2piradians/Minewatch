@@ -60,7 +60,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				// sleep particles in overlay
 				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().player && player != null &&
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-					Vec3d eyes = player.getPositionEyes(Minecraft.getMinecraft().getRenderPartialTicks()).add(player.getLookVec());
+					Vec3d eyes = EntityHelper.getPositionEyes(player).add(player.getLookVec());
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.world, 
 							eyes.xCoord+player.world.rand.nextFloat()-0.5f, 
 							eyes.yCoord+player.world.rand.nextFloat()-0.5f, 

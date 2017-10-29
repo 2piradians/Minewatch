@@ -191,7 +191,7 @@ public class CommonProxy {
 	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
-	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
+	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
 		if (!world.isRemote) {
 			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
 
@@ -235,9 +235,9 @@ public class CommonProxy {
 								if (entity instanceof EntityLivingBase)
 									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
-								entity.motionX += d5 * d11;
-								entity.motionY += d7 * d11;
-								entity.motionZ += d9 * d11;
+								entity.motionX += d5 * d11 * (entity == exploder ? exploderKnockback : knockback);
+								entity.motionY += d7 * d11 * (entity == exploder ? exploderKnockback : knockback);
+								entity.motionZ += d9 * d11 * (entity == exploder ? exploderKnockback : knockback);
 								entity.velocityChanged = true;
 							}
 						}

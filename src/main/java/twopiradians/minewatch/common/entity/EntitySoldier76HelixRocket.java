@@ -80,7 +80,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 							0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
 				else {
 					Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-							1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true);
+							1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true, 0.4f, 0.4f);
 					this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 				}
 				this.setDead();

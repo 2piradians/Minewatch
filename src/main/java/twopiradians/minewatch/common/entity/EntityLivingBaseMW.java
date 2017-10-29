@@ -33,7 +33,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
 	public boolean isFriendly;
-	protected ArrayList<RayTraceResult.Type> ignoreImpacts = new ArrayList<RayTraceResult.Type>() {{add(RayTraceResult.Type.MISS);}};
+	public ArrayList<RayTraceResult.Type> ignoreImpacts = new ArrayList<RayTraceResult.Type>() {{add(RayTraceResult.Type.MISS);}};
 
 	public EntityLivingBaseMW(World worldIn) {
 		this(worldIn, null);
@@ -78,7 +78,8 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.onImpact(result);
 		}
 		else if (Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
-			if (this.hasNoGravity() || this instanceof EntityWidowmakerMine)
+			if (this.hasNoGravity() || this instanceof EntityWidowmakerMine ||
+					this instanceof EntityJunkratMine)
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else
 				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);

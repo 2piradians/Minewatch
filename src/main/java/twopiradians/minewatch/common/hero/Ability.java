@@ -6,11 +6,11 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -28,7 +28,7 @@ public class Ability {
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
-	public HashMap<EntityPlayer, Entity> entities = Maps.newHashMap();
+	public HashMap<EntityLivingBase, Entity> entities = Maps.newHashMap();
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff

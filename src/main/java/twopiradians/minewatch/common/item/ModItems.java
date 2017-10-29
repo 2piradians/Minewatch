@@ -23,6 +23,7 @@ public class ModItems {
 	
 	public static Item wild_card_token;
 	public static Item genji_shuriken_single; // used for projectile
+	public static Item junkrat_trigger; // used with Junkrat's mine
 
 	public static void preInit () {
 		for (EnumHero hero : EnumHero.values()) {
@@ -47,6 +48,7 @@ public class ModItems {
 		
 		genji_shuriken_single = registerItem(new ItemGenjiShuriken(), "genji_shuriken_single", false, true);
 		((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;
+		junkrat_trigger = registerItem(new ItemJunkratTrigger(), "junkrat_trigger", false, true);
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, boolean addToTab, boolean usesObjModel) {

@@ -212,7 +212,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@Nullable
 	private Vec3d getTeleportPos(EntityPlayer player) {
 		try {
-			RayTraceResult result = player.world.rayTraceBlocks(player.getPositionEyes(1), 
+			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);

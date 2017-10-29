@@ -49,9 +49,8 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 		// rotate / position based on attached block
 		if (entity.facing != null) {
 			Vec3i vec = entity.facing.getDirectionVec();
-			if (entity.facing == EnumFacing.DOWN) {
+			if (entity.facing == EnumFacing.DOWN) 
 				GlStateManager.rotate(180, 0, 0, 1);
-			}
 			else {
 				if (entity.facing == EnumFacing.UP)
 					GlStateManager.translate(0, -0.2f, 0);

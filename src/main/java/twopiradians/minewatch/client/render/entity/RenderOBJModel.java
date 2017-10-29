@@ -26,6 +26,7 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
@@ -81,11 +82,13 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 				lighter.setWorld(entity.world);
 				lighter.setState(Blocks.AIR.getDefaultState());
 				BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
-				if (entity instanceof EntityWidowmakerMine && ((EntityWidowmakerMine)entity).facing != null) {
+				EnumFacing facing = entity instanceof EntityWidowmakerMine ? ((EntityWidowmakerMine)entity).facing :
+					entity instanceof EntityJunkratMine ? ((EntityJunkratMine)entity).facing : null;
+				if (facing != null) {
 					pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
-					double adjustZ = ((EntityWidowmakerMine)entity).facing == EnumFacing.SOUTH ? -0.5d : 0;
-					double adjustX = ((EntityWidowmakerMine)entity).facing == EnumFacing.EAST ? -0.5d : 0;
-					pos = pos.add(adjustX, 0, adjustZ).offset(((EntityWidowmakerMine)entity).facing.getOpposite());
+					double adjustZ = facing == EnumFacing.SOUTH ? -0.5d : 0;
+					double adjustX = facing == EnumFacing.EAST ? -0.5d : 0;
+					pos = pos.add(adjustX, 0, adjustZ).offset(facing.getOpposite());
 				}
 				lighter.setBlockPos(pos);
 

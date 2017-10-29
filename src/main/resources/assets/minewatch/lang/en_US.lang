@@ -95,6 +95,7 @@ item.junkrat_chestplate.name=Junkrat Chestplate
 item.junkrat_leggings.name=Junkrat Leggings
 item.junkrat_boots.name=Junkrat Boots
 item.junkrat_weapon.name=Junkrat's Frag Launcher
+item.junkrat_trigger.name=Junkrat's Concussion Mine Trigger
 
 item.sombra_token.name=Sombra Token
 item.sombra_helmet.name=Sombra Helmet
@@ -124,6 +125,7 @@ entity.mercy_bullet.name=Mercy Bullet
 entity.mercy_beam.name=Mercy Beam
 entity.junkrat_grenade.name=Junkrat Grenade
 entity.junkrat_trap.name=Junkrat Steel Trap
+entity.junkrat_mine.name=Junkrat Concussion Mine
 entity.widowmaker_bullet.name=Widowmaker Bullet
 entity.widowmaker_mine.name=Widowmaker Venom Mine
 entity.sombra_bullet.name=Sombra Bullet

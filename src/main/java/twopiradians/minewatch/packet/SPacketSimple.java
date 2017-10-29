@@ -31,6 +31,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
@@ -444,6 +445,10 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 29 && packetPlayer != null) {
 						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
 								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
+					}
+					// Junkrat's mine explosion
+					else if (packet.type == 30 && entity instanceof EntityJunkratMine) {
+						((EntityJunkratMine)entity).explode();
 					}
 				}
 			});

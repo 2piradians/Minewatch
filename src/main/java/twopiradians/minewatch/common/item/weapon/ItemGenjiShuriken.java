@@ -25,6 +25,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -39,6 +40,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -69,6 +72,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			return super.onRemove();
 		}
 	};
+	/**bool represents if a mob was killed while striking - to prevent setting cooldown*/
 	public static final Handler STRIKE = new Handler(Identifier.GENJI_STRIKE, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -122,7 +126,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		@Override
 		public Handler onRemove() {
 			player.resetActiveHand();
-			if (!player.world.isRemote)
+			if (!player.world.isRemote && !this.bool)
 				EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
 			return super.onRemove();
 		}
@@ -251,6 +255,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				((IThrowableEntity) entity).setThrower(player);
 			if (entity instanceof EntityMW)
 				((EntityMW)entity).lifetime *= 2;
+			if (entity instanceof EntityJunkratMine) {
+				((EntityJunkratMine)entity).ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
+				((EntityJunkratMine)entity).deflectTimer = 40;
+			}
 			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
 			if (data != null) 
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
@@ -275,10 +283,15 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	@SubscribeEvent
 	public void onKill(LivingDeathEvent event) {
 		// remove strike cooldown if killed by Genji
-		if (event.getEntityLiving() != null && !event.getEntityLiving().world.isRemote && 
+		if (event.getEntityLiving() != null && !(event.getEntityLiving() instanceof EntityLivingBaseMW) && 
+				!event.getEntityLiving().world.isRemote && 
 				event.getSource().getEntity() instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.entitiesWearingSets.get(event.getSource().getEntity()) == EnumHero.GENJI) 
+				ItemMWArmor.SetManager.entitiesWearingSets.get(event.getSource().getEntity().getPersistentID()) == EnumHero.GENJI) {
 			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getEntity(), 0, false);
+			Handler handler = TickHandler.getHandler(event.getSource().getEntity(), Identifier.GENJI_STRIKE);
+			if (handler != null)
+				handler.setBoolean(true);
+		}
 	}
 
 }

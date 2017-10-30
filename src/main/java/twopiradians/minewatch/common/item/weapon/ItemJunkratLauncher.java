@@ -50,13 +50,13 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
-			
+
 			// give trigger if mine active and offhand is empty
 			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand() == ItemStack.EMPTY) && 
 					hero.ability2.entities.containsKey(entity) && 
 					hero.ability2.entities.get(entity).isEntityAlive())
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
-			
+
 			// trigger mine
 			if (!world.isRemote && Keys.KeyBind.RMB.isKeyDown(player) &&
 					hero.ability2.entities.containsKey(entity) && 
@@ -87,19 +87,20 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			}
 			// mine
 			else if (!world.isRemote && hero.ability2.isSelected(player) && 
-						this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.keybind.setCooldown(player, 16, false); //TODO 
 				//hero.ability2.subtractUse(player); TODO
 				EntityJunkratMine mine = new EntityJunkratMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
-				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				world.playSound(null, player.getPosition(), ModSoundEvents.junkratMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				Entity entity2 = hero.ability2.entities.get(player);
 				if (entity2 instanceof EntityJunkratMine && entity2.isEntityAlive()) 
 					entity2.isDead = true;
 				hero.ability2.entities.put(player, mine);
-				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+				if (world.rand.nextBoolean())
+					Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			}
 		}
 	}	

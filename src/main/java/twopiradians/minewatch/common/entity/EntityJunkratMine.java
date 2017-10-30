@@ -2,6 +2,9 @@ package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
@@ -17,6 +20,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityJunkratMine extends EntityLivingBaseMW {
 
+	private static final DataParameter<Integer> FACING = EntityDataManager.<Integer>createKey(EntityJunkratMine.class, DataSerializers.VARINT);
 	public EnumFacing facing;
 	private boolean prevOnGround;
 	// TODO test with genji deflect
@@ -36,7 +40,31 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 1D*Config.damageScale));
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 50D*Config.damageScale));
+	}
+
+	@Override
+	public void notifyDataManagerChange(DataParameter<?> key) {
+		super.notifyDataManagerChange(key);
+
+		// set facing / onGround on client 
+		if (key.getId() == FACING.getId()) {
+			int facing = this.dataManager.get(FACING);
+			if (facing >= 0 && facing < EnumFacing.VALUES.length) {
+				this.facing = EnumFacing.values()[facing];
+				this.onGround = true;
+			}
+			else {
+				this.facing = null;
+				this.onGround = false;
+			}
+		}
+	}
+
+	@Override
+	protected void entityInit() {
+		super.entityInit();
+		this.getDataManager().register(FACING, -1);
 	}
 
 	@Override
@@ -46,27 +74,36 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	}
 
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {	
 		// set rotation on ground
 		if (this.onGround) {
 			this.rotationPitch = 0;
 			this.rotationYaw = 0;
+			this.motionX = 0;
+			this.motionY = 0;
+			this.motionZ = 0;
 		}
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) 
-			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratMineLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
 		this.prevOnGround = this.onGround;
 
 		// check if not attached
-		if (this.onGround && this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) 
+		if (!this.world.isRemote && this.onGround && 
+				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) {
 			this.onGround = false;
-		else if (!this.onGround)
+			this.facing = null;
+			this.dataManager.set(FACING, -1);
+		}
+		else if (!this.onGround) 
 			this.motionY -= 0.03D;
 
 		// explode automatically if deflected
 		if (--this.deflectTimer == 0)
 			this.explode();
+
+		//System.out.println("update: "+this.getPositionVector());
 
 		super.onUpdate();
 	}
@@ -75,10 +112,9 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	protected void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			this.onGround = true;
-			this.motionX = 0;
-			this.motionY = 0;
-			this.motionZ = 0;
 			this.facing = result.sideHit.getOpposite();
+			if (!this.world.isRemote) 
+				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
 		}
 		else if (result.typeOfHit == RayTraceResult.Type.ENTITY && this.deflectTimer >= 0 &&
@@ -92,7 +128,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, 
 					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
 					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 40, 40, 0, 0);
-			this.world.playSound(this.posX, this.posY, this.posZ, ModSoundEvents.junkratGrenadeExplode, 
+			this.world.playSound(this.posX, this.posY, this.posZ, ModSoundEvents.junkratMineExplode, 
 					SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 		}
 		else {

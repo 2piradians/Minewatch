@@ -30,19 +30,22 @@ public class ItemJunkratTrigger extends Item {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		if (!world.isRemote)
+		if (!world.isRemote) {
 			// if not wearing full set, mine is dead, or main is not junkrat's launcher
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
-			(ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) != EnumHero.JUNKRAT ||
-			EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
-			((EntityLivingBase)entity).getHeldItemMainhand() == null || 
-			((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) 
+					(ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) != EnumHero.JUNKRAT ||
+					EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
+					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) {
 				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
-		// if not in offhand
+			}
+			// if not in offhand
 			else if (entity instanceof EntityPlayer && 
 					((EntityPlayer)entity).getHeldItemOffhand() != stack &&
-					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) 
+					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+			}
+		}
 	}
 
 	@Override

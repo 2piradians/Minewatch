@@ -6,6 +6,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
@@ -26,6 +29,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
+	private static final DataParameter<Integer> FACING = EntityDataManager.<Integer>createKey(EntityWidowmakerMine.class, DataSerializers.VARINT);
 	public EnumFacing facing;
 	private boolean prevOnGround;
 	public static final Handler POISONED = new Handler(Identifier.WIDOWMAKER_POISON, false) {
@@ -76,6 +80,30 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	}
 
 	@Override
+	public void notifyDataManagerChange(DataParameter<?> key) {
+		super.notifyDataManagerChange(key);
+
+		// set facing / onGround on client 
+		if (key.getId() == FACING.getId()) {
+			int facing = this.dataManager.get(FACING);
+			if (facing >= 0 && facing < EnumFacing.VALUES.length) {
+				this.facing = EnumFacing.values()[facing];
+				this.onGround = true;
+			}
+			else {
+				this.facing = null;
+				this.onGround = false;
+			}
+		}
+	}
+
+	@Override
+	protected void entityInit() {
+		super.entityInit();
+		this.getDataManager().register(FACING, -1);
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance){
 		return distance < 2000;
@@ -87,6 +115,9 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		if (this.onGround) {
 			this.rotationPitch = 0;
 			this.rotationYaw = 0;
+			this.motionX = 0;
+			this.motionY = 0;
+			this.motionZ = 0;
 		}
 		else
 			EntityHelper.spawnTrailParticles(this, 5, 0, 0x873BCF, 0x52308F, 1, 8, 0.4f);
@@ -101,8 +132,12 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		this.prevOnGround = this.onGround;
 
 		// check if not attached
-		if (this.onGround && this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) 
+		if (!this.world.isRemote && this.onGround && 
+				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) {
 			this.onGround = false;
+			this.facing = null;
+			this.dataManager.set(FACING, -1);		
+		}
 		else if (!this.onGround)
 			this.motionY -= 0.03D;
 
@@ -136,10 +171,9 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	protected void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			this.onGround = true;
-			this.motionX = 0;
-			this.motionY = 0;
-			this.motionZ = 0;
 			this.facing = result.sideHit.getOpposite();
+			if (!this.world.isRemote) 
+				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
 		}
 	}

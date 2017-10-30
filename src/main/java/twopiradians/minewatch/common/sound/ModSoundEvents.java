@@ -90,6 +90,9 @@ public class ModSoundEvents {
 	public static SoundEvent widowmakerMineLand;
 	public static SoundEvent widowmakerMineTrigger;
 	public static SoundEvent widowmakerMineDestroyed;
+	public static SoundEvent junkratMineThrow;
+	public static SoundEvent junkratMineLand;
+	public static SoundEvent junkratMineExplode;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
@@ -180,6 +183,9 @@ public class ModSoundEvents {
 		widowmakerMineLand = registerSound("widowmaker_mine_land");
 		widowmakerMineTrigger = registerSound("widowmaker_mine_trigger");
 		widowmakerMineDestroyed = registerSound("widowmaker_mine_destroyed");
+		junkratMineThrow = registerSound("junkrat_mine_throw");
+		junkratMineLand = registerSound("junkrat_mine_land");
+		junkratMineExplode = registerSound("junkrat_mine_explode");
 	}
 
 	private static SoundEvent registerSound(String soundName) {

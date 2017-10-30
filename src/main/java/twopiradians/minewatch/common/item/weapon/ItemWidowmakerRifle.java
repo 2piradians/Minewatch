@@ -99,7 +99,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
-				hero.ability1.keybind.setCooldown(player, 300, false); 
+				hero.ability1.keybind.setCooldown(player, 30, false); //TODO
 				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
 						hero.ability1.entities.get(player).isEntityAlive()) 
 					hero.ability1.entities.get(player).isDead = true;

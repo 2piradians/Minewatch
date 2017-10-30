@@ -230,11 +230,14 @@ public class Keys {
 
 		if (main != null && main.getItem() instanceof ItemMWWeapon &&
 				player.isSneaking() && event.getDwheel() != 0 && 
-				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon) {
+				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
+				((ItemMWWeapon)main.getItem()).hero != EnumHero.BASTION) {
 			EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-			hero.playersUsingAlt.put(uuid, 
-					hero.playersUsingAlt.containsKey(uuid) ? !hero.playersUsingAlt.get(uuid) : true);
-			Minewatch.network.sendToServer(new CPacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(uuid), uuid));
+			if (hero.playersUsingAlt.contains(uuid))
+				hero.playersUsingAlt.remove(uuid);
+			else
+				hero.playersUsingAlt.add(uuid);
+			Minewatch.network.sendToServer(new CPacketSyncKeys("Alt Weapon", hero.playersUsingAlt.contains(uuid), uuid));
 			event.setCanceled(true);
 		}
 	}

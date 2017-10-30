@@ -80,7 +80,7 @@ public class EntityHelper {
 		// adjust based on hand
 		if (hand == null) {
 			horizontalAdjust = 0;
-			verticalAdjust = 10f;
+			verticalAdjust = 20f;
 		}
 		else if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;

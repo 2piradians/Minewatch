@@ -109,7 +109,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		boolean battleMercy = false;
 		if (stack.hasTagCompound()) {
 			UUID uuid = stack.getTagCompound().getUniqueId("player");
-			battleMercy = uuid != null && hero.playersUsingAlt.containsKey(uuid) && hero.playersUsingAlt.get(uuid);		
+			battleMercy = uuid != null && hero.playersUsingAlt.contains(uuid);		
 		}
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
 	}
@@ -123,8 +123,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-				hero.playersUsingAlt.get(player.getPersistentID())) {
+		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.contains(player.getPersistentID())) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);

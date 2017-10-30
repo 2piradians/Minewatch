@@ -30,11 +30,11 @@ public class CPacketSyncKeys implements IMessage
 	public CPacketSyncKeys(String keyName, boolean isKeyPressed, UUID player) {
 		this(keyName, isKeyPressed, 70f, player);
 	}
-	
+
 	public CPacketSyncKeys(String keyName, float fov, UUID player) {
 		this(keyName, false, fov, player);
 	}
-	
+
 	public CPacketSyncKeys(String keyName, boolean isKeyPressed, float fov, UUID player) {
 		this.keyName = keyName;
 		this.isKeyPressed = isKeyPressed;
@@ -86,7 +86,10 @@ public class CPacketSyncKeys implements IMessage
 						ItemStack main = player.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-							hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
+							if (!packet.isKeyPressed)
+								hero.playersUsingAlt.remove(packet.player);
+							else if (!hero.playersUsingAlt.contains(packet.player))
+								hero.playersUsingAlt.add(packet.player);
 							Minewatch.network.sendToAll(new SPacketSimple(6, packet.isKeyPressed, player));
 						}
 					}

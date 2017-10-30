@@ -149,10 +149,10 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
 			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
 			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
-	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false), 
-			new Ability(KeyBind.ABILITY_1, false, false), 
+	BASTION("Bastion", true, new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
+			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
 			new Skin("Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
@@ -202,7 +202,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
 			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/"));
 
-	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
+	public ArrayList<UUID> playersUsingAlt = new ArrayList<UUID>();
 
 	public Ability ability1;
 	public Ability ability2;
@@ -287,7 +287,10 @@ public enum EnumHero {
 		this.name = name;
 		this.hasAltWeapon = hasAltWeapon;
 		if (this.hasAltWeapon)
-			this.altWeaponIndex = IndexCounter.index++;
+			if (name.equals("Bastion"))
+				this.altWeaponIndex = 19;
+			else
+				this.altWeaponIndex = IndexCounter.index++;
 		this.ability1 = ability1;
 		this.ability2 = ability2;
 		this.ability3 = ability3;
@@ -574,7 +577,7 @@ public enum EnumHero {
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
+						int index = weapon.hero.playersUsingAlt.contains(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 						int vertical = 11;
 						// weapon
@@ -752,7 +755,7 @@ public enum EnumHero {
 			else if (event.getSource().getSourceOfDamage() instanceof IThrowableEntity && 
 					((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower() instanceof EntityPlayerMP)
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
-			
+
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
 				if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) != null) {
 					try {

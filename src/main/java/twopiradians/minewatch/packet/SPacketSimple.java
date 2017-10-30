@@ -220,7 +220,10 @@ public class SPacketSimple implements IMessage {
 						ItemStack main = packetPlayer.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-							hero.playersUsingAlt.put(packet.uuid, packet.bool);
+							if (packet.bool && !hero.playersUsingAlt.contains(packet.uuid))
+								hero.playersUsingAlt.add(packet.uuid);
+							else if (!packet.bool)
+								hero.playersUsingAlt.remove(packet.uuid);
 							if (ItemStack.areItemsEqualIgnoreDurability(main, packetPlayer.getHeldItemOffhand()))
 								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
 										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
@@ -449,6 +452,13 @@ public class SPacketSimple implements IMessage {
 					// Junkrat's mine explosion
 					else if (packet.type == 30 && entity instanceof EntityJunkratMine) {
 						((EntityJunkratMine)entity).explode();
+					}
+					// Bastion's reconfigure
+					else if (packet.type == 31 && packetPlayer != null) {
+						if (!packet.bool)
+							EnumHero.BASTION.playersUsingAlt.remove(packetPlayer.getPersistentID());
+						else if (!EnumHero.BASTION.playersUsingAlt.contains(packetPlayer.getPersistentID()))
+							EnumHero.BASTION.playersUsingAlt.add(packetPlayer.getPersistentID());
 					}
 				}
 			});

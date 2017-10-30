@@ -47,6 +47,7 @@ public class ModSoundEvents {
 	public static SoundEvent soldier76Shoot;
 	public static SoundEvent soldier76Helix;
 	public static SoundEvent bastionShoot;
+	public static SoundEvent bastionReload;
 	public static SoundEvent bastionTurretReload;
 	public static SoundEvent meiShoot;
 	public static SoundEvent meiIcicleShoot;
@@ -139,6 +140,7 @@ public class ModSoundEvents {
 		soldier76Shoot = registerSound("soldier76_shoot");
 		soldier76Helix = registerSound("soldier76_helix");
 		bastionShoot = registerSound("bastion_shoot");
+		bastionReload = EnumHero.BASTION.reloadSound;
 		bastionTurretReload = registerSound("bastion_reload_1");
 		meiShoot = registerSound("mei_shoot_0");
 		meiIcicleShoot = registerSound("mei_shoot_1");

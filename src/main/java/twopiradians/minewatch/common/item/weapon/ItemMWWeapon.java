@@ -58,16 +58,18 @@ public abstract class ItemMWWeapon extends Item {
 	}
 
 	public int getMaxAmmo(EntityPlayer player) {
-		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-				hero.playersUsingAlt.get(player.getPersistentID()))
+		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.contains(player.getPersistentID()))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
 	}
 
 	public int getCurrentAmmo(EntityPlayer player) {
-		if (player != null && currentAmmo.containsKey(player.getPersistentID()))
+		if (player != null && currentAmmo.containsKey(player.getPersistentID())) {
+			if (currentAmmo.get(player.getPersistentID()) > getMaxAmmo(player))
+				currentAmmo.put(player.getPersistentID(), getMaxAmmo(player));
 			return currentAmmo.get(player.getPersistentID());
+		}
 		else
 			return getMaxAmmo(player);
 	}
@@ -83,7 +85,7 @@ public abstract class ItemMWWeapon extends Item {
 				for (EnumHand hand2 : hands)
 					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) 
 						this.reequipAnimation.put(player.getHeldItem(hand2), 2);
-			currentAmmo.put(player.getPersistentID(), amount);
+			currentAmmo.put(player.getPersistentID(), Math.min(amount, getMaxAmmo(player)));
 		}
 	}
 

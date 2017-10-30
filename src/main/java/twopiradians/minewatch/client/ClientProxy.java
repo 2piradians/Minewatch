@@ -232,8 +232,9 @@ public class ClientProxy extends CommonProxy {
 			else if (item == EnumHero.BASTION.weapon) {
 				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
 					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean turret = false;
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
+						boolean turret = player != null && EnumHero.BASTION.playersUsingAlt.contains(player.getPersistentID());
 						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (turret ? "_1_3d" : "_0_3d"), "inventory");
 					}
 				});

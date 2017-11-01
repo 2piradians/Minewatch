@@ -87,13 +87,21 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 			return super.onServerTick();
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
+			Handler handler = TickHandler.getHandler(entity, Identifier.ABILITY_USING);
+			if (handler != null && handler.ability == EnumHero.SOMBRA.ability3 && entity != null)
+				TickHandler.unregister(entity.world.isRemote, handler);
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
 			EnumHero.SOMBRA.ability3.keybind.setCooldown(player, 120, false); 
 			Handler handler = TickHandler.getHandler(entity, Identifier.ABILITY_USING);
 			if (handler != null && handler.ability == EnumHero.SOMBRA.ability3 && entity != null)
 				TickHandler.unregister(entity.world.isRemote, handler);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
 

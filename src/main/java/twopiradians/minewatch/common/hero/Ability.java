@@ -37,7 +37,7 @@ public class Ability {
 	public HashMap<UUID, Integer> multiAbilityUses = Maps.newHashMap();
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			if (!player.world.isRemote) {
 				UUID uuid = player.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
@@ -52,7 +52,7 @@ public class Ability {
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
 									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
 			}
-			return this.ticksLeft <= 0 ? super.onRemove() : null;
+			return this.ticksLeft <= 0 ? super.onServerRemove() : null;
 		}
 	};
 

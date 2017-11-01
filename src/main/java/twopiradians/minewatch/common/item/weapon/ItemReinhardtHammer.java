@@ -19,7 +19,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
@@ -87,6 +89,26 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	@Override
 	public boolean canHarvestBlock(IBlockState state, ItemStack stack) {
 		return false;
+	}
+	
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, world, entity, slot, isSelected);
+		
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+
+			// fire strike
+			if (!world.isRemote && hero.ability2.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				EntityReinhardtStrike strike = new EntityReinhardtStrike(world, player);
+				EntityHelper.setAim(strike, player, player.rotationPitch, player.rotationYaw, (26.66f) * 1f, 0, null, 60, 0);
+				world.spawnEntity(strike);
+				//Minewatch.network.sendToAll(new SPacketSimple(31, turret, player));
+				hero.ability2.keybind.setCooldown(player, 12, false); //TODO
+			}
+
+		}
 	}
 
 }

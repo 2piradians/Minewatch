@@ -24,6 +24,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public static final DataParameter<Integer> HAND = EntityDataManager.<Integer>createKey(EntityMW.class, DataSerializers.VARINT);
+	public boolean ignoreMoveToEntity;
 	public boolean notDeflectible;
 	public int lifetime;
 	private EntityLivingBase thrower;

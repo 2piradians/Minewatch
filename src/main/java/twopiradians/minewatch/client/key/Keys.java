@@ -42,15 +42,16 @@ public class Keys {
 		public Identifier identifier;
 		public ArrayList<UUID> silentRecharge = new ArrayList<UUID>();
 		public final Handler COOLDOWNS = new Handler(identifier, false) {
+			@SideOnly(Side.CLIENT)
 			@Override
-			public Handler onRemove() {
-				if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
+			public Handler onClientRemove() {
+				if (player == Minewatch.proxy.getClientPlayer() && player != null) {
 					if (silentRecharge.contains(player.getPersistentID()))
 						silentRecharge.remove(player.getPersistentID());
 					else
 						player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 				}
-				return super.onRemove();
+				return super.onClientRemove();
 			}
 		};
 		public final Handler ABILITY_NOT_READY = new Handler(Identifier.KEYBIND_ABILITY_NOT_READY, false) {};

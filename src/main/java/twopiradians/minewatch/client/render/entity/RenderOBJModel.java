@@ -27,6 +27,7 @@ import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo;
 import twopiradians.minewatch.common.entity.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
@@ -65,7 +66,7 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.pushMatrix();
 			GlStateManager.shadeModel(GL11.GL_SMOOTH);
-			GlStateManager.disableBlend();
+			GlStateManager.enableBlend();
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
 			Tessellator tessellator = Tessellator.getInstance();
@@ -77,10 +78,11 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks, 0.0F, 1.0F, 0.0F);
 			if (this.preRender(entity, i, buffer, x, y, z, entityYaw, partialTicks)) {
 				GlStateManager.rotate(-(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks), 1.0F, 0.0F, 0.0F);
-
+				
 				lighter.setParent(new VertexBufferConsumer(buffer));
 				lighter.setWorld(entity.world);
 				lighter.setState(Blocks.AIR.getDefaultState());
+				
 				BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
 				EnumFacing facing = entity instanceof EntityWidowmakerMine ? ((EntityWidowmakerMine)entity).facing :
 					entity instanceof EntityJunkratMine ? ((EntityJunkratMine)entity).facing : null;
@@ -90,6 +92,8 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 					double adjustX = facing == EnumFacing.EAST ? -0.5d : 0;
 					pos = pos.add(adjustX, 0, adjustZ).offset(facing.getOpposite());
 				}
+				else if (entity instanceof EntityReinhardtStrike)
+					pos = pos.add(0, 255, 0);
 				lighter.setBlockPos(pos);
 
 				boolean empty = true;

@@ -46,7 +46,8 @@ public class ModSoundEvents {
 	public static SoundEvent mccreeRoll;
 	public static SoundEvent soldier76Shoot;
 	public static SoundEvent soldier76Helix;
-	public static SoundEvent bastionShoot;
+	public static SoundEvent bastionShoot0;
+	public static SoundEvent bastionShoot1;
 	public static SoundEvent bastionReload;
 	public static SoundEvent bastionTurretReload;
 	public static SoundEvent meiShoot;
@@ -94,6 +95,10 @@ public class ModSoundEvents {
 	public static SoundEvent junkratMineThrow;
 	public static SoundEvent junkratMineLand;
 	public static SoundEvent junkratMineExplode;
+	public static SoundEvent bastionReconfigure0;
+	public static SoundEvent bastionReconfigure1;
+	public static SoundEvent meiCrystalStart;
+	public static SoundEvent meiCrystalStop;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
@@ -139,7 +144,6 @@ public class ModSoundEvents {
 		mccreeRoll = registerSound("mccree_roll");
 		soldier76Shoot = registerSound("soldier76_shoot");
 		soldier76Helix = registerSound("soldier76_helix");
-		bastionShoot = registerSound("bastion_shoot");
 		bastionReload = EnumHero.BASTION.reloadSound;
 		bastionTurretReload = registerSound("bastion_reload_1");
 		meiShoot = registerSound("mei_shoot_0");
@@ -188,6 +192,12 @@ public class ModSoundEvents {
 		junkratMineThrow = registerSound("junkrat_mine_throw");
 		junkratMineLand = registerSound("junkrat_mine_land");
 		junkratMineExplode = registerSound("junkrat_mine_explode");
+		bastionShoot0 = registerSound("bastion_shoot_0");
+		bastionShoot1 = registerSound("bastion_shoot_1");
+		bastionReconfigure0 = registerSound("bastion_reconfigure_0");
+		bastionReconfigure1 = registerSound("bastion_reconfigure_1");
+		meiCrystalStart = registerSound("mei_crystal_start");
+		meiCrystalStop = registerSound("mei_crystal_stop");
 	}
 
 	private static SoundEvent registerSound(String soundName) {

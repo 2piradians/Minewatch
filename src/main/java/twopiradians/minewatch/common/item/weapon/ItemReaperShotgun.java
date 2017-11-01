@@ -97,12 +97,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 
 		@Override
-		public Handler onRemove() {
-			if (!player.world.isRemote) {
-				EnumHero.REAPER.ability2.keybind.setCooldown(player, 160, false);
-				player.hurtResistantTime = 0;
-			}
-			return super.onRemove();
+		public Handler onServerRemove() {
+			EnumHero.REAPER.ability2.keybind.setCooldown(player, 160, false);
+			player.hurtResistantTime = 0;
+			return super.onServerRemove();
 		}
 	};
 
@@ -167,13 +165,18 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			return super.onServerTick();
 		}
 
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
-			if (player.world.isRemote && this.ticksLeft != -1) 
+		public Handler onClientRemove() {
+			if (this.ticksLeft != -1) 
 				EnumHero.REAPER.ability1.toggle(player, false);
-			else if (!player.world.isRemote)
-				EnumHero.REAPER.ability1.keybind.setCooldown(player, 200, false); 
-			return super.onRemove();
+			return super.onClientRemove();
+		}
+
+		@Override
+		public Handler onServerRemove() {
+			EnumHero.REAPER.ability1.keybind.setCooldown(player, 200, false); 
+			return super.onServerRemove();
 		}
 	};
 

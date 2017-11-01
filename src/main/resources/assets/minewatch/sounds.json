@@ -304,10 +304,16 @@
 			"minewatch:soldier76_helix"
 		]
 	},
-	"bastion_shoot": {
+	"bastion_shoot_0": {
 		"category": "player",
 		"sounds": [
-			"minewatch:bastion_shoot"
+			"minewatch:bastion_shoot_0"
+		]
+	},
+	"bastion_shoot_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_shoot_1"
 		]
 	},
 	"bastion_reload_0": {
@@ -320,6 +326,18 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:bastion_reload_1"
+		]
+	},
+	"bastion_reconfigure_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reconfigure_0"
+		]
+	},
+	"bastion_reconfigure_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reconfigure_1"
 		]
 	},
 	"mei_shoot_0": {
@@ -350,6 +368,18 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:mei_unfreeze"
+		]
+	},
+	"mei_crystal_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_crystal_start"
+		]
+	},
+	"mei_crystal_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_crystal_stop"
 		]
 	},
 	"widowmaker_shoot_0": {

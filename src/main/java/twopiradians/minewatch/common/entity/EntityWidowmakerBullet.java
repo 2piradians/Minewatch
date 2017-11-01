@@ -33,7 +33,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
-				0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0, hand, 4, 0.4f);
+				0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0, hand, hand == null ? 10 : 4, hand == null ? 0 : 0.4f);
 	}
 
 	@Override

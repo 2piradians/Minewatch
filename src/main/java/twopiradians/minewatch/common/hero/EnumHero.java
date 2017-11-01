@@ -121,7 +121,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
 			new Skin(TextFormatting.GOLD+"Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/")),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false), 
-			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, false, true), 
 			0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, 
 			new Skin("Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
@@ -149,7 +149,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
 			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
 			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
-	BASTION("Bastion", true, new Ability(KeyBind.ABILITY_2, false, false), 
+	BASTION("Bastion", true, new Ability(KeyBind.RMB, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
@@ -159,7 +159,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.DARK_PURPLE+"Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
 			new Skin(TextFormatting.GOLD+"Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, false), 
-			new Ability(KeyBind.ABILITY_1, false, true), 
+			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
 			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, 
 			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "mareridt", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
@@ -471,6 +471,21 @@ public enum EnumHero {
 							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 						}
 					}
+					
+					// mei's crystal cancel overlay
+					if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
+						GlStateManager.pushMatrix();
+						GlStateManager.enableBlend();
+
+						double scale = 0.8d*Config.guiScale;
+						GlStateManager.scale(scale, scale, 1);
+						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/mei_crystal.png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+
+						GlStateManager.disableBlend();
+						GlStateManager.popMatrix();
+					}
 
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
@@ -531,6 +546,7 @@ public enum EnumHero {
 							GlStateManager.popMatrix();
 						}
 					}
+					
 					if (Config.customCrosshairs)
 						event.setCanceled(true);
 				}

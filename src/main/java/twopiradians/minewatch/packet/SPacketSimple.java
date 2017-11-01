@@ -38,9 +38,11 @@ import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
+import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
@@ -457,8 +459,33 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 31 && packetPlayer != null) {
 						if (!packet.bool)
 							EnumHero.BASTION.playersUsingAlt.remove(packetPlayer.getPersistentID());
-						else if (!EnumHero.BASTION.playersUsingAlt.contains(packetPlayer.getPersistentID()))
+						else if (!EnumHero.BASTION.playersUsingAlt.contains(packetPlayer.getPersistentID())) 
 							EnumHero.BASTION.playersUsingAlt.add(packetPlayer.getPersistentID());
+						if (packet.bool) {
+							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(packetPlayer).setTicks(10));
+							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else
+							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure0, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+					}
+					// Mei's cryo-freeze
+					else if (packet.type == 32 && entity != null) {
+						if (packet.bool) {
+							if (entity == player) 
+								ItemMeiBlaster.thirdPersonView = Minecraft.getMinecraft().gameSettings.thirdPersonView;
+							TickHandler.register(true, ItemMeiBlaster.CRYSTAL.setEntity(player).setTicks(80),
+									Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80),
+									Handlers.PREVENT_INPUT.setEntity(player).setTicks(80),
+									Handlers.PREVENT_ROTATION.setEntity(player).setTicks(80),
+									Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(EnumHero.MEI.ability2));
+							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else 
+							TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
+									TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(player, Identifier.PREVENT_INPUT),
+									TickHandler.getHandler(player, Identifier.PREVENT_ROTATION),
+									TickHandler.getHandler(player, Identifier.ABILITY_USING));
 					}
 				}
 			});

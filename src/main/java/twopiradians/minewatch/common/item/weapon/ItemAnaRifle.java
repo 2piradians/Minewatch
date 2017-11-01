@@ -119,8 +119,9 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
 						hero.playersUsingAlt.contains(player.getPersistentID()));
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, player.getActiveItemStack() == stack ? -1f : 90f, 0,  
-						Minewatch.keys.rmb(player) ? null : hand, 9, 0.27f);
+				boolean scoped = isScoped(player, stack);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
+						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 

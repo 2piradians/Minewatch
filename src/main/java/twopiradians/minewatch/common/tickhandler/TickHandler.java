@@ -28,7 +28,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -55,7 +55,7 @@ public class TickHandler {
 				if (handler != null) {
 					CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 					try {
-						handlerList.remove(handler.onRemove());
+						handlerList.remove(Minewatch.proxy.onHandlerRemove(isRemote, handler));
 					}
 					catch (Exception e) {
 						handlerList.remove(handler);
@@ -196,7 +196,14 @@ public class TickHandler {
 		}
 
 		/**Called before the handler is removed*/
-		public Handler onRemove() {
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			this.bool = false;
+			return this;
+		}
+		
+		/**Called before the handler is removed*/
+		public Handler onServerRemove() {
 			this.bool = false;
 			return this;
 		}

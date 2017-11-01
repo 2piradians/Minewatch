@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.entity;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -53,12 +54,13 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 				this.entity.hurtResistantTime = 0;
 			return super.onServerTick();
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			if (this.entity != null && this.entityLiving != null &&
-					this.entityLiving == Minewatch.proxy.getClientPlayer() && this.entityLiving.world.isRemote)
+					this.entityLiving == Minecraft.getMinecraft().player)
 				entity.setGlowing(false);
-			return super.onRemove();
+			return super.onClientRemove();
 		}
 	};
 

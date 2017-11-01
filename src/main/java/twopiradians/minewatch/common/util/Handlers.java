@@ -42,10 +42,16 @@ public class Handlers {
 				player.setActiveHand(EnumHand.MAIN_HAND);
 			return super.onClientTick();
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			player.resetActiveHand();
-			return this;
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			player.resetActiveHand();
+			return super.onServerRemove();
 		}
 	};
 
@@ -65,9 +71,9 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			rotations.remove(entityLiving);
-			return this;
+			return super.onServerRemove();
 		}
 	};
 
@@ -155,11 +161,13 @@ public class Handlers {
 		// prevent clicking / scrolling
 		if ((event.getDx() != 0 || event.getDy() != 0 ||
 				event.isButtonstate() || event.getDwheel() != 0) && player != null && 
-				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT))
+				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) && 
+				!(TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL) && event.getButton() != -1)) {
 			event.setCanceled(true);
+		}
 	}
 
-	/**Prevents attacking, using abilities, clicking, and scrolling*/
+	/**Prevents attacking, using abilities, clicking, reloading, and scrolling*/
 	public static final Handler PREVENT_INPUT = new Handler(Identifier.PREVENT_INPUT, true) {};
 
 	@SubscribeEvent
@@ -204,11 +212,11 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			// remove slowness
-			if (this.entityLiving != null && !this.entityLiving.world.isRemote)
+			if (this.entityLiving != null)
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
 

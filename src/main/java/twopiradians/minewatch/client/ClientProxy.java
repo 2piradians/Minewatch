@@ -60,8 +60,10 @@ import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderJunkratMine;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
+import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
+import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.common.CommonProxy;
@@ -78,10 +80,12 @@ import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.EntitySombraBullet;
@@ -329,6 +333,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiCrystal.class, RenderMeiCrystal::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerMine.class, RenderWidowmakerMine::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
@@ -338,6 +343,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratMine.class, RenderJunkratMine::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraBullet.class, new RenderFactory(new Color(0xFFF1F1), 1, 1, 2));
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraTranslocator.class, RenderSombraTranslocator::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 	}
 
 	@Override
@@ -360,11 +366,14 @@ public class ClientProxy extends CommonProxy {
 					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
 		}
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_crystal"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_trap"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_mine"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_blue"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/sombra_translocator"));
+		for (int i=0; i<6; ++i)
+			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
 	}
 
 	@Override
@@ -477,5 +486,10 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openWildCardGui() {
 		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+	}
+
+	@Override
+	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
+		return isRemote ? handler.onClientRemove() : handler.onServerRemove();
 	}
 }

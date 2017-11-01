@@ -46,6 +46,7 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.CPacketSimple;
@@ -252,4 +253,8 @@ public class CommonProxy {
 	}
 
 	public void openWildCardGui() {}
+
+	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
+		return handler.onServerRemove();
+	}
 }

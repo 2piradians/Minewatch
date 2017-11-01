@@ -67,9 +67,9 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			EnumHero.GENJI.ability1.keybind.setCooldown(player, 160, false);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
 	/**bool represents if a mob was killed while striking - to prevent setting cooldown*/
@@ -122,13 +122,18 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 						entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
 		}
-
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			player.resetActiveHand();
-			if (!player.world.isRemote && !this.bool)
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			player.resetActiveHand();
+			if (!this.bool)
 				EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
 

@@ -187,7 +187,7 @@ public abstract class ItemMWWeapon extends Item {
 
 		// reloading
 		if (!world.isRemote && entity instanceof EntityPlayer && (((EntityPlayer)entity).getHeldItemMainhand() == stack ||
-				((EntityPlayer)entity).getHeldItemOffhand() == stack))
+				((EntityPlayer)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
 			// automatic reload
 			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
 			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))

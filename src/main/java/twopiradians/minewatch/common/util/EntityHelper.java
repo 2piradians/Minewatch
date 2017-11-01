@@ -38,34 +38,32 @@ public class EntityHelper {
 	
 	/**Copied from EntityThrowable*/
 	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
-		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
+		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY+entityIn.height/2d, entityIn.posZ);
+		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY+entityIn.height/2d + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
 		RayTraceResult raytraceresult = entityIn.world.rayTraceBlocks(vec3d, vec3d1, false, true, true);
-		vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-		vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
 
 		if (raytraceresult != null)
 			vec3d1 = new Vec3d(raytraceresult.hitVec.xCoord, raytraceresult.hitVec.yCoord, raytraceresult.hitVec.zCoord);
 
 		Entity entity = null;
-		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, entityIn.getEntityBoundingBox().addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ).expandXyz(1.0D));
+		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, entityIn.getEntityBoundingBox().addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ));
 		double d0 = 0.0D;
 
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity1 = (Entity)list.get(i);
 
 			if (entity1.canBeCollidedWith() && shouldHit(thrower, entity1, friendly)) {
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox();
-				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
-
-				if (raytraceresult1 != null) {
-					double d1 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
+				//AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox();
+				//RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+//TODO allow moving after impact if not dead?
+				//if (raytraceresult1 != null) {
+					double d1 = entityIn.getDistanceSqToEntity(entity1);//vec3d.squareDistanceTo(raytraceresult1.hitVec);
 
 					if (d1 < d0 || d0 == 0.0D) {
 						entity = entity1;
 						d0 = d1;
 					}
-				}
+				//}
 			}
 		}
 
@@ -76,11 +74,11 @@ public class EntityHelper {
 	}
 
 	/**Get the position that an entity should be thrown/shot from*/ 
-	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		// adjust based on hand
 		if (hand == null) {
-			horizontalAdjust = 0;
-			verticalAdjust = 20f;
+			//horizontalAdjust = 0;
+			//verticalAdjust = 20f;
 		}
 		else if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
@@ -102,7 +100,7 @@ public class EntityHelper {
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
@@ -244,7 +242,7 @@ public class EntityHelper {
 
 	/**Move projectile to where it would collide with the entityHit - for fixing particles on impact*/
 	public static void moveToEntityHit(Entity projectile, Entity entityHit) {
-		if (projectile != null && entityHit != null && 
+		if (projectile != null && entityHit != null && !(projectile instanceof EntityMW && ((EntityMW)projectile).ignoreMoveToEntity) &&
 				!projectile.getEntityBoundingBox().intersectsWith(entityHit.getEntityBoundingBox())) {
 			Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
 			Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);

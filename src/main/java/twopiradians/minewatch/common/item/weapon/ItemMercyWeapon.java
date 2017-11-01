@@ -55,7 +55,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (entity == null || position == null)
 				return true;
-			
+
 			entity.fallDistance = 0;
 			entity.motionX = (position.xCoord - entity.posX)/10;
 			entity.motionY = (position.yCoord - entity.posY)/10;
@@ -69,7 +69,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entity == null || position == null)
 				return true;
-			
+
 			entity.fallDistance = 0;
 			entity.motionX = (position.xCoord - entity.posX)/10;
 			entity.motionY = (position.yCoord - entity.posY)/10;
@@ -78,17 +78,24 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			return super.onServerTick() || Minewatch.keys.jump(player) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2;
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			if (this.player != null) {
-				if (!this.player.world.isRemote)
-					EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
-				else
-					Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
+				Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
 				TickHandler.unregister(this.player.world.isRemote, 
 						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
 			}
-			return super.onRemove();
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			if (this.player != null) {
+				EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
+				TickHandler.unregister(this.player.world.isRemote, 
+						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
+			}
+			return super.onServerRemove();
 		}
 	};
 

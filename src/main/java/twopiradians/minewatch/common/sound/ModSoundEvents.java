@@ -99,6 +99,9 @@ public class ModSoundEvents {
 	public static SoundEvent bastionReconfigure1;
 	public static SoundEvent meiCrystalStart;
 	public static SoundEvent meiCrystalStop;
+	public static SoundEvent reinhardtStrikeThrow;
+	public static SoundEvent reinhardtStrikeDuring;
+	public static SoundEvent reinhardtStrikeCollide;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
@@ -198,6 +201,9 @@ public class ModSoundEvents {
 		bastionReconfigure1 = registerSound("bastion_reconfigure_1");
 		meiCrystalStart = registerSound("mei_crystal_start");
 		meiCrystalStop = registerSound("mei_crystal_stop");
+		reinhardtStrikeThrow = registerSound("reinhardt_strike_throw");
+		reinhardtStrikeDuring = registerSound("reinhardt_strike_during");
+		reinhardtStrikeCollide = registerSound("reinhardt_strike_collide");
 	}
 
 	private static SoundEvent registerSound(String soundName) {

@@ -83,7 +83,7 @@ public class EntityAnaBullet extends EntityMW {
 
 		// heal
 		if (this.isFriendly) {
-			EntityHelper.attemptImpact(this, result.entityHit, -75, true);
+			EntityHelper.attemptDamage(this, result.entityHit, -75, true);
 			// particles / sounds
 			if (this.world.isRemote && result.entityHit != null) {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, world, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
@@ -97,8 +97,7 @@ public class EntityAnaBullet extends EntityMW {
 		}
 		// damage
 		else if (result.entityHit != null) {
-			EntityHelper.moveToEntityHit(this, result.entityHit);
-			EntityHelper.attemptImpact(this, result.entityHit, 0, false);
+			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
 			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
 				TickHandler.register(this.world.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();

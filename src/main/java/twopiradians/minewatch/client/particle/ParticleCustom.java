@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -40,8 +41,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	private float verticalAdjust;
 	private float horizontalAdjust;
 	private EnumHand hand;
+	@Nullable
+	private EnumFacing facing;
 
-	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
+	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumFacing facing) {
 		super(world, x, y, z, 0, 0, 0);
 		this.enumParticle = enumParticle;
 		this.motionX = motionX;
@@ -59,13 +62,14 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.rotationSpeed = rotationSpeed;
 		this.setColor(color);
 		this.setColorFade(colorFade);
+		this.facing = facing;
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
 		this.setParticleTexture(sprite);
 	}
 
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
 		this.hand = hand;
 		this.verticalAdjust = verticalAdjust;
 		this.horizontalAdjust = horizontalAdjust;
@@ -169,6 +173,30 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (this.particleTexture != null) {
+			// face a direction on an axis TODO have these only render on blocks, like Render#renderShadow
+			if (facing != null) {
+				float pitch = 0, yaw = 0;
+				float rotation = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
+				if (facing == EnumFacing.WEST || facing == EnumFacing.EAST) {
+					pitch = 0;
+					yaw = 90;
+				}
+				else if (facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) {
+					pitch = 0;
+					yaw = 0;
+				}
+				else if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
+					pitch = 90;
+					yaw = 180f * rotation - 90f;
+				}
+				// translated from ActiveRenderInfo#updateRenderInfo
+		        rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationZ = MathHelper.cos(pitch * 0.017453292F);
+			}
+
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
@@ -198,20 +226,21 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if (this.particleAngle != 0.0F) {
 				float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
 				float f9 = MathHelper.cos(f8 * 0.5F);
-				float f10 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.xCoord;
-				float f11 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.yCoord;
-				float f12 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.zCoord;
+				float f10 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.xCoord : 0);
+				float f11 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.yCoord : 0);
+				float f12 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.zCoord : 0);
 				Vec3d vec3d = new Vec3d((double)f10, (double)f11, (double)f12);
 
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-
+			
 			buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 
+			
 			// disable depth for health particles
 			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();

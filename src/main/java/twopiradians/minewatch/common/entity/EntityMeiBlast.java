@@ -112,7 +112,7 @@ public class EntityMeiBlast extends EntityMW {
 					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
 				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
-			if (EntityHelper.attemptImpact(this, result.entityHit, 2.25f, true)) {
+			if (EntityHelper.attemptDamage(this, result.entityHit, 2.25f, true)) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
@@ -71,18 +69,18 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		this.prevRotationPitch = this.rotationPitch;
 		this.prevRotationYaw = this.rotationYaw;
 
-		// move
-		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null && !this.ignoreImpacts.contains(result.typeOfHit)) {
-			EntityHelper.moveToEntityHit(this, result.entityHit);
-			this.onImpact(result);
-		}
-		else if (Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
-			if (this.hasNoGravity() || this instanceof EntityWidowmakerMine ||
-					this instanceof EntityJunkratMine)
+		// check for impacts
+		ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
+		RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
+		for (RayTraceResult result : results) 
+			if (result != null && isValidImpact(result, result == nearest))
+				this.onImpact(result);
+		// move if still alive and has motion
+		if (!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
+			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
-			else
-				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+			else // needed to set onGround / do block collisions
+				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
 		}
 
 		if (this.hurtTime > 0)
@@ -99,14 +97,21 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		this.firstUpdate = false;
 	}
 
+	/**Should this result trigger onImpact - moves to hit position if entity*/
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
+		return result != null && result.typeOfHit != RayTraceResult.Type.MISS && 
+				(result.typeOfHit != RayTraceResult.Type.ENTITY || 
+				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly) && nearest));
+	}
+
+	/**Should this move to the hit position of the RayTraceResult*/
+	protected boolean shouldMoveToHitPosition(RayTraceResult result) {
+		return result != null;
+	}
+
 	protected void onImpact(RayTraceResult result) {
-		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-			IBlockState state = this.world.getBlockState(result.getBlockPos());
-			if (!state.getBlock().isPassable(this.world, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
-				this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
-				this.setDead();
-			}
-		}
+		if (this.shouldMoveToHitPosition(result))
+			EntityHelper.moveToHitPosition(this, result);
 	}
 
 	@Override

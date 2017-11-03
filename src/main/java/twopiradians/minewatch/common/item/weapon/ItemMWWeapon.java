@@ -263,8 +263,7 @@ public abstract class ItemMWWeapon extends Item {
 	@SideOnly(Side.CLIENT)
 	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {}
 
-	/**Called before weapon is rendered
-	 * @param cameraTransformType */
+	/**Called before weapon is rendered*/
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 

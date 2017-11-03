@@ -200,6 +200,24 @@
 			"minewatch:reinhardt_weapon_2"
 		]
 	},
+	"reinhardt_strike_throw": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_throw"
+		]
+	},
+	"reinhardt_strike_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_during"
+		]
+	},
+	"reinhardt_strike_collide": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_collide"
+		]
+	},
 	"genji_shoot": {
 		"category": "player",
 		"sounds": [

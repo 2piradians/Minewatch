@@ -88,13 +88,13 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		double posZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
 			entity.particleStaff = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, vec.xCoord, vec.yCoord+0.05d, vec.zCoord, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f);
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleStaff);
 		}
 		if (entity.particleTarget == null || !entity.particleTarget.isAlive()) {
 			float size = entity.target != null ? Math.min(entity.target.height, entity.target.width)*8f : 5f;
 			entity.particleTarget = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, posX+x, posY+y, posZ+z, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, size * 1.3f, size, 0, 0.1f);
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, size * 1.3f, size, 0, 0.1f, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleTarget);
 		}
 		float rate = 30;

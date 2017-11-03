@@ -69,9 +69,6 @@ public class EntitySombraTranslocator extends EntityMW {
 		}
 		this.prevOnGround = this.onGround;
 
-		// don't impact when on ground
-		this.skipImpact = this.onGround;
-
 		// gravity
 		this.motionY -= 0.05D;
 

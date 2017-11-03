@@ -88,8 +88,8 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			// mine
 			else if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				hero.ability2.keybind.setCooldown(player, 160, false);  
 				hero.ability2.subtractUse(player);
+				hero.ability2.keybind.setCooldown(player, 10, true); 
 				EntityJunkratMine mine = new EntityJunkratMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);

@@ -41,7 +41,7 @@ public class EntityMercyBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 20, false)) 
+		if (EntityHelper.attemptDamage(this, result.entityHit, 20, false)) 
 			result.entityHit.hurtResistantTime = 0;
 
 		if (this.world.isRemote)

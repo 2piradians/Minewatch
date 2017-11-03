@@ -45,12 +45,12 @@ import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
-import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 
 public class SPacketSimple implements IMessage {
@@ -359,7 +359,6 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {
 						// direct hit
 						if (packet.bool && entity2 instanceof Entity) {
-							EntityHelper.moveToEntityHit(entity, entity2);
 							((EntityJunkratGrenade)entity).explode(null);
 							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeExplode, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
@@ -486,6 +485,12 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(player, Identifier.PREVENT_INPUT),
 									TickHandler.getHandler(player, Identifier.PREVENT_ROTATION),
 									TickHandler.getHandler(player, Identifier.ABILITY_USING));
+					}
+					// Reinhardt's fire strike
+					else if (packet.type == 33 && entity != null) {
+						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13),
+								Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
+						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.reinhardtStrikeThrow, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 					}
 				}
 			});

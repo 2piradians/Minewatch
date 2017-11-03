@@ -70,7 +70,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 
 		if (!(result.entityHit instanceof EntitySoldier76HelixRocket)) {
 			// direct hit damage (explosions do plenty of damage - direct can't be much)
-			if (EntityHelper.attemptImpact(this, result.entityHit, 1, false)) 
+			if (EntityHelper.attemptDamage(this, result.entityHit, 1, false)) 
 				result.entityHit.hurtResistantTime = 10;
 
 			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {

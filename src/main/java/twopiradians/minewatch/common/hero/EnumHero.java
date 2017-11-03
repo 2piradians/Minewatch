@@ -555,7 +555,7 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void renderOverlay(RenderGameOverlayEvent.Post event) {
+		public static void renderOverlay(RenderGameOverlayEvent.Post event) {			
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
 				EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) : null;

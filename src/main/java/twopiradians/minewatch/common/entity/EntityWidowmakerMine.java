@@ -177,6 +177,9 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 			if (!this.world.isRemote) 
 				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
+			this.motionX = 0;
+			this.motionY = 0;
+			this.motionZ = 0;
 		}
 	}
 

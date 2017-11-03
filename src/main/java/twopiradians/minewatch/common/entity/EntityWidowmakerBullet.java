@@ -57,7 +57,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, damage, false)) 
+		if (EntityHelper.attemptDamage(this, result.entityHit, damage, false)) 
 			if (!this.dataManager.get(SCOPED))
 				result.entityHit.hurtResistantTime = 0;
 	}

@@ -5,8 +5,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityBastionBullet extends EntityMW {

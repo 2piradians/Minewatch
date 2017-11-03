@@ -40,7 +40,7 @@ public class EntityAnaSleepDart extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
+		if (EntityHelper.attemptDamage(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
 				result.entityHit.isNonBoss() && !(result.entityHit instanceof EntityLivingBaseMW)) {
 			TickHandler.interrupt(result.entityHit);
 			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),

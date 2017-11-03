@@ -61,9 +61,9 @@ public class ItemMWArmor extends ItemArmor
 {
 	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
-	private ModelPlayer maleModel;
+	public static ModelPlayer maleModel;
 	@SideOnly(Side.CLIENT)
-	private ModelPlayer femaleModel;
+	public static ModelPlayer femaleModel;
 	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
 	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
 	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb

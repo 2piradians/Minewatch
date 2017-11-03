@@ -1,11 +1,13 @@
 package twopiradians.minewatch.client.render.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {
 
@@ -25,6 +27,10 @@ public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {
 	@Override
 	protected boolean preRender(EntityJunkratTrap entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {		
 		GlStateManager.rotate(180, 1, 0, 0);
+		
+		if (entity.onGround && entity.trappedTicks == 0 && 
+				EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false))
+			GlStateManager.translate(0, -0.2d, 0);
 		
 		// rotate while thrown
 		if (!entity.onGround)

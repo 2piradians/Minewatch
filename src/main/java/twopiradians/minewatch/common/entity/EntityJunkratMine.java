@@ -35,6 +35,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 		this.setSize(0.5f, 0.5f);
 		this.lifetime = Integer.MAX_VALUE;
 		this.ignoreImpacts.add(RayTraceResult.Type.ENTITY);
+		this.setNoGravity(true);
 	}
 
 	@Override
@@ -103,8 +104,6 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 		if (--this.deflectTimer == 0)
 			this.explode();
 
-		//System.out.println("update: "+this.getPositionVector());
-
 		super.onUpdate();
 	}
 
@@ -116,6 +115,9 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			if (!this.world.isRemote) 
 				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
+			this.motionX = 0;
+			this.motionY = 0;
+			this.motionZ = 0;
 		}
 		else if (result.typeOfHit == RayTraceResult.Type.ENTITY && this.deflectTimer >= 0 &&
 				EntityHelper.shouldHit(getThrower(), result.entityHit, false) && !world.isRemote)

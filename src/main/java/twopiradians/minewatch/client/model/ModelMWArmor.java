@@ -20,10 +20,6 @@ public class ModelMWArmor extends ModelPlayer {
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
-		
-		EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(entityIn.getPersistentID());
-		if (hero != null && entityIn instanceof EntityLivingBase)
-			hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
 
 		super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
@@ -31,5 +27,14 @@ public class ModelMWArmor extends ModelPlayer {
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();
 	}
+	
+	@Override
+	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
+		super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
+		
+		EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(entityIn.getPersistentID());
+		if (hero != null && entityIn instanceof EntityLivingBase)
+			hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
+    }
 
 }

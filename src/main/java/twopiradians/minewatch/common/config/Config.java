@@ -38,6 +38,7 @@ public class Config {
 	public static int durabilityOptionArmors;
 	public static int durabilityOptionWeapons;
 	public static int trackKillsOption;
+	public static boolean preventFallDamage;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
@@ -65,8 +66,7 @@ public class Config {
 	public static void syncConfig() {		
 		// CLIENT-SIDE
 		Property use3DModelsprop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
-		use3DModelsprop.setRequiresMcRestart(true);
-		useObjModels = use3DModelsprop.getBoolean();
+ 		useObjModels = use3DModelsprop.getBoolean();
 
 		Property customCrosshairsProp = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom crosshairs", true, "Should weapons change your crosshair?");
 		customCrosshairs = customCrosshairsProp.getBoolean();
@@ -91,6 +91,9 @@ public class Config {
 		}
 		
 		// SERVER-SIDE (make sure all new options are synced with command)
+		
+		Property preventFallDamageProp = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", false, "Should fall damage be prevented while wearing a full set of hero armor?");
+		preventFallDamage = preventFallDamageProp.getBoolean();
 		
 		Property allowGunWarningsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
 		allowGunWarnings = allowGunWarningsProp.getBoolean();

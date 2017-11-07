@@ -1,19 +1,19 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "minewatch:hanzo_weapon0.obj"
+    "model": "minewatch:hanzo_weapon_1.obj"
   },
   "variants": {
     "inventory": [
       {
         "transform": {
           "thirdperson_lefthand": {
-            "rotation": [ { "x": 0 }, { "y": 28 }, { "z": 0 } ],
+            "rotation": [ { "x": 4 }, { "y": 24 }, { "z": 0 } ],
        		"translation": [ -0.2, 0.4, 0.58 ],
        		"scale": [ 0.75, 0.75, 0.75 ]
           },
           "thirdperson_righthand": {
-            "rotation": [ { "x": 0 }, { "y": 336 }, { "z": 0 } ],
+            "rotation": [ { "x": 4 }, { "y": 336 }, { "z": 0 } ],
        		"translation": [ 0.23, 0.4, 0.58 ],
        		"scale": [ 0.75, 0.75, 0.75 ]
           },
@@ -22,14 +22,14 @@
             "translation": [ 0.2, -0.20, 0 ],
        		"scale": [ 0.4, 0.4, 0.4 ]
           },
-          "firstperson_righthand": {
-            "rotation": [ { "x": 0 }, { "y": 338 }, { "z": 0 } ],
-            "translation": [ 0.625, 0.25, 0.25 ],
+         "firstperson_righthand": {
+            "rotation": [ { "x": 30 }, { "y": 338 }, { "z": 6 } ],
+            "translation": [ 0.625, 0.4, 0.25 ],
        		"scale": [ 0.75, 0.75, 0.75 ]
           },
           "firstperson_lefthand": {
-            "rotation": [ { "x": 6 }, { "y": 22 }, { "z": 0 } ],
-            "translation": [ 0.125, 0.195, 0.25 ],
+            "rotation": [ { "x": 20 }, { "y": 22 }, { "z": 0 } ],
+            "translation": [ 0.125, 0.4, 0.25 ],
        		"scale": [ 0.75, 0.75, 0.75 ]
           },
           "ground": {

@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.List;
+
 import javax.vecmath.Matrix4f;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -31,6 +34,7 @@ import twopiradians.minewatch.common.entity.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -40,6 +44,25 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemSombraMachinePistol extends ItemMWWeapon {
 
+	public static final Handler OPPORTUNIST = new Handler(Identifier.SOMBRA_OPPORTUNIST, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			if (this.entity != null && this.entity.isEntityAlive() && this.entityLiving != null && 
+					ItemMWArmor.SetManager.entitiesWearingSets.get(this.entityLiving.getPersistentID()) == EnumHero.SOMBRA &&
+					!this.entityLiving.canEntityBeSeen(entity) && entity instanceof EntityLivingBase && 
+					((EntityLivingBase)entity).getHealth() > 0 &&
+					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f) {
+				this.ticksLeft = this.initialTicks;
+				return null;
+			}
+			else {
+				this.entity.setGlowing(false);
+				return super.onClientRemove();
+			}
+		}
+	};
+	
 	public static final Handler TELEPORT = new Handler(Identifier.SOMBRA_TELEPORT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -107,7 +130,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 	public ItemSombraMachinePistol() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -181,6 +204,21 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
 				}
 			}
+
+			// passive
+			if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
+					world.isRemote && entity.ticksExisted % 5 == 0) {
+				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+				for (Entity entity2 : list) 
+					if (!TickHandler.hasHandler(entity2, Identifier.SOMBRA_OPPORTUNIST) && 
+							entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
+							((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f &&
+							!entity2.isGlowing() && !((EntityPlayer)entity).canEntityBeSeen(entity2)) {
+						entity2.setGlowing(true);
+						TickHandler.register(true, OPPORTUNIST.setEntity(entity2).setEntityLiving(player).setTicks(5));
+					}
+			}
 		}
 	}
 
@@ -236,9 +274,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
-		EntityPlayer player = ItemMWWeapon.getPlayer(Minecraft.getMinecraft().world, stack);
-		return TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE) ||
-				TickHandler.hasHandler(player, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
+		Entity entity = ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack);
+		return TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) ||
+				TickHandler.hasHandler(entity, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
 	}
 
 }

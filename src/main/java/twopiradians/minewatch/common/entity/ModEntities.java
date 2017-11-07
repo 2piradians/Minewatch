@@ -24,7 +24,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_icicle"), EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_crystal"), EntityMeiCrystal.class, "mei_crystal", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "widowmaker_bullet"), EntityWidowmakerBullet.class, "widowmaker_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "widowmaker_mine"), EntityWidowmakerMine.class, "widowmaker_mine", id++, Minewatch.instance, 64, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "widowmaker_mine"), EntityWidowmakerMine.class, "widowmaker_mine", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mercy_bullet"), EntityMercyBullet.class, "mercy_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mercy_beam"), EntityMercyBeam.class, "mercy_beam", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "junkrat_grenade"), EntityJunkratGrenade.class, "junkrat_grenade", id++, Minewatch.instance, 64, 30, true);

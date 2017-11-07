@@ -440,10 +440,8 @@ public class SPacketSimple implements IMessage {
 					// Widowmaker's venom trap
 					else if (packet.type == 28 && entity != null && entity2 instanceof EntityLivingBase) {
 						TickHandler.register(true, EntityWidowmakerMine.POISONED.setTicks(100).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
-						if (entity2 == player && player != null) {
-							((EntityLivingBase)entity).setGlowing(true);
+						if (entity2 == player && player != null) 
 							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.world, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
-						}
 					}
 					// Sombra's teleport
 					else if (packet.type == 29 && packetPlayer != null) {
@@ -491,6 +489,10 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13),
 								Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
 						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.reinhardtStrikeThrow, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+					}
+					// Set entity's position
+					else if (packet.type == 34 && entity != null) {
+						entity.setPosition(packet.x, packet.y, packet.z);
 					}
 				}
 			});

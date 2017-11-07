@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "minewatch:items/soldier76_weapon"
+        "layer0": "minewatch:items/sombra_weapon"
     },
 	"display": {
 		 "thirdperson_righthand": {

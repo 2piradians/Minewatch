@@ -1,8 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -14,13 +13,10 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -29,7 +25,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
@@ -101,22 +96,17 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	public ItemMercyWeapon() {
 		super(20);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
+		this.showHealthParticles = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("gun"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return !ItemMercyWeapon.isStaff(stack) ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
 		boolean battleMercy = false;
-		if (stack.hasTagCompound()) {
-			UUID uuid = stack.getTagCompound().getUniqueId("player");
-			battleMercy = uuid != null && hero.playersUsingAlt.contains(uuid);		
+		if (stack.hasTagCompound() && Minewatch.proxy.getClientPlayer() != null) {
+			Entity entity = getEntity(Minewatch.proxy.getClientPlayer().world, stack);
+			battleMercy = entity != null && hero.playersUsingAlt.contains(entity.getPersistentID());		
 		}
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
 	}
@@ -151,19 +141,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
-
-		// health particles
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
-			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
-			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
-						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
-					float size = Math.min(entity2.height, entity2.width)*9f;
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
-				}
-		}
 
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
@@ -258,6 +235,20 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				break;
 			}
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_0");
+		locs.add("_1");
+		return locs;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return ItemMercyWeapon.isStaff(stack) ? "_0" : "_1";
 	}
 
 }

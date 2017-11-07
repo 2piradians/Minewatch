@@ -5,7 +5,6 @@ import java.util.HashMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -28,8 +27,8 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 	protected ResourceLocation[] getEntityModels() {
 		return new ResourceLocation[] {
 				new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_bottom.obj"),
-				new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_top.obj"),
-				new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_top.obj")
+				new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_top.obj"), // blue
+				new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_top.obj") // red
 		};
 	}
 
@@ -66,7 +65,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 			GlStateManager.translate(0, 0.02d, 0);
 			GlStateManager.rotate((entity.ticksExisted+partialTicks)*2, 0, 1, 0);
 		}
-		return (model == 0 && entity.onGround) || (model == 1 && !EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false)) ||
-				(model == 2 && EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false));
+		return (model == 0 && entity.onGround) || (model == 1 && !EntityHelper.shouldTarget(entity, null, false)) ||
+				(model == 2 && EntityHelper.shouldTarget(entity, null, false));
 	}
 }

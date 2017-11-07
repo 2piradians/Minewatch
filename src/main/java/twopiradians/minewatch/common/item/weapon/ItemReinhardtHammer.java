@@ -49,7 +49,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.world, entityLiving);
 				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYaw, (26.66f) * 1f, 0, null, 60, 0);
 				entityLiving.world.spawnEntity(strike);
-				EnumHero.REINHARDT.ability2.keybind.setCooldown(player, 12, false); //TODO
+				EnumHero.REINHARDT.ability2.keybind.setCooldown(player, 120, false); 
 			}
 			return super.onServerTick();
 		}

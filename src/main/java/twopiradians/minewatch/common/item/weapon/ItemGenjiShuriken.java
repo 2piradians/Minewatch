@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -15,14 +16,12 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
@@ -141,14 +140,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	public ItemGenjiShuriken() {
 		super(40);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("sword"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && TickHandler.hasHandler(entityIn, Identifier.GENJI_SWORD) ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
@@ -299,4 +292,17 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 	}
 
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_sword");
+		return super.getAllModelLocations(locs);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return TickHandler.hasHandler(entity, Identifier.GENJI_SWORD) ? "_sword" : "";
+	}
+	
 }

@@ -1,7 +1,12 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -73,15 +78,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 	public ItemBastionGun() {
 		super(40);
-		this.savePlayerToNBT = true;
-		MinecraftForge.EVENT_BUS.register(this);//TODO
-		/*this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn == null ? 0.0F : (!(entityIn.getActiveItemStack().getItem() instanceof ItemHanzoBow) ? 0.0F :
-					(float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 10.0F);
-			}
-		});*/
+		this.saveEntityToNBT = true;
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -147,6 +145,21 @@ public class ItemBastionGun extends ItemMWWeapon {
 				Minecraft.getMinecraft().player.getHeldItemMainhand() != null && 
 				Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon)
 			event.setCanceled(true);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_0");
+		locs.add("_1");
+		return locs;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean turret = entity != null && EnumHero.BASTION.playersUsingAlt.contains(entity.getPersistentID());
+		return turret ? "_1" : "_0";
 	}
 
 }

@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -372,11 +373,14 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
-			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
-				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
+		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {
+			// hide ModelBipeds with armor layer that are wearing armor
+			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
+					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {
+				ModelBiped model = (ModelBiped) event.getRenderer().getMainModel();
 				if (event.getEntity() instanceof EntityPlayer && TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
 					model.isSneak = true;
+				model.setInvisible(true);
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
@@ -385,16 +389,20 @@ public enum EnumHero {
 								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemMWArmor) {
 							model.bipedLeftLeg.showModel = false;
 							model.bipedRightLeg.showModel = false;
-							model.bipedLeftLegwear.showModel = false;
-							model.bipedRightLegwear.showModel = false;
+							if (model instanceof ModelPlayer) {
+								((ModelPlayer)model).bipedLeftLegwear.showModel = false;
+								((ModelPlayer)model).bipedRightLegwear.showModel = false;
+							}
 						}
 						else if (slot == EntityEquipmentSlot.CHEST) {
 							model.bipedBody.showModel = false;
-							model.bipedBodyWear.showModel = false;
-							model.bipedLeftArm.showModel = false;
-							model.bipedLeftArmwear.showModel = false;
-							model.bipedRightArm.showModel = false;
-							model.bipedRightArmwear.showModel = false;
+							if (model instanceof ModelPlayer) {
+								model.bipedLeftArm.showModel = false;
+								model.bipedRightArm.showModel = false;
+								((ModelPlayer)model).bipedRightArmwear.showModel = false;
+								((ModelPlayer)model).bipedLeftArmwear.showModel = false;
+								((ModelPlayer)model).bipedBodyWear.showModel = false;
+							}
 						}
 						else if (slot == EntityEquipmentSlot.HEAD) {
 							model.bipedHeadwear.showModel = false;
@@ -471,7 +479,7 @@ public enum EnumHero {
 							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 						}
 					}
-					
+
 					// mei's crystal cancel overlay
 					if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
 						GlStateManager.pushMatrix();
@@ -546,7 +554,7 @@ public enum EnumHero {
 							GlStateManager.popMatrix();
 						}
 					}
-					
+
 					if (Config.customCrosshairs)
 						event.setCanceled(true);
 				}

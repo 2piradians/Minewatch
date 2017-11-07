@@ -12,7 +12,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -57,16 +56,18 @@ import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
-public class ItemMWArmor extends ItemArmor 
-{
+public class ItemMWArmor extends ItemArmor {
+
 	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
-	public static ModelPlayer maleModel;
+	public static ModelMWArmor maleModel;
 	@SideOnly(Side.CLIENT)
-	public static ModelPlayer femaleModel;
+	public static ModelMWArmor femaleModel;
 	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
 	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
 	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
+	@SideOnly(Side.CLIENT)
+	public static ArrayList<Class> classesWithArmor = new ArrayList<Class>();
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -80,9 +81,19 @@ public class ItemMWArmor extends ItemArmor
 	@Nullable
 	@SideOnly(Side.CLIENT)
 	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped defaultModel) {
+		// keep track of classes with armor
+		if (entity != null && !classesWithArmor.contains(entity.getClass()))
+			classesWithArmor.add(entity.getClass());
+		// create models if null
+		if (maleModel == null || femaleModel == null) {
+			maleModel = new ModelMWArmor(0, false);
+			femaleModel = new ModelMWArmor(0, true);
+		}
+		ModelMWArmor ret = hero.smallArms && entity instanceof AbstractClientPlayer ? femaleModel : maleModel;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
-		if (entity instanceof AbstractClientPlayer) {
-			ModelPlayer model = (ModelPlayer) ((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel();
+		if (entity instanceof EntityLivingBase && 
+				((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel() instanceof ModelBiped) {
+			ModelBiped model = (ModelBiped) ((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel();
 			model.bipedRightArm.showModel = true;
 			model.bipedLeftArm.showModel = true;
 		}
@@ -90,11 +101,7 @@ public class ItemMWArmor extends ItemArmor
 			entity.rotationYawHead = entity.prevRenderYawOffset; // rotate head properly
 			entity.ticksExisted = 5; // prevent arm swinging
 		}
-		if (maleModel == null || femaleModel == null) {
-			maleModel = new ModelMWArmor(0, false);
-			femaleModel = new ModelMWArmor(0, true);
-		}
-		return hero.smallArms ? femaleModel : maleModel;
+		return ret;
 	}
 
 	@Override
@@ -194,8 +201,13 @@ public class ItemMWArmor extends ItemArmor
 		}
 
 		@SubscribeEvent
-		public static void genjiFall(LivingFallEvent event) {
-			if (event.getEntity() instanceof EntityPlayer && 
+		public static void preventFallDamage(LivingFallEvent event) {
+			// prevent fall damage if enabled in config and wearing set
+			if (Config.preventFallDamage && event.getEntity() != null &&
+					SetManager.entitiesWearingSets.containsKey(event.getEntity().getPersistentID()))
+				event.setCanceled(true);
+			// genji fall
+			else if (event.getEntity() != null && 
 					SetManager.entitiesWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
 				event.setDistance(event.getDistance()*0.8f);
 		}
@@ -262,8 +274,10 @@ public class ItemMWArmor extends ItemArmor
 
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
-	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {				
-		//delete dev spawned items if not worn by dev
+	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {	
+		EnumHero set = SetManager.entitiesWearingSets.get(player.getPersistentID());
+
+		// delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
@@ -274,7 +288,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// genji jump boost/double jump
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.GENJI) {
+				set == EnumHero.GENJI) {
 			// jump boost
 			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
@@ -296,8 +310,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// genji/hanzo wall climb
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				(SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.GENJI ||
-				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.HANZO) && world.isRemote) {
+				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
 			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
@@ -319,8 +332,7 @@ public class ItemMWArmor extends ItemArmor
 			}
 		}
 		// mercy's regen/slow fall
-		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.MERCY) 
+		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && set == EnumHero.MERCY) 
 			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
@@ -339,7 +351,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// tracer chestplate particles
 		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				hero == EnumHero.TRACER && world.isRemote && player != null && 
+				set == EnumHero.TRACER && world.isRemote && player != null && 
 				(player.chasingPosX != 0 || player.chasingPosY != 0 || player.chasingPosZ != 0)) {
 			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
@@ -352,7 +364,7 @@ public class ItemMWArmor extends ItemArmor
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
-				SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero)
+				set == hero)
 			stack.setItemDamage(0);
 	}
 

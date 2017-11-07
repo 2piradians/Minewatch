@@ -1,5 +1,9 @@
 package twopiradians.minewatch.common.item;
 
+import java.util.ArrayList;
+
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -8,10 +12,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
-public class ItemJunkratTrigger extends Item {
+public class ItemJunkratTrigger extends Item implements IChangingModel {
 
 	@Override
 	public int getItemStackLimit(ItemStack stack) {
@@ -55,6 +61,33 @@ public class ItemJunkratTrigger extends Item {
 			return true;
 		}
 		return false;
+	}
+	
+	/**Set weapon model's color*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		return -1;
+	}
+	
+	/**Register this weapon model's variants - registers 2D and 3D basic models by default*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("");
+		return locs;
+	}
+
+	/**defautLoc + [return] + (Config.useObjModels ? "_3d" : "")*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return "";
+	}
+	
+	@Override
+	public Item getItem() {
+		return this;
 	}
 
 }

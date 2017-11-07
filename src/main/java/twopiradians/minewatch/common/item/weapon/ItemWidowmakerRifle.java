@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -8,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -40,14 +41,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	public ItemWidowmakerRifle() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
@@ -162,8 +157,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && player.onGround && 
-				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
+		return player != null && player.getHeldItemMainhand() != null && 
+				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !Minewatch.keys.jump(player) &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}
 
@@ -211,4 +206,19 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			}
 		}
 	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_scoping");
+		return super.getAllModelLocations(locs);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		return scoping ? "_scoping" : "";
+	}	
+
 }

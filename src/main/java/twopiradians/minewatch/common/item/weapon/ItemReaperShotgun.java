@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -182,7 +183,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	public ItemReaperShotgun() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		this.hasOffhand = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -356,8 +357,8 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@SubscribeEvent
 	public void damageEntities(LivingHurtEvent event) {
-		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
-			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+		if (event.getSource().getEntity() instanceof EntityPlayer && event.getEntityLiving() != null) {
+			EntityPlayer player = ((EntityPlayer)event.getSource().getEntity());
 			// heal reaper
 			if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero &&
 					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
@@ -406,6 +407,22 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					Math.abs((handler.ticksLeft-40)/(delay*2f)) : 1f;
 					GlStateManager.color(color, color, color, color);
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_0");
+		locs.add("_1");
+		return locs;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_TELEPORT);
+		boolean tping = handler != null && handler.ticksLeft != -1;
+		return tping ? "_1" : "_0";
 	}
 
 }

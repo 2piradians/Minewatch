@@ -13,6 +13,8 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -38,12 +40,16 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		@Override
 		public boolean onClientTick() {
 			// particles on entity
-			if (this.entity != null)
+			if (this.entity != null && this.entityLiving != null) {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
 						entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
 						entity.posY+(entity.world.rand.nextFloat()-0.5f)*entity.height+entity.height/2f, 
 						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
 						0, 0.01f, 0, 0xBE8FC5, 0xB589BC, 0.5f, 10, 4, 4, 0, 0);
+				if (this.entityLiving == Minewatch.proxy.getClientPlayer() && 
+						entity.isGlowing() == this.entityLiving.canEntityBeSeen(entity))
+					entity.setGlowing(!entity.isGlowing());
+			}
 			return super.onClientTick();
 		}
 		@Override
@@ -73,6 +79,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		this.setSize(0.4f, 0.4f);
 		this.lifetime = Integer.MAX_VALUE;
 		this.ignoreImpacts.add(RayTraceResult.Type.ENTITY);
+		this.setNoGravity(true);
 	}
 
 	@Override
@@ -157,8 +164,24 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 					this.setDead();
 				}
 		}
-
 		super.onUpdate();
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getBrightnessForRender(float partialTicks) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor(this.posX), 0, MathHelper.floor(this.posZ));
+		
+		// offset by facing
+		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
+			pos.move(facing.getOpposite());
+
+		if (this.world.isBlockLoaded(pos)) {
+			pos.setY(MathHelper.floor(this.posY + (double)this.getEyeHeight()));
+			return this.world.getCombinedLight(pos, 0);
+		}
+		else
+			return 0;
 	}
 
 	@Override
@@ -174,9 +197,11 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();
-			if (!this.world.isRemote) 
-				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
+			if (!this.world.isRemote) {
+				this.dataManager.set(FACING, this.facing.ordinal());
+				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), world.provider.getDimension());
+			}
 			this.motionX = 0;
 			this.motionY = 0;
 			this.motionZ = 0;

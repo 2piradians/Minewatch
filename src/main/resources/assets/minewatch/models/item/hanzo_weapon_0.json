@@ -24,27 +24,5 @@
             "translation": [ 1.13, 3.2, 1.13],
             "scale": [ 0.68, 0.68, 0.68 ]
         }
-    },
-    "overrides": [
-        {
-            "predicate": {
-                "pulling": 1
-            },
-            "model": "minewatch:item/hanzo_weapon_pulling_0"
-        },
-        {
-            "predicate": {
-                "pulling": 1,
-                "pull": 0.6
-            },
-            "model": "minewatch:item/hanzo_weapon_pulling_1"
-        },
-        {
-            "predicate": {
-                "pulling": 1,
-                "pull": 1.2
-            },
-            "model": "minewatch:item/hanzo_weapon_pulling_2"
-        }
-    ]
+    }
 }

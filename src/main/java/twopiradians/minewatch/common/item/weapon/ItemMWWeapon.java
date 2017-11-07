@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -23,24 +24,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.model.ModelMWArmor;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
-public abstract class ItemMWWeapon extends Item {
+public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public EnumHero hero;
 	public boolean hasOffhand;
@@ -50,7 +54,8 @@ public abstract class ItemMWWeapon extends Item {
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
-	protected boolean savePlayerToNBT;
+	protected boolean saveEntityToNBT;
+	protected boolean showHealthParticles;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -165,6 +170,10 @@ public abstract class ItemMWWeapon extends Item {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+		// make entity body follow head
+		if (isSelected && entity instanceof EntityLivingBase)
+			((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
+		
 		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
@@ -173,14 +182,14 @@ public abstract class ItemMWWeapon extends Item {
 			return;
 		}
 
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (this.savePlayerToNBT && entity instanceof EntityPlayer && !entity.world.isRemote && 
+		// set player in nbt for model changer to reference
+		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.world.isRemote && 
 				stack != null && stack.getItem() == this) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
+			if (!nbt.hasKey("entity") || nbt.getInteger("entity") != entity.getEntityId()) {
+				nbt.setInteger("entity", entity.getEntityId());
 				stack.setTagCompound(nbt);
 			}
 		}
@@ -221,6 +230,19 @@ public abstract class ItemMWWeapon extends Item {
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
 				SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
+
+		// health particles
+		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
+				world.isRemote && entity.ticksExisted % 5 == 0) {
+			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			for (Entity entity2 : list) 
+				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
+						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+					float size = Math.min(entity2.height, entity2.width)*9f;
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
+				}
+		}
 	}
 
 	@Override
@@ -267,19 +289,43 @@ public abstract class ItemMWWeapon extends Item {
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
+	/**Set weapon model's color*/
+	@Override
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
 		return -1;
 	}
 
-	/**Get player from stack's nbt*/
+	/**Register this weapon model's variants - registers 2D and 3D basic models by default*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("");
+		return locs;
+	}
+
+	/**defautLoc + [return] + (Config.useObjModels ? "_3d" : "")*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return "";
+	}
+	
+	@Override
+	public Item getItem() {
+		return this;
+	}
+
+	/**Get entity holding stack from stack's nbt*/
 	@Nullable
-	public static EntityPlayer getPlayer(World world, ItemStack stack) {
+	public static EntityLivingBase getEntity(World world, ItemStack stack) {
 		if (stack != null && stack.hasTagCompound() &&
-				stack.getTagCompound().getUniqueId("player") != null)
-			return world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-		else
-			return null;
+				stack.getTagCompound().getInteger("entity") != 0) {
+			Entity entity = world.getEntityByID(stack.getTagCompound().getInteger("entity"));
+			if (entity instanceof EntityLivingBase)
+				return (EntityLivingBase) entity;
+		}
+		return null;
 	}
 
 	// DEV SPAWN ARMOR ===============================================

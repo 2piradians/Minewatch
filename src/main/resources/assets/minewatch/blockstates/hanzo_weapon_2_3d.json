@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "minewatch:hanzo_weapon2.obj"
+    "model": "minewatch:hanzo_weapon_2.obj"
   },
   "variants": {
     "inventory": [

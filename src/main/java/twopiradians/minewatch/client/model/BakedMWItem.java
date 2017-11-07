@@ -60,11 +60,11 @@ public class BakedMWItem extends OBJBakedModel {
 	public List<BakedQuad> getQuads(IBlockState blockState, EnumFacing side, long rand) {
 		// set tint index for quads
 		List<BakedQuad> ret = super.getQuads(blockState, side, rand);
-		for (BakedQuad quad : ret)
-			if (!quad.hasTintIndex()) 
-				ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
-		
-		return ret;
+				for (BakedQuad quad : ret)
+					if (!quad.hasTintIndex()) 
+						ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
+
+				return ret;
 	}
 
 	private static class BakedMWItemOverrideHandler extends ItemOverrideList {

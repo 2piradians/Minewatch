@@ -67,7 +67,6 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 			GlStateManager.shadeModel(GL11.GL_SMOOTH);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-			//Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/entity/enemy_color.png"));
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.alphaFunc(516, 0.1F);

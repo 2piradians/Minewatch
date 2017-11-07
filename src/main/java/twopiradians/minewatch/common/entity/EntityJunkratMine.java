@@ -7,6 +7,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,7 +25,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	private static final DataParameter<Integer> FACING = EntityDataManager.<Integer>createKey(EntityJunkratMine.class, DataSerializers.VARINT);
 	public EnumFacing facing;
 	private boolean prevOnGround;
-	// TODO test with genji deflect
+	// TEST with genji deflect
 	public int deflectTimer = -1;
 
 	public EntityJunkratMine(World worldIn) {
@@ -108,13 +110,32 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
+	public int getBrightnessForRender(float partialTicks) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor(this.posX), 0, MathHelper.floor(this.posZ));
+		
+		// offset by facing
+		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
+			pos.move(facing.getOpposite());
+
+		if (this.world.isBlockLoaded(pos)) {
+			pos.setY(MathHelper.floor(this.posY + (double)this.getEyeHeight()));
+			return this.world.getCombinedLight(pos, 0);
+		}
+		else
+			return 0;
+	}
+
+	@Override
 	protected void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();
-			if (!this.world.isRemote) 
-				this.dataManager.set(FACING, this.facing.ordinal());
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
+			if (!this.world.isRemote) {
+				this.dataManager.set(FACING, this.facing.ordinal());
+				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), world.provider.getDimension());
+			}
 			this.motionX = 0;
 			this.motionY = 0;
 			this.motionZ = 0;

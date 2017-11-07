@@ -190,16 +190,28 @@ public class EntityHelper {
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly, DamageSource source) {
+		// prevent hitting EntityMW
+		if (entityHit instanceof EntityMW)
+			return false;
 		// prevent healing EntityLivingBaseMW
 		if (entityHit instanceof EntityLivingBaseMW && friendly)
 			return false;
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
-		return thrower != null && entityHit != null && 
+		return shouldTarget(thrower, entityHit, friendly) && 
 				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && (entityHit != thrower || friendly) &&
-				(thrower.getTeam() == null || entityHit.getTeam() == null || 
-				thrower.isOnSameTeam(entityHit) == friendly) && !entityHit.isEntityInvulnerable(source); //TODO test same team (w/attacking and sombra's invis)
+				entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); // TEST same team (w/attacking and sombra's invis)
+	}
+	
+	/**Should target be hit by entity / should entity render red*/
+	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
+		if (target == null)
+			target = Minewatch.proxy.getClientPlayer();
+		entity = getThrower(entity);
+		target = getThrower(target);
+		return entity != null && target != null && (target != entity || friendly) &&
+				(entity.getTeam() == null || target.getTeam() == null || 
+				entity.isOnSameTeam(target) == friendly);
 	}
 
 	/**Attempts do damage with falloff returns true if successful on server*/

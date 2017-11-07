@@ -1,18 +1,18 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -28,20 +28,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 
 	public ItemHanzoBow() {
 		super(0);
-		this.savePlayerToNBT = true;
-		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn == null ? 0.0F : (!(entityIn.getActiveItemStack().getItem() instanceof ItemHanzoBow) ? 0.0F :
-					(float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 10.0F);
-			}
-		});
-		this.addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return  entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
-			}
-		});
+		this.saveEntityToNBT = true;
 	}
 
 	private ItemStack findAmmo(EntityPlayer player) {
@@ -176,4 +163,27 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		else
 			return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
 	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		for (int i=0; i<5; ++i)
+			locs.add("_"+String.valueOf(i));
+		return locs;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		int model = 0;
+		if (entity != null) {
+			model = (int) ((float) (stack.getMaxItemUseDuration() - entity.getItemInUseCount()) / 4.0F) + 1;
+			if (entity.getActiveItemStack() == null || !entity.getActiveItemStack().equals(stack))
+				model = 0;
+			else if (model > 4)
+				model = 4;
+		}
+		return "_"+String.valueOf(model);
+	}
+	
 }

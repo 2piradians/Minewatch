@@ -22,6 +22,7 @@ public class GuiButtonTab extends GuiButton {
 		this.visible = GuiTab.currentScreen == screen;
 		super.drawButton(mc, mouseX, mouseY);
 		
+		// sync button
 		if (this.visible && this.displayString.equals("")) {
 			GlStateManager.pushMatrix();
 			float scale = 2.2f;

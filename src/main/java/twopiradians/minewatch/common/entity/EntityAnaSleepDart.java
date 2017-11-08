@@ -25,7 +25,7 @@ public class EntityAnaSleepDart extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 10;
+		this.lifetime = 20;
 	}
 
 	@Override

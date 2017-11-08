@@ -28,7 +28,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
 
-	private float fadeTargetRed;
+	private float fadeTargetRed;//TEST that opacity is fixed with modpack
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
@@ -172,6 +172,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+		GlStateManager.enableBlend();
 		if (this.particleTexture != null) {
 			// face a direction on an axis TODO have these only render on blocks, like Render#renderShadow
 			if (facing != null) {

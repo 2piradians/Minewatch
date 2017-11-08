@@ -133,7 +133,6 @@ public class Ability {
 
 		if (ret && player.world.isRemote)
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
-
 		return ret;
 	}
 

@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -42,6 +43,7 @@ public class EntitySombraTranslocator extends EntityMW {
 			this.motionZ = 0;
 		}
 
+		// particles
 		if (this.world.isRemote) {
 			int color1 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
 					0xFFA84F : 0x9F62E5;
@@ -71,6 +73,11 @@ public class EntitySombraTranslocator extends EntityMW {
 
 		// gravity
 		this.motionY -= 0.05D;
+		
+		// set cooldown when expiring
+		if (!this.world.isRemote && this.ticksExisted > lifetime &&
+				this.getThrower() instanceof EntityPlayer) 
+			EnumHero.SOMBRA.ability2.keybind.setCooldown((EntityPlayer) this.getThrower(), 80, false);
 
 		super.onUpdate();
 	}

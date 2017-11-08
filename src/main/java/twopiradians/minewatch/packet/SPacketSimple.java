@@ -494,6 +494,11 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 34 && entity != null) {
 						entity.setPosition(packet.x, packet.y, packet.z);
 					}
+					// Sombra's translocator
+					else if (packet.type == 35 && packetPlayer != null && entity != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(packetPlayer).setBoolean(true));
+						EnumHero.SOMBRA.ability2.entities.put(packetPlayer, entity);
+					}
 				}
 			});
 			return null;

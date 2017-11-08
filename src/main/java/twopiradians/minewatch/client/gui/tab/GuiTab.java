@@ -343,7 +343,7 @@ public class GuiTab extends GuiScreen {
 
 	public static void addOppedButton() {
 		if (activeTab != null)
-			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+92, activeTab.guiTop+GuiTab.Y_SIZE/2-20+15, 20, 20, "", Screen.MAIN));
+			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+25, 20, 20, "", Screen.MAIN));
 	}
 
 }

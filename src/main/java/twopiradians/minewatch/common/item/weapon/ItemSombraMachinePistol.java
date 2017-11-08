@@ -202,6 +202,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 					hero.ability2.entities.put(player, translocator);
 					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
+					Minewatch.network.sendToDimension(new SPacketSimple(35, false, player, 0, 0, 0, translocator), world.provider.getDimension());
 				}
 			}
 

@@ -66,7 +66,6 @@ public class ItemMWArmor extends ItemArmor {
 	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
 	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
 	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
-	@SideOnly(Side.CLIENT)
 	public static ArrayList<Class> classesWithArmor = new ArrayList<Class>();
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 

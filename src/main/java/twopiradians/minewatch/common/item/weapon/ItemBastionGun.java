@@ -112,10 +112,15 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
+			
+			// stop turret if doesn't have handler (i.e. dies in turret form)
+			if (hero.playersUsingAlt.contains(player.getPersistentID()) &&
+					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET))
+				hero.playersUsingAlt.remove(player.getPersistentID());
 
 			// reconfigure
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
-					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { // TODO prevent turret dying
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { // FIXME prevent turret dying
 				boolean turret = false;
 				if (hero.playersUsingAlt.contains(player.getPersistentID())) {
 					hero.playersUsingAlt.remove(player.getPersistentID());

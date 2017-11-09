@@ -228,7 +228,7 @@ public class CommonProxy {
 						if (d13 != 0.0D) {
 							d5 = d5 / d13;
 							d7 = d7 / d13;
-							d9 = d9 / d13; //TODO have knockback be more uniform / maxed
+							d9 = d9 / d13; //FIXME have knockback be more uniform / maxed
 							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));

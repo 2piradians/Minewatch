@@ -468,21 +468,22 @@ public class SPacketSimple implements IMessage {
 					// Mei's cryo-freeze
 					else if (packet.type == 32 && entity != null) {
 						if (packet.bool) {
-							if (entity == player) 
+							if (entity == player) {
 								ItemMeiBlaster.thirdPersonView = Minecraft.getMinecraft().gameSettings.thirdPersonView;
-							TickHandler.register(true, ItemMeiBlaster.CRYSTAL.setEntity(player).setTicks(80),
-									Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80),
-									Handlers.PREVENT_INPUT.setEntity(player).setTicks(80),
-									Handlers.PREVENT_ROTATION.setEntity(player).setTicks(80),
-									Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(EnumHero.MEI.ability2));
+								TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(80).setAbility(EnumHero.MEI.ability2));
+							}
+							TickHandler.register(true, ItemMeiBlaster.CRYSTAL.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_INPUT.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80));
 							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						}
 						else 
-							TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
-									TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),
-									TickHandler.getHandler(player, Identifier.PREVENT_INPUT),
-									TickHandler.getHandler(player, Identifier.PREVENT_ROTATION),
-									TickHandler.getHandler(player, Identifier.ABILITY_USING));
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MEI_CRYSTAL),
+									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(entity, Identifier.PREVENT_INPUT),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
+									TickHandler.getHandler(entity, Identifier.ABILITY_USING));
 					}
 					// Reinhardt's fire strike
 					else if (packet.type == 33 && entity != null) {

@@ -267,9 +267,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
 		// hide gun if not friendly
 		if (TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) && 
-				EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false)) {
+				EntityHelper.shouldHit(entity, Minecraft.getMinecraft().player, false)) 
 			ret.getRight().setScale(0);
-		}
 		return ret;
 	}
 

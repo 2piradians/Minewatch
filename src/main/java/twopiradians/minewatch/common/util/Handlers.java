@@ -182,7 +182,7 @@ public class Handlers {
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {// TODO prevent movement from knockback
+		public boolean onClientTick() {// FIXME prevent movement from knockback
 			// prevent flying
 			entity.onGround = true;
 			if (player != null)

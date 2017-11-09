@@ -377,8 +377,6 @@ public enum EnumHero {
 			// make entity body follow head
 			if (event.getEntity().getHeldItemMainhand() != null && 
 					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon) {
-				if (event.getEntity() != Minewatch.proxy.getClientPlayer())
-					System.out.println(event.getEntity().rotationYaw);
 				event.getEntity().renderYawOffset = event.getEntity().rotationYaw;
 			}
 			

@@ -27,6 +27,7 @@ public class EntitySombraTranslocator extends EntityMW {
 		super(worldIn, throwerIn, -1);
 		this.setSize(0.3f, 0.3f);
 		this.lifetime = Integer.MAX_VALUE;
+		this.notDeflectible = true;
 	}
 
 	@Override

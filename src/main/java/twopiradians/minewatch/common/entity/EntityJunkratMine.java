@@ -25,7 +25,6 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	private static final DataParameter<Integer> FACING = EntityDataManager.<Integer>createKey(EntityJunkratMine.class, DataSerializers.VARINT);
 	public EnumFacing facing;
 	private boolean prevOnGround;
-	// TEST with genji deflect
 	public int deflectTimer = -1;
 
 	public EntityJunkratMine(World worldIn) {

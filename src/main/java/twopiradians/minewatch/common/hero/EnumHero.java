@@ -377,9 +377,9 @@ public enum EnumHero {
 			// make entity body follow head
 			if (event.getEntity().getHeldItemMainhand() != null && 
 					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon) {
-				event.getEntity().renderYawOffset = event.getEntity().rotationYaw;
+				event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
 			}
-			
+
 			// hide ModelBipeds with armor layer that are wearing armor
 			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
 					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {
@@ -823,10 +823,18 @@ public enum EnumHero {
 					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
 					if (player instanceof EntityPlayerMP) {
 						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
-						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0)
+						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
+							// reset genji strike cooldown
+							if (ItemMWArmor.SetManager.entitiesWearingSets.get(uuid) == EnumHero.GENJI) {
+								EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
+								Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
+								if (handler != null)
+									handler.setBoolean(true);
+							}
 							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
 									(int)MathHelper.clamp(percent, 0, 100),
 									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
+						}
 					}
 				}
 				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)

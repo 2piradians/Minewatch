@@ -23,6 +23,8 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -182,7 +184,7 @@ public class Handlers {
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {// FIXME prevent movement from knockback
+		public boolean onClientTick() {
 			// prevent flying
 			entity.onGround = true;
 			if (player != null)
@@ -220,6 +222,19 @@ public class Handlers {
 			return super.onServerRemove();
 		}
 	};
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void clientSide(ClientTickEvent event) {
+		EntityPlayer player = Minecraft.getMinecraft().player;
+		if (event.side == Side.CLIENT && event.phase == Phase.START &&
+				TickHandler.hasHandler(player, Identifier.PREVENT_MOVEMENT)) {
+			player.motionX = 0;
+			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
+			player.motionZ = 0;
+			player.motionY = Math.min(0, player.motionY);
+		}
+	}
 
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {

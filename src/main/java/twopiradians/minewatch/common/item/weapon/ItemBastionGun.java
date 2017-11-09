@@ -114,13 +114,17 @@ public class ItemBastionGun extends ItemMWWeapon {
 			EntityPlayer player = (EntityPlayer) entity;
 			
 			// stop turret if doesn't have handler (i.e. dies in turret form)
-			if (hero.playersUsingAlt.contains(player.getPersistentID()) &&
-					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET))
+			if (!world.isRemote && hero.playersUsingAlt.contains(player.getPersistentID()) &&
+					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
 				hero.playersUsingAlt.remove(player.getPersistentID());
+				Minewatch.network.sendToAll(new SPacketSimple(31, false, player));
+				hero.reloadSound = ModSoundEvents.bastionReload;
+				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
+			}
 
 			// reconfigure
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
-					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { // FIXME prevent turret dying
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
 				if (hero.playersUsingAlt.contains(player.getPersistentID())) {
 					hero.playersUsingAlt.remove(player.getPersistentID());

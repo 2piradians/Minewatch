@@ -98,7 +98,8 @@ public class EntityAnaBullet extends EntityMW {
 		// damage
 		else if (result.entityHit != null) {
 			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
-			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
+			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) &&
+					!TickHandler.hasHandler(result.entityHit, Identifier.REAPER_WRAITH)) {
 				TickHandler.register(this.world.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();
 			}

@@ -182,9 +182,9 @@ public class EntityHelper {
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
-		thrower = getThrower(thrower);
-		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
-		return source != null && shouldHit(thrower, entityHit, friendly, source);
+		Entity actualThrower = getThrower(thrower);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
+		return source != null && shouldHit(actualThrower, entityHit, friendly, source);
 	}
 
 	/**Should entity entity be hit by entity projectile.
@@ -200,7 +200,7 @@ public class EntityHelper {
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
 				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); // TEST same team (w/attacking and sombra's invis)
+				entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); 
 	}
 	
 	/**Should target be hit by entity / should entity render red*/
@@ -261,9 +261,9 @@ public class EntityHelper {
 	}
 
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
-		thrower = getThrower(thrower);
-		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
-		return source != null && attemptDamage(thrower, entityHit, damage, neverKnockback, source);
+		Entity actualThrower = getThrower(thrower);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
+		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful

@@ -103,11 +103,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		boolean battleMercy = false;
-		if (stack.hasTagCompound() && Minewatch.proxy.getClientPlayer() != null) {
-			Entity entity = getEntity(Minewatch.proxy.getClientPlayer().world, stack);
-			battleMercy = entity != null && hero.playersUsingAlt.contains(entity.getPersistentID());		
-		}
+		boolean battleMercy = stack.hasTagCompound() && hero.playersUsingAlt.contains(stack.getTagCompound().getUniqueId("entity"));	
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
 	}
 
@@ -236,7 +232,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 		}
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
@@ -244,7 +240,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		locs.add("_1");
 		return locs;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {

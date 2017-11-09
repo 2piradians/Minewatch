@@ -130,6 +130,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		// direct hit explosion
 		else if (result.entityHit != null && !this.isDeathGrenade) {
+			EntityHelper.moveToHitPosition(this, result);
 			if (this.world.isRemote) {
 				this.motionX = 0;
 				this.motionY = 0;
@@ -139,7 +140,6 @@ public class EntityJunkratGrenade extends EntityMW {
 				this.explode(result.entityHit);
 				Minewatch.network.sendToDimension(new SPacketSimple(20, this, true, result.entityHit), world.provider.getDimension());
 			}
-			EntityHelper.moveToHitPosition(this, result);
 		}
 	}
 

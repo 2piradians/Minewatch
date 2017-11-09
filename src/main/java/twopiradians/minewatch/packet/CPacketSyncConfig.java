@@ -18,6 +18,7 @@ import twopiradians.minewatch.common.config.Config;
 public class CPacketSyncConfig implements IMessage {
 
 	private UUID uuid;
+	private boolean preventFallDamage;
 	private boolean allowGunWarnings;
 	private boolean projectilesCauseKnockback;
 	private double tokenDropRate;
@@ -29,6 +30,7 @@ public class CPacketSyncConfig implements IMessage {
 	public CPacketSyncConfig() {
 		if (Minewatch.proxy.getClientUUID() != null) {
 			this.uuid = Minewatch.proxy.getClientUUID();
+			this.preventFallDamage = Config.preventFallDamage;
 			this.allowGunWarnings = Config.allowGunWarnings;
 			this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
 			this.tokenDropRate = Config.tokenDropRate;
@@ -42,6 +44,7 @@ public class CPacketSyncConfig implements IMessage {
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+		this.preventFallDamage = buf.readBoolean();
 		this.allowGunWarnings = buf.readBoolean();
 		this.projectilesCauseKnockback = buf.readBoolean();
 		this.tokenDropRate = buf.readDouble();
@@ -54,6 +57,7 @@ public class CPacketSyncConfig implements IMessage {
 	@Override
 	public void toBytes(ByteBuf buf) {
 		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
+		buf.writeBoolean(this.preventFallDamage);
 		buf.writeBoolean(this.allowGunWarnings);
 		buf.writeBoolean(this.projectilesCauseKnockback);
 		buf.writeDouble(this.tokenDropRate);
@@ -71,10 +75,10 @@ public class CPacketSyncConfig implements IMessage {
 
 				@Override
 				public void run() {
-					EntityPlayer player = packet.uuid == null ? null : ctx.getServerHandler().playerEntity.world.getPlayerEntityByUUID(packet.uuid);
-
+					EntityPlayer player = ctx.getServerHandler().playerEntity;
 					if (player != null) {
 						if (player.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
+							Config.preventFallDamage = packet.preventFallDamage;
 							Config.allowGunWarnings = packet.allowGunWarnings;
 							Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
 							Config.tokenDropRate = packet.tokenDropRate;

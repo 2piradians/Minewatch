@@ -222,7 +222,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}	
 
 	private static boolean deflect(EntityPlayer player, Entity entity) {
-		if (!entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+		if (entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.4d &&
@@ -275,20 +275,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				TickHandler.hasHandler(event.getEntity(), Identifier.GENJI_DEFLECT)) {
 			if (deflect((EntityPlayer) event.getEntity(), event.getSource().getSourceOfDamage())) 
 				event.setCanceled(true);
-		}
-	}
-
-	@SubscribeEvent
-	public void onKill(LivingDeathEvent event) {
-		// remove strike cooldown if killed by Genji
-		if (event.getEntityLiving() != null && !(event.getEntityLiving() instanceof EntityLivingBaseMW) && 
-				!event.getEntityLiving().world.isRemote && 
-				event.getSource().getEntity() instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.entitiesWearingSets.get(event.getSource().getEntity().getPersistentID()) == EnumHero.GENJI) {
-			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getEntity(), 0, false);
-			Handler handler = TickHandler.getHandler(event.getSource().getEntity(), Identifier.GENJI_STRIKE);
-			if (handler != null)
-				handler.setBoolean(true);
 		}
 	}
 

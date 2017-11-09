@@ -184,8 +184,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("entity") || nbt.getInteger("entity") != entity.getEntityId()) {
-				nbt.setInteger("entity", entity.getEntityId());
+			if (!nbt.hasKey("entityLeast") || nbt.getLong("entityLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("entity", entity.getPersistentID());
 				stack.setTagCompound(nbt);
 			}
 		}
@@ -306,7 +306,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
 		return "";
 	}
-	
+
 	@Override
 	public Item getItem() {
 		return this;
@@ -316,10 +316,11 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@Nullable
 	public static EntityLivingBase getEntity(World world, ItemStack stack) {
 		if (stack != null && stack.hasTagCompound() &&
-				stack.getTagCompound().getInteger("entity") != 0) {
-			Entity entity = world.getEntityByID(stack.getTagCompound().getInteger("entity"));
-			if (entity instanceof EntityLivingBase)
-				return (EntityLivingBase) entity;
+				stack.getTagCompound().getUniqueId("entity") != null) {
+			UUID uuid = stack.getTagCompound().getUniqueId("entity");
+			for (Entity entity : world.loadedEntityList)
+				if (uuid.equals(entity.getPersistentID()) && entity instanceof EntityLivingBase)
+					return (EntityLivingBase) entity;
 		}
 		return null;
 	}

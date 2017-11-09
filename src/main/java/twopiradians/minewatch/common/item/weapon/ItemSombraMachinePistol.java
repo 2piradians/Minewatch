@@ -62,7 +62,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 		}
 	};
-	
+
 	public static final Handler TELEPORT = new Handler(Identifier.SOMBRA_TELEPORT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -164,8 +164,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			// cancel invisibility
 			Handler handler = TickHandler.getHandler(player, Identifier.SOMBRA_INVISIBLE);
 			if (hero.ability3.keybind.isKeyDown(player) || KeyBind.RMB.isKeyDown(player)) {
-				if (handler != null && handler.initialTicks-handler.ticksLeft > 30)
-					cancelInvisibility(player);
+				if (handler != null && handler.initialTicks-handler.ticksLeft > 30) 
+					cancelInvisibility(player); 
 			}
 
 			// invisibility
@@ -226,16 +226,17 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	/**Set Invisibility handler to 14 ticks, if active*/
 	public static void cancelInvisibility(EntityLivingBase entity) {
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
-		if (handler != null && handler.ticksLeft > 14)
+		if (handler != null && handler.ticksLeft > 14) {
 			handler.ticksLeft = 14;
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(27, entity, false), entity.world.provider.getDimension());
+		}
 	}
 
 	@SubscribeEvent
 	public void cancelInvisWhenAttacked(LivingHurtEvent event) {
-		if (TickHandler.hasHandler(event.getEntityLiving(), Identifier.SOMBRA_INVISIBLE)) {
+		if (TickHandler.hasHandler(event.getEntityLiving(), Identifier.SOMBRA_INVISIBLE)) 
 			cancelInvisibility(event.getEntityLiving());
-			Minewatch.network.sendToDimension(new SPacketSimple(27, event.getEntityLiving(), false), event.getEntityLiving().world.provider.getDimension());
-		}
 	}
 
 	@Override

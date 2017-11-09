@@ -187,12 +187,12 @@ public class TickHandler {
 		/**Called every tick on client, returns whether the handler should be removed afterwards*/
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			return --ticksLeft <= 0 || (entity != null && entity.isDead);
+			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called every tick on server, returns whether the handler should be removed afterwards*/
 		public boolean onServerTick() {
-			return --ticksLeft <= 0 || (entity != null && entity.isDead);
+			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called before the handler is removed*/

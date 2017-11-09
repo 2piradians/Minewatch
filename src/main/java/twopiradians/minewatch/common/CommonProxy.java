@@ -217,6 +217,9 @@ public class CommonProxy {
 					double d12 = entity.getDistance(x, y, z) / (double)f3;
 
 					if (d12 <= 1.0D) {
+						System.out.println(d12);
+						if (d12 < 0.4d)
+							d12 = 0;
 						double d5 = entity.posX - x;
 						double d7 = entity.posY + (double)entity.getEyeHeight() - y;
 						double d9 = entity.posZ - z;
@@ -225,8 +228,8 @@ public class CommonProxy {
 						if (d13 != 0.0D) {
 							d5 = d5 / d13;
 							d7 = d7 / d13;
-							d9 = d9 / d13;
-							double d14 = (double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
+							d9 = d9 / d13; //TODO have knockback be more uniform / maxed
+							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
@@ -242,6 +245,7 @@ public class CommonProxy {
 								entity.motionY += d7 * d11 * (entity == exploder ? exploderKnockback : knockback);
 								entity.motionZ += d9 * d11 * (entity == exploder ? exploderKnockback : knockback);
 								entity.velocityChanged = true;
+								//System.out.println(world.isRemote+": "+d13);
 							}
 						}
 					}

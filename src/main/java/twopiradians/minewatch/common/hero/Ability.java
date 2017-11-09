@@ -52,14 +52,14 @@ public class Ability {
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
 									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
 			}
-			return this.ticksLeft <= 0 ? super.onServerRemove() : null;
+			return (this.ticksLeft <= 0 || !player.isEntityAlive()) ? super.onServerRemove() : null;
 		}
 	};
 
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable) {
 		this(keybind, isEnabled, isToggleable, 0, 0);
 	}
-	
+
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable, int maxUses, int useCooldown) {
 		this.keybind = keybind;
 		this.isEnabled = isEnabled;
@@ -107,7 +107,7 @@ public class Ability {
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
 			this.keybind = KeyBind.ABILITY_1;
-		
+
 		return ret;
 	}
 
@@ -157,7 +157,7 @@ public class Ability {
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
 		}
 	}
-	
+
 	/**Should the keybind be visible? - not unable to be used*/
 	public boolean showKeybind(EntityPlayer player) {
 		return keybind.getCooldown(player) <= 0 && 

@@ -91,7 +91,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			--this.recentlyHit;
 
 		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
-				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
+				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64 || !this.getThrower().isEntityAlive()))
 			this.setDead();
 
 		this.firstUpdate = false;

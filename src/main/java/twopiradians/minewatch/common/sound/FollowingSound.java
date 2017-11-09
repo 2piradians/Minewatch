@@ -31,7 +31,7 @@ public class FollowingSound extends MovingSound {
 	}
 
 	public void update() {
-		if (this.entity != null && !this.entity.isDead && (!(entity instanceof EntityJunkratGrenade) || 
+		if (this.entity != null && this.entity.isEntityAlive() && (!(entity instanceof EntityJunkratGrenade) || 
 				((EntityJunkratGrenade)entity).bounces == this.junkratGrenadeBounces)) {
 			this.xPosF = (float)this.entity.posX;
 			this.yPosF = (float)this.entity.posY;

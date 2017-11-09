@@ -170,10 +170,6 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		// make entity body follow head
-		if (isSelected && entity instanceof EntityLivingBase)
-			((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
-		
 		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&

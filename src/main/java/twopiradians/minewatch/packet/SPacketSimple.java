@@ -486,8 +486,9 @@ public class SPacketSimple implements IMessage {
 					}
 					// Reinhardt's fire strike
 					else if (packet.type == 33 && entity != null) {
-						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13),
-								Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
+						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13));
+						if (entity == player)
+							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
 						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.reinhardtStrikeThrow, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 					}
 					// Set entity's position

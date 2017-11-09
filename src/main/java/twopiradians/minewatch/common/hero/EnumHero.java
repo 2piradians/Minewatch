@@ -374,6 +374,14 @@ public enum EnumHero {
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {
+			// make entity body follow head
+			if (event.getEntity().getHeldItemMainhand() != null && 
+					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon) {
+				if (event.getEntity() != Minewatch.proxy.getClientPlayer())
+					System.out.println(event.getEntity().rotationYaw);
+				event.getEntity().renderYawOffset = event.getEntity().rotationYaw;
+			}
+			
 			// hide ModelBipeds with armor layer that are wearing armor
 			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
 					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {

@@ -13,6 +13,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -166,12 +167,12 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		}
 		super.onUpdate();
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getBrightnessForRender(float partialTicks) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor(this.posX), 0, MathHelper.floor(this.posZ));
-		
+
 		// offset by facing
 		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
 			pos.move(facing.getOpposite());
@@ -188,8 +189,11 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	public boolean canEntityBeSeen(Entity entityIn) {
 		if (this.facing == null)
 			return super.canEntityBeSeen(entityIn);
-		else
-			return this.world.rayTraceBlocks(this.getEntityBoundingBox().getCenter().add(new Vec3d(facing.getOpposite().getDirectionVec()).scale(0.3d)), new Vec3d(entityIn.posX, entityIn.posY + (double)entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
+		else {
+			AxisAlignedBB aabb = this.getEntityBoundingBox();
+			Vec3d vec = new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
+			return this.world.rayTraceBlocks(vec.add(new Vec3d(facing.getOpposite().getDirectionVec()).scale(0.3d)), new Vec3d(entityIn.posX, entityIn.posY + (double)entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
+		}
 	}
 
 	@Override

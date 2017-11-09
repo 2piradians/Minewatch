@@ -115,7 +115,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 			// reconfigure
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
-					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { // TODO prevent turret dying
 				boolean turret = false;
 				if (hero.playersUsingAlt.contains(player.getPersistentID())) {
 					hero.playersUsingAlt.remove(player.getPersistentID());

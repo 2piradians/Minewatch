@@ -282,7 +282,7 @@ public class GuiTab extends GuiScreen {
 		case SUBMIT:
 			if (button.displayString.equals("Submit a Skin/Map"))
 				this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
-						new ClickEvent(Action.OPEN_URL, "https://minecraft.curseforge.com/projects/minewatch#title-2"))));
+						new ClickEvent(Action.OPEN_URL, "https://minecraft.curseforge.com/projects/minewatch#title-3"))));
 			else if (button.displayString.equals("Back"))
 				GuiTab.currentScreen = Screen.MAIN;
 			break;

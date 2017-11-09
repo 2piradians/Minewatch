@@ -341,7 +341,7 @@ public class EntityHelper {
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
 			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
-					return entity != null && entity.canBeCollidedWith() && shouldHit(shooter, entity, friendly);
+					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
 				}
 			}));
 			double d2 = d1;

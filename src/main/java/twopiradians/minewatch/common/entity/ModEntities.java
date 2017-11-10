@@ -1,6 +1,5 @@
 package twopiradians.minewatch.common.entity;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
 

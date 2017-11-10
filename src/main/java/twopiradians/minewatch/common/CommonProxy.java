@@ -23,7 +23,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -207,7 +206,6 @@ public class CommonProxy {
 			int j1 = MathHelper.floor_double(z + (double)f3 + 1.0D);
 			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB((double)k1, (double)i2, (double)j2, (double)l1, (double)i1, (double)j1));
 			net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(world, explosion, list, f3);
-			Vec3d vec3d = new Vec3d(x, y, z);
 
 			for (int k2 = 0; k2 < list.size(); ++k2) {
 				Entity entity = (Entity)list.get(k2);

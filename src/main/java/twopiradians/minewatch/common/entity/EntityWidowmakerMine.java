@@ -143,7 +143,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
 		// check if not attached
 		if (!this.worldObj.isRemote && this.onGround && 
-				this.facing != null && !worldObj.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) {
+				this.facing != null && !worldObj.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.2d))) {
 			this.onGround = false;
 			this.facing = null;
 			this.dataManager.set(FACING, -1);		

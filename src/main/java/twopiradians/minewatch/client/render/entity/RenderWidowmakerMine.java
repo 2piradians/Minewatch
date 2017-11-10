@@ -12,7 +12,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelProcessingHelper;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -37,7 +36,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 		if (i == 2) {
 			HashMap<String, String> map = Maps.newHashMap();
 			map.put("#material", new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red").toString());
-			return ModelProcessingHelper.retexture(model, ImmutableMap.copyOf(map));
+			return model.retexture(ImmutableMap.copyOf(map));
 		}
 		else
 			return model;

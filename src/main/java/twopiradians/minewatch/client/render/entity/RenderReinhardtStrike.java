@@ -38,7 +38,7 @@ public class RenderReinhardtStrike extends RenderOBJModel<EntityReinhardtStrike>
 	protected IModel retexture(int i, IModel model) {
 		HashMap<String, String> map = Maps.newHashMap();
 		map.put("#None", new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i).toString());
-		return ModelProcessingHelper.retexture(model, ImmutableMap.copyOf(map));
+		return model.retexture(ImmutableMap.copyOf(map));
 	}
 
 	@Override

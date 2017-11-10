@@ -23,7 +23,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.model.IModelState;
@@ -48,7 +47,7 @@ public class BakedMWItem extends OBJBakedModel {
 	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {			
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
-		Pair<? extends IBakedModel, Matrix4f> ret = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.getState(), cameraTransformType);
+		Pair<? extends IBakedModel, Matrix4f> ret = super.handlePerspective(cameraTransformType);
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
 			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, cameraTransformType, ret);

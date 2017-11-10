@@ -19,7 +19,7 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //PORT change json location, search for scala library
 // 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
 // 1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.2/update.json", acceptedMinecraftVersions="[1.12,1.13)")
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.1/update.json", acceptedMinecraftVersions="[1.12,1.13)")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";

@@ -55,7 +55,7 @@ public class EntityAnaBullet extends EntityMW {
 			this.getDataManager().set(HEAL, heal);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
-		this.lifetime = 10; 
+		this.lifetime = 30; 
 	}
 
 	@Override

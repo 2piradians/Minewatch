@@ -117,7 +117,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 			if (!world.isRemote && hero.playersUsingAlt.contains(player.getPersistentID()) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
 				hero.playersUsingAlt.remove(player.getPersistentID());
-				Minewatch.network.sendToAll(new SPacketSimple(31, false, player));
+				Minewatch.network.sendToAll(new SPacketSimple(31, false, player));//TODO other player dying in turret -> still looks like turret to me
 				hero.reloadSound = ModSoundEvents.bastionReload;
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}

@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -7,13 +9,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,13 +29,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 	public ItemSoldier76Gun() {
 		super(30);
-		this.savePlayerToNBT = true;
-		this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
-			}
-		});
+		this.saveEntityToNBT = true;
 	}
 
 	@Override
@@ -86,7 +80,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.playersWearingSets.get(entity.getPersistentID()) == hero) {
+				ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero) {
 			if (!world.isRemote)
 				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
 			hero.ability3.toggle(entity, true);
@@ -113,6 +107,20 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_blocking");
+		return super.getAllModelLocations(locs);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean blocking = entity != null ? entity.isSprinting() : false;
+		return blocking ? "_blocking" : "";
 	}
 
 }

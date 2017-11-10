@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class MinewatchTab extends CreativeTabs {
-
+	
 	public List<ItemStack> orderedStacks = Lists.<ItemStack>newArrayList();
 
 	public MinewatchTab(String label) {
@@ -29,5 +29,5 @@ public class MinewatchTab extends CreativeTabs {
 	public void displayAllRelevantItems(List<ItemStack> list) {
 		list.clear();
 		list.addAll(orderedStacks);
-	}
+}
 }

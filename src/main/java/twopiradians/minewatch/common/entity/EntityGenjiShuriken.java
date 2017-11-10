@@ -32,7 +32,7 @@ public class EntityGenjiShuriken extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, 28, false))
+		if (EntityHelper.attemptDamage(this, result.entityHit, 28, false))
 			result.entityHit.hurtResistantTime = 0;
 
 		if (this.worldObj.isRemote)

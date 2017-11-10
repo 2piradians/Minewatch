@@ -8,6 +8,8 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -18,6 +20,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -43,7 +46,7 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/mw hero <Hero> or /mw syncConfigToServer";
+		return "/mw hero <Hero> [target] or /mw syncConfigToServer";
 	}
 
 	@Override
@@ -53,45 +56,49 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (sender instanceof EntityPlayer) {
-			// sync config
-			if (args.length == 1 && args[0].equalsIgnoreCase("syncConfigToServer") && sender instanceof EntityPlayerMP) {
-				if (server.isSinglePlayer())
-					sender.addChatMessage(new TextComponentString(TextFormatting.RED+"The config only needs to be synced on a multiplayer server."));
-				else
-					Minewatch.network.sendTo(new SPacketSimple(17), (EntityPlayerMP) sender);
-			}
-			// hero
-			else if (args.length == 2 && args[0].equalsIgnoreCase("hero")) {
-				EnumHero hero = null;
-				for (EnumHero hero2 : EnumHero.values())
-					if (hero2.name.equalsIgnoreCase(args[1]))
-						hero = hero2;
+		// sync config
+		if (args.length == 1 && args[0].equalsIgnoreCase("syncConfigToServer") && sender instanceof EntityPlayerMP) {
+			if (server.isSinglePlayer())
+				sender.addChatMessage(new TextComponentString(TextFormatting.RED+"The config only needs to be synced on a multiplayer server."));
+			else
+				Minewatch.network.sendTo(new SPacketSimple(17), (EntityPlayerMP) sender);
+		}
+		// hero [target]
+		else if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("hero")) {
+			EnumHero hero = null;
+			for (EnumHero hero2 : EnumHero.values())
+				if (hero2.name.equalsIgnoreCase(args[1]))
+					hero = hero2;
 
-				if (hero != null) {
-					EntityPlayer player = (EntityPlayer) sender;
-					for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-						ItemStack stack = player.getItemStackFromSlot(slot);
-						if (stack == null || stack.getItem() instanceof ItemMWArmor ||
-								stack.getItem() instanceof ItemMWWeapon)
-							player.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
-									null : new ItemStack(hero.getEquipment(slot)));
-						else if (hero.getEquipment(slot) != null)
-							player.inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
-					}
-					sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name));
-				}
-				else
-					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
+			if (hero != null) {
+				EntityLivingBase entity = args.length == 3 ? 
+						(EntityLivingBase)CommandBase.getEntity(server, sender, args[2], EntityLivingBase.class) :
+							CommandBase.getCommandSenderAsPlayer(sender);
+						if (!(entity instanceof EntityLivingBaseMW)) {
+							for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+								ItemStack stack = entity.getItemStackFromSlot(slot);
+								if (stack == null || stack.getItem() instanceof ItemMWArmor ||
+										stack.getItem() instanceof ItemMWWeapon)
+									entity.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
+											null : new ItemStack(hero.getEquipment(slot)));
+								else if (hero.getEquipment(slot) != null && entity instanceof EntityPlayer)
+									((EntityPlayer)entity).inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
+							}
+							sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name+
+									(args.length == 3 ? " on "+entity.getName() : "")));
+						}
 			}
 			else
-				throw new WrongUsageException(this.getCommandUsage(sender), new Object[0]);
+				sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 		}
+		else
+			throw new WrongUsageException(this.getCommandUsage(sender), new Object[0]);
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return sender instanceof EntityPlayer && server.getPlayerList().canSendCommands(((EntityPlayer)sender).getGameProfile());
+		return (sender instanceof EntityPlayer && server.getPlayerList().canSendCommands(((EntityPlayer)sender).getGameProfile())) ||
+				!(sender instanceof Entity);
 	}
 
 	@Override
@@ -104,12 +111,14 @@ public class CommandMinewatch implements ICommand {
 		}
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, ALL_HERO_NAMES);
+		else if (args.length == 3 && args[0].equalsIgnoreCase("hero"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
 		else
 			return new ArrayList<String>();
 	}
 
 	@Override
 	public boolean isUsernameIndex(String[] args, int index) {
-		return false;
+		return args.length == 3 && args[0].equalsIgnoreCase("hero");
 	}
 }

@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -8,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -39,14 +41,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	public ItemWidowmakerRifle() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
@@ -86,6 +82,25 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
 				!isScoped((EntityPlayer) entity, stack))
 			((EntityPlayer)entity).resetActiveHand();
+
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+
+			// venom mine
+			if (!world.isRemote && hero.ability1.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 19, 0, null, 0, 0);
+				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				world.spawnEntityInWorld(mine);
+				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				hero.ability1.keybind.setCooldown(player, 300, false); 
+				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
+						hero.ability1.entities.get(player).isEntityAlive()) 
+					hero.ability1.entities.get(player).isDead = true;
+				hero.ability1.entities.put(player, mine);
+			}
+		}
 	}
 
 	@Override
@@ -97,7 +112,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				if (!player.worldObj.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.worldObj, player, 2, true, 
 							(int) (12+(120d-12d)*getPower(player)));
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 0, 0);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 10, 0);
 					player.worldObj.spawnEntityInWorld(bullet);
 					player.worldObj.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.worldObj.rand.nextFloat()+0.5F, player.worldObj.rand.nextFloat()/2+0.75f);	
 					if (!player.getCooldownTracker().hasCooldown(this))
@@ -114,7 +129,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			else if (!Minewatch.keys.rmb(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 5, hand, 6, 0.43f);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 3, hand, 6, 0.43f);
 					world.spawnEntityInWorld(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);
@@ -142,8 +157,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && player.onGround && 
-				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon &&
+		return player != null && player.getHeldItemMainhand() != null && 
+				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !Minewatch.keys.jump(player) &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}
 
@@ -193,4 +208,19 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			}
 		}
 	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_scoping");
+		return super.getAllModelLocations(locs);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		return scoping ? "_scoping" : "";
+	}	
+
 }

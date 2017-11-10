@@ -30,16 +30,22 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
+import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
+import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
+import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -215,7 +221,10 @@ public class SPacketSimple implements IMessage {
 						ItemStack main = packetPlayer.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-							hero.playersUsingAlt.put(packet.uuid, packet.bool);
+							if (packet.bool && !hero.playersUsingAlt.contains(packet.uuid))
+								hero.playersUsingAlt.add(packet.uuid);
+							else if (!packet.bool)
+								hero.playersUsingAlt.remove(packet.uuid);
 							if (ItemStack.areItemsEqualIgnoreDurability(main, packetPlayer.getHeldItemOffhand()))
 								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
 										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
@@ -348,7 +357,7 @@ public class SPacketSimple implements IMessage {
 					// Junkrat's grenade bounce
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {
 						// direct hit
-						if (packet.bool) {
+						if (packet.bool && entity2 instanceof Entity) {
 							((EntityJunkratGrenade)entity).explode(null);
 							entity.worldObj.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeExplode, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
@@ -415,6 +424,81 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.JUNKRAT_TRAP));
 						entity.setDead();
+					}
+					// Sombra's invisibility
+					else if (packet.type == 27 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
+									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3).setBoolean(true));
+							if (entity == player)
+								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else if (entity instanceof EntityLivingBase)
+							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
+					}
+					// Widowmaker's venom trap
+					else if (packet.type == 28 && entity != null && entity2 instanceof EntityLivingBase) {
+						TickHandler.register(true, EntityWidowmakerMine.POISONED.setTicks(100).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
+						if (entity2 == player && player != null) 
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.worldObj, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+					}
+					// Sombra's teleport
+					else if (packet.type == 29 && packetPlayer != null) {
+						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
+								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
+					}
+					// Junkrat's mine explosion
+					else if (packet.type == 30 && entity instanceof EntityJunkratMine) {
+						((EntityJunkratMine)entity).explode();
+					}
+					// Bastion's reconfigure
+					else if (packet.type == 31 && packetPlayer != null) {
+						if (!packet.bool)
+							EnumHero.BASTION.playersUsingAlt.remove(packetPlayer.getPersistentID());
+						else if (!EnumHero.BASTION.playersUsingAlt.contains(packetPlayer.getPersistentID())) 
+							EnumHero.BASTION.playersUsingAlt.add(packetPlayer.getPersistentID());
+						if (packet.bool) {
+							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(packetPlayer).setTicks(10));
+							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else
+							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure0, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+					}
+					// Mei's cryo-freeze
+					else if (packet.type == 32 && entity != null) {
+						if (packet.bool) {
+							if (entity == player) {
+								ItemMeiBlaster.thirdPersonView = Minecraft.getMinecraft().gameSettings.thirdPersonView;
+								TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(80).setAbility(EnumHero.MEI.ability2));
+							}
+							TickHandler.register(true, ItemMeiBlaster.CRYSTAL.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_INPUT.setEntity(entity).setTicks(80),
+									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80));
+							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						}
+						else 
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MEI_CRYSTAL),
+									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(entity, Identifier.PREVENT_INPUT),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
+									TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+					}
+					// Reinhardt's fire strike
+					else if (packet.type == 33 && entity != null) {
+						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13));
+						if (entity == player)
+							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
+						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.reinhardtStrikeThrow, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+					}
+					// Set entity's position
+					else if (packet.type == 34 && entity != null) {
+						entity.setPosition(packet.x, packet.y, packet.z);
+					}
+					// Sombra's translocator
+					else if (packet.type == 35 && packetPlayer != null && entity != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(packetPlayer).setBoolean(true));
+						EnumHero.SOMBRA.ability2.entities.put(packetPlayer, entity);
 					}
 				}
 			});

@@ -19,8 +19,9 @@ public class RenderJunkratGrenade extends RenderOBJModel<EntityJunkratGrenade> {
 	}
 	
 	@Override
-	protected void preRender(EntityJunkratGrenade entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected boolean preRender(EntityJunkratGrenade entity, int model, VertexBuffer buffer, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.translate(0, -0.06d, 0);
 		GlStateManager.scale(2, 2, 2);	
+		return true;
 	}
 }

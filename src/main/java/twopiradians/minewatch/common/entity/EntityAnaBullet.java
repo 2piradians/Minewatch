@@ -21,7 +21,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityAnaBullet extends EntityMW {
 
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityAnaBullet.class, DataSerializers.BOOLEAN);
-	public static Handler DAMAGE = new Handler(Identifier.ANA_DAMAGE, false) {
+	public static final Handler DAMAGE = new Handler(Identifier.ANA_DAMAGE, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
@@ -83,7 +83,7 @@ public class EntityAnaBullet extends EntityMW {
 
 		// heal
 		if (this.isFriendly) {
-			EntityHelper.attemptImpact(this, result.entityHit, -75, true);
+			EntityHelper.attemptDamage(this, result.entityHit, -75, true);
 			// particles / sounds
 			if (this.worldObj.isRemote && result.entityHit != null) {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
@@ -97,9 +97,9 @@ public class EntityAnaBullet extends EntityMW {
 		}
 		// damage
 		else if (result.entityHit != null) {
-			EntityHelper.moveToEntityHit(this, result.entityHit);
-			EntityHelper.attemptImpact(this, result.entityHit, 0, false);
-			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
+			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
+			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) &&
+					!TickHandler.hasHandler(result.entityHit, Identifier.REAPER_WRAITH)) {
 				TickHandler.register(this.worldObj.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();
 			}

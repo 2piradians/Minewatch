@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -14,6 +15,7 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -40,6 +42,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -95,12 +98,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 
 		@Override
-		public Handler onRemove() {
-			if (!player.worldObj.isRemote) {
-				EnumHero.REAPER.ability2.keybind.setCooldown(player, 160, false);
-				player.hurtResistantTime = 0;
-			}
-			return super.onRemove();
+		public Handler onServerRemove() {
+			EnumHero.REAPER.ability2.keybind.setCooldown(player, 160, false);
+			player.hurtResistantTime = 0;
+			return super.onServerRemove();
 		}
 	};
 
@@ -165,19 +166,24 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			return super.onServerTick();
 		}
 
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
-			if (player.worldObj.isRemote && this.ticksLeft != -1) 
+		public Handler onClientRemove() {
+			if (this.ticksLeft != -1) 
 				EnumHero.REAPER.ability1.toggle(player, false);
-			else if (!player.worldObj.isRemote)
-				EnumHero.REAPER.ability1.keybind.setCooldown(player, 200, false); 
-			return super.onRemove();
+			return super.onClientRemove();
+		}
+
+		@Override
+		public Handler onServerRemove() {
+			EnumHero.REAPER.ability1.keybind.setCooldown(player, 200, false); 
+			return super.onServerRemove();
 		}
 	};
 
 	public ItemReaperShotgun() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		this.hasOffhand = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -210,7 +216,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@Nullable
 	private Vec3d getTeleportPos(EntityPlayer player) {
 		try {
-			RayTraceResult result = player.worldObj.rayTraceBlocks(ItemMWWeapon.getPositionEyes(player, 1), 
+			RayTraceResult result = player.worldObj.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
@@ -351,10 +357,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@SubscribeEvent
 	public void damageEntities(LivingHurtEvent event) {
-		if (event.getSource().getSourceOfDamage() instanceof EntityPlayer && event.getEntityLiving() != null) {
-			EntityPlayer player = ((EntityPlayer)event.getSource().getSourceOfDamage());
+		if (event.getSource().getEntity() instanceof EntityPlayer && event.getEntityLiving() != null) {
+			EntityPlayer player = ((EntityPlayer)event.getSource().getEntity());
 			// heal reaper
-			if (!player.worldObj.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero &&
+			if (!player.worldObj.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero &&
 					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
 				try {
 					float damage = event.getAmount();
@@ -380,6 +386,43 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			model.leftArmPose = ModelBiped.ArmPose.BLOCK;
 			model.rightArmPose = ModelBiped.ArmPose.BLOCK;
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+		// wraith
+		if (TickHandler.hasHandler(entity, Identifier.REAPER_WRAITH)) { 
+			Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_WRAITH);
+			float delay = 10;
+			float color = handler.ticksLeft > (60-delay) ? 1f-(1f-(handler.ticksLeft-60+delay)/delay)*0.6f : 
+				handler.ticksLeft < delay ? 1f-handler.ticksLeft/delay*0.6f : 0.4f;
+			GlStateManager.color(color-0.1f, color-0.1f, color-0.1f, color);
+		}
+		// teleport
+		else if (TickHandler.hasHandler(entity, Identifier.REAPER_TELEPORT)) { 
+			Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_TELEPORT);
+			float delay = 10;
+			float color = (handler.ticksLeft > (40-delay) && handler.ticksLeft < (40+delay)) ? 
+					Math.abs((handler.ticksLeft-40)/(delay*2f)) : 1f;
+					GlStateManager.color(color, color, color, color);
+		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_0");
+		locs.add("_1");
+		return locs;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_TELEPORT);
+		boolean tping = handler != null && handler.ticksLeft != -1;
+		return tping ? "_1" : "_0";
 	}
 
 }

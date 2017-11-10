@@ -1,13 +1,19 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Matrix4f;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -18,24 +24,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
-public abstract class ItemMWWeapon extends Item {
+public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public EnumHero hero;
 	public boolean hasOffhand;
@@ -45,7 +54,8 @@ public abstract class ItemMWWeapon extends Item {
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
-	protected boolean savePlayerToNBT;
+	protected boolean saveEntityToNBT;
+	protected boolean showHealthParticles;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -53,16 +63,18 @@ public abstract class ItemMWWeapon extends Item {
 	}
 
 	public int getMaxAmmo(EntityPlayer player) {
-		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-				hero.playersUsingAlt.get(player.getPersistentID()))
+		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.contains(player.getPersistentID()))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
 	}
 
 	public int getCurrentAmmo(EntityPlayer player) {
-		if (player != null && currentAmmo.containsKey(player.getPersistentID()))
+		if (player != null && currentAmmo.containsKey(player.getPersistentID())) {
+			if (currentAmmo.get(player.getPersistentID()) > getMaxAmmo(player))
+				currentAmmo.put(player.getPersistentID(), getMaxAmmo(player));
 			return currentAmmo.get(player.getPersistentID());
+		}
 		else
 			return getMaxAmmo(player);
 	}
@@ -78,7 +90,7 @@ public abstract class ItemMWWeapon extends Item {
 				for (EnumHand hand2 : hands)
 					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) 
 						this.reequipAnimation.put(player.getHeldItem(hand2), 2);
-			currentAmmo.put(player.getPersistentID(), amount);
+			currentAmmo.put(player.getPersistentID(), Math.min(amount, getMaxAmmo(player)));
 		}
 	}
 
@@ -114,10 +126,11 @@ public abstract class ItemMWWeapon extends Item {
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 		if (player == null || (player.getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
-				TickHandler.hasHandler(player, Identifier.ABILITY_USING))
+				(handler != null && !handler.bool))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -157,7 +170,7 @@ public abstract class ItemMWWeapon extends Item {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
@@ -165,21 +178,21 @@ public abstract class ItemMWWeapon extends Item {
 			return;
 		}
 
-		// set player in nbt for model changer (in ClientProxy) to reference
-		if (this.savePlayerToNBT && entity instanceof EntityPlayer && !entity.worldObj.isRemote && 
+		// set player in nbt for model changer to reference
+		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.worldObj.isRemote && 
 				stack != null && stack.getItem() == this) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (!nbt.hasKey("playerLeast") || nbt.getLong("playerLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
-				nbt.setUniqueId("player", entity.getPersistentID());
+			if (!nbt.hasKey("entityLeast") || nbt.getLong("entityLeast") != (entity.getPersistentID().getLeastSignificantBits())) {
+				nbt.setUniqueId("entity", entity.getPersistentID());
 				stack.setTagCompound(nbt);
 			}
 		}
 
 		// reloading
 		if (!world.isRemote && entity instanceof EntityPlayer && (((EntityPlayer)entity).getHeldItemMainhand() == stack ||
-				((EntityPlayer)entity).getHeldItemOffhand() == stack))
+				((EntityPlayer)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
 			// automatic reload
 			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
 			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
@@ -211,8 +224,21 @@ public abstract class ItemMWWeapon extends Item {
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
-				SetManager.playersWearingSets.get(entity.getPersistentID()) == hero)
+				SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
+
+		// health particles
+		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
+				world.isRemote && entity.ticksExisted % 5 == 0) {
+			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
+			List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			for (Entity entity2 : list) 
+				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
+						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+					float size = Math.min(entity2.height, entity2.width)*9f;
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
+				}
+		}
 	}
 
 	@Override
@@ -246,18 +272,52 @@ public abstract class ItemMWWeapon extends Item {
 		return super.hasEffect(stack); //XXX will be used with golden weapons
 	}
 
-	//PORT keep for 1.10 PosEyes vec (is this needed anymore?)
-	
-	//**Copied from {@link Entity#getPositionEyes(float)} bc client-side only*//*
-	public static Vec3d getPositionEyes(Entity entity, float partialTicks)  {
-		if (partialTicks == 1.0F)
-			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
-		else {
-			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
-			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
-			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
-			return new Vec3d(d0, d1, d2);
+	/**Called before armor is rendered - mainly used for coloring / alpha*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {}
+
+	/**Called before weapon is rendered*/
+	@SideOnly(Side.CLIENT)
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
+
+	/**Set weapon model's color*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		return -1;
+	}
+
+	/**Register this weapon model's variants - registers 2D and 3D basic models by default*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("");
+		return locs;
+	}
+
+	/**defautLoc + [return] + (Config.useObjModels ? "_3d" : "")*/
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return "";
+	}
+
+	@Override
+	public Item getItem() {
+		return this;
+	}
+
+	/**Get entity holding stack from stack's nbt*/
+	@Nullable
+	public static EntityLivingBase getEntity(World world, ItemStack stack) {
+		if (stack != null && stack.hasTagCompound() &&
+				stack.getTagCompound().getUniqueId("entity") != null) {
+			UUID uuid = stack.getTagCompound().getUniqueId("entity");
+			for (Entity entity : world.loadedEntityList)
+				if (uuid.equals(entity.getPersistentID()) && entity instanceof EntityLivingBase)
+					return (EntityLivingBase) entity;
 		}
+		return null;
 	}
 
 	// DEV SPAWN ARMOR ===============================================

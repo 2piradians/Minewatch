@@ -21,7 +21,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWToken extends Item {
-
+	
 	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;

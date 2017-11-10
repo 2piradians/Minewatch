@@ -24,7 +24,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 20;
+		this.lifetime = 1;
 		this.damage = damage;
 		if (!this.worldObj.isRemote)
 			this.getDataManager().set(SCOPED, scoped);
@@ -33,7 +33,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, shooter, 
-				0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0, hand, 4, 0.4f);
+				0xF9394F, 0x5A575A, 0.7f, 1, 2, 1.5f, 0, 0, hand, hand == null ? 10 : 4, hand == null ? 0 : 0.4f);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptImpact(this, result.entityHit, damage, false)) 
+		if (EntityHelper.attemptDamage(this, result.entityHit, damage, false)) 
 			if (!this.dataManager.get(SCOPED))
 				result.entityHit.hurtResistantTime = 0;
 	}

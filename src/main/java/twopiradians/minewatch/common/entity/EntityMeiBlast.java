@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -47,9 +46,6 @@ public class EntityMeiBlast extends EntityMW {
 			// apply freeze/slowness effect
 			if (this.ticksLeft >= 30) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-				/*entityLiving.setRevengeTarget(null);
-				if (entityLiving instanceof EntityLiving)
-					((EntityLiving)entityLiving).setAttackTarget(entityLiving);*/
 				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
 				TickHandler.interrupt(entityLiving);
 				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),
@@ -116,7 +112,7 @@ public class EntityMeiBlast extends EntityMW {
 					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
 				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
-			if (EntityHelper.attemptImpact(this, result.entityHit, 2.25f, true)) {
+			if (EntityHelper.attemptDamage(this, result.entityHit, 2.25f, true)) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);

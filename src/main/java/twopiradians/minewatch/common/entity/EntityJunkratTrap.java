@@ -112,9 +112,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		}
 
 		// check to set dead
-		if (!this.worldObj.isRemote && !(this.getThrower() instanceof EntityLivingBase))
-			this.setDead();
-		else if (!this.worldObj.isRemote && this.trappedEntity != null && (this.trappedEntity.getHealth() <= 0 || !this.onGround)) 
+		if (!this.worldObj.isRemote && this.trappedEntity != null && (this.trappedEntity.getHealth() <= 0 || !this.onGround)) 
 			this.setDead();
 
 		super.onUpdate();

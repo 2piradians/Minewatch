@@ -6,11 +6,11 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -21,13 +21,14 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class Ability {
 
+	/**boolean represents if it should allow other abilities to be used while using this one*/
 	public static final Handler ABILITY_USING = new Handler(Identifier.ABILITY_USING, true) {};
 
 	public EnumHero hero;
 	public KeyBind keybind;
 	public boolean isEnabled;
 	public boolean isToggleable;
-	public HashMap<EntityPlayer, EntityLivingBaseMW> entities = Maps.newHashMap();
+	public HashMap<EntityLivingBase, Entity> entities = Maps.newHashMap();
 	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
 
 	// multi use ability stuff
@@ -36,7 +37,7 @@ public class Ability {
 	public HashMap<UUID, Integer> multiAbilityUses = Maps.newHashMap();
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			if (!player.worldObj.isRemote) {
 				UUID uuid = player.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
@@ -51,14 +52,14 @@ public class Ability {
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
 									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
 			}
-			return this.ticksLeft <= 0 ? super.onRemove() : null;
+			return (this.ticksLeft <= 0 || !player.isEntityAlive()) ? super.onServerRemove() : null;
 		}
 	};
 
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable) {
 		this(keybind, isEnabled, isToggleable, 0, 0);
 	}
-	
+
 	public Ability(KeyBind keybind, boolean isEnabled, boolean isToggleable, int maxUses, int useCooldown) {
 		this.keybind = keybind;
 		this.isEnabled = isEnabled;
@@ -106,7 +107,7 @@ public class Ability {
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
 			this.keybind = KeyBind.ABILITY_1;
-		
+
 		return ret;
 	}
 
@@ -121,18 +122,17 @@ public class Ability {
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
-				ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) &&
-				ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == hero) &&
+				ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) &&
+				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) &&
 				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
 						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (handler != null && handler.ability != null)
+		if (handler != null && handler.ability != null && !handler.bool)
 			return this == handler.ability;
 
 		if (ret && player.worldObj.isRemote)
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
-
 		return ret;
 	}
 
@@ -157,10 +157,11 @@ public class Ability {
 							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
 		}
 	}
-	
+
+	/**Should the keybind be visible? - not unable to be used*/
 	public boolean showKeybind(EntityPlayer player) {
 		return keybind.getCooldown(player) <= 0 && 
-				(!isSelected(player) || (isToggled(player) && !TickHandler.hasHandler(player, Identifier.ABILITY_USING))) &&
+				(!isSelected(player) || (isToggled(player))) &&
 				(maxUses == 0 || getUses(player) > 0);
 	}
 

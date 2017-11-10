@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -52,7 +51,6 @@ public class EntityMeiIcicle extends EntityMW {
 			EntityHelper.spawnTrailParticles(this, 10, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
 
 		// in ground
-
 		if (this.inGround && this.lifetime == 40) 
 			this.lifetime = 1240;
 
@@ -106,9 +104,9 @@ public class EntityMeiIcicle extends EntityMW {
 		}
 		else {
 			if (EntityHelper.shouldHit(getThrower(), result.entityHit, false)) {
-				EntityHelper.moveToEntityHit(this, result.entityHit);
-				double distance = this.getPositionVector().distanceTo(new Vec3d(prevPosX, prevPosY, prevPosZ));
-				EntityHelper.attemptImpact(this, result.entityHit, (float) (75-(75-22) * MathHelper.clamp_double((distance-26) / (55-26), 0, 1)), false); 
+				EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 22, 75, 26, 55);
+				EntityHelper.moveToHitPosition(this, result);
+				this.inGround = false;
 			}
 		}
 	}

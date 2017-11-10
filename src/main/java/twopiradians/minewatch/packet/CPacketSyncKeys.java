@@ -30,11 +30,11 @@ public class CPacketSyncKeys implements IMessage
 	public CPacketSyncKeys(String keyName, boolean isKeyPressed, UUID player) {
 		this(keyName, isKeyPressed, 70f, player);
 	}
-	
+
 	public CPacketSyncKeys(String keyName, float fov, UUID player) {
 		this(keyName, false, fov, player);
 	}
-	
+
 	public CPacketSyncKeys(String keyName, boolean isKeyPressed, float fov, UUID player) {
 		this.keyName = keyName;
 		this.isKeyPressed = isKeyPressed;
@@ -86,7 +86,10 @@ public class CPacketSyncKeys implements IMessage
 						ItemStack main = player.getHeldItemMainhand();
 						if (main != null && main.getItem() instanceof ItemMWWeapon) {
 							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-							hero.playersUsingAlt.put(packet.player, packet.isKeyPressed);
+							if (!packet.isKeyPressed)
+								hero.playersUsingAlt.remove(packet.player);
+							else if (!hero.playersUsingAlt.contains(packet.player))
+								hero.playersUsingAlt.add(packet.player);
 							Minewatch.network.sendToAll(new SPacketSimple(6, packet.isKeyPressed, player));
 						}
 					}
@@ -95,7 +98,7 @@ public class CPacketSyncKeys implements IMessage
 					else if (packet.keyName.equals("RMB"))
 						Minewatch.keys.rmb.put(packet.player, packet.isKeyPressed);
 					else if (packet.keyName.equals("Toggle Ability 1")) {
-						EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
+						EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(packet.player);
 						if (hero != null)
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
@@ -103,7 +106,7 @@ public class CPacketSyncKeys implements IMessage
 									ability.toggle(player, packet.isKeyPressed);
 					}
 					else if (packet.keyName.equals("Toggle Ability 2")) {
-						EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(packet.player);
+						EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(packet.player);
 						if (hero != null)
 							for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 								if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 

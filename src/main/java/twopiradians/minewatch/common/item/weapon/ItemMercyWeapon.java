@@ -1,8 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -14,13 +13,10 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -29,7 +25,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
@@ -55,7 +50,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (entity == null || position == null)
 				return true;
-			
+
 			entity.fallDistance = 0;
 			entity.motionX = (position.xCoord - entity.posX)/10;
 			entity.motionY = (position.yCoord - entity.posY)/10;
@@ -69,7 +64,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entity == null || position == null)
 				return true;
-			
+
 			entity.fallDistance = 0;
 			entity.motionX = (position.xCoord - entity.posX)/10;
 			entity.motionY = (position.yCoord - entity.posY)/10;
@@ -78,39 +73,37 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			return super.onServerTick() || Minewatch.keys.jump(player) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2;
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			if (this.player != null) {
-				if (!this.player.worldObj.isRemote)
-					EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
-				else
-					Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
+				Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
 				TickHandler.unregister(this.player.worldObj.isRemote, 
 						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
 			}
-			return super.onRemove();
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			if (this.player != null) {
+				EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
+				TickHandler.unregister(this.player.worldObj.isRemote, 
+						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
+			}
+			return super.onServerRemove();
 		}
 	};
 
 	public ItemMercyWeapon() {
 		super(20);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
+		this.showHealthParticles = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("gun"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return !ItemMercyWeapon.isStaff(stack) ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		boolean battleMercy = false;
-		if (stack.hasTagCompound()) {
-			UUID uuid = stack.getTagCompound().getUniqueId("player");
-			battleMercy = uuid != null && hero.playersUsingAlt.containsKey(uuid) && hero.playersUsingAlt.get(uuid);		
-		}
+		boolean battleMercy = stack.hasTagCompound() && hero.playersUsingAlt.contains(stack.getTagCompound().getUniqueId("entity"));	
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
 	}
 
@@ -123,8 +116,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-				hero.playersUsingAlt.get(player.getPersistentID())) {
+		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.contains(player.getPersistentID())) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);
@@ -145,19 +137,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
-
-		// health particles
-		if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
-			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-			List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
-			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
-						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
-					float size = Math.min(entity2.height, entity2.width)*9f;
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
-				}
-		}
 
 		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
@@ -235,7 +214,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 		// add to notRegening if hurt
 		if (target instanceof EntityPlayer && !target.worldObj.isRemote &&
-				ItemMWArmor.SetManager.playersWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
+				ItemMWArmor.SetManager.entitiesWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity((EntityPlayer) target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
@@ -243,7 +222,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.worldObj.isRemote &&
-					ItemMWArmor.SetManager.playersWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
+					ItemMWArmor.SetManager.entitiesWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
@@ -252,6 +231,20 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				break;
 			}
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_0");
+		locs.add("_1");
+		return locs;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return ItemMercyWeapon.isStaff(stack) ? "_0" : "_1";
 	}
 
 }

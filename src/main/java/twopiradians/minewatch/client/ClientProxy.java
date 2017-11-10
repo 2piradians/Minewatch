@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import com.google.common.collect.ImmutableMap;
+
 import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
@@ -14,6 +16,9 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,17 +27,23 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.client.model.obj.OBJModel;
+import net.minecraftforge.client.model.obj.OBJModel.Material;
+import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -40,6 +51,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
@@ -47,11 +59,17 @@ import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
+import twopiradians.minewatch.client.render.entity.RenderJunkratMine;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
+import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
+import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
+import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
+import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.EntityBastionBullet;
@@ -60,22 +78,26 @@ import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.EntitySombraBullet;
+import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
-import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ModItems;
-import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
-import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
-import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -89,24 +111,28 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
-		registerObjRenders();
+		registerWeaponRenders();
 		registerEntityRenders();
-		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
-		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
-		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
-		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);
+		createKeybinds();
 	}
 
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
-		registerRenders();
+		registerNonWeaponRenders();
 		ClientRegistry.registerKeyBinding(Keys.HERO_INFORMATION);
 		ClientRegistry.registerKeyBinding(Keys.RELOAD);
 		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
 		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
 		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
+
+		for (IChangingModel item : ModItems.changingModelItems)
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+				@Override
+				public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+					return item.getColorFromItemStack(stack, tintIndex);
+				}
+			}, item.getItem());
 	}
 
 	@Override
@@ -115,158 +141,73 @@ public class ClientProxy extends CommonProxy {
 		registerInventoryTab();
 	}
 
-	private static void registerInventoryTab() {
+	@SubscribeEvent
+	public void modelBake(ModelBakeEvent event) {
+		for (ModelResourceLocation modelLocation : event.getModelRegistry().getKeys()) 
+			if (modelLocation.getResourceDomain().equals(Minewatch.MODID) &&
+					modelLocation.getResourcePath().contains("3d")) {
+				if (event.getModelRegistry().getObject(modelLocation) instanceof OBJBakedModel) {
+					OBJBakedModel model = (OBJBakedModel) event.getModelRegistry().getObject(modelLocation);
+					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), model.getState(), DefaultVertexFormats.ITEM, getTextures(model.getModel())));
+				}
+			}
+	}
+
+	public static ImmutableMap<String, TextureAtlasSprite> getTextures(OBJModel model) {
+		ImmutableMap.Builder<String, TextureAtlasSprite> builder = ImmutableMap.builder();
+		builder.put(ModelLoader.White.LOCATION.toString(), ModelLoader.White.INSTANCE);
+		TextureAtlasSprite missing = ModelLoader.defaultTextureGetter().apply(new ResourceLocation("missingno"));
+		for (String materialName : model.getMatLib().getMaterialNames()) {
+			Material material = model.getMatLib().getMaterial(materialName);
+			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
+				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
+				builder.put(materialName, missing);
+			}
+			else
+				builder.put(materialName, ModelLoader.defaultTextureGetter().apply(material.getTexture().getTextureLocation()));
+		}
+		builder.put("missingno", missing);
+		return builder.build();
+	}
+
+	private void createKeybinds() {
+		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+	}
+
+	private void registerInventoryTab() {
 		if (TabRegistry.getTabList().size() == 0)
 			TabRegistry.registerTab(new InventoryTabVanilla());
 
-		TabRegistry.registerTab(new InventoryTab());
+		TabRegistry.registerTab(InventoryTab.INSTANCE);
 		MinecraftForge.EVENT_BUS.register(new TabRegistry());
 	}
 
-	private static void registerRenders() {
-		for (Item item : ModItems.jsonModelItems)
+	private void registerNonWeaponRenders() {
+		for (Item item : ModItems.staticModelItems)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
 	//PORT change to event registration
-	private static void registerObjRenders() {		
-		for (Item item : ModItems.objModelItems)
-			// change bow model while pulling
-			if (item == EnumHero.HANZO.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						int model = 0;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							if (player != null) {
-								model = (int) ((float) (stack.getMaxItemUseDuration() - player.getItemInUseCount()) / 4.0F) + 1;
-								if (player.getActiveItemStack() == null || !player.getActiveItemStack().equals(stack))
-									model = 0;
-								else if (model > 4)
-									model = 4;
-							}
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + model + "_3d", "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "0_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "1_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "2_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "3_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "4_3d", "inventory"));	
+	private void registerWeaponRenders() {		
+		for (IChangingModel item : ModItems.changingModelItems) {
+			String loc = Minewatch.MODID+":" + item.getItem().getUnlocalizedName().substring(5);
+			for (String modelLoc : item.getAllModelLocations(new ArrayList<String>())) {
+				ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc, "inventory"));
+				ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc+"_3d", "inventory"));
 			}
-		// change soldier model when running
-			else if (item == EnumHero.SOLDIER76.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean blocking = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							blocking = player != null ? player.isSprinting() : false;
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (blocking ? "_blocking_3d" : "_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_blocking_3d", "inventory"));
-			}
-		// change bastion model depending on form
-			else if (item == EnumHero.BASTION.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean turret = false;
-						/*if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							turret = player != null ? EnumHero.BASTION.ability2.isSelected(player) : false;
-						}*/
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (turret ? "_1_3d" : "_0_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
-			}
-		//change widowmaker model based on scoping
-			else if (item == EnumHero.WIDOWMAKER.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean scoping = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							scoping = ItemWidowmakerRifle.isScoped(player, stack);
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
-			}
-		//change ana model based on scoping
-			else if (item == EnumHero.ANA.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean scoping = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							scoping = ItemAnaRifle.isScoped(player, stack);		
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (scoping ? "_scoping_3d" : "_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_scoping_3d", "inventory"));
-			}
-		//change genji model based on active abilities
-			else if (item == EnumHero.GENJI.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {						
-						boolean sword = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							sword = player != null && TickHandler.hasHandler(player, Identifier.GENJI_SWORD);		
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (sword ? "_sword_3d" : "_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_sword_3d", "inventory"));
-			}
-		// change mercy model
-			else if (item == EnumHero.MERCY.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						boolean battleMercy = !ItemMercyWeapon.isStaff(stack);
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (battleMercy ? "_1_3d" : "_0_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
-			}
-		// Reaper's tp
-			else if (item == EnumHero.REAPER.weapon) {
-				ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-					@Override
-					public ModelResourceLocation getModelLocation(ItemStack stack) {
-						boolean tping = false;
-						if (stack.hasTagCompound()) {
-							EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(stack.getTagCompound().getUniqueId("player"));
-							Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
-							tping = handler != null && handler.ticksLeft != -1;
-						}
-						return new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + (tping ? "_1_3d" : "_0_3d"), "inventory");
-					}
-				});
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_0_3d", "inventory"));
-				ModelBakery.registerItemVariants(item, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_1_3d", "inventory"));
-			}
-			else
-				ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5) + "_3d", "inventory"));	
+			ModelLoader.setCustomMeshDefinition(item.getItem(), new ItemMeshDefinition() {
+				@Override
+				public ModelResourceLocation getModelLocation(ItemStack stack) {
+					return new ModelResourceLocation(loc + 
+							item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().theWorld, stack)) + 
+							(Config.useObjModels ? "_3d" : ""), "inventory");
+				}
+			});
+		}
 	}
 
 	private void registerEntityRenders() {
@@ -284,11 +225,17 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMeiCrystal.class, RenderMeiCrystal::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerMine.class, RenderWidowmakerMine::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratGrenade.class, RenderJunkratGrenade::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratTrap.class, RenderJunkratTrap::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratMine.class, RenderJunkratMine::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntitySombraBullet.class, new RenderFactory(new Color(0xFFF1F1), 1, 1, 2));
+		RenderingRegistry.registerEntityRenderingHandler(EntitySombraTranslocator.class, RenderSombraTranslocator::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 	}
 
 	@Override
@@ -311,7 +258,14 @@ public class ClientProxy extends CommonProxy {
 					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
 		}
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_crystal"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_trap"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/junkrat_mine"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_blue"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/sombra_translocator"));
+		for (int i=0; i<6; ++i)
+			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
 	}
 
 	@Override
@@ -320,7 +274,7 @@ public class ClientProxy extends CommonProxy {
 			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 		}
-		else 
+		else
 			super.playFollowingSound(entity, event, category, volume, pitch, repeat);
 	}
 
@@ -362,11 +316,11 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
-	
+
 	@Override
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
-			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
-			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
+		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
@@ -381,7 +335,12 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
+	}
+
+	@Override
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, facing);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
@@ -403,7 +362,7 @@ public class ClientProxy extends CommonProxy {
 	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().thePlayer;
 	}
-	
+
 	@Override
 	public float getRenderPartialTicks() {
 		return Minecraft.getMinecraft().getRenderPartialTicks();
@@ -424,5 +383,10 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openWildCardGui() {
 		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+	}
+
+	@Override
+	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
+		return isRemote ? handler.onClientRemove() : handler.onServerRemove();
 	}
 }

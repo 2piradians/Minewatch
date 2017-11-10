@@ -59,7 +59,7 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToAll(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ));
+		Minewatch.network.sendToDimension(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ), entity.worldObj.provider.getDimension());
 		entity.worldObj.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
 
 		// remove potion effect on client

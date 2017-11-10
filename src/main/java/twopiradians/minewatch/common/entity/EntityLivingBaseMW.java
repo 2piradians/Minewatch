@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -26,12 +24,13 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityLivingBaseMW extends EntityLivingBase implements IThrowableEntity {
 
-    public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
 	protected boolean skipImpact;
 	public boolean isFriendly;
+	public ArrayList<RayTraceResult.Type> ignoreImpacts = new ArrayList<RayTraceResult.Type>() {{add(RayTraceResult.Type.MISS);}};
 
 	public EntityLivingBaseMW(World worldIn) {
 		this(worldIn, null);
@@ -44,17 +43,17 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
 	}
-	
+
 	@Override
-    public void notifyDataManagerChange(DataParameter<?> key) {
+	public void notifyDataManagerChange(DataParameter<?> key) {
 		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
 			EntityHelper.setRotations(this);
 		}
-    }
-	
+	}
+
 	@Override
 	protected void entityInit() {
 		super.entityInit();
@@ -69,15 +68,18 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		this.prevRotationPitch = this.rotationPitch;
 		this.prevRotationYaw = this.rotationYaw;
 
-		// move
-		RayTraceResult result = this.skipImpact ? null : EntityHelper.checkForImpact(this, this.getThrower(), this.isFriendly);
-		if (result != null)
-			this.onImpact(result);
-		else {
+		// check for impacts
+		ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
+		RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
+		for (RayTraceResult result : results) 
+			if (result != null && isValidImpact(result, result == nearest))
+				this.onImpact(result);
+		// move if still alive and has motion
+		if (!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
-			else
-				this.moveEntity(this.motionX, this.motionY, this.motionZ);
+			else // needed to set onGround / do block collisions
+				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
 		}
 
 		if (this.hurtTime > 0)
@@ -87,22 +89,30 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (this.recentlyHit > 0)
 			--this.recentlyHit;
 
-		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0))
+		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
+				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64 || !this.getThrower().isEntityAlive()))
 			this.setDead();
 
 		this.firstUpdate = false;
 	}
 
-	protected void onImpact(RayTraceResult result) {
-		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-			IBlockState state = this.worldObj.getBlockState(result.getBlockPos());
-			if (!state.getBlock().isPassable(this.worldObj, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
-				this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
-				this.setDead();
-			}
-		}
+	/**Should this result trigger onImpact - moves to hit position if entity*/
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
+		return result != null && result.typeOfHit != RayTraceResult.Type.MISS && 
+				(result.typeOfHit != RayTraceResult.Type.ENTITY || 
+				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly) && nearest));
 	}
-	
+
+	/**Should this move to the hit position of the RayTraceResult*/
+	protected boolean shouldMoveToHitPosition(RayTraceResult result) {
+		return result != null;
+	}
+
+	protected void onImpact(RayTraceResult result) {
+		if (this.shouldMoveToHitPosition(result))
+			EntityHelper.moveToHitPosition(this, result);
+	}
+
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
 		if ((source.getSourceOfDamage() == null || EntityHelper.shouldHit(source.getSourceOfDamage(), this, false, source)) &&
@@ -122,7 +132,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (entity instanceof EntityLivingBase)
 			this.thrower = (EntityLivingBase) entity;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance){
@@ -140,15 +150,19 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	}
 
 	@Override
-    protected float getSoundVolume() {
-        return 0F;
-    }
-	
+	protected float getSoundVolume() {
+		return 0F;
+	}
+
 	@Override
 	public EnumHandSide getPrimaryHand() {
 		return EnumHandSide.RIGHT;
 	}
 	
+	@Override
+    public boolean canBeCollidedWith() {return false;}
+    @Override
+    public boolean canBePushed() {return false;}
 	@Override
 	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
 	@Override

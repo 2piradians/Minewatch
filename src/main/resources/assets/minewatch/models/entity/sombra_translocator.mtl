@@ -1,0 +1,8 @@
+# Blender MTL File: 'sombra_teleporter.blend'
+# Material Count: 1
+
+newmtl material
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/sombra_translocator

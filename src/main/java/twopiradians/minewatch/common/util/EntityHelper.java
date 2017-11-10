@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -7,6 +8,8 @@ import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -31,57 +34,44 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityHelper {
 
 	/**Copied from EntityThrowable*/
-	public static RayTraceResult checkForImpact(Entity entityIn, Entity thrower, boolean friendly) {
-		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
-		RayTraceResult raytraceresult = entityIn.worldObj.rayTraceBlocks(vec3d, vec3d1, false, true, true);
-		vec3d = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-		vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
+	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn) {
+		ArrayList<RayTraceResult> results = new ArrayList<RayTraceResult>();
+		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY+entityIn.height/2d, entityIn.posZ);
+		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY+entityIn.height/2d + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
+		RayTraceResult result = entityIn.worldObj.rayTraceBlocks(vec3d, vec3d1, false, true, true);
+		if (result != null)
+			results.add(result);
 
-		if (raytraceresult != null)
-			vec3d1 = new Vec3d(raytraceresult.hitVec.xCoord, raytraceresult.hitVec.yCoord, raytraceresult.hitVec.zCoord);
-
-		Entity entity = null;
-		List<Entity> list = entityIn.worldObj.getEntitiesWithinAABBExcludingEntity(entityIn, entityIn.getEntityBoundingBox().addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ).expandXyz(1.0D));
-		double d0 = 0.0D;
-
+		// if entityIn moving more than its collision box per tick - check for lookVec intercept, otherwise just check collision boxes
+		boolean fast = Math.abs(entityIn.motionX) > entityIn.width || Math.abs(entityIn.motionY) > entityIn.height || Math.abs(entityIn.motionZ) > entityIn.width;
+		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
+		if (fast)
+			aabb = aabb.addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
+		List<Entity> list = entityIn.worldObj.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
-			Entity entity1 = (Entity)list.get(i);
-
-			if (entity1.canBeCollidedWith() && shouldHit(thrower, entity1, friendly)) {
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expandXyz(0.30000001192092896D);
-				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
-
-				if (raytraceresult1 != null) {
-					double d1 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
-
-					if (d1 < d0 || d0 == 0.0D) {
-						entity = entity1;
-						d0 = d1;
-					}
-				}
+			Entity entity = list.get(i);
+			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
+				aabb = entity.getEntityBoundingBox();
+				if (!fast || aabb.calculateIntercept(vec3d, vec3d1) != null)
+					results.add(new RayTraceResult(entity));
 			}
 		}
 
-		if (entity != null)
-			raytraceresult = new RayTraceResult(entity);
-
-		return raytraceresult;
+		return results;
 	}
 
 	/**Get the position that an entity should be thrown/shot from*/ 
-	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		// adjust based on hand
 		if (hand == null) {
-			horizontalAdjust = 0;
-			verticalAdjust = 10f;
+			//horizontalAdjust = 0;
+			//verticalAdjust = 20f;
 		}
 		else if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
@@ -91,7 +81,7 @@ public class EntityHelper {
 			float fovSettings = Minewatch.keys.fov((EntityPlayer)shooter)-70f;
 			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
 			horizontalAdjust += fov / 80f;
-			verticalAdjust += fov / 4f;
+			verticalAdjust += fov / 5f;
 		}
 
 		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
@@ -103,7 +93,7 @@ public class EntityHelper {
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
@@ -132,7 +122,7 @@ public class EntityHelper {
 		else if (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE) {
 			x = entityTrace.hitVec.xCoord - vec.xCoord;
 			y = entityTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
-			z = entityTrace.hitVec.zCoord - vec.zCoord;
+			z = entityTrace.hitVec.zCoord - vec.zCoord; 
 		}
 		// not looking at block/entity
 		else {
@@ -182,86 +172,104 @@ public class EntityHelper {
 				(entity instanceof EntityLivingBaseMW && ((EntityLivingBaseMW)entity).isFriendly);
 	}
 
+	/**Get actual thrower from entity if IThrowableEntity*/
+	public static Entity getThrower(Entity entity) {
+		if (entity instanceof IThrowableEntity)
+			return ((IThrowableEntity)entity).getThrower();
+		return entity;
+	}
+	
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
-		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
-		return source != null && shouldHit(thrower, entityHit, friendly, source);
+		Entity actualThrower = getThrower(thrower);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
+		return source != null && shouldHit(actualThrower, entityHit, friendly, source);
 	}
 
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly, DamageSource source) {
-		if (entityHit instanceof IThrowableEntity)
-			return shouldHit(thrower, ((IThrowableEntity)entityHit).getThrower(), friendly, source);
-		return ((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && thrower != null && entityHit != thrower &&
-				!entityHit.isEntityInvulnerable(source);
+		// prevent hitting EntityMW
+		if (entityHit instanceof EntityMW)
+			return false;
+		// prevent healing EntityLivingBaseMW
+		if (entityHit instanceof EntityLivingBaseMW && friendly)
+			return false;
+		thrower = getThrower(thrower);
+		entityHit = getThrower(entityHit);
+		return shouldTarget(thrower, entityHit, friendly) && 
+				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
+				entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); 
 	}
-
-	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
-	 * If damage is negative, entity will be healed by that amount
-	 * Uses default DamageSources (player/mob damage)*/
-	public static <T extends Entity & IThrowableEntity> boolean attemptImpact(T projectile, Entity entityHit, float damage, boolean neverKnockback) {
-		DamageSource source = projectile != null && projectile.getThrower() instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(projectile, (EntityLivingBase) projectile.getThrower()) : null;
-		return source != null && attemptImpact(projectile, entityHit, damage, neverKnockback, source);
-	}
-
-	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful on server
-	 * If damage is negative, entity will be healed by that amount*/
-	public static <T extends Entity & IThrowableEntity> boolean attemptImpact(T projectile, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
-		// attempt to damage entity
-		if (attemptDamage(projectile.getThrower(), entityHit, damage, neverKnockback, source) && !projectile.worldObj.isRemote) {
-			projectile.setDead();
-			return true;
-		}
-		// correct position of projectile - for fixing particles
-		else if (shouldHit(projectile.getThrower(), entityHit, damage <= 0, source) && projectile.worldObj.isRemote) {
-			moveToEntityHit(projectile, entityHit);
-			// don't kill on client if deflecting
-			if (!TickHandler.hasHandler(entityHit, Identifier.GENJI_DEFLECT))
-				projectile.setDead();
-		}
-		return false;
+	
+	/**Should target be hit by entity / should entity render red*/
+	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
+		if (target == null)
+			target = Minewatch.proxy.getClientPlayer();
+		entity = getThrower(entity);
+		target = getThrower(target);
+		return entity != null && target != null && (target != entity || friendly) &&
+				(entity.getTeam() == null || target.getTeam() == null || 
+				entity.isOnSameTeam(target) == friendly);
 	}
 
 	/**Attempts do damage with falloff returns true if successful on server*/
 	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
 		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
-			EntityHelper.moveToEntityHit(projectile, entityHit);
 			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
-			if (distance <= maxFalloff && attemptImpact(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp_double((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
+			if (distance <= maxFalloff && attemptDamage(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp_double((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
 				return true;
-			// don't kill if deflecting
-			else if (!TickHandler.hasHandler(entityHit, Identifier.GENJI_DEFLECT)) {
-				projectile.setDead();
-			}
 		}
 		return false;
 	}
 
-	/**Move projectile to where it would collide with the entityHit - for fixing particles on impact*/
-	public static void moveToEntityHit(Entity projectile, Entity entityHit) {
-		Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
-		Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
-		AxisAlignedBB aabb = entityHit.getEntityBoundingBox().expandXyz(0.3D);
-		RayTraceResult ray =  aabb.calculateIntercept(vec3d, vec3d1);
-		if (ray != null) {
-			projectile.posX = ray.hitVec.xCoord;
-			projectile.posY = ray.hitVec.yCoord;
-			projectile.posZ = ray.hitVec.zCoord;
+	/**Move projectile to where it would collide with the ray - kills if successful*/
+	public static void moveToHitPosition(Entity projectile, RayTraceResult result) {
+		moveToHitPosition(projectile, result, true);
+	}
+
+	/**Move projectile to where it would collide with the ray - kills if successful*/
+	public static void moveToHitPosition(Entity projectile, RayTraceResult result, boolean kill) {
+		if (projectile != null && result != null) {
+			// move to collide with block
+			if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+				IBlockState state = projectile.worldObj.getBlockState(result.getBlockPos());
+				if (!state.getBlock().isPassable(projectile.worldObj, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
+					projectile.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
+					if (kill)
+						projectile.setDead();
+				}
+			}
+			// move to collide with entity
+			else if (result.typeOfHit == RayTraceResult.Type.ENTITY) {
+				Vec3d vec3d = new Vec3d(projectile.posX, projectile.posY, projectile.posZ);
+				Vec3d vec3d1 = new Vec3d(projectile.posX + projectile.motionX, projectile.posY + projectile.motionY, projectile.posZ + projectile.motionZ);
+				AxisAlignedBB aabb = result.entityHit.getEntityBoundingBox().expandXyz(0.05D);
+				RayTraceResult ray = aabb.calculateIntercept(vec3d, vec3d1);
+				if (ray != null) {
+					projectile.posX = ray.hitVec.xCoord;
+					projectile.posY = ray.hitVec.yCoord;
+					projectile.posZ = ray.hitVec.zCoord; 
+				}
+
+				// don't kill if deflecting
+				if (kill && !TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT))
+					projectile.setDead();
+			}
 		}
 	}
 
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
-		DamageSource source = thrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(null, (EntityLivingBase) thrower) : null;
-		return source != null && attemptDamage(thrower, entityHit, damage, neverKnockback, source);
+		Entity actualThrower = getThrower(thrower);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
+		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
-		if (shouldHit(thrower, entityHit, damage <= 0) && !thrower.worldObj.isRemote) {
+		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.worldObj.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
 				((EntityLivingBase)entityHit).heal(Math.abs(damage*Config.damageScale));
@@ -311,7 +319,7 @@ public class EntityHelper {
 	/**Get block that shooter is looking at within distance blocks - modified from Entity#rayTrace*/
 	@Nullable
 	public static RayTraceResult getMouseOverBlock(EntityLivingBase shooter, double distance, float pitch, float yawHead) {
-		Vec3d vec3d = ItemMWWeapon.getPositionEyes(shooter, 1);
+		Vec3d vec3d = getPositionEyes(shooter);
 		Vec3d vec3d1 = getLook(pitch, yawHead);
 		Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * distance, vec3d1.yCoord * distance, vec3d1.zCoord * distance);
 		return shooter.worldObj.rayTraceBlocks(vec3d, vec3d2, false, true, true);
@@ -327,13 +335,13 @@ public class EntityHelper {
 		RayTraceResult result = null;
 		if (shooter != null) {
 			double d0 = distance - 1;
-			Vec3d vec3d = ItemMWWeapon.getPositionEyes(shooter, 1);
+			Vec3d vec3d = getPositionEyes(shooter);
 			double d1 = d0;
 			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
 			List<Entity> list = shooter.worldObj.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
-					return entity != null && entity.canBeCollidedWith() && shouldHit(shooter, entity, friendly);
+					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
 				}
 			}));
 			double d2 = d1;
@@ -401,6 +409,39 @@ public class EntityHelper {
 			f *= 1.0F - f1 * 0.15F;
 		}
 		return net.minecraftforge.client.ForgeHooksClient.getOffsetFOV(player, f);
+	}
+
+	/**Copied from {@link Entity#getPositionEyes(float)} to make public*/
+	public static Vec3d getPositionEyes(EntityLivingBase entity) {
+		float partialTicks = Minewatch.proxy.getRenderPartialTicks(); 
+		if (entity == null)
+			return Vec3d.ZERO;
+		else if (partialTicks == 1.0F)
+			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
+		else {
+			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
+			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
+			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
+			return new Vec3d(d0, d1, d2);
+		}
+	}
+
+	/**Returns the result with the closest entityHit to the entity*/
+	@Nullable
+	public static RayTraceResult getNearestImpact(Entity entity, ArrayList<RayTraceResult> results) {
+		RayTraceResult nearest = null;
+		if (entity != null && results != null) {
+			double nearestDistance = Double.MAX_VALUE;
+			for (RayTraceResult result : results)
+				if (result != null && result.typeOfHit == RayTraceResult.Type.ENTITY) {
+					double distance = entity.getDistanceSqToEntity(result.entityHit);
+					if (distance < nearestDistance) {
+						nearest = result;
+						nearestDistance = distance;
+					}
+				}
+		}
+		return nearest;
 	}
 
 }

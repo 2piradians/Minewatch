@@ -43,9 +43,6 @@ public class EntityMeiBlast extends EntityMW {
 			// apply freeze/slowness effect
 			if (this.ticksLeft >= 30) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-				/*entityLiving.setRevengeTarget(null);
-				if (entityLiving instanceof EntityLiving)
-					((EntityLiving)entityLiving).setAttackTarget(entityLiving);*/
 				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
 				TickHandler.interrupt(entityLiving);
 				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),
@@ -100,8 +97,8 @@ public class EntityMeiBlast extends EntityMW {
 		super.onImpact(result);
 
 		if (result.entityHit != null) {
-			/*if (result.entityHit instanceof EntityDragon && ((EntityDragon)result.entityHit).entityDragonObj instanceof EntityDragon)
-				result.entityHit = (Entity) ((EntityDragon)result.entityHit).entityDragonObj;*/ //Not needed in 1.12?
+			/*if (result.entityHit instanceof EntityDragonPart && ((EntityDragonPart)result.entityHit).entityDragonObj instanceof EntityDragon)
+				result.entityHit = (Entity) ((EntityDragonPart)result.entityHit).entityDragonObj;*/
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
@@ -112,7 +109,7 @@ public class EntityMeiBlast extends EntityMW {
 					TickHandler.register(true, FROZEN.setEntity(result.entityHit).setTicks(1));
 				TickHandler.register(true, DELAYS.setEntity(result.entityHit).setTicks(10));
 			}
-			if (EntityHelper.attemptImpact(this, result.entityHit, 2.25f, true)) {
+			if (EntityHelper.attemptDamage(this, result.entityHit, 2.25f, true)) {
 				if ((((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 						((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 					Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);

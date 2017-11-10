@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class SPacketSyncAbilityUses implements IMessage{
@@ -68,7 +69,8 @@ public class SPacketSyncAbilityUses implements IMessage{
 						ability = hero.ability3;
 
 					if (player != null && ability != null) {
-						if (packet.playSound) {
+						if (packet.playSound && 
+								ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) {
 							if (packet.uses == 1)
 								player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 							player.playSound(ModSoundEvents.abilityMultiRecharge, 0.5f, 1.0f);

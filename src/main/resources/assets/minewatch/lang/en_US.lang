@@ -95,6 +95,14 @@ item.junkrat_chestplate.name=Junkrat Chestplate
 item.junkrat_leggings.name=Junkrat Leggings
 item.junkrat_boots.name=Junkrat Boots
 item.junkrat_weapon.name=Junkrat's Frag Launcher
+item.junkrat_trigger.name=Junkrat's Concussion Mine Trigger
+
+item.sombra_token.name=Sombra Token
+item.sombra_helmet.name=Sombra Helmet
+item.sombra_chestplate.name=Sombra Chestplate
+item.sombra_leggings.name=Sombra Leggings
+item.sombra_boots.name=Sombra Boots
+item.sombra_weapon.name=Sombra's Machine Pistol
 
 item.wild_card_token.name=Wild Card Token
 
@@ -113,7 +121,14 @@ entity.soldier76_helix_rocket.name=Soldier 76 Helix Rocket
 entity.bastion_bullet.name=Bastion Bullet
 entity.mei_blast.name=Mei Blast
 entity.mei_icicle.name=Mei Icicle
+entity.mei_crystal.name=Mei Cryo-Freeze
 entity.mercy_bullet.name=Mercy Bullet
 entity.mercy_beam.name=Mercy Beam
 entity.junkrat_grenade.name=Junkrat Grenade
 entity.junkrat_trap.name=Junkrat Steel Trap
+entity.junkrat_mine.name=Junkrat Concussion Mine
+entity.widowmaker_bullet.name=Widowmaker Bullet
+entity.widowmaker_mine.name=Widowmaker Venom Mine
+entity.sombra_bullet.name=Sombra Bullet
+entity.sombra_tanslocator.name=Sombra Translocator
+entity.reinhardt_strike.name=Reinhardt Fire Strike

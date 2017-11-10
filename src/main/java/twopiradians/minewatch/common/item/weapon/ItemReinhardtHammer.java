@@ -9,20 +9,51 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
+import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
+
+	public static final Handler STRIKE = new Handler(Identifier.REINHARDT_STRIKE, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (entityLiving != null && this.ticksLeft == 4)
+				entityLiving.swingArm(EnumHand.MAIN_HAND);
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (entityLiving != null && this.ticksLeft == 1) {
+				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.world, entityLiving);
+				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYaw, (26.66f) * 1f, 0, null, 60, 0);
+				entityLiving.world.spawnEntity(strike);
+				EnumHero.REINHARDT.ability2.keybind.setCooldown(player, 120, false); 
+			}
+			return super.onServerTick();
+		}
+	};
 
 	public ItemReinhardtHammer() {
 		super(0);
@@ -87,6 +118,26 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	@Override
 	public boolean canHarvestBlock(IBlockState state, ItemStack stack) {
 		return false;
+	}
+
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, world, entity, slot, isSelected);
+
+		if (isSelected && entity instanceof EntityPlayer) {	
+			EntityPlayer player = (EntityPlayer) entity;
+			player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 8, 3, true, false));
+
+			// fire strike
+			if (!world.isRemote && hero.ability2.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				Minewatch.network.sendToDimension(new SPacketSimple(33, player, false), world.provider.getDimension());
+				TickHandler.register(false, STRIKE.setEntity(player).setTicks(13),
+						Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(hero.ability2));
+				player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 13, 2, true, false));
+			}
+
+		}
 	}
 
 }

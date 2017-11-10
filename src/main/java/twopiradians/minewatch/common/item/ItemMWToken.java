@@ -2,8 +2,6 @@ package twopiradians.minewatch.common.item;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
@@ -63,7 +61,7 @@ public class ItemMWToken extends Item {
 
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
 			tooltip.add(TextFormatting.GOLD+"Right-click this token to exchange for another hero token of your choice.");
 		}
 	}

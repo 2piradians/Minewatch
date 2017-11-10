@@ -42,15 +42,16 @@ public class Keys {
 		public Identifier identifier;
 		public ArrayList<UUID> silentRecharge = new ArrayList<UUID>();
 		public final Handler COOLDOWNS = new Handler(identifier, false) {
+			@SideOnly(Side.CLIENT)
 			@Override
-			public Handler onRemove() {
-				if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
+			public Handler onClientRemove() {
+				if (player == Minewatch.proxy.getClientPlayer() && player != null) {
 					if (silentRecharge.contains(player.getPersistentID()))
 						silentRecharge.remove(player.getPersistentID());
 					else
 						player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 				}
-				return super.onRemove();
+				return super.onClientRemove();
 			}
 		};
 		public final Handler ABILITY_NOT_READY = new Handler(Identifier.KEYBIND_ABILITY_NOT_READY, false) {};
@@ -230,11 +231,14 @@ public class Keys {
 
 		if (main != null && main.getItem() instanceof ItemMWWeapon &&
 				player.isSneaking() && event.getDwheel() != 0 && 
-				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon) {
+				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
+				((ItemMWWeapon)main.getItem()).hero != EnumHero.BASTION) {
 			EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-			hero.playersUsingAlt.put(uuid, 
-					hero.playersUsingAlt.containsKey(uuid) ? !hero.playersUsingAlt.get(uuid) : true);
-			Minewatch.network.sendToServer(new CPacketSyncKeys("Alt Weapon", hero.playersUsingAlt.get(uuid), uuid));
+			if (hero.playersUsingAlt.contains(uuid))
+				hero.playersUsingAlt.remove(uuid);
+			else
+				hero.playersUsingAlt.add(uuid);
+			Minewatch.network.sendToServer(new CPacketSyncKeys("Alt Weapon", hero.playersUsingAlt.contains(uuid), uuid));
 			event.setCanceled(true);
 		}
 	}
@@ -271,9 +275,9 @@ public class Keys {
 				ability1.put(uuid, ABILITY_1.isKeyDown());
 				Minewatch.network.sendToServer(new CPacketSyncKeys("Ability 1", ABILITY_1.isKeyDown(), uuid));
 				// toggle ability
-				if (ABILITY_1.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(uuid) &&
+				if (ABILITY_1.isKeyDown() && ItemMWArmor.SetManager.entitiesWearingSets.containsKey(uuid) &&
 						TickHandler.getHandler(player, Identifier.ABILITY_USING) == null) {
-					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(uuid);
+					EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(uuid);
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_1 && 
 						ability.keybind.getCooldown(player) == 0) {
@@ -286,9 +290,9 @@ public class Keys {
 				ability2.put(uuid, ABILITY_2.isKeyDown());
 				Minewatch.network.sendToServer(new CPacketSyncKeys("Ability 2", ABILITY_2.isKeyDown(), uuid));
 				// toggle ability
-				if (ABILITY_2.isKeyDown() && ItemMWArmor.SetManager.playersWearingSets.containsKey(uuid) &&
+				if (ABILITY_2.isKeyDown() && ItemMWArmor.SetManager.entitiesWearingSets.containsKey(uuid) &&
 						TickHandler.getHandler(player, Identifier.ABILITY_USING) == null) {
-					EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.get(uuid);
+					EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(uuid);
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						if (ability.isToggleable && ability.keybind == KeyBind.ABILITY_2 && 
 						ability.keybind.getCooldown(player) == 0) {

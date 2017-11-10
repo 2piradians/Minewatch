@@ -31,7 +31,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public EntityHanzoArrow(World worldIn, EntityLivingBase shooter) {
 		super(worldIn, shooter);
 		if (shooter instanceof EntityPlayer 
-				&& (ItemMWArmor.SetManager.playersWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
+				&& (ItemMWArmor.SetManager.entitiesWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
 				((EntityPlayer)shooter).capabilities.isCreativeMode))
 			this.pickupStatus = EntityTippedArrow.PickupStatus.DISALLOWED;
 		else
@@ -57,7 +57,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	@Override
 	protected void onHit(RayTraceResult result) {
 		if (result.entityHit != null) {
-			if (EntityHelper.attemptImpact(this, result.entityHit, (float) this.getDamage(), false)) {
+			if (EntityHelper.attemptDamage(this, result.entityHit, (float) this.getDamage(), false)) {
 				if (result.entityHit instanceof EntityLivingBase)
 					((EntityLivingBase) result.entityHit).setArrowCountInEntity(((EntityLivingBase) result.entityHit).getArrowCountInEntity() + 1);
 				this.setDead();

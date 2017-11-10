@@ -1,0 +1,28 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "minewatch:items/ana_weapon"
+    },
+	"display": {
+		 "thirdperson_righthand": {
+            "rotation": [ 0, -90, 0 ],
+			"translation": [ 0, 3, 0 ],
+			"scale": [ 2, 2, 2 ]
+        },
+        "thirdperson_lefthand": {
+			"rotation": [ 0, 90, 0 ],
+			"translation": [ 0, 3, 0 ],
+			"scale": [ 2, 2, 2 ]
+        },
+		 "firstperson_righthand": {
+            "rotation": [ 0, -90, 0 ],
+            "translation": [ 2, 7.2, -3],
+            "scale": [ 1, 1, 1 ]
+        },
+        "firstperson_lefthand": {
+            "rotation": [ 0, 90, 0 ],
+            "translation": [ 2, 7.2, -3],
+            "scale": [ 1, 1, 1 ]
+        }
+	}
+}

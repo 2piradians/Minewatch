@@ -7,6 +7,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 
 public class InventoryTab extends AbstractTab
 {
+	public static final InventoryTab INSTANCE = new InventoryTab();
+
 	public InventoryTab() {
 		super(0, 0, 0, new ItemStack(EnumHero.REAPER.token));
 	}

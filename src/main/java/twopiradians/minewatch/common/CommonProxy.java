@@ -17,6 +17,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -45,6 +46,7 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.packet.CPacketSimple;
@@ -64,7 +66,10 @@ public class CommonProxy {
 		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
 		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
 		JUNKRAT_TRAP("junkrat_trap", true), JUNKRAT_TRAP_TRIGGERED("junkrat_trap_triggered", true), 
-		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true);
+		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
+		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
+		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
+		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike");
 
 		public final ResourceLocation loc;
 		public final int frames;
@@ -128,6 +133,7 @@ public class CommonProxy {
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}	
 	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {
@@ -181,7 +187,7 @@ public class CommonProxy {
 	}
 
 	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && event != null && category != null)
+		if (entity != null && event != null && category != null) 
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat), entity.world.provider.getDimension());
 	}
 
@@ -195,7 +201,7 @@ public class CommonProxy {
 	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
-	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist) {
+	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
 		if (!world.isRemote) {
 			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
 
@@ -218,6 +224,7 @@ public class CommonProxy {
 					double d12 = entity.getDistance(x, y, z) / (double)f3;
 
 					if (d12 <= 1.0D) {
+						d12 /= 2d;
 						double d5 = entity.posX - x;
 						double d7 = entity.posY + (double)entity.getEyeHeight() - y;
 						double d9 = entity.posZ - z;
@@ -226,8 +233,8 @@ public class CommonProxy {
 						if (d13 != 0.0D) {
 							d5 = d5 / d13;
 							d7 = d7 / d13;
-							d9 = d9 / d13;
-							double d14 = (double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
+							d9 = d9 / d13; 
+							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
@@ -239,9 +246,9 @@ public class CommonProxy {
 								if (entity instanceof EntityLivingBase)
 									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
-								entity.motionX += d5 * d11;
-								entity.motionY += d7 * d11;
-								entity.motionZ += d9 * d11;
+								entity.motionX += d5 * d11 * (entity == exploder ? exploderKnockback : knockback);
+								entity.motionY += d7 * d11 * (entity == exploder ? exploderKnockback : knockback);
+								entity.motionZ += d9 * d11 * (entity == exploder ? exploderKnockback : knockback);
 								entity.velocityChanged = true;
 							}
 						}
@@ -256,4 +263,8 @@ public class CommonProxy {
 	}
 
 	public void openWildCardGui() {}
+
+	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
+		return handler.onServerRemove();
+	}
 }

@@ -22,6 +22,8 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -42,10 +44,16 @@ public class Handlers {
 				player.setActiveHand(EnumHand.MAIN_HAND);
 			return super.onClientTick();
 		}
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			player.resetActiveHand();
-			return this;
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			player.resetActiveHand();
+			return super.onServerRemove();
 		}
 	};
 
@@ -65,9 +73,9 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			rotations.remove(entityLiving);
-			return this;
+			return super.onServerRemove();
 		}
 	};
 
@@ -155,34 +163,22 @@ public class Handlers {
 		// prevent clicking / scrolling
 		if ((event.getDx() != 0 || event.getDy() != 0 ||
 				event.isButtonstate() || event.getDwheel() != 0) && player != null && 
-				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT))
+				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) && 
+				!(TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL) && event.getButton() != -1)) {
 			event.setCanceled(true);
+		}
 	}
 
-	/**Prevents attacking, using abilities, targeting, clicking, and scrolling*/
+	/**Prevents attacking, using abilities, clicking, reloading, and scrolling*/
 	public static final Handler PREVENT_INPUT = new Handler(Identifier.PREVENT_INPUT, true) {};
 
 	@SubscribeEvent
 	public void preventAttacking(LivingAttackEvent event) {
 		if (event.getSource().getTrueSource() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getSource().getTrueSource(), Identifier.PREVENT_INPUT)) {
-			/*if (event.getSource().getTrueSource() instanceof EntityLiving)
-				((EntityLiving)event.getSource().getTrueSource()).setAttackTarget((EntityLivingBase) event.getSource().getTrueSource());
-			((EntityLivingBase) event.getSource().getTrueSource()).setRevengeTarget((EntityLivingBase) event.getSource().getTrueSource());*/
+				TickHandler.hasHandler(event.getSource().getTrueSource(), Identifier.PREVENT_INPUT)) 
 			event.setCanceled(true); 
-		}
 	}
-/*
-	@SubscribeEvent
-	public void preventTargeting(LivingSetAttackTargetEvent event) {
-		if (event.getTarget() != event.getEntity() && event.getEntity() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_INPUT)) {
-			if (event.getEntity() instanceof EntityLiving)
-				((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase) event.getEntity());
-			((EntityLivingBase) event.getEntity()).setRevengeTarget((EntityLivingBase) event.getEntity());
-		}
-	}
-*/
+
 	/**Prevents moving, jumping, flying, and ender teleporting*/
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override
@@ -218,13 +214,26 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			// remove slowness
-			if (this.entityLiving != null && !this.entityLiving.world.isRemote)
+			if (this.entityLiving != null)
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void clientSide(ClientTickEvent event) {
+		EntityPlayer player = Minecraft.getMinecraft().player;
+		if (event.side == Side.CLIENT && event.phase == Phase.START &&
+				TickHandler.hasHandler(player, Identifier.PREVENT_MOVEMENT)) {
+			player.motionX = 0;
+			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
+			player.motionZ = 0;
+			player.motionY = Math.min(0, player.motionY);
+		}
+	}
 
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {

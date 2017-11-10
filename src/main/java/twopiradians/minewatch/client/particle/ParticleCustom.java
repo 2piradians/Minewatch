@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -27,7 +28,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
 
-	private float fadeTargetRed;
+	private float fadeTargetRed;//TEST that opacity is fixed with modpack
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
@@ -40,8 +41,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	private float verticalAdjust;
 	private float horizontalAdjust;
 	private EnumHand hand;
+	@Nullable
+	private EnumFacing facing;
 
-	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
+	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumFacing facing) {
 		super(world, x, y, z, 0, 0, 0);
 		this.enumParticle = enumParticle;
 		this.motionX = motionX;
@@ -59,13 +62,14 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.rotationSpeed = rotationSpeed;
 		this.setColor(color);
 		this.setColorFade(colorFade);
+		this.facing = facing;
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
 		this.setParticleTexture(sprite);
 	}
 
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
 		this.hand = hand;
 		this.verticalAdjust = verticalAdjust;
 		this.horizontalAdjust = horizontalAdjust;
@@ -75,7 +79,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
 	}
-	
+
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0);
 	}
@@ -88,7 +92,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		
+
 		// follow entity
 		this.followEntity();
 
@@ -120,7 +124,17 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if (this.enumParticle.equals(EnumParticle.JUNKRAT_TRAP)) {
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+1.5d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
-				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null)
+				if (!(this.followEntity instanceof EntityJunkratTrap) || ((EntityJunkratTrap)this.followEntity).trappedEntity != null || !this.followEntity.onGround)
+					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.WIDOWMAKER_MINE)) {
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+1d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
+				if (!this.followEntity.onGround)
+					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.SOMBRA_TRANSPOSER)) {
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+1d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
+				if (!this.followEntity.onGround)
 					this.setExpired();
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
@@ -132,7 +146,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
-			
+
 			if (!this.followEntity.isEntityAlive())
 				this.setExpired();
 		}
@@ -158,11 +172,36 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	@Override
 	public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+		GlStateManager.enableBlend();
 		if (this.particleTexture != null) {
+			// face a direction on an axis TODO have these only render on blocks, like Render#renderShadow
+			if (facing != null) {
+				float pitch = 0, yaw = 0;
+				float rotation = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
+				if (facing == EnumFacing.WEST || facing == EnumFacing.EAST) {
+					pitch = 0;
+					yaw = 90;
+				}
+				else if (facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) {
+					pitch = 0;
+					yaw = 0;
+				}
+				else if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
+					pitch = 90;
+					yaw = 180f * rotation - 90f;
+				}
+				// translated from ActiveRenderInfo#updateRenderInfo
+		        rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+		        rotationZ = MathHelper.cos(pitch * 0.017453292F);
+			}
+
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
-			
+
 			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
@@ -188,9 +227,9 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if (this.particleAngle != 0.0F) {
 				float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
 				float f9 = MathHelper.cos(f8 * 0.5F);
-				float f10 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.x;
-				float f11 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.y;
-				float f12 = MathHelper.sin(f8 * 0.5F) * (float)cameraViewDir.z;
+				float f10 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.x : 0);
+				float f11 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.y : 0);
+				float f12 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.z : 0);
 				Vec3d vec3d = new Vec3d((double)f10, (double)f11, (double)f12);
 
 				for (int l = 0; l < 4; ++l)
@@ -202,6 +241,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			buffer.pos((double)f5 + avec3d[2].x, (double)f6 + avec3d[2].y, (double)f7 + avec3d[2].z).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].x, (double)f6 + avec3d[3].y, (double)f7 + avec3d[3].z).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 
+			
 			// disable depth for health particles
 			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();

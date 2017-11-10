@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -61,6 +62,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
+import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -120,7 +122,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
 			new Skin(TextFormatting.GOLD+"Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/")),
 	REINHARDT("Reinhardt", false, new Ability(KeyBind.RMB, false, false), 
-			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, false, true), 
 			0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, 
 			new Skin("Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
@@ -148,21 +150,21 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
 			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
 			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
-	BASTION("Bastion", false, new Ability(KeyBind.ABILITY_2, false, false), 
-			new Ability(KeyBind.ABILITY_1, false, false), 
+	BASTION("Bastion", true, new Ability(KeyBind.RMB, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			25, 0, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
+			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false,
 			new Skin("Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
 			new Skin(TextFormatting.GOLD+"Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
 	MEI("Mei", false, new Ability(KeyBind.ABILITY_2, false, false), 
-			new Ability(KeyBind.ABILITY_1, false, true), 
+			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
 			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, 
 			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "mareridt", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
-	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, false, false), 
+	WIDOWMAKER("Widowmaker", false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, false, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, 0x9A68A3, true, 
@@ -183,14 +185,25 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
 			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
 	JUNKRAT("Junkrat", false, new Ability(KeyBind.ABILITY_2, true, false), 
-			new Ability(KeyBind.ABILITY_1, false, false, 2, 160), 
+			new Ability(KeyBind.ABILITY_1, true, false, 2, 160), 
 			new Ability(KeyBind.NONE, false, false), 
 			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, 
 			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin("Classic", "Everything's coming up explodey! Overwatch - Junkrat", "_Phantom", "https://www.planetminecraft.com/skin/everything-s-coming-up-explodey-overwatch-junkrat/"),
 			new Skin(TextFormatting.GOLD+"Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
-			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/"));
+			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/")),
+	SOMBRA("Sombra", false, new Ability(KeyBind.RMB, false, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, true, true), 
+			60, 0, new int[] {2,2,2,2}, new ItemSombraMachinePistol(), Crosshair.CIRCLE_SMALL, 0x745ABB, true, 
+			new Skin("Classic", "Boop!", "Nutellah", "https://www.planetminecraft.com/skin/boop-3851181/"),
+			new Skin("Classic", "Virtuality - Sombra [Contest | Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/virtuality-sombra-contest-overwatch/"),
+			new Skin(TextFormatting.DARK_AQUA+"Mar", "Sombra with Mar skin", "XxbalintgamerxX", "http://www.minecraftskins.com/skin/9944115/sombra-with-mar-skin/"),
+			new Skin(TextFormatting.GOLD+"Augmented", "Sombra ONLINE - Augmented", "Grinshire", "https://www.planetminecraft.com/skin/sombra-online-augmented/"),
+			new Skin(TextFormatting.GOLD+"Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
+			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/"));
 
-	public HashMap<UUID, Boolean> playersUsingAlt = Maps.newHashMap();
+	public ArrayList<UUID> playersUsingAlt = new ArrayList<UUID>();
 
 	public Ability ability1;
 	public Ability ability2;
@@ -275,7 +288,10 @@ public enum EnumHero {
 		this.name = name;
 		this.hasAltWeapon = hasAltWeapon;
 		if (this.hasAltWeapon)
-			this.altWeaponIndex = IndexCounter.index++;
+			if (name.equals("Bastion"))
+				this.altWeaponIndex = 19;
+			else
+				this.altWeaponIndex = IndexCounter.index++;
 		this.ability1 = ability1;
 		this.ability2 = ability2;
 		this.ability3 = ability3;
@@ -357,11 +373,20 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void hidePlayerWearingArmor(RenderLivingEvent.Pre<EntityPlayer> event) {
-			if (event.getRenderer().getMainModel() instanceof ModelPlayer) {
-				ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
+		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {
+			// make entity body follow head
+			if (event.getEntity().getHeldItemMainhand() != null && 
+					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon) {
+				event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
+			}
+
+			// hide ModelBipeds with armor layer that are wearing armor
+			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
+					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {
+				ModelBiped model = (ModelBiped) event.getRenderer().getMainModel();
 				if (event.getEntity() instanceof EntityPlayer && TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
 					model.isSneak = true;
+				model.setVisible(true);
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
@@ -370,16 +395,20 @@ public enum EnumHero {
 								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemMWArmor) {
 							model.bipedLeftLeg.showModel = false;
 							model.bipedRightLeg.showModel = false;
-							model.bipedLeftLegwear.showModel = false;
-							model.bipedRightLegwear.showModel = false;
+							if (model instanceof ModelPlayer) {
+								((ModelPlayer)model).bipedLeftLegwear.showModel = false;
+								((ModelPlayer)model).bipedRightLegwear.showModel = false;
+							}
 						}
 						else if (slot == EntityEquipmentSlot.CHEST) {
 							model.bipedBody.showModel = false;
-							model.bipedBodyWear.showModel = false;
-							model.bipedLeftArm.showModel = false;
-							model.bipedLeftArmwear.showModel = false;
-							model.bipedRightArm.showModel = false;
-							model.bipedRightArmwear.showModel = false;
+							if (model instanceof ModelPlayer) {
+								model.bipedLeftArm.showModel = false;
+								model.bipedRightArm.showModel = false;
+								((ModelPlayer)model).bipedRightArmwear.showModel = false;
+								((ModelPlayer)model).bipedLeftArmwear.showModel = false;
+								((ModelPlayer)model).bipedBodyWear.showModel = false;
+							}
 						}
 						else if (slot == EntityEquipmentSlot.HEAD) {
 							model.bipedHeadwear.showModel = false;
@@ -398,7 +427,7 @@ public enum EnumHero {
 				double width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
 				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
+				EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) : null;
 				EnumHand hand = null;
 				for (EnumHand hand2 : EnumHand.values())
 					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
@@ -457,6 +486,21 @@ public enum EnumHero {
 						}
 					}
 
+					// mei's crystal cancel overlay
+					if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
+						GlStateManager.pushMatrix();
+						GlStateManager.enableBlend();
+
+						double scale = 0.8d*Config.guiScale;
+						GlStateManager.scale(scale, scale, 1);
+						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/mei_crystal.png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+
+						GlStateManager.disableBlend();
+						GlStateManager.popMatrix();
+					}
+
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
 				}
@@ -482,7 +526,7 @@ public enum EnumHero {
 						GlStateManager.popMatrix();
 
 						// tracer's dash
-						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
+						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
 
@@ -516,6 +560,7 @@ public enum EnumHero {
 							GlStateManager.popMatrix();
 						}
 					}
+
 					if (Config.customCrosshairs)
 						event.setCanceled(true);
 				}
@@ -524,10 +569,10 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void renderOverlay(RenderGameOverlayEvent.Post event) {
+		public static void renderOverlay(RenderGameOverlayEvent.Post event) {			
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) : null;
+				EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) : null;
 				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 				// hero information screen
@@ -562,13 +607,13 @@ public enum EnumHero {
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-						int index = weapon.hero.playersUsingAlt.containsKey(player.getPersistentID()) && weapon.hero.playersUsingAlt.get(player.getPersistentID()) && 
+						int index = weapon.hero.playersUsingAlt.contains(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 						int vertical = 11;
 						// weapon
 						GuiUtils.drawTexturedModalRect(0, 0, 1, (index+1)+index*vertical, 122, vertical, 0);
 
-						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.playersWearingSets.containsKey(player.getPersistentID())) {
+						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID())) {
 							// slot 1
 							if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
@@ -585,7 +630,8 @@ public enum EnumHero {
 							// slot 2
 							if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.ability2.isSelected(player)) {
+							else if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) {
 								GlStateManager.color(0.8f, 0.6f, 0);
 								GlStateManager.translate(1, 1, 0);
 							}
@@ -630,7 +676,7 @@ public enum EnumHero {
 							if (hero.ability1.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-30, -10, 81, 1015, 20, 9, 0);
 							if (hero.ability1.entities.get(player) != null && hero.ability1.entities.get(player).isEntityAlive()) 
-								GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
+								GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -9, 101, 1015, 20, 9, 0);
 							// slot 2
 							if (hero.ability2.showKeybind(player)) {
 								if (hero.ability2.keybind.getKeyName() != "")
@@ -638,7 +684,8 @@ public enum EnumHero {
 							}
 							if (hero.ability2.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
-							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive()) 
+							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive() && !(hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
 							// slot 3
 							if (hero.ability3.showKeybind(player)) {
@@ -738,9 +785,9 @@ public enum EnumHero {
 			else if (event.getSource().getTrueSource() instanceof IThrowableEntity && 
 					((IThrowableEntity) event.getSource().getTrueSource()).getThrower() instanceof EntityPlayerMP)
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getTrueSource()).getThrower();
-			
+
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
-				if (!player.world.isRemote && ItemMWArmor.SetManager.playersWearingSets.get(player.getPersistentID()) != null) {
+				if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) != null) {
 					try {
 						float damage = event.getAmount();
 						damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
@@ -776,10 +823,18 @@ public enum EnumHero {
 					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
 					if (player instanceof EntityPlayerMP) {
 						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
-						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0)
+						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
+							// reset genji strike cooldown
+							if (ItemMWArmor.SetManager.entitiesWearingSets.get(uuid) == EnumHero.GENJI) {
+								EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
+								Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
+								if (handler != null)
+									handler.setBoolean(true);
+							}
 							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
 									(int)MathHelper.clamp(percent, 0, 100),
 									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
+						}
 					}
 				}
 				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)

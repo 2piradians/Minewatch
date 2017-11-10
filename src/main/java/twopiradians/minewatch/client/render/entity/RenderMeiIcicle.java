@@ -19,8 +19,10 @@ public class RenderMeiIcicle extends RenderOBJModel<EntityMeiIcicle> {
 	}
 
 	@Override
-	protected void preRender(EntityMeiIcicle entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected boolean preRender(EntityMeiIcicle entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.scale(2, 2, 2);		
 		buffer.setTranslation(0, -0.02d, 0);
+		
+		return true;
 	}
 }

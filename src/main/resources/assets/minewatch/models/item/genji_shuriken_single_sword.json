@@ -1,0 +1,28 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "minewatch:items/genji_weapon_1"
+    },
+	"display": {
+  	  "thirdperson_righthand": {
+    	    "rotation": [ 117, -48, 40 ],
+  	      "translation": [ -7.50, 5.50, 5.50 ],
+  	      "scale": [ 1.10, 1.10, 1.10 ]
+  	  },
+  	  "thirdperson_lefthand": {
+   	     "rotation": [ 117, 132, 312 ],
+   	     "translation": [ -7.50, 5.50, 5.50 ],
+  	      "scale": [ 1.10, 1.10, 1.10 ]
+  	  },
+	 "firstperson_righthand": {
+        "rotation": [ 281, 196, 270 ],
+        "translation": [ -2.87, 5.20, 2.50 ],
+        "scale": [ 1.20, 1.20, 1.20 ]
+    },
+      "firstperson_lefthand": {
+        "rotation": [ 287, 12, 90 ],
+        "translation": [ -2.87, 5.20, 2.50 ],
+        "scale": [ 1.20, 1.20, 1.20 ]
+    } 
+	}
+}

@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -15,22 +16,20 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
@@ -39,10 +38,10 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -64,11 +63,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 
 		@Override
-		public Handler onRemove() {
+		public Handler onServerRemove() {
 			EnumHero.GENJI.ability1.keybind.setCooldown(player, 160, false);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
+	/**bool represents if a mob was killed while striking - to prevent setting cooldown*/
 	public static final Handler STRIKE = new Handler(Identifier.GENJI_STRIKE, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -118,13 +118,18 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 						entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
 		}
-
+		@SideOnly(Side.CLIENT)
 		@Override
-		public Handler onRemove() {
+		public Handler onClientRemove() {
 			player.resetActiveHand();
-			if (!player.world.isRemote)
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			player.resetActiveHand();
+			if (!this.bool)
 				EnumHero.GENJI.ability2.keybind.setCooldown(player, 160, false);
-			return super.onRemove();
+			return super.onServerRemove();
 		}
 	};
 
@@ -132,14 +137,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	public ItemGenjiShuriken() {
 		super(40);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.addPropertyOverride(new ResourceLocation("sword"), new IItemPropertyGetter() {
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-				return entityIn != null && TickHandler.hasHandler(entityIn, Identifier.GENJI_SWORD) ? 1.0F : 0.0F;
-			}
-		});
 	}
 
 	@Override
@@ -220,7 +219,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}	
 
 	private static boolean deflect(EntityPlayer player, Entity entity) {
-		if (!entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+		if (entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.4d &&
@@ -251,6 +250,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				((IThrowableEntity) entity).setThrower(player);
 			if (entity instanceof EntityMW)
 				((EntityMW)entity).lifetime *= 2;
+			if (entity instanceof EntityJunkratMine) {
+				((EntityJunkratMine)entity).ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
+				((EntityJunkratMine)entity).deflectTimer = 40;
+			}
 			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
 			if (data != null) 
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
@@ -272,13 +275,17 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
-	public void onKill(LivingDeathEvent event) {
-		// remove strike cooldown if killed by Genji
-		if (event.getEntityLiving() != null && !event.getEntityLiving().world.isRemote && 
-				event.getSource().getTrueSource() instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.playersWearingSets.get(event.getSource().getTrueSource()) == EnumHero.GENJI) 
-			hero.ability2.keybind.setCooldown((EntityPlayer) event.getSource().getTrueSource(), 0, false);
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_sword");
+		return super.getAllModelLocations(locs);
 	}
-
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		return TickHandler.hasHandler(entity, Identifier.GENJI_SWORD) ? "_sword" : "";
+	}
+	
 }

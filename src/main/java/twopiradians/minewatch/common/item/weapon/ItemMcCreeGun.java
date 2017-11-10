@@ -44,10 +44,9 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		}
 
 		@Override
-		public Handler onRemove() {
-			if (!player.world.isRemote)
-				EnumHero.MCCREE.ability2.keybind.setCooldown(this.player, 160, false);
-			return super.onRemove();
+		public Handler onServerRemove() {
+			EnumHero.MCCREE.ability2.keybind.setCooldown(this.player, 160, false);
+			return super.onServerRemove();
 		}
 	};
 

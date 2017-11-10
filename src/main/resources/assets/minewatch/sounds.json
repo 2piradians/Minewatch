@@ -200,6 +200,24 @@
 			"minewatch:reinhardt_weapon_2"
 		]
 	},
+	"reinhardt_strike_throw": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_throw"
+		]
+	},
+	"reinhardt_strike_during": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_during"
+		]
+	},
+	"reinhardt_strike_collide": {
+		"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_strike_collide"
+		]
+	},
 	"genji_shoot": {
 		"category": "player",
 		"sounds": [
@@ -304,10 +322,16 @@
 			"minewatch:soldier76_helix"
 		]
 	},
-	"bastion_shoot": {
+	"bastion_shoot_0": {
 		"category": "player",
 		"sounds": [
-			"minewatch:bastion_shoot"
+			"minewatch:bastion_shoot_0"
+		]
+	},
+	"bastion_shoot_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_shoot_1"
 		]
 	},
 	"bastion_reload_0": {
@@ -320,6 +344,18 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:bastion_reload_1"
+		]
+	},
+	"bastion_reconfigure_0": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reconfigure_0"
+		]
+	},
+	"bastion_reconfigure_1": {
+		"category": "player",
+		"sounds": [
+			"minewatch:bastion_reconfigure_1"
 		]
 	},
 	"mei_shoot_0": {
@@ -352,6 +388,18 @@
 			"minewatch:mei_unfreeze"
 		]
 	},
+	"mei_crystal_start": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_crystal_start"
+		]
+	},
+	"mei_crystal_stop": {
+		"category": "player",
+		"sounds": [
+			"minewatch:mei_crystal_stop"
+		]
+	},
 	"widowmaker_shoot_0": {
 		"category": "player",
 		"sounds": [
@@ -374,6 +422,31 @@
 		"category": "player",
 		"sounds": [
 			"minewatch:widowmaker_charge"
+		]
+	},
+	"widowmaker_mine_throw": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_throw"
+		]
+	},
+	"widowmaker_mine_land": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_land"
+		]
+	},
+	"widowmaker_mine_trigger": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_trigger"
+		]
+	},
+	"widowmaker_mine_destroyed": {
+		"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_mine_destroyed_0",
+			"minewatch:widowmaker_mine_destroyed_1"
 		]
 	},
 	"mercy_shoot": {
@@ -554,6 +627,86 @@
 			"minewatch:junkrat_trap_trigger_voice_1",
 			"minewatch:junkrat_trap_trigger_voice_2",
 			"minewatch:junkrat_trap_trigger_voice_3"
+		]
+	},
+	"junkrat_mine_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_mine_throw"
+		]
+	},
+	"junkrat_mine_land": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_mine_land"
+		]
+	},
+	"junkrat_mine_explode": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_mine_explode"
+		]
+	},
+	"sombra_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_reload"
+		]
+	},
+	"sombra_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_shoot"
+		]
+	},
+	"sombra_invisible_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_start"
+		]
+	},
+	"sombra_invisible_stop": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_stop"
+		]
+	},
+	"sombra_invisible_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_invisible_voice_0",
+			"minewatch:sombra_invisible_voice_1",
+			"minewatch:sombra_invisible_voice_2",
+			"minewatch:sombra_invisible_voice_3",
+			"minewatch:sombra_invisible_voice_4"
+		]
+	},
+	"sombra_translocator_land": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_land"
+		]
+	},
+	"sombra_translocator_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_throw_0",
+			"minewatch:sombra_translocator_throw_1",
+			"minewatch:sombra_translocator_throw_2"
+		]
+	},
+	"sombra_translocator_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_during"
+		]
+	},
+	"sombra_translocator_teleport": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_translocator_teleport_0",
+			"minewatch:sombra_translocator_teleport_1",
+			"minewatch:sombra_translocator_teleport_2"
 		]
 	}
 }

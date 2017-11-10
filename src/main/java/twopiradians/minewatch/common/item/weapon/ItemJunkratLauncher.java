@@ -6,9 +6,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
+import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -48,12 +51,24 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
 
+			// give trigger if mine active and offhand is empty
+			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand() == ItemStack.EMPTY) && 
+					hero.ability2.entities.containsKey(entity) && 
+					hero.ability2.entities.get(entity).isEntityAlive())
+				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
+
+			// trigger mine
+			if (!world.isRemote && Keys.KeyBind.RMB.isKeyDown(player) &&
+					hero.ability2.entities.containsKey(entity) && 
+					hero.ability2.entities.get(entity).isEntityAlive() && 
+					hero.ability2.entities.get(entity) instanceof EntityJunkratMine)
+				((EntityJunkratMine)hero.ability2.entities.get(entity)).explode();
+
 			// steel trap
 			if (!world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				for (EntityPlayer player2 : world.playerEntities) 
 					Minewatch.proxy.stopSound(player2, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
-				hero.ability1.keybind.setCooldown(player, 240, false); 
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
 				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 15, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
@@ -69,6 +84,23 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				}
 				hero.ability1.entities.put(player, trap);
 				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+			}
+			// mine
+			else if (!world.isRemote && hero.ability2.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				hero.ability2.subtractUse(player); 
+				hero.ability2.keybind.setCooldown(player, 10, true); 
+				EntityJunkratMine mine = new EntityJunkratMine(world, player);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
+				world.playSound(null, player.getPosition(), ModSoundEvents.junkratMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				world.spawnEntity(mine);
+				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				Entity entity2 = hero.ability2.entities.get(player);
+				if (entity2 instanceof EntityJunkratMine && entity2.isEntityAlive()) 
+					entity2.isDead = true;
+				hero.ability2.entities.put(player, mine);
+				if (world.rand.nextBoolean())
+					Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			}
 		}
 	}	

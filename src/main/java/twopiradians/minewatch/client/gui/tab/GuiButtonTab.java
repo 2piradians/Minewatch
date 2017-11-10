@@ -18,10 +18,11 @@ public class GuiButtonTab extends GuiButton {
 	}
 	
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {//String.valueOf('\u21c4')
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		this.visible = GuiTab.currentScreen == screen;
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
 		
+		// sync button
 		if (this.visible && this.displayString.equals("")) {
 			GlStateManager.pushMatrix();
 			float scale = 2.2f;

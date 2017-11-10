@@ -1,6 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
@@ -60,7 +59,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				// sleep particles in overlay
 				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().player && player != null &&
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-					Vec3d eyes = player.getPositionEyes(Minecraft.getMinecraft().getRenderPartialTicks()).add(player.getLookVec());
+					Vec3d eyes = EntityHelper.getPositionEyes(player).add(player.getLookVec());
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.world, 
 							eyes.x+player.world.rand.nextFloat()-0.5f, 
 							eyes.y+player.world.rand.nextFloat()-0.5f, 
@@ -92,7 +91,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	public ItemAnaRifle() {
 		super(30);
-		this.savePlayerToNBT = true;
+		this.saveEntityToNBT = true;
+		this.showHealthParticles = true;
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("scoping"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
@@ -118,10 +118,10 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
-						hero.playersUsingAlt.containsKey(player.getPersistentID()) && 
-						hero.playersUsingAlt.get(player.getPersistentID()));
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, player.getActiveItemStack() == stack ? -1f : 90f, 0,  
-						Minewatch.keys.rmb(player) ? null : hand, 9, 0.27f);
+						hero.playersUsingAlt.contains(player.getPersistentID()));
+				boolean scoped = isScoped(player, stack);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
+						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
@@ -160,18 +160,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability2.keybind.setCooldown(player, 240, false); 
-			}
-
-			// health particles
-			if (world.isRemote && entity.ticksExisted % 5 == 0 && this.canUse(player, false, EnumHand.MAIN_HAND, true)) {
-				AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(30);
-				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
-				for (Entity entity2 : list) 
-					if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
-							((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
-						float size = Math.min(entity2.height, entity2.width)*8f;
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
-					}
 			}
 		}
 
@@ -236,10 +224,10 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.onGround && player.getHeldItemMainhand() != null && 
+		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
-				!TickHandler.hasHandler(player, Identifier.ABILITY_USING);
+				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !Minewatch.keys.jump(player);
 	}
 
 	//PORT correct scope scale
@@ -305,4 +293,19 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			}
 		}
 	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_scoping");
+		return super.getAllModelLocations(locs);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		return scoping ? "_scoping" : "";
+	}	
+	
 }

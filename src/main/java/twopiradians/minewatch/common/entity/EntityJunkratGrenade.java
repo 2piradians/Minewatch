@@ -108,7 +108,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		else {
 			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-					1.6f, 0f, 12.5f, 80f, directHit, 120f, true);
+					1.6f, 0f, 12.5f, 80f, directHit, 120f, true, 0, 1);
 		}
 		this.setDead();
 	}
@@ -129,9 +129,17 @@ public class EntityJunkratGrenade extends EntityMW {
 				Minewatch.network.sendToAll(new SPacketSimple(20, this, false, Math.min(3, ++bounces), 0, 0));
 		}
 		// direct hit explosion
-		else if (!this.world.isRemote && result.entityHit != null && !this.isDeathGrenade) {
-			this.explode(result.entityHit);
-			Minewatch.network.sendToAll(new SPacketSimple(20, this, true));
+		else if (result.entityHit != null && !this.isDeathGrenade) {
+			EntityHelper.moveToHitPosition(this, result);
+			if (this.world.isRemote) {
+				this.motionX = 0;
+				this.motionY = 0;
+				this.motionZ = 0;
+			}
+			else {
+				this.explode(result.entityHit);
+				Minewatch.network.sendToDimension(new SPacketSimple(20, this, true, result.entityHit), world.provider.getDimension());
+			}
 		}
 	}
 

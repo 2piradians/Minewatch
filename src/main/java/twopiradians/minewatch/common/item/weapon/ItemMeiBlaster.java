@@ -21,9 +21,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityMeiBlast;
-import twopiradians.minewatch.common.entity.EntityMeiCrystal;
-import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.potion.ModPotions;
@@ -83,7 +83,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());

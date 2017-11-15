@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 

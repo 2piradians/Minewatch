@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -70,29 +70,33 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public boolean onEntitySwing(EntityLivingBase entity, ItemStack stack) {
-		if (entity instanceof EntityPlayer && entity.getHeldItemMainhand() != null && 
+		if (entity instanceof EntityLivingBase && entity.getHeldItemMainhand() != null && 
 				entity.getHeldItemMainhand().getItem() == this)
 			return false;
 		else 
 			return true;
 	}
 
-	@Override
-	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+	public void attack(ItemStack stack, EntityLivingBase player, Entity entity) {
 		// swing
-		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*Config.damageScale);
+		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) &&
+				EntityHelper.attemptDamage(player, entity, 75, false)) {
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
 						(double)(-MathHelper.cos(player.rotationYaw * 0.017453292F)));
 			player.getHeldItemMainhand().damageItem(1, player);
 		}
+	}
+
+	@Override
+	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+		this.attack(stack, player, entity);
 		return false;
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// swing
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !hero.ability1.isSelected(player) &&
 				hand == EnumHand.MAIN_HAND) {
@@ -102,11 +106,12 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
 						player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
-					this.onLeftClickEntity(stack, player, entity);
+					this.attack(stack, player, entity);
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
 					1.0F, player.world.rand.nextFloat()/3+0.8f);
-			player.getCooldownTracker().setCooldown(this, 20);
+			if (player instanceof EntityPlayer)
+				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 20);
 		}
 	}
 

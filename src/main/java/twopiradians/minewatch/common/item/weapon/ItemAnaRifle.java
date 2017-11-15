@@ -30,8 +30,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -113,7 +113,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
@@ -127,8 +127,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 20);
+				if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -223,7 +223,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	/**Is this player scoping with the stack*/
-	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
+	public static boolean isScoped(EntityLivingBase player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
 				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&

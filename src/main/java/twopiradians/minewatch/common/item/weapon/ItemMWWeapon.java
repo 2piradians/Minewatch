@@ -22,6 +22,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -35,6 +37,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
@@ -62,15 +65,15 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		this.reloadTime = reloadTime;
 	}
 
-	public int getMaxAmmo(EntityPlayer player) {
+	public int getMaxAmmo(EntityLivingBase player) {
 		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.contains(player.getPersistentID()))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
 	}
 
-	public int getCurrentAmmo(EntityPlayer player) {
-		if (player != null && currentAmmo.containsKey(player.getPersistentID())) {
+	public int getCurrentAmmo(EntityLivingBase player) {
+		if (player instanceof EntityPlayer && currentAmmo.containsKey(player.getPersistentID())) {
 			if (currentAmmo.get(player.getPersistentID()) > getMaxAmmo(player))
 				currentAmmo.put(player.getPersistentID(), getMaxAmmo(player));
 			return currentAmmo.get(player.getPersistentID());
@@ -79,7 +82,10 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			return getMaxAmmo(player);
 	}
 
-	public void setCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
+	public void setCurrentAmmo(EntityLivingBase player, int amount, EnumHand... hands) {
+		if (!(player instanceof EntityPlayer))
+			return;
+
 		if (player != null) {
 			if (player instanceof EntityPlayerMP) {
 				EnumHand hand = player.getHeldItemMainhand() != null && 
@@ -94,7 +100,10 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 	}
 
-	public void subtractFromCurrentAmmo(EntityPlayer player, int amount, EnumHand... hands) {
+	public void subtractFromCurrentAmmo(EntityLivingBase player, int amount, EnumHand... hands) {
+		if (!(player instanceof EntityPlayer))
+			return;
+
 		int ammo = getCurrentAmmo(player);
 		if (ammo - amount > 0)
 			this.setCurrentAmmo(player, ammo-amount, hands);
@@ -104,9 +113,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 	}
 
-	public void reload(EntityPlayer player) {
+	public void reload(EntityLivingBase player) {
+		if (!(player instanceof EntityPlayer))
+			return;
+
 		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
-			player.getCooldownTracker().setCooldown(this, reloadTime);
+			((EntityPlayer) player).getCooldownTracker().setCooldown(this, reloadTime);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
 				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
@@ -125,9 +137,9 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
-	public boolean canUse(EntityPlayer player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (player == null || (player.getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
+		if (player == null || (player instanceof EntityPlayer && ((EntityPlayer) player).getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
 				(handler != null && !handler.bool))
@@ -160,7 +172,17 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			return false;
 	}
 
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { }
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { }
+	
+	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+	}
+	
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		return this.onItemRightClick(world, (EntityLivingBase) player, hand);
+	}
 
 	/**Cancel swing animation when left clicking*/
 	@Override
@@ -178,7 +200,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			return;
 		}
 
-		// set player in nbt for model changer to reference
+		// set entity in nbt for model changer to reference
 		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.world.isRemote && 
 				stack != null && stack.getItem() == this) {
 			if (!stack.hasTagCompound())
@@ -204,14 +226,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
-		if (entity instanceof EntityPlayer && Minewatch.keys.lmb((EntityPlayer) entity)) {
-			EntityPlayer player = (EntityPlayer) entity;
+		if (entity instanceof EntityLivingBase && Minewatch.keys.lmb((EntityLivingBase) entity)) {
+			EntityLivingBase player = (EntityLivingBase) entity;
 			EnumHand hand = this.getHand(player, stack);	
 			if (hand != null && (!this.hasOffhand || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
 				onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
 		}
+		
+		// right click - for EntityHeroes
+		if (entity instanceof EntityHero && Minewatch.keys.rmb((EntityLivingBase) entity))
+			this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 
 		// deselect ability if it has cooldown
 		if (entity instanceof EntityPlayer)
@@ -220,7 +246,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					ability.toggle(entity, false);
 
 		// set damage to full if option set to never use durability
-		if (!world.isRemote && Config.durabilityOptionWeapons == 2 && stack.getItemDamage() != 0)
+		if (!world.isRemote && (Config.durabilityOptionWeapons == 2 || entity instanceof EntityHero) && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 

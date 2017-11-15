@@ -58,6 +58,7 @@ import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
+import twopiradians.minewatch.client.render.entity.RenderHero;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderJunkratMine;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
@@ -70,31 +71,32 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
-import twopiradians.minewatch.common.entity.EntityBastionBullet;
-import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.EntityHanzoArrow;
-import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
-import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
-import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
-import twopiradians.minewatch.common.entity.EntityMeiBlast;
-import twopiradians.minewatch.common.entity.EntityMeiCrystal;
-import twopiradians.minewatch.common.entity.EntityMeiIcicle;
-import twopiradians.minewatch.common.entity.EntityMercyBeam;
-import twopiradians.minewatch.common.entity.EntityMercyBullet;
-import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
-import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
-import twopiradians.minewatch.common.entity.EntitySombraBullet;
-import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
-import twopiradians.minewatch.common.entity.EntityTracerBullet;
-import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
-import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -211,6 +213,11 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void registerEntityRenders() {
+		// heroes
+		for (EnumHero hero : EnumHero.values())
+			RenderingRegistry.registerEntityRenderingHandler(hero.heroClass, RenderHero::new);
+
+		// projectiles and abilities
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 2));
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, new RenderFactory("hanzo_arrow"));
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, new RenderFactory("hanzo_sonic_arrow"));

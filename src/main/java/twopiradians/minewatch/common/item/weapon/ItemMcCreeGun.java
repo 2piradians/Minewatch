@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -60,7 +60,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, hand.ordinal(), false);
@@ -71,8 +71,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 					world.rand.nextFloat()/2+0.75f);	
 
 			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (!player.getCooldownTracker().hasCooldown(this))
-				player.getCooldownTracker().setCooldown(this, 9);
+			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 9);
 			if (world.rand.nextInt(6) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}

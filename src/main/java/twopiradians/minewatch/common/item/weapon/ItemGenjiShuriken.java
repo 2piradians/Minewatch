@@ -36,10 +36,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.EntityHanzoArrow;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -152,7 +152,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// throw single shuriken TODO make triple w/ delay
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player, hand.ordinal());
@@ -162,16 +162,16 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					player.world.rand.nextFloat()/2+0.75f);	
 			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (!player.getCooldownTracker().hasCooldown(this) && this.getCurrentAmmo(player) % 3 == 0 &&
-					this.getCurrentAmmo(player) != this.getMaxAmmo(player))
-				player.getCooldownTracker().setCooldown(this, 15);
+			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this) && 
+					this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
+				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 15);
 			if (player.world.rand.nextInt(24) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// throw triple shuriken
 		if (!player.world.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
@@ -184,8 +184,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 3, hand);
 			if (world.rand.nextInt(8) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			if (!player.getCooldownTracker().hasCooldown(this))
-				player.getCooldownTracker().setCooldown(this, 15);
+			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 15);
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));

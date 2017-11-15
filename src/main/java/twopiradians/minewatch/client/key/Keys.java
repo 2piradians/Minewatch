@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -21,6 +22,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -61,7 +63,7 @@ public class Keys {
 			COOLDOWNS.identifier = identifier;
 		}
 
-		public int getCooldown(EntityPlayer player) {
+		public int getCooldown(EntityLivingBase player) {
 			Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 			if (handler != null && handler.ability != null && handler.ability.keybind == this)
 				return 0;
@@ -69,8 +71,8 @@ public class Keys {
 			return handler == null ? 0 : handler.ticksLeft;
 		}
 
-		public void setCooldown(EntityPlayer player, int cooldown, boolean silent) {
-			if (player != null) {
+		public void setCooldown(EntityLivingBase player, int cooldown, boolean silent) {
+			if (player instanceof EntityPlayer) {
 				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
 				if (player.world.isRemote && silent) 
 					silentRecharge.add(player.getPersistentID());
@@ -91,7 +93,7 @@ public class Keys {
 			}
 		}
 
-		public boolean isKeyDown(EntityPlayer player) {
+		public boolean isKeyDown(EntityLivingBase player) {
 			switch (this) {
 			case ABILITY_1:
 				return Minewatch.keys.ability1(player);
@@ -106,7 +108,7 @@ public class Keys {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static KeyBinding HERO_INFORMATION;
+	public static KeyBinding HERO_INFORMATION; //TODO merge with KeyBind?
 	@SideOnly(Side.CLIENT)
 	public static KeyBinding RELOAD;
 	@SideOnly(Side.CLIENT)
@@ -133,67 +135,67 @@ public class Keys {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	public boolean heroInformation(EntityPlayer player) {
+	public boolean heroInformation(EntityLivingBase player) {
 		if (player != null)
 			return heroInformation.containsKey(player.getPersistentID()) ? heroInformation.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean reload(EntityPlayer player) {
+	public boolean reload(EntityLivingBase player) {
 		if (player != null)
 			return reload.containsKey(player.getPersistentID()) ? reload.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean ability1(EntityPlayer player) {
+	public boolean ability1(EntityLivingBase player) {
 		if (player != null)
 			return ability1.containsKey(player.getPersistentID()) ? ability1.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean ability2(EntityPlayer player) {
+	public boolean ability2(EntityLivingBase player) {
 		if (player != null)
 			return ability2.containsKey(player.getPersistentID()) ? ability2.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean ultimate(EntityPlayer player) {
+	public boolean ultimate(EntityLivingBase player) {
 		if (player != null)
 			return ultimate.containsKey(player.getPersistentID()) ? ultimate.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean weapon1(EntityPlayer player) {
+	public boolean weapon1(EntityLivingBase player) {
 		if (player != null)
 			return weapon1.containsKey(player.getPersistentID()) ? weapon1.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean weapon2(EntityPlayer player) {
+	public boolean weapon2(EntityLivingBase player) {
 		if (player != null)
 			return weapon2.containsKey(player.getPersistentID()) ? weapon2.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean lmb(EntityPlayer player) {
+	public boolean lmb(EntityLivingBase player) {
 		if (player != null)
 			return lmb.containsKey(player.getPersistentID()) ? lmb.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean rmb(EntityPlayer player) {
+	public boolean rmb(EntityLivingBase player) {
 		if (player != null)
 			return rmb.containsKey(player.getPersistentID()) ? rmb.get(player.getPersistentID()) : false;
 			return false;
 	}
 
-	public boolean jump(EntityPlayer player) {
+	public boolean jump(EntityLivingBase player) {
 		if (player != null)
 			return jump.containsKey(player.getPersistentID()) ? jump.get(player.getPersistentID()) : false;
-			return false;
+			return player instanceof EntityHero && player.isCollidedHorizontally;
 	}
 	
-	public float fov(EntityPlayer player) {
+	public float fov(EntityLivingBase player) {
 		if (player != null)
 			return fov.containsKey(player.getPersistentID()) ? fov.get(player.getPersistentID()) : 70f;
 			return 70f;

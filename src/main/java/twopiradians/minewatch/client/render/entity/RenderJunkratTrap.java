@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {

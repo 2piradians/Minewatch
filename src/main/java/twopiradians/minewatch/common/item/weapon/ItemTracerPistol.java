@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -9,7 +10,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
@@ -22,7 +23,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			for (int i=0; i<2; i++) {

@@ -7,7 +7,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 
 @SideOnly(Side.CLIENT)
 public class FollowingSound extends MovingSound {

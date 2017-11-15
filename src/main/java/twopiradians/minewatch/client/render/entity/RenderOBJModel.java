@@ -26,9 +26,9 @@ import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.client.model.BakedMWItem;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
-import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 
 public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 

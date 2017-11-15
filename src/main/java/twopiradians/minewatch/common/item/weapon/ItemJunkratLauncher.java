@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -8,9 +9,9 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -25,7 +26,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player, hand.ordinal());
@@ -37,8 +38,8 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			if (!player.getCooldownTracker().hasCooldown(this))
-				player.getCooldownTracker().setCooldown(this, 12);
+			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 12);
 			if (world.rand.nextInt(20) == 0)
 				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratLaugh, SoundCategory.PLAYERS, 1f, 1.0f, false);
 		}

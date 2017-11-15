@@ -19,6 +19,8 @@ import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
@@ -31,9 +33,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
@@ -178,7 +181,7 @@ public class EntityHelper {
 			return ((IThrowableEntity)entity).getThrower();
 		return entity;
 	}
-	
+
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
@@ -196,17 +199,24 @@ public class EntityHelper {
 		// prevent healing EntityLivingBaseMW
 		if (entityHit instanceof EntityLivingBaseMW && friendly)
 			return false;
+		// can't hit creative players
+		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
+			return false;
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
 				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); 
+						entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); 
 	}
-	
+
 	/**Should target be hit by entity / should entity render red*/
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
 			target = Minewatch.proxy.getClientPlayer();
+		// prevent hitting other EntityHero w/o teams
+		if (entity instanceof EntityHero && target instanceof EntityHero &&
+				entity.getTeam() == null && target.getTeam() == null)
+			return false;
 		entity = getThrower(entity);
 		target = getThrower(target);
 		return entity != null && target != null && (target != entity || friendly) &&
@@ -278,6 +288,7 @@ public class EntityHelper {
 			// damage
 			else if (damage >= 0) {
 				boolean damaged = false;
+				entityHit.hurtResistantTime = 0;
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
@@ -286,6 +297,9 @@ public class EntityHelper {
 				}
 				else
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+				
+				if (damaged)
+					entityHit.hurtResistantTime = 0;
 
 				return damaged;
 			}

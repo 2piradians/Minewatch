@@ -25,8 +25,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
-import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -104,7 +104,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			// scoped
@@ -115,8 +115,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 10, 0);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
-					if (!player.getCooldownTracker().hasCooldown(this))
-						player.getCooldownTracker().setCooldown(this, 10);
+					if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+						((EntityPlayer) player).getCooldownTracker().setCooldown(this, 10);
 					this.subtractFromCurrentAmmo(player, 3);
 					if (player.world.rand.nextInt(10) == 0)
 						stack.damageItem(1, player);
@@ -151,7 +151,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	/**Returns power: 0 - 1*/
-	public double getPower(EntityPlayer player) {
+	public double getPower(EntityLivingBase player) {
 		return MathHelper.clamp((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount()-10)/15d, 0, 1);
 	}
 

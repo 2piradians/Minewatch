@@ -30,8 +30,8 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntitySombraBullet;
-import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -135,7 +135,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		cancelInvisibility(player);
 
 		// shoot

@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -83,7 +83,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			boolean turret = hero.playersUsingAlt.contains(player.getPersistentID());
@@ -100,8 +100,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
-				if (!turret && !player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 3);
+				if (!turret && player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 3);
 			}
 		}
 	}

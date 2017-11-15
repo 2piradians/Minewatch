@@ -44,7 +44,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -189,7 +189,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && 
 				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) == null && 
@@ -204,8 +204,8 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 11);
+				if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
+					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 11);
 				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}

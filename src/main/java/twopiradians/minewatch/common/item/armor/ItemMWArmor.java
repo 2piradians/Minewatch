@@ -28,6 +28,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -46,7 +47,8 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -63,9 +65,9 @@ public class ItemMWArmor extends ItemArmor {
 	public static ModelMWArmor maleModel;
 	@SideOnly(Side.CLIENT)
 	public static ModelMWArmor femaleModel;
-	private ArrayList<EntityPlayer> playersJumped = new ArrayList<EntityPlayer>(); // Genji double jump
-	private ArrayList<EntityPlayer> playersHovering = new ArrayList<EntityPlayer>(); // Mercy hover
-	private HashMap<EntityPlayer, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
+	private ArrayList<EntityLivingBase> playersJumped = new ArrayList<EntityLivingBase>(); // Genji double jump
+	private ArrayList<EntityLivingBase> playersHovering = new ArrayList<EntityLivingBase>(); // Mercy hover
+	private HashMap<EntityLivingBase, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
 	public static ArrayList<Class> classesWithArmor = new ArrayList<Class>();
 
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
@@ -88,7 +90,7 @@ public class ItemMWArmor extends ItemArmor {
 			maleModel = new ModelMWArmor(0, false);
 			femaleModel = new ModelMWArmor(0, true);
 		}
-		ModelMWArmor ret = hero.smallArms && entity instanceof AbstractClientPlayer ? femaleModel : maleModel;
+		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero) ? femaleModel : maleModel;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
 		if (entity instanceof EntityLivingBase && 
 				((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel() instanceof ModelBiped) {
@@ -271,10 +273,15 @@ public class ItemMWArmor extends ItemArmor {
 		return false;
 	}
 
-	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {	
-		EnumHero set = SetManager.entitiesWearingSets.get(player.getPersistentID());
+		this.onArmorTick(world, (EntityLivingBase) player, stack);
+	}
+
+	/**Handles most of the armor set special effects and bonuses.*/
+	public void onArmorTick(World world, EntityLivingBase player, ItemStack stack) {	
+		EnumHero set = player instanceof EntityHero ? ((EntityHero)player).hero : 
+			SetManager.entitiesWearingSets.get(player.getPersistentID());
 
 		// delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
@@ -298,7 +305,10 @@ public class ItemMWArmor extends ItemArmor {
 			else if (Minewatch.keys.jump(player) && !player.onGround && !player.isOnLadder() && 
 					player.motionY < 0.0d && !playersJumped.contains(player)) {
 				if (world.isRemote) {
-					player.jump();
+					if (player instanceof EntityPlayer)
+						((EntityPlayer)player).jump();
+					else if (player instanceof EntityHero)
+						((EntityHero)player).jump();
 					player.motionY += 0.2d;
 					playersJumped.add(player);
 					player.playSound(ModSoundEvents.genjiJump, 0.8f, world.rand.nextFloat()/6f+0.9f);
@@ -309,23 +319,33 @@ public class ItemMWArmor extends ItemArmor {
 
 		// genji/hanzo wall climb
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote) {
+				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			if (player.onGround || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava())
+			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
-			else if (player.isCollidedHorizontally && !player.capabilities.isFlying && Minewatch.keys.jump(player)) {
+			}
+			else if (!(player instanceof EntityPlayer) || (player.isCollidedHorizontally && 
+					!((EntityPlayer)player).capabilities.isFlying) && Minewatch.keys.jump(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
 				if (ticks <= 17) {
-					if (ticks % 4 == 0) { // reset fall distance and play sound
-						Minewatch.network.sendToServer(new CPacketSimple(0, player));
+					if (ticks % 4 == 0 || ticks == 1) { // reset fall distance and play sound
+						if (world.isRemote)
+							Minewatch.network.sendToServer(new CPacketSimple(0, player, false));
+						else 
+							player.world.playSound(null, player.getPosition(), ModSoundEvents.wallClimb, 
+									SoundCategory.PLAYERS, 0.9f, 1.0f);
 						player.fallDistance = 0.0F;
 					}
 					player.motionX = MathHelper.clamp(player.motionX, -0.15D, 0.15D);
 					player.motionZ = MathHelper.clamp(player.motionZ, -0.15D, 0.15D);
 					player.motionY = Math.max(0.2d, player.motionY);
 					player.move(MoverType.SELF, player.motionX, player.motionY, player.motionZ);
+					if (player instanceof EntityHero) {
+						Vec3d vec = player.getPositionVector().add(new Vec3d(player.getHorizontalFacing().getDirectionVec()));
+						((EntityHero) player).getLookHelper().setLookPosition(vec.xCoord, vec.yCoord, vec.zCoord, 30, 30);
+					}
 					playersClimbing.put(player, ticks);
 				}
 			}
@@ -348,22 +368,25 @@ public class ItemMWArmor extends ItemArmor {
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
-		// tracer chestplate particles
-		if (this.armorType == EntityEquipmentSlot.CHEST && 
-				set == EnumHero.TRACER && world.isRemote && player != null && 
-				(player.chasingPosX != 0 || player.chasingPosY != 0 || player.chasingPosZ != 0)) {
-			int numParticles = (int) ((Math.abs(player.chasingPosX-player.posX)+Math.abs(player.chasingPosY-player.posY)+Math.abs(player.chasingPosZ-player.posZ))*10d);
+		// tracer chestplate particles TODO test with entityhero
+		double x = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosX : player.prevPosX;
+		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
+		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
+		if (this.armorType == EntityEquipmentSlot.CHEST &&
+				set == EnumHero.TRACER && world.isRemote && 
+				(x != 0 || y != 0 || z != 0)) {
+			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
-						player.posX+(player.chasingPosX-player.posX)*i/numParticles, 
-						player.posY+(player.chasingPosY-player.posY)*i/numParticles+player.height/2+0.3f, 
-						player.posZ+(player.chasingPosZ-player.posZ)*i/numParticles, 
+						player.posX+(x-player.posX)*i/numParticles, 
+						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
+						player.posZ+(z-player.posZ)*i/numParticles, 
 						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 0, 1);
 		}
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
-		if (!world.isRemote && Config.durabilityOptionArmors == 1 && stack.getItemDamage() != 0 && 
-				set == hero)
+		if (!world.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 
+				stack.getItemDamage() != 0 && set == hero)
 			stack.setItemDamage(0);
 	}
 

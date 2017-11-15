@@ -19,8 +19,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -90,7 +90,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}	
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		if (player.isSprinting())
 			player.setSprinting(false);
 

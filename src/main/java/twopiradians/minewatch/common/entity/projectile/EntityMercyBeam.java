@@ -14,8 +14,8 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 
@@ -48,7 +48,7 @@ public class EntityMercyBeam extends Entity {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 			this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
 			this.dataManager.set(TARGET, target.getEntityId());
-			this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
+			this.dataManager.set(HEAL, !KeyBind.RMB.isKeyDown(player));
 		}
 	}
 
@@ -79,7 +79,7 @@ public class EntityMercyBeam extends Entity {
 		// kill if player/target is null/dead, player is not holding staff, target is more than 15 blocks from player, 
 		// 	 player cannot see target, or player is not holding right/left click
 		if (!this.world.isRemote && (player == null || player.isDead || target == null || target.isDead || 
-				(!Minewatch.keys.rmb(player) && !Minewatch.keys.lmb(player)) ||
+				(!KeyBind.RMB.isKeyDown(player) && !KeyBind.LMB.isKeyDown(player)) ||
 				((player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon || 
 				!ItemMercyWeapon.isStaff(player.getHeldItemMainhand())) &&
 						(player.getHeldItemOffhand() == null || player.getHeldItemOffhand().getItem() != EnumHero.MERCY.weapon || 
@@ -90,7 +90,7 @@ public class EntityMercyBeam extends Entity {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 			this.prevHeal = this.isHealing();
 			if (!this.world.isRemote)
-				this.dataManager.set(HEAL, !Minewatch.keys.rmb(player));
+				this.dataManager.set(HEAL, !KeyBind.RMB.isKeyDown(player));
 		}
 	}
 

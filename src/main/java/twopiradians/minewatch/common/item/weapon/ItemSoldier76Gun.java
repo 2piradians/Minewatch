@@ -18,7 +18,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -67,7 +67,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
 		// stop sprinting if right clicking (since onItemRightClick isn't called while blocking)
-		if (isSelected && entity instanceof EntityPlayer && Minewatch.keys.rmb((EntityPlayer) entity)) {
+		if (isSelected && entity instanceof EntityPlayer && KeyBind.RMB.isKeyDown((EntityPlayer) entity)) {
 			if (entity.isSprinting())
 				entity.setSprinting(false);
 			this.onItemRightClick(world, (EntityPlayer) entity, EnumHand.MAIN_HAND);

@@ -25,6 +25,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
@@ -57,7 +58,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
 
-			return super.onClientTick() || Minewatch.keys.jump(player) ||
+			return super.onClientTick() || KeyBind.JUMP.isKeyDown(player) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; 	
 		}
 		@Override
@@ -70,7 +71,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionY = (position.yCoord - entity.posY)/10;
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 
-			return super.onServerTick() || Minewatch.keys.jump(player) ||
+			return super.onServerTick() || KeyBind.JUMP.isKeyDown(player) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2;
 		}
 		@SideOnly(Side.CLIENT)
@@ -103,7 +104,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		boolean battleMercy = stack.hasTagCompound() && hero.playersUsingAlt.contains(stack.getTagCompound().getUniqueId("entity"));	
+		boolean battleMercy = stack.hasTagCompound() && KeyBind.ALT_WEAPON.isKeyDown(stack.getTagCompound().getUniqueId("entity"));	
 		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
 	}
 
@@ -116,7 +117,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && hero.playersUsingAlt.contains(player.getPersistentID())) {
+		if (this.canUse(player, true, hand, false) && KeyBind.ALT_WEAPON.isKeyDown(player)) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);
@@ -152,7 +153,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 			// spawn beam
 			if (isStaff(stack) && 
-					(Minewatch.keys.rmb((EntityPlayer) entity) || Minewatch.keys.lmb((EntityPlayer) entity)) &&
+					(KeyBind.RMB.isKeyDown((EntityPlayer) entity) || KeyBind.LMB.isKeyDown((EntityPlayer) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
 				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityPlayer) entity, 15, true);
 				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;

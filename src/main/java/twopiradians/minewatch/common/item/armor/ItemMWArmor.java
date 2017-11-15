@@ -302,7 +302,7 @@ public class ItemMWArmor extends ItemArmor {
 			// double jump
 			else if (world.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
 				playersJumped.remove(player);
-			else if (Minewatch.keys.jump(player) && !player.onGround && !player.isOnLadder() && 
+			else if (KeyBind.JUMP.isKeyDown(player) && !player.onGround && !player.isOnLadder() && 
 					player.motionY < 0.0d && !playersJumped.contains(player)) {
 				if (world.isRemote) {
 					if (player instanceof EntityPlayer)
@@ -319,7 +319,8 @@ public class ItemMWArmor extends ItemArmor {
 
 		// genji/hanzo wall climb
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
+				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer && 
+				!(player instanceof EntityHero && ((EntityHero)player).getAttackTarget() == null)) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
 			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
@@ -327,7 +328,7 @@ public class ItemMWArmor extends ItemArmor {
 				playersClimbing.remove(player);
 			}
 			else if (!(player instanceof EntityPlayer) || (player.isCollidedHorizontally && 
-					!((EntityPlayer)player).capabilities.isFlying) && Minewatch.keys.jump(player)) {
+					!((EntityPlayer)player).capabilities.isFlying) && KeyBind.JUMP.isKeyDown(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
 				if (ticks <= 17) {
 					if (ticks % 4 == 0 || ticks == 1) { // reset fall distance and play sound
@@ -356,7 +357,7 @@ public class ItemMWArmor extends ItemArmor {
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (Minewatch.keys.jump(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
+			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
 				player.motionY *= 0.75f;
 				player.fallDistance *= 0.75f;
 				if (!playersHovering.contains(player) && !world.isRemote) {

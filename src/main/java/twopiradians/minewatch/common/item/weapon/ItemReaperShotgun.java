@@ -42,6 +42,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
@@ -261,7 +262,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						if (handler == null) {
 							TickHandler.register(true, TPS.setEntity(player).setPosition(tpVec).setTicks(-1));
 							Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
-							if (Minewatch.keys.ability2(player))
+							if (KeyBind.ABILITY_2.isKeyDown(player))
 								player.playSound(ModSoundEvents.reaperTeleportStart, 1.0f, 1.0f);
 						}
 						else if (handler.ticksLeft == -1)
@@ -270,7 +271,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					else if (handler != null && handler.ticksLeft == -1)
 						TickHandler.unregister(true, handler);
 				}
-				else if (Minewatch.keys.lmb(player)) {
+				else if (KeyBind.LMB.isKeyDown(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					if (tpVec != null && player instanceof EntityPlayerMP) {
 						player.rotationPitch = 0;
@@ -285,7 +286,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					}
 				}
 
-				if (Minewatch.keys.rmb(player))
+				if (KeyBind.RMB.isKeyDown(player))
 					hero.ability1.toggle(player, false);
 			}
 			// wraith

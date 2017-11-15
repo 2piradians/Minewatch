@@ -1,6 +1,8 @@
 package twopiradians.minewatch.common.hero;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
@@ -29,7 +31,7 @@ public class Ability {
 	public boolean isEnabled;
 	public boolean isToggleable;
 	public HashMap<EntityLivingBase, Entity> entities = Maps.newHashMap();
-	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
+	private HashSet<UUID> toggled = new HashSet();
 
 	// multi use ability stuff
 	public int maxUses;
@@ -84,12 +86,26 @@ public class Ability {
 			if (toggle) 
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(entity.getPersistentID());
-			toggled.put(entity.getPersistentID(), toggle);
+			toggled.add(entity.getPersistentID());
+		}
+	}
+	
+	/**Toggle this ability - untoggles all other abilities*/
+	public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
+		if (TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null && isEnabled) {
+			if (toggle) 
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+					ability.toggled.remove(uuid);
+			toggled.add(uuid);
 		}
 	}
 
 	public boolean isToggled(Entity entity) {
-		return toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
+		return toggled.contains(entity.getPersistentID());
+	}
+	
+	public boolean isToggled(UUID uuid) {
+		return toggled.contains(uuid);
 	}
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
@@ -125,7 +141,7 @@ public class Ability {
 				ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) &&
 				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) &&
 				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
-						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
+						toggled.contains(player.getPersistentID()));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 		if (handler != null && handler.ability != null && !handler.bool)

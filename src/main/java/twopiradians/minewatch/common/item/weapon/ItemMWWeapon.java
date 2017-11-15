@@ -32,6 +32,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
@@ -66,7 +67,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public int getMaxAmmo(EntityLivingBase player) {
-		if (player != null && hero.hasAltWeapon && hero.playersUsingAlt.contains(player.getPersistentID()))
+		if (player != null && hero.hasAltWeapon && KeyBind.ALT_WEAPON.isKeyDown(player))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
@@ -95,7 +96,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			if (player.world.isRemote)
 				for (EnumHand hand2 : hands)
 					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) 
-						this.reequipAnimation.put(player.getHeldItem(hand2), 2);
+						this.reequipAnimation(player.getHeldItem(hand2));
 			currentAmmo.put(player.getPersistentID(), Math.min(amount, getMaxAmmo(player)));
 		}
 	}
@@ -132,6 +133,11 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			if (entity.getHeldItem(hand) == stack)
 				return hand;
 		return null;
+	}
+
+	public void reequipAnimation(ItemStack stack) {
+		if (stack != null)
+			this.reequipAnimation.put(stack, 2);
 	}
 
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
@@ -173,12 +179,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { }
-	
+
 	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
-	
+
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		return this.onItemRightClick(world, (EntityLivingBase) player, hand);
@@ -220,13 +226,13 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
 				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity), EnumHand.values());
 		// manual reload
-			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && Minewatch.keys.reload((EntityPlayer) entity))
+			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && KeyBind.RELOAD.isKeyDown((EntityPlayer) entity))
 				this.reload((EntityPlayer) entity);
 
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
-		if (entity instanceof EntityLivingBase && Minewatch.keys.lmb((EntityLivingBase) entity)) {
+		if (entity instanceof EntityLivingBase && KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) {
 			EntityLivingBase player = (EntityLivingBase) entity;
 			EnumHand hand = this.getHand(player, stack);	
 			if (hand != null && (!this.hasOffhand || 
@@ -234,9 +240,9 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
 				onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
 		}
-		
+
 		// right click - for EntityHeroes
-		if (entity instanceof EntityHero && Minewatch.keys.rmb((EntityLivingBase) entity))
+		if (entity instanceof EntityHero && KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
 			this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 
 		// deselect ability if it has cooldown

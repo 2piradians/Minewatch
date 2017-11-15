@@ -2,6 +2,7 @@ package twopiradians.minewatch.client;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
@@ -50,7 +51,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
-import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
@@ -107,7 +108,7 @@ import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy {
 
-	public static ArrayList<UUID> healthParticleEntities = new ArrayList<UUID>();
+	public static HashSet<UUID> healthParticleEntities = new HashSet();
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
@@ -122,11 +123,9 @@ public class ClientProxy extends CommonProxy {
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
 		registerNonWeaponRenders();
-		ClientRegistry.registerKeyBinding(Keys.HERO_INFORMATION);
-		ClientRegistry.registerKeyBinding(Keys.RELOAD);
-		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
-		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
-		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
+		for (KeyBind key : KeyBind.values())
+			if (key.keyBind != null)
+				ClientRegistry.registerKeyBinding(key.keyBind);
 
 		for (IChangingModel item : ModItems.changingModelItems)
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
@@ -173,11 +172,11 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void createKeybinds() {
-		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
-		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
-		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
-		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+		KeyBind.HERO_INFORMATION.keyBind = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
 	}
 
 	private void registerInventoryTab() {

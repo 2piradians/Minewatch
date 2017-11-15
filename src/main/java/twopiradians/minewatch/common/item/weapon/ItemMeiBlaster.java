@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -129,7 +130,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 			Handler handler = TickHandler.getHandler(player, Identifier.MEI_CRYSTAL);
 			if (!world.isRemote && handler != null && 
-					(Minewatch.keys.rmb(player) || Minewatch.keys.lmb(player)) &&
+					(KeyBind.RMB.isKeyDown(player) || KeyBind.LMB.isKeyDown(player)) &&
 					hero.ability2.keybind.getCooldown(player) == 0) {
 				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
 						TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),

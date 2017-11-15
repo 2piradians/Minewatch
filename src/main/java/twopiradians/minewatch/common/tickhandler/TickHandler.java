@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.tickhandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
@@ -64,15 +65,21 @@ public class TickHandler {
 				}
 			}
 	}
-
+	
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
-		if (entity != null) {
-			CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+		return entity == null ? null : getHandler(entity.getPersistentID(), identifier, entity.world.isRemote);
+	}
+
+	/**Get a registered handler by its entity and/or identifier*/
+	@Nullable
+	public static Handler getHandler(UUID uuid, Identifier identifier, boolean isRemote) {
+		if (uuid != null) {
+			CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				if ((entity == null || handler.entity == entity) &&
+				if ((uuid == null || (handler.entity != null && uuid.equals(handler.entity.getPersistentID()))) &&
 						(identifier == null || identifier == handler.identifier))
 					return handler;
 			}

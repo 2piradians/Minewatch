@@ -24,6 +24,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
@@ -108,7 +109,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			// scoped
-			if (Minewatch.keys.rmb(player) && player.getActiveItemStack() == stack) {
+			if (KeyBind.RMB.isKeyDown(player) && player.getActiveItemStack() == stack) {
 				if (!player.world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, 2, true, 
 							(int) (12+(120d-12d)*getPower(player)));
@@ -126,7 +127,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					player.stopActiveHand();
 			}
 			// unscoped
-			else if (!Minewatch.keys.rmb(player) && player.ticksExisted % 2 == 0) {
+			else if (!KeyBind.RMB.isKeyDown(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 3, hand, 6, 0.43f);
@@ -158,8 +159,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	/**Is this player scoping with the stack*/
 	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
-				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !Minewatch.keys.jump(player) &&
-				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
+				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !KeyBind.JUMP.isKeyDown(player) &&
+				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
 	}
 
 	//PORT correct scope scale

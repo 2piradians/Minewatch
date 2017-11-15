@@ -13,7 +13,6 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
@@ -27,6 +26,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -78,6 +78,10 @@ public class SPacketSimple implements IMessage {
 		this(type, bool, null, 0, 0, 0, entity, null);
 	}
 
+	public SPacketSimple(int type, UUID uuid, boolean bool) {
+		this(type, bool, uuid, 0, 0, 0, -1, -1);
+	}
+
 	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2) {
 		this(type, bool, null, 0, 0, 0, entity, entity2);
 	}
@@ -107,11 +111,16 @@ public class SPacketSimple implements IMessage {
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
+		this(type, bool, player == null ? UUID.randomUUID() : player.getPersistentID(), x, y, z, 
+				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId());
+	}
+
+	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2) {
 		this.type = type;
 		this.bool = bool;
-		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
-		this.id = entity == null ? -1 : entity.getEntityId();
-		this.id2 = entity2 == null ? -1 : entity2.getEntityId();
+		this.uuid = playerUUID;
+		this.id = entityID;
+		this.id2 = entityID2;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -218,23 +227,13 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.mouseClick();
 					}
 					// Sync playersUsingAlt
-					else if (packet.type == 6 && packetPlayer != null) {
-						ItemStack main = packetPlayer.getHeldItemMainhand();
-						if (main != null && main.getItem() instanceof ItemMWWeapon) {
-							EnumHero hero = ((ItemMWWeapon)main.getItem()).hero;
-							if (packet.bool && !hero.playersUsingAlt.contains(packet.uuid))
-								hero.playersUsingAlt.add(packet.uuid);
-							else if (!packet.bool)
-								hero.playersUsingAlt.remove(packet.uuid);
-							if (ItemStack.areItemsEqualIgnoreDurability(main, packetPlayer.getHeldItemOffhand()))
-								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
-										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
-										EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
-							else
-								((ItemMWWeapon)main.getItem()).setCurrentAmmo(packetPlayer, 
-										((ItemMWWeapon)main.getItem()).getCurrentAmmo(packetPlayer), 
-										EnumHand.MAIN_HAND);
-						}
+					else if (packet.type == 6 && packet.uuid != null) {
+						KeyBind.ALT_WEAPON.setKeyDown(packet.uuid, packet.bool, true);
+						// cause reequip animation if player
+						if (packetPlayer != null) 
+							for (ItemStack stack : packetPlayer.getHeldEquipment())
+								if (stack != null && stack.getItem() instanceof ItemMWWeapon)
+									((ItemMWWeapon)stack.getItem()).reequipAnimation(stack);
 					}
 					// open display gui
 					else if (packet.type == 7) {
@@ -453,17 +452,14 @@ public class SPacketSimple implements IMessage {
 						((EntityJunkratMine)entity).explode();
 					}
 					// Bastion's reconfigure
-					else if (packet.type == 31 && packetPlayer != null) {
-						if (!packet.bool)
-							EnumHero.BASTION.playersUsingAlt.remove(packetPlayer.getPersistentID());
-						else if (!EnumHero.BASTION.playersUsingAlt.contains(packetPlayer.getPersistentID())) 
-							EnumHero.BASTION.playersUsingAlt.add(packetPlayer.getPersistentID());
+					else if (packet.type == 31 && entity instanceof EntityLivingBase) {
+						KeyBind.ALT_WEAPON.setKeyDown((EntityLivingBase) entity, packet.bool, true);
 						if (packet.bool) {
-							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(packetPlayer).setTicks(10));
-							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(entity).setTicks(10));
+							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						}
 						else
-							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.bastionReconfigure0, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.bastionReconfigure0, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 					}
 					// Mei's cryo-freeze
 					else if (packet.type == 32 && entity != null) {

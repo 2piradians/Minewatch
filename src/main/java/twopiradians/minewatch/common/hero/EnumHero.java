@@ -217,8 +217,6 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
 			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/"));
 
-	public ArrayList<UUID> playersUsingAlt = new ArrayList<UUID>();
-
 	public Ability ability1;
 	public Ability ability2;
 	public Ability ability3;
@@ -393,7 +391,7 @@ public enum EnumHero {
 			// make entity body follow head
 			if (event.getEntity() instanceof EntityPlayer && event.getEntity().getHeldItemMainhand() != null && 
 					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					(Minewatch.keys.lmb((EntityPlayer) event.getEntity()) || Minewatch.keys.rmb((EntityPlayer) event.getEntity()))) {
+					(KeyBind.LMB.isKeyDown((EntityPlayer) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityPlayer) event.getEntity()))) {
 				event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
 			}
 
@@ -526,7 +524,7 @@ public enum EnumHero {
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					GlStateManager.color(1, 1, 1, 1f);
 
-					if (!(weapon.hero == hero && Minewatch.keys.heroInformation(player))) {
+					if (!(weapon.hero == hero && KeyBind.HERO_INFORMATION.isKeyDown(player))) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
 
@@ -593,7 +591,7 @@ public enum EnumHero {
 				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 				// hero information screen
-				if (hero != null && weapon != null && weapon.hero == hero && Minewatch.keys.heroInformation(player))
+				if (hero != null && weapon != null && weapon.hero == hero && KeyBind.HERO_INFORMATION.isKeyDown(player))
 					hero.displayInfoScreen(event.getResolution());
 				else {
 					if (hero != null) {
@@ -624,7 +622,7 @@ public enum EnumHero {
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-						int index = weapon.hero.playersUsingAlt.contains(player.getPersistentID()) && 
+						int index = KeyBind.ALT_WEAPON.isKeyDown(player.getPersistentID()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 						int vertical = 11;
 						// weapon

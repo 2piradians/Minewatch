@@ -19,8 +19,6 @@ import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
@@ -31,6 +29,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
@@ -81,7 +80,7 @@ public class EntityHelper {
 
 		// adjust based on fov (only client-side: mainly for muzzle particles and Mercy beam)
 		if (shooter.world.isRemote && shooter instanceof EntityPlayer) {
-			float fovSettings = Minewatch.keys.fov((EntityPlayer)shooter)-70f;
+			float fovSettings = KeyBind.FOV.getFOV((EntityPlayer)shooter)-70f;
 			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
 			horizontalAdjust += fov / 80f;
 			verticalAdjust += fov / 5f;

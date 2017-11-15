@@ -4,10 +4,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityBastionBullet extends EntityMW {
@@ -41,7 +41,7 @@ public class EntityBastionBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.getThrower() != null && EnumHero.BASTION.playersUsingAlt.contains(this.getThrower().getPersistentID())) {
+		if (this.getThrower() != null && KeyBind.ALT_WEAPON.isKeyDown(this.getThrower())) {
 			if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 4, 15, 35, 55)) 
 				result.entityHit.hurtResistantTime = 0;
 		}

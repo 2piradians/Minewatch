@@ -9,14 +9,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -120,7 +118,7 @@ public class CPacketSimple implements IMessage {
 					EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
 					Entity entity = packet.id == -1 ? null : player.world.getEntityByID(packet.id);
-					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
+					//Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// reset fall distance
 					if (packet.type == 0 && entity != null) {

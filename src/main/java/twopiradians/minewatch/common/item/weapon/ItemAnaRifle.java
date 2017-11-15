@@ -28,6 +28,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
@@ -118,7 +119,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
-						hero.playersUsingAlt.contains(player.getPersistentID()));
+						KeyBind.ALT_WEAPON.isKeyDown(player));
 				boolean scoped = isScoped(player, stack);
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
@@ -226,8 +227,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityLivingBase player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
-				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !Minewatch.keys.jump(player);
+				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
+				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 
 	//PORT correct scope scale

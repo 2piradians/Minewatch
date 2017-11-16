@@ -62,7 +62,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase player, int timeLeft) {
 		boolean flag = (player instanceof EntityPlayer && ((EntityPlayer)player).capabilities.isCreativeMode) || 
-				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero;
+				ItemMWArmor.SetManager.getWornSet(player) == hero;
 		ItemStack itemstack = this.findAmmo(player);
 
 		int i = this.getMaxItemUseDuration(stack) - timeLeft;

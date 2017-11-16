@@ -67,7 +67,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public int getMaxAmmo(EntityLivingBase player) {
-		if (player != null && hero.hasAltWeapon && KeyBind.ALT_WEAPON.isKeyDown(player))
+		if (player != null && hero.hasAltWeapon && isAlternate(player.getHeldItemMainhand()))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
@@ -256,7 +256,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
-				SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero)
+				SetManager.getWornSet(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 
 		// health particles
@@ -355,6 +355,27 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					return (EntityLivingBase) entity;
 		}
 		return null;
+	}
+	
+	/**Is this weapon using its alternate version*/
+	public static boolean isAlternate(ItemStack stack) {
+		return stack != null && stack.hasTagCompound() &&
+				stack.getTagCompound().hasKey("alt_weapon");
+	}
+	
+	/**Set this weapon to use / not use alternate version*/
+	public static void setAlternate(ItemStack stack, boolean usingAlt) {
+		if (stack != null) {
+			if (!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (usingAlt)
+				nbt.setBoolean("alt_weapon", true);
+			else
+				nbt.removeTag("alt_weapon");
+			stack.setTagCompound(nbt);
+		}
 	}
 
 	// DEV SPAWN ARMOR ===============================================

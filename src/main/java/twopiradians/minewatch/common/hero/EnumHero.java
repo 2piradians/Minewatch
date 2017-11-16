@@ -442,7 +442,7 @@ public enum EnumHero {
 				double width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
 				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) : null;
+				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				EnumHand hand = null;
 				for (EnumHand hand2 : EnumHand.values())
 					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
@@ -541,7 +541,7 @@ public enum EnumHero {
 						GlStateManager.popMatrix();
 
 						// tracer's dash
-						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == EnumHero.TRACER) {
+						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.getWornSet(player) == EnumHero.TRACER) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
 
@@ -587,7 +587,7 @@ public enum EnumHero {
 		public static void renderOverlay(RenderGameOverlayEvent.Post event) {			
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) ? ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) : null;
+				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 				// hero information screen
@@ -622,13 +622,13 @@ public enum EnumHero {
 						GlStateManager.scale(1*scale, 4*scale, 1);
 						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-						int index = KeyBind.ALT_WEAPON.isKeyDown(player.getPersistentID()) && 
+						int index = ItemMWWeapon.isAlternate(player.getHeldItemMainhand()) && 
 								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 						int vertical = 11;
 						// weapon
 						GuiUtils.drawTexturedModalRect(0, 0, 1, (index+1)+index*vertical, 122, vertical, 0);
 
-						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID())) {
+						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.getWornSet(player) != null) {
 							// slot 1
 							if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
 								GlStateManager.color(0.4f, 0.4f, 0.4f);
@@ -802,7 +802,7 @@ public enum EnumHero {
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
 
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
-				if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) != null) {
+				if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) != null) {
 					try {
 						float damage = event.getAmount();
 						damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
@@ -840,7 +840,7 @@ public enum EnumHero {
 						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
 						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
 							// reset genji strike cooldown
-							if (ItemMWArmor.SetManager.entitiesWearingSets.get(uuid) == EnumHero.GENJI) {
+							if (ItemMWArmor.SetManager.getWornSet(uuid) == EnumHero.GENJI) {
 								EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
 								Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
 								if (handler != null)

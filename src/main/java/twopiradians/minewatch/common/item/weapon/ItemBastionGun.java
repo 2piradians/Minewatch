@@ -37,7 +37,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-					KeyBind.ALT_WEAPON.isKeyDown(entityLiving)) {
+							isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -47,8 +47,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 				return false;
 			}
-			else if (KeyBind.ALT_WEAPON.isKeyDown(entityLiving)) {
-				KeyBind.ALT_WEAPON.setKeyDown(entityLiving, false, true);
+			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
+				setAlternate(entityLiving.getHeldItemMainhand(), false);
 				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
 			}
 
@@ -58,7 +58,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-					KeyBind.ALT_WEAPON.isKeyDown(entityLiving)) {
+							isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -68,8 +68,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 				return false;
 			}
-			else if (KeyBind.ALT_WEAPON.isKeyDown(entityLiving)) {
-				KeyBind.ALT_WEAPON.setKeyDown(entityLiving, false, false);
+			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
+				setAlternate(entityLiving.getHeldItemMainhand(), false);
 				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
 			}
 
@@ -87,7 +87,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
-			boolean turret = KeyBind.ALT_WEAPON.isKeyDown(player);
+			boolean turret = isAlternate(stack);
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
 				if (turret)
@@ -115,9 +115,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// stop turret if doesn't have handler (i.e. dies in turret form)
-			if (!world.isRemote && KeyBind.ALT_WEAPON.isKeyDown(player) &&
+			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
-				KeyBind.ALT_WEAPON.setKeyDown(player, false, world.isRemote);
+				setAlternate(stack, false);
 				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));//TEST other player dying in turret -> still looks like turret to me
 				hero.reloadSound = ModSoundEvents.bastionReload;
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
@@ -127,8 +127,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
-				KeyBind.ALT_WEAPON.setKeyDown(player, KeyBind.ALT_WEAPON.isKeyDown(player), false);
-				if (KeyBind.ALT_WEAPON.isKeyDown(player)) 
+				setAlternate(stack, !isAlternate(stack));
+				if (isAlternate(stack)) 
 					hero.reloadSound = ModSoundEvents.bastionReload;
 				else {
 					hero.reloadSound = ModSoundEvents.bastionTurretReload;
@@ -150,7 +150,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@SubscribeEvent
 	public void hideOffhand(RenderSpecificHandEvent event) {
 		if (event.getHand() == EnumHand.OFF_HAND && 
-				KeyBind.ALT_WEAPON.isKeyDown(Minecraft.getMinecraft().player) &&
+				isAlternate(Minecraft.getMinecraft().player.getHeldItemMainhand()) &&
 				Minecraft.getMinecraft().player.getHeldItemMainhand() != null && 
 				Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon)
 			event.setCanceled(true);
@@ -167,7 +167,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		boolean turret = entity != null && KeyBind.ALT_WEAPON.isKeyDown(entity.getPersistentID());
+		boolean turret = isAlternate(stack);
 		return turret ? "_1" : "_0";
 	}
 

@@ -33,6 +33,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
@@ -42,7 +43,7 @@ public class Keys {
 	public enum KeyBind {
 		NONE(Identifier.NONE), ABILITY_1(Identifier.KEYBIND_ABILITY_1), 
 		ABILITY_2(Identifier.KEYBIND_ABILITY_2), RMB(Identifier.KEYBIND_RMB),
-		LMB, HERO_INFORMATION, RELOAD, ULTIMATE, JUMP, FOV, ALT_WEAPON; // TODO test alt (maybe disable when switching heroes)
+		LMB, HERO_INFORMATION, RELOAD, ULTIMATE, JUMP, FOV; // TODO test alt (maybe disable when switching heroes)
 
 		public final Handler COOLDOWNS = new Handler(null, false) {
 			@SideOnly(Side.CLIENT)
@@ -115,25 +116,14 @@ public class Keys {
 
 		public void setKeyDown(UUID uuid, boolean isKeyDown, boolean isRemote) {
 			if (uuid != null) {
-				System.out.println(this+": "+isKeyDown); // FIXME TODO
 				// set key down
 				if (isKeyDown)
 					this.keyDownEntities.add(uuid);
 				else
 					this.keyDownEntities.remove(uuid);
-				// set toggles
-				if (this == ABILITY_1 || this == ABILITY_2) {
-					if (ItemMWArmor.SetManager.entitiesWearingSets.containsKey(uuid) &&
-							TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null) {
-						EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(uuid);
-						for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-							if (ability.isToggleable && ability.keybind == this && this.getCooldown(uuid, isRemote) == 0) 
-								ability.toggle(uuid, !ability.isToggled(uuid), isRemote);
-					}
-				}
-				// sync alt weapon to all players
+				/*// sync alt weapon to all players
 				if (this == ALT_WEAPON && !isRemote)
-					Minewatch.network.sendToAll(new SPacketSimple(6, uuid, isKeyDown));
+					Minewatch.network.sendToAll(new SPacketSimple(6, uuid, isKeyDown));*/ // TODO remove
 			}
 		}
 
@@ -165,11 +155,28 @@ public class Keys {
 		@SideOnly(Side.CLIENT)
 		public boolean checkIsKeyDown(Minecraft mc) {
 			if (this.keyBind != null)
-				return this.keyBind.isPressed();
+				return this.keyBind.isKeyDown();
 			else if (this == JUMP)
 				return mc.player.movementInput.jump;
 			else
 				return false;
+		}
+
+		/**Toggle ability - toggles and sends packet to toggle on client, toggles on server*/
+		public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
+			if (uuid != null && ItemMWArmor.SetManager.getWornSet(uuid) != null) {
+				EnumHero hero = ItemMWArmor.SetManager.getWornSet(uuid);
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+					if (ability.isToggleable && ability.keybind == this && 
+					ability.keybind.getCooldown(uuid, isRemote) == 0) {
+						if (isRemote) {
+							ability.toggle(uuid, !ability.isToggled(uuid), isRemote);
+							Minewatch.network.sendToServer(new CPacketSyncKeys(this, ability.isToggled(uuid), uuid, true));
+						}
+						else
+							ability.toggle(uuid, toggle, isRemote);
+					}
+			}
 		}
 	}
 
@@ -211,8 +218,9 @@ public class Keys {
 				player.isSneaking() && event.getDwheel() != 0 && 
 				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
 				((ItemMWWeapon)main.getItem()).hero != EnumHero.BASTION) {
-			KeyBind.ALT_WEAPON.setKeyDown(uuid, !KeyBind.ALT_WEAPON.isKeyDown(uuid), true);
-			Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.ALT_WEAPON, KeyBind.ALT_WEAPON.isKeyDown(uuid), uuid));
+			Minewatch.network.sendToServer(new CPacketSimple(3, false, player));
+			/*KeyBind.ALT_WEAPON.setKeyDown(uuid, !KeyBind.ALT_WEAPON.isKeyDown(uuid), true);
+			Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.ALT_WEAPON, KeyBind.ALT_WEAPON.isKeyDown(uuid), uuid));*/
 			event.setCanceled(true);
 		}
 	}
@@ -234,7 +242,7 @@ public class Keys {
 					}
 
 			// sync keys
-			for (KeyBind key : KeyBind.values()) {
+			for (KeyBind key : new KeyBind[] {KeyBind.HERO_INFORMATION, KeyBind.RELOAD, KeyBind.ABILITY_1, KeyBind.ABILITY_2, KeyBind.ULTIMATE, KeyBind.JUMP, KeyBind.FOV}) {
 				boolean isKeyDown = key.checkIsKeyDown(mc);
 				if (key == KeyBind.FOV && mc.gameSettings.fovSetting != key.getFOV(uuid)) {
 					key.setFOV(uuid, mc.gameSettings.fovSetting);
@@ -243,6 +251,8 @@ public class Keys {
 				else if (isKeyDown != key.isKeyDown(uuid)) {
 					key.setKeyDown(uuid, isKeyDown, true);
 					Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
+					if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))
+						key.toggle(uuid, true, true);
 				}
 			}
 		}

@@ -8,6 +8,7 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityBastionBullet extends EntityMW {
@@ -41,7 +42,7 @@ public class EntityBastionBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.getThrower() != null && KeyBind.ALT_WEAPON.isKeyDown(this.getThrower())) {
+		if (this.getThrower() != null && ItemMWWeapon.isAlternate(this.getThrower().getHeldItemMainhand())) {
 			if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 4, 15, 35, 55)) 
 				result.entityHit.hurtResistantTime = 0;
 		}

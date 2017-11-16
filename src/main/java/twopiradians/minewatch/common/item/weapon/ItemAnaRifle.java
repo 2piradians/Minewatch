@@ -119,7 +119,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
-						KeyBind.ALT_WEAPON.isKeyDown(player));
+						isAlternate(stack));
 				boolean scoped = isScoped(player, stack);
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);

@@ -11,6 +11,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.tickhandler.TickHandler;
+import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ModelMWArmor extends ModelPlayer {
@@ -30,7 +33,7 @@ public class ModelMWArmor extends ModelPlayer {
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();
 	}
-	
+
 	@Override
 	public void setLivingAnimations(EntityLivingBase entityIn, float limbSwing, float limbSwingAmount, float partialTickTime) {
 		if (((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entityIn)).getMainModel() instanceof ModelBiped) {
@@ -49,13 +52,27 @@ public class ModelMWArmor extends ModelPlayer {
 			copyModelAngles(this.bipedLeftLeg, this.bipedLeftLegwear);
 			copyModelAngles(this.bipedRightLeg, this.bipedRightLegwear);
 		}
-    }
+	}
 
 	@Override
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
-		EnumHero hero = ItemMWArmor.SetManager.entitiesWearingSets.get(entityIn.getPersistentID());
-		if (hero != null && entityIn instanceof EntityLivingBase)
-			hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
+		if (entityIn instanceof EntityLivingBase) {
+			EntityLivingBase entity = (EntityLivingBase) entityIn;
+			EnumHero hero = ItemMWArmor.SetManager.getWornSet(entityIn);
+			if (hero != null)
+				hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
+			
+			// frozen coloring
+			if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
+					(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
+					entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+				int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
+						TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
+						entity.maxHurtTime = -1;
+						entity.hurtTime = -1;
+						GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
+			}
+		}
 	}
 
 }

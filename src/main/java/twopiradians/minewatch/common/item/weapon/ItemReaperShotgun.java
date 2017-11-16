@@ -361,7 +361,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		if (event.getSource().getEntity() instanceof EntityPlayer && event.getEntityLiving() != null) {
 			EntityPlayer player = ((EntityPlayer)event.getSource().getEntity());
 			// heal reaper
-			if (!player.world.isRemote && ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero &&
+			if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) == hero &&
 					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
 				try {
 					float damage = event.getAmount();

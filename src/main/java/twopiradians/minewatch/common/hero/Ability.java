@@ -83,27 +83,33 @@ public class Ability {
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(Entity entity, boolean toggle) {
 		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isEnabled) {
-			if (toggle) 
+			if (toggle) {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(entity.getPersistentID());
-			toggled.add(entity.getPersistentID());
+				toggled.add(entity.getPersistentID());
+			}
+			else
+				toggled.remove(entity.getPersistentID());
 		}
 	}
-	
+
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
 		if (TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null && isEnabled) {
-			if (toggle) 
+			if (toggle) {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(uuid);
-			toggled.add(uuid);
+				toggled.add(uuid);
+			}
+			else
+				toggled.remove(uuid);
 		}
 	}
 
 	public boolean isToggled(Entity entity) {
 		return toggled.contains(entity.getPersistentID());
 	}
-	
+
 	public boolean isToggled(UUID uuid) {
 		return toggled.contains(uuid);
 	}
@@ -138,9 +144,8 @@ public class Ability {
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
-				ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) &&
-				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) &&
-				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
+				ItemMWArmor.SetManager.getWornSet(player) == hero) &&
+				keybind.getCooldown(player) == 0 && ((/*!this.isToggleable && */keybind.isKeyDown(player)) ||
 						toggled.contains(player.getPersistentID()));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);

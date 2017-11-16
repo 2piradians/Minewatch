@@ -49,7 +49,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			if (this.entity != null && this.entity.isEntityAlive() && this.entityLiving != null && 
-					ItemMWArmor.SetManager.entitiesWearingSets.get(this.entityLiving.getPersistentID()) == EnumHero.SOMBRA &&
+					ItemMWArmor.SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
 					!this.entityLiving.canEntityBeSeen(entity) && entity instanceof EntityLivingBase && 
 					((EntityLivingBase)entity).getHealth() > 0 &&
 					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f) {

@@ -104,8 +104,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		boolean battleMercy = stack.hasTagCompound() && KeyBind.ALT_WEAPON.isKeyDown(stack.getTagCompound().getUniqueId("entity"));	
-		return battleMercy ? "Caduceus Blaster" : "Caduceus Staff";
+		return isAlternate(stack) ? "Caduceus Blaster" : "Caduceus Staff";
 	}
 
 	public static boolean isStaff(ItemStack stack) {
@@ -117,7 +116,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && KeyBind.ALT_WEAPON.isKeyDown(player)) {
+		if (this.canUse(player, true, hand, false) && isAlternate(stack)) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);
@@ -215,7 +214,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 		// add to notRegening if hurt
 		if (target instanceof EntityPlayer && !target.world.isRemote &&
-				ItemMWArmor.SetManager.entitiesWearingSets.get(target.getPersistentID()) == EnumHero.MERCY) {
+				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity((EntityPlayer) target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
@@ -223,7 +222,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.world.isRemote &&
-					ItemMWArmor.SetManager.entitiesWearingSets.get(beam.player.getPersistentID()) == EnumHero.MERCY) {
+					ItemMWArmor.SetManager.getWornSet(beam.player) == EnumHero.MERCY) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
@@ -245,7 +244,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		return ItemMercyWeapon.isStaff(stack) ? "_0" : "_1";
+		return !ItemMercyWeapon.isStaff(stack) && entity != null && entity.getHeldItemMainhand() == stack ? "_1" : "_0";
 	}
 
 }

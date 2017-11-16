@@ -151,6 +151,10 @@ public class CPacketSimple implements IMessage {
 						if (!hasWildCard)
 							packetPlayer.closeScreen();
 					}
+					// Switch alt weapon
+					else if (packet.type == 3 && packetPlayer != null) {
+						
+					}
 				}
 			});
 			return null;

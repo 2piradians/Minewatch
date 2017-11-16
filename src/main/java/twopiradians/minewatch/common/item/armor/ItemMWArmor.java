@@ -129,10 +129,10 @@ public class ItemMWArmor extends ItemArmor {
 	@Mod.EventBusSubscriber
 	public static class SetManager {
 		/**List of players wearing full sets and the sets that they are wearing*/
-		public static HashMap<UUID, EnumHero> entitiesWearingSets = Maps.newHashMap();	
+		private static HashMap<UUID, EnumHero> entitiesWearingSets = Maps.newHashMap();	
 
 		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
-		public static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
+		private static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
 
 		/**Clear cooldowns of players logging in (for when switching worlds)*/
 		@SubscribeEvent
@@ -148,6 +148,18 @@ public class ItemMWArmor extends ItemArmor {
 								new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
 										ability.maxUses, false), (EntityPlayerMP) event.player);
 					}
+		}
+		
+		@Nullable
+		public static EnumHero getWornSet(Entity entity) {
+			return entity == null ? null : 
+				entity instanceof EntityHero ? ((EntityHero)entity).hero : 
+					getWornSet(entity.getPersistentID());
+		}
+		
+		@Nullable
+		public static EnumHero getWornSet(UUID uuid) {
+			return entitiesWearingSets.get(uuid);
 		}
 
 		/**Clear cooldowns of players respawning*/
@@ -369,7 +381,7 @@ public class ItemMWArmor extends ItemArmor {
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
-		// tracer chestplate particles TODO test with entityhero
+		// tracer chestplate particles
 		double x = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosX : player.prevPosX;
 		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
 		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;

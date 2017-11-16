@@ -79,10 +79,10 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// faster sprint
-		if (isSelected && entity.isSprinting() && entity instanceof EntityPlayer && 
-				ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) == hero) {
+		if (isSelected && entity.isSprinting() && entity instanceof EntityLivingBase && 
+				ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) == hero) {
 			if (!world.isRemote)
-				((EntityPlayer)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
+				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
 			hero.ability3.toggle(entity, true);
 		}
 		else if (isSelected)

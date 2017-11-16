@@ -156,21 +156,6 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		}
 	}
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
-		// frozen coloring
-		if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
-				(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
-				entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
-			int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
-					TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
-					entity.maxHurtTime = -1;
-					entity.hurtTime = -1;
-					GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
-		}
-	}
-
 	@SubscribeEvent
 	public void preventDamage(LivingHurtEvent event) {
 		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL)) 

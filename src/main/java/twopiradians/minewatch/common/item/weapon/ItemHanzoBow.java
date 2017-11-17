@@ -90,7 +90,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					if (hero.ability2.isSelected(player)) {
 						entityarrow = new EntityHanzoSonicArrow(worldIn, player);
 						entityarrow.setDamage(125 - (125 - 29) * (1f-f));
-						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
+						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						hero.ability2.keybind.setCooldown(player, 400, false); 
 
 						worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
@@ -100,7 +100,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					else if (hero.ability1.isSelected(player)) {
 						entityarrow = new EntityHanzoScatterArrow(worldIn, player, true);
 						entityarrow.setDamage(75 - (75 - 22) * (1f-f));
-						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
+						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						hero.ability1.keybind.setCooldown(player, 200, false); 
 
 						if (worldIn.rand.nextBoolean())
@@ -111,7 +111,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					else { 
 						entityarrow = new EntityHanzoArrow(worldIn, player);
 						entityarrow.setDamage(125 - (125 - 29) * (1f-f));
-						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYaw, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
+						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 					}
 					stack.damageItem(1, player);
 					worldIn.spawnEntity(entityarrow);

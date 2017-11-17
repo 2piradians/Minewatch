@@ -46,9 +46,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entityLiving != null && this.ticksLeft == 1) {
 				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.world, entityLiving);
-				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYaw, (26.66f) * 1f, 0, null, 60, 0);
+				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, (26.66f) * 1f, 0, null, 60, 0);
 				entityLiving.world.spawnEntity(strike);
-				EnumHero.REINHARDT.ability2.keybind.setCooldown(player, 120, false); 
+				EnumHero.REINHARDT.ability2.keybind.setCooldown(entityLiving, 120, false); 
 			}
 			return super.onServerTick();
 		}
@@ -127,8 +127,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 			player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 8, 3, true, false));
 
 			// fire strike

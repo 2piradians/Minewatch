@@ -85,7 +85,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
-			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 20, 0.6F, hand, 14, 0.8f);
+			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 20, 0.6F, hand, 14, 0.8f);
 			world.spawnEntity(bullet);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.meiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/3, 
@@ -103,7 +103,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {//TODO delay
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
-				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYaw, 100, 0.4F, hand, 8, 0.35f);
+				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYawHead, 100, 0.4F, hand, 8, 0.35f);
 				world.spawnEntity(icicle);
 				this.setCooldown(player, 24);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.meiIcicleShoot, 

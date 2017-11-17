@@ -119,7 +119,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && isAlternate(stack)) {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, 45, 0.6F, hand, 8.5f, 0.6f);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 45, 0.6F, hand, 8.5f, 0.6f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.mercyShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

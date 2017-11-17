@@ -142,7 +142,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 1.5F, hand, 12, 0.43f);
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.sombraShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -196,7 +196,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// throw new translocator
 				else {
 					translocator = new EntitySombraTranslocator(world, player);
-					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
 					world.playSound(null, player.getPosition(), ModSoundEvents.sombraTranslocatorThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

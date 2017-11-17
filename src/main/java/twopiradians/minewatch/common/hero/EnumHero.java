@@ -389,9 +389,9 @@ public enum EnumHero {
 		@SideOnly(Side.CLIENT)
 		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {
 			// make entity body follow head
-			if (event.getEntity() instanceof EntityPlayer && event.getEntity().getHeldItemMainhand() != null && 
+			if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
 					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					(KeyBind.LMB.isKeyDown((EntityPlayer) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityPlayer) event.getEntity()))) {
+					(KeyBind.LMB.isKeyDown((EntityLivingBase) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityLivingBase) event.getEntity()))) {
 				event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
 			}
 

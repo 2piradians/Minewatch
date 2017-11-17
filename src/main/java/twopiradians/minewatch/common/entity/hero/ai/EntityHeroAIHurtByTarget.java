@@ -14,11 +14,11 @@ public class EntityHeroAIHurtByTarget extends EntityAIHurtByTarget {
 		super(creature, entityCallsForHelp, targetClasses);
 	}
 
-	 @Override
-	    protected boolean isSuitableTarget(@Nullable EntityLivingBase target, boolean includeInvincibles) {
-	    	return super.isSuitableTarget(target, includeInvincibles) && 
-	    			EntityHelper.shouldTarget(this.taskOwner, target, false) && 
-	    			!(target instanceof EntityHero && this.taskOwner.getTeam() == null && target.getTeam() == null);
-	    }
+	@Override
+	protected boolean isSuitableTarget(@Nullable EntityLivingBase target, boolean includeInvincibles) {
+		return super.isSuitableTarget(target, includeInvincibles) && 
+				EntityHelper.shouldTarget(this.taskOwner, target, false) && 
+				!(target instanceof EntityHero && this.taskOwner.getTeam() == null && target.getTeam() == null);
+	}
 
 }

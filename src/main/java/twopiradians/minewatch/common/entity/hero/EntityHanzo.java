@@ -3,7 +3,8 @@ package twopiradians.minewatch.common.entity.hero;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
-import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackRanged;
+import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
+import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class EntityHanzo extends EntityHero {
@@ -15,13 +16,13 @@ public class EntityHanzo extends EntityHero {
 	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
-		this.tasks.addTask(2, new EntityHeroAIAttackHanzo(this, 1, 20, 15));
+		this.tasks.addTask(2, new EntityHeroAIAttackHanzo(this, MovementType.STRAFING, 1, 20, 15));
 	}
 
-	public class EntityHeroAIAttackHanzo extends EntityHeroAIAttackRanged {
+	public class EntityHeroAIAttackHanzo extends EntityHeroAIAttackBase {
 
-		public EntityHeroAIAttackHanzo(EntityHero entity, double speedAmplifier, int delay, float maxDistance) {
-			super(entity, speedAmplifier, delay, maxDistance);
+		public EntityHeroAIAttackHanzo(EntityHero entity, MovementType type, double speedAmplifier, int delay, float maxDistance) {
+			super(entity, type, speedAmplifier, delay, maxDistance);
 		}
 		
 		@Override

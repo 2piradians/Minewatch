@@ -91,7 +91,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
-				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 19, 0, null, 0, 0);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
@@ -113,7 +113,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				if (!player.world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, 2, true, 
 							(int) (12+(120d-12d)*getPower(player)));
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 10, 0);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0, null, 10, 0);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
 					this.setCooldown(player, 10);
@@ -129,7 +129,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			else if (!KeyBind.RMB.isKeyDown(player) && player.ticksExisted % 2 == 0) {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 3, hand, 6, 0.43f);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 3, hand, 6, 0.43f);
 					world.spawnEntity(bullet);
 					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
 					this.subtractFromCurrentAmmo(player, 1);

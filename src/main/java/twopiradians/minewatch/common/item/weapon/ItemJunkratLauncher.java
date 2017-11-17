@@ -30,7 +30,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player, hand.ordinal());
-			EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYaw, 35f, 0.6F, hand, 10, 0.55f);
+			EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYawHead, 35f, 0.6F, hand, 10, 0.55f);
 			world.spawnEntity(grenade);
 			world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.junkratShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
@@ -70,7 +70,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				for (EntityPlayer player2 : world.playerEntities) 
 					Minewatch.proxy.stopSound(player2, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
-				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYaw, 15, 0, null, 0, 0);
+				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYawHead, 15, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratTrapThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(trap);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
@@ -91,7 +91,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				hero.ability2.subtractUse(player); 
 				hero.ability2.keybind.setCooldown(player, 10, true); 
 				EntityJunkratMine mine = new EntityJunkratMine(world, player);
-				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
 				world.playSound(null, player.getPosition(), ModSoundEvents.junkratMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

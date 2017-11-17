@@ -90,9 +90,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
 				if (turret)
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 1.5F, null, 20, 0);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, null, 20, 0);
 				else
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand, 12, 0.43f);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						turret ? ModSoundEvents.bastionShoot1 : ModSoundEvents.bastionShoot0, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 

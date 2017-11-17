@@ -121,7 +121,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
 						isAlternate(stack));
 				boolean scoped = isScoped(player, stack);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
 				world.spawnEntity(bullet);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
@@ -147,7 +147,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
-				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYawHead, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
 				world.spawnEntity(dart);
 				world.playSound(null, player.posX, player.posY, player.posZ, 
 						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 

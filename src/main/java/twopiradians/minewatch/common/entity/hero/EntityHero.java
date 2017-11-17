@@ -75,6 +75,9 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
+		
+		//if (this.getAttackTarget() != null) 
+			//this.getLookHelper().setLookPosition(this.getAttackTarget().posX, this.getAttackTarget().posY+this.getAttackTarget().getEyeHeight(), this.getAttackTarget().posZ, 30, 30);
 
 		// update items and armor
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {

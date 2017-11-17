@@ -70,6 +70,8 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	public void onUpdate() {
+		super.onUpdate();
+		
 		if (this.inGround && doEffect(world, shootingEntity, null, posX, posY, posZ, timeInGround))
 			this.setDead();
 		else if (!this.inGround && this.world.isRemote) {
@@ -78,8 +80,6 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 		}
-
-		super.onUpdate();
 	}
 
 	@Override

@@ -2,50 +2,40 @@ package twopiradians.minewatch.common.entity.hero.ai;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
-import twopiradians.minewatch.common.util.AIHelper;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHeroAIAttackRanged extends EntityAIBase {
 	
-	private final EntityHero entity;
-	private final double moveSpeedAmp;
-	private int attackCooldown;
-	private final float maxAttackDistance;
-	private int attackTime = -1;
-	private int seeTime;
-	private boolean strafingClockwise;
-	private boolean strafingBackwards;
-	private int strafingTime = -1;
+	protected final EntityHero entity;
+	protected final double moveSpeedAmp;
+	/**Delay between attacks*/
+	protected int attackCooldown;
+	protected final float maxAttackDistance;
+	/**Current time between attacks*/
+	protected int attackTime = -1;
+	protected int seeTime;
+	protected boolean strafingClockwise;
+	protected boolean strafingBackwards;
+	protected int strafingTime = -1;
 
 	public EntityHeroAIAttackRanged(EntityHero entity, double speedAmplifier, int delay, float maxDistance) {
 		this.entity = entity;
 		this.moveSpeedAmp = speedAmplifier;
 		this.attackCooldown = delay;
-		this.maxAttackDistance = maxDistance * maxDistance;
+		this.maxAttackDistance = maxDistance * maxDistance; //XXX customizable
 		this.setMutexBits(3);
-	}
-
-	public void setAttackCooldown(int cooldown) {
-		this.attackCooldown = cooldown;
 	}
 
 	@Override
 	public boolean shouldExecute() {
-		return EntityHelper.shouldHit(entity, entity.getAttackTarget(), false) && this.isBowInMainhand();
-	}
-
-	protected boolean isBowInMainhand() {
-		return !this.entity.getHeldItemMainhand().isEmpty() && this.entity.getHeldItemMainhand().getItem() instanceof ItemHanzoBow;
+		return EntityHelper.shouldHit(entity, entity.getAttackTarget(), false);
 	}
 
 	@Override
 	public boolean continueExecuting() {
-		return (this.shouldExecute() || !this.entity.getNavigator().noPath()) && this.isBowInMainhand();
+		return (this.shouldExecute() || !this.entity.getNavigator().noPath());
 	}
 
 	@Override
@@ -58,27 +48,27 @@ public class EntityHeroAIAttackRanged extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
-		EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
+		EntityLivingBase target = this.entity.getAttackTarget();
 
-		if (entitylivingbase != null) {
-			double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
-			boolean flag = this.entity.getEntitySenses().canSee(entitylivingbase);
-			boolean flag1 = this.seeTime > 0;
+		if (target != null) {
+			double distanceSq = this.entity.getDistanceSq(target.posX, target.getEntityBoundingBox().minY, target.posZ);
+			boolean canSee = this.entity.getEntitySenses().canSee(target);
+			boolean positiveSeeTime = this.seeTime > 0;
 
-			if (flag != flag1)
+			if (canSee != positiveSeeTime)
 				this.seeTime = 0;
 
-			if (flag)
+			if (canSee)
 				++this.seeTime;
 			else
 				--this.seeTime;
 
-			if (d0 <= (double)this.maxAttackDistance && this.seeTime >= 20) {
+			if (distanceSq <= (double)this.maxAttackDistance && this.seeTime >= 20) {
 				this.entity.getNavigator().clearPathEntity();
 				++this.strafingTime;
 			}
 			else {
-				this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.moveSpeedAmp);
+				this.entity.getNavigator().tryMoveToEntityLiving(target, this.moveSpeedAmp);
 				this.strafingTime = -1;
 			}
 
@@ -91,36 +81,25 @@ public class EntityHeroAIAttackRanged extends EntityAIBase {
 			}
 
 			if (this.strafingTime > -1) {
-				if (d0 > (double)(this.maxAttackDistance * 0.9F))
+				if (distanceSq > (double)(this.maxAttackDistance * 0.9F))
 					this.strafingBackwards = false;
-				else if (d0 < (double)(this.maxAttackDistance * 0.1F))
+				else if (distanceSq < (double)(this.maxAttackDistance * 0.1F))
 					this.strafingBackwards = true;
 
 				this.entity.getMoveHelper().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
-				this.entity.faceEntity(entitylivingbase, 30.0F, 30.0F);
+				this.entity.faceEntity(target, 30.0F, 30.0F);
 			}
 			else
-				this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
-
-			ItemStack bow = AIHelper.getHeldItems(this.entity, EnumHero.HANZO.weapon, EnumHand.MAIN_HAND);
-			if (this.entity.isHandActive() && bow != null) {
-				if (!flag && this.seeTime < -60)
-					this.entity.resetActiveHand();
-				else if (flag) {
-					int i = this.entity.getItemInUseMaxCount();
-
-					if (i >= 50 && this.isBowInMainhand()) {
-						bow.getItem().onPlayerStoppedUsing(bow, this.entity.world, this.entity, this.entity.getItemInUseCount());
-						this.entity.resetActiveHand();
-						//this.entity.attackEntityWithRangedAttack(entitylivingbase, ItemBow.getArrowVelocity(i));
-						this.attackTime = this.attackCooldown;
-					}
-				}
-			}
-			else if (--this.attackTime <= 0 && this.seeTime >= -60 && bow != null) {
-				((ItemHanzoBow)bow.getItem()).onItemRightClick(this.entity.world, this.entity, EnumHand.MAIN_HAND);
-				//this.entity.setActiveHand(EnumHand.MAIN_HAND);
-			}
+				this.entity.getLookHelper().setLookPositionWithEntity(target, 30.0F, 30.0F);
+			
+			this.attackTarget(target, canSee, Math.sqrt(distanceSq));
 		}
 	}
+
+	protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {}
+	
+	protected boolean shouldUseAbility() {
+		return entity.getRNG().nextInt(5) == 0; // XXX customizable
+	}
+	
 }

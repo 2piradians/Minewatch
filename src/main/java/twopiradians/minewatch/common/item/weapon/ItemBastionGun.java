@@ -17,7 +17,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -37,7 +36,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-							isAlternate(entityLiving.getHeldItemMainhand())) {
+					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -58,7 +57,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-							isAlternate(entityLiving.getHeldItemMainhand())) {
+					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -101,8 +100,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
-				if (!turret && player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 3);
+				if (!turret)
+					this.setCooldown(player, 3);
 			}
 		}
 	}
@@ -128,7 +127,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
 				setAlternate(stack, !isAlternate(stack));
-				if (isAlternate(stack)) 
+				if (!isAlternate(stack)) 
 					hero.reloadSound = ModSoundEvents.bastionReload;
 				else {
 					hero.reloadSound = ModSoundEvents.bastionTurretReload;
@@ -137,8 +136,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 				if (turret) 
 					TickHandler.register(false, TURRET.setEntity(player).setTicks(10));
 				Minewatch.network.sendToAll(new SPacketSimple(31, player, turret));
-				if (player instanceof EntityPlayer)
-					((EntityPlayer) player).getCooldownTracker().setCooldown(this, turret ? 20 : 10);
+				this.setCooldown(player, turret ? 20 : 10);
 				hero.ability2.keybind.setCooldown(player, turret ? 20 : 10, true);
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}

@@ -205,8 +205,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 11);
+				this.setCooldown(player, 11);
 				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -409,7 +408,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					GlStateManager.color(color, color, color, color);
 		}
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
@@ -417,7 +416,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		locs.add("_1");
 		return locs;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {

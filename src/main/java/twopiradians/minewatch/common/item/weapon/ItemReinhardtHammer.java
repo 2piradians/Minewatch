@@ -109,8 +109,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			player.world.playSound(null, player.posX, player.posY, player.posZ, 
 					ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
 					1.0F, player.world.rand.nextFloat()/3+0.8f);
-			if (player instanceof EntityPlayer)
-				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 20);
+			this.setCooldown(player, 20);
 		}
 	}
 

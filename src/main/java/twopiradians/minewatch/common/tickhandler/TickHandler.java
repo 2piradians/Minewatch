@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.packet.SPacketSimple;
@@ -29,7 +30,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, MERCY_VOICE_COOLDOWN, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -122,7 +123,10 @@ public class TickHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) 
+		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) {
+			for (KeyBind key : KeyBind.values())
+				key.keyPressedEntities.clear();
+			
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//System.out.println(handler); 
@@ -134,11 +138,15 @@ public class TickHandler {
 					e.printStackTrace();
 				}
 			}
+		}
 	}
 
 	@SubscribeEvent
 	public void serverSide(ServerTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) 
+		if (event.phase == TickEvent.Phase.END) {
+			for (KeyBind key : KeyBind.values())
+				key.keyPressedEntities.clear();
+			
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//System.out.println(handler);
@@ -150,6 +158,7 @@ public class TickHandler {
 					e.printStackTrace();
 				}
 			}
+		}
 	}
 
 	/**Note: reuse instances (i.e. make static instances) so duplicates can be replaced, 

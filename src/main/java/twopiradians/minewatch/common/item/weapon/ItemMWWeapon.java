@@ -23,6 +23,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -46,6 +47,7 @@ import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
 public abstract class ItemMWWeapon extends Item implements IChangingModel {
@@ -55,6 +57,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	private HashMap<ItemStack, Integer> reequipAnimation = Maps.newHashMap();
 	/**Cooldown in ticks for warning player about misusing weapons (main weapon in offhand, no offhand, etc.) */
 	private static Handler WARNING_CLIENT = new Handler(Identifier.WEAPON_WARNING, false) {};
+	private static Handler ENTITY_HERO_COOLDOWN = new Handler(Identifier.WEAPON_COOLDOWN, false) {};
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
@@ -66,15 +69,15 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		this.reloadTime = reloadTime;
 	}
 
-	public int getMaxAmmo(EntityLivingBase player) {
-		if (player != null && hero.hasAltWeapon && isAlternate(player.getHeldItemMainhand()))
+	public int getMaxAmmo(Entity player) {
+		if (player instanceof EntityLivingBase && hero.hasAltWeapon && isAlternate(((EntityLivingBase) player).getHeldItemMainhand()))
 			return hero.altAmmo;
 		else
 			return hero.mainAmmo;
 	}
 
-	public int getCurrentAmmo(EntityLivingBase player) {
-		if (player instanceof EntityPlayer && currentAmmo.containsKey(player.getPersistentID())) {
+	public int getCurrentAmmo(Entity player) {
+		if (player != null && currentAmmo.containsKey(player.getPersistentID())) {
 			if (currentAmmo.get(player.getPersistentID()) > getMaxAmmo(player))
 				currentAmmo.put(player.getPersistentID(), getMaxAmmo(player));
 			return currentAmmo.get(player.getPersistentID());
@@ -83,28 +86,22 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			return getMaxAmmo(player);
 	}
 
-	public void setCurrentAmmo(EntityLivingBase player, int amount, EnumHand... hands) {
-		if (!(player instanceof EntityPlayer))
-			return;
-
+	public void setCurrentAmmo(Entity player, int amount, EnumHand... hands) {
 		if (player != null) {
 			if (player instanceof EntityPlayerMP) {
-				EnumHand hand = player.getHeldItemMainhand() != null && 
-						player.getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+				EnumHand hand = ((EntityLivingBase) player).getHeldItemMainhand() != null && 
+						((EntityLivingBase) player).getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
 				Minewatch.network.sendTo(new SPacketSyncAmmo(hero, player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player); 
 			}
-			if (player.world.isRemote)
+			if (player.world.isRemote && player instanceof EntityLivingBase)
 				for (EnumHand hand2 : hands)
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() == this) 
-						this.reequipAnimation(player.getHeldItem(hand2));
+					if (((EntityLivingBase) player).getHeldItem(hand2) != null && ((EntityLivingBase) player).getHeldItem(hand2).getItem() == this) 
+						this.reequipAnimation(((EntityLivingBase) player).getHeldItem(hand2));
 			currentAmmo.put(player.getPersistentID(), Math.min(amount, getMaxAmmo(player)));
 		}
 	}
 
-	public void subtractFromCurrentAmmo(EntityLivingBase player, int amount, EnumHand... hands) {
-		if (!(player instanceof EntityPlayer))
-			return;
-
+	public void subtractFromCurrentAmmo(Entity player, int amount, EnumHand... hands) {
 		int ammo = getCurrentAmmo(player);
 		if (ammo - amount > 0)
 			this.setCurrentAmmo(player, ammo-amount, hands);
@@ -114,14 +111,11 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 	}
 
-	public void reload(EntityLivingBase player) {
-		if (!(player instanceof EntityPlayer))
-			return;
-
+	public void reload(Entity player) {
 		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
-			((EntityPlayer) player).getCooldownTracker().setCooldown(this, reloadTime);
+			this.setCooldown(player, reloadTime, true);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
-			if (hero.reloadSound != null && player instanceof EntityPlayerMP)
+			if (hero.reloadSound != null)
 				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
 						player.world.rand.nextFloat()/2+0.75f, false);
 		}
@@ -145,7 +139,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (player == null || (player instanceof EntityPlayer && ((EntityPlayer) player).getCooldownTracker().hasCooldown(this) && !ignoreAmmo) || 
+		if (player == null || (hasCooldown(player) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
 				(handler != null && !handler.bool))
@@ -198,6 +192,9 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+		if (entity == null || !entity.isEntityAlive())
+			return;
+		
 		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
@@ -219,15 +216,15 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 
 		// reloading
-		if (!world.isRemote && entity instanceof EntityPlayer && (((EntityPlayer)entity).getHeldItemMainhand() == stack ||
-				((EntityPlayer)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
+		if (!world.isRemote && entity instanceof EntityLivingBase && (((EntityLivingBase)entity).getHeldItemMainhand() == stack ||
+				((EntityLivingBase)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
 			// automatic reload
-			if (this.getCurrentAmmo((EntityPlayer) entity) == 0 && this.getMaxAmmo((EntityPlayer) entity) > 0 &&
-			!((EntityPlayer)entity).getCooldownTracker().hasCooldown(this))
-				this.setCurrentAmmo((EntityPlayer) entity, this.getMaxAmmo((EntityPlayer) entity), EnumHand.values());
+			if (this.getCurrentAmmo((EntityLivingBase) entity) == 0 && this.getMaxAmmo((EntityLivingBase) entity) > 0 &&
+			!this.hasCooldown(entity))
+				this.setCurrentAmmo((EntityLivingBase) entity, this.getMaxAmmo((EntityLivingBase) entity), EnumHand.values());
 		// manual reload
-			else if (this.getCurrentAmmo((EntityPlayer) entity) > 0 && KeyBind.RELOAD.isKeyDown((EntityPlayer) entity))
-				this.reload((EntityPlayer) entity);
+			else if (this.getCurrentAmmo((EntityLivingBase) entity) > 0 && KeyBind.RELOAD.isKeyDown((EntityLivingBase) entity))
+				this.reload((EntityLivingBase) entity);
 
 		// left click 
 		// note: this alternates stopping hands for weapons with hasOffhand, 
@@ -238,12 +235,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			if (hand != null && (!this.hasOffhand || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
-				onItemLeftClick(stack, world, (EntityPlayer) entity, hand);
+				onItemLeftClick(stack, world, (EntityLivingBase) entity, hand);
 		}
 
 		// right click - for EntityHeroes
-		if (entity instanceof EntityHero && KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
-			this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
+		if (entity instanceof EntityHero)
+			if (KeyBind.RMB.isKeyPressed((EntityLivingBase) entity) || 
+					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()))
+				this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
+			else if (KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
+				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityHero) entity).getItemInUseCount());
+			else if (((EntityHero) entity).isHandActive())
+				((EntityHero) entity).stopActiveHand();
 
 		// deselect ability if it has cooldown
 		if (entity instanceof EntityPlayer)
@@ -285,7 +288,46 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			}
 		}
 
-		return oldStack.getItem() != newStack.getItem() || slotChanged;
+		return /*oldStack.getItem() != newStack.getItem()*/oldStack != newStack || slotChanged; // TEST will prob update with nbt (for switching between items with alt) - make sure this is ok
+	}
+
+	/**If item has cooldown - cooldown tracker for players, handler for entity heroes*/
+	public boolean hasCooldown(Entity entity) {
+		// use cooldown tracker for players
+		if (entity instanceof EntityPlayer) 
+			return ((EntityPlayer)entity).getCooldownTracker().hasCooldown(this);
+		// use handler for entity heroes
+		else if (entity instanceof EntityHero) 
+			return TickHandler.hasHandler(entity, Identifier.WEAPON_COOLDOWN);
+		else
+			return false;
+	}
+	
+	/**Set item's cooldown - cooldown tracker for players, handler for entity heroes*/
+	public void setCooldown(Entity entity, int cooldown) {
+		this.setCooldown(entity, cooldown, false);
+	}
+
+	/**Set item's cooldown - cooldown tracker for players, handler for entity heroes*/
+	public void setCooldown(Entity entity, int cooldown, boolean overrideCooldown) {
+		// use cooldown tracker for players
+		if (entity instanceof EntityPlayer) {
+			CooldownTracker tracker = ((EntityPlayer)entity).getCooldownTracker();
+			if (!tracker.hasCooldown(this) || overrideCooldown)
+				tracker.setCooldown(this, cooldown);
+		}
+		// use handler for entity heroes
+		else if (entity instanceof EntityHero) {
+			cooldown *= 2f; // XXX customizable
+			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
+			if (handler == null)
+				TickHandler.register(entity.world.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
+			else if (handler.ticksLeft < cooldown)
+				handler.ticksLeft = cooldown;
+
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(36, entity, false, cooldown, 0, 0), entity.world.provider.getDimension());
+		}
 	}
 
 	@Override
@@ -356,19 +398,20 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 		return null;
 	}
-	
+
 	/**Is this weapon using its alternate version*/
 	public static boolean isAlternate(ItemStack stack) {
 		return stack != null && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("alt_weapon");
 	}
-	
+
 	/**Set this weapon to use / not use alternate version*/
 	public static void setAlternate(ItemStack stack, boolean usingAlt) {
-		if (stack != null) {
+		if (stack != null && stack.getItem() instanceof ItemMWWeapon && 
+				((ItemMWWeapon)stack.getItem()).hero.hasAltWeapon) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
-			
+
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (usingAlt)
 				nbt.setBoolean("alt_weapon", true);

@@ -116,8 +116,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0, null, 10, 0);
 					player.world.spawnEntity(bullet);
 					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
-					if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-						((EntityPlayer) player).getCooldownTracker().setCooldown(this, 10);
+					this.setCooldown(player, 10);
 					this.subtractFromCurrentAmmo(player, 3);
 					if (player.world.rand.nextInt(10) == 0)
 						stack.damageItem(1, player);

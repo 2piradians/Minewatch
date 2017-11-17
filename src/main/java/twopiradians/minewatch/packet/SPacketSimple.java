@@ -26,7 +26,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
-import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -34,6 +33,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -150,13 +150,13 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.z);
 	}
 
-	public static void move(EntityPlayer player, double scale, boolean useLook) {
+	public static void move(EntityLivingBase player, double scale, boolean useLook) {
 		Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
 		if (vec.xCoord == 0 && vec.zCoord == 0) 
 			vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
 		if (useLook)
 			vec = new Vec3d(player.getLookVec().xCoord, player.getLookVec().yCoord, player.getLookVec().zCoord);
-		if (!player.onGround) {
+		if (!player.onGround && player instanceof EntityPlayer) {
 			player.motionY = 0.24d;
 			player.velocityChanged = true;
 		}
@@ -192,18 +192,18 @@ public class SPacketSimple implements IMessage {
 							ItemReaperShotgun.tpThirdPersonView.put(packetPlayer, Minecraft.getMinecraft().gameSettings.thirdPersonView);
 					}
 					// McCree's roll
-					else if (packet.type == 2 && packetPlayer != null) {
-						if (packetPlayer == player) {
+					else if (packet.type == 2 && entity instanceof EntityLivingBase) {
+						if (entity == player) {
 							player.onGround = true;
 							player.movementInput.sneak = true;
 						}
 						if (packet.bool) {
-							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(packetPlayer).setTicks(10),
-									Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(10).setAbility(EnumHero.MCCREE.ability2), 
-									EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(11));
+							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(entity).setTicks(10),
+									Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(EnumHero.MCCREE.ability2), 
+									EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(11));
 						}
-						if (packetPlayer == player)
-							move(packetPlayer, 0.6d, false);
+						if (entity == player)
+							move((EntityLivingBase) entity, 0.6d, false);
 					}
 					// Genji's strike
 					else if (packet.type == 3 && packetPlayer != null) {
@@ -227,13 +227,12 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.mouseClick();
 					}
 					// Sync playersUsingAlt
-					else if (packet.type == 6 && packet.uuid != null) {
-						KeyBind.ALT_WEAPON.setKeyDown(packet.uuid, packet.bool, true);
+					else if (packet.type == 6 && packetPlayer != null) {
+						ItemStack stack = packetPlayer.getHeldItemMainhand();
+						ItemMWWeapon.setAlternate(stack, packet.bool);
 						// cause reequip animation if player
-						if (packetPlayer != null) 
-							for (ItemStack stack : packetPlayer.getHeldEquipment())
-								if (stack != null && stack.getItem() instanceof ItemMWWeapon)
-									((ItemMWWeapon)stack.getItem()).reequipAnimation(stack);
+						if (stack != null && stack.getItem() instanceof ItemMWWeapon)
+							((ItemMWWeapon)stack.getItem()).reequipAnimation(stack);
 					}
 					// open display gui
 					else if (packet.type == 7) {
@@ -453,7 +452,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Bastion's reconfigure
 					else if (packet.type == 31 && entity instanceof EntityLivingBase) {
-						//ItemMWWeapon.setAlternate(((EntityLivingBase)entity).getHeldItemMainhand(), packet.bool);
+						ItemMWWeapon.setAlternate(((EntityLivingBase)entity).getHeldItemMainhand(), packet.bool);
 						if (packet.bool) {
 							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(entity).setTicks(10));
 							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
@@ -496,6 +495,15 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 35 && packetPlayer != null && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(packetPlayer).setBoolean(true));
 						EnumHero.SOMBRA.ability2.entities.put(packetPlayer, entity);
+					}
+					// EntityHero item cooldown handler
+					else if (packet.type == 36 && entity instanceof EntityHero) {
+						ItemStack main = ((EntityHero)entity).getHeldItemMainhand();
+						ItemStack off = ((EntityHero)entity).getHeldItemOffhand();
+						if (main != null && main.getItem() instanceof ItemMWWeapon)
+							((ItemMWWeapon)main.getItem()).setCooldown(entity, (int) packet.x);
+						else if (off != null && off.getItem() instanceof ItemMWWeapon)
+							((ItemMWWeapon)off.getItem()).setCooldown(entity, (int) packet.x);
 					}
 				}
 			});

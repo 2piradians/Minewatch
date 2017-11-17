@@ -162,9 +162,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
 					player.world.rand.nextFloat()/2+0.75f);	
 			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this) && 
-					this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
-				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 15);
+			if (this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
+				this.setCooldown(player, 15);
 			if (player.world.rand.nextInt(24) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
@@ -184,8 +183,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 3, hand);
 			if (world.rand.nextInt(8) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 15);
+			this.setCooldown(player, 15);
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -281,11 +279,11 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		locs.add("_sword");
 		return super.getAllModelLocations(locs);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
 		return TickHandler.hasHandler(entity, Identifier.GENJI_SWORD) ? "_sword" : "";
 	}
-	
+
 }

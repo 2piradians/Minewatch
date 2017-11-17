@@ -53,6 +53,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
+		//EntityHelper.moveToHitPosition(this, result, false);
 		if (result.entityHit != null) {
 			if (EntityHelper.attemptDamage(this, result.entityHit, (float) this.getDamage(), false)) {
 				if (result.entityHit instanceof EntityLivingBase)

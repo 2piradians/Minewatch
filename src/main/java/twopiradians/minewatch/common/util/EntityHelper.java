@@ -71,11 +71,7 @@ public class EntityHelper {
 	/**Get the position that an entity should be thrown/shot from*/ 
 	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		// adjust based on hand
-		if (hand == null) {
-			//horizontalAdjust = 0;
-			//verticalAdjust = 20f;
-		}
-		else if (hand == EnumHand.OFF_HAND)
+		if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
 
 		// adjust based on fov (only client-side: mainly for muzzle particles and Mercy beam)
@@ -99,6 +95,8 @@ public class EntityHelper {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
+		if (entity instanceof EntityHero)
+			inaccuracy = Math.max(10, inaccuracy * 2f); //XXX customizable
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 

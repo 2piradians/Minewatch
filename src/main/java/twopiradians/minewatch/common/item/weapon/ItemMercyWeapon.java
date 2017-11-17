@@ -126,8 +126,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 						world.rand.nextFloat()/2+0.75f);	
 
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 5);
+				this.setCooldown(player, 5);
 				if (world.rand.nextInt(20) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -244,7 +243,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		return !ItemMercyWeapon.isStaff(stack) && entity != null && entity.getHeldItemMainhand() == stack ? "_1" : "_0";
+		return !ItemMercyWeapon.isStaff(stack) ? "_1" : "_0";
 	}
 
 }

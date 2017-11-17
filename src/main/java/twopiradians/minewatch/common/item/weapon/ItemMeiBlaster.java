@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,7 +18,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
-import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
@@ -27,7 +25,6 @@ import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -70,11 +67,11 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			if (player != null)
-			EnumHero.MEI.ability2.keybind.setCooldown(player, 240, false); 
+				EnumHero.MEI.ability2.keybind.setCooldown(player, 240, false); 
 			return super.onServerRemove();
 		}
 	};
-	
+
 	@SideOnly(Side.CLIENT)
 	public static int thirdPersonView;
 
@@ -108,8 +105,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
 				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYaw, 100, 0.4F, hand, 8, 0.35f);
 				world.spawnEntity(icicle);
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 24);
+				this.setCooldown(player, 24);
 				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.meiIcicleShoot, 
 						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				if (world.rand.nextInt(8) == 0)
@@ -124,7 +120,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
-		
+
 		if (isSelected && entity instanceof EntityPlayer) {	
 			EntityPlayer player = (EntityPlayer) entity;
 
@@ -139,7 +135,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 						TickHandler.getHandler(player, Identifier.ABILITY_USING));
 				Minewatch.network.sendToAll(new SPacketSimple(32, player, false));
 			}
-			
+
 			// cryo-freeze
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
@@ -167,7 +163,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL)) 
 			event.setCanceled(true);
 	}
-	
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void moveCrystalCamera(FOVUpdateEvent event) {

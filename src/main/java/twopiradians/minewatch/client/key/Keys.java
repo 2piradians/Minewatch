@@ -15,6 +15,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,6 +27,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -35,7 +39,6 @@ import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
-import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
 
 public class Keys {
@@ -43,17 +46,17 @@ public class Keys {
 	public enum KeyBind {
 		NONE(Identifier.NONE), ABILITY_1(Identifier.KEYBIND_ABILITY_1), 
 		ABILITY_2(Identifier.KEYBIND_ABILITY_2), RMB(Identifier.KEYBIND_RMB),
-		LMB, HERO_INFORMATION, RELOAD, ULTIMATE, JUMP, FOV; // TODO test alt (maybe disable when switching heroes)
+		LMB, HERO_INFORMATION, RELOAD, ULTIMATE, JUMP, FOV; 
 
 		public final Handler COOLDOWNS = new Handler(null, false) {
 			@SideOnly(Side.CLIENT)
 			@Override
 			public Handler onClientRemove() {
-				if (player == Minewatch.proxy.getClientPlayer() && player != null) {
-					if (silentRecharge.contains(player.getPersistentID()))
-						silentRecharge.remove(player.getPersistentID());
+				if (entity == Minewatch.proxy.getClientPlayer() && entity != null) {
+					if (silentRecharge.contains(entity.getPersistentID()))
+						silentRecharge.remove(entity.getPersistentID());
 					else
-						player.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
+						entity.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
 				}
 				return super.onClientRemove();
 			}
@@ -64,10 +67,12 @@ public class Keys {
 		public Identifier identifier;
 		public HashSet<UUID> silentRecharge = new HashSet();
 		public HashSet<UUID> keyDownEntities = new HashSet();
+		public HashSet<UUID> keyPressedEntities = new HashSet();
 		public HashMap<UUID, Float> fov = Maps.newHashMap();
 		@Nullable
 		@SideOnly(Side.CLIENT)
 		public KeyBinding keyBind;
+	    public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
 
 		private KeyBind() {
 			this(null);
@@ -95,7 +100,9 @@ public class Keys {
 		}
 
 		public void setCooldown(EntityLivingBase player, int cooldown, boolean silent) {
-			if (player instanceof EntityPlayer) {
+			if (player != null) {
+				if (player instanceof EntityHero)
+					cooldown *= 2; // XXX customizable
 				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
 				if (player.world.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());
@@ -110,20 +117,21 @@ public class Keys {
 			return this.keyBind == null ? "" : this.keyBind.getDisplayName();
 		}
 
-		public void setKeyDown(EntityLivingBase entity, boolean isKeyDown, boolean isRemote) {
-			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown, isRemote);
+		public void setKeyDown(EntityLivingBase entity, boolean isKeyDown) {
+			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown);
 		}
 
-		public void setKeyDown(UUID uuid, boolean isKeyDown, boolean isRemote) {
+		public void setKeyDown(UUID uuid, boolean isKeyDown) {
 			if (uuid != null) {
 				// set key down
-				if (isKeyDown)
+				if (isKeyDown) {
 					this.keyDownEntities.add(uuid);
-				else
+					this.keyPressedEntities.add(uuid);
+				}
+				else {
 					this.keyDownEntities.remove(uuid);
-				/*// sync alt weapon to all players
-				if (this == ALT_WEAPON && !isRemote)
-					Minewatch.network.sendToAll(new SPacketSimple(6, uuid, isKeyDown));*/ // TODO remove
+					this.keyPressedEntities.remove(uuid);
+				}
 			}
 		}
 
@@ -133,6 +141,14 @@ public class Keys {
 
 		public boolean isKeyDown(UUID uuid) {
 			return uuid != null && this.keyDownEntities.contains(uuid);
+		}
+		
+		public boolean isKeyPressed(EntityLivingBase entity) {
+			return entity != null && this.isKeyPressed(entity.getPersistentID());
+		}
+
+		public boolean isKeyPressed(UUID uuid) {
+			return uuid != null && this.keyPressedEntities.contains(uuid);
 		}
 
 		public void setFOV(EntityLivingBase entity, float fov) {
@@ -196,7 +212,7 @@ public class Keys {
 				(off != null && off.getItem() instanceof ItemMWWeapon))) || 
 				!event.isButtonstate()) {
 			if (event.getButton() == 0) {
-				KeyBind.LMB.setKeyDown(uuid, event.isButtonstate(), true);
+				KeyBind.LMB.setKeyDown(uuid, event.isButtonstate());
 				Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.LMB, event.isButtonstate(), uuid));
 				if (event.isButtonstate())
 					if (!(main.getItem() instanceof ItemReinhardtHammer))
@@ -209,7 +225,7 @@ public class Keys {
 			}
 
 			if (event.getButton() == 1) {
-				KeyBind.RMB.setKeyDown(uuid, event.isButtonstate(), true);
+				KeyBind.RMB.setKeyDown(uuid, event.isButtonstate());
 				Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.RMB, event.isButtonstate(), uuid));
 			}
 		}
@@ -237,7 +253,7 @@ public class Keys {
 			if (mc.currentScreen != null)
 				for (KeyBind key : new KeyBind[] {KeyBind.LMB, KeyBind.RMB})
 					if (key.isKeyDown(player)) {
-						key.setKeyDown(player, false, true);
+						key.setKeyDown(player, false);
 						Minewatch.network.sendToServer(new CPacketSyncKeys(key, false, uuid));
 					}
 
@@ -249,7 +265,7 @@ public class Keys {
 					Minewatch.network.sendToServer(new CPacketSyncKeys(key, mc.gameSettings.fovSetting, uuid));
 				}
 				else if (isKeyDown != key.isKeyDown(uuid)) {
-					key.setKeyDown(uuid, isKeyDown, true);
+					key.setKeyDown(uuid, isKeyDown);
 					Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
 					if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))
 						key.toggle(uuid, true, true);

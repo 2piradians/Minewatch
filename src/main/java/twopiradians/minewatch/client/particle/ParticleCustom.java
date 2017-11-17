@@ -28,7 +28,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
 
-	private float fadeTargetRed;//TEST that opacity is fixed with modpack
+	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;

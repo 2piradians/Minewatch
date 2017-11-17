@@ -128,8 +128,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-					((EntityPlayer) player).getCooldownTracker().setCooldown(this, 20);
+				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -156,8 +155,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(21, false, player, 10, 0, 0), (EntityPlayerMP) player);
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 20);
+				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability2.keybind.setCooldown(player, 240, false); 
@@ -308,5 +306,5 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
-	
+
 }

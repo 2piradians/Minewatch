@@ -75,7 +75,7 @@ public class CPacketSyncKeys implements IMessage
 						else if (key == KeyBind.FOV && packet.fov != -1)
 							key.setFOV(packet.player, packet.fov);
 						else
-							key.setKeyDown(packet.player, packet.isKeyPressed, false);
+							key.setKeyDown(packet.player, packet.isKeyPressed);
 					}
 				}
 			});

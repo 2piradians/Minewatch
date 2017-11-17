@@ -38,8 +38,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			if (player instanceof EntityPlayer && !((EntityPlayer) player).getCooldownTracker().hasCooldown(this))
-				((EntityPlayer) player).getCooldownTracker().setCooldown(this, 12);
+			this.setCooldown(player, 12);
 			if (world.rand.nextInt(20) == 0)
 				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratLaugh, SoundCategory.PLAYERS, 1f, 1.0f, false);
 		}

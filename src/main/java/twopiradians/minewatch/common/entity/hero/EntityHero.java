@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity.hero;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
@@ -16,17 +15,18 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityHero extends EntityMob {
 
 	public EnumHero hero;
+	public EntityLivingBase healTarget;
 
 	public EntityHero(World worldIn) {
 		this(worldIn, null);
@@ -42,12 +42,13 @@ public class EntityHero extends EntityMob {
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.32D);
+		this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(32d);
 	}
 
 	@Override
 	protected void initEntityAI() {
 		this.tasks.addTask(1, new EntityAISwimming(this));
-		this.tasks.addTask(5, new EntityAIMoveTowardsRestriction(this, 1.0D));
+		this.tasks.addTask(5, new EntityAIMoveTowardsRestriction(this, 1D));
 		this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F));
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
@@ -66,20 +67,30 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
 		super.notifyDataManagerChange(key);
-
 		for (KeyBind keybind : KeyBind.values())
-			if (key.getId() == keybind.datamanager.getId())
+			if (key.getId() == keybind.datamanager.getId()) {
 				keybind.setKeyDown(this, this.dataManager.get(keybind.datamanager));
+				//System.out.println("Updating "+keybind+" to "+this.dataManager.get(keybind.datamanager)); // TODO
+			}
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		
-		//if (this.getAttackTarget() != null) 
-			//this.getLookHelper().setLookPosition(this.getAttackTarget().posX, this.getAttackTarget().posY+this.getAttackTarget().getEyeHeight(), this.getAttackTarget().posZ, 30, 30);
 
+		// make body follow head
+		if (this.getHeldItemMainhand() != null && 
+				this.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+				(KeyBind.LMB.isKeyDown(this) || KeyBind.RMB.isKeyDown(this))) {
+			this.renderYawOffset = this.rotationYawHead;
+		}
+		
+		// clear dead target
+		if (this.getAttackTarget() != null && !this.getAttackTarget().isEntityAlive())
+			this.setAttackTarget(null);
+		
 		// update items and armor
+		this.setLeftHanded(false);
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 			ItemStack stack = this.getItemStackFromSlot(slot);
 			if (stack == null || stack.isEmpty()) {

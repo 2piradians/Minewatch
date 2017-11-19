@@ -139,7 +139,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (player == null || (hasCooldown(player) && !ignoreAmmo) || 
+		if (player == null || !player.isEntityAlive() || (hasCooldown(player) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
 				(handler != null && !handler.bool))
@@ -234,7 +234,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			EnumHand hand = this.getHand(player, stack);	
 			if (hand != null && (!this.hasOffhand || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
-							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0))))
+							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0 || 
+							this == EnumHero.TRACER.weapon))))
 				onItemLeftClick(stack, world, (EntityLivingBase) entity, hand);
 		}
 

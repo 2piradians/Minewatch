@@ -40,7 +40,6 @@ public class EntitySoldier76Bullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 5.7f, 19, 30, 55)) 
-			result.entityHit.hurtResistantTime = 0;
+		EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 5.7f, 19, 30, 55);
 	}
 }

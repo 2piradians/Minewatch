@@ -42,7 +42,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class ItemMercyWeapon extends ItemMWWeapon {
 
 	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING, false) {};
-	public static HashMap<EntityPlayer, EntityMercyBeam> beams = Maps.newHashMap();
+	public static HashMap<EntityLivingBase, EntityMercyBeam> beams = Maps.newHashMap();
 	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN, false) {};
 
 	public static final Handler ANGEL = new Handler(Identifier.MERCY_ANGEL, true) {
@@ -58,7 +58,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
 
-			return super.onClientTick() || KeyBind.JUMP.isKeyDown(player) ||
+			return super.onClientTick() || KeyBind.JUMP.isKeyDown(entityLiving) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; 	
 		}
 		@Override
@@ -71,7 +71,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionY = (position.yCoord - entity.posY)/10;
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 
-			return super.onServerTick() || KeyBind.JUMP.isKeyDown(player) ||
+			return super.onServerTick() || KeyBind.JUMP.isKeyDown(entityLiving) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2;
 		}
 		@SideOnly(Side.CLIENT)
@@ -79,8 +79,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public Handler onClientRemove() {
 			if (this.player != null) {
 				Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
-				TickHandler.unregister(this.player.world.isRemote, 
-						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
+				TickHandler.unregister(entityLiving.world.isRemote, 
+						TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING));
 			}
 			return super.onClientRemove();
 		}
@@ -137,7 +137,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && !world.isRemote && entity instanceof EntityPlayer) {
+		if (isSelected && !world.isRemote && entity instanceof EntityLivingBase) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
 			if (beams.containsKey(entity) && (beams.get(entity).isDead || 
 					Math.sqrt(entity.getDistanceSqToEntity(beams.get(entity))) > 16)) {
@@ -145,20 +145,20 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				beams.remove(entity);
 				// stop sound
 				if (entity instanceof EntityPlayerMP) 
-					Minewatch.proxy.stopSound((EntityPlayer) entity, ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS);
+					Minewatch.proxy.stopSound((EntityPlayerMP) entity, ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS);
 				world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 						ModSoundEvents.mercyBeamStop, SoundCategory.PLAYERS, 2.0f, 1.0f);
 			}
 			// spawn beam
 			if (isStaff(stack) && 
-					(KeyBind.RMB.isKeyDown((EntityPlayer) entity) || KeyBind.LMB.isKeyDown((EntityPlayer) entity)) &&
+					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityPlayer) entity, 15, true);
+				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 15, true);
 				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
-					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityPlayer) entity, target);
+				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
+					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
 					world.spawnEntity(beam);
-					beams.put((EntityPlayer) entity, beam);
+					beams.put((EntityLivingBase) entity, beam);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
@@ -166,7 +166,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					if (!TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN)) {
 						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 								beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
-						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
+						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityLivingBase) entity).setTicks(200));
 					}
 				}
 			}
@@ -188,18 +188,18 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 
 			// angel
-			if (hero.ability3.isSelected((EntityPlayer) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityPlayer) entity, 30, true);
+			if (hero.ability3.isSelected((EntityLivingBase) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
+				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 30, true);
 				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityPlayer) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
+				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
 							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));
 					boolean playSound = !TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) &&
 							world.rand.nextInt(3) == 0;
 					if (playSound)
-						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityPlayer) entity).setTicks(200));
-					Minewatch.network.sendToAll(new SPacketSimple(19, playSound, (EntityPlayer) entity, vec.xCoord, vec.yCoord, vec.zCoord));
+						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityLivingBase) entity).setTicks(200));
+					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, playSound, vec.xCoord, vec.yCoord, vec.zCoord));
 				}
 			}
 
@@ -212,21 +212,22 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		Entity source = event.getSource().getEntity();
 
 		// add to notRegening if hurt
-		if (target instanceof EntityPlayer && !target.world.isRemote &&
+		if (target instanceof EntityLivingBase && !target.world.isRemote &&
 				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
-			TickHandler.register(false, NOT_REGENING_SERVER.setEntity((EntityPlayer) target).setTicks(40));
+			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
 
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
-			if (beam.target == source && beam.player instanceof EntityPlayerMP && !beam.player.world.isRemote &&
+			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote &&
 					ItemMWArmor.SetManager.getWornSet(beam.player) == EnumHero.MERCY) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
-				((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
-						(ModSoundEvents.hurt, SoundCategory.PLAYERS, source.posX, source.posY, source.posZ, 
-								0.3f, source.world.rand.nextFloat()/2+0.75f)));
+				if (beam.player instanceof EntityPlayerMP)
+					((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
+							(ModSoundEvents.hurt, SoundCategory.PLAYERS, source.posX, source.posY, source.posZ, 
+									0.3f, source.world.rand.nextFloat()/2+0.75f)));
 				break;
 			}
 		}

@@ -23,7 +23,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC, false) {
 		@Override
 		public boolean onServerTick() {
-			return entity == null || entity.isDead || doEffect(entity.world, null, entity, entity.posX, 
+			return entity == null || entity.isDead || doEffect(entity.world, entityLiving, entity, entity.posX, 
 					entity.posY, entity.posZ, this.ticksLeft++);
 		}
 		@Override
@@ -46,7 +46,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 			AxisAlignedBB aabb = new AxisAlignedBB(x-10d, y-10d, z-10d, x+10d, y+10d, z+10d);
 			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(ignoreEntity, aabb);
 			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase) 
+				if (entity2 instanceof EntityLivingBase && EntityHelper.shouldHit(ignoreEntity, entity2, false)) 
 					((EntityLivingBase) entity2).addPotionEffect(new PotionEffect(MobEffects.GLOWING, 30, 0, true, false));
 		}
 
@@ -72,7 +72,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	public void onUpdate() {
 		super.onUpdate();
 		
-		if (this.inGround && doEffect(world, shootingEntity, null, posX, posY, posZ, timeInGround))
+		if (this.inGround && doEffect(world, this.getThrower(), null, posX, posY, posZ, timeInGround))
 			this.setDead();
 		else if (!this.inGround && this.world.isRemote) {
 			if (this.ticksExisted % 2 == 0)
@@ -87,7 +87,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		super.onHit(result);	
 
 		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) 
-			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setTicks(0));
+			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0));
 	}
 
 }

@@ -18,29 +18,21 @@ public class EntityMcCree extends EntityHero {
 	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
-		this.tasks.addTask(2, new EntityHeroAIAttackMcCree(this, MovementType.STRAFING, 1, 20, 15));
+		this.tasks.addTask(2, new EntityHeroAIAttackMcCree(this, MovementType.STRAFING, 15));
 	}
 
 	public class EntityHeroAIAttackMcCree extends EntityHeroAIAttackBase {
 
-		public EntityHeroAIAttackMcCree(EntityHero entity, MovementType type, double speedAmplifier, int delay, float maxDistance) {
-			super(entity, type, speedAmplifier, delay, maxDistance);
-		}
-
-		@Override
-		public void resetTask() {
-			super.resetTask();
-			this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
-			this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
-			this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+		public EntityHeroAIAttackMcCree(EntityHero entity, MovementType type, float maxDistance) {
+			super(entity, type, maxDistance);
 		}
 
 		@Override
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, 512, false);
-			if (--this.attackTime <= 0 && canSee/* && result != null && result.entityHit == target*/) {
+			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
+			if (canSee && result != null && result.entityHit == target) {
 				// fan the hammer
 				if (entity.isHandActive() || (entity.hero.weapon.getCurrentAmmo(entity) >= 4 &&
 						distance <= 5 && this.shouldUseAbility())) {
@@ -58,9 +50,10 @@ public class EntityMcCree extends EntityHero {
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 			}
-			else 
-				this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
+			else
+				this.resetKeybinds();
 		}
+
 	}
 
 }

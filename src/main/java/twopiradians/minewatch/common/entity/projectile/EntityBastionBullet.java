@@ -41,11 +41,9 @@ public class EntityBastionBullet extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.getThrower() != null && ItemMWWeapon.isAlternate(this.getThrower().getHeldItemMainhand())) {
-			if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 4, 15, 35, 55)) 
-				result.entityHit.hurtResistantTime = 0;
-		}
-		else if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 6, 20, 26, 50)) 
-			result.entityHit.hurtResistantTime = 0;
+		if (this.getThrower() != null && ItemMWWeapon.isAlternate(this.getThrower().getHeldItemMainhand())) 
+			EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 4, 15, 35, 55);
+		else 
+			EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 6, 20, 26, 50);
 	}
 }

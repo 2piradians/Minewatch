@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -32,7 +31,6 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -42,7 +40,6 @@ import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
 
 public class Keys {
-	// The keys that will display underneath the icon
 	public enum KeyBind {
 		NONE(Identifier.NONE), ABILITY_1(Identifier.KEYBIND_ABILITY_1), 
 		ABILITY_2(Identifier.KEYBIND_ABILITY_2), RMB(Identifier.KEYBIND_RMB),
@@ -72,7 +69,7 @@ public class Keys {
 		@Nullable
 		@SideOnly(Side.CLIENT)
 		public KeyBinding keyBind;
-	    public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
+		public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
 
 		private KeyBind() {
 			this(null);
@@ -142,7 +139,7 @@ public class Keys {
 		public boolean isKeyDown(UUID uuid) {
 			return uuid != null && this.keyDownEntities.contains(uuid);
 		}
-		
+
 		public boolean isKeyPressed(EntityLivingBase entity) {
 			return entity != null && this.isKeyPressed(entity.getPersistentID());
 		}
@@ -214,14 +211,9 @@ public class Keys {
 			if (event.getButton() == 0) {
 				KeyBind.LMB.setKeyDown(uuid, event.isButtonstate());
 				Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.LMB, event.isButtonstate(), uuid));
+				// prevent breaking blocks
 				if (event.isButtonstate())
-					if (!(main.getItem() instanceof ItemReinhardtHammer))
-						event.setCanceled(true);
-					else {
-						if (((ItemMWWeapon) main.getItem()).canUse(player, false, EnumHand.MAIN_HAND, false)) 
-							((ItemMWWeapon) main.getItem()).onItemLeftClick(main, player.world, player, EnumHand.MAIN_HAND);
-						event.setCanceled(true);
-					}
+					event.setCanceled(true);
 			}
 
 			if (event.getButton() == 1) {

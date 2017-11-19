@@ -43,7 +43,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// helix rockets
 		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
 			if (!world.isRemote) {
@@ -67,22 +67,22 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
 		// stop sprinting if right clicking (since onItemRightClick isn't called while blocking)
-		if (isSelected && entity instanceof EntityPlayer && KeyBind.RMB.isKeyDown((EntityPlayer) entity)) {
+		if (isSelected && entity instanceof EntityLivingBase && KeyBind.RMB.isKeyDown((EntityLivingBase) entity)) {
 			if (entity.isSprinting())
 				entity.setSprinting(false);
-			this.onItemRightClick(world, (EntityPlayer) entity, EnumHand.MAIN_HAND);
+			this.onItemRightClick(world, (EntityLivingBase) entity, EnumHand.MAIN_HAND);
 		}
 
 		// block while running
-		if (isSelected && entity instanceof EntityPlayer && entity.isSprinting() &&
-				((EntityPlayer)entity).getActiveItemStack() != stack) 
-			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		if (isSelected && entity instanceof EntityLivingBase && entity.isSprinting() &&
+				((EntityLivingBase)entity).getActiveItemStack() != stack) 
+			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityLivingBase && 
 				ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) == hero) {
 			if (!world.isRemote)
-				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, 2, false, false));
+				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, entity instanceof EntityPlayer ? 2 : 0, false, false));
 			hero.ability3.toggle(entity, true);
 		}
 		else if (isSelected)
@@ -95,27 +95,26 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			player.setSprinting(false);
 
 		// shoot TODO add continual usage spread
-		if (player.ticksExisted % 2 == 0 && this.canUse(player, true, hand, false)) {
-			if (!world.isRemote) {
-				EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player, hand.ordinal());
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2.4F, hand, 12, 0.45f);
-				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
-						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
-				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0)
-					player.getHeldItem(hand).damageItem(1, player);
-			}
+		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player, hand.ordinal());
+			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2.4F, hand, 12, 0.45f);
+			world.spawnEntity(bullet);
+			world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
+					SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+			this.subtractFromCurrentAmmo(player, 1);
+			if (world.rand.nextInt(25) == 0)
+				player.getHeldItem(hand).damageItem(1, player);
+			this.setCooldown(player, 1);
 		}
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
 		locs.add("_blocking");
 		return super.getAllModelLocations(locs);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {

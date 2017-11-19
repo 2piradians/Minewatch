@@ -140,8 +140,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
@@ -153,7 +153,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 
 						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
 				if (player instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketSimple(21, false, player, 10, 0, 0), (EntityPlayerMP) player);
+					Minewatch.network.sendTo(new SPacketSimple(21, false, (EntityPlayer) player, 10, 0, 0), (EntityPlayerMP) player);
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
 				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)
@@ -163,13 +163,13 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 
 		// scope while right click
-		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				isScoped((EntityPlayer) entity, stack)) 
-			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
+				isScoped((EntityLivingBase) entity, stack)) 
+			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
-		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
-				!isScoped((EntityPlayer) entity, stack))
-			((EntityPlayer)entity).resetActiveHand();
+		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
+				!isScoped((EntityLivingBase) entity, stack))
+			((EntityLivingBase)entity).resetActiveHand();
 	}
 
 	@SubscribeEvent
@@ -303,7 +303,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
 

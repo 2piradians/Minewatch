@@ -76,16 +76,16 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
 		// scope while right click
-		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				isScoped((EntityPlayer) entity, stack)) 
-			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
+				isScoped((EntityLivingBase) entity, stack)) 
+			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
-		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
-				!isScoped((EntityPlayer) entity, stack))
-			((EntityPlayer)entity).resetActiveHand();
+		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
+				!isScoped((EntityLivingBase) entity, stack))
+			((EntityLivingBase)entity).resetActiveHand();
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// venom mine
 			if (!world.isRemote && hero.ability1.isSelected(player) && 
@@ -156,10 +156,10 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	/**Is this player scoping with the stack*/
-	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
-		return player != null && player.getHeldItemMainhand() != null && 
-				player.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !KeyBind.JUMP.isKeyDown(player) &&
-				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(player) > 0;
+	public static boolean isScoped(EntityLivingBase entity, ItemStack stack) {
+		return entity != null && entity.getHeldItemMainhand() != null && 
+				entity.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !KeyBind.JUMP.isKeyDown(entity) &&
+				(entity.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(entity)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0;
 	}
 
 	//PORT correct scope scale
@@ -217,7 +217,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
 

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
-import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHeroAIHurtByTarget extends EntityAIHurtByTarget {
@@ -17,8 +16,7 @@ public class EntityHeroAIHurtByTarget extends EntityAIHurtByTarget {
 	@Override
 	protected boolean isSuitableTarget(@Nullable EntityLivingBase target, boolean includeInvincibles) {
 		return super.isSuitableTarget(target, includeInvincibles) && 
-				EntityHelper.shouldTarget(this.taskOwner, target, false) && 
-				!(target instanceof EntityHero && this.taskOwner.getTeam() == null && target.getTeam() == null);
+				EntityHelper.shouldHit(this.taskOwner, target, false) && target != this.taskOwner;
 	}
 
 }

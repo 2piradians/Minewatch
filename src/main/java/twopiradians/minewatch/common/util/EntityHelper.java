@@ -102,12 +102,12 @@ public class EntityHelper {
 
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
-		RayTraceResult blockTrace = EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
+		RayTraceResult blockTrace = shooter instanceof EntityHero ? null : EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
 		if (blockTrace != null && blockTrace.typeOfHit == RayTraceResult.Type.BLOCK)
 			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.xCoord, blockTrace.hitVec.yCoord, blockTrace.hitVec.zCoord));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
-		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, 512, friendly, pitch, yaw);
+		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
 			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.xCoord, entityTrace.hitVec.yCoord, entityTrace.hitVec.zCoord));
 
@@ -199,6 +199,9 @@ public class EntityHelper {
 		// can't hit creative players
 		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
 			return false;
+		// only heal heal target
+		if (thrower instanceof EntityHero && friendly && ((EntityHero)thrower).healTarget == entityHit)
+			return false;
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
@@ -210,9 +213,9 @@ public class EntityHelper {
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
 			target = Minewatch.proxy.getClientPlayer();
-		// prevent hitting other EntityHero w/o teams
+		// prevent hitting other EntityHero w/o teams // XXX customizable
 		if (entity instanceof EntityHero && target instanceof EntityHero &&
-				entity.getTeam() == null && target.getTeam() == null)
+				entity.getTeam() == null && target.getTeam() == null && !friendly)
 			return false;
 		entity = getThrower(entity);
 		target = getThrower(target);

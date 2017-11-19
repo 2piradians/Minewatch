@@ -37,7 +37,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-
+		EntityHelper.moveToHitPosition(this, result, false);
 		if (!this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityLivingBase) 
 			// scatter
 			if (scatter) {

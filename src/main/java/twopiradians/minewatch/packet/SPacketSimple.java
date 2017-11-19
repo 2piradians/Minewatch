@@ -344,14 +344,14 @@ public class SPacketSimple implements IMessage {
 						GuiTab.addOppedButton();
 					}
 					// Mercy's Angel
-					else if (packet.type == 19 && packetPlayer != null) {
+					else if (packet.type == 19 && entity != null) {
 						if (packet.bool)
-							Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.mercyAngelVoice, 
+							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.mercyAngelVoice, 
 									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-						Minewatch.proxy.playFollowingSound(packetPlayer, ModSoundEvents.mercyAngel, 
+						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.mercyAngel, 
 								SoundCategory.PLAYERS, 1.0f, 1.0f, true);
-						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75).setEntity(packetPlayer),
-								Ability.ABILITY_USING.setTicks(75).setEntity(packetPlayer).setAbility(EnumHero.MERCY.ability3));
+						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75).setEntity(entity),
+								Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(EnumHero.MERCY.ability3));
 					}
 					// Junkrat's grenade bounce
 					else if (packet.type == 20 && entity instanceof EntityJunkratGrenade) {

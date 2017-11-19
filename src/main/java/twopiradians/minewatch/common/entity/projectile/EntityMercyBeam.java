@@ -21,10 +21,10 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 
 public class EntityMercyBeam extends Entity {
 
-	private static final DataParameter<Optional<UUID>> PLAYER = EntityDataManager.<Optional<UUID>>createKey(EntityMercyBeam.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+	private static final DataParameter<Integer> PLAYER = EntityDataManager.<Integer>createKey(EntityMercyBeam.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> TARGET = EntityDataManager.<Integer>createKey(EntityMercyBeam.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityMercyBeam.class, DataSerializers.BOOLEAN);
-	public EntityPlayer player;
+	public EntityLivingBase player;
 	public EntityLivingBase target;
 	public boolean prevHeal;
 	@SideOnly(Side.CLIENT)
@@ -36,19 +36,19 @@ public class EntityMercyBeam extends Entity {
 		this(worldIn, null, null);
 	}
 
-	public EntityMercyBeam(World worldIn, EntityPlayer player, EntityLivingBase target) {
+	public EntityMercyBeam(World worldIn, EntityLivingBase entity, EntityLivingBase target) {
 		super(worldIn);
 		this.setSize(0.1f, 0.1f);
 		this.ignoreFrustumCheck = true;
 		this.setNoGravity(true);
-		this.player = player;
+		this.player = entity;
 		this.target = target;
 		this.prevHeal = this.isHealing();
-		if (player != null && target != null) {
+		if (entity != null && target != null) {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
-			this.dataManager.set(PLAYER, Optional.of(player.getPersistentID()));
+			this.dataManager.set(PLAYER, entity.getEntityId());
 			this.dataManager.set(TARGET, target.getEntityId());
-			this.dataManager.set(HEAL, !KeyBind.RMB.isKeyDown(player));
+			this.dataManager.set(HEAL, !KeyBind.RMB.isKeyDown(entity));
 		}
 	}
 
@@ -67,10 +67,13 @@ public class EntityMercyBeam extends Entity {
 		super.onUpdate();
 
 		// set player on client
-		if (this.world.isRemote && player == null && this.dataManager.get(PLAYER).isPresent())
-			player = this.world.getPlayerEntityByUUID(this.dataManager.get(PLAYER).get());
+		if (this.world.isRemote && player == null && this.dataManager.get(PLAYER) != -1) {
+			Entity entity = this.world.getEntityByID(this.dataManager.get(PLAYER));
+			if (entity instanceof EntityLivingBase)
+				player = (EntityLivingBase) entity;
+		}
 		// set target on client
-		if (this.world.isRemote && target == null && this.dataManager.get(TARGET) != 0) {
+		if (this.world.isRemote && target == null && this.dataManager.get(TARGET) != -1) {
 			Entity entity = this.world.getEntityByID(this.dataManager.get(TARGET));
 			if (entity instanceof EntityLivingBase)
 				target = (EntityLivingBase) entity;
@@ -96,8 +99,8 @@ public class EntityMercyBeam extends Entity {
 
 	@Override
 	protected void entityInit() {
-		this.getDataManager().register(PLAYER, Optional.absent());
-		this.getDataManager().register(TARGET, Integer.valueOf(0));
+		this.getDataManager().register(PLAYER, -1);
+		this.getDataManager().register(TARGET, -1);
 		this.getDataManager().register(HEAL, true);
 	}
 

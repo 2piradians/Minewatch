@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -387,7 +388,7 @@ public enum EnumHero {
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {
+		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {			
 			// make entity body follow head
 			if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
 					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
@@ -399,11 +400,16 @@ public enum EnumHero {
 			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
 					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {
 				ModelBiped model = (ModelBiped) event.getRenderer().getMainModel();
-				if (event.getEntity() instanceof EntityPlayer && TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
+				// block when running with soldier's gun
+				ItemStack stack = event.getEntity().getHeldItemMainhand();
+				if (event.getEntity().isSprinting() && stack != null && stack.getItem() == EnumHero.SOLDIER76.weapon) 
+					model.rightArmPose = ArmPose.BLOCK;
+				// sneak
+				if (TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
 					model.isSneak = true;
 				model.setInvisible(true);
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-					ItemStack stack = event.getEntity().getItemStackFromSlot(slot);
+					stack = event.getEntity().getItemStackFromSlot(slot);
 					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
 						if (slot == EntityEquipmentSlot.LEGS && 
 								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET) != null && 

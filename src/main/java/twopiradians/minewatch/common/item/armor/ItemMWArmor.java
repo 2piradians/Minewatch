@@ -330,7 +330,7 @@ public class ItemMWArmor extends ItemArmor {
 		}
 
 		// genji/hanzo wall climb
-		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && // TODO fix with EntityHero
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer && 
 				!(player instanceof EntityHero && ((EntityHero)player).getAttackTarget() == null)) {
 			// reset climbing
@@ -339,8 +339,9 @@ public class ItemMWArmor extends ItemArmor {
 					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
 			}
-			else if (!(player instanceof EntityPlayer) || (player.isCollidedHorizontally && 
-					!((EntityPlayer)player).capabilities.isFlying) && KeyBind.JUMP.isKeyDown(player)) {
+			else if (player.isCollidedHorizontally && 
+					!(player instanceof EntityPlayer && ((EntityPlayer)player).capabilities.isFlying) && 
+					KeyBind.JUMP.isKeyDown(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
 				if (ticks <= 17) {
 					if (ticks % 4 == 0 || ticks == 1) { // reset fall distance and play sound

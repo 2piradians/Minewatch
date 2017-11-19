@@ -19,7 +19,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
-import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;

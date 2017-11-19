@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.entity.hero;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.MobEffects;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
@@ -16,15 +17,15 @@ public class EntityHanzo extends EntityHero {
 	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
-		this.tasks.addTask(2, new EntityHeroAIAttackHanzo(this, MovementType.STRAFING, 1, 20, 15));
+		this.tasks.addTask(2, new EntityHeroAIAttackHanzo(this, MovementType.STRAFING, 15));
 	}
 
 	public class EntityHeroAIAttackHanzo extends EntityHeroAIAttackBase {
 
-		public EntityHeroAIAttackHanzo(EntityHero entity, MovementType type, double speedAmplifier, int delay, float maxDistance) {
-			super(entity, type, speedAmplifier, delay, maxDistance);
+		public EntityHeroAIAttackHanzo(EntityHero entity, MovementType type, float maxDistance) {
+			super(entity, type, maxDistance);
 		}
-		
+
 		@Override
 		public void resetTask() {
 			super.resetTask();
@@ -34,35 +35,41 @@ public class EntityHanzo extends EntityHero {
 		@Override
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
-			
-			if (this.entity.isHandActive()) {
-				// stop pulling bow
-				if (!canSee && this.seeTime < -60)
-					this.entity.resetActiveHand();
-				// attack
-				else if (canSee) {
-					int i = this.entity.getItemInUseMaxCount();
 
-					if (i >= 50) {
-						this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
-						// sonic
-						if (shouldUseAbility()) {
-							this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
-							this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+			if (distance <= Math.sqrt(this.maxAttackDistance)) {
+				if (this.entity.isHandActive()) {
+					// stop pulling bow
+					if (!canSee && this.seeTime < -60)
+						this.entity.resetActiveHand();
+					// attack
+					else if (canSee) {
+						int i = this.entity.getItemInUseMaxCount();
+
+						if (i >= 50) {
+							this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+							// sonic
+							if ((target.getActivePotionEffect(MobEffects.GLOWING) == null || 
+									target.getActivePotionEffect(MobEffects.GLOWING).getDuration() == 0) && 
+									shouldUseAbility()) {
+								this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
+								this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+							}
+							// scatter
+							else if (shouldUseAbility() && KeyBind.ABILITY_2.getCooldown(entity) == 0) {
+								this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+								this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+								this.entity.getLookHelper().setLookPosition(target.posX, target.posY-0.5d, target.posZ, 30, 30);
+							}
+							this.attackCooldown = 20;
 						}
-						// scatter
-						else if (shouldUseAbility() && KeyBind.ABILITY_2.getCooldown(entity) == 0) {
-							this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
-							this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
-							this.entity.getLookHelper().setLookPosition(target.posX, target.posY-0.5d, target.posZ, 30, 30);
-						}
-						this.attackTime = this.attackCooldown;
 					}
 				}
+				// pull back bow
+				else if (--this.attackCooldown <= 0 && this.seeTime >= -60) 
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 			}
-			// pull back bow
-			else if (--this.attackTime <= 0 && this.seeTime >= -60) 
-				this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
+			else
+				this.resetKeybinds();
 		}
 	}
 

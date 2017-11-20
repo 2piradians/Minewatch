@@ -95,8 +95,8 @@ public class EntityHelper {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
-		if (entity instanceof EntityHero)
-			inaccuracy = Math.max(10, inaccuracy * 2f); //XXX customizable
+		if (shooter instanceof EntityHero)
+			inaccuracy = Math.max(5, inaccuracy * 2f); //XXX customizable
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 
@@ -199,9 +199,9 @@ public class EntityHelper {
 		// can't hit creative players
 		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
 			return false;
-		// only heal heal target
+		/*// only heal heal target
 		if (thrower instanceof EntityHero && friendly && ((EntityHero)thrower).healTarget == entityHit)
-			return false;
+			return false;*/
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 

@@ -53,8 +53,7 @@ public class EntityBastion extends EntityHero {
 			if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
 				entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// normal attack
 				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
 				if (--this.attackCooldown <= 0 && this.shouldUseAbility()) {

@@ -84,7 +84,7 @@ public class EntityMeiBlast extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) {
-			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*2d);
+			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*3d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.world, 
 						this.posX+(this.prevPosX-this.posX)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 

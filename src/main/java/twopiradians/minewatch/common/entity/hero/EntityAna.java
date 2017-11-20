@@ -38,8 +38,7 @@ public class EntityAna extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// change to damage
 				if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
 					ItemMWWeapon.setAlternate(entity.getHeldItemMainhand(), false);
@@ -73,8 +72,7 @@ public class EntityAna extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), true);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// change to heal
 				if (!ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
 					ItemMWWeapon.setAlternate(entity.getHeldItemMainhand(), true);

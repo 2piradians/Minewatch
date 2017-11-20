@@ -156,7 +156,7 @@ public class SPacketSimple implements IMessage {
 			vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
 		if (useLook)
 			vec = new Vec3d(player.getLookVec().xCoord, player.getLookVec().yCoord, player.getLookVec().zCoord);
-		if (!player.onGround && player instanceof EntityPlayer) {
+		if (!player.onGround/* && player instanceof EntityPlayer*/) {
 			player.motionY = 0.24d;
 			player.velocityChanged = true;
 		}
@@ -182,14 +182,14 @@ public class SPacketSimple implements IMessage {
 						move(player, 9, false);
 					}
 					// Reaper's teleport
-					else if (packet.type == 1 && packetPlayer != null) {
-						packetPlayer.rotationPitch = 0;
-						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(packetPlayer).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
-								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(70).setAbility(EnumHero.REAPER.ability1));
-						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, true, 0);
-						Minewatch.proxy.spawnParticlesReaperTeleport(packetPlayer.world, packetPlayer, false, 0);
-						if (player == packetPlayer)
-							ItemReaperShotgun.tpThirdPersonView.put(packetPlayer, Minecraft.getMinecraft().gameSettings.thirdPersonView);
+					else if (packet.type == 1 && entity instanceof EntityLivingBase) {
+						entity.rotationPitch = 0;
+						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(entity).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
+								Ability.ABILITY_USING.setEntity(entity).setTicks(70).setAbility(EnumHero.REAPER.ability1));
+						Minewatch.proxy.spawnParticlesReaperTeleport(entity.world, (EntityLivingBase) entity, true, 0);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entity.world, (EntityLivingBase) entity, false, 0);
+						if (player == entity)
+							ItemReaperShotgun.tpThirdPersonView.put(player, Minecraft.getMinecraft().gameSettings.thirdPersonView);
 					}
 					// McCree's roll
 					else if (packet.type == 2 && entity instanceof EntityLivingBase) {
@@ -206,20 +206,20 @@ public class SPacketSimple implements IMessage {
 							move((EntityLivingBase) entity, 0.6d, false);
 					}
 					// Genji's strike
-					else if (packet.type == 3 && packetPlayer != null) {
-						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(packetPlayer).setTicks(8),
-								ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks(8),
-								Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
-								EnumHero.RenderManager.SNEAKING.setEntity(packetPlayer).setTicks(9));
-						if (packetPlayer == player) 
-							move(packetPlayer, 1.8d, false);
+					else if (packet.type == 3 && entity != null) {
+						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(entity).setTicks(8),
+								ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks(8),
+								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
+								EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(9));
+						if (entity == player) 
+							move(player, 1.8d, false);
 					}
 					// Genji's use sword
-					else if (packet.type == 4 && packetPlayer != null) {
+					else if (packet.type == 4 && entity != null) {
 						if (packet.bool)
-							TickHandler.register(true, ItemGenjiShuriken.DEFLECT.setEntity(packetPlayer).setTicks((int) packet.x));
-						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(packetPlayer).setTicks((int) packet.x));
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks((int) packet.x).
+							TickHandler.register(true, ItemGenjiShuriken.DEFLECT.setEntity(entity).setTicks((int) packet.x));
+						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks((int) packet.x));
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).
 								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null));
 					}
 					// Reinhardt's hammer swing
@@ -252,11 +252,11 @@ public class SPacketSimple implements IMessage {
 									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks((int) packet.x));
 					}
 					// Reaper's wraith
-					else if (packet.type == 10 && packetPlayer != null) {
-						TickHandler.register(true, Ability.ABILITY_USING.setEntity(packetPlayer).setTicks(60).setAbility(EnumHero.REAPER.ability2),
-								ItemReaperShotgun.WRAITH.setEntity(packetPlayer).setTicks(60));
-						if (player == packetPlayer)
-							ItemReaperShotgun.wraithViewBobbing.put(packetPlayer, Minecraft.getMinecraft().gameSettings.viewBobbing);
+					else if (packet.type == 10 && entity != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(60).setAbility(EnumHero.REAPER.ability2),
+								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60));
+						if (player == entity)
+							ItemReaperShotgun.wraithViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
 					// wake up from Ana's sleep dart
 					else if (packet.type == 11 && entity != null) {
@@ -277,13 +277,13 @@ public class SPacketSimple implements IMessage {
 							Handlers.rotations.put((EntityLivingBase) entity, Triple.of(0f, 0f, 0f));
 					}
 					// Genji's deflect
-					else if (packet.type == 13 && packetPlayer != null) {
+					else if (packet.type == 13 && entity != null) {
 						// spawn sweep particle
-						double d0 = (double)(-MathHelper.sin(packetPlayer.rotationYaw * 0.017453292F));
-						double d1 = (double)MathHelper.cos(packetPlayer.rotationYaw * 0.017453292F);
-						packetPlayer.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, packetPlayer.posX + d0, packetPlayer.posY + (double)packetPlayer.height * 0.8D, packetPlayer.posZ + d1, 0, d0, 0.0D, new int[0]);
-						if (packetPlayer == player)
-							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(packetPlayer).setTicks(5));
+						double d0 = (double)(-MathHelper.sin(entity.rotationYaw * 0.017453292F));
+						double d1 = (double)MathHelper.cos(entity.rotationYaw * 0.017453292F);
+						entity.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, entity.posX + d0, entity.posY + (double)entity.height * 0.8D, entity.posZ + d1, 0, d0, 0.0D, new int[0]);
+						if (entity == player)
+							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(entity).setTicks(5));
 					}
 					// Kill/assist messages
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
@@ -442,7 +442,7 @@ public class SPacketSimple implements IMessage {
 							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.world, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 					}
 					// Sombra's teleport
-					else if (packet.type == 29 && packetPlayer != null) {
+					else if (packet.type == 29 && entity != null) {
 						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
 								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
 					}
@@ -492,9 +492,11 @@ public class SPacketSimple implements IMessage {
 						entity.setPosition(packet.x, packet.y, packet.z);
 					}
 					// Sombra's translocator
-					else if (packet.type == 35 && packetPlayer != null && entity != null) {
-						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(packetPlayer).setBoolean(true));
-						EnumHero.SOMBRA.ability2.entities.put(packetPlayer, entity);
+					else if (packet.type == 35 && entity instanceof EntityLivingBase && entity2 != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(entity).setBoolean(true));
+						if (EnumHero.SOMBRA.ability2.entities.get(entity) == null || 
+								EnumHero.SOMBRA.ability2.entities.get(entity).getEntityId() != entity2.getEntityId())
+						EnumHero.SOMBRA.ability2.entities.put((EntityLivingBase) entity, entity2);
 					}
 					// EntityHero item cooldown handler
 					else if (packet.type == 36 && entity instanceof EntityHero) {

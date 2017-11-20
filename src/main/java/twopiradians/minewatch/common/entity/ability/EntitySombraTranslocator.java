@@ -27,7 +27,7 @@ public class EntitySombraTranslocator extends EntityMW {
 	public EntitySombraTranslocator(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn, -1);
 		this.setSize(0.3f, 0.3f);
-		this.lifetime = Integer.MAX_VALUE;
+		this.lifetime = 1200;
 		this.notDeflectible = true;
 	}
 
@@ -56,7 +56,7 @@ public class EntitySombraTranslocator extends EntityMW {
 			else 
 				EntityHelper.spawnTrailParticles(this, 5, 0, color1, color2, 0.8f, 5, 0.8f);
 		}
-
+		
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
 			if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
@@ -65,7 +65,8 @@ public class EntitySombraTranslocator extends EntityMW {
 				if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
 					Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.sombraTranslocatorDuring, SoundCategory.PLAYERS, 0.8f, 1.0f, false);
 				this.playedSound = true;
-				this.lifetime = this.ticksExisted + 235;
+				if (!this.world.isRemote) 
+					this.lifetime = this.ticksExisted + 235;
 			}
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
@@ -75,11 +76,11 @@ public class EntitySombraTranslocator extends EntityMW {
 
 		// gravity
 		this.motionY -= 0.05D;
-		
+
 		// set cooldown when expiring
 		if (!this.world.isRemote && this.ticksExisted > lifetime &&
-				this.getThrower() instanceof EntityPlayer) 
-			EnumHero.SOMBRA.ability2.keybind.setCooldown((EntityPlayer) this.getThrower(), 80, false);
+				this.getThrower() != null) 
+			EnumHero.SOMBRA.ability2.keybind.setCooldown(this.getThrower(), 80, false);
 
 		super.onUpdate();
 	}

@@ -59,15 +59,14 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			Minewatch.proxy.stopSound(player, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS);
+			Minewatch.proxy.stopSound(Minecraft.getMinecraft().player, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS);
 			Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStop, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 			Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-			if (player != null)
-				EnumHero.MEI.ability2.keybind.setCooldown(player, 240, false); 
+			EnumHero.MEI.ability2.keybind.setCooldown(entityLiving, 240, false); 
 			return super.onServerRemove();
 		}
 	};
@@ -98,7 +97,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// shoot
 		if (this.canUse(player, true, hand, false)) {//TODO delay
 			if (!world.isRemote) {
@@ -121,8 +120,8 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			Handler handler = TickHandler.getHandler(player, Identifier.MEI_CRYSTAL);
 			if (!world.isRemote && handler != null && 
@@ -154,13 +153,15 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	@SubscribeEvent
 	public void preventDamage(LivingHurtEvent event) {
-		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL)) 
+		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL) &&
+				!event.getSource().canHarmInCreative()) 
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void preventDamage(LivingAttackEvent event) {
-		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL)) 
+		if (event.getEntityLiving() != null && TickHandler.hasHandler(event.getEntityLiving(), Identifier.MEI_CRYSTAL) &&
+				!event.getSource().canHarmInCreative()) 
 			event.setCanceled(true);
 	}
 

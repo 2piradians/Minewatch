@@ -34,8 +34,7 @@ public class EntityTracer extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// blink
 				if (--this.attackCooldown <= 0 && this.shouldUseAbility()) {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);

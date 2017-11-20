@@ -133,7 +133,7 @@ public class Keys {
 		}
 
 		public boolean isKeyDown(EntityLivingBase entity) {
-			return entity != null && this.isKeyDown(entity.getPersistentID());
+			return entity != null && this.isKeyDown(entity.getPersistentID()) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT);
 		}
 
 		public boolean isKeyDown(UUID uuid) {
@@ -141,7 +141,7 @@ public class Keys {
 		}
 
 		public boolean isKeyPressed(EntityLivingBase entity) {
-			return entity != null && this.isKeyPressed(entity.getPersistentID());
+			return entity != null && this.isKeyPressed(entity.getPersistentID()) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT);
 		}
 
 		public boolean isKeyPressed(UUID uuid) {

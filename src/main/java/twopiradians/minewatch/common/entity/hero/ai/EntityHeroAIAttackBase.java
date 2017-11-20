@@ -26,6 +26,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	protected MovementType movementType;
 	protected float strafingBackwardsPercent = 0.8F;
 	protected float strafingForwardsPercent = 0.1F;
+	protected float lookYOffset;
 
 	public EntityHeroAIAttackBase(EntityHero entity, MovementType type, float maxDistance) {
 		this.entity = entity;
@@ -38,7 +39,10 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	public boolean shouldExecute() {
 		return EntityHelper.shouldHit(entity, entity.getAttackTarget(), false) && entity.getAttackTarget() != null && 
 				entity.isEntityAlive() && entity.getAttackTarget().isEntityAlive() && 
-				!TickHandler.hasHandler(entity.getAttackingEntity(), Identifier.ANA_SLEEP);
+				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.ANA_SLEEP) && 
+				(!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.SOMBRA_INVISIBLE) || 
+						entity.getDistanceToEntity(entity.getAttackTarget()) < 5) && 
+				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.MEI_CRYSTAL);
 	}
 
 	@Override
@@ -77,9 +81,9 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 			else
 				--this.seeTime;
 
-			this.move(target, canSee, distanceSq);
-
 			this.attackTarget(target, canSee, Math.sqrt(distanceSq));
+			
+			this.move(target, canSee, distanceSq);
 		}
 	}
 
@@ -93,8 +97,14 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 	protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {}
 
+	/**May be used in the future*/
 	protected boolean shouldUseAbility() {
 		return entity.getRNG().nextInt(25) == 0; // XXX customizable
+	}
+
+	/**May be used in the future*/
+	protected boolean isFacingTarget() {
+		return this.seeTime > 10;
 	}
 
 	protected void move(EntityLivingBase target, boolean canSee, double distanceSq) {
@@ -125,7 +135,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 				this.entity.getMoveHelper().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
 			}
-			this.entity.getLookHelper().setLookPosition(target.posX, target.posY+target.getEyeHeight(), target.posZ, 360, 360);
+			this.lookAtTarget(target);
 			this.entity.rotationYaw = this.entity.rotationYawHead;
 			break;
 		case MELEE:
@@ -141,10 +151,15 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 				this.entity.getNavigator().clearPathEntity();
 			else
 				this.entity.getNavigator().tryMoveToEntityLiving(target, 1);
-			this.entity.getLookHelper().setLookPosition(target.posX, target.posY+target.getEyeHeight(), target.posZ, 360, 360);
-			this.entity.rotationYaw = this.entity.rotationYawHead;
+			this.lookAtTarget(target);
 			break;
 		}
+	}
+
+	protected void lookAtTarget(EntityLivingBase target) {
+		if (!TickHandler.hasHandler(entity, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(entity, Identifier.PREVENT_ROTATION))
+			this.entity.getLookHelper().setLookPosition(target.posX, target.posY+target.getEyeHeight()+lookYOffset, target.posZ, 360, 360);
+		this.entity.rotationYaw = this.entity.rotationYawHead;
 	}
 
 }

@@ -38,6 +38,9 @@ public class EntityHanzo extends EntityHero {
 
 			if (distance <= Math.sqrt(this.maxAttackDistance)) {
 				if (this.entity.isHandActive()) {
+					// wall-climb
+					this.entity.getDataManager().set(KeyBind.JUMP.datamanager, true);
+					
 					// stop pulling bow
 					if (!canSee && this.seeTime < -60)
 						this.entity.resetActiveHand();

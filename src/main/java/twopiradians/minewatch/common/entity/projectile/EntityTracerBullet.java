@@ -33,7 +33,7 @@ public class EntityTracerBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0, 0x5EDCE5, 0x007acc, 0.5f, 2, 0.8f);
+			EntityHelper.spawnTrailParticles(this, 10, 0, 0x5EDCE5, 0x007acc, 0.5f, 2, 0.8f);
 	}
 
 	@Override

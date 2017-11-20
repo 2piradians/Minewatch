@@ -81,7 +81,7 @@ public class EntityMercyBeam extends Entity {
 
 		// kill if player/target is null/dead, player is not holding staff, target is more than 15 blocks from player, 
 		// 	 player cannot see target, or player is not holding right/left click
-		if (!this.world.isRemote && (player == null || player.isDead || target == null || target.isDead || 
+		if (!this.world.isRemote && (player == null || !player.isEntityAlive() || target == null || !target.isEntityAlive() || 
 				(!KeyBind.RMB.isKeyDown(player) && !KeyBind.LMB.isKeyDown(player)) ||
 				((player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon || 
 				!ItemMercyWeapon.isStaff(player.getHeldItemMainhand())) &&

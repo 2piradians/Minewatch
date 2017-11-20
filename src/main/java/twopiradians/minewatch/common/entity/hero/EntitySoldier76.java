@@ -31,8 +31,7 @@ public class EntitySoldier76 extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// helix rockets
 				if (this.shouldUseAbility()) {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
@@ -44,20 +43,8 @@ public class EntitySoldier76 extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				}
 			}
-			else {
-				this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
-				this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
-			}
-		}
-
-		@Override
-		public void updateTask() {
-			if (this.strafingTime == -1 && (entity.moveForward > 0 || entity.moveStrafing > 0))
-				entity.setSprinting(true);
-			else
-				entity.setSprinting(false);
-
-			super.updateTask();
+			else 
+				this.resetKeybinds();
 		}
 
 	}

@@ -31,7 +31,7 @@ public class EntityReinhardt extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			if (canSee) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				ItemStack stack = entity.getHeldItemMainhand();
 				if (stack != null && stack.getItem() == EnumHero.REINHARDT.weapon && 
 						EnumHero.REINHARDT.weapon.canUse(entity, false, EnumHand.MAIN_HAND, false)) {

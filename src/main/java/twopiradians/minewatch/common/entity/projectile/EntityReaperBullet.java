@@ -33,7 +33,7 @@ public class EntityReaperBullet extends EntityMW {
 		super.onUpdate();
 
 		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 2, 0.05d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
+			EntityHelper.spawnTrailParticles(this, 3, 0.1d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
 	}
 
 	@Override

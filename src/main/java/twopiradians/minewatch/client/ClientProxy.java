@@ -351,7 +351,7 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
+	public void spawnParticlesReaperTeleport(World world, EntityLivingBase player, boolean spawnAtPlayer, int type) { 
 		if (spawnAtPlayer || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null) {
 			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type, 
 					TickHandler.getHandler(player, Identifier.REAPER_TELEPORT));

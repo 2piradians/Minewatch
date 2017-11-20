@@ -37,6 +37,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -75,15 +76,15 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				boolean firstPerson = player == Minecraft.getMinecraft().player && 
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ;
 				for (int i=0; i<3; ++i) {
-					player.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, 
-							player.posX+player.world.rand.nextDouble()-0.5d, 
-							player.posY+player.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
-							player.posZ+player.world.rand.nextDouble()-0.5d, 
+					entityLiving.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, 
+							entityLiving.posX+entityLiving.world.rand.nextDouble()-0.5d, 
+							entityLiving.posY+entityLiving.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
+							entityLiving.posZ+entityLiving.world.rand.nextDouble()-0.5d, 
 							0, (firstPerson ? -0.1d : 0d), 0);
-					player.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
-							player.posX+player.world.rand.nextDouble()-0.5d, 
-							player.posY+player.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
-							player.posZ+player.world.rand.nextDouble()-0.5d, 
+					entityLiving.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+							entityLiving.posX+entityLiving.world.rand.nextDouble()-0.5d, 
+							entityLiving.posY+entityLiving.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
+							entityLiving.posZ+entityLiving.world.rand.nextDouble()-0.5d, 
 							0, (firstPerson ? -0.1d : 0d), 0);
 				}
 			}
@@ -93,15 +94,15 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			// set resistance high to prevent hurt sound/animations 
-			// (player.hurtResistantTime > player.maxHurtResistantTime / 2.0F)
-			player.hurtResistantTime = (int) (player.maxHurtResistantTime*2.1f); 
+			// (entityLiving.hurtResistantTime > entityLiving.maxHurtResistantTime / 2.0F)
+			entityLiving.hurtResistantTime = (int) (entityLiving.maxHurtResistantTime*2.1f); 
 			return super.onServerTick();
 		}
 
 		@Override
 		public Handler onServerRemove() {
-			EnumHero.REAPER.ability2.keybind.setCooldown(player, 160, false);
-			player.hurtResistantTime = 0;
+			EnumHero.REAPER.ability2.keybind.setCooldown(entityLiving, 160, false);
+			entityLiving.hurtResistantTime = 0;
 			return super.onServerRemove();
 		}
 	};
@@ -112,10 +113,10 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// stop handler and play sound if needed
-			if ((player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.REAPER.weapon ||
-					!EnumHero.REAPER.ability1.isSelected(player) || 
-					!EnumHero.REAPER.weapon.canUse(player, true, EnumHand.MAIN_HAND, true)) && this.ticksLeft == -1) {
-				player.playSound(ModSoundEvents.reaperTeleportStop, 1.0f, 1.0f);
+			if ((entityLiving.getHeldItemMainhand() == null || entityLiving.getHeldItemMainhand().getItem() != EnumHero.REAPER.weapon ||
+					!EnumHero.REAPER.ability1.isSelected(entityLiving) || 
+					!EnumHero.REAPER.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) && this.ticksLeft == -1) {
+				entityLiving.playSound(ModSoundEvents.reaperTeleportStop, 1.0f, 1.0f);
 				return true;
 			}
 			else {		
@@ -129,21 +130,23 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					}
 				}
 				// particles
-				if (player.ticksExisted % 2 == 0)
-					Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 1);
-				else if (player.ticksExisted % 3 == 0)
-					Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 3);
-				Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, false, 2);
+				if (entityLiving == Minecraft.getMinecraft().player) {
+					if (entityLiving.ticksExisted % 2 == 0)
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 1);
+					else if (entityLiving.ticksExisted % 3 == 0)
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 3);
+					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 2);
+				}
 				// tp sound
-				if (player.ticksExisted % 13 == 0 && this.ticksLeft == -1)
-					player.playSound(ModSoundEvents.reaperTeleportDuring, player.world.rand.nextFloat()*0.5f+0.3f, player.world.rand.nextFloat()*0.5f+0.75f);
-				// particles at player
+				if (entityLiving.ticksExisted % 13 == 0 && this.ticksLeft == -1)
+					entityLiving.playSound(ModSoundEvents.reaperTeleportDuring, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f);
+				// particles at entityLiving
 				if (this.ticksLeft > 40 && this.ticksLeft != -1) {
-					if (player.ticksExisted % 2 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 1);
-					else if (player.ticksExisted % 3 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 3);
-					Minewatch.proxy.spawnParticlesReaperTeleport(player.world, player, true, 2);
+					if (entityLiving.ticksExisted % 2 == 0)
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 1);
+					else if (entityLiving.ticksExisted % 3 == 0)
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 3);
+					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 2);
 				}
 			}
 			return this.ticksLeft != -1 && --this.ticksLeft <= 0;
@@ -152,17 +155,17 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (this.ticksLeft <= 50 && this.ticksLeft >= 25)
-				player.hurtResistantTime = (int) (player.maxHurtResistantTime*2.1f); 
+				entityLiving.hurtResistantTime = (int) (entityLiving.maxHurtResistantTime*2.1f); 
 			else if (this.ticksLeft == 24)
-				player.hurtResistantTime = 0;
+				entityLiving.hurtResistantTime = 0;
 			if (this.ticksLeft == 40) {
-				if (player.isRiding())
-					player.dismountRidingEntity();
-				player.setPositionAndUpdate(this.position.xCoord, 
+				if (entityLiving.isRiding())
+					entityLiving.dismountRidingEntity();
+				entityLiving.setPositionAndUpdate(this.position.xCoord, 
 						this.position.yCoord, 
 						this.position.zCoord);
-				if (player.world.rand.nextBoolean())
-					player.world.playSound(null, player.getPosition(), ModSoundEvents.reaperTeleportVoice, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				if (entityLiving.world.rand.nextBoolean())
+					entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.reaperTeleportVoice, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 			return super.onServerTick();
 		}
@@ -171,13 +174,13 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@Override
 		public Handler onClientRemove() {
 			if (this.ticksLeft != -1) 
-				EnumHero.REAPER.ability1.toggle(player, false);
+				EnumHero.REAPER.ability1.toggle(entityLiving, false);
 			return super.onClientRemove();
 		}
 
 		@Override
 		public Handler onServerRemove() {
-			EnumHero.REAPER.ability1.keybind.setCooldown(player, 200, false); 
+			EnumHero.REAPER.ability1.keybind.setCooldown(entityLiving, 200, false); 
 			return super.onServerRemove();
 		}
 	};
@@ -214,7 +217,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@SuppressWarnings("deprecation")
 	@Nullable
-	private Vec3d getTeleportPos(EntityPlayer player) {
+	private Vec3d getTeleportPos(EntityLivingBase player) {
 		try {
 			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
@@ -250,17 +253,18 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (entity instanceof EntityPlayer && isSelected) {
-			EntityPlayer player = (EntityPlayer)entity;
+		if (entity instanceof EntityLivingBase && isSelected) {
+			EntityLivingBase player = (EntityLivingBase)entity;
 			// teleport
-			if (hero.ability1.isSelected(player) && this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {   
+			if (hero.ability1.isSelected(player) && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {   
 				if (world.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
 					if (tpVec != null) {
 						if (handler == null) {
 							TickHandler.register(true, TPS.setEntity(player).setPosition(tpVec).setTicks(-1));
-							Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
+							if (player == Minewatch.proxy.getClientPlayer())
+								Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
 							if (KeyBind.ABILITY_2.isKeyDown(player))
 								player.playSound(ModSoundEvents.reaperTeleportStart, 1.0f, 1.0f);
 						}
@@ -272,16 +276,17 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				else if (KeyBind.LMB.isKeyDown(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
-					if (tpVec != null && player instanceof EntityPlayerMP) {
+					if (tpVec != null && !world.isRemote) {
 						player.rotationPitch = 0;
-						Minewatch.network.sendToAll(new SPacketSimple(1, player, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
+						Minewatch.network.sendToAll(new SPacketSimple(1, player, false, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
 						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)),
 								Ability.ABILITY_USING.setEntity(player).setTicks(70).setAbility(EnumHero.REAPER.ability1),
 								Handlers.PREVENT_INPUT.setEntity(player).setTicks(70),
 								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(70), 
 								Handlers.PREVENT_ROTATION.setEntity(player).setTicks(70));
-						Minewatch.network.sendTo(new SPacketSimple(9, player, false, 70, 0, 0), (EntityPlayerMP) player);
+						if (player instanceof EntityPlayerMP)
+							Minewatch.network.sendTo(new SPacketSimple(9, player, false, 70, 0, 0), (EntityPlayerMP) player);
 					}
 				}
 
@@ -289,11 +294,11 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					hero.ability1.toggle(player, false);
 			}
 			// wraith
-			else if (hero.ability2.isSelected(player) && !world.isRemote && player instanceof EntityPlayerMP &&
-					this.canUse((EntityPlayer) entity, true, EnumHand.MAIN_HAND, true)) {
+			else if (hero.ability2.isSelected(player) && !world.isRemote &&
+					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2),
 						WRAITH.setEntity(player).setTicks(60));
-				Minewatch.network.sendToAll(new SPacketSimple(10, false, player));
+				Minewatch.network.sendToAll(new SPacketSimple(10, player, false));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
 				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperWraith, SoundCategory.PLAYERS, 1, 1, false);
@@ -340,7 +345,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@SubscribeEvent
-	public void preventWraithDamage(LivingHurtEvent event) {
+	public void preventWraithDamage(LivingAttackEvent event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.REAPER_WRAITH) &&
 				!event.getSource().canHarmInCreative()) 
 			event.setCanceled(true);
@@ -357,32 +362,33 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@SubscribeEvent
 	public void damageEntities(LivingHurtEvent event) {
-		if (event.getSource().getEntity() instanceof EntityPlayer && event.getEntityLiving() != null) {
-			EntityPlayer player = ((EntityPlayer)event.getSource().getEntity());
+		if (event.getSource().getEntity() instanceof EntityLivingBase && event.getEntityLiving() != null) {
+			EntityLivingBase source = ((EntityLivingBase)event.getSource().getEntity());
+			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
-			if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) == hero &&
-					player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
+			if (!source.world.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero &&
+					source.getHeldItemMainhand() != null && source.getHeldItemMainhand().getItem() == this) {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-					damage = EnumHero.RenderManager.applyPotionDamageCalculations(player, event.getSource(), damage);
+					damage = EnumHero.RenderManager.applyPotionDamageCalculations(source, event.getSource(), damage);
 					if (damage > 0) 
-						player.heal(damage * 0.2f);
+						source.heal(damage * 0.2f);
 				}
 				catch (Exception e) {}
 			}
 			// cancel attack in wraith
-			if (!player.world.isRemote && TickHandler.hasHandler(event.getEntityLiving(), Identifier.REAPER_WRAITH))
+			if (!source.world.isRemote && TickHandler.hasHandler(target, Identifier.REAPER_WRAITH)) 
 				event.setCanceled(true);
 		}
 	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void blockWhileTping(RenderLivingEvent.Pre<EntityPlayer> event) {
+	public void blockWhileTping(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.REAPER_TELEPORT);
-		if (handler != null && handler.ticksLeft != -1 && event.getRenderer().getMainModel() instanceof ModelPlayer) {
-			ModelPlayer model = (ModelPlayer) event.getRenderer().getMainModel();
+		if (handler != null && handler.ticksLeft != -1 && event.getRenderer().getMainModel() instanceof ModelBiped) {
+			ModelBiped model = (ModelBiped) event.getRenderer().getMainModel();
 			model.leftArmPose = ModelBiped.ArmPose.BLOCK;
 			model.rightArmPose = ModelBiped.ArmPose.BLOCK;
 		}

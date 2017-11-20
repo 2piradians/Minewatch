@@ -41,9 +41,7 @@ public class EntityJunkratGrenade extends EntityMW {
 	}
 
 	@Override
-	public void onUpdate() {
-		//System.out.println(this.world.isRemote+": "+this.bounces);
-		
+	public void onUpdate() {		
 		// set explode timer
 		if (this.explodeTimer == -1 && this.bounces >= 3)
 			this.explodeTimer = 10;

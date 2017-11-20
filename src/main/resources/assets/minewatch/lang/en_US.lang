@@ -104,6 +104,13 @@ item.sombra_leggings.name=Sombra Leggings
 item.sombra_boots.name=Sombra Boots
 item.sombra_weapon.name=Sombra's Machine Pistol
 
+item.lucio_token.name=Lucio Token
+item.lucio_helmet.name=Lucio Helmet
+item.lucio_chestplate.name=Lucio Chestplate
+item.lucio_leggings.name=Lucio Leggings
+item.lucio_boots.name=Lucio Boots
+item.lucio_weapon.name=Lucio's Sound Amplifier
+
 item.wild_card_token.name=Wild Card Token
 
 entity.hanzo_hero.name=Hanzo
@@ -143,6 +150,7 @@ entity.widowmaker_bullet.name=Widowmaker Bullet
 entity.widowmaker_mine.name=Widowmaker Venom Mine
 entity.sombra_hero.name=Sombra
 entity.sombra_bullet.name=Sombra Bullet
-entity.sombra_tanslocator.name=Sombra Translocator
+entity.sombra_translocator.name=Sombra Translocator
 entity.reinhardt_hero.name=Reinhardt
 entity.reinhardt_strike.name=Reinhardt Fire Strike
+entity.lucio_hero.name=Lucio

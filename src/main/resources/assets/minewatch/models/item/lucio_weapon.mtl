@@ -1,0 +1,14 @@
+# Blender MTL File: 'Lucio.blend'
+# Material Count: 2
+
+newmtl 4BFF919324B1FAD6
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/lucio_weapon_3d
+
+newmtl EBA7C9828D3CBF88
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/lucio_weapon_3d

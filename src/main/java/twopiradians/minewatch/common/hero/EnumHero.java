@@ -54,6 +54,7 @@ import twopiradians.minewatch.common.entity.hero.EntityBastion;
 import twopiradians.minewatch.common.entity.hero.EntityGenji;
 import twopiradians.minewatch.common.entity.hero.EntityHanzo;
 import twopiradians.minewatch.common.entity.hero.EntityJunkrat;
+import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.hero.EntityMcCree;
 import twopiradians.minewatch.common.entity.hero.EntityMei;
 import twopiradians.minewatch.common.entity.hero.EntityMercy;
@@ -70,6 +71,7 @@ import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemJunkratLauncher;
+import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
@@ -216,7 +218,18 @@ public enum EnumHero {
 			new Skin(TextFormatting.DARK_AQUA+"Mar", "Sombra with Mar skin", "XxbalintgamerxX", "http://www.minecraftskins.com/skin/9944115/sombra-with-mar-skin/"),
 			new Skin(TextFormatting.GOLD+"Augmented", "Sombra ONLINE - Augmented", "Grinshire", "https://www.planetminecraft.com/skin/sombra-online-augmented/"),
 			new Skin(TextFormatting.GOLD+"Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
-			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/"));
+			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/")),
+	LUCIO("Lucio", false, new Ability(KeyBind.RMB, false, false), 
+			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, false, false), 
+			20, 0, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
+			new Skin("Classic", "Lúcio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
+			new Skin(TextFormatting.DARK_AQUA+"Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
+			new Skin(TextFormatting.DARK_PURPLE+"Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
+			new Skin(TextFormatting.GOLD+"HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
+			new Skin(TextFormatting.GOLD+"Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
+			new Skin(TextFormatting.GOLD+"Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
+			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/"));
 
 	public Ability ability1;
 	public Ability ability2;
@@ -783,6 +796,15 @@ public enum EnumHero {
 			}
 		}
 
+		@SideOnly(Side.CLIENT)
+		@SubscribeEvent
+		public static void hurtTime(TickEvent.RenderTickEvent event) {
+			// limit hurt time when wearing full set
+			if (Minecraft.getMinecraft().player != null && 
+					ItemMWArmor.SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
+				Minecraft.getMinecraft().player.hurtTime = Math.min(5, Minecraft.getMinecraft().player.hurtTime);
+		}
+
 		@SubscribeEvent
 		public static void serverSide(ServerTickEvent event) {
 			// decrement timer for damage
@@ -866,7 +888,7 @@ public enum EnumHero {
 		}
 
 		/**Copied from EntityLivingBase bc it's protected*/
-		public static float applyPotionDamageCalculations(EntityPlayer player, DamageSource source, float damage) {
+		public static float applyPotionDamageCalculations(EntityLivingBase player, DamageSource source, float damage) {
 			if (source.isDamageAbsolute())
 				return damage;
 			else {

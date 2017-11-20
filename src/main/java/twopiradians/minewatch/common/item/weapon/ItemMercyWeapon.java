@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
@@ -77,8 +78,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			if (this.player != null) {
-				Minewatch.proxy.stopSound(player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
+			if (this.entityLiving != null) {
+				Minewatch.proxy.stopSound(Minecraft.getMinecraft().player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
 				TickHandler.unregister(entityLiving.world.isRemote, 
 						TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING));
 			}
@@ -86,10 +87,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		}
 		@Override
 		public Handler onServerRemove() {
-			if (this.player != null) {
-				EnumHero.MERCY.ability3.keybind.setCooldown(this.player, 30, false);
-				TickHandler.unregister(this.player.world.isRemote, 
-						TickHandler.getHandler(this.player, Identifier.ABILITY_USING));
+			if (this.entityLiving != null) {
+				EnumHero.MERCY.ability3.keybind.setCooldown(this.entityLiving, 30, false);
+				TickHandler.unregister(this.entityLiving.world.isRemote, 
+						TickHandler.getHandler(this.entityLiving, Identifier.ABILITY_USING));
 			}
 			return super.onServerRemove();
 		}
@@ -139,7 +140,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 		if (isSelected && !world.isRemote && entity instanceof EntityLivingBase) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
-			if (beams.containsKey(entity) && (beams.get(entity).isDead || 
+			if (beams.containsKey(entity) && (!beams.get(entity).isEntityAlive()|| 
 					Math.sqrt(entity.getDistanceSqToEntity(beams.get(entity))) > 16)) {
 				beams.get(entity).setDead();
 				beams.remove(entity);
@@ -173,16 +174,16 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (beams.containsKey(entity) && beams.get(entity).target != null) {
 				// heal
 				if (beams.get(entity).isHealing() && beams.get(entity).target.getHealth() < beams.get(entity).target.getMaxHealth()) {
-					beams.get(entity).target.heal(0.3f);
+					EntityHelper.attemptDamage(entity, beams.get(entity).target, -3, false);
 				}
 				// during sound
 				if (entity.ticksExisted % 20 == 0)
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
+							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 0.8f, 1.0f);
 				// switch sound
 				if (beams.get(entity).prevHeal != beams.get(entity).isHealing()) {
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
+							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 0.8f,	1.0f);
 					beams.get(entity).prevHeal = beams.get(entity).isHealing();
 				}
 			}

@@ -39,8 +39,8 @@ public class Ability {
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
 		public Handler onServerRemove() {
-			if (!player.world.isRemote) {
-				UUID uuid = player.getPersistentID();
+			if (!entityLiving.world.isRemote) {
+				UUID uuid = entityLiving.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
 					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
@@ -48,12 +48,12 @@ public class Ability {
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);
-				if (player instanceof EntityPlayerMP)
+				if (entityLiving instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
-									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
+									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) entityLiving);
 			}
-			return (this.ticksLeft <= 0 || !player.isEntityAlive()) ? super.onServerRemove() : null;
+			return (this.ticksLeft <= 0 || !entityLiving.isEntityAlive()) ? super.onServerRemove() : null;
 		}
 	};
 
@@ -158,7 +158,7 @@ public class Ability {
 
 	/**Get number of available uses for multi-use ability (i.e. Tracer's Blink)*/
 	public int getUses(EntityLivingBase player) {
-		if (!(player instanceof EntityPlayer) || maxUses == 0)
+		if (!(player instanceof EntityLivingBase) || maxUses == 0)
 			return maxUses;
 		else if (!multiAbilityUses.containsKey(player.getPersistentID()))
 			multiAbilityUses.put(player.getPersistentID(), maxUses);
@@ -168,13 +168,14 @@ public class Ability {
 
 	/**Use one of the multi-uses*/
 	public void subtractUse(EntityLivingBase entity) {
-		if (entity != null && !entity.world.isRemote && getUses(entity) > 0 && entity instanceof EntityPlayerMP) {
+		if (entity != null && !entity.world.isRemote && getUses(entity) > 0) {
 			multiAbilityUses.put(entity.getPersistentID(), multiAbilityUses.get(entity.getPersistentID())-1);
 			if (!TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
 				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(useCooldown));
-			Minewatch.network.sendTo(
-					new SPacketSyncAbilityUses(entity.getPersistentID(), hero, getNumber(), 
-							multiAbilityUses.get(entity.getPersistentID()), false), (EntityPlayerMP) entity);
+			if (entity instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(
+						new SPacketSyncAbilityUses(entity.getPersistentID(), hero, getNumber(), 
+								multiAbilityUses.get(entity.getPersistentID()), false), (EntityPlayerMP) entity);
 		}
 	}
 

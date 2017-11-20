@@ -34,11 +34,7 @@ public class EntityWidowmaker extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
-				// change to heal
-				if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
-					ItemMWWeapon.setAlternate(entity.getHeldItemMainhand(), false);
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) { 
 				// scope
 				if (distance > Math.sqrt(this.maxAttackDistance) / 4f) 
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
@@ -46,16 +42,21 @@ public class EntityWidowmaker extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				// poison trap
 				if (this.shouldUseAbility())
-					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 				else
-					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
 				// normal attack
-				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+				if (!this.entity.getDataManager().get(KeyBind.RMB.datamanager) || --this.attackCooldown <= 0) {
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+					this.attackCooldown = 40;
+				}
+				else
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 			}
 			else 
 				this.resetKeybinds();
 		}
 
 	}
-	
+
 }

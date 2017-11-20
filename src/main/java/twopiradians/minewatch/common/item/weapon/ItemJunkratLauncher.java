@@ -48,13 +48,13 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// give trigger if mine active and offhand is empty
-			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand() == ItemStack.EMPTY) && 
+			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
 					hero.ability2.entities.containsKey(entity) && 
-					hero.ability2.entities.get(entity).isEntityAlive())
+					hero.ability2.entities.get(entity).isEntityAlive()) 
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
 
 			// trigger mine

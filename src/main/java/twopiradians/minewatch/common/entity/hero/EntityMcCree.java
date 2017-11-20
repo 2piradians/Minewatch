@@ -31,8 +31,7 @@ public class EntityMcCree extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			RayTraceResult result = EntityHelper.getMouseOverEntity(entity, (int) Math.sqrt(this.maxAttackDistance), false);
-			if (canSee && result != null && result.entityHit == target) {
+			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// fan the hammer
 				if (entity.isHandActive() || (entity.hero.weapon.getCurrentAmmo(entity) >= 4 &&
 						distance <= 5 && this.shouldUseAbility())) {

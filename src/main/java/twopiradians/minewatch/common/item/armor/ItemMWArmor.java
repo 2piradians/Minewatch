@@ -149,14 +149,14 @@ public class ItemMWArmor extends ItemArmor {
 										ability.maxUses, false), (EntityPlayerMP) event.player);
 					}
 		}
-		
+
 		@Nullable
 		public static EnumHero getWornSet(Entity entity) {
 			return entity == null ? null : 
 				entity instanceof EntityHero ? ((EntityHero)entity).hero : 
 					getWornSet(entity.getPersistentID());
 		}
-		
+
 		@Nullable
 		public static EnumHero getWornSet(UUID uuid) {
 			return entitiesWearingSets.get(uuid);
@@ -193,8 +193,8 @@ public class ItemMWArmor extends ItemArmor {
 				// clear toggles when switching to set or if not holding weapon
 				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
-						(fullSet && (!SetManager.entitiesWearingSets.containsKey(event.player.getPersistentID()) ||
-								SetManager.entitiesWearingSets.get(event.player.getPersistentID()) != hero)))
+						(fullSet && (SetManager.getWornSet(event.player) == null ||
+								SetManager.getWornSet(event.player) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						ability.toggle(event.player, false);
 
@@ -217,18 +217,18 @@ public class ItemMWArmor extends ItemArmor {
 		public static void preventFallDamage(LivingFallEvent event) {
 			// prevent fall damage if enabled in config and wearing set
 			if (Config.preventFallDamage && event.getEntity() != null &&
-					SetManager.entitiesWearingSets.containsKey(event.getEntity().getPersistentID()))
+					SetManager.getWornSet(event.getEntity()) != null)
 				event.setCanceled(true);
 			// genji fall
 			else if (event.getEntity() != null && 
-					SetManager.entitiesWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.GENJI) 
+					SetManager.getWornSet(event.getEntity()) == EnumHero.GENJI) 
 				event.setDistance(event.getDistance()*0.8f);
 		}
 
 		@SubscribeEvent
 		public static void junkratDeath(LivingDeathEvent event) {
-			if (event.getEntity() instanceof EntityPlayer && !event.getEntity().world.isRemote &&
-					SetManager.entitiesWearingSets.get(event.getEntity().getPersistentID()) == EnumHero.JUNKRAT) {
+			if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().world.isRemote &&
+					SetManager.getWornSet(event.getEntity()) == EnumHero.JUNKRAT) {
 				event.getEntity().world.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
 						SoundCategory.PLAYERS, 1.0f, 1.0f);
 				for (int i=0; i<6; ++i) {
@@ -292,8 +292,7 @@ public class ItemMWArmor extends ItemArmor {
 
 	/**Handles most of the armor set special effects and bonuses.*/
 	public void onArmorTick(World world, EntityLivingBase player, ItemStack stack) {	
-		EnumHero set = player instanceof EntityHero ? ((EntityHero)player).hero : 
-			SetManager.entitiesWearingSets.get(player.getPersistentID());
+		EnumHero set = SetManager.getWornSet(player);
 
 		// delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
@@ -330,9 +329,8 @@ public class ItemMWArmor extends ItemArmor {
 		}
 
 		// genji/hanzo wall climb
-		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && // TODO fix with EntityHero
-				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer && 
-				!(player instanceof EntityHero && ((EntityHero)player).getAttackTarget() == null)) {
+		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
 			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&

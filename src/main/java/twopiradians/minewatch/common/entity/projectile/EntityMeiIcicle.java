@@ -53,7 +53,7 @@ public class EntityMeiIcicle extends EntityMW {
 
 		// in ground
 		if (this.inGround && this.lifetime == 40) 
-			this.lifetime = 1240;
+			this.lifetime = 240;
 
 		BlockPos blockpos = new BlockPos(this.xTile, this.yTile, this.zTile);
 		IBlockState iblockstate = this.world.getBlockState(blockpos);
@@ -103,7 +103,7 @@ public class EntityMeiIcicle extends EntityMW {
 			if (iblockstate.getMaterial() != Material.AIR)
 				this.inTile.onEntityCollidedWithBlock(this.world, blockpos, iblockstate, this);
 		}
-		else {
+		else if (!this.inGround) {
 			if (EntityHelper.shouldHit(getThrower(), result.entityHit, false)) {
 				EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 22, 75, 26, 55);
 				EntityHelper.moveToHitPosition(this, result);

@@ -244,7 +244,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
 		// invisibility / teleport
 		float time = 14;
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
@@ -262,7 +262,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			// full alpha if not friendly
 			float alpha = EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, false) ? 1 : 0.5f;
 			GlStateManager.color((255f-20f*percent)/255f, (255f-109f*percent)/255f, (255f-3f*percent)/255f, 1f-percent*alpha);
+			return true;
 		}
+		return false;
 	}
 
 	@Override

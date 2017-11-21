@@ -79,7 +79,6 @@ public class ModSoundEvents {
 	public static SoundEvent junkratTrapTriggerOwner;
 	public static SoundEvent junkratTrapTriggerVoice;
 	public static SoundEvent junkratTrapPlacedVoice;
-
 	public static SoundEvent sombraShoot;
 	public static SoundEvent sombraInvisibleStart;
 	public static SoundEvent sombraInvisibleStop;

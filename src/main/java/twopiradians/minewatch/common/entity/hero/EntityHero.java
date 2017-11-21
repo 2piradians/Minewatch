@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.entity.hero;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAILookIdle;
@@ -15,6 +16,8 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
@@ -25,6 +28,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityHero extends EntityMob {
 
+    public static final DataParameter<Integer> SKIN = EntityDataManager.<Integer>createKey(EntityHero.class, DataSerializers.VARINT);
 	public EnumHero hero;
 	public EntityLivingBase healTarget;
 
@@ -34,8 +38,10 @@ public class EntityHero extends EntityMob {
 
 	public EntityHero(World worldIn, @Nullable EnumHero hero) {
 		super(worldIn);
-		if (hero != null)
+		if (hero != null) {
 			this.hero = hero;
+			this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
+		}
 	}
 
 	@Override
@@ -59,6 +65,7 @@ public class EntityHero extends EntityMob {
 	@Override
 	protected void entityInit() {
 		super.entityInit();
+		this.dataManager.register(SKIN, 0);
 
 		for (KeyBind key : KeyBind.values())
 			this.dataManager.register(key.datamanager, false);

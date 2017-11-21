@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity.hero;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
-import twopiradians.minewatch.common.entity.hero.EntityGenji.EntityHeroAIAttackGenji;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.hero.EnumHero;

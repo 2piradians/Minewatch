@@ -31,7 +31,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	public EntityHeroAIAttackBase(EntityHero entity, MovementType type, float maxDistance) {
 		this.entity = entity;
 		this.movementType = type;
-		this.maxAttackDistance = maxDistance * maxDistance; //XXX customizable
+		this.maxAttackDistance = maxDistance * maxDistance; //XXX customizable attack distance?
 		this.setMutexBits(3);
 	}
 
@@ -99,7 +99,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 	/**May be used in the future*/
 	protected boolean shouldUseAbility() {
-		return entity.getRNG().nextInt(25) == 0; // XXX customizable
+		return entity.getRNG().nextInt(25) == 0; // XXX customizable use abilities?
 	}
 
 	/**May be used in the future*/

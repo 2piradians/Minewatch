@@ -120,7 +120,8 @@ public class ItemMWArmor extends ItemArmor {
 			(hero.smallArms ? femaleModel : maleModel).bipedRightLegwear.showModel = true;
 		}
 
-		int skin = entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
+		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
+			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
 			hero.getSkin(entity.getPersistentID());
 		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
 		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";

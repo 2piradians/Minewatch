@@ -19,6 +19,7 @@ public class Config {
 	/**Version of this config - if loaded version is less than this, delete the config*/
 	private static final float CONFIG_VERSION = 3.4F;
 	
+	public static final String CATEGORY_HERO_MOBS = "config.server-side.hero_mobs";
 	public static final String CATEGORY_SERVER_SIDE = "config.server-side";
 	public static final String CATEGORY_CLIENT_SIDE = "config.client-side";
 	public static final String CATEGORY_HERO_SKINS = "config.client-side.hero_skins";
@@ -39,6 +40,8 @@ public class Config {
 	public static int durabilityOptionWeapons;
 	public static int trackKillsOption;
 	public static boolean preventFallDamage;
+	
+	public static boolean mobRandomSkins;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
@@ -59,6 +62,7 @@ public class Config {
 		config.setCategoryComment(Config.CATEGORY_CLIENT_SIDE, "Options that affect the client");
 		config.setCategoryComment(Config.CATEGORY_SERVER_SIDE, "Options that only take effect if changed in the server's config (or in Single-Player)");
 		config.setCategoryComment(Config.CATEGORY_HERO_SKINS, "Choose skins for each hero's armor. If you'd like to submit your own skin to be used in the mod, please message us!");
+		config.setCategoryComment(Config.CATEGORY_HERO_MOBS, "Choose options for Hero Mobs.");
 		syncConfig();
 		config.save();
 	}
@@ -119,6 +123,12 @@ public class Config {
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
 			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
+		
+		// Hero Mob options
+		
+		// TODO natural spawn, token drop multiplier, drop items, accuracy, attack cooldown, targets, random skins
+		Property mobRandomSkinsProp = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
+		mobRandomSkins = mobRandomSkinsProp.getBoolean();
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {

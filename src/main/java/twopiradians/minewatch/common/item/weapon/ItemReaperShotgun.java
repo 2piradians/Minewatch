@@ -12,7 +12,6 @@ import net.minecraft.block.BlockFence;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -396,7 +395,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
 		// wraith
 		if (TickHandler.hasHandler(entity, Identifier.REAPER_WRAITH)) { 
 			Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_WRAITH);
@@ -404,6 +403,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			float color = handler.ticksLeft > (60-delay) ? 1f-(1f-(handler.ticksLeft-60+delay)/delay)*0.6f : 
 				handler.ticksLeft < delay ? 1f-handler.ticksLeft/delay*0.6f : 0.4f;
 			GlStateManager.color(color-0.1f, color-0.1f, color-0.1f, color);
+			return true;
 		}
 		// teleport
 		else if (TickHandler.hasHandler(entity, Identifier.REAPER_TELEPORT)) { 
@@ -412,7 +412,9 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			float color = (handler.ticksLeft > (40-delay) && handler.ticksLeft < (40+delay)) ? 
 					Math.abs((handler.ticksLeft-40)/(delay*2f)) : 1f;
 					GlStateManager.color(color, color, color, color);
+					return true;
 		}
+		return false;
 	}
 
 	@Override

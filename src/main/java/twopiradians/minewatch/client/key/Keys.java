@@ -99,7 +99,7 @@ public class Keys {
 		public void setCooldown(EntityLivingBase player, int cooldown, boolean silent) {
 			if (player != null) {
 				if (player instanceof EntityHero)
-					cooldown *= 2; // XXX customizable
+					cooldown *= 2; // XXX customizable attack cooldown
 				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
 				if (player.world.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());

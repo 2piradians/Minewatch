@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
@@ -161,9 +160,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					world.spawnEntity(beam);
 					beams.put((EntityLivingBase) entity, beam);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 2.0f,	1.0f);
+							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 0.8f,	1.0f);
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 2.0f, 1.0f);
+							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 0.8f, 1.0f);
 					if (!TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN)) {
 						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 								beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);

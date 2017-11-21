@@ -96,7 +96,7 @@ public class EntityHelper {
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
 		if (shooter instanceof EntityHero)
-			inaccuracy = Math.max(5, inaccuracy * 2f); //XXX customizable
+			inaccuracy = Math.max(5, inaccuracy * 2f); //XXX customizable accuracy
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 
@@ -213,7 +213,7 @@ public class EntityHelper {
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
 			target = Minewatch.proxy.getClientPlayer();
-		// prevent hitting other EntityHero w/o teams // XXX customizable
+		// prevent hitting other EntityHero w/o teams // XXX customizable targets
 		if (entity instanceof EntityHero && target instanceof EntityHero &&
 				entity.getTeam() == null && target.getTeam() == null && !friendly)
 			return false;

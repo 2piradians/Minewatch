@@ -2,6 +2,7 @@ itemGroup.tabMinewatch=Minewatch
 config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Hero Skins
+config.server-side.hero_mobs=Hero Mobs
 effect.frozen=Frozen
 
 item.reaper_token.name=Reaper Token

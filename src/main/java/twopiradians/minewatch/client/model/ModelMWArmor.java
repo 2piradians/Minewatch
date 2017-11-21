@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -60,18 +59,18 @@ public class ModelMWArmor extends ModelPlayer {
 		if (entityIn instanceof EntityLivingBase) {
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
 			EnumHero hero = ItemMWArmor.SetManager.getWornSet(entityIn);
-			if (hero != null)
-				hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
-			
-			// frozen coloring
-			if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
-					(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
-					entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
-				int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
-						TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
-						entity.maxHurtTime = -1;
-						entity.hurtTime = -1;
-						GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
+			// only do more coloring if preRenderArmor returns false or hero is null
+			if (hero == null || !hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this)) {
+				// frozen coloring
+				if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
+						(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
+						entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+					int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
+							TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
+							entity.maxHurtTime = -1;
+							entity.hurtTime = -1;
+							GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
+				}
 			}
 		}
 	}

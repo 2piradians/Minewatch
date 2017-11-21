@@ -1,12 +1,7 @@
 package twopiradians.minewatch.common.entity.projectile;
 
-import java.util.UUID;
-
-import com.google.common.base.Optional;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;

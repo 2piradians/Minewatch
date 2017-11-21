@@ -319,7 +319,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 		// use handler for entity heroes
 		else if (entity instanceof EntityHero) {
-			cooldown *= 2f; // XXX customizable
+			cooldown *= 2f; // XXX customizable attack cooldown
 			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
 			if (handler == null)
 				TickHandler.register(entity.world.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
@@ -352,9 +352,10 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		return super.hasEffect(stack); //XXX will be used with golden weapons
 	}
 
-	/**Called before armor is rendered - mainly used for coloring / alpha*/
+	/**Called before armor is rendered - mainly used for coloring / alpha
+	 * Returns if further coloring / alpha changing should be prevented*/
 	@SideOnly(Side.CLIENT)
-	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {}
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { return false; }
 
 	/**Called before weapon is rendered*/
 	@SideOnly(Side.CLIENT)

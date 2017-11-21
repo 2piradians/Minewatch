@@ -179,7 +179,7 @@ public class CommonProxy {
 	}
 
 	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && event != null && category != null) 
+		if (entity != null && entity.isEntityAlive() && event != null && category != null) 
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat), entity.world.provider.getDimension());
 	}
 

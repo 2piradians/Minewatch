@@ -84,7 +84,10 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-
+		
+		if (!this.isEntityAlive())
+			return;
+		
 		// make body follow head
 		if (this.getHeldItemMainhand() != null && 
 				this.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&

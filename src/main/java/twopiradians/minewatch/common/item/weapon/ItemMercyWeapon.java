@@ -164,8 +164,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
 							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 0.8f, 1.0f);
 					if (!TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN)) {
-						world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-								beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, SoundCategory.PLAYERS, 2.0f, 1.0f);
+						Minewatch.proxy.playFollowingSound(entity, beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, 
+								SoundCategory.PLAYERS, 1.0f, 1.0f, false);
 						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityLivingBase) entity).setTicks(200));
 					}
 				}

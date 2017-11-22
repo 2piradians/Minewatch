@@ -1,0 +1,157 @@
+itemGroup.tabMinewatch=Minewatch
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=skins dos heróis
+config.server-side.hero_mobs=mobs heróis
+effect.frozen=Congelado
+
+item.reaper_token.name=Ficha do Reaper
+item.reaper_helmet.name=Capacete do Reaper
+item.reaper_chestplate.name=Peitoral do Reaper
+item.reaper_leggings.name=Calças do Reaper
+item.reaper_boots.name=Botas do Reaper
+item.reaper_weapon.name=Hellfire Shotguns do Reaper
+
+item.hanzo_token.name=Ficha do Hanzo
+item.hanzo_helmet.name=Capacete do Hanzo
+item.hanzo_chestplate.name=Peitoral do Hanzo
+item.hanzo_leggings.name=Calças do Hanzo
+item.hanzo_boots.name=Botas do Hanzo
+item.hanzo_weapon.name=Arco Storm do Hanzo
+
+item.reinhardt_token.name=Ficha do Reinhardt
+item.reinhardt_helmet.name=Capacete do Reinhardt
+item.reinhardt_chestplate.name=Peitoral do Reinhardt
+item.reinhardt_leggings.name=Calças do Reinhardt
+item.reinhardt_boots.name=Botas do Reinhardt
+item.reinhardt_weapon.name=Martelo Rocket do Reinhardt
+
+item.ana_token.name=Ficha da Ana
+item.ana_helmet.name=Capacete da Ana
+item.ana_chestplate.name=Peitoral da Ana
+item.ana_leggings.name=Calças da Ana
+item.ana_boots.name=Botas da Ana
+item.ana_weapon.name=Rifle Biotica da Ana
+
+item.genji_token.name=Ficha do Genji
+item.genji_helmet.name=Capacete do Genji
+item.genji_chestplate.name=Peitoral do Genji
+item.genji_leggings.name=Calças do Genji
+item.genji_boots.name=Botas do Genji
+item.genji_weapon.name=Estrelas Ninja do Genji
+item.genji_shuriken_single.name=Estrelas Ninja do Genji
+
+item.tracer_token.name=Ficha da Tracer
+item.tracer_helmet.name=Capacete da Tracer
+item.tracer_chestplate.name=Peitoral da Tracer
+item.tracer_leggings.name=Calças da Tracer
+item.tracer_boots.name=Botas da Tracer
+item.tracer_weapon.name=Pistolas de Plasma da Tracer
+
+item.mccree_token.name=Ficha do McCree
+item.mccree_helmet.name=Capacete do McCree
+item.mccree_chestplate.name=Peitoral do McCree
+item.mccree_leggings.name=Calças do McCree
+item.mccree_boots.name=Botas do McCree
+item.mccree_weapon.name=Peacekeeper do McCree
+
+item.soldier76_token.name=Ficha do Soldier 76
+item.soldier76_helmet.name=Capacete do Soldier 76
+item.soldier76_chestplate.name=Peitoral do Soldier 76
+item.soldier76_leggings.name=Calças do Soldier 76
+item.soldier76_boots.name=Botas do Soldier 76
+item.soldier76_weapon.name=Rifle de Plasma do Soldier 76
+
+item.mei_token.name=Ficha da Mei
+item.mei_helmet.name=Capacete da Mei
+item.mei_chestplate.name=Peitoral da Mei
+item.mei_leggings.name=Calças da Mei
+item.mei_boots.name=Botas da Mei
+item.mei_weapon.name=Blaster Endotermic da Mei
+
+item.bastion_token.name=Ficha do Bastion
+item.bastion_helmet.name=Capacete do Bastion
+item.bastion_chestplate.name=Peitoral do Bastion
+item.bastion_leggings.name=Calças do Bastion
+item.bastion_boots.name=Botas do Bastion
+item.bastion_weapon.name=Metralhadora do Bastion
+
+item.widowmaker_token.name=Ficha da Widowmaker
+item.widowmaker_helmet.name=Capacete da Widowmaker
+item.widowmaker_chestplate.name=Peitoral da Widowmaker
+item.widowmaker_leggings.name=Calças da Widowmaker
+item.widowmaker_boots.name=Botas da Widowmaker
+item.widowmaker_weapon.name=Beijo da Viúva
+
+item.mercy_token.name=Ficha da Mercy
+item.mercy_helmet.name=Capacete da Mercy
+item.mercy_chestplate.name=Peitoral da Mercy
+item.mercy_leggings.name=Calças da Mercy
+item.mercy_boots.name=Botas da Mercy
+item.mercy_weapon.name=Arma da Mercy
+
+item.junkrat_token.name=Ficha do Junkrat
+item.junkrat_helmet.name=Capacete do Junkrat
+item.junkrat_chestplate.name=Peitoral do Junkrat
+item.junkrat_leggings.name=Calças do Junkrat
+item.junkrat_boots.name=Botas do Junkrat
+item.junkrat_weapon.name=Lançador de granadas do Junkrat
+item.junkrat_trigger.name=Ativador da Mina de Concussão do Junkrat
+
+item.sombra_token.name=Ficha da Sombra
+item.sombra_helmet.name=Capacete da Sombra
+item.sombra_chestplate.name=Peitoral da Sombra
+item.sombra_leggings.name=Calças da Sombra
+item.sombra_boots.name=Botas da Sombra
+item.sombra_weapon.name=Pistola Automática da Sombra
+
+item.lucio_token.name=Ficha do Lucio
+item.lucio_helmet.name=Capacete do Lucio
+item.lucio_chestplate.name=Peitoral do Lucio
+item.lucio_leggings.name=Calças do Lucio
+item.lucio_boots.name=Botas do Lucio
+item.lucio_weapon.name=Amplificador de Som do Lucio
+
+item.wild_card_token.name=Carta de uma Ficha Selvagem
+
+entity.hanzo_hero.name=Hanzo
+entity.hanzo_arrow.name=Flecha do Hanzo
+entity.hanzo_sonic_arrow.name=Flecha Sónica do Hanzo
+entity.hanzo_scatter_arrow.name=Flecha Múltipla do Hanzo
+entity.reaper_hero.name=Reaper
+entity.reaper_bullet.name=Bala do Reaper
+entity.ana_hero.name=Ana
+entity.ana_bullet.name=Bala da Ana
+entity.ana_sleep_dart.name=Dardo do Sono da Ana
+entity.genji_hero.name=Genji
+entity.genji_shuriken.name=Estrela Ninja do Genji
+entity.genji_shuriken_single.name=Estrela Ninja do Genji
+entity.tracer_hero.name=Tracer
+entity.tracer_bullet.name=Bala da Tracer
+entity.mccree_hero.name=McCree
+entity.mccree_bullet.name=Bala do McCree
+entity.soldier76_hero.name=Soldier: 76
+entity.soldier76_bullet.name=Bala do Soldier 76
+entity.soldier76_helix_rocket.name=Foguete Helix do Soldier 76
+entity.bastion_hero.name=Bastion
+entity.bastion_bullet.name=Bala do Bastion
+entity.mei_hero.name=Mei
+entity.mei_blast.name=Blast da Mei
+entity.mei_icicle.name=Estalactite da Mei
+entity.mei_crystal.name=Cryo-Freeze da Mei
+entity.mercy_hero.name=Mercy
+entity.mercy_bullet.name=Bala da Mercy
+entity.mercy_beam.name=Raio da Mercy
+entity.junkrat_hero.name=Junkrat
+entity.junkrat_grenade.name=Granada do Junkrat
+entity.junkrat_trap.name=Armadilha de Aço do Junkrat
+entity.junkrat_mine.name=Mina de Concussão do Junkrat
+entity.widowmaker_hero.name=Widowmaker
+entity.widowmaker_bullet.name=Bala da Widowmaker
+entity.widowmaker_mine.name=Mina de Veneno da Widowmaker
+entity.sombra_hero.name=Sombra
+entity.sombra_bullet.name=Bala da Sombra
+entity.sombra_translocator.name=Transportador da Sombra
+entity.reinhardt_hero.name=Reinhardt
+entity.reinhardt_strike.name=Ataque de Fogo do Reinhardt
+entity.lucio_hero.name=Lucio

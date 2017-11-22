@@ -49,6 +49,7 @@ public class EntityHeroAINearestHealableTarget<T extends EntityLivingBase> exten
 			return false;
 	}
 
+	@Override
 	public void startExecuting() {
 		if (entity instanceof EntityHero)
 			((EntityHero)entity).healTarget = this.targetEntity;
@@ -56,5 +57,12 @@ public class EntityHeroAINearestHealableTarget<T extends EntityLivingBase> exten
 		super.startExecuting();
 		entity.setAttackTarget(prevTarget);
 	}
+	
+	@Override
+    public void resetTask() {
+		if (entity instanceof EntityHero)
+			((EntityHero)entity).healTarget = null;
+        this.target = null;
+    }
 
 }

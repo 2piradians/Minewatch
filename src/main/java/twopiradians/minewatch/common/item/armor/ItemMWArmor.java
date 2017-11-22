@@ -45,6 +45,7 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -370,13 +371,17 @@ public class ItemMWArmor extends ItemArmor {
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
 			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
-				player.motionY *= 0.75f;
-				player.fallDistance *= 0.75f;
+				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
+				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(player) && !world.isRemote) {
 					world.playSound(null, player.posX, player.posY, player.posZ, 
 							ModSoundEvents.mercyHover, SoundCategory.PLAYERS, 0.2f, 1.0f);
 					playersHovering.add(player);
 				}
+				if (world.isRemote)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
+							player.posX+world.rand.nextFloat()-0.5f, player.posY+(player.getEyeHeight()-player.height/2f), player.posZ+world.rand.nextFloat()-0.5f, 
+							0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 10, 1f+world.rand.nextFloat(), 0.3f, world.rand.nextFloat(), world.rand.nextFloat());
 			}
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);

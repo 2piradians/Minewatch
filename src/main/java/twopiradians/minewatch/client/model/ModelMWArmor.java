@@ -29,6 +29,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 		super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
+		GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 		GlStateManager.disableBlend();
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();

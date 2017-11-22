@@ -27,6 +27,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -57,6 +58,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionY = (position.yCoord - entity.posY)/10;
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
+			
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
+					entity.posX+entity.world.rand.nextFloat()-0.5f, entity.posY+(entity.getEyeHeight()-entity.height/2f), entity.posZ+entity.world.rand.nextFloat()-0.5f, 
+					0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 20, 1f+entity.world.rand.nextFloat(), 0.3f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat());
 
 			return super.onClientTick() || KeyBind.JUMP.isKeyDown(entityLiving) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; 	

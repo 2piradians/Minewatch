@@ -199,9 +199,6 @@ public class EntityHelper {
 		// can't hit creative players
 		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
 			return false;
-		/*// only heal heal target
-		if (thrower instanceof EntityHero && friendly && ((EntityHero)thrower).healTarget == entityHit)
-			return false;*/
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 

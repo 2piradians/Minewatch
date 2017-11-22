@@ -48,7 +48,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
 			else if (entity instanceof EntityHero)
-				SPacketSimple.move((EntityLivingBase) entity, 9, false);
+				SPacketSimple.move((EntityLivingBase) entity, 9, false, true);
 			hero.ability2.subtractUse((EntityLivingBase) entity);
 			hero.ability2.keybind.setCooldown((EntityLivingBase) entity, 3, true); 
 		}

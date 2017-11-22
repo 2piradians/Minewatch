@@ -34,7 +34,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			if (this.entityLiving != null) {
 				entityLiving.onGround = true;
 				if (entityLiving == Minecraft.getMinecraft().player)
-					SPacketSimple.move(entityLiving, 0.6d, false);
+					SPacketSimple.move(entityLiving, 0.6d, false, false);
 				if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, entityLiving.world, 
 							entityLiving.prevPosX+entityLiving.world.rand.nextDouble()-0.5d, 
@@ -49,7 +49,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.entityLiving instanceof EntityHero) {
 				((EntityHero) this.entityLiving).getMoveHelper().action = EntityMoveHelper.Action.WAIT;
-				SPacketSimple.move(entityLiving, 0.6d, false);
+				SPacketSimple.move(entityLiving, 0.6d, false, false);
 			}
 			return super.onServerTick();
 		}
@@ -137,7 +137,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
 			Minewatch.network.sendToDimension(new SPacketSimple(2, entity, true), world.provider.getDimension());
 			if (entity instanceof EntityHero)
-				SPacketSimple.move((EntityLivingBase) entity, 0.6d, false);
+				SPacketSimple.move((EntityLivingBase) entity, 0.6d, false, false);
 			this.setCurrentAmmo((EntityLivingBase)entity, this.getMaxAmmo((EntityLivingBase) entity));
 			TickHandler.register(false, ROLL.setEntity(entity).setTicks(10));
 			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(hero.ability2));

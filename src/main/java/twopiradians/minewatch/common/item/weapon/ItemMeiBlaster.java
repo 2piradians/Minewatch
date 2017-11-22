@@ -60,7 +60,8 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		public Handler onClientRemove() {
 			Minewatch.proxy.stopSound(Minecraft.getMinecraft().player, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS);
 			Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStop, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-			Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
+			if (entity == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
 			return super.onClientRemove();
 		}
 		@Override

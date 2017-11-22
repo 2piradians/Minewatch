@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.entity.hero;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAILookIdle;
@@ -18,8 +17,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -28,8 +30,9 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class EntityHero extends EntityMob {
 
-    public static final DataParameter<Integer> SKIN = EntityDataManager.<Integer>createKey(EntityHero.class, DataSerializers.VARINT);
+	public static final DataParameter<Integer> SKIN = EntityDataManager.<Integer>createKey(EntityHero.class, DataSerializers.VARINT);
 	public EnumHero hero;
+	@Nullable
 	public EntityLivingBase healTarget;
 
 	public EntityHero(World worldIn) {
@@ -40,7 +43,8 @@ public class EntityHero extends EntityMob {
 		super(worldIn);
 		if (hero != null) {
 			this.hero = hero;
-			this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
+			if (Config.mobRandomSkins)
+				this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
 		}
 	}
 
@@ -83,22 +87,26 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
-		
+		super.onUpdate(); this.setGlowing(true); // FIXME
+
 		if (!this.isEntityAlive())
 			return;
-		
+
+		// reset to default skin if random skins disabled
+		if (!world.isRemote && !Config.mobRandomSkins && this.getDataManager().get(SKIN) != 0)
+			this.getDataManager().set(SKIN, 0);
+
 		// make body follow head
 		if (this.getHeldItemMainhand() != null && 
 				this.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
 				(KeyBind.LMB.isKeyDown(this) || KeyBind.RMB.isKeyDown(this))) {
 			this.renderYawOffset = this.rotationYawHead;
 		}
-		
+
 		// clear dead target
 		if (this.getAttackTarget() != null && !this.getAttackTarget().isEntityAlive())
 			this.setAttackTarget(null);
-		
+
 		// update items and armor
 		this.setLeftHanded(false);
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
@@ -107,7 +115,7 @@ public class EntityHero extends EntityMob {
 				stack = new ItemStack(hero.getEquipment(slot));
 				this.setItemStackToSlot(slot, stack);
 			}
-			
+
 			if (stack != null && stack.getItem() instanceof ItemMWArmor)
 				((ItemMWArmor)stack.getItem()).onArmorTick(world, this, stack);
 			if (stack != null)
@@ -125,12 +133,27 @@ public class EntityHero extends EntityMob {
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 	}
-
+	
 	@Override
 	public boolean getCanSpawnHere() {
-		return super.getCanSpawnHere();
+        return super.getCanSpawnHere();
+    }
+
+	@Override
+	protected boolean isValidLightLevel() {
+		return Config.mobSpawn == 1 ? super.isValidLightLevel() : this.rand.nextInt(30) == 0;
 	}
 
+	@Override
+	public float getBlockPathWeight(BlockPos pos) {
+		return Config.mobSpawn == 1 ? super.getBlockPathWeight(pos) : 0;
+	}
+
+	@Override
+    public int getMaxSpawnedInChunk() {
+        return 1;
+    }
+	
 	@Override
 	protected boolean canDropLoot() {
 		return true;

@@ -20,12 +20,14 @@ public class EntityMercy extends EntityHero {
 	}
 
 	@Override
-	public void onUpdate() {
-		if (!this.onGround)
-			this.getDataManager().set(KeyBind.JUMP.datamanager, true);
-		else
-			this.getDataManager().set(KeyBind.JUMP.datamanager, false);
-		
+	public void onUpdate() {		
+		// glide down
+		if (!this.world.isRemote) 
+			if (this.fallDistance > 0.8f && !this.onGround) 
+				this.getDataManager().set(KeyBind.JUMP.datamanager, true);
+			else 
+				this.getDataManager().set(KeyBind.JUMP.datamanager, false);
+
 		super.onUpdate();
 	}
 

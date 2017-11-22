@@ -150,13 +150,13 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.z);
 	}
 
-	public static void move(EntityLivingBase player, double scale, boolean useLook) {
+	public static void move(EntityLivingBase player, double scale, boolean useLook, boolean giveMotionY) {
 		Vec3d vec = new Vec3d(player.motionX, 0, player.motionZ);
 		if (vec.xCoord == 0 && vec.zCoord == 0) 
 			vec = new Vec3d(player.getLookVec().xCoord, 0, player.getLookVec().zCoord);
 		if (useLook)
 			vec = new Vec3d(player.getLookVec().xCoord, player.getLookVec().yCoord, player.getLookVec().zCoord);
-		if (!player.onGround/* && player instanceof EntityPlayer*/) {
+		if (!player.onGround && (player instanceof EntityPlayer || giveMotionY)) {
 			player.motionY = 0.24d;
 			player.velocityChanged = true;
 		}
@@ -179,7 +179,7 @@ public class SPacketSimple implements IMessage {
 					// Tracer's dash
 					if (packet.type == 0) {
 						player.setSneaking(false);
-						move(player, 9, false);
+						move(player, 9, false, true);
 					}
 					// Reaper's teleport
 					else if (packet.type == 1 && entity instanceof EntityLivingBase) {
@@ -203,7 +203,7 @@ public class SPacketSimple implements IMessage {
 									EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(11));
 						}
 						if (entity == player)
-							move((EntityLivingBase) entity, 0.6d, false);
+							move((EntityLivingBase) entity, 0.6d, false, false);
 					}
 					// Genji's strike
 					else if (packet.type == 3 && entity != null) {
@@ -212,7 +212,7 @@ public class SPacketSimple implements IMessage {
 								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
 								EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(9));
 						if (entity == player) 
-							move(player, 1.8d, false);
+							move(player, 1.8d, false, true);
 					}
 					// Genji's use sword
 					else if (packet.type == 4 && entity != null) {

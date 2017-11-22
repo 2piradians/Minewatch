@@ -49,10 +49,11 @@ public class EntityReaper extends EntityHero {
 				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 			
 			// teleport
-			if (distance > Math.sqrt(this.maxAttackDistance) && this.isFacingTarget()) {
+			if (distance > Math.sqrt(this.maxAttackDistance) && this.isFacingTarget() && 
+					hero.ability1.keybind.getCooldown(entity) == 0) {
 				this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
-				this.lookYOffset = -2f;
+				this.lookYOffset = -target.getEyeHeight()-0.3f;
 			}
 			else {
 				this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);

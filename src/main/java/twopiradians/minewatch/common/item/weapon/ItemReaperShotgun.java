@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -129,7 +130,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					}
 				}
 				// particles
-				if (entityLiving == Minecraft.getMinecraft().player) {
+				if (this.ticksLeft != -1 || entityLiving == Minecraft.getMinecraft().player) {
 					if (entityLiving.ticksExisted % 2 == 0)
 						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 1);
 					else if (entityLiving.ticksExisted % 3 == 0)
@@ -275,7 +276,12 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				else if (KeyBind.LMB.isKeyDown(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
-					if (tpVec != null && !world.isRemote) {
+					// don't tp if hero and tp is less than 10 blocks or tp is farther from attack target than current position
+					if (tpVec != null && !world.isRemote && 
+							!(player instanceof EntityHero && (player.getPositionVector().distanceTo(tpVec) < 10 || 
+									(((EntityHero)player).getAttackTarget() != null && 
+									player.getDistanceToEntity(((EntityHero)player).getAttackTarget()) < 
+									((EntityHero)player).getAttackTarget().getPositionVector().distanceTo(tpVec))))) {
 						player.rotationPitch = 0;
 						Minewatch.network.sendToAll(new SPacketSimple(1, player, false, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
 						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f, false);

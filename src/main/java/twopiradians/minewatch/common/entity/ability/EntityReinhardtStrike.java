@@ -25,7 +25,7 @@ public class EntityReinhardtStrike extends EntityMW {
 	public EntityReinhardtStrike(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn, -1);
 		this.setSize(1.5f, 2f);
-		this.lifetime = Integer.MAX_VALUE;
+		this.lifetime = 6000;
 		this.setNoGravity(true);
 	}
 

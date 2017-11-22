@@ -77,7 +77,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				entityLiving.setActiveHand(EnumHand.MAIN_HAND);
 
 			if (entityLiving == Minecraft.getMinecraft().player)
-				SPacketSimple.move(entityLiving, 1.5f, true);
+				SPacketSimple.move(entityLiving, 1.5f, true, true);
 
 			if (entityLiving instanceof EntityPlayerSP)
 				((EntityPlayerSP)entityLiving).movementInput.sneak = false;
@@ -99,11 +99,6 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 						prevY+(y-prevY)*i/numParticles+entityLiving.height/2+(entityLiving.world.rand.nextDouble()-0.5d)*0.1d+0.2d, 
 						prevZ+(z-prevZ)*i/numParticles+(entityLiving.world.rand.nextDouble()-0.5d)*0.1d, 
 						0, 0, 0, 0xAAB85A, 0xF4FCB6, 1, 7, 0, 1);
-				/*if (player != null) {
-					player.chasingPosX = player.prevPosX;
-					player.chasingPosY = player.prevPosY;
-					player.chasingPosZ = player.prevPosZ;
-				}*/
 			}
 			return super.onClientTick();
 		}
@@ -111,7 +106,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (entityLiving instanceof EntityHero)
-				SPacketSimple.move(entityLiving, 1.5f, true);
+				SPacketSimple.move(entityLiving, 1.5f, true, true);
 			
 			// block while striking
 			if (entityLiving.getHeldItemMainhand() != null && entityLiving.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
@@ -209,7 +204,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (isSelected && !world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				if (player instanceof EntityHero)
-					SPacketSimple.move(player, 1.8d, false);
+					SPacketSimple.move(player, 1.8d, false, true);
 				Minewatch.network.sendToDimension(new SPacketSimple(4, player, true, 40, 0, 0), world.provider.getDimension());
 				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));

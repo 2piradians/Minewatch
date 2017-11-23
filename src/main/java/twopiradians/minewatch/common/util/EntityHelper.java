@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -210,12 +211,15 @@ public class EntityHelper {
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
 			target = Minewatch.proxy.getClientPlayer();
-		// prevent hitting other EntityHero w/o teams // XXX customizable targets
-		if (entity instanceof EntityHero && target instanceof EntityHero &&
-				entity.getTeam() == null && target.getTeam() == null && !friendly)
-			return false;
 		entity = getThrower(entity);
 		target = getThrower(target);
+		// prevent EntityHero attacking/targeting things it shouldn't
+		if (entity instanceof EntityHero && target != null && !friendly &&
+				((target instanceof EntityPlayer && !Config.mobTargetPlayers) ||
+						(target.isCreatureType(EnumCreatureType.MONSTER, false) && !Config.mobTargetHostiles && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && !Config.mobTargetPassives && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(target instanceof EntityHero && !Config.mobTargetHeroes)))
+			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 
 				entity.isOnSameTeam(target) == friendly);

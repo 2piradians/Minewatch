@@ -27,7 +27,6 @@ public class EntityBastion extends EntityHero {
 				this.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 		}
 
-
 		super.onUpdate();
 	}
 

@@ -63,6 +63,10 @@ public class Config {
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
 	public static int mobSpawnFreq;
+	public static boolean mobTargetPlayers;
+	public static boolean mobTargetHostiles;
+	public static boolean mobTargetPassives;
+	public static boolean mobTargetHeroes;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
@@ -90,26 +94,26 @@ public class Config {
 
 	public static void syncConfig() {		
 		// CLIENT-SIDE
-		Property use3DModelsprop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
-		useObjModels = use3DModelsprop.getBoolean();
+		Property prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
+		useObjModels = prop.getBoolean();
 
-		Property customCrosshairsProp = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom crosshairs", true, "Should weapons change your crosshair?");
-		customCrosshairs = customCrosshairsProp.getBoolean();
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom crosshairs", true, "Should weapons change your crosshair?");
+		customCrosshairs = prop.getBoolean();
 
-		Property guiScaleProp = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
-		Config.guiScale = guiScaleProp.getDouble();
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
+		Config.guiScale = prop.getDouble();
 
-		Property trackKillsProp = config.get(Config.CATEGORY_CLIENT_SIDE, "Track kills and damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Track kills and damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
 		for (int i=0; i<TRACK_KILLS_OPTIONS.length; ++i)
-			if (trackKillsProp.getString().equals(TRACK_KILLS_OPTIONS[i]))
+			if (prop.getString().equals(TRACK_KILLS_OPTIONS[i]))
 				Config.trackKillsOption = i;
 
 		UUID uuid = Minewatch.proxy.getClientUUID();
 		if (uuid != null) {
 			for (EnumHero hero : EnumHero.values()) {
-				Property heroTextureProp = getHeroTextureProp(hero);
+				prop = getHeroTextureProp(hero);
 				for (int i=0; i<hero.skinCredits.length; ++i)
-					if (hero.skinCredits[i].equalsIgnoreCase(heroTextureProp.getString()))
+					if (hero.skinCredits[i].equalsIgnoreCase(prop.getString()))
 						hero.setSkin(uuid, i);
 			}
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
@@ -117,56 +121,67 @@ public class Config {
 
 		// SERVER-SIDE (make sure all new options are synced with command)
 
-		Property preventFallDamageProp = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", false, "Should fall damage be prevented while wearing a full set of hero armor?");
-		preventFallDamage = preventFallDamageProp.getBoolean();
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", false, "Should fall damage be prevented while wearing a full set of hero armor?");
+		preventFallDamage = prop.getBoolean();
 
-		Property allowGunWarningsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
-		allowGunWarnings = allowGunWarningsProp.getBoolean();
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
+		allowGunWarnings = prop.getBoolean();
 
-		Property projectilesCauseKnockbackProp = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
-		projectilesCauseKnockback = projectilesCauseKnockbackProp.getBoolean();
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
+		projectilesCauseKnockback = prop.getBoolean();
 
-		Property tokenDropRateProp = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
-		tokenDropRate = tokenDropRateProp.getInt();
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
+		tokenDropRate = prop.getInt();
 
-		Property wildCardRateProp = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a wild card token.", 0, 100);
-		wildCardRate = wildCardRateProp.getInt();
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a wild card token.", 0, 100);
+		wildCardRate = prop.getInt();
 
-		Property damageScaleProp = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
-		Config.damageScale = (float) (0.1d * damageScaleProp.getDouble());
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
+		Config.damageScale = (float) (0.1d * prop.getDouble());
 
-		Property durabilityArmorsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
-			if (durabilityArmorsProp.getString().equals(DURABILITY_OPTIONS[i]))
+			if (prop.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionArmors = i;
 
-		Property durabilityWeaponsProp = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons use durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons use durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
-			if (durabilityWeaponsProp.getString().equals(DURABILITY_OPTIONS[i]))
+			if (prop.getString().equals(DURABILITY_OPTIONS[i]))
 				Config.durabilityOptionWeapons = i;
 
 		// Hero Mob options
 
-		// TODO natural spawn, token drop multiplier, drop items, accuracy, attack cooldown, targets, can despawn
-		Property mobRandomSkinsProp = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
-		mobRandomSkins = mobRandomSkinsProp.getBoolean();
+		// TODO token drop multiplier, drop items, accuracy, attack cooldown
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
+		mobRandomSkins = prop.getBoolean();
 		
-		Property mobSpawnProp = config.get(Config.CATEGORY_HERO_MOBS, "Spawning", SPAWN_OPTIONS[0], "Choose when Hero Mobs should spawn.", SPAWN_OPTIONS);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning", SPAWN_OPTIONS[0], "Choose when Hero Mobs should spawn.", SPAWN_OPTIONS);
 		for (int i=0; i<SPAWN_OPTIONS.length; ++i)
-			if (mobSpawnProp.getString().equals(SPAWN_OPTIONS[i]))
+			if (prop.getString().equals(SPAWN_OPTIONS[i]))
 				Config.mobSpawn = i;
 		
-		Property mobSpawnFreqProp = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[1], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
 		for (int i=0; i<SPAWN_FREQ_OPTIONS.length; ++i)
-			if (mobSpawnFreqProp.getString().equals(SPAWN_FREQ_OPTIONS[i]))
+			if (prop.getString().equals(SPAWN_FREQ_OPTIONS[i]))
 				Config.mobSpawnFreq = i;
 
 		for (EnumHero hero : EnumHero.values()) 
 			if (Config.mobSpawnFreq == 0 || Config.mobSpawn == 2)
-				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
+				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 			else
 				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 2), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
-	System.out.println((int) Math.pow(Config.mobSpawnFreq, 2)); // TODO
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
+		mobTargetPlayers = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hostile Mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		mobTargetHostiles = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Passive Mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		mobTargetPassives = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Other Hero Mobs", false, "Should Hero Mobs target other Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		mobTargetHeroes = prop.getBoolean();
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {

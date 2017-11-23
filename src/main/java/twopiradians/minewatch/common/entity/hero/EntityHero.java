@@ -27,6 +27,7 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackabl
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityHero extends EntityMob {
 
@@ -87,8 +88,9 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate(); this.setGlowing(true); // FIXME
+		super.onUpdate(); 
 
+		// stop doing things when dead
 		if (!this.isEntityAlive())
 			return;
 
@@ -103,8 +105,9 @@ public class EntityHero extends EntityMob {
 			this.renderYawOffset = this.rotationYawHead;
 		}
 
-		// clear dead target
-		if (this.getAttackTarget() != null && !this.getAttackTarget().isEntityAlive())
+		// clear dead/invalid target
+		if (!this.world.isRemote && this.getAttackTarget() != null && 
+				(!this.getAttackTarget().isEntityAlive() || !EntityHelper.shouldHit(this, this.getAttackTarget(), false)))
 			this.setAttackTarget(null);
 
 		// update items and armor
@@ -124,24 +127,8 @@ public class EntityHero extends EntityMob {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
-		return compound;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
-	}
-	
-	@Override
-	public boolean getCanSpawnHere() {
-        return super.getCanSpawnHere();
-    }
-
-	@Override
 	protected boolean isValidLightLevel() {
-		return Config.mobSpawn == 1 ? super.isValidLightLevel() : this.rand.nextInt(30) == 0;
+		return this.rand.nextInt(world.isDaytime() ? 50 : 20) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
 	}
 
 	@Override
@@ -159,7 +146,7 @@ public class EntityHero extends EntityMob {
 		return true;
 	}
 
-	/**Overridden to make public*/
+	/**Overridden to make public for ItemMWArmor genji double jump*/
 	@Override
 	public void jump() {
 		super.jump();

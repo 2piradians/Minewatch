@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.entity.hero;
 
+import java.util.Arrays;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -13,12 +15,11 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.config.Config;
@@ -47,6 +48,8 @@ public class EntityHero extends EntityMob {
 			if (Config.mobRandomSkins)
 				this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
 		}
+		Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
+		Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
 	}
 
 	@Override
@@ -89,6 +92,12 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void onUpdate() {
 		super.onUpdate(); 
+
+		// set drop chances
+		if (this.inventoryArmorDropChances[0] != Config.mobEquipmentDropRate) {
+			Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
+			Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
+		}
 
 		// stop doing things when dead
 		if (!this.isEntityAlive())
@@ -137,13 +146,19 @@ public class EntityHero extends EntityMob {
 	}
 
 	@Override
-    public int getMaxSpawnedInChunk() {
-        return 1;
-    }
-	
+	public int getMaxSpawnedInChunk() {
+		return 1;
+	}
+
 	@Override
-	protected boolean canDropLoot() {
-		return true;
+	public boolean attackEntityFrom(DamageSource source, float amount) {
+		// prevent same team damage (for non-mw attacks)
+		if (source != null && 
+				((source.getEntity() != null && source.getEntity().isOnSameTeam(this)) ||
+						(source.getSourceOfDamage() != null && source.getSourceOfDamage().isOnSameTeam(this))))
+			return false;
+		else
+			return super.attackEntityFrom(source, amount);
 	}
 
 	/**Overridden to make public for ItemMWArmor genji double jump*/

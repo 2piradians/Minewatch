@@ -97,7 +97,7 @@ public class EntityHelper {
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
 		if (shooter instanceof EntityHero)
-			inaccuracy = Math.max(5, inaccuracy * 2f); //XXX customizable accuracy
+			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 

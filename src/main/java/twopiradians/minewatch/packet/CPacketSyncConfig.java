@@ -21,11 +21,24 @@ public class CPacketSyncConfig implements IMessage {
 	private boolean preventFallDamage;
 	private boolean allowGunWarnings;
 	private boolean projectilesCauseKnockback;
-	private double tokenDropRate;
-	private double wildCardRate;
+	private int tokenDropRate;
+	private int wildCardRate;
 	private float damageScale;
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
+	
+	private boolean mobRandomSkins;
+	private int mobSpawn;
+	private int mobSpawnFreq;
+	private boolean mobTargetPlayers;
+	private boolean mobTargetHostiles;
+	private boolean mobTargetPassives;
+	private boolean mobTargetHeroes;
+	private int mobTokenDropRate;
+	private int mobWildCardDropRate;
+	private float mobEquipmentDropRate;
+	private double mobAttackCooldown;
+	private double mobInaccuracy;
 
 	public CPacketSyncConfig() {
 		if (Minewatch.proxy.getClientUUID() != null) {
@@ -38,6 +51,19 @@ public class CPacketSyncConfig implements IMessage {
 			this.damageScale = Config.damageScale;
 			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
 			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
+			
+			this.mobRandomSkins = Config.mobRandomSkins;
+			this.mobSpawn = Config.mobSpawn;
+			this.mobSpawnFreq = Config.mobSpawnFreq;
+			this.mobTargetPlayers = Config.mobTargetPlayers;
+			this.mobTargetHostiles = Config.mobTargetHostiles;
+			this.mobTargetPassives = Config.mobTargetPassives;
+			this.mobTargetHeroes = Config.mobTargetHeroes;
+			this.mobTokenDropRate = Config.mobTokenDropRate;
+			this.mobWildCardDropRate = Config.mobWildCardDropRate;
+			this.mobEquipmentDropRate = Config.mobEquipmentDropRate;
+			this.mobAttackCooldown = Config.mobAttackCooldown;
+			this.mobInaccuracy = Config.mobInaccuracy;
 		}
 	}
 
@@ -47,11 +73,24 @@ public class CPacketSyncConfig implements IMessage {
 		this.preventFallDamage = buf.readBoolean();
 		this.allowGunWarnings = buf.readBoolean();
 		this.projectilesCauseKnockback = buf.readBoolean();
-		this.tokenDropRate = buf.readDouble();
-		this.wildCardRate = buf.readDouble();
+		this.tokenDropRate = buf.readInt();
+		this.wildCardRate = buf.readInt();
 		this.damageScale = buf.readFloat();
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
+		
+		this.mobRandomSkins = buf.readBoolean();
+		this.mobSpawn = buf.readInt();
+		this.mobSpawnFreq = buf.readInt();
+		this.mobTargetPlayers = buf.readBoolean();
+		this.mobTargetHostiles = buf.readBoolean();
+		this.mobTargetPassives = buf.readBoolean();
+		this.mobTargetHeroes = buf.readBoolean();
+		this.mobTokenDropRate = buf.readInt();
+		this.mobWildCardDropRate = buf.readInt();
+		this.mobEquipmentDropRate = buf.readFloat();
+		this.mobAttackCooldown = buf.readDouble();
+		this.mobInaccuracy = buf.readDouble();
 	}
 
 	@Override
@@ -65,6 +104,19 @@ public class CPacketSyncConfig implements IMessage {
 		buf.writeFloat(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
+		
+		buf.writeBoolean(mobRandomSkins);
+		buf.writeInt(mobSpawn);
+		buf.writeInt(mobSpawnFreq);
+		buf.writeBoolean(mobTargetPlayers);
+		buf.writeBoolean(mobTargetHostiles);
+		buf.writeBoolean(mobTargetPassives);
+		buf.writeBoolean(mobTargetHeroes);
+		buf.writeInt(mobTokenDropRate);
+		buf.writeInt(mobWildCardDropRate);
+		buf.writeFloat(mobEquipmentDropRate);
+		buf.writeDouble(mobAttackCooldown);
+		buf.writeDouble(mobInaccuracy);
 	}
 
 	public static class Handler implements IMessageHandler<CPacketSyncConfig, IMessage> {
@@ -86,6 +138,20 @@ public class CPacketSyncConfig implements IMessage {
 							Config.damageScale = packet.damageScale;
 							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
 							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
+							
+							Config.mobRandomSkins = packet.mobRandomSkins;
+							Config.mobSpawn = packet.mobSpawn;
+							Config.mobSpawnFreq = packet.mobSpawnFreq;
+							Config.mobTargetPlayers = packet.mobTargetPlayers;
+							Config.mobTargetHostiles = packet.mobTargetHostiles;
+							Config.mobTargetPassives = packet.mobTargetPassives;
+							Config.mobTargetHeroes = packet.mobTargetHeroes;
+							Config.mobTokenDropRate = packet.mobTokenDropRate;
+							Config.mobWildCardDropRate = packet.mobWildCardDropRate;
+							Config.mobEquipmentDropRate = packet.mobEquipmentDropRate;
+							Config.mobAttackCooldown = packet.mobAttackCooldown;
+							Config.mobInaccuracy = packet.mobInaccuracy;
+							
 							Config.config.save();
 							player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
 						}

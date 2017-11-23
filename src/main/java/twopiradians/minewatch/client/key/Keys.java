@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -99,7 +100,7 @@ public class Keys {
 		public void setCooldown(EntityLivingBase player, int cooldown, boolean silent) {
 			if (player != null) {
 				if (player instanceof EntityHero)
-					cooldown *= 2; // XXX customizable attack cooldown
+					cooldown *= Config.mobAttackCooldown;
 				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
 				if (player.world.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());

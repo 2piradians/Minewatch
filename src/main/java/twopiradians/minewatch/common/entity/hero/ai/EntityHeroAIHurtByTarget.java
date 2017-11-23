@@ -16,7 +16,7 @@ public class EntityHeroAIHurtByTarget extends EntityAIHurtByTarget {
 	@Override
 	protected boolean isSuitableTarget(@Nullable EntityLivingBase target, boolean includeInvincibles) {
 		return super.isSuitableTarget(target, includeInvincibles) && 
-				EntityHelper.shouldHit(this.taskOwner, target, false) && target != this.taskOwner; // TODO allow targeting anything not on same team?
+				EntityHelper.shouldHit(this.taskOwner, target, false) && target != this.taskOwner;
 	}
 
 }

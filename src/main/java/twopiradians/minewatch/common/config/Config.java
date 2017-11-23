@@ -49,8 +49,8 @@ public class Config {
 	public static Configuration config;
 	public static boolean useObjModels;
 	public static float damageScale;
-	public static double tokenDropRate;
-	public static double wildCardRate;
+	public static int tokenDropRate;
+	public static int wildCardRate;
 	public static boolean allowGunWarnings;
 	public static boolean customCrosshairs;
 	public static boolean projectilesCauseKnockback;
@@ -67,6 +67,11 @@ public class Config {
 	public static boolean mobTargetHostiles;
 	public static boolean mobTargetPassives;
 	public static boolean mobTargetHeroes;
+	public static int mobTokenDropRate;
+	public static int mobWildCardDropRate;
+	public static float mobEquipmentDropRate;
+	public static double mobAttackCooldown;
+	public static double mobInaccuracy;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
@@ -101,12 +106,12 @@ public class Config {
 		customCrosshairs = prop.getBoolean();
 
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
-		Config.guiScale = prop.getDouble();
+		guiScale = prop.getDouble();
 
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Track kills and damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
 		for (int i=0; i<TRACK_KILLS_OPTIONS.length; ++i)
 			if (prop.getString().equals(TRACK_KILLS_OPTIONS[i]))
-				Config.trackKillsOption = i;
+				trackKillsOption = i;
 
 		UUID uuid = Minewatch.proxy.getClientUUID();
 		if (uuid != null) {
@@ -133,55 +138,69 @@ public class Config {
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
 		tokenDropRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a wild card token.", 0, 100);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a Wild Card token.", 0, 100);
 		wildCardRate = prop.getInt();
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
-		Config.damageScale = (float) (0.1d * prop.getDouble());
+		damageScale = (float) (0.1d * prop.getDouble());
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
 			if (prop.getString().equals(DURABILITY_OPTIONS[i]))
-				Config.durabilityOptionArmors = i;
+				durabilityOptionArmors = i;
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons use durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
 			if (prop.getString().equals(DURABILITY_OPTIONS[i]))
-				Config.durabilityOptionWeapons = i;
+				durabilityOptionWeapons = i;
 
 		// Hero Mob options
 
-		// TODO token drop multiplier, drop items, accuracy, attack cooldown
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random skins", true, "Should Hero Mobs spawn with random skins.");
 		mobRandomSkins = prop.getBoolean();
 		
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning", SPAWN_OPTIONS[0], "Choose when Hero Mobs should spawn.", SPAWN_OPTIONS);
 		for (int i=0; i<SPAWN_OPTIONS.length; ++i)
 			if (prop.getString().equals(SPAWN_OPTIONS[i]))
-				Config.mobSpawn = i;
+				mobSpawn = i;
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
 		for (int i=0; i<SPAWN_FREQ_OPTIONS.length; ++i)
 			if (prop.getString().equals(SPAWN_FREQ_OPTIONS[i]))
-				Config.mobSpawnFreq = i;
+				mobSpawnFreq = i;
 
 		for (EnumHero hero : EnumHero.values()) 
-			if (Config.mobSpawnFreq == 0 || Config.mobSpawn == 2)
+			if (mobSpawnFreq == 0 || mobSpawn == 2)
 				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 			else
 				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 2), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
 		mobTargetPlayers = prop.getBoolean();
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hostile Mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target hostile mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		mobTargetHostiles = prop.getBoolean();
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Passive Mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target passive mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		mobTargetPassives = prop.getBoolean();
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Other Hero Mobs", false, "Should Hero Mobs target other Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target other hero mobs", false, "Should Hero Mobs target other Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		mobTargetHeroes = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Token drop percentage", 25, "Percent of time a token drops from a Hero Mob upon death.\nNote: Hero Mobs will only drop tokens of their respective hero (or Wild Card tokens).", 0, 100);
+		mobTokenDropRate = prop.getInt();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Wild Card drop percentage", 10, "Percent of time a dropped token from a Hero Mob will be a Wild Card token.", 0, 100);
+		mobWildCardDropRate = prop.getInt();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment drop percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
+		mobEquipmentDropRate = prop.getInt()/100f;
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Attack Cooldown Multiplier", 2d, "Multiplied by the normal attack cooldown for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will have twice the normal cooldown.", 0, 10);
+		mobAttackCooldown = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Inaccuracy Multiplier", 2d, "Multiplied by the normal inaccuracy for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will be twice as inaccurate.", 0, 20);
+		mobInaccuracy = prop.getDouble();
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {

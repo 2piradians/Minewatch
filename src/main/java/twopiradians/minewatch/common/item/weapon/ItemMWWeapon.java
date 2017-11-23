@@ -319,7 +319,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 		// use handler for entity heroes
 		else if (entity instanceof EntityHero) {
-			cooldown *= 2f; // XXX customizable attack cooldown
+			cooldown *= Config.mobAttackCooldown;
 			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
 			if (handler == null)
 				TickHandler.register(entity.world.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));

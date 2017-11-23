@@ -18,29 +18,34 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWToken extends Item {
-	
+
 	@Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
-        return false;
-    }
-	
+	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
+		return false;
+	}
+
 	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;
 	}
-	
+
 	@SubscribeEvent
 	public void onEvent(LivingDropsEvent event) {
+		int tokenRate = event.getEntityLiving() instanceof EntityHero ? Config.mobTokenDropRate : Config.tokenDropRate;
+		int wildCardRate = event.getEntityLiving() instanceof EntityHero ? Config.mobWildCardDropRate : Config.wildCardRate;
 		if (!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityLiving 
-				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < Config.tokenDropRate * (1 + event.getLootingLevel())) {
+				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < tokenRate * (1 + event.getLootingLevel())) {
 			int i = event.getEntityLiving().world.rand.nextInt(EnumHero.values().length);
 			ItemStack stack;
-			if (event.getEntityLiving().getEntityWorld().rand.nextInt(100) < Config.wildCardRate)
+			if (event.getEntityLiving().getEntityWorld().rand.nextInt(100) < wildCardRate)
 				stack = new ItemStack(ModItems.wild_card_token);
-			else 
+			else if (event.getEntityLiving() instanceof EntityHero)
+				stack = new ItemStack(((EntityHero)event.getEntityLiving()).hero.token);
+			else
 				stack = new ItemStack(EnumHero.values()[i].token);
 			EntityItem drop = new EntityItem(event.getEntityLiving().world, event.getEntityLiving().posX, 
 					event.getEntityLiving().posY, event.getEntityLiving().posZ, stack);
@@ -49,12 +54,12 @@ public class ItemMWToken extends Item {
 	}	
 
 	public static class ItemWildCardToken extends ItemMWToken {
-		
+
 		@Override
 		public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 			if (world.isRemote)
 				Minewatch.proxy.openWildCardGui();
-			
+
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
 

@@ -11,6 +11,7 @@ import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -70,6 +71,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_bullet"), EntitySombraBullet.class, "sombra_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_translocator"), EntitySombraTranslocator.class, "sombra_translocator", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reinhardt_strike"), EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "lucio_sonic"), EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

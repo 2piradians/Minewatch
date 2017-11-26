@@ -63,10 +63,10 @@ public class Keys {
 
 		@Nullable
 		public Identifier identifier;
-		public HashSet<UUID> silentRecharge = new HashSet();
-		public HashSet<UUID> keyDownEntities = new HashSet();
+		private HashSet<UUID> silentRecharge = new HashSet();
+		private HashSet<UUID> keyDownEntities = new HashSet();
 		public HashSet<UUID> keyPressedEntities = new HashSet();
-		public HashMap<UUID, Float> fov = Maps.newHashMap();
+		private HashMap<UUID, Float> fov = Maps.newHashMap();
 		@Nullable
 		@SideOnly(Side.CLIENT)
 		public KeyBinding keyBind;

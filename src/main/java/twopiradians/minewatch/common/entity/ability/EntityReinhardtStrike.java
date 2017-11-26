@@ -75,7 +75,7 @@ public class EntityReinhardtStrike extends EntityMW {
 			}
 		}
 		
-		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, true, false);
+		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, false, false);
 	}
 	
 	@Override

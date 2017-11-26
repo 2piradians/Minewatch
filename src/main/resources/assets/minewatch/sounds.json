@@ -708,5 +708,35 @@
 			"minewatch:sombra_translocator_teleport_1",
 			"minewatch:sombra_translocator_teleport_2"
 		]
+	},
+	"lucio_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_shoot"
+		]
+	},
+	"lucio_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_reload"
+		]
+	},
+	"lucio_passive_speed": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_passive_speed"
+		]
+	},
+	"lucio_passive_heal": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_passive_heal"
+		]
+	},
+	"lucio_soundwave": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_soundwave"
+		]
 	}
 }

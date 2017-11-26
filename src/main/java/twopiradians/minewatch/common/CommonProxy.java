@@ -69,7 +69,8 @@ public class CommonProxy {
 		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
 		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
 		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
-		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike");
+		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike"),
+		HOLLOW_CIRCLE("hollow_circle");
 
 		public final ResourceLocation loc;
 		public final int frames;

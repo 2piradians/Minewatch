@@ -101,6 +101,11 @@ public class ModSoundEvents {
 	public static SoundEvent reinhardtStrikeThrow;
 	public static SoundEvent reinhardtStrikeDuring;
 	public static SoundEvent reinhardtStrikeCollide;
+	
+	public static SoundEvent lucioShoot;
+	public static SoundEvent lucioPassiveSpeed;
+	public static SoundEvent lucioPassiveHeal;
+	public static SoundEvent lucioSoundwave;
 
 	public static void preInit() {
 		for (EnumHero hero : EnumHero.values())
@@ -178,7 +183,6 @@ public class ModSoundEvents {
 		junkratTrapTriggerOwner = registerSound("junkrat_trap_trigger_owner");
 		junkratTrapTriggerVoice = registerSound("junkrat_trap_trigger_voice");
 		junkratTrapPlacedVoice = registerSound("junkrat_trap_placed_voice");
-
 		sombraShoot = registerSound("sombra_shoot");
 		sombraInvisibleStart = registerSound("sombra_invisible_start");
 		sombraInvisibleStop = registerSound("sombra_invisible_stop");
@@ -203,6 +207,11 @@ public class ModSoundEvents {
 		reinhardtStrikeThrow = registerSound("reinhardt_strike_throw");
 		reinhardtStrikeDuring = registerSound("reinhardt_strike_during");
 		reinhardtStrikeCollide = registerSound("reinhardt_strike_collide");
+		
+		lucioShoot = registerSound("lucio_shoot");
+		lucioPassiveSpeed = registerSound("lucio_passive_speed");
+		lucioPassiveHeal = registerSound("lucio_passive_heal");
+		lucioSoundwave = registerSound("lucio_soundwave");
 	}
 
 	private static SoundEvent registerSound(String soundName) {

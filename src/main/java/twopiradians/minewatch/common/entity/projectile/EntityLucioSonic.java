@@ -1,19 +1,15 @@
-package twopiradians.minewatch.common.entity.ability;
+package twopiradians.minewatch.common.entity.projectile;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityLucioSonic extends EntityMW {
@@ -32,7 +28,7 @@ public class EntityLucioSonic extends EntityMW {
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, world, shooter, 
-				0x8CAB46, 0x819765, 0.8f, 3, 3, 6, 0, 0, hand, 14, 0.53f);
+				0x8CAB46, 0x819765, 0.8f, 3, 3, 6, 0, 0, hand, 14, 0.65f);
 	}
 
 	@Override

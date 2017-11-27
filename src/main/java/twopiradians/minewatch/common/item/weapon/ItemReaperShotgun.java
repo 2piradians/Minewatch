@@ -34,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -45,6 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -437,6 +439,24 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		Handler handler = TickHandler.getHandler(entity, Identifier.REAPER_TELEPORT);
 		boolean tping = handler != null && handler.ticksLeft != -1;
 		return tping ? "_1" : "_0";
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+		// reaper's teleport/cancel overlay
+		if (TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
+				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT).ticksLeft == -1) {
+			GlStateManager.enableBlend();
+
+			double scale = 0.8d*Config.guiScale;
+			GlStateManager.scale(scale, scale, 1);
+			GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_teleport.png"));
+			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+
+			GlStateManager.disableBlend();
+		}
 	}
 
 }

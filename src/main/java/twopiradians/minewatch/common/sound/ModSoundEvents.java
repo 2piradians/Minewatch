@@ -1,119 +1,178 @@
 package twopiradians.minewatch.common.sound;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
-public class ModSoundEvents {
+public enum ModSoundEvents {
 
-	public static SoundEvent guiHover;
-	public static SoundEvent[] multikill = new SoundEvent[5];
-	public static SoundEvent kill;
-	public static SoundEvent headshot;
-	public static SoundEvent hurt;
-	public static SoundEvent abilityRecharge;
-	public static SoundEvent abilityMultiRecharge;
-	public static SoundEvent abilityNotReady;
-	public static SoundEvent wallClimb;
-	public static SoundEvent anaShoot;
-	public static SoundEvent anaHeal;
-	public static SoundEvent anaSleepShoot;
-	public static SoundEvent anaSleepHit;
-	public static SoundEvent anaSleepVoice;
-	public static SoundEvent reaperShoot;
-	public static SoundEvent reaperTeleportStart;
-	public static SoundEvent reaperTeleportDuring;
-	public static SoundEvent reaperTeleportStop;
-	public static SoundEvent reaperTeleportFinal;
-	public static SoundEvent reaperTeleportVoice;
-	public static SoundEvent reaperWraith;
-	public static SoundEvent hanzoShoot;
-	public static SoundEvent hanzoDraw;
-	public static SoundEvent hanzoSonicArrow;
-	public static SoundEvent hanzoScatterArrow;
-	public static SoundEvent reinhardtWeapon;
-	public static SoundEvent genjiShoot;
-	public static SoundEvent genjiDeflect;
-	public static SoundEvent genjiDeflectHit;
-	public static SoundEvent genjiStrike;
-	public static SoundEvent genjiJump;
-	public static SoundEvent tracerShoot;
-	public static SoundEvent tracerBlink;
-	public static SoundEvent mccreeShoot;
-	public static SoundEvent mccreeFlashbang;
-	public static SoundEvent mccreeRoll;
-	public static SoundEvent soldier76Shoot;
-	public static SoundEvent soldier76Helix;
-	public static SoundEvent bastionShoot0;
-	public static SoundEvent bastionShoot1;
-	public static SoundEvent bastionReload;
-	public static SoundEvent bastionTurretReload;
-	public static SoundEvent meiShoot;
-	public static SoundEvent meiIcicleShoot;
-	public static SoundEvent meiFreeze;
-	public static SoundEvent meiUnfreeze;
-	public static SoundEvent widowmakerScopedShoot;
-	public static SoundEvent widowmakerUnscopedShoot;
-	public static SoundEvent widowmakerCharge;
-	public static SoundEvent mercyShoot;
-	public static SoundEvent mercyHeal;
-	public static SoundEvent mercyDamage;
-	public static SoundEvent mercyHover;
-	public static SoundEvent mercyAngel;
-	public static SoundEvent mercyAngelVoice;
-	public static SoundEvent mercyBeamStart;
-	public static SoundEvent mercyBeamDuring;
-	public static SoundEvent mercyBeamStop;
-	public static SoundEvent junkratShoot;
-	public static SoundEvent junkratLaugh;
-	public static SoundEvent junkratDeath;
-	public static SoundEvent junkratGrenadeBounce;
-	public static SoundEvent junkratGrenadeExplode;
-	public static SoundEvent[] junkratGrenadeTick = new SoundEvent[4];
-	public static SoundEvent junkratTrapThrow;
-	public static SoundEvent junkratTrapLand;
-	public static SoundEvent junkratTrapTrigger;
-	public static SoundEvent junkratTrapBreak;
-	public static SoundEvent junkratTrapTriggerOwner;
-	public static SoundEvent junkratTrapTriggerVoice;
-	public static SoundEvent junkratTrapPlacedVoice;
-	public static SoundEvent sombraShoot;
-	public static SoundEvent sombraInvisibleStart;
-	public static SoundEvent sombraInvisibleStop;
-	public static SoundEvent sombraInvisibleVoice;
-	public static SoundEvent sombraTranslocatorLand;
-	public static SoundEvent sombraTranslocatorThrow;
-	public static SoundEvent sombraTranslocatorDuring;
-	public static SoundEvent sombraTranslocatorTeleport;
-	public static SoundEvent widowmakerMineThrow;
-	public static SoundEvent widowmakerMineLand;
-	public static SoundEvent widowmakerMineTrigger;
-	public static SoundEvent widowmakerMineDestroyed;
-	public static SoundEvent junkratMineThrow;
-	public static SoundEvent junkratMineLand;
-	public static SoundEvent junkratMineExplode;
-	public static SoundEvent bastionReconfigure0;
-	public static SoundEvent bastionReconfigure1;
-	public static SoundEvent meiCrystalStart;
-	public static SoundEvent meiCrystalStop;
-	public static SoundEvent reinhardtStrikeThrow;
-	public static SoundEvent reinhardtStrikeDuring;
-	public static SoundEvent reinhardtStrikeCollide;
+	/**Registry name must be equal to name.toLowerCase()
+	 * Voice lines must have "voice" in them*/
+	GUI_HOVER,
+	//public static SoundEvent[] multikill = new SoundEvent[5],
+	KILL,
+	HEADSHOT,
+	HURT,
+	ABILITY_RECHARGE,
+	ABILITY_MULTI_RECHARGE,
+	ABILITY_NOT_READY,
+	WALL_CLIMB,
+	ANA_SHOOT,
+	ANA_HEAL,
+	ANA_SLEEP_SHOOT,
+	ANA_SLEEP_HIT,
+	ANA_SLEEP_VOICE,
+	REAPER_SHOOT,
+	REAPER_TELEPORT_START,
+	REAPER_TELEPORT_DURING,
+	REAPER_TELEPORT_STOP,
+	REAPER_TELEPORT_FINAL,
+	REAPER_TELEPORT_VOICE,
+	REAPER_WRAITH,
+	HANZO_SHOOT,
+	HANZO_DRAW,
+	HANZO_SONIC_ARROW,
+	HANZO_SCATTER_ARROW,
+	REINHARDT_WEAPON,
+	GENJI_SHOOT,
+	GENJI_DEFLECT,
+	GENJI_DEFLECT_HIT,
+	GENJI_STRIKE,
+	GENJI_JUMP,
+	TRACER_SHOOT,
+	TRACER_BLINK,
+	MCCREE_SHOOT,
+	MCCREE_FLASHBANG,
+	MCCREE_ROLL,
+	SOLDIER_76_SHOOT,
+	SOLDIER_76_HELIX,
+	BASTION_SHOOT_0,
+	BASTION_SHOOT_1,
+	BASTION_RELOAD,
+	BASTION_TURRET_RELOAD,
+	MEI_SHOOT,
+	MEI_ICICLE_SHOOT,
+	MEI_FREEZE,
+	MEI_UNFREEZE,
+	WIDOWMAKER_SCOPED_SHOOT,
+	WIDOWMAKER_UNSCOPED_SHOOT,
+	WIDOWMAKER_CHARGE,
+	MERCY_SHOOT,
+	MERCY_HEAL,
+	MERCY_DAMAGE,
+	MERCY_HOVER,
+	MERCY_ANGEL,
+	MERCY_ANGEL_VOICE,
+	MERCY_BEAM_START,
+	MERCY_BEAM_DURING,
+	MERCY_BEAM_STOP,
+	JUNKRAT_SHOOT,
+	JUNKRAT_LAUGH,
+	JUNKRAT_DEATH,
+	JUNKRAT_GRENADE_BOUNCE,
+	JUNKRAT_GRENADE_EXPLODE,
+	//PUBLIC STATIC _SOUND_EVENT[] JUNKRAT_GRENADE_TICK = NEW _SOUND_EVENT[_4],
+	JUNKRAT_TRAP_THROW,
+	JUNKRAT_TRAP_LAND,
+	JUNKRAT_TRAP_TRIGGER,
+	JUNKRAT_TRAP_BREAK,
+	JUNKRAT_TRAP_TRIGGER_OWNER,
+	JUNKRAT_TRAP_TRIGGER_VOICE,
+	JUNKRAT_TRAP_PLACED_VOICE,
+	SOMBRA_SHOOT,
+	SOMBRA_INVISIBLE_START,
+	SOMBRA_INVISIBLE_STOP,
+	SOMBRA_INVISIBLE_VOICE,
+	SOMBRA_TRANSLOCATOR_LAND,
+	SOMBRA_TRANSLOCATOR_THROW,
+	SOMBRA_TRANSLOCATOR_DURING,
+	SOMBRA_TRANSLOCATOR_TELEPORT,
+	WIDOWMAKER_MINE_THROW,
+	WIDOWMAKER_MINE_LAND,
+	WIDOWMAKER_MINE_TRIGGER,
+	WIDOWMAKER_MINE_DESTROYED,
+	JUNKRAT_MINE_THROW,
+	JUNKRAT_MINE_LAND,
+	JUNKRAT_MINE_EXPLODE,
+	BASTION_RECONFIGURE_0,
+	BASTION_RECONFIGURE_1,
+	MEI_CRYSTAL_START,
+	MEI_CRYSTAL_STOP,
+	REINHARDT_STRIKE_THROW,
+	REINHARDT_STRIKE_DURING,
+	REINHARDT_STRIKE_COLLIDE,
+
+	LUCIO_SHOOT,
+	LUCIO_CROSSFADE,
+	LUCIO_AMP,
+	LUCIO_AMP_VOICE,
+	LUCIO_PASSIVE_SPEED,
+	LUCIO_PASSIVE_SPEED_VOICE,
+	LUCIO_PASSIVE_HEAL,
+	LUCIO_PASSIVE_HEAL_VOICE,
+	LUCIO_SOUNDWAVE,
+	LUCIO_SOUNDWAVE_VOICE;
+
+	private final ModSoundEvent event;
+	private final ResourceLocation loc;
+
+	public boolean isVoiceLine;
+
+	private ModSoundEvents() {
+		loc = new ResourceLocation(Minewatch.MODID, this.name().toLowerCase());
+		event = new ModSoundEvent(loc);
+		this.isVoiceLine = this.name().contains("VOICE");
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	public void playSound(Entity entity, float volume, float pitch) {
+		if (entity != null) 
+			this.playSound(entity.world, entity.posX, entity.posY, entity.posZ, volume, pitch);
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	public void playSound(World world, double x, double y, double z, float volume, float pitch) {
+		if (world != null) 
+			world.playSound(x, y, z, event, SoundCategory.PLAYERS, volume, pitch, false);
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
+		return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+	}
+
+	private void register() {
+		GameRegistry.register(event, loc);	
+	}
+
+	/**Separate Sound Event class to prevent bypassing using these methods (i.e. proxy playFollowSound method)*/
+	public class ModSoundEvent extends SoundEvent {
+
+		private ModSoundEvent(ResourceLocation soundName) {
+			super(soundName);
+		}}
+
+	//public static ModSound guiHover = new ModSound("gui_hover");
 	
-	public static SoundEvent lucioShoot;
-	public static SoundEvent lucioPassiveSpeed;
-	public static SoundEvent lucioPassiveHeal;
-	public static SoundEvent lucioSoundwave;
 
 	public static void preInit() {
-		for (EnumHero hero : EnumHero.values())
+		/*for (EnumHero hero : EnumHero.values())
 			if (hero != EnumHero.HANZO && hero != EnumHero.REINHARDT)
-				hero.reloadSound = registerSound(hero.name.toLowerCase()+"_reload"+(hero.equals(EnumHero.BASTION) ? "_0" : ""));
+				hero.reloadSound = registerSound(hero.name.toLowerCase()+"_reload"+(hero.equals(EnumHero.BASTION) ? "_0" : ""));*/
 
-		guiHover = registerSound("gui_hover");
-		for (int i=2; i<7; ++i)
+		//guiHover = registerSound("gui_hover");
+		/*for (ModSound event : ModSound.EVENTS)
+			event.register();*/
+		for (ModSoundEvents event : ModSoundEvents.values())
+			event.register();
+
+		/*for (int i=2; i<7; ++i)
 			multikill[i-2] = registerSound("multikill_"+i);
 		kill = registerSound("kill");
 		headshot = registerSound("headshot");
@@ -207,11 +266,16 @@ public class ModSoundEvents {
 		reinhardtStrikeThrow = registerSound("reinhardt_strike_throw");
 		reinhardtStrikeDuring = registerSound("reinhardt_strike_during");
 		reinhardtStrikeCollide = registerSound("reinhardt_strike_collide");
-		
+
 		lucioShoot = registerSound("lucio_shoot");
+		lucioAmp = registerSound("lucio_amp");
+		lucioAmpVoice = registerSound("lucio_amp_voice");
 		lucioPassiveSpeed = registerSound("lucio_passive_speed");
+		lucioPassiveSpeedVoice = registerSound("lucio_passive_speed_voice");
 		lucioPassiveHeal = registerSound("lucio_passive_heal");
+		lucioPassiveHealVoice = registerSound("lucio_passive_heal_voice");
 		lucioSoundwave = registerSound("lucio_soundwave");
+		lucioSoundwaveVoice = registerSound("lucio_soundwave_voice");*/
 	}
 
 	private static SoundEvent registerSound(String soundName) {

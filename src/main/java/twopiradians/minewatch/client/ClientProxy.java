@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.ImmutableMap;
@@ -78,7 +80,6 @@ import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
-import twopiradians.minewatch.common.entity.ability.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -87,6 +88,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
@@ -104,6 +106,7 @@ import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
+import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -279,13 +282,15 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.world.isRemote) {
+	@Nullable
+	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
+		if (entity != null && entity.isEntityAlive() && event != null && category != null) {
 			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+			return sound;
 		}
 		else
-			super.playFollowingSound(entity, event, category, volume, pitch, repeat);
+			return super.playFollowingSound(entity, event, category, volume, pitch, repeat);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/

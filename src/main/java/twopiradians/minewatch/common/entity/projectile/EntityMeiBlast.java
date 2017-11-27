@@ -53,7 +53,7 @@ public class EntityMeiBlast extends EntityMW {
 						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(60),
 						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(9, entityLiving, true, 60, 0, 0));
-				entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.NEUTRAL, 1.0f, 1.0f);
+				entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.meiFreeze, SoundCategory.PLAYERS, 1.0f, 1.0f);
 				Minewatch.network.sendToAll(new SPacketSimple(23, entityLiving, false, entityLiving.posX, entityLiving.posY+entityLiving.height/2, entityLiving.posZ));
 			}
 			else

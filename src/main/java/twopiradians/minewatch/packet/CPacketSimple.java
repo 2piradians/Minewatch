@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
+import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -157,6 +158,10 @@ public class CPacketSimple implements IMessage {
 						ItemStack stack = packetPlayer.getHeldItemMainhand();
 						ItemMWWeapon.setAlternate(stack, !ItemMWWeapon.isAlternate(stack));
 						Minewatch.network.sendToAll(new SPacketSimple(6, ItemMWWeapon.isAlternate(stack), packetPlayer));
+					}
+					// Lucio's soundwave
+					else if (packet.type == 4 && packetPlayer != null) {
+						ItemLucioSoundAmplifier.soundwave(packetPlayer, packet.x, packet.y, packet.z);
 					}
 				}
 			});

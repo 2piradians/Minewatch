@@ -12,6 +12,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -274,7 +275,7 @@ public class EntityHelper {
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
 	}
-	
+
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
 		Entity actualThrower = getThrower(thrower);
 		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
@@ -467,6 +468,21 @@ public class EntityHelper {
 				}
 		}
 		return nearest;
+	}
+
+	/**Returns if e1 is with maxAngle degrees of looking at e2*/
+	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
+		// calculate angles if e1 was directly facing e2
+		double d0 = e2.posX - e1.posX;
+		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1.posY + (double)e1.getEyeHeight());
+		double d2 = e2.posZ - e1.posZ;
+		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
+		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
+		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facingYaw));
+		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
+		return deltaYaw <= maxAngle && deltaPitch <= maxAngle;
 	}
 
 }

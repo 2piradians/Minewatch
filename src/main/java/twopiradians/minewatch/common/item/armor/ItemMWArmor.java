@@ -206,7 +206,7 @@ public class ItemMWArmor extends ItemArmor {
 					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
 						for (KeyBind key : Keys.KeyBind.values()) 
 							if (key.getCooldown(event.player) > 0)
-								key.setCooldown(event.player, 0, false);
+								key.setCooldown(event.player, 0, true);
 						SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
 					}
 				}

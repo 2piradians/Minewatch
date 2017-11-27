@@ -1,14 +1,23 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -52,6 +61,26 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			hero.ability2.subtractUse((EntityLivingBase) entity);
 			hero.ability2.keybind.setCooldown((EntityLivingBase) entity, 3, true); 
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+		// tracer's dash
+		GlStateManager.enableBlend();
+
+		double scale = 0.8d*Config.guiScale;
+		GlStateManager.scale(scale, scale*4, 1);
+		GlStateManager.translate((int) ((width - 83*scale)/2d / scale), (int) ((height- 80*scale)/8d / scale), 0);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
+		int uses = this.hero.ability2.getUses(player);
+		GuiUtils.drawTexturedModalRect(23, 21, 1, uses > 2 ? 1011 : 1015, 40, 4, 0);
+		GlStateManager.scale(0.75f, 0.75f, 1);
+		GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
+		GlStateManager.scale(0.75f, 0.75f, 1);
+		GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
+
+		GlStateManager.disableBlend();
 	}
 
 }

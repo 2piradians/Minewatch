@@ -721,22 +721,68 @@
 			"minewatch:lucio_reload"
 		]
 	},
+	"lucio_crossfade": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_crossfade"
+		]
+	},
+	"lucio_amp": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_amp"
+		]
+	},
+	"lucio_amp_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_amp_voice_0",
+			"minewatch:lucio_amp_voice_1",
+			"minewatch:lucio_amp_voice_2"
+		]
+	},
 	"lucio_passive_speed": {
 	"category": "player",
 		"sounds": [
 			"minewatch:lucio_passive_speed"
 		]
 	},
+	"lucio_passive_speed_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_passive_speed_voice_0",
+			"minewatch:lucio_passive_speed_voice_1",
+			"minewatch:lucio_passive_speed_voice_2",
+			"minewatch:lucio_passive_speed_voice_3"
+		]
+	},
 	"lucio_passive_heal": {
 	"category": "player",
 		"sounds": [
 			"minewatch:lucio_passive_heal"
-		]
+		] 
+	},
+	"lucio_passive_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_passive_heal_voice_0",
+			"minewatch:lucio_passive_heal_voice_1",
+			"minewatch:lucio_passive_heal_voice_2",
+			"minewatch:lucio_passive_heal_voice_3"
+		] 
 	},
 	"lucio_soundwave": {
 	"category": "player",
 		"sounds": [
 			"minewatch:lucio_soundwave"
+		]
+	},
+	"lucio_soundwave_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_soundwave_voice_0",
+			"minewatch:lucio_soundwave_voice_1",
+			"minewatch:lucio_soundwave_voice_2"
 		]
 	}
 }

@@ -13,6 +13,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
@@ -40,6 +41,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
@@ -51,6 +53,7 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 
 public class SPacketSimple implements IMessage {
@@ -496,7 +499,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(entity).setBoolean(true));
 						if (EnumHero.SOMBRA.ability2.entities.get(entity) == null || 
 								EnumHero.SOMBRA.ability2.entities.get(entity).getEntityId() != entity2.getEntityId())
-						EnumHero.SOMBRA.ability2.entities.put((EntityLivingBase) entity, entity2);
+							EnumHero.SOMBRA.ability2.entities.put((EntityLivingBase) entity, entity2);
 					}
 					// EntityHero item cooldown handler
 					else if (packet.type == 36 && entity instanceof EntityHero) {
@@ -506,6 +509,30 @@ public class SPacketSimple implements IMessage {
 							((ItemMWWeapon)main.getItem()).setCooldown(entity, (int) packet.x);
 						else if (off != null && off.getItem() instanceof ItemMWWeapon)
 							((ItemMWWeapon)off.getItem()).setCooldown(entity, (int) packet.x);
+					}
+					// Lucio's amp
+					else if (packet.type == 37) {
+						TickHandler.register(true, 
+								Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(EnumHero.LUCIO.ability2));
+					}
+					// Lucio's soundwave
+					else if (packet.type == 38 && entity instanceof EntityLivingBase) {
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 
+								0xE2EA7D, 0xABBF78, 1, 13, 1, 10, 0, 0, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 
+								0xE2EA7D, 0xABBF78, 0.9f, 13, 6, 10, 0, 0, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 15, 5+(entity.world.rand.nextFloat()-0.5f)*2f, 7+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 14, 2+(entity.world.rand.nextFloat()-0.5f)*2f, 6+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 13, 3+(entity.world.rand.nextFloat()-0.5f)*2f, 6+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						ItemLucioSoundAmplifier.soundwave((EntityLivingBase) entity, entity.motionX, entity.motionY, entity.motionZ);							
+						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.lucioSoundwave, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+					}
+					// Lucio's soundwave (player causing it)
+					else if (packet.type == 39 && packetPlayer != null) {
+						Minewatch.network.sendToServer(new CPacketSimple(4, false, packetPlayer, packetPlayer.motionX, packetPlayer.motionY, packetPlayer.motionZ));
 					}
 				}
 			});

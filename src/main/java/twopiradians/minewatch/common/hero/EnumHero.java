@@ -226,7 +226,7 @@ public enum EnumHero {
 	LUCIO("Lucio", true, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			20, 0, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
+			20, 20, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
 			new Skin("Classic", "Lúcio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
 			new Skin(TextFormatting.DARK_AQUA+"Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
 			new Skin(TextFormatting.DARK_PURPLE+"Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
@@ -235,6 +235,8 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
 			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/"));
 
+	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
+	
 	public Ability ability1;
 	public Ability ability2;
 	public Ability ability3;
@@ -526,8 +528,15 @@ public enum EnumHero {
 							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 						}
 					}
+					
+					if (weapon != null && weapon.hero == hero && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+						GlStateManager.color(1, 1, 1, 1f);
+						GlStateManager.pushMatrix();
+						weapon.preRenderGameOverlay(event, player, width, height);
+						GlStateManager.popMatrix();
+					}
 
-					// mei's crystal cancel overlay
+					/*// mei's crystal cancel overlay
 					if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
@@ -540,7 +549,7 @@ public enum EnumHero {
 
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
-					}
+					}*/
 
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
@@ -566,7 +575,7 @@ public enum EnumHero {
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
 
-						// tracer's dash
+						/*// tracer's dash
 						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.getWornSet(player) == EnumHero.TRACER) {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableBlend();
@@ -584,8 +593,8 @@ public enum EnumHero {
 
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
-						}
-						// reaper's teleport/cancel overlay
+						}*/
+						/*// reaper's teleport/cancel overlay
 						else if (weapon.hero == EnumHero.REAPER && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
 								TickHandler.getHandler(player, Identifier.REAPER_TELEPORT).ticksLeft == -1) {
 							GlStateManager.pushMatrix();
@@ -599,7 +608,7 @@ public enum EnumHero {
 
 							GlStateManager.disableBlend();
 							GlStateManager.popMatrix();
-						}
+						}*/
 					}
 
 					if (Config.customCrosshairs)

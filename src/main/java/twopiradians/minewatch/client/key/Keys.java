@@ -44,7 +44,9 @@ public class Keys {
 	public enum KeyBind {
 		NONE(Identifier.NONE), ABILITY_1(Identifier.KEYBIND_ABILITY_1), 
 		ABILITY_2(Identifier.KEYBIND_ABILITY_2), RMB(Identifier.KEYBIND_RMB),
-		LMB, HERO_INFORMATION, RELOAD, ULTIMATE, JUMP, FOV; 
+		LMB(Identifier.KEYBIND_LMB), HERO_INFORMATION(Identifier.KEYBIND_HERO_INFO), 
+		RELOAD(Identifier.KEYBIND_RELOAD), ULTIMATE(Identifier.KEYBIND_ULTIMATE), 
+		JUMP(Identifier.KEYBIND_JUMP), FOV(Identifier.KEYBIND_FOV); 
 
 		public final Handler COOLDOWNS = new Handler(null, false) {
 			@SideOnly(Side.CLIENT)
@@ -54,7 +56,7 @@ public class Keys {
 					if (silentRecharge.contains(entity.getPersistentID()))
 						silentRecharge.remove(entity.getPersistentID());
 					else
-						entity.playSound(ModSoundEvents.abilityRecharge, 0.5f, 1.0f);
+						ModSoundEvents.ABILITY_RECHARGE.playSound(entity, 0.5f, 1.0f);
 				}
 				return super.onClientRemove();
 			}
@@ -226,10 +228,8 @@ public class Keys {
 		if (main != null && main.getItem() instanceof ItemMWWeapon &&
 				player.isSneaking() && event.getDwheel() != 0 && 
 				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
-				((ItemMWWeapon)main.getItem()).hero != EnumHero.BASTION) {
+				((ItemMWWeapon)main.getItem()).hero.switchAltWithScroll) {
 			Minewatch.network.sendToServer(new CPacketSimple(3, false, player));
-			/*KeyBind.ALT_WEAPON.setKeyDown(uuid, !KeyBind.ALT_WEAPON.isKeyDown(uuid), true);
-			Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.ALT_WEAPON, KeyBind.ALT_WEAPON.isKeyDown(uuid), uuid));*/
 			event.setCanceled(true);
 		}
 	}

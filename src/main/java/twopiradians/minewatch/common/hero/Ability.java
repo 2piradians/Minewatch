@@ -117,7 +117,7 @@ public class Ability {
 	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
 		if (entity.world.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
 				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			entity.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
+			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(entity).setTicks(20));
 		}
 
@@ -134,9 +134,19 @@ public class Ability {
 
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityLivingBase player) {
+		return isSelected(player, false);
+	}
+	
+	/**Is this ability selected and able to be used*/
+	public boolean isSelected(EntityLivingBase player, boolean isPressed) {
+		return isSelected(player, isPressed, new Ability[0]);
+	}
+	
+	/**Is this ability selected and able to be used*/
+	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
+			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
@@ -144,11 +154,16 @@ public class Ability {
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
 				ItemMWArmor.SetManager.getWornSet(player) == hero) &&
-				keybind.getCooldown(player) == 0 && ((/*!this.isToggleable && */keybind.isKeyDown(player)) ||
+				keybind.getCooldown(player) == 0 && ((!isPressed && keybind.isKeyDown(player)) ||
+						(isPressed && keybind.isKeyPressed(player))||
 						toggled.contains(player.getPersistentID()));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (handler != null && handler.ability != null && !handler.bool)
+		boolean ignoreAbility = false;
+		for (Ability ability : ignoreAbilities)
+			if (handler != null && handler.ability == ability)
+				ignoreAbility = true;
+		if (handler != null && handler.ability != null && !handler.bool && !ignoreAbility)
 			return this == handler.ability;
 
 		if (ret && player.world.isRemote)

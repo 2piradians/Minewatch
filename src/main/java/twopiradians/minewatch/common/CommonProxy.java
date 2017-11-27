@@ -45,6 +45,7 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -179,9 +180,11 @@ public class CommonProxy {
 		return null;
 	}
 
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
+	@Nullable
+	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
 		if (entity != null && entity.isEntityAlive() && event != null && category != null) 
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat), entity.world.provider.getDimension());
+		return null;
 	}
 
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {

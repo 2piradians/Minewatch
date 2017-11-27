@@ -89,9 +89,8 @@ public class EntityAnaBullet extends EntityMW {
 						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, world, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
 						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
-				this.world.playSound(this.getThrower() instanceof EntityPlayer ? (EntityPlayer) this.getThrower() : null, this.getThrower().getPosition(), ModSoundEvents.anaHeal, SoundCategory.PLAYERS, 
-						0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
-				result.entityHit.playSound(ModSoundEvents.anaHeal, 0.2f, result.entityHit.world.rand.nextFloat()/2+1.5f);
+				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
+				ModSoundEvents.ANA_HEAL.playSound(result.entityHit, 0.2f, result.entityHit.world.rand.nextFloat()/2+1.5f);
 			}
 		}
 		// damage

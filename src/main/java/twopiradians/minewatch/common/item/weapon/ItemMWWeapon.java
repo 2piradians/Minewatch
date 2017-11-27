@@ -31,6 +31,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -138,11 +139,22 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
 	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
+		return canUse(player, shouldWarn, hand, ignoreAmmo, new Ability[0]);
+	}
+	
+	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
+	 * Also checks that weapon is not on cooldown.
+	 * Warns player if something is incorrect.*/
+	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo, Ability...ignoreAbilities) {
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
+		boolean ignoreAbility = false;
+		for (Ability ability : ignoreAbilities)
+			if (handler != null && handler.ability == ability)
+				ignoreAbility = true;
 		if (player == null || !player.isEntityAlive() || (hasCooldown(player) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
-				(handler != null && !handler.bool))
+				(handler != null && !handler.bool && !ignoreAbility))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -361,6 +373,10 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
+	/**Called before game overlay is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
+	
 	/**Set weapon model's color*/
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -445,5 +461,5 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 		return false;
 	}
-
+	
 }

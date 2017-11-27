@@ -1,8 +1,8 @@
 package twopiradians.minewatch.common.entity;
 
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
@@ -11,7 +11,6 @@ import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
-import twopiradians.minewatch.common.entity.ability.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -20,6 +19,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
@@ -77,7 +77,11 @@ public class ModEntities {
     /**Get spawn egg for given entity class*/
 	public static ItemStack getSpawnEgg(ResourceLocation id) {
 		ItemStack stack = new ItemStack(Items.SPAWN_EGG);
-		ItemMonsterPlacer.applyEntityIdToItemStack(stack, id);
+		NBTTagCompound nbt = new NBTTagCompound();    	
+		nbt.setString("id", id.toString());
+		NBTTagCompound nbt2 = new NBTTagCompound();
+		nbt2.setTag("EntityTag", nbt);
+		stack.setTagCompound(nbt2);
 		return stack;
 	}
 	

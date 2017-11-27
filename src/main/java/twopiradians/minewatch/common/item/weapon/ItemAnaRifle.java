@@ -124,9 +124,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
 				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
-						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				ModSoundEvents.ANA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)

@@ -1,18 +1,23 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -171,6 +176,23 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (Minecraft.getMinecraft().world != null &&
 				TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.MEI_CRYSTAL)) 
 			event.setNewfov(event.getFov()+0.8f);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+		// mei's crystal cancel overlay
+		if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
+			GlStateManager.enableBlend();
+
+			double scale = 0.8d*Config.guiScale;
+			GlStateManager.scale(scale, scale, 1);
+			GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/mei_crystal.png"));
+			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+
+			GlStateManager.disableBlend();
+		}
 	}
 
 }

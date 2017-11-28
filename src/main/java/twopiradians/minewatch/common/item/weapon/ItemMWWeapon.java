@@ -371,7 +371,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
-	/**Called before game overlay is rendered*/
+	/**Called before game overlay is rendered if wearing set and holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
 	

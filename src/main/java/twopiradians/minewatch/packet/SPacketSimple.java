@@ -316,7 +316,7 @@ public class SPacketSimple implements IMessage {
 										ModSoundEvents.MULTIKILL_4.stopSound(player);
 										ModSoundEvents.MULTIKILL_5.stopSound(player);
 										ModSoundEvents.MULTIKILL_6.stopSound(player);
-										ModSoundEvents.valueOf("MULTIKILL_"+handler.number).playFollowingSound(player, 1, 1, false);
+										ModSoundEvents.valueOf("MULTIKILL_"+(int)handler.number).playFollowingSound(player, 1, 1, false);
 									}
 								}
 							}

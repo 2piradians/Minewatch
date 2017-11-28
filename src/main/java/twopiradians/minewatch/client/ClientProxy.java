@@ -284,7 +284,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	@Nullable
 	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && entity.isEntityAlive() && event != null && category != null) {
+		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.world.isRemote) {
 			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 			return sound;

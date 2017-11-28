@@ -5,23 +5,32 @@ import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -44,6 +53,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
+	public int affectedEntities;
 	@SideOnly(Side.CLIENT)
 	public static HashMap<UUID, FollowingSound> healSounds = Maps.newHashMap();
 	@SideOnly(Side.CLIENT)
@@ -126,23 +136,29 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			boolean amp = TickHandler.hasHandler(player, Identifier.LUCIO_AMP);
 
 			// passive
-			if (doPassive && !world.isRemote && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
+			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
+				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
+					this.affectedEntities = 0;
 				for (Entity entity2 : world.getEntitiesWithinAABBExcludingEntity(player, 
 						new AxisAlignedBB(player.getPosition().add(-10, -10, -10), 
 								player.getPosition().add(10, 10, 10))))
 					// nearby
 					if (entity2 instanceof EntityLivingBase && entity2.getDistanceToEntity(player) <= 10 &&
 					EntityHelper.shouldHit(player, entity2, true)) {
-						if (heal)
-							EntityHelper.attemptDamage(player, entity2, amp ? -7.02f : -2.4375f, true);
-						else
-							((EntityLivingBase)entity2).addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, amp ? 3 : 1, true, false));
+						if (!world.isRemote)
+							if (heal)
+								EntityHelper.attemptDamage(player, entity2, amp ? -7.02f : -2.4375f, true);
+							else
+								((EntityLivingBase)entity2).addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, amp ? 3 : 1, true, false));
+						else if (player == Minewatch.proxy.getClientPlayer())
+							++this.affectedEntities;
 					}
 				// self
-				if (heal)
-					EntityHelper.attemptDamage(player, player, amp ? -5.265f : -1.828125f, true);
-				else
-					player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, amp ? 3 : 1, true, false));
+				if (!world.isRemote)
+					if (heal)
+						EntityHelper.attemptDamage(player, player, amp ? -5.265f : -1.828125f, true);
+					else
+						player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, amp ? 3 : 1, true, false));
 			}
 
 			// amp
@@ -175,7 +191,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90)) {
 					double distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
-					Vec3d base = player.getLookVec().scale(1.5d);
+					Vec3d base = player.getLookVec().scale(2d);
 					entity.motionX += (Math.abs(motionX)*look.xCoord+base.xCoord) * (8-distance) / 8f;
 					entity.motionY += (Math.abs(motionY+0.08d)*look.yCoord+base.yCoord+0.08d) * (8-distance) / 8f;
 					entity.motionZ += (Math.abs(motionZ)*look.zCoord+base.zCoord) * (8-distance) / 8f;
@@ -238,14 +254,119 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
+		GlStateManager.pushMatrix();
 		boolean heal = isAlternate(player.getHeldItemMainhand());
 		double scale = 0.3d*Config.guiScale;
 		GlStateManager.scale(scale, scale, 1);
 		GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_passive.png"));
 		GuiUtils.drawTexturedModalRect((int) ((heal ? -8 : 10) / scale), (int) (50 / scale), 0, heal ? 100 : 0, 256, 100, 0);
+		GlStateManager.popMatrix();
+		if (this.affectedEntities > 0)
+			Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(String.valueOf(this.affectedEntities), 
+					(int) (width/2d - Minecraft.getMinecraft().fontRendererObj.getStringWidth(String.valueOf(this.affectedEntities))/2d)+1, 
+					(int) (height/2d)+22, 0xFFFFFF);
 
 		GlStateManager.disableBlend();
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void renderCircle(RenderWorldLastEvent event) {
+		for (Entity entity : Minecraft.getMinecraft().world.loadedEntityList) {
+			if (entity instanceof EntityLivingBase && ItemMWArmor.SetManager.getWornSet(entity) == EnumHero.LUCIO && 
+					((EntityLivingBase) entity).getHeldItemMainhand() != null && 
+					((EntityLivingBase) entity).getHeldItemMainhand().getItem() == this &&
+					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, true)) {
+				
+				float partialTicks = event.getPartialTicks();
+				Entity player = Minecraft.getMinecraft().getRenderViewEntity();
+				if (player == null)
+					player = Minecraft.getMinecraft().player;
+	            double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
+	            double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
+	            double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
+	            double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
+	            double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
+	            double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
+				double x = entityX-playerX;
+				double y = entityY-playerY;
+				double z = entityZ-playerZ;
+				
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+				Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_circle.png"));
+				GlStateManager.depthMask(false);
+				float f = 10;//this.shadowSize;
+
+				int i = MathHelper.floor(entityX - (double)f);
+				int j = MathHelper.floor(entityX + (double)f);
+				int k = MathHelper.floor(entityY - (double)f);
+				int l = MathHelper.floor(entityY + 1);
+				int i1 = MathHelper.floor(entityZ - (double)f);
+				int j1 = MathHelper.floor(entityZ + (double)f);
+				double d2 = x - entityX;
+				double d3 = y - entityY;
+				double d4 = z - entityZ;
+				Tessellator tessellator = Tessellator.getInstance();
+				VertexBuffer vertexbuffer = tessellator.getBuffer();
+				vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+
+				boolean heal = isAlternate(((EntityLivingBase)entity).getHeldItemMainhand());
+				for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(i, k, i1), new BlockPos(j, l, j1)))
+				{
+					IBlockState iblockstate = entity.world.getBlockState(blockpos.down());
+
+					if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE && entity.world.getLightFromNeighbors(blockpos) > 3)
+					{
+						this.renderShadowSingle(entity.world, iblockstate, 
+								heal ? 253f/255f : 9f/255f, heal ? 253f/255f : 222f/255f, heal ? 71f/255f : 123f/255f, 
+										x, y, z, blockpos, 1, 10, d2, d3, d4);
+					}
+				}
+
+				tessellator.draw();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.disableBlend();
+				GlStateManager.depthMask(true);
+				GlStateManager.popMatrix();
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void renderShadowSingle(World world, IBlockState state, float red, float green, float blue, double x, double y, double z, BlockPos pos, float one, float size, double x2, double y2, double z2)
+	{
+		if (!state.isTranslucent() || state.getBlock() == Blocks.SNOW_LAYER)
+		{
+			Tessellator tessellator = Tessellator.getInstance();
+			VertexBuffer vertexbuffer = tessellator.getBuffer();
+			double d0 = ((double)one - (y - ((double)pos.getY() + y2)) / 2.0D) * 0.5D * (double)world.getLightBrightness(pos);
+
+			if (d0 >= 0.0D)
+			{
+				if (d0 > 1.0D)
+				{
+					d0 = 1.0D;
+				}
+
+				AxisAlignedBB axisalignedbb = state.getBoundingBox(world, pos);
+				double d1 = (double)pos.getX() + axisalignedbb.minX + x2;
+				double d2 = (double)pos.getX() + axisalignedbb.maxX + x2;
+				double d3 = (double)pos.getY() + axisalignedbb.minY + y2 + 0.015625D - (1d-axisalignedbb.maxY);
+				double d4 = (double)pos.getZ() + axisalignedbb.minZ + z2;
+				double d5 = (double)pos.getZ() + axisalignedbb.maxZ + z2;
+				float f = (float)((x - d1) / 2.0D / (double)size + 0.5D);
+				float f1 = (float)((x - d2) / 2.0D / (double)size + 0.5D);
+				float f2 = (float)((z - d4) / 2.0D / (double)size + 0.5D);
+				float f3 = (float)((z - d5) / 2.0D / (double)size + 0.5D);
+				vertexbuffer.pos(d1, d3, d4).tex((double)f, (double)f2).color(red, green, blue, (float)d0).endVertex();
+				vertexbuffer.pos(d1, d3, d5).tex((double)f, (double)f3).color(red, green, blue, (float)d0).endVertex();
+				vertexbuffer.pos(d2, d3, d5).tex((double)f1, (double)f3).color(red, green, blue, (float)d0).endVertex();
+				vertexbuffer.pos(d2, d3, d4).tex((double)f1, (double)f2).color(red, green, blue, (float)d0).endVertex();
+			}
+		}
 	}
 
 }

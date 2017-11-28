@@ -8,7 +8,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 
@@ -60,7 +59,7 @@ public class SPacketFollowingSound implements IMessage{
 				@Override
 				public void run() {
 					Entity entity = Minecraft.getMinecraft().world.getEntityByID(packet.entity);
-					Minewatch.proxy.playFollowingSound(entity, packet.sound, packet.category, packet.volume, packet.pitch, packet.repeat);
+					packet.sound.event.playFollowingSound(entity, packet.volume, packet.pitch, packet.repeat);
 				}
 			});
 			return null;

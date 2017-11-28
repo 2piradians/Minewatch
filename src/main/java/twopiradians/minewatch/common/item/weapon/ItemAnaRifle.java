@@ -15,7 +15,6 @@ import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
@@ -147,9 +146,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYawHead, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
 				world.spawnEntity(dart);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 
-						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				ModSoundEvents.ANA_SLEEP_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				if (player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(21, false, (EntityPlayer) player, 10, 0, 0), (EntityPlayerMP) player);
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
@@ -182,8 +179,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					handler.ticksLeft = 10;
 			}
 			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));
-			for (EntityPlayer player : event.getEntity().world.playerEntities)
-				Minewatch.proxy.stopSound(player, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS);
+			ModSoundEvents.ANA_SLEEP_HIT.stopSound(event.getEntity().world);
 		}
 	}
 

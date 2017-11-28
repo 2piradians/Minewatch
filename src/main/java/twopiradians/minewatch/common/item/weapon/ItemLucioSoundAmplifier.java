@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,7 +18,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,7 +28,6 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
@@ -70,7 +67,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 				EntityHelper.setAim(sonic, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 50f, 0, EnumHand.MAIN_HAND, 12, 0.15f);
 				entityLiving.world.spawnEntity(sonic);
 				if (this.ticksLeft >= this.initialTicks - 2)
-					Minewatch.proxy.playFollowingSound(entityLiving, ModSoundEvents.lucioShoot, SoundCategory.PLAYERS, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/20+0.95f, false);
+					ModSoundEvents.LUCIO_SHOOT.playFollowingSound(entityLiving, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/20+0.95f, false);
 				EnumHero.LUCIO.weapon.subtractFromCurrentAmmo(entityLiving, 1);
 				if (entityLiving.world.rand.nextInt(25) == 0)
 					entityLiving.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, entityLiving);
@@ -120,6 +117,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			// crossfade
 			if (!world.isRemote && hero.ability3.isSelected(player, true, hero.ability1, hero.ability2) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
+				ModSoundEvents.LUCIO_CROSSFADE.playFollowingSound(player, 1, 1, false);
 				setAlternate(stack, !isAlternate(stack));
 				doPassive = true;
 			}
@@ -152,6 +150,8 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, AMP.setEntity(player).setTicks(60),
 						Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2));
+				ModSoundEvents.LUCIO_AMP.playFollowingSound(player, 1, 1, false);
+				ModSoundEvents.LUCIO_AMP_VOICE.playFollowingSound(player, 1, 1, false);
 				if (player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(37), (EntityPlayerMP) player);
 			}
@@ -169,7 +169,8 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
 	/**Do soundwave effect - with specified motion instead of player's motion (bc players only have motion on client)*/
 	public static void soundwave(EntityLivingBase player, double motionX, double motionY, double motionZ) {
-		if (player != null)
+		if (player != null) {
+			boolean playSound = false;
 			for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, player.getEntityBoundingBox().expandXyz(7))) 
 				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90)) {
 					double distance = player.getDistanceToEntity(entity);
@@ -181,7 +182,13 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					entity.velocityChanged = true;
 					entity.onGround = false;
 					entity.isAirBorne = true;
+					if (!player.world.isRemote)
+						EntityHelper.attemptDamage(player, entity, 25, false);
+					playSound = true;
 				}
+			if (playSound && !player.world.isRemote)
+				ModSoundEvents.LUCIO_SOUNDWAVE_VOICE.playFollowingSound(player, 1, 1, false);
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -203,27 +210,23 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			else if (heal && !healSounds.containsKey(uuid)) {
 				FollowingSound.stopPlaying(speedSounds.get(uuid));
 				speedSounds.remove(uuid);
-				FollowingSound sound = Minewatch.proxy instanceof ClientProxy ? 
-						((ClientProxy)Minewatch.proxy).playFollowingSound2
-						(event.getEntityLiving(), ModSoundEvents.lucioPassiveHeal, 
-								SoundCategory.PLAYERS, 1.0f, 1.0f, true) : null;
-						if (sound != null) {
-							sound.lucioSound = true;
-							healSounds.put(uuid, sound);
-						}
+				FollowingSound sound = (FollowingSound) ModSoundEvents.LUCIO_PASSIVE_HEAL.playFollowingSound(event.getEntityLiving(), 0.8f, 1, true);
+				ModSoundEvents.LUCIO_PASSIVE_HEAL_VOICE.playFollowingSound(event.getEntityLiving(), 1.0f, 1.0f, false);
+				if (sound != null) {
+					sound.lucioSound = true;
+					healSounds.put(uuid, sound);
+				}
 			}
 			// play speed
 			else if (!heal && !speedSounds.containsKey(uuid)) {
 				FollowingSound.stopPlaying(healSounds.get(uuid));
 				healSounds.remove(uuid);
-				FollowingSound sound = Minewatch.proxy instanceof ClientProxy ? 
-						((ClientProxy)Minewatch.proxy).playFollowingSound2
-						(event.getEntityLiving(), ModSoundEvents.lucioPassiveSpeed, 
-								SoundCategory.PLAYERS, 1.0f, 1.0f, true) : null;
-						if (sound != null) {
-							sound.lucioSound = true;
-							speedSounds.put(uuid, sound);
-						}
+				FollowingSound sound = (FollowingSound) ModSoundEvents.LUCIO_PASSIVE_SPEED.playFollowingSound(event.getEntityLiving(), 0.8f, 1, true);
+				ModSoundEvents.LUCIO_PASSIVE_SPEED_VOICE.playFollowingSound(event.getEntityLiving(), 1.0f, 1.0f, false);
+				if (sound != null) {
+					sound.lucioSound = true;
+					speedSounds.put(uuid, sound);
+				}
 			}
 		}
 	}

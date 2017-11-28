@@ -14,9 +14,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -44,7 +42,6 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 	public static final Handler NOT_REGENING_SERVER = new Handler(Identifier.MERCY_NOT_REGENING, false) {};
 	public static HashMap<EntityLivingBase, EntityMercyBeam> beams = Maps.newHashMap();
-	public static final Handler VOICE_COOLDOWN_SERVER = new Handler(Identifier.MERCY_VOICE_COOLDOWN, false) {};
 
 	public static final Handler ANGEL = new Handler(Identifier.MERCY_ANGEL, true) {
 		@Override
@@ -58,7 +55,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionY = (position.yCoord - entity.posY)/10;
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
-			
+
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
 					entity.posX+entity.world.rand.nextFloat()-0.5f, entity.posY+(entity.getEyeHeight()-entity.height/2f), entity.posZ+entity.world.rand.nextFloat()-0.5f, 
 					0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 20, 1f+entity.world.rand.nextFloat(), 0.3f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat());
@@ -83,7 +80,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onClientRemove() {
 			if (this.entityLiving != null) {
-				Minewatch.proxy.stopSound(Minecraft.getMinecraft().player, ModSoundEvents.mercyAngel, SoundCategory.PLAYERS);
+				ModSoundEvents.MERCY_ANGEL.stopSound(Minecraft.getMinecraft().player);
 				TickHandler.unregister(entityLiving.world.isRemote, 
 						TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING));
 			}
@@ -126,10 +123,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 45, 0.6F, hand, 8.5f, 0.6f);
 				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.mercyShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-						world.rand.nextFloat()/2+0.75f);	
-
+				ModSoundEvents.MERCY_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 5);
 				if (world.rand.nextInt(20) == 0)
@@ -150,9 +144,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				beams.remove(entity);
 				// stop sound
 				if (entity instanceof EntityPlayerMP) 
-					Minewatch.proxy.stopSound((EntityPlayerMP) entity, ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS);
-				world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-						ModSoundEvents.mercyBeamStop, SoundCategory.PLAYERS, 2.0f, 1.0f);
+					ModSoundEvents.MERCY_BEAM_DURING.stopSound((EntityPlayerMP) entity);
+				ModSoundEvents.MERCY_BEAM_STOP.playSound(entity, 2.0f, 1.0f);
 			}
 			// spawn beam
 			if (isStaff(stack) && 
@@ -164,15 +157,12 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
 					world.spawnEntity(beam);
 					beams.put((EntityLivingBase) entity, beam);
-					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 0.8f,	1.0f);
-					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 0.8f, 1.0f);
-					if (!TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN)) {
-						Minewatch.proxy.playFollowingSound(entity, beam.isHealing() ? ModSoundEvents.mercyHeal : ModSoundEvents.mercyDamage, 
-								SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityLivingBase) entity).setTicks(200));
-					}
+					ModSoundEvents.MERCY_BEAM_START.playSound(entity, 0.8f, 1f);
+					ModSoundEvents.MERCY_BEAM_DURING.playSound(entity, 0.8f, 1f);
+					if (beam.isHealing())
+						ModSoundEvents.MERCY_HEAL.playFollowingSound(entity, 1, 1, false);
+					else
+						ModSoundEvents.MERCY_DAMAGE.playFollowingSound(entity, 1, 1, false);
 				}
 			}
 			if (beams.containsKey(entity) && beams.get(entity).target != null) {
@@ -182,12 +172,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				}
 				// during sound
 				if (entity.ticksExisted % 20 == 0)
-					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamDuring, SoundCategory.PLAYERS, 0.8f, 1.0f);
+					ModSoundEvents.MERCY_BEAM_DURING.playSound(entity, 0.8f, 1);
 				// switch sound
 				if (beams.get(entity).prevHeal != beams.get(entity).isHealing()) {
-					world.playSound(null, entity.posX, entity.posY, entity.posZ, 
-							ModSoundEvents.mercyBeamStart, SoundCategory.PLAYERS, 0.8f,	1.0f);
+					ModSoundEvents.MERCY_BEAM_START.playSound(entity, 0.8f, 1);
 					beams.get(entity).prevHeal = beams.get(entity).isHealing();
 				}
 			}
@@ -200,11 +188,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
 							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));
-					boolean playSound = !TickHandler.hasHandler(entity, Identifier.MERCY_VOICE_COOLDOWN) &&
-							world.rand.nextInt(3) == 0;
-					if (playSound)
-						TickHandler.register(false, VOICE_COOLDOWN_SERVER.setEntity((EntityLivingBase) entity).setTicks(200));
-					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, playSound, vec.xCoord, vec.yCoord, vec.zCoord));
+					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, world.rand.nextInt(3) == 0, vec.xCoord, vec.yCoord, vec.zCoord));
 				}
 			}
 
@@ -230,9 +214,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				if (beam.player instanceof EntityPlayerMP)
-					((EntityPlayerMP)beam.player).connection.sendPacket((new SPacketSoundEffect
-							(ModSoundEvents.hurt, SoundCategory.PLAYERS, source.posX, source.posY, source.posZ, 
-									0.3f, source.world.rand.nextFloat()/2+0.75f)));
+					Minewatch.network.sendTo(new SPacketSimple(39, source, false), (EntityPlayerMP)beam.player);
 				break;
 			}
 		}

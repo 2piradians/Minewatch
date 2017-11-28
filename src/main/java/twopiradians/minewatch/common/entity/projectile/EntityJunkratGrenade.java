@@ -6,7 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -104,8 +103,7 @@ public class EntityJunkratGrenade extends EntityMW {
 					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
 					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 10, 10, 0, 0);
 			if (this.isDeathGrenade)
-				this.world.playSound(this.posX, this.posY, this.posZ, ModSoundEvents.junkratGrenadeExplode, 
-						SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+				ModSoundEvents.JUNKRAT_GRENADE_EXPLODE.playSound(this, 1, 1);
 		}
 		else {
 			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 

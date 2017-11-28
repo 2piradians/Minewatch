@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -92,8 +91,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						hero.ability2.keybind.setCooldown(player, 400, false); 
 
-						worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoSonicArrow, 
-								SoundCategory.PLAYERS, 1.0f, 1.0f);
+						ModSoundEvents.HANZO_SONIC_ARROW.playSound(player, 1.0f, 1.0f);
 					}
 					// scatter arrow
 					else if (hero.ability1.isSelected(player)) {
@@ -103,8 +101,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						hero.ability1.keybind.setCooldown(player, 200, false); 
 
 						if (worldIn.rand.nextBoolean())
-							worldIn.playSound(null, player.getPosition(), ModSoundEvents.hanzoScatterArrow, 
-									SoundCategory.PLAYERS, 1.0f, 1.0f);
+							ModSoundEvents.HANZO_SCATTER_ARROW.playSound(player, 1.0f, 1.0f);
 					}
 					// regular arrow
 					else { 
@@ -116,9 +113,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					worldIn.spawnEntity(entityarrow);
 				}
 
-				worldIn.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.hanzoShoot, SoundCategory.PLAYERS, 
-						worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
+				ModSoundEvents.HANZO_SHOOT.playSound(player, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
 				if (!flag1 && player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode) {
 					itemstack.shrink(1);
@@ -157,8 +152,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		}
 		else if (this.canUse(player, true, handIn, false)) {
 			player.setActiveHand(handIn);
-			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.hanzoDraw, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2+0.75f);
+			ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 		else

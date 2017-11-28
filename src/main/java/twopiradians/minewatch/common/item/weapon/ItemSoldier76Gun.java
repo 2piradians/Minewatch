@@ -14,7 +14,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -53,8 +52,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 					world.spawnEntity(rocket);
 				}
 				hero.ability1.keybind.setCooldown(player, 160, false);
-				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Helix, 
-						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				ModSoundEvents.SOLDIER76_HELIX.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
 				player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
@@ -99,8 +97,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2.4F, hand, 12, 0.45f);
 			world.spawnEntity(bullet);
-			world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.soldier76Shoot, 
-					SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+			ModSoundEvents.SOLDIER76_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);

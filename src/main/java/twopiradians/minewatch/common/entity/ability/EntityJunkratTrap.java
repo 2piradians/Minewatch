@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,7 +59,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			ModSoundEvents.JUNKRAT_TRAP_LAND.playSound(this, 1, 1);
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
@@ -94,7 +93,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 						Minewatch.network.sendToAll(new SPacketSimple(25, true, 
 								this.getThrower() instanceof EntityPlayer ? (EntityPlayer)this.getThrower() : null, 
 										0, 0, 0, this, this.trappedEntity));
-						world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS, 1.0f, 1.0f);
+						ModSoundEvents.JUNKRAT_TRAP_TRIGGER.playSound(this, 1, 1);
 					}
 					else {
 						this.setDead();
@@ -143,9 +142,8 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	public void setDead() {
 		this.isDead = true;
 		if (!this.world.isRemote) {
-			for (EntityPlayer player : world.playerEntities) 
-				Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapTrigger, SoundCategory.PLAYERS);
-			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratTrapBreak, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			ModSoundEvents.JUNKRAT_TRAP_TRIGGER.stopSound(this.world);
+			ModSoundEvents.JUNKRAT_TRAP_BREAK.playSound(this, 1, 1);
 			Minewatch.network.sendToDimension(new SPacketSimple(26, this, true, posX, posY, posZ), this.world.provider.getDimension());
 		}
 	}

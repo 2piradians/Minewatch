@@ -28,9 +28,7 @@ public class FollowingSound extends MovingSound {
 
 		// junkrat grenade tick
 		if (entity instanceof EntityJunkratGrenade)
-			for (int i=0; i<ModSoundEvents.junkratGrenadeTick.length; ++i)
-				if (event.equals(ModSoundEvents.junkratGrenadeTick[i]))
-					junkratGrenadeBounces = i;
+			junkratGrenadeBounces = ((EntityJunkratGrenade)entity).bounces;
 	}
 
 	public void update() {
@@ -51,5 +49,5 @@ public class FollowingSound extends MovingSound {
 		if (sound != null)
 			sound.donePlaying = true;
 	}
-	
+
 }

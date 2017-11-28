@@ -530,7 +530,7 @@
 			"minewatch:junkrat_reload"
 		]
 	},
-	"junkrat_laugh": {
+	"junkrat_laugh_voice": {
 	"category": "player",
 		"sounds": [
 			"minewatch:junkrat_laugh_0",

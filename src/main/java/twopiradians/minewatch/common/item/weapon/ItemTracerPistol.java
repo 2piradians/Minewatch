@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -38,7 +37,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2, hand, 7, 0.58f);
 			player.world.spawnEntity(bullet);
-			player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.tracerShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/20+0.95f);	
+			ModSoundEvents.TRACER_SHOOT.playSound(player, 1.0f, player.world.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(40) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
@@ -53,7 +52,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
 				!world.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 			entity.setSneaking(false);
-			world.playSound(null, entity.getPosition(), ModSoundEvents.tracerBlink, SoundCategory.PLAYERS, 1.0f, world.rand.nextFloat()/2f+0.75f);
+			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, world.rand.nextFloat()/2f+0.75f);
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
 			else if (entity instanceof EntityHero)

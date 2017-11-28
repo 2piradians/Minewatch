@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -77,10 +76,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, hand.ordinal(), false);
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 10, 0.5f);
 			world.spawnEntity(bullet);
-			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.mccreeShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-					world.rand.nextFloat()/2+0.75f);	
-
+			ModSoundEvents.MCCREE_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			this.setCooldown(player, 9);
 			if (world.rand.nextInt(6) == 0)
@@ -112,9 +108,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			if (!entity.world.isRemote && hand != null) {
 				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity, hand.ordinal(), true);
 				EntityHelper.setAim(bullet, entity, entity.rotationPitch, entity.rotationYawHead, -1, 3F, hand, 10, 0.5f);
-				entity.world.spawnEntity(bullet);				
-				entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, ModSoundEvents.mccreeShoot, 
-						SoundCategory.PLAYERS, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);	
+				entity.world.spawnEntity(bullet);	
+				ModSoundEvents.MCCREE_SHOOT.playSound(entity, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);
 				if (count == this.getMaxItemUseDuration(stack))
 					this.subtractFromCurrentAmmo(entity, 1, hand);
 				else
@@ -134,7 +129,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		// roll
 		if (isSelected && entity.onGround && entity instanceof EntityLivingBase && hero.ability2.isSelected((EntityLivingBase) entity) &&
 				!world.isRemote && this.canUse((EntityLivingBase) entity, true, getHand((EntityLivingBase) entity, stack), true)) {
-			world.playSound(null, entity.getPosition(), ModSoundEvents.mccreeRoll, SoundCategory.PLAYERS, 1.3f, world.rand.nextFloat()/4f+0.8f);
+			ModSoundEvents.MCCREE_ROLL.playFollowingSound(entity, 1.3f, world.rand.nextFloat()/4f+0.8f, false);
 			Minewatch.network.sendToDimension(new SPacketSimple(2, entity, true), world.provider.getDimension());
 			if (entity instanceof EntityHero)
 				SPacketSimple.move((EntityLivingBase) entity, 0.6d, false, false);

@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity.ability;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,10 +59,10 @@ public class EntitySombraTranslocator extends EntityMW {
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
 			if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
-				Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.sombraTranslocatorLand, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+				ModSoundEvents.SOMBRA_TRANSLOCATOR_LAND.playFollowingSound(this.getThrower(), 1, 1, false);
 			if (!this.playedSound) {
 				if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
-					Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.sombraTranslocatorDuring, SoundCategory.PLAYERS, 0.8f, 1.0f, false);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.playFollowingSound(this.getThrower(), 0.8f, 1, false);
 				this.playedSound = true;
 				if (!this.world.isRemote) 
 					this.lifetime = this.ticksExisted + 235;

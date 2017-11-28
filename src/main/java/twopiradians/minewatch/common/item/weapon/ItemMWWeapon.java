@@ -26,7 +26,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -117,8 +116,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			this.setCooldown(player, reloadTime, true);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null)
-				Minewatch.proxy.playFollowingSound(player, hero.reloadSound, SoundCategory.PLAYERS, 1.0f, 
-						player.world.rand.nextFloat()/2+0.75f, false);
+				hero.reloadSound.playFollowingSound(player, 1.0f, player.world.rand.nextFloat()/2+0.75f, false);
 		}
 	}
 

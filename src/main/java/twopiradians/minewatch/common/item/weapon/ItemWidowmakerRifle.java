@@ -13,7 +13,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
@@ -61,12 +60,12 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		if (player.world.isRemote) {
 			int time = this.getMaxItemUseDuration(stack)-count-10;
 			if (time == 4) 
-				player.playSound(ModSoundEvents.widowmakerCharge, 0.3f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.3f, 1f);
 			else if (time == 10)
-				player.playSound(ModSoundEvents.widowmakerCharge, 0.5f, 1.1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.5f, 1f);
 			else if (time == 15) {
-				player.playSound(ModSoundEvents.widowmakerCharge, 0.8f, 1.8f);
-				player.playSound(ModSoundEvents.widowmakerCharge, 0.1f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.8f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.1f, 1f);
 			}
 		}
 	}
@@ -92,7 +91,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
-				world.playSound(null, player.getPosition(), ModSoundEvents.widowmakerMineThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 300, false); 
@@ -115,7 +114,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 							(int) (12+(120d-12d)*getPower(player)));
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0, null, 10, 0);
 					player.world.spawnEntity(bullet);
-					player.world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerScopedShoot, SoundCategory.PLAYERS, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.WIDOWMAKER_SHOOT_1.playSound(player, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);
 					this.setCooldown(player, 10);
 					this.subtractFromCurrentAmmo(player, 3);
 					if (player.world.rand.nextInt(10) == 0)
@@ -131,7 +130,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 3, hand, 6, 0.43f);
 					world.spawnEntity(bullet);
-					world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.widowmakerUnscopedShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);	
+					ModSoundEvents.WIDOWMAKER_SHOOT_0.playSound(player, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);
 					this.subtractFromCurrentAmmo(player, 1);
 					if (world.rand.nextInt(30) == 0)
 						player.getHeldItem(hand).damageItem(1, player);

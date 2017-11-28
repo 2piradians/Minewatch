@@ -14,7 +14,6 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -106,9 +105,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
 					this.attack(stack, player, entity);
-			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
-					1.0F, player.world.rand.nextFloat()/3+0.8f);
+			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);
 			this.setCooldown(player, 20);
 		}
 	}

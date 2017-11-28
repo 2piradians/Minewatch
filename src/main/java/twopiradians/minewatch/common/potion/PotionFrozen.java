@@ -11,7 +11,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,8 +59,7 @@ public class PotionFrozen extends Potion {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
 		Minewatch.network.sendToDimension(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ), entity.world.provider.getDimension());
-		entity.world.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.PLAYERS, 0.8f, 1.0f);
-
+		ModSoundEvents.MEI_UNFREEZE.playSound(entity, 0.8f, 1);
 		// remove potion effect on client
 		if (entity instanceof EntityPlayerMP)
 			Minewatch.network.sendTo(new SPacketSimple(8), (EntityPlayerMP) entity);

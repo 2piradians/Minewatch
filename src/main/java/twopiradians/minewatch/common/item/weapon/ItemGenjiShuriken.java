@@ -20,7 +20,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
@@ -119,7 +118,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			for (Entity entityCollided : list) 
 				if (entityCollided instanceof EntityLivingBase)
 					if (EntityHelper.attemptDamage(entityLiving, entityCollided, 50, false, false))
-						entityCollided.world.playSound(null, entityCollided.getPosition(), ModSoundEvents.hurt, SoundCategory.PLAYERS, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
+						ModSoundEvents.HURT.playSound(entityCollided, 0.3f, entityCollided.world.rand.nextFloat()/2+0.75f);
 			return super.onServerTick();
 		}
 		@SideOnly(Side.CLIENT)
@@ -162,9 +161,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player, hand.ordinal());
 			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead, 60, 1, hand, 15, 0.6f);
 			player.world.spawnEntity(shuriken);
-			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-					player.world.rand.nextFloat()/2+0.75f);	
+			ModSoundEvents.GENJI_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
 				this.setCooldown(player, 15);
@@ -182,8 +179,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead + (1 - i)*8, 60, 1, hand, 15, 0.6f);
 				player.world.spawnEntity(shuriken);
 			}
-			player.world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.genjiShoot, SoundCategory.PLAYERS, 1.0f, player.world.rand.nextFloat()/2+0.75f);
+			ModSoundEvents.GENJI_SHOOT.playSound(player, 1, player.world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 3, hand);
 			if (world.rand.nextInt(8) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
@@ -208,7 +204,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				Minewatch.network.sendToDimension(new SPacketSimple(4, player, true, 40, 0, 0), world.provider.getDimension());
 				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.genjiDeflect, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+				ModSoundEvents.GENJI_DEFLECT.playFollowingSound(entity, 1, 1, false);
 			}
 
 			// strike
@@ -217,7 +213,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
 				Minewatch.network.sendToDimension(new SPacketSimple(3, (EntityLivingBase) entity, true), world.provider.getDimension());
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.genjiStrike, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+				ModSoundEvents.GENJI_STRIKE.playFollowingSound(entity, 1, 1, false);
 			}
 		}
 	}	
@@ -263,7 +259,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
 			else
 				entity.velocityChanged = true;
-			player.world.playSound(null, player.getPosition(), ModSoundEvents.genjiDeflectHit, SoundCategory.PLAYERS, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
+			ModSoundEvents.GENJI_DEFLECT_HIT.playSound(player, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
 			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false), player.world.provider.getDimension());
 			return true;
 		}

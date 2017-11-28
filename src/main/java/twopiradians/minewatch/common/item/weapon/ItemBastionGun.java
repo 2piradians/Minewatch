@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,7 +46,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
 				setAlternate(entityLiving.getHeldItemMainhand(), false);
-				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
+				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 			}
 
 			return super.onClientTick();
@@ -68,7 +67,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
 				setAlternate(entityLiving.getHeldItemMainhand(), false);
-				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
+				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 			}
 
 			return super.onServerTick();
@@ -93,9 +92,10 @@ public class ItemBastionGun extends ItemMWWeapon {
 				else
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						turret ? ModSoundEvents.bastionShoot1 : ModSoundEvents.bastionShoot0, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-								world.rand.nextFloat()/3+0.8f);	
+				if (turret)
+					ModSoundEvents.BASTION_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+				else
+					ModSoundEvents.BASTION_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
@@ -117,7 +117,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
 				setAlternate(stack, false);
 				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));//TEST other player dying in turret -> still looks like turret to me
-				hero.reloadSound = ModSoundEvents.bastionReload;
+				hero.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}
 
@@ -127,9 +127,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 				boolean turret = false;
 				setAlternate(stack, !isAlternate(stack));
 				if (!isAlternate(stack)) 
-					hero.reloadSound = ModSoundEvents.bastionReload;
+					hero.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 				else {
-					hero.reloadSound = ModSoundEvents.bastionTurretReload;
+					hero.reloadSound = ModSoundEvents.BASTION_RELOAD_1;
 					turret = true;
 				}
 				if (turret) 

@@ -10,7 +10,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
@@ -63,8 +62,8 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			Minewatch.proxy.stopSound(Minecraft.getMinecraft().player, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS);
-			Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStop, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+			ModSoundEvents.MEI_CRYSTAL_START.stopSound(Minecraft.getMinecraft().player);
+			ModSoundEvents.MEI_CRYSTAL_STOP.playFollowingSound(entity, 1, 1, false);
 			if (entity == Minecraft.getMinecraft().player)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
 			return super.onClientRemove();
@@ -91,10 +90,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 20, 0.6F, hand, 14, 0.8f);
 			world.spawnEntity(bullet);
-			world.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.meiShoot, SoundCategory.PLAYERS, world.rand.nextFloat()/3, 
-					world.rand.nextFloat()/2+0.75f);	
-
+			ModSoundEvents.MEI_SHOOT_0.playSound(player, world.rand.nextFloat()/3, world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(200) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
@@ -110,8 +106,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYawHead, 100, 0.4F, hand, 8, 0.35f);
 				world.spawnEntity(icicle);
 				this.setCooldown(player, 24);
-				world.playSound(null, player.posX, player.posY, player.posZ, ModSoundEvents.meiIcicleShoot, 
-						SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				ModSoundEvents.MEI_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
 				if (world.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 				this.subtractFromCurrentAmmo(player, 25, hand);

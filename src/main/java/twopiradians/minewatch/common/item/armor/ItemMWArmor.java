@@ -25,7 +25,6 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -231,8 +230,7 @@ public class ItemMWArmor extends ItemArmor {
 		public static void junkratDeath(LivingDeathEvent event) {
 			if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().world.isRemote &&
 					SetManager.getWornSet(event.getEntity()) == EnumHero.JUNKRAT) {
-				event.getEntity().world.playSound(null, event.getEntity().getPosition(), ModSoundEvents.junkratDeath,
-						SoundCategory.PLAYERS, 1.0f, 1.0f);
+				ModSoundEvents.JUNKRAT_DEATH.playSound(event.getEntity(), 1, 1);
 				for (int i=0; i<6; ++i) {
 					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().world, 
 							(EntityLivingBase) event.getEntity(), -1);
@@ -324,7 +322,7 @@ public class ItemMWArmor extends ItemArmor {
 						((EntityHero)player).jump();
 					player.motionY += 0.2d;
 					playersJumped.add(player);
-					player.playSound(ModSoundEvents.genjiJump, 0.8f, world.rand.nextFloat()/6f+0.9f);
+					ModSoundEvents.GENJI_JUMP.playSound(player, 0.8f, world.rand.nextFloat()/6f+0.9f);
 				}
 				player.fallDistance = 0;
 			}
@@ -348,8 +346,7 @@ public class ItemMWArmor extends ItemArmor {
 						if (world.isRemote)
 							Minewatch.network.sendToServer(new CPacketSimple(0, player, false));
 						else 
-							player.world.playSound(null, player.getPosition(), ModSoundEvents.wallClimb, 
-									SoundCategory.PLAYERS, 0.9f, 1.0f);
+							ModSoundEvents.WALL_CLIMB.playSound(player, 0.9f, 1);
 						player.fallDistance = 0.0F;
 					}
 					player.motionX = MathHelper.clamp(player.motionX, -0.15D, 0.15D);
@@ -374,8 +371,7 @@ public class ItemMWArmor extends ItemArmor {
 				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
 				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(player) && !world.isRemote) {
-					world.playSound(null, player.posX, player.posY, player.posZ, 
-							ModSoundEvents.mercyHover, SoundCategory.PLAYERS, 0.2f, 1.0f);
+					ModSoundEvents.MERCY_HOVER.playSound(player, 0.2f, 1);
 					playersHovering.add(player);
 				}
 				if (world.isRemote)

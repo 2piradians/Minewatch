@@ -28,7 +28,6 @@ import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -82,6 +81,7 @@ import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -265,7 +265,7 @@ public enum EnumHero {
 	public ItemMWWeapon weapon;
 	public ItemMWToken token;
 
-	public SoundEvent reloadSound;
+	public ModSoundEvents reloadSound;
 	public boolean smallArms;
 	public Skin[] skinInfo;
 	public String[] skinCredits;
@@ -536,21 +536,6 @@ public enum EnumHero {
 						GlStateManager.popMatrix();
 					}
 
-					/*// mei's crystal cancel overlay
-					if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
-						GlStateManager.pushMatrix();
-						GlStateManager.enableBlend();
-
-						double scale = 0.8d*Config.guiScale;
-						GlStateManager.scale(scale, scale, 1);
-						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/mei_crystal.png"));
-						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-
-						GlStateManager.disableBlend();
-						GlStateManager.popMatrix();
-					}*/
-
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
 				}
@@ -574,41 +559,6 @@ public enum EnumHero {
 
 						GlStateManager.disableBlend();
 						GlStateManager.popMatrix();
-
-						/*// tracer's dash
-						if (weapon.hero == EnumHero.TRACER && ItemMWArmor.SetManager.getWornSet(player) == EnumHero.TRACER) {
-							GlStateManager.pushMatrix();
-							GlStateManager.enableBlend();
-
-							scale = 0.8d*Config.guiScale;
-							GlStateManager.scale(scale, scale*4, 1);
-							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 83*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double()- 80*scale)/8d / scale), 0);
-							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-							int uses = weapon.hero.ability2.getUses(player);
-							GuiUtils.drawTexturedModalRect(23, 21, 1, uses > 2 ? 1011 : 1015, 40, 4, 0);
-							GlStateManager.scale(0.75f, 0.75f, 1);
-							GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
-							GlStateManager.scale(0.75f, 0.75f, 1);
-							GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
-
-							GlStateManager.disableBlend();
-							GlStateManager.popMatrix();
-						}*/
-						/*// reaper's teleport/cancel overlay
-						else if (weapon.hero == EnumHero.REAPER && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
-								TickHandler.getHandler(player, Identifier.REAPER_TELEPORT).ticksLeft == -1) {
-							GlStateManager.pushMatrix();
-							GlStateManager.enableBlend();
-
-							scale = 0.8d*Config.guiScale;
-							GlStateManager.scale(scale, scale, 1);
-							GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-							Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_teleport.png"));
-							GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-
-							GlStateManager.disableBlend();
-							GlStateManager.popMatrix();
-						}*/
 					}
 
 					if (Config.customCrosshairs)

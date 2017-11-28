@@ -26,7 +26,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -118,7 +117,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			if ((entityLiving.getHeldItemMainhand() == null || entityLiving.getHeldItemMainhand().getItem() != EnumHero.REAPER.weapon ||
 					!EnumHero.REAPER.ability1.isSelected(entityLiving) || 
 					!EnumHero.REAPER.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) && this.ticksLeft == -1) {
-				entityLiving.playSound(ModSoundEvents.reaperTeleportStop, 1.0f, 1.0f);
+				ModSoundEvents.REAPER_TELEPORT_STOP.playSound(entityLiving, 1, 1);
 				return true;
 			}
 			else {		
@@ -141,7 +140,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				// tp sound
 				if (entityLiving.ticksExisted % 13 == 0 && this.ticksLeft == -1)
-					entityLiving.playSound(ModSoundEvents.reaperTeleportDuring, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f);
+					ModSoundEvents.REAPER_TELEPORT_DURING.playSound(entityLiving, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f);
 				// particles at entityLiving
 				if (this.ticksLeft > 40 && this.ticksLeft != -1) {
 					if (entityLiving.ticksExisted % 2 == 0)
@@ -167,7 +166,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						this.position.yCoord, 
 						this.position.zCoord);
 				if (entityLiving.world.rand.nextBoolean())
-					entityLiving.world.playSound(null, entityLiving.getPosition(), ModSoundEvents.reaperTeleportVoice, SoundCategory.PLAYERS, 1.0f, 1.0f);
+					ModSoundEvents.REAPER_TELEPORT_VOICE.playSound(entityLiving, 1, 1);
 			}
 			return super.onServerTick();
 		}
@@ -206,9 +205,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 8F, hand, 14, 0.55f);
 					world.spawnEntity(bullet);
 				}
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.reaperShoot, SoundCategory.PLAYERS, 
-						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				ModSoundEvents.REAPER_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 11);
 				if (world.rand.nextInt(8) == 0)
@@ -268,7 +265,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 							if (player == Minewatch.proxy.getClientPlayer())
 								Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
 							if (KeyBind.ABILITY_2.isKeyDown(player))
-								player.playSound(ModSoundEvents.reaperTeleportStart, 1.0f, 1.0f);
+								ModSoundEvents.REAPER_TELEPORT_START.playSound(player, 1, 1);
 						}
 						else if (handler.ticksLeft == -1)
 							handler.setPosition(tpVec);
@@ -286,7 +283,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 									((EntityHero)player).getAttackTarget().getPositionVector().distanceTo(tpVec))))) {
 						player.rotationPitch = 0;
 						Minewatch.network.sendToAll(new SPacketSimple(1, player, false, Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d));
-						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperTeleportFinal, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						ModSoundEvents.REAPER_TELEPORT_FINAL.playFollowingSound(player, 1, 1, false);
 						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.xCoord)+0.5d, tpVec.yCoord, Math.floor(tpVec.zCoord)+0.5d)),
 								Ability.ABILITY_USING.setEntity(player).setTicks(70).setAbility(EnumHero.REAPER.ability1),
 								Handlers.PREVENT_INPUT.setEntity(player).setTicks(70),
@@ -308,7 +305,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				Minewatch.network.sendToAll(new SPacketSimple(10, player, false));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
-				Minewatch.proxy.playFollowingSound(player, ModSoundEvents.reaperWraith, SoundCategory.PLAYERS, 1, 1, false);
+				ModSoundEvents.REAPER_WRAITH.playFollowingSound(player, 1, 1, false);
 			}
 		}
 	}

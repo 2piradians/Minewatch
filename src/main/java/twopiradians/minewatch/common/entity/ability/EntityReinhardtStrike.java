@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity.ability;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -19,7 +18,7 @@ public class EntityReinhardtStrike extends EntityMW {
 
 	public EntityReinhardtStrike(World worldIn) {
 		this(worldIn, null);
-		Minewatch.proxy.playFollowingSound(this, ModSoundEvents.reinhardtStrikeDuring, SoundCategory.PLAYERS, 3.0f, 1.0f, true);
+		ModSoundEvents.REINHARDT_STRIKE_DURING.playFollowingSound(this, 3, 1, true);
 	}
 
 	public EntityReinhardtStrike(World worldIn, EntityLivingBase throwerIn) {
@@ -69,7 +68,7 @@ public class EntityReinhardtStrike extends EntityMW {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			EntityHelper.moveToHitPosition(this, result);
 			if (world.isRemote) {
-				world.playSound(Minewatch.proxy.getClientPlayer(), getPosition(), ModSoundEvents.reinhardtStrikeCollide, SoundCategory.PLAYERS, 4.0f, 1.0f);
+				ModSoundEvents.REINHARDT_STRIKE_COLLIDE.playSound(this, 4, 1);
 				Vec3d vec = this.getPositionVector().add(new Vec3d(result.sideHit.getDirectionVec()).scale(0.01d));
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
 			}

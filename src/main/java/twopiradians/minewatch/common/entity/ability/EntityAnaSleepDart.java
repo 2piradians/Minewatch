@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -52,8 +51,8 @@ public class EntityAnaSleepDart extends EntityMW {
 			if (result.entityHit instanceof EntityLivingBase) 
 				Handlers.rotations.put((EntityLivingBase) result.entityHit, Triple.of(0f, 0f, 0f));
 			Minewatch.network.sendToDimension(new SPacketSimple(12, result.entityHit, false), this.world.provider.getDimension());
-			Minewatch.proxy.playFollowingSound(result.entityHit, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.anaSleepVoice, SoundCategory.PLAYERS, 0.5f, 1.0f, false);
+			ModSoundEvents.ANA_SLEEP_HIT.playFollowingSound(result.entityHit, 1, 1, false);
+			ModSoundEvents.ANA_SLEEP_VOICE.playFollowingSound(this.getThrower(), 0.5f, 1.0f, false);
 		}
 	}
 }

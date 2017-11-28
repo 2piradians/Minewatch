@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -125,8 +124,7 @@ public class CPacketSimple implements IMessage {
 					// reset fall distance
 					if (packet.type == 0 && entity != null) {
 						entity.fallDistance = 0;
-						entity.world.playSound(null, entity.getPosition(), ModSoundEvents.wallClimb, 
-								SoundCategory.PLAYERS, 0.9f, 1.0f);
+						ModSoundEvents.WALL_CLIMB.playSound(entity, 0.9f, 1);
 					}
 					// check if opped
 					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null) {

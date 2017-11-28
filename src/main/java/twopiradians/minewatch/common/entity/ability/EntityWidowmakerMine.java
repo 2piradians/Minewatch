@@ -12,7 +12,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -134,7 +133,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			this.world.playSound(null, this.getPosition(), ModSoundEvents.widowmakerMineLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			ModSoundEvents.WIDOWMAKER_MINE_LAND.playSound(this, 1, 1);
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
@@ -161,7 +160,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 					TickHandler.register(false, POISONED.setTicks(100).setEntity(entity).setEntityLiving(getThrower()));
 					Minewatch.network.sendToDimension(new SPacketSimple(28, false, null, 
 							posX, posY, posZ, entity, getThrower()), world.provider.getDimension());
-					world.playSound(null, this.getPosition(), ModSoundEvents.widowmakerMineTrigger, SoundCategory.PLAYERS, 1.0f, 1.0f);
+					ModSoundEvents.WIDOWMAKER_MINE_TRIGGER.playSound(this, 1, 1);
 					this.setDead();
 				}
 		}
@@ -219,7 +218,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		if (this.world.isRemote && this.getThrower() instanceof EntityPlayer && 
 				this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID())) {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_DESTROYED, world, posX, posY+1d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
-			Minewatch.proxy.playFollowingSound(this.getThrower(), ModSoundEvents.widowmakerMineDestroyed, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+			ModSoundEvents.WIDOWMAKER_MINE_DESTROYED.playFollowingSound(this.getThrower(), 1, 1, false);
 		}
 	}
 

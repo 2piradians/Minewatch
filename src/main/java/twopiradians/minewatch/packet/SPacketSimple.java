@@ -16,8 +16,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
@@ -53,7 +51,6 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
-import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 
 public class SPacketSimple implements IMessage {
@@ -305,7 +302,7 @@ public class SPacketSimple implements IMessage {
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
 							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
-							player.playSound(ModSoundEvents.kill, 0.1f, 1.0f);
+							ModSoundEvents.KILL.playSound(player, 0.1f, 1);
 							if (!(entity instanceof EntityLivingBaseMW)) {
 								TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
 								if (handler == null)
@@ -314,10 +311,12 @@ public class SPacketSimple implements IMessage {
 									handler.setTicks(40);
 									handler.setNumber(handler.number+1);
 									if (handler.number > 1 && handler.number < 7) {
-										for (SoundEvent event : ModSoundEvents.multikill)
-											Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
-										Minewatch.proxy.playFollowingSound(player, 
-												ModSoundEvents.multikill[(int) (handler.number-2)], SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+										ModSoundEvents.MULTIKILL_2.stopSound(player);
+										ModSoundEvents.MULTIKILL_3.stopSound(player);
+										ModSoundEvents.MULTIKILL_4.stopSound(player);
+										ModSoundEvents.MULTIKILL_5.stopSound(player);
+										ModSoundEvents.MULTIKILL_6.stopSound(player);
+										ModSoundEvents.valueOf("MULTIKILL_"+handler.number).playFollowingSound(player, 1, 1, false);
 									}
 								}
 							}
@@ -332,7 +331,7 @@ public class SPacketSimple implements IMessage {
 						else 
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound
-						player.playSound(ModSoundEvents.hurt, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f);
+						ModSoundEvents.HURT.playSound(player, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f);
 					}
 					// Interrupt
 					else if (packet.type == 16 && entity != null) {
@@ -349,10 +348,8 @@ public class SPacketSimple implements IMessage {
 					// Mercy's Angel
 					else if (packet.type == 19 && entity != null) {
 						if (packet.bool)
-							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.mercyAngelVoice, 
-									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.mercyAngel, 
-								SoundCategory.PLAYERS, 1.0f, 1.0f, true);
+							ModSoundEvents.MERCY_ANGEL_VOICE.playFollowingSound(entity, 1, 1, false);
+						ModSoundEvents.MERCY_ANGEL.playFollowingSound(entity, 1, 1, false);
 						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75).setEntity(entity),
 								Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(EnumHero.MERCY.ability3));
 					}
@@ -361,22 +358,22 @@ public class SPacketSimple implements IMessage {
 						// direct hit
 						if (packet.bool && entity2 instanceof Entity) {
 							((EntityJunkratGrenade)entity).explode(null);
-							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeExplode, 
-									SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							ModSoundEvents.JUNKRAT_GRENADE_EXPLODE.playSound(entity, 1, 1);
 						}
 						// bounce
 						else {
 							((EntityJunkratGrenade)entity).bounces = (int) packet.x;
-							if (packet.x < 3)
-								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.junkratGrenadeTick[(int) packet.x], 
-										SoundCategory.PLAYERS, 1.0f, 1.0f, true);
+							if (packet.x == 0) 
+								ModSoundEvents.JUNKRAT_GRENADE_TICK_0.playFollowingSound(entity, 1, 1, true);
+							else if (packet.x == 1) 
+								ModSoundEvents.JUNKRAT_GRENADE_TICK_1.playFollowingSound(entity, 1, 1, true);
+							else if (packet.x == 2) 
+								ModSoundEvents.JUNKRAT_GRENADE_TICK_2.playFollowingSound(entity, 1, 1, true);
 							else
-								entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeTick[3], 
-										SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+								ModSoundEvents.JUNKRAT_GRENADE_TICK_3.playSound(entity, 1, 1);
 							Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY, entity.posZ,
 									0, 0, 0, 0xFCCD75, 0xFFDA93, 0.7f, 2, 3, 2.5f, entity.world.rand.nextFloat(), 0.01f);
-							entity.world.playSound(entity.posX, entity.posY, entity.posZ, ModSoundEvents.junkratGrenadeBounce, 
-									SoundCategory.PLAYERS, 0.7f, 1.0f, false);
+							ModSoundEvents.JUNKRAT_GRENADE_BOUNCE.playSound(entity, 0.7f, 1);
 						}
 					}
 					// Shoot Ana's sleep dart
@@ -407,9 +404,9 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
 									EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
 							if (((EntityJunkratTrap)entity).getThrower() == player) {
-								Minewatch.proxy.stopSound(player, ModSoundEvents.junkratTrapPlacedVoice, SoundCategory.PLAYERS);
-								Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerOwner, SoundCategory.PLAYERS, 1, 1, false);
-								Minewatch.proxy.playFollowingSound(player, ModSoundEvents.junkratTrapTriggerVoice, SoundCategory.PLAYERS, 1, 1, false);
+								ModSoundEvents.JUNKRAT_TRAP_PLACED_VOICE.stopSound(player);
+								ModSoundEvents.JUNKRAT_TRAP_TRIGGER_OWNER.playFollowingSound(player, 1, 1, false);
+								ModSoundEvents.JUNKRAT_TRAP_TRIGGER_VOICE.playFollowingSound(player, 1, 1, false);
 							}
 						}
 						if (packetPlayer == player && player != null)
@@ -433,7 +430,7 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3).setBoolean(true));
 							if (entity == player)
-								Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+								ModSoundEvents.SOMBRA_INVISIBLE_STOP.playFollowingSound(entity, 1, 1, false);
 						}
 						else if (entity instanceof EntityLivingBase)
 							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
@@ -458,10 +455,10 @@ public class SPacketSimple implements IMessage {
 						ItemMWWeapon.setAlternate(((EntityLivingBase)entity).getHeldItemMainhand(), packet.bool);
 						if (packet.bool) {
 							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(entity).setTicks(10));
-							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.bastionReconfigure1, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							ModSoundEvents.BASTION_RECONFIGURE_1.playFollowingSound(entity, 1, 1, false);
 						}
 						else
-							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.bastionReconfigure0, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							ModSoundEvents.BASTION_RECONFIGURE_0.playFollowingSound(entity, 1, 1, false);
 					}
 					// Mei's cryo-freeze
 					else if (packet.type == 32 && entity != null) {
@@ -474,7 +471,7 @@ public class SPacketSimple implements IMessage {
 									Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(80),
 									Handlers.PREVENT_INPUT.setEntity(entity).setTicks(80),
 									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80));
-							Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.meiCrystalStart, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							ModSoundEvents.MEI_CRYSTAL_START.playFollowingSound(entity, 1, 1, false);
 						}
 						else 
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MEI_CRYSTAL),
@@ -488,7 +485,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemReinhardtHammer.STRIKE.setEntity(entity).setTicks(13));
 						if (entity == player)
 							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(EnumHero.REINHARDT.ability2));
-						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.reinhardtStrikeThrow, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						ModSoundEvents.REINHARDT_STRIKE_THROW.playFollowingSound(entity, 1, 1, false);
 					}
 					// Set entity's position
 					else if (packet.type == 34 && entity != null) {
@@ -528,11 +525,15 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
 								0xDFED8B, 0xABBF78, 0.7f, 13, 3+(entity.world.rand.nextFloat()-0.5f)*2f, 6+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
 						ItemLucioSoundAmplifier.soundwave((EntityLivingBase) entity, entity.motionX, entity.motionY, entity.motionZ);							
-						Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.lucioSoundwave, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						ModSoundEvents.LUCIO_SOUNDWAVE.playFollowingSound(entity, 1, 1, false);
 					}
 					// Lucio's soundwave (player causing it)
 					else if (packet.type == 39 && packetPlayer != null) {
 						Minewatch.network.sendToServer(new CPacketSimple(4, false, packetPlayer, packetPlayer.motionX, packetPlayer.motionY, packetPlayer.motionZ));
+					}
+					// Hurt sound for Mercy's power beam
+					else if (packet.type == 40 && entity != null) {
+						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.world.rand.nextFloat()/2+0.75f);
 					}
 				}
 			});

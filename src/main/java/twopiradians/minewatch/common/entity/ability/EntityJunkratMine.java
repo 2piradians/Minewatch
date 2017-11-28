@@ -6,7 +6,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -89,7 +88,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) 
-			this.world.playSound(null, this.getPosition(), ModSoundEvents.junkratMineLand, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			ModSoundEvents.JUNKRAT_MINE_LAND.playSound(this, 1, 1);
 		this.prevOnGround = this.onGround;
 
 		// check if not attached
@@ -151,8 +150,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, 
 					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
 					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 40, 40, 0, 0);
-			this.world.playSound(this.posX, this.posY, this.posZ, ModSoundEvents.junkratMineExplode, 
-					SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+			ModSoundEvents.JUNKRAT_MINE_EXPLODE.playSound(this, 1, 1);
 		}
 		else {
 			Minewatch.proxy.createExplosion(world, getThrower(), posX, posY, posZ, 2f, 0, 120, 120, null, 120, false, 2.2f, 2.2f);

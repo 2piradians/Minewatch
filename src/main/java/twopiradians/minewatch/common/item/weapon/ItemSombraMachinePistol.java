@@ -17,7 +17,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -95,9 +94,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.ticksLeft == 14) {
 				if (this.player == Minewatch.proxy.getClientPlayer() && player.world.isRemote)
-					Minewatch.proxy.stopSound(player, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS);
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStop, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleVoice, SoundCategory.PLAYERS, 0.7f, 1.0f, false);
+					ModSoundEvents.SOMBRA_INVISIBLE_START.stopSound(player);
+				ModSoundEvents.SOMBRA_INVISIBLE_STOP.playFollowingSound(entity, 1, 1, false);
+				ModSoundEvents.SOMBRA_INVISIBLE_VOICE.playFollowingSound(entity, 0.7f, 1, false);
 			}
 
 			return super.onClientTick();
@@ -145,9 +144,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.sombraShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-						world.rand.nextFloat()/3+0.8f);	
+				ModSoundEvents.SOMBRA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
@@ -185,8 +182,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
 					if (translocator.ticksExisted > 10) {
 						if (player instanceof EntityPlayer)
-							Minewatch.proxy.stopSound((EntityPlayer) player, ModSoundEvents.sombraTranslocatorDuring, SoundCategory.PLAYERS);
-						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.sombraTranslocatorTeleport, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
+						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
 						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
 								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
 						Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
@@ -199,7 +196,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				else {
 					translocator = new EntitySombraTranslocator(world, player);
 					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
-					world.playSound(null, player.getPosition(), ModSoundEvents.sombraTranslocatorThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
 					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 					hero.ability2.entities.put(player, translocator);

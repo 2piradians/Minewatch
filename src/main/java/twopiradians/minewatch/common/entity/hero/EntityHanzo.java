@@ -19,17 +19,17 @@ public class EntityHanzo extends EntityHero {
 		super.initEntityAI();
 		this.tasks.addTask(2, new EntityHeroAIAttackHanzo(this, MovementType.STRAFING, 15));
 	}
+	
+	/**May be used in the future*/
+	@Override
+	public boolean shouldUseAbility() {
+		return this.getRNG().nextBoolean();
+	}
 
 	public class EntityHeroAIAttackHanzo extends EntityHeroAIAttackBase {
 
 		public EntityHeroAIAttackHanzo(EntityHero entity, MovementType type, float maxDistance) {
 			super(entity, type, maxDistance);
-		}
-
-		@Override
-		public void resetTask() {
-			super.resetTask();
-			this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 		}
 
 		@Override
@@ -61,9 +61,13 @@ public class EntityHanzo extends EntityHero {
 							else if (shouldUseAbility() && KeyBind.ABILITY_2.getCooldown(entity) == 0) {
 								this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 								this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
-								this.entity.getLookHelper().setLookPosition(target.posX, target.posY-0.5d, target.posZ, 30, 30);
 							}
 							this.attackCooldown = 20;
+							
+							if (KeyBind.ABILITY_2.isKeyDown(entity)) 
+								this.lookYOffset = (float) (-target.getEyeHeight()-0.1d);
+							else
+								this.lookYOffset = 0;
 						}
 					}
 				}

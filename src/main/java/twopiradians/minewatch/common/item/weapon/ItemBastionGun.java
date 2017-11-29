@@ -45,7 +45,6 @@ public class ItemBastionGun extends ItemMWWeapon {
 				return false;
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
-				setAlternate(entityLiving.getHeldItemMainhand(), false);
 				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 			}
 
@@ -112,6 +111,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
+			//System.out.println("onupdate: "+ItemMWWeapon.isAlternate(player.getHeldItemMainhand())); // TODO
 			// stop turret if doesn't have handler (i.e. dies in turret form)
 			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {

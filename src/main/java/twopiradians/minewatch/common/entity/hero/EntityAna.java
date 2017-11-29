@@ -46,7 +46,7 @@ public class EntityAna extends EntityHero {
 				else
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				// sleep dart
-				if (this.shouldUseAbility() && !TickHandler.hasHandler(target, Identifier.ANA_SLEEP) &&
+				if (entity.shouldUseAbility() && !TickHandler.hasHandler(target, Identifier.ANA_SLEEP) &&
 						!TickHandler.hasHandler(target, Identifier.ANA_DAMAGE))
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 				else

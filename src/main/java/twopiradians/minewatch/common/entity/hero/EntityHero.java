@@ -15,6 +15,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -45,7 +46,7 @@ public class EntityHero extends EntityMob {
 		super(worldIn);
 		if (hero != null) {
 			this.hero = hero;
-			if (Config.mobRandomSkins)
+			if (Config.mobRandomSkins && !worldIn.isRemote)
 				this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
 		}
 		Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
@@ -73,7 +74,7 @@ public class EntityHero extends EntityMob {
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		this.dataManager.register(SKIN, 0);
+		this.dataManager.register(SKIN, -1);
 
 		for (KeyBind key : KeyBind.values())
 			this.dataManager.register(key.datamanager, false);
@@ -149,6 +150,11 @@ public class EntityHero extends EntityMob {
 	public int getMaxSpawnedInChunk() {
 		return 1;
 	}
+	
+	/**May be used in the future*/
+	public boolean shouldUseAbility() {
+		return this.getRNG().nextInt(25) == 0;
+	}
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
@@ -165,6 +171,21 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void jump() {
 		super.jump();
+	}
+
+	@Override
+	public void writeEntityToNBT(NBTTagCompound compound) {
+		super.writeEntityToNBT(compound);
+
+		compound.setInteger("skin", this.getDataManager().get(SKIN));
+	}
+
+	@Override
+	public void readEntityFromNBT(NBTTagCompound compound) {
+		super.readEntityFromNBT(compound);
+
+		if (compound.hasKey("skin") && compound.getInteger("skin") >= 0)
+			this.getDataManager().set(SKIN, compound.getInteger("skin"));
 	}
 
 }

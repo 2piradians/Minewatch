@@ -24,5 +24,10 @@ public class EntityHeroAINearestAttackableTarget<T extends EntityLivingBase> ext
     					this.taskOwner.getDistanceToEntity(target) < 5) && 
     			!TickHandler.hasHandler(target, Identifier.MEI_CRYSTAL);
     }
+    
+    @Override
+    public boolean continueExecuting() {
+    	return this.isSuitableTarget(this.targetEntity, false);
+    }
 	
 }

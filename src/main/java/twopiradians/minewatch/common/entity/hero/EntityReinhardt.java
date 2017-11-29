@@ -41,7 +41,7 @@ public class EntityReinhardt extends EntityHero {
 						this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
 					}
 					// fire strike
-					if (this.shouldUseAbility())
+					if (entity.shouldUseAbility())
 						this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 					else
 						this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);

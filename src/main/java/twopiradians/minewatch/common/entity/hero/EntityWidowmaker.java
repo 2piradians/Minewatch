@@ -36,7 +36,7 @@ public class EntityWidowmaker extends EntityHero {
 				else
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				// poison trap
-				if (this.shouldUseAbility())
+				if (entity.shouldUseAbility())
 					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);

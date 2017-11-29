@@ -31,7 +31,7 @@ public class EntityTracer extends EntityHero {
 
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// blink
-				if (--this.attackCooldown <= 0 && this.shouldUseAbility()) {
+				if (--this.attackCooldown <= 0 && entity.shouldUseAbility()) {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 					this.attackCooldown = 100;

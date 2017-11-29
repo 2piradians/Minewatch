@@ -32,7 +32,7 @@ public class EntityMcCree extends EntityHero {
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// fan the hammer
 				if (entity.isHandActive() || (entity.hero.weapon.getCurrentAmmo(entity) >= 4 &&
-						distance <= 5 && this.shouldUseAbility())) {
+						distance <= 5 && entity.shouldUseAbility())) {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 				}
@@ -42,7 +42,7 @@ public class EntityMcCree extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				}
 				// roll
-				if (distance <= 7 && entity.hero.weapon.getCurrentAmmo(entity) <= 2 && this.shouldUseAbility())
+				if (distance <= 7 && entity.hero.weapon.getCurrentAmmo(entity) <= 2 && entity.shouldUseAbility())
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);

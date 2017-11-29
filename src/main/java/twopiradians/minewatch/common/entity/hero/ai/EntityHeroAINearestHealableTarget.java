@@ -4,14 +4,13 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.player.EntityPlayer;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 
-public class EntityHeroAINearestHealableTarget<T extends EntityLivingBase> extends EntityAINearestAttackableTarget {
+public class EntityHeroAINearestHealableTarget<T extends EntityLivingBase> extends EntityHeroAINearestAttackableTarget {
 
 	protected EntityHero entity;
 

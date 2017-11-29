@@ -43,7 +43,7 @@ public class EntityReaper extends EntityHero {
 			
 
 			// wraith
-			if (entity.getHealth() < entity.getMaxHealth()/2f && this.shouldUseAbility()) 
+			if (entity.getHealth() < entity.getMaxHealth()/2f && entity.shouldUseAbility()) 
 				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 			else
 				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);

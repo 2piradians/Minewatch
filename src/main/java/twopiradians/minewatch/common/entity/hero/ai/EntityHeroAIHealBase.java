@@ -18,9 +18,10 @@ public abstract class EntityHeroAIHealBase extends EntityHeroAIAttackBase {
 
 	@Override
 	public boolean shouldExecute() {
-		if (!EntityHelper.shouldHit(entity, entity.healTarget, true)||
+		if (!EntityHelper.shouldHit(entity, entity.healTarget, true) ||
 				EntityHelper.shouldHit(entity, entity.healTarget, false) || 
-				entity.healTarget == null || entity == entity.healTarget)
+				entity.healTarget == null || entity == entity.healTarget ||
+				!entity.healTarget.isEntityAlive())
 			return false;
 		else if (entity.healTarget.getHealth() < entity.healTarget.getMaxHealth())
 			return true;

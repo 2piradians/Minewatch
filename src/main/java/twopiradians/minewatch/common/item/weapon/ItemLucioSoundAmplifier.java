@@ -39,6 +39,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -62,7 +64,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	public static final Handler AMP = new Handler(Identifier.LUCIO_AMP, false) {
 		@Override
 		public Handler onServerRemove() {
-			EnumHero.LUCIO.ability2.keybind.setCooldown(entityLiving, 24, false); // TODO
+			EnumHero.LUCIO.ability2.keybind.setCooldown(entityLiving, 240, false); 
 			return super.onServerRemove();
 		}
 	};
@@ -72,7 +74,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.ticksLeft < this.initialTicks && this.ticksLeft % 2 == 0 && entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.LUCIO.weapon && 
-					EnumHero.LUCIO.weapon.canUse(player, false, EnumHand.MAIN_HAND, false, EnumHero.LUCIO.ability1, EnumHero.LUCIO.ability2)) {
+					EnumHero.LUCIO.weapon.canUse(entityLiving, false, EnumHand.MAIN_HAND, false, EnumHero.LUCIO.ability1, EnumHero.LUCIO.ability2)) {
 				EntityLucioSonic sonic = new EntityLucioSonic(entityLiving.world, entityLiving, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(sonic, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 50f, 0, EnumHand.MAIN_HAND, 12, 0.15f);
 				entityLiving.world.spawnEntity(sonic);
@@ -103,7 +105,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		if (hand == EnumHand.MAIN_HAND && !world.isRemote && this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
 				hero.ability1.isSelected(player, false, hero.ability1, hero.ability2) && this.getCurrentAmmo(player) >= 4) {
 			this.subtractFromCurrentAmmo(player, 4, EnumHand.MAIN_HAND);
-			hero.ability1.keybind.setCooldown(player, 8, false); // TODO 
+			hero.ability1.keybind.setCooldown(player, 80, false); 
 			player.getHeldItem(hand).damageItem(1, player);
 			Minewatch.network.sendToDimension(new SPacketSimple(38, player, false), world.provider.getDimension());
 			// if player, needs to get player motion from client
@@ -139,17 +141,22 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
 				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
 					this.affectedEntities = 0;
+				else if (!world.isRemote && player instanceof EntityLucio)
+					((EntityLucio)player).affectedEntities.clear();
 				for (Entity entity2 : world.getEntitiesWithinAABBExcludingEntity(player, 
 						new AxisAlignedBB(player.getPosition().add(-10, -10, -10), 
 								player.getPosition().add(10, 10, 10))))
 					// nearby
 					if (entity2 instanceof EntityLivingBase && entity2.getDistanceToEntity(player) <= 10 &&
 					EntityHelper.shouldHit(player, entity2, true)) {
-						if (!world.isRemote)
+						if (!world.isRemote) {
 							if (heal)
 								EntityHelper.attemptDamage(player, entity2, amp ? -7.02f : -2.4375f, true);
 							else
 								((EntityLivingBase)entity2).addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, amp ? 3 : 1, true, false));
+							if (player instanceof EntityLucio)
+								((EntityLucio)player).affectedEntities.add((EntityLivingBase) entity2);
+						}
 						else if (player == Minewatch.proxy.getClientPlayer())
 							++this.affectedEntities;
 					}
@@ -191,7 +198,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90)) {
 					double distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
-					Vec3d base = player.getLookVec().scale(2d);
+					Vec3d base = player.getLookVec().scale(player instanceof EntityHero ? 3 : 2);
 					entity.motionX += (Math.abs(motionX)*look.xCoord+base.xCoord) * (8-distance) / 8f;
 					entity.motionY += (Math.abs(motionY+0.08d)*look.yCoord+base.yCoord+0.08d) * (8-distance) / 8f;
 					entity.motionZ += (Math.abs(motionZ)*look.zCoord+base.zCoord) * (8-distance) / 8f;

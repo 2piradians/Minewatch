@@ -31,7 +31,7 @@ public class EntitySoldier76 extends EntityHero {
 
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// helix rockets
-				if (this.shouldUseAbility()) {
+				if (entity.shouldUseAbility()) {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 				}

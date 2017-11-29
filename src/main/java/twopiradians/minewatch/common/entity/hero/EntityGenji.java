@@ -36,13 +36,13 @@ public class EntityGenji extends EntityHero {
 				this.entity.getDataManager().set(KeyBind.JUMP.datamanager, true);
 				
 				// swift strike
-				if (distance <= 10 && this.shouldUseAbility())
+				if (distance <= 10 && entity.shouldUseAbility())
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 				
 				// deflect
-				if (this.entity.hurtTime > 0 && this.shouldUseAbility())
+				if (this.entity.hurtTime > 0 && entity.shouldUseAbility())
 					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);

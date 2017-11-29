@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.entity.hero.ai;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -42,7 +43,8 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.ANA_SLEEP) && 
 				(!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.SOMBRA_INVISIBLE) || 
 						entity.getDistanceToEntity(entity.getAttackTarget()) < 5) && 
-				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.MEI_CRYSTAL);
+				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.MEI_CRYSTAL) && 
+				entity.getDistanceToEntity(entity.getAttackTarget()) < entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).getBaseValue();
 	}
 
 	@Override
@@ -96,11 +98,6 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	}
 
 	protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {}
-
-	/**May be used in the future*/
-	protected boolean shouldUseAbility() {
-		return entity.getRNG().nextInt(25) == 0;
-	}
 
 	protected boolean isFacingTarget() {
 		return this.seeTime > 10;

@@ -12,6 +12,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -214,11 +215,15 @@ public class EntityHelper {
 		entity = getThrower(entity);
 		target = getThrower(target);
 		// prevent EntityHero attacking/targeting things it shouldn't
-		if (entity instanceof EntityHero && target != null && !friendly &&
-				((target instanceof EntityPlayer && !Config.mobTargetPlayers) ||
-						(target.isCreatureType(EnumCreatureType.MONSTER, false) && !Config.mobTargetHostiles && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
-						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && !Config.mobTargetPassives && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
-						(target instanceof EntityHero && !Config.mobTargetHeroes)))
+		if (entity instanceof EntityHero && target != null &&
+				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
+						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetPassives == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(target instanceof EntityHero && Config.mobTargetHeroes == friendly)))
+			return false;
+		// prevent healing attacking enemy
+		if (friendly && target instanceof EntityLiving && 
+				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 

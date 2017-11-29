@@ -31,7 +31,7 @@ public class EntityJunkrat extends EntityHero {
 			super.attackTarget(target, canSee, distance);
 
 			// trap
-			if (this.shouldUseAbility())
+			if (entity.shouldUseAbility())
 				this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 			else
 				this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
@@ -41,7 +41,7 @@ public class EntityJunkrat extends EntityHero {
 				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
 
 				// mine
-				if (this.shouldUseAbility()) {
+				if (entity.shouldUseAbility()) {
 					// trigger
 					if (this.entity.getHeldItemOffhand() != null && 
 							this.entity.getHeldItemOffhand().getItem() == ModItems.junkrat_trigger)

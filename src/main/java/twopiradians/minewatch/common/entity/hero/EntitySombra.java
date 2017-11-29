@@ -33,7 +33,7 @@ public class EntitySombra extends EntityHero {
 			super.attackTarget(target, canSee, distance);
 
 			// invisibility
-			if (distance > Math.sqrt(this.maxAttackDistance) && this.shouldUseAbility()) {
+			if (distance > Math.sqrt(this.maxAttackDistance) && entity.shouldUseAbility()) {
 				this.resetKeybinds();
 				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 			}

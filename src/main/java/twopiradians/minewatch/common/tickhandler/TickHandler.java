@@ -217,13 +217,11 @@ public class TickHandler {
 		/**Called before the handler is removed*/
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			this.bool = false;
 			return this;
 		}
 		
 		/**Called before the handler is removed*/
 		public Handler onServerRemove() {
-			this.bool = false;
 			return this;
 		}
 
@@ -264,9 +262,9 @@ public class TickHandler {
 					(number == 0 ? "" : ", "+number);
 		}
 
-		// methods that are only sometimes used by handlers are below (for convenience)
-
+		/**Assumed that this is always called and is called before .setBool, to properly reset it*/
 		public Handler setEntity(Entity entity) {
+			this.bool = false;
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
 				this.entityLiving = (EntityLivingBase) entity;
@@ -279,6 +277,8 @@ public class TickHandler {
 			return this;
 		}
 
+		// methods that are only sometimes used by handlers are below (for convenience)
+		
 		public Handler setEntityLiving(EntityLivingBase entity) {
 			this.entityLiving = (EntityLivingBase) entity;
 			if (entity instanceof EntityPlayer)

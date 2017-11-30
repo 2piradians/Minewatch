@@ -114,6 +114,7 @@ item.lucio_weapon.name=Lucio's Sound Amplifier
 
 item.wild_card_token.name=Wild Card Token
 
+entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Arrow
 entity.hanzo_sonic_arrow.name=Hanzo Sonic Arrow

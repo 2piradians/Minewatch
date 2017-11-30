@@ -83,6 +83,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
@@ -218,6 +219,7 @@ public class ClientProxy extends CommonProxy {
 
 	private void registerEntityRenders() {
 		// heroes
+		RenderingRegistry.registerEntityRenderingHandler(EntityHero.class, new RenderFactory());
 		for (EnumHero hero : EnumHero.values())
 			RenderingRegistry.registerEntityRenderingHandler(hero.heroClass, RenderHero::new);
 

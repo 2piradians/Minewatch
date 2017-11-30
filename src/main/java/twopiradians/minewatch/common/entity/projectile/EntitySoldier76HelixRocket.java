@@ -60,9 +60,11 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 		float verticalAdjust = this.ticksExisted*30f + this.getDataManager().get(NUMBER)*120f;
 		Vec3d vec2 = vec.add(EntityHelper.getLook(this.rotationPitch+verticalAdjust, this.rotationYaw+90).scale(0.2d));
 		this.setPosition(vec2.xCoord, vec2.yCoord, vec2.zCoord);
-		
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
+	}
+	
+	@Override
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 4, 1);
 	}
 
 	@Override

@@ -27,13 +27,10 @@ public class EntitySoldier76Bullet extends EntityMW {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
 				0x4AFDFD, 0x4AFDFD, 0.7f, 1, 5, 4.5f, 0, 0, hand, 12, 0.45f);
 	}
-
+	
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 1, 1);
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 1, 1);
 	}
 
 	@Override

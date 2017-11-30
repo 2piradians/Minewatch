@@ -30,13 +30,10 @@ public class EntityMcCreeBullet extends EntityMW {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
 				0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0, hand, 10, 0.4f);
 	}
-
+	
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
 	}
 
 	@Override

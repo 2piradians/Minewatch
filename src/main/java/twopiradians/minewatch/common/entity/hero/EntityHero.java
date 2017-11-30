@@ -84,15 +84,17 @@ public class EntityHero extends EntityMob {
 	public void notifyDataManagerChange(DataParameter<?> key) {
 		super.notifyDataManagerChange(key);
 		for (KeyBind keybind : KeyBind.values())
-			if (key.getId() == keybind.datamanager.getId()) {
+			if (key.getId() == keybind.datamanager.getId()) 
 				keybind.setKeyDown(this, this.dataManager.get(keybind.datamanager));
-				//System.out.println("Updating "+keybind+" to "+this.dataManager.get(keybind.datamanager)); // TODO
-			}
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate(); 
+
+		// random hero
+		if (this.hero == null && !this.world.isRemote)
+			this.spawnRandomHero();
 
 		// set drop chances
 		if (this.inventoryArmorDropChances[0] != Config.mobEquipmentDropRate) {
@@ -101,7 +103,7 @@ public class EntityHero extends EntityMob {
 		}
 
 		// stop doing things when dead
-		if (!this.isEntityAlive())
+		if (!this.isEntityAlive() || hero == null)
 			return;
 
 		// reset to default skin if random skins disabled
@@ -122,18 +124,40 @@ public class EntityHero extends EntityMob {
 
 		// update items and armor
 		this.setLeftHanded(false);
-		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-			ItemStack stack = this.getItemStackFromSlot(slot);
-			if (stack == null || stack.isEmpty()) {
-				stack = new ItemStack(hero.getEquipment(slot));
-				this.setItemStackToSlot(slot, stack);
-			}
+		if (!this.world.isRemote) {
+			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+				ItemStack stack = this.getItemStackFromSlot(slot);
+				if (stack == null || stack.isEmpty()) {
+					stack = new ItemStack(hero.getEquipment(slot));
+					this.setItemStackToSlot(slot, stack);
+				}
 
-			if (stack != null && stack.getItem() instanceof ItemMWArmor)
-				((ItemMWArmor)stack.getItem()).onArmorTick(world, this, stack);
-			if (stack != null)
-				stack.getItem().onUpdate(stack, world, this, 0, stack == this.getHeldItemMainhand());
+				if (stack != null && stack.getItem() instanceof ItemMWArmor)
+					((ItemMWArmor)stack.getItem()).onArmorTick(world, this, stack);
+				if (stack != null)
+					stack.getItem().onUpdate(stack, world, this, 0, stack == this.getHeldItemMainhand());
+			}
 		}
+	}
+
+	/**Kill this and replace it with a random hero*/
+	public void spawnRandomHero() {
+		try {
+			EnumHero hero = EnumHero.values()[this.rand.nextInt(EnumHero.values().length)];
+			EntityHero heroMob = (EntityHero) hero.heroClass.getConstructor(World.class).newInstance(this.world);
+			heroMob.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+			heroMob.setNoAI(this.isAIDisabled());
+			if (this.hasCustomName()) {
+				heroMob.setCustomNameTag(this.getCustomNameTag());
+				heroMob.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
+			}
+			this.world.spawnEntity(heroMob);
+		}
+		catch (Exception e) {
+			System.out.println("Minewatch was unable to spawn a random hero, please report this to the authors: ");
+			e.printStackTrace();
+		}
+		this.setDead();
 	}
 
 	@Override
@@ -150,7 +174,7 @@ public class EntityHero extends EntityMob {
 	public int getMaxSpawnedInChunk() {
 		return 1;
 	}
-	
+
 	/**May be used in the future*/
 	public boolean shouldUseAbility() {
 		return this.getRNG().nextInt(25) == 0;

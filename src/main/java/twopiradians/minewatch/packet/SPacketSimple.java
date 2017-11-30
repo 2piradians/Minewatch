@@ -302,7 +302,7 @@ public class SPacketSimple implements IMessage {
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
 							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
-							ModSoundEvents.KILL.playSound(player, 0.1f, 1);
+							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
 							if (!(entity instanceof EntityLivingBaseMW)) {
 								TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
 								if (handler == null)
@@ -331,7 +331,7 @@ public class SPacketSimple implements IMessage {
 						else 
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound
-						ModSoundEvents.HURT.playSound(player, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f);
+						ModSoundEvents.HURT.playSound(player, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f, true);
 					}
 					// Interrupt
 					else if (packet.type == 16 && entity != null) {
@@ -533,7 +533,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Hurt sound for Mercy's power beam
 					else if (packet.type == 40 && entity != null) {
-						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.world.rand.nextFloat()/2+0.75f);
+						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.world.rand.nextFloat()/2+0.75f, true);
 					}
 				}
 			});

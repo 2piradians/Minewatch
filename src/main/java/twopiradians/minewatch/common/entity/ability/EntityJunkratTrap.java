@@ -59,7 +59,8 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			ModSoundEvents.JUNKRAT_TRAP_LAND.playSound(this, 1, 1);
+			if (!world.isRemote)
+				ModSoundEvents.JUNKRAT_TRAP_LAND.playSound(this, 1, 1);
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);

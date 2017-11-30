@@ -219,12 +219,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}	
 
 	private static boolean deflect(EntityLivingBase player, Entity entity) {
-		if (entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
-				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
-				entity instanceof EntityTNTPrimed) &&
-				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.4d &&
-				!(entity instanceof EntityMW && ((((EntityMW)entity).notDeflectible) || 
-						!EntityHelper.shouldHit(((EntityMW)entity).getThrower(), player, false)))) {
+		if (canDeflect(player, entity)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
 			entity.motionX = player.getLookVec().xCoord*velScale;	
@@ -264,6 +259,15 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			return true;
 		}
 		return false;
+	}
+	
+	public static boolean canDeflect(EntityLivingBase player, Entity entity) {
+		return entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
+				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
+				entity instanceof EntityTNTPrimed) && !entity.onGround &&
+				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.1d &&
+				!(entity instanceof EntityMW && ((((EntityMW)entity).notDeflectible) || 
+						!EntityHelper.shouldHit(((EntityMW)entity).getThrower(), player, false)));
 	}
 
 	@SubscribeEvent

@@ -50,6 +50,17 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 		super.entityInit();
 		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
 	}
+	
+	@Override
+	public void onUpdate() {
+		super.onUpdate();
+		
+		// spawn trail particles
+		if (this.world.isRemote)
+			this.spawnTrailParticles();
+	}
+	
+	public void spawnTrailParticles() {}
 
 	@Override
 	protected void onHit(RayTraceResult result) {

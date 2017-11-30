@@ -299,7 +299,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			}
 		}
 
-		return /*oldStack.getItem() != newStack.getItem()*/oldStack != newStack || slotChanged; // TEST will prob update with nbt (for switching between items with alt) - make sure this is ok
+		return oldStack != newStack || slotChanged; 
 	}
 
 	/**If item has cooldown - cooldown tracker for players, handler for entity heroes*/

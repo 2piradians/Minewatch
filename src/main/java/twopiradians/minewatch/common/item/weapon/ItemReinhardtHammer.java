@@ -77,7 +77,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	public void attack(ItemStack stack, EntityLivingBase player, Entity entity) {
 		// swing
-		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) &&
+		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
+				player.canEntityBeSeen(entity) && 
 				EntityHelper.attemptDamage(player, entity, 75, false)) {
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 

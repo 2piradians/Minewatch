@@ -162,7 +162,13 @@ public enum ModSoundEvents {
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	public void playSound(Entity entity, float volume, float pitch) {
-		if (entity != null && (!entity.world.isRemote || entity == Minewatch.proxy.getClientPlayer()) && this.shouldPlay(entity)) 
+		this.playSound(entity, volume, pitch, false);
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	public void playSound(Entity entity, float volume, float pitch, boolean onlyPlayToEntity) {
+		if (entity != null && (!entity.world.isRemote || !onlyPlayToEntity || entity == Minewatch.proxy.getClientPlayer()) && 
+				this.shouldPlay(entity)) 
 			this.playSound(entity.world, entity.posX, entity.posY, entity.posZ, volume, pitch);
 	}
 

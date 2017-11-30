@@ -30,7 +30,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 		if (!this.world.isRemote)
 			this.getDataManager().set(SCOPED, scoped);
 	}
-	
+
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
@@ -44,14 +44,11 @@ public class EntityWidowmakerBullet extends EntityMW {
 	}
 
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-
-		if (this.world.isRemote) 
-			if (this.getDataManager().get(SCOPED)) 
-				EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFF0000, 0xB2B2B2, 0.5f, 15, 0.8f);
-			else 
-				EntityHelper.spawnTrailParticles(this, 5, 0, 0xFF0000, 0xFF0000, 0.5f, 2, 0.5f);
+	public void spawnTrailParticles() {
+		if (this.getDataManager().get(SCOPED)) 
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFF0000, 0xB2B2B2, 0.5f, 15, 0.8f);
+		else 
+			EntityHelper.spawnTrailParticles(this, 5, 0, 0xFF0000, 0xFF0000, 0.5f, 2, 0.5f);
 	}
 
 	@Override

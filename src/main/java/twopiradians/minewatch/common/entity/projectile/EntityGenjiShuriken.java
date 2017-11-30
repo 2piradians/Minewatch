@@ -20,13 +20,10 @@ public class EntityGenjiShuriken extends EntityMW {
 		this.setNoGravity(true);
 		this.lifetime = 40;
 	}
-
+	
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-		
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xC8E682, 0x709233, 0.5f, 4, 1);
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xC8E682, 0x709233, 0.5f, 4, 1);
 	}
 
 	@Override

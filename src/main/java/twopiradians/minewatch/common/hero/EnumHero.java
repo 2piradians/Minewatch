@@ -181,10 +181,10 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
 			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, EntityMei.class, 
-			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "mareridt", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
-			new Skin(TextFormatting.GOLD+"Mei-rry", "Mei-Rry", "KevinAguirre2", "http://www.minecraftskins.com/skin/11709782/mei-rry/"),
+			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
+			new Skin(TextFormatting.GOLD+"Mei-rry", "Mei-Rry", "KevinAguirre2", "http://www.minecraftskins.com/skin/11709782/mei-rry/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
 			new Skin(TextFormatting.GOLD+"Luna", "Mei v2", "nikita505n", "http://www.minecraftskins.com/skin/11711832/mei-v2/"),
-			new Skin(TextFormatting.GOLD+"Jiangshi", "Mei Jiangshi", "KevinAguirre2", "http://www.minecraftskins.com/skin/11720409/mei-jiangshi/")),
+			new Skin(TextFormatting.GOLD+"Jiangshi", "Mei Jiangshi", "KevinAguirre2", "http://www.minecraftskins.com/skin/11720409/mei-jiangshi/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
 	WIDOWMAKER("Widowmaker", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, false, false), 
 			new Ability(KeyBind.NONE, false, false), 
@@ -291,12 +291,22 @@ public enum EnumHero {
 		public String skinName;
 		public String author;
 		public String address;
+		public String originalSkinName;
+		public String originalAuthor;
+		public String originalAddress;
 
 		private Skin(String owName, String skinName, String author, String address) {
+			this(owName, skinName, author, address, null, null, null);
+		}
+		
+		private Skin(String owName, String skinName, String author, String address, String originalSkinName, String originalAuthor, String originalAddress) {
 			this.owName = owName;
 			this.skinName = skinName;
 			this.author = author;
 			this.address = address;
+			this.originalSkinName = originalSkinName;
+			this.originalAuthor = originalAuthor;
+			this.originalAddress = originalAddress;
 		}
 
 		/**(skin name) by (author)*/

@@ -117,7 +117,7 @@ public class Ability {
 	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
 		if (entity.world.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
 				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f);
+			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(entity).setTicks(20));
 		}
 
@@ -146,7 +146,7 @@ public class Ability {
 	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f);
+			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 

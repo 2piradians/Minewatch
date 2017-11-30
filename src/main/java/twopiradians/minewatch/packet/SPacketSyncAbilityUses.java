@@ -72,8 +72,8 @@ public class SPacketSyncAbilityUses implements IMessage{
 						if (packet.playSound && 
 								ItemMWArmor.SetManager.getWornSet(player) == hero) {
 							if (packet.uses == 1)
-								ModSoundEvents.ABILITY_RECHARGE.playSound(player, 0.5f, 1.0f);
-							ModSoundEvents.ABILITY_MULTI_RECHARGE.playSound(player, 0.5f, 1.0f);
+								ModSoundEvents.ABILITY_RECHARGE.playSound(player, 0.5f, 1.0f, true);
+							ModSoundEvents.ABILITY_MULTI_RECHARGE.playSound(player, 0.5f, 1.0f, true);
 						}
 						ability.multiAbilityUses.put(player.getPersistentID(), packet.uses);
 					}

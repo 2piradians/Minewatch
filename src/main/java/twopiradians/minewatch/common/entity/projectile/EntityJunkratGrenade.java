@@ -62,7 +62,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		this.motionX *= d1;
 		this.motionY *= d1;
 		this.motionZ *= d1;
-		
+
 		// gravity
 		this.motionY -= 0.04D;
 
@@ -76,25 +76,26 @@ public class EntityJunkratGrenade extends EntityMW {
 		if (this.onGround)
 			this.motionY = 0.2d;
 
+		super.onUpdate();
+	}
+
+	@Override
+	public void spawnTrailParticles() {
 		// initial particle spawn / sound start
-		if (this.world.isRemote && this.firstUpdate) {
+		if (this.firstUpdate) {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, this, 0xFFDF89, 0xFFDF89, 0.5f, Integer.MAX_VALUE, 2.5f, 2.5f, 0, 1);
 		}
 
 		// trail/spark particles
-		if (this.world.isRemote) {
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
 
-			if (this.world.rand.nextInt(3) == 0)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
-						this.posX+(world.rand.nextDouble()-0.5d)*0.1d, 
-						this.posY+(world.rand.nextDouble()-0.5d)*0.1d, 
-						this.posZ+(world.rand.nextDouble()-0.5d)*0.1d, 
-						(world.rand.nextDouble()-0.5d)*0.1d, world.rand.nextDouble()*0.1d, (world.rand.nextDouble()-0.5d)*0.1d, 
-						0xFFDF89, 0xFFDF89, 1, 10, 0.5f, 0.2f, 0, 1);
-		}
-		
-		super.onUpdate();
+		if (this.world.rand.nextInt(3) == 0)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
+					this.posX+(world.rand.nextDouble()-0.5d)*0.1d, 
+					this.posY+(world.rand.nextDouble()-0.5d)*0.1d, 
+					this.posZ+(world.rand.nextDouble()-0.5d)*0.1d, 
+					(world.rand.nextDouble()-0.5d)*0.1d, world.rand.nextDouble()*0.1d, (world.rand.nextDouble()-0.5d)*0.1d, 
+					0xFFDF89, 0xFFDF89, 1, 10, 0.5f, 0.2f, 0, 1);
 	}
 
 	public void explode(@Nullable Entity directHit) {

@@ -51,7 +51,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);
+			EntityHelper.setRotations(this); 
 		}
 	}
 
@@ -93,9 +93,15 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
 				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64 || !this.getThrower().isEntityAlive()))
 			this.setDead();
+		
+		// spawn trail particles
+		if (this.world.isRemote)
+			this.spawnTrailParticles();
 
 		this.firstUpdate = false;
 	}
+	
+	public void spawnTrailParticles() {}
 
 	/**Should this result trigger onImpact - moves to hit position if entity*/
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
@@ -161,7 +167,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	}
 	
 	@Override
-    public boolean canBeCollidedWith() {return false;}
+    public boolean canBeCollidedWith() {return true;}
     @Override
     public boolean canBePushed() {return false;}
 	@Override

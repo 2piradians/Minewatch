@@ -25,14 +25,16 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 	public void onUpdate() {
 		super.onUpdate();
 
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
-
 		if (this.inGround)
 			this.inGround = false;
 
 		if (!this.world.isRemote && !this.scatter && this.ticksExisted > 100) 
 			this.setDead();
+	}
+	
+	@Override
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 	}
 
 	@Override

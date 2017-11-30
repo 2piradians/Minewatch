@@ -28,13 +28,10 @@ public class EntityBastionBullet extends EntityMW {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
 				0xFFEF89, 0x5A575A, 0.2f, 1, hand == null ? 2 : 5, hand == null ? 2 : 5, 0, 0, hand, hand == null ? 10 : 9, hand == null ? 0 : 0.41f);
 	}
-
+	
 	@Override
-	public void onUpdate() {
-		super.onUpdate();
-
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xFFFCC7, 0xEAE7B9, 1, 1, 1);
 	}
 
 	@Override

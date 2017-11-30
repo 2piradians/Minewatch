@@ -37,7 +37,7 @@ public class EntityMeiIcicle extends EntityMW {
 		this.yTile = -1;
 		this.zTile = -1;
 	}
-	
+
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
@@ -47,9 +47,6 @@ public class EntityMeiIcicle extends EntityMW {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-
-		if (this.world.isRemote && !this.inGround) 
-			EntityHelper.spawnTrailParticles(this, 10, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
 
 		// in ground
 		if (this.inGround && this.lifetime == 40) 
@@ -70,6 +67,12 @@ public class EntityMeiIcicle extends EntityMW {
 			this.setDead();
 		}
 
+	}
+
+	@Override
+	public void spawnTrailParticles() {
+		if (!this.inGround)
+			EntityHelper.spawnTrailParticles(this, 10, 0, 0x5EDCE5, 0x007acc, 0.6f, 5, 0.1f);
 	}
 
 	@Override

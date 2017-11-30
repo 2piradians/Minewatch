@@ -66,12 +66,14 @@ public class EntityAnaBullet extends EntityMW {
 		this.isFriendly = this.getDataManager().get(HEAL);
 
 		super.onUpdate();
-
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
-					this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1);
 	}
 
+	@Override
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
+				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1);
+	}
+	
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);
@@ -87,7 +89,7 @@ public class EntityAnaBullet extends EntityMW {
 						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, world, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
 						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
-				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f);
+				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f, true);
 				ModSoundEvents.ANA_HEAL.playSound(result.entityHit, 0.2f, result.entityHit.world.rand.nextFloat()/2+1.5f);
 			}
 		}

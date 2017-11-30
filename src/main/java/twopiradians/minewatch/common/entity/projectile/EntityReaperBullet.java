@@ -27,13 +27,10 @@ public class EntityReaperBullet extends EntityMW {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, world, shooter, 
 				0xD93B1A, 0x510D30, 0.3f, 5, 5, 4, 0, 0, hand, 14, 0.5f);
 	}
-
+	
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-
-		if (this.world.isRemote) 
-			EntityHelper.spawnTrailParticles(this, 3, 0.1d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 3, 0.1d, 0xAF371E, 0xFFC26E, 0.3f, 2, 1);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -111,7 +112,6 @@ public class ItemBastionGun extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
-			//System.out.println("onupdate: "+ItemMWWeapon.isAlternate(player.getHeldItemMainhand())); // TODO
 			// stop turret if doesn't have handler (i.e. dies in turret form)
 			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
@@ -142,6 +142,13 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 		}
 	}	
+
+	@SubscribeEvent
+	public void reduceDamage(LivingHurtEvent event) {
+		// reduce damage
+		if (TickHandler.hasHandler(event.getEntityLiving(), Identifier.BASTION_TURRET) && event.getEntityLiving() != null) 
+			event.setAmount(event.getAmount()*0.8f);
+	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent

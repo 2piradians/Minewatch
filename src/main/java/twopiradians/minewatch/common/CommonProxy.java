@@ -234,7 +234,7 @@ public class CommonProxy {
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
 							if (EntityHelper.attemptDamage(exploder, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
-									(entity == exploder && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode))) {
+									entity == exploder) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;
 

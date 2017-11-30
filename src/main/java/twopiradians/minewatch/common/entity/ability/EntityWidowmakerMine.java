@@ -128,12 +128,11 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 			this.motionY = 0;
 			this.motionZ = 0;
 		}
-		else
-			EntityHelper.spawnTrailParticles(this, 5, 0, 0x873BCF, 0x52308F, 1, 8, 0.4f);
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			ModSoundEvents.WIDOWMAKER_MINE_LAND.playSound(this, 1, 1);
+			if (!world.isRemote)
+				ModSoundEvents.WIDOWMAKER_MINE_LAND.playSound(this, 1, 1);
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
@@ -165,6 +164,12 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 				}
 		}
 		super.onUpdate();
+	}
+	
+	@Override
+	public void spawnTrailParticles() {
+		if (!this.onGround)
+			EntityHelper.spawnTrailParticles(this, 5, 0, 0x873BCF, 0x52308F, 1, 8, 0.4f);
 	}
 
 	@Override

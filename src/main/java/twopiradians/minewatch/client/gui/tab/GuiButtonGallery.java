@@ -27,7 +27,7 @@ public class GuiButtonGallery extends GuiButtonTab {
         this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
         if (visible && hovered && prev != hovered)
-        	ModSoundEvents.GUI_HOVER.playSound(mc.player, 0.8f, 1.0f);
+        	ModSoundEvents.GUI_HOVER.playSound(mc.player, 0.8f, 1.0f, true);
         
 		//super.drawButton(mc, mouseX, mouseY);
 		//this.hovered = true;

@@ -43,18 +43,6 @@ public class EntitySombraTranslocator extends EntityMW {
 			this.motionX = 0;
 			this.motionZ = 0;
 		}
-
-		// particles
-		if (this.world.isRemote) {
-			int color1 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
-					0xFFA84F : 0x9F62E5;
-			int color2 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
-					0xAD2512 : 0x8E77BC;
-			if (this.onGround)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, posX, posY, posZ, 0, 0.2f, 0, color1, color2, 1f, 10, 2, 1.5f, 0, 0);
-			else 
-				EntityHelper.spawnTrailParticles(this, 5, 0, color1, color2, 0.8f, 5, 0.8f);
-		}
 		
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
@@ -82,6 +70,18 @@ public class EntitySombraTranslocator extends EntityMW {
 			EnumHero.SOMBRA.ability2.keybind.setCooldown(this.getThrower(), 80, false);
 
 		super.onUpdate();
+	}
+	
+	@Override
+	public void spawnTrailParticles() {
+		int color1 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
+				0xFFA84F : 0x9F62E5;
+		int color2 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
+				0xAD2512 : 0x8E77BC;
+		if (this.onGround)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, posX, posY, posZ, 0, 0.2f, 0, color1, color2, 1f, 10, 2, 1.5f, 0, 0);
+		else 
+			EntityHelper.spawnTrailParticles(this, 5, 0, color1, color2, 0.8f, 5, 0.8f);
 	}
 
 	@Override

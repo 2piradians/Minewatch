@@ -117,7 +117,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			if ((entityLiving.getHeldItemMainhand() == null || entityLiving.getHeldItemMainhand().getItem() != EnumHero.REAPER.weapon ||
 					!EnumHero.REAPER.ability1.isSelected(entityLiving) || 
 					!EnumHero.REAPER.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) && this.ticksLeft == -1) {
-				ModSoundEvents.REAPER_TELEPORT_STOP.playSound(entityLiving, 1, 1);
+				ModSoundEvents.REAPER_TELEPORT_STOP.playSound(entityLiving, 1, 1, true);
 				return true;
 			}
 			else {		
@@ -140,7 +140,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				// tp sound
 				if (entityLiving.ticksExisted % 13 == 0 && this.ticksLeft == -1)
-					ModSoundEvents.REAPER_TELEPORT_DURING.playSound(entityLiving, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f);
+					ModSoundEvents.REAPER_TELEPORT_DURING.playSound(entityLiving, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f, true);
 				// particles at entityLiving
 				if (this.ticksLeft > 40 && this.ticksLeft != -1) {
 					if (entityLiving.ticksExisted % 2 == 0)
@@ -265,7 +265,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 							if (player == Minewatch.proxy.getClientPlayer())
 								Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
 							if (KeyBind.ABILITY_2.isKeyDown(player))
-								ModSoundEvents.REAPER_TELEPORT_START.playSound(player, 1, 1);
+								ModSoundEvents.REAPER_TELEPORT_START.playSound(player, 1, 1, true);
 						}
 						else if (handler.ticksLeft == -1)
 							handler.setPosition(tpVec);

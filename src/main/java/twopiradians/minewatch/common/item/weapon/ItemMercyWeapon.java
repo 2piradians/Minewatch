@@ -206,7 +206,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
 		}
-
+		
+		source = EntityHelper.getThrower(source);
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote &&
@@ -214,7 +215,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				if (beam.player instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketSimple(39, source, false), (EntityPlayerMP)beam.player);
+					Minewatch.network.sendTo(new SPacketSimple(40, beam.player, false), (EntityPlayerMP)beam.player);
 				break;
 			}
 		}

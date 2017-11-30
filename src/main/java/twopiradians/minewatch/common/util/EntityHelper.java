@@ -38,6 +38,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
@@ -269,8 +270,15 @@ public class EntityHelper {
 					projectile.posZ = ray.hitVec.zCoord; 
 				}
 
+				// change prevPos to deflect pos so particles follow properly
+				if (TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
+						result.entityHit instanceof EntityLivingBase && 
+						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile)) {
+					if (projectile instanceof EntityMW)
+						projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
+				}
 				// don't kill if deflecting
-				if (kill && !TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT))
+				else if (kill)
 					projectile.setDead();
 			}
 		}
@@ -331,7 +339,7 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
-		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));//(int) ((Math.abs(entity.motionX)+Math.abs(entity.motionY)+Math.abs(entity.motionZ))*amountPerBlock);
+		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
 		for (float i=0; i<numParticles; ++i) 
 			Minewatch.proxy.spawnParticlesTrail(entity.world, 
 					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 

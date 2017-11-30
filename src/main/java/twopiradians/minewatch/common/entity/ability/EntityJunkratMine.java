@@ -87,7 +87,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 		}
 
 		// prevOnGround and normal particle
-		if (prevOnGround != onGround && onGround) 
+		if (prevOnGround != onGround && onGround && !world.isRemote) 
 			ModSoundEvents.JUNKRAT_MINE_LAND.playSound(this, 1, 1);
 		this.prevOnGround = this.onGround;
 

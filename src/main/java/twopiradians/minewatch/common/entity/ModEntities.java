@@ -14,6 +14,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
@@ -40,6 +41,8 @@ public class ModEntities {
 		int id = 0;
 
 		// heroes
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "random_hero"), EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
+		Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
 		for (EnumHero hero : EnumHero.values()) {
 			EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero"), hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
 			Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));

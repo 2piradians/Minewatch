@@ -8,8 +8,6 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class EntityBastion extends EntityHero {
 
@@ -51,7 +49,6 @@ public class EntityBastion extends EntityHero {
 			// stop moving when turret
 			if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
 				entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
-			//System.out.println("ai: "+entity.getMoveHelper().action); // TODO
 
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// normal attack

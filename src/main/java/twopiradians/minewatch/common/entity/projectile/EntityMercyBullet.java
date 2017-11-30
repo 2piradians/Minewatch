@@ -29,15 +29,11 @@ public class EntityMercyBullet extends EntityMW {
 	}
 
 	@Override
-	public void onUpdate() {		
-		super.onUpdate();
-
-		if (this.world.isRemote) {
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xE39684, 0xE26E53, 1.5f, 2, 1);
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xF7F489, 0xF4EF5A, 0.8f, 2, 1);
-		}
+	public void spawnTrailParticles() {
+		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xE39684, 0xE26E53, 1.5f, 2, 1);
+		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0xF7F489, 0xF4EF5A, 0.8f, 2, 1);
 	}
-
+	
 	@Override
 	protected void onImpact(RayTraceResult result) {
 		super.onImpact(result);

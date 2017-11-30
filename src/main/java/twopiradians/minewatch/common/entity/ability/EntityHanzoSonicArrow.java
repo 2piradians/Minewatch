@@ -71,15 +71,19 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		
+
 		if (this.inGround && doEffect(world, this.getThrower(), null, posX, posY, posZ, timeInGround))
 			this.setDead();
 		else if (!this.inGround && this.world.isRemote) {
 			if (this.ticksExisted % 2 == 0)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, posX, posY, posZ, false, true);
-
-			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 		}
+	}
+
+	@Override
+	public void spawnTrailParticles() {
+		if (!this.inGround)
+			EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
 	}
 
 	@Override

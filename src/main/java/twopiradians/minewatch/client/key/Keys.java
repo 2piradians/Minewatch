@@ -6,13 +6,14 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.input.Keyboard;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
@@ -56,7 +57,7 @@ public class Keys {
 					if (silentRecharge.contains(entity.getPersistentID()))
 						silentRecharge.remove(entity.getPersistentID());
 					else
-						ModSoundEvents.ABILITY_RECHARGE.playSound(entity, 0.5f, 1.0f);
+						ModSoundEvents.ABILITY_RECHARGE.playSound(entity, 0.5f, 1.0f, true);
 				}
 				return super.onClientRemove();
 			}
@@ -174,6 +175,11 @@ public class Keys {
 				return this.keyBind.isKeyDown();
 			else if (this == JUMP)
 				return mc.player.movementInput.jump;
+			else if (this == RMB)
+				return mc.gameSettings.keyBindUseItem.isKeyDown();
+			// check keyboard directly because we set the mc keybind to false
+			else if (this == LMB && mc.gameSettings.keyBindAttack.getKeyCode() < Keyboard.KEYBOARD_SIZE && mc.gameSettings.keyBindAttack.getKeyCode() >= 0) 
+				return Keyboard.isKeyDown(mc.gameSettings.keyBindAttack.getKeyCode());
 			else
 				return false;
 		}
@@ -203,67 +209,89 @@ public class Keys {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void mouseEvents(MouseEvent event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		UUID uuid = player.getPersistentID();
-		ItemStack main = player.getHeldItemMainhand();
-		ItemStack off = player.getHeldItemOffhand();
+		if (Minecraft.getMinecraft().player != null) {
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayerSP player = mc.player;
+			ItemStack main = player.getHeldItemMainhand();
+			ItemStack off = player.getHeldItemOffhand();
 
-		if ((event.isButtonstate() && ((main != null && main.getItem() instanceof ItemMWWeapon) || 
-				(off != null && off.getItem() instanceof ItemMWWeapon))) || 
-				!event.isButtonstate()) {
-			if (event.getButton() == 0) {
-				KeyBind.LMB.setKeyDown(uuid, event.isButtonstate());
-				Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.LMB, event.isButtonstate(), uuid));
-				// prevent breaking blocks
-				if (event.isButtonstate())
-					event.setCanceled(true);
-			}
+			// update lmb if necessary (lmbDown == null if not bound to the mouse or mouseEvent not caused by it)
+			Boolean lmbDown = this.isLMBOnMouse(mc) && 
+					((event.getButton() == 0 && mc.gameSettings.keyBindAttack.getKeyCode() == -100) ||
+							(event.getButton() == 1 && mc.gameSettings.keyBindAttack.getKeyCode() == -99) ||
+							(event.getButton() == 2 && mc.gameSettings.keyBindAttack.getKeyCode() == -98)) && 
+					((main != null && main.getItem() instanceof ItemMWWeapon) || 
+							(off != null && off.getItem() instanceof ItemMWWeapon)) ? 
+									(event.isButtonstate() && mc.currentScreen == null) :
+										null;
+									this.updateKeys(lmbDown);
 
-			if (event.getButton() == 1) {
-				KeyBind.RMB.setKeyDown(uuid, event.isButtonstate());
-				Minewatch.network.sendToServer(new CPacketSyncKeys(KeyBind.RMB, event.isButtonstate(), uuid));
-			}
-		}
+									// prevent further lmb processing
+									if (lmbDown != null && lmbDown)
+										event.setCanceled(true);
 
-		if (main != null && main.getItem() instanceof ItemMWWeapon &&
-				player.isSneaking() && event.getDwheel() != 0 && 
-				((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
-				((ItemMWWeapon)main.getItem()).hero.switchAltWithScroll) {
-			Minewatch.network.sendToServer(new CPacketSimple(3, false, player));
-			event.setCanceled(true);
+									// switch to alt weapon
+									if (main != null && main.getItem() instanceof ItemMWWeapon &&
+											player.isSneaking() && event.getDwheel() != 0 && 
+											((ItemMWWeapon)main.getItem()).hero.hasAltWeapon && 
+											((ItemMWWeapon)main.getItem()).hero.switchAltWithScroll) {
+										Minewatch.network.sendToServer(new CPacketSimple(3, false, player));
+										event.setCanceled(true);
+									}
 		}
 	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void updateKeys(ClientTickEvent event) {
-		if (event.phase == Phase.END && Minecraft.getMinecraft().player != null) {
+		if (event.phase == Phase.END) {
+			Minecraft mc = Minecraft.getMinecraft();
+			this.updateKeys(this.isLMBOnMouse(mc) ? null : KeyBind.LMB.checkIsKeyDown(mc));
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void updateKeys(@Nullable Boolean lmbDown) {
+		if (Minecraft.getMinecraft().player != null) {
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayerSP player = mc.player;
 			UUID uuid = player.getPersistentID();
-
-			// disable lmb and rmb if not in game screen
-			if (mc.currentScreen != null)
-				for (KeyBind key : new KeyBind[] {KeyBind.LMB, KeyBind.RMB})
-					if (key.isKeyDown(player)) {
-						key.setKeyDown(player, false);
-						Minewatch.network.sendToServer(new CPacketSyncKeys(key, false, uuid));
-					}
+			ItemStack main = player.getHeldItemMainhand();
+			ItemStack off = player.getHeldItemOffhand();
 
 			// sync keys
-			for (KeyBind key : new KeyBind[] {KeyBind.HERO_INFORMATION, KeyBind.RELOAD, KeyBind.ABILITY_1, KeyBind.ABILITY_2, KeyBind.ULTIMATE, KeyBind.JUMP, KeyBind.FOV}) {
-				boolean isKeyDown = key.checkIsKeyDown(mc);
+			for (KeyBind key : new KeyBind[] {KeyBind.HERO_INFORMATION, KeyBind.RELOAD, KeyBind.ABILITY_1, KeyBind.ABILITY_2, KeyBind.ULTIMATE, KeyBind.JUMP, KeyBind.FOV, KeyBind.RMB, KeyBind.LMB}) {
+				// only update lmb if needed
+				if (key == KeyBind.LMB && lmbDown == null && mc.currentScreen == null)
+					break;
+				// check key - false if currentScreen != null
+				boolean isKeyDown = key == KeyBind.LMB && lmbDown != null ? lmbDown : mc.currentScreen == null && key.checkIsKeyDown(mc);
 				if (key == KeyBind.FOV && mc.gameSettings.fovSetting != key.getFOV(uuid)) {
 					key.setFOV(uuid, mc.gameSettings.fovSetting);
 					Minewatch.network.sendToServer(new CPacketSyncKeys(key, mc.gameSettings.fovSetting, uuid));
 				}
-				else if (isKeyDown != key.isKeyDown(uuid)) {
+				else if (isKeyDown != key.isKeyDown(uuid) && (isKeyDown && 
+						((main != null && main.getItem() instanceof ItemMWWeapon) || 
+								(off != null && off.getItem() instanceof ItemMWWeapon)) &&
+						mc.currentScreen == null) || !isKeyDown) {
 					key.setKeyDown(uuid, isKeyDown);
 					Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
 					if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))
 						key.toggle(uuid, true, true);
 				}
 			}
-		}
+
+			// disable vanilla lmb if holding weapon and lmb down
+			if (!this.isLMBOnMouse(mc) && KeyBind.LMB.isKeyDown(player))
+				KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
+		}		
 	}
+
+	/**Is the left mouse button bound to a button on the mouse or a key*/
+	private boolean isLMBOnMouse(Minecraft mc) {
+		return mc.gameSettings.keyBindAttack.getKeyCode() == -100 ||
+				mc.gameSettings.keyBindAttack.getKeyCode() == -99 ||
+				mc.gameSettings.keyBindAttack.getKeyCode() == -98;
+	}
+
 }

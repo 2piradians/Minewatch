@@ -60,12 +60,12 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		if (player.world.isRemote) {
 			int time = this.getMaxItemUseDuration(stack)-count-10;
 			if (time == 4) 
-				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.3f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.3f, 1f, true);
 			else if (time == 10)
-				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.5f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.5f, 1.1f, true);
 			else if (time == 15) {
-				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.8f, 1f);
-				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.1f, 1f);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.8f, 1.8f, true);
+				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.1f, 1f, true);
 			}
 		}
 	}

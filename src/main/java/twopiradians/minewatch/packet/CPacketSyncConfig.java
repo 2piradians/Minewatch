@@ -99,24 +99,24 @@ public class CPacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.preventFallDamage);
 		buf.writeBoolean(this.allowGunWarnings);
 		buf.writeBoolean(this.projectilesCauseKnockback);
-		buf.writeDouble(this.tokenDropRate);
-		buf.writeDouble(this.wildCardRate);
+		buf.writeInt(this.tokenDropRate);
+		buf.writeInt(this.wildCardRate);
 		buf.writeFloat(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
 		
-		buf.writeBoolean(mobRandomSkins);
-		buf.writeInt(mobSpawn);
-		buf.writeInt(mobSpawnFreq);
-		buf.writeBoolean(mobTargetPlayers);
-		buf.writeBoolean(mobTargetHostiles);
-		buf.writeBoolean(mobTargetPassives);
-		buf.writeBoolean(mobTargetHeroes);
-		buf.writeInt(mobTokenDropRate);
-		buf.writeInt(mobWildCardDropRate);
-		buf.writeFloat(mobEquipmentDropRate);
-		buf.writeDouble(mobAttackCooldown);
-		buf.writeDouble(mobInaccuracy);
+		buf.writeBoolean(this.mobRandomSkins);
+		buf.writeInt(this.mobSpawn);
+		buf.writeInt(this.mobSpawnFreq);
+		buf.writeBoolean(this.mobTargetPlayers);
+		buf.writeBoolean(this.mobTargetHostiles);
+		buf.writeBoolean(this.mobTargetPassives);
+		buf.writeBoolean(this.mobTargetHeroes);
+		buf.writeInt(this.mobTokenDropRate);
+		buf.writeInt(this.mobWildCardDropRate);
+		buf.writeFloat(this.mobEquipmentDropRate);
+		buf.writeDouble(this.mobAttackCooldown);
+		buf.writeDouble(this.mobInaccuracy);
 	}
 
 	public static class Handler implements IMessageHandler<CPacketSyncConfig, IMessage> {

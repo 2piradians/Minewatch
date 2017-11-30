@@ -31,7 +31,6 @@ public class Minewatch {
     @SidedProxy(clientSide = "twopiradians.minewatch.client.ClientProxy", serverSide = "twopiradians.minewatch.common.CommonProxy")
 	public static CommonProxy proxy;
     public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
-	public static final Keys keys = new Keys();
 	public static File configFile;
 	
     @EventHandler

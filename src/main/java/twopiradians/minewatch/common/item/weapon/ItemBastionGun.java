@@ -111,14 +111,11 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-			//if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().hasTagCompound())
-				//System.out.println(world.isRemote+": "+player.getHeldItemMainhand().getTagCompound().getBoolean("alt_weapon"));
-			//System.out.println(TickHandler.hasHandler(player, Identifier.BASTION_TURRET)); // TODO
 			// stop turret if doesn't have handler (i.e. dies in turret form)
 			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
 				setAlternate(stack, false);
-				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));//TEST other player dying in turret -> still looks like turret to me
+				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));
 				hero.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}

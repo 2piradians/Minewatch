@@ -270,10 +270,10 @@ public class Keys {
 						key.setFOV(uuid, mc.gameSettings.fovSetting);
 						Minewatch.network.sendToServer(new CPacketSyncKeys(key, mc.gameSettings.fovSetting, uuid));
 					}
-					else if (isKeyDown != key.isKeyDown(uuid) && (isKeyDown && 
+					else if (isKeyDown != key.isKeyDown(uuid) && ((isKeyDown && 
 							((main != null && main.getItem() instanceof ItemMWWeapon) || 
 									(off != null && off.getItem() instanceof ItemMWWeapon)) &&
-							mc.currentScreen == null) || !isKeyDown) {
+							mc.currentScreen == null) || !isKeyDown)) {
 						key.setKeyDown(uuid, isKeyDown);
 						Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
 						if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))

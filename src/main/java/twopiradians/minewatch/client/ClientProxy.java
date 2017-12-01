@@ -372,7 +372,8 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public UUID getClientUUID() {
-		return Minecraft.getMinecraft().getSession().getProfile().getId();
+		return this.getClientPlayer() == null ? Minecraft.getMinecraft().getSession().getProfile().getId() :
+			this.getClientPlayer().getPersistentID();
 	}
 
 	@Override

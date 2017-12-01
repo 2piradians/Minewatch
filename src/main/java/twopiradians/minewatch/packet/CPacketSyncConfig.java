@@ -26,6 +26,7 @@ public class CPacketSyncConfig implements IMessage {
 	private float damageScale;
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
+	private boolean healMobs;
 	
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -51,6 +52,7 @@ public class CPacketSyncConfig implements IMessage {
 			this.damageScale = Config.damageScale;
 			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
 			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
+			this.healMobs = Config.healMobs;
 			
 			this.mobRandomSkins = Config.mobRandomSkins;
 			this.mobSpawn = Config.mobSpawn;
@@ -78,6 +80,7 @@ public class CPacketSyncConfig implements IMessage {
 		this.damageScale = buf.readFloat();
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
+		this.healMobs = buf.readBoolean();
 		
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -104,6 +107,7 @@ public class CPacketSyncConfig implements IMessage {
 		buf.writeFloat(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
+		buf.writeBoolean(this.healMobs);
 		
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -138,6 +142,7 @@ public class CPacketSyncConfig implements IMessage {
 							Config.damageScale = packet.damageScale;
 							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
 							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
+							Config.healMobs = packet.healMobs;
 							
 							Config.mobRandomSkins = packet.mobRandomSkins;
 							Config.mobSpawn = packet.mobSpawn;

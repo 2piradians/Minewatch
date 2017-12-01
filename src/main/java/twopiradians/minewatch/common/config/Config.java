@@ -59,6 +59,7 @@ public class Config {
 	public static int durabilityOptionWeapons;
 	public static int trackKillsOption;
 	public static boolean preventFallDamage;
+	public static boolean healMobs;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -153,6 +154,9 @@ public class Config {
 		for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
 			if (prop.getString().equals(DURABILITY_OPTIONS[i]))
 				durabilityOptionWeapons = i;
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow healing mobs", true, "Should healing abilities and attacks affect other mobs? This does not apply to Hero Mobs.");
+		healMobs = prop.getBoolean();
 
 		// Hero Mob options
 

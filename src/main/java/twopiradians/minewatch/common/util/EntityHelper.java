@@ -226,6 +226,9 @@ public class EntityHelper {
 		if (friendly && target instanceof EntityLiving && 
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
+		// prevent healing mobs with config option disabled
+		if (!Config.healMobs && friendly && !(target instanceof EntityPlayer || target instanceof EntityHero))
+			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 
 				entity.isOnSameTeam(target) == friendly);

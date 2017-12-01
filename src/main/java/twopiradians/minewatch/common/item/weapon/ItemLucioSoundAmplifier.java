@@ -103,7 +103,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		if (hand == EnumHand.MAIN_HAND && !world.isRemote && this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
 				hero.ability1.isSelected(player, false, hero.ability1, hero.ability2) && this.getCurrentAmmo(player) >= 4) {
 			this.subtractFromCurrentAmmo(player, 4, EnumHand.MAIN_HAND);
-			hero.ability1.keybind.setCooldown(player, 80, false); 
+			hero.ability1.keybind.setCooldown(player, 80, false);
 			player.getHeldItem(hand).damageItem(1, player);
 			Minewatch.network.sendToDimension(new SPacketSimple(38, player, false), world.provider.getDimension());
 			// if player, needs to get player motion from client
@@ -197,6 +197,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					double distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
 					Vec3d base = player.getLookVec().scale(player instanceof EntityHero ? 3 : 2);
+					base = new Vec3d(base.xCoord, base.yCoord * 1.5d, base.zCoord);
 					entity.motionX += (Math.abs(motionX)*look.xCoord+base.xCoord) * (8-distance) / 8f;
 					entity.motionY += (Math.abs(motionY+0.08d)*look.yCoord+base.yCoord+0.08d) * (8-distance) / 8f;
 					entity.motionZ += (Math.abs(motionZ)*look.zCoord+base.zCoord) * (8-distance) / 8f;
@@ -215,13 +216,13 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientTick(LivingUpdateEvent event) {
-		if (ItemMWArmor.SetManager.getWornSet(event.getEntityLiving()) == EnumHero.LUCIO &&
-				event.getEntityLiving().world.isRemote) {
+		if (event.getEntityLiving().world.isRemote) {
 			ItemStack main = event.getEntityLiving().getHeldItemMainhand();
 			UUID uuid = event.getEntityLiving().getPersistentID();
 			boolean heal = ItemMWWeapon.isAlternate(main);
 			// stop sounds if not holding amplifier
-			if (main == null || main.getItem() != this) {
+			if (ItemMWArmor.SetManager.getWornSet(event.getEntityLiving()) != EnumHero.LUCIO ||
+					main == null || main.getItem() != this) {
 				FollowingSound.stopPlaying(healSounds.get(uuid));
 				FollowingSound.stopPlaying(speedSounds.get(uuid));
 				healSounds.remove(uuid);

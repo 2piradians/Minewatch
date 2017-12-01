@@ -134,7 +134,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 			if (!world.isRemote)
 				ModSoundEvents.WIDOWMAKER_MINE_LAND.playSound(this, 1, 1);
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
-					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
+					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID())) 
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
 		}
 		this.prevOnGround = this.onGround;

@@ -35,7 +35,7 @@ public class EntityHanzo extends EntityHero {
 		@Override
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
-
+			
 			if (distance <= Math.sqrt(this.maxAttackDistance)) {
 				if (this.entity.isHandActive()) {
 					// wall-climb
@@ -63,11 +63,6 @@ public class EntityHanzo extends EntityHero {
 								this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 							}
 							this.attackCooldown = 20;
-							
-							if (KeyBind.ABILITY_2.isKeyDown(entity)) 
-								this.lookYOffset = (float) (-target.getEyeHeight()-0.1d);
-							else
-								this.lookYOffset = 0;
 						}
 					}
 				}
@@ -77,6 +72,11 @@ public class EntityHanzo extends EntityHero {
 			}
 			else
 				this.resetKeybinds();
+			
+			if (entity.hero.ability1.isSelected(entity)) 
+				this.lookYOffset = (float) (-target.getEyeHeight()-0.1d);
+			else
+				this.lookYOffset = 0;
 		}
 	}
 

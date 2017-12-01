@@ -70,17 +70,20 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	public static final Handler SONIC = new Handler(Identifier.LUCIO_SONIC, true) {
 		@Override
 		public boolean onServerTick() {
-			if (this.ticksLeft < this.initialTicks && this.ticksLeft % 2 == 0 && entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
-					entityLiving.getHeldItemMainhand().getItem() == EnumHero.LUCIO.weapon && 
-					EnumHero.LUCIO.weapon.canUse(entityLiving, false, EnumHand.MAIN_HAND, false, EnumHero.LUCIO.ability1, EnumHero.LUCIO.ability2)) {
-				EntityLucioSonic sonic = new EntityLucioSonic(entityLiving.world, entityLiving, EnumHand.MAIN_HAND.ordinal());
-				EntityHelper.setAim(sonic, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 50f, 0, EnumHand.MAIN_HAND, 12, 0.15f);
+			EnumHand hand = null;
+			if (this.number >= 0 && this.number < EnumHand.values().length)
+				hand = EnumHand.values()[(int) this.number];
+			if (hand != null && this.ticksLeft < this.initialTicks && this.ticksLeft % 2 == 0 && entityLiving != null && entityLiving.getHeldItem(hand) != null && 
+					entityLiving.getHeldItem(hand).getItem() == EnumHero.LUCIO.weapon && 
+					EnumHero.LUCIO.weapon.canUse(entityLiving, false, hand, false, EnumHero.LUCIO.ability1, EnumHero.LUCIO.ability2)) {
+				EntityLucioSonic sonic = new EntityLucioSonic(entityLiving.world, entityLiving, hand.ordinal());
+				EntityHelper.setAim(sonic, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 50f, 0, hand, 12, 0.15f);
 				entityLiving.world.spawnEntity(sonic);
 				if (this.ticksLeft >= this.initialTicks - 2)
 					ModSoundEvents.LUCIO_SHOOT.playFollowingSound(entityLiving, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/20+0.95f, false);
 				EnumHero.LUCIO.weapon.subtractFromCurrentAmmo(entityLiving, 1);
 				if (entityLiving.world.rand.nextInt(25) == 0)
-					entityLiving.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, entityLiving);
+					entityLiving.getHeldItem(hand).damageItem(1, entityLiving);
 			}
 			return super.onServerTick();
 		}
@@ -184,7 +187,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		// sonic attack
 		if (this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
 				!world.isRemote && !TickHandler.hasHandler(player, Identifier.LUCIO_SONIC)) {
-			TickHandler.register(false, SONIC.setEntity(player).setTicks(10));
+			TickHandler.register(false, SONIC.setEntity(player).setTicks(10).setNumber(hand.ordinal()));
 		}
 	}
 
@@ -256,24 +259,26 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
-		// passive speed / heal
-		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == this) {
+			// passive speed / heal
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
-		GlStateManager.pushMatrix();
-		boolean heal = isAlternate(player.getHeldItemMainhand());
-		double scale = 0.3d*Config.guiScale;
-		GlStateManager.scale(scale, scale, 1);
-		GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_passive.png"));
-		GuiUtils.drawTexturedModalRect((int) ((heal ? -8 : 10) / scale), (int) (50 / scale), 0, heal ? 100 : 0, 256, 100, 0);
-		GlStateManager.popMatrix();
-		if (this.affectedEntities > 0)
-			Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(String.valueOf(this.affectedEntities), 
-					(int) (width/2d - Minecraft.getMinecraft().fontRendererObj.getStringWidth(String.valueOf(this.affectedEntities))/2d)+1, 
-					(int) (height/2d)+22, 0xFFFFFF);
+			GlStateManager.pushMatrix();
+			boolean heal = isAlternate(player.getHeldItemMainhand());
+			double scale = 0.3d*Config.guiScale;
+			GlStateManager.scale(scale, scale, 1);
+			GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_passive.png"));
+			GuiUtils.drawTexturedModalRect((int) ((heal ? -8 : 10) / scale), (int) (50 / scale), 0, heal ? 100 : 0, 256, 100, 0);
+			GlStateManager.popMatrix();
+			if (this.affectedEntities > 0)
+				Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(String.valueOf(this.affectedEntities), 
+						(int) (width/2d - Minecraft.getMinecraft().fontRendererObj.getStringWidth(String.valueOf(this.affectedEntities))/2d)+1, 
+						(int) (height/2d)+22, 0xFFFFFF);
 
-		GlStateManager.disableBlend();
+			GlStateManager.disableBlend();
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -284,21 +289,21 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					((EntityLivingBase) entity).getHeldItemMainhand() != null && 
 					((EntityLivingBase) entity).getHeldItemMainhand().getItem() == this &&
 					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, true)) {
-				
+
 				float partialTicks = event.getPartialTicks();
 				Entity player = Minecraft.getMinecraft().getRenderViewEntity();
 				if (player == null)
 					player = Minecraft.getMinecraft().player;
-	            double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
-	            double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
-	            double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
-	            double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
-	            double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
-	            double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
+				double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
+				double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
+				double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
+				double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
+				double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
+				double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
 				double x = entityX-playerX;
 				double y = entityY-playerY;
 				double z = entityZ-playerZ;
-				
+
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);

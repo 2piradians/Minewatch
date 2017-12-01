@@ -210,8 +210,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		source = EntityHelper.getThrower(source);
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
-			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote &&
-					ItemMWArmor.SetManager.getWornSet(beam.player) == EnumHero.MERCY) {
+			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				if (beam.player instanceof EntityPlayerMP)

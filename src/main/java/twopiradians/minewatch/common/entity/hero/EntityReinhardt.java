@@ -18,7 +18,7 @@ public class EntityReinhardt extends EntityHero {
 	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
-		this.tasks.addTask(2, new EntityHeroAIAttackReinhardt(this, MovementType.MELEE, 3));
+		this.tasks.addTask(2, new EntityHeroAIAttackReinhardt(this, MovementType.STRAFING, 3));
 	}
 
 	public class EntityHeroAIAttackReinhardt extends EntityHeroAIAttackBase {

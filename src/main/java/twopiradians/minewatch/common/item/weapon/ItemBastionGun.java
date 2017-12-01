@@ -33,7 +33,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public boolean onClientTick() {
-			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+			if (entityLiving != null && entityLiving.isEntityAlive() && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
 					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
@@ -53,7 +53,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		}
 		@Override
 		public boolean onServerTick() {
-			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+			if (entityLiving != null && entityLiving.isEntityAlive() && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
 					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
@@ -111,7 +111,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-
+			//if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().hasTagCompound())
+				//System.out.println(world.isRemote+": "+player.getHeldItemMainhand().getTagCompound().getBoolean("alt_weapon"));
+			//System.out.println(TickHandler.hasHandler(player, Identifier.BASTION_TURRET)); // TODO
 			// stop turret if doesn't have handler (i.e. dies in turret form)
 			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {

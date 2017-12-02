@@ -52,7 +52,7 @@ public class BakedMWItem extends OBJBakedModel {
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
 			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, cameraTransformType, ret);
-
+		
 		return ret;
 	}
 

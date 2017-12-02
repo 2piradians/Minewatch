@@ -106,10 +106,6 @@ public class EntityHero extends EntityMob {
 		if (!this.isEntityAlive() || hero == null)
 			return;
 
-		// reset to default skin if random skins disabled
-		if (!world.isRemote && !Config.mobRandomSkins && this.getDataManager().get(SKIN) != 0)
-			this.getDataManager().set(SKIN, 0);
-
 		// make body follow head
 		if (this.getHeldItemMainhand() != null && 
 				this.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
@@ -127,7 +123,7 @@ public class EntityHero extends EntityMob {
 		if (!this.world.isRemote) {
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 				ItemStack stack = this.getItemStackFromSlot(slot);
-				if (stack == null || stack.isEmpty()) {
+				if ((stack == null || stack.isEmpty()) && hero.getEquipment(slot) != null) {
 					stack = new ItemStack(hero.getEquipment(slot));
 					this.setItemStackToSlot(slot, stack);
 				}

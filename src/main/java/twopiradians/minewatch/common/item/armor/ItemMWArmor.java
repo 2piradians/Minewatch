@@ -123,6 +123,8 @@ public class ItemMWArmor extends ItemArmor {
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
 			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
 			hero.getSkin(entity.getPersistentID());
+			if (skin < 0 || skin >= hero.skinInfo.length)
+				skin = 0;
 		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
 		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}

@@ -461,7 +461,7 @@
 			"minewatch:mercy_reload"
 		]
 	},
-	"mercy_heal": {
+	"mercy_heal_voice": {
 		"category": "player",
 		"sounds": [
 			"minewatch:mercy_heal_0",
@@ -471,7 +471,7 @@
 			"minewatch:mercy_heal_4"
 		]
 	},
-	"mercy_damage": {
+	"mercy_damage_voice": {
 		"category": "player",
 		"sounds": [
 			"minewatch:mercy_damage_0",

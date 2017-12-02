@@ -160,9 +160,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 					ModSoundEvents.MERCY_BEAM_START.playSound(entity, 0.8f, 1f);
 					ModSoundEvents.MERCY_BEAM_DURING.playSound(entity, 0.8f, 1f);
 					if (beam.isHealing())
-						ModSoundEvents.MERCY_HEAL.playFollowingSound(entity, 1, 1, false);
+						ModSoundEvents.MERCY_HEAL_VOICE.playFollowingSound(entity, 1, 1, false);
 					else
-						ModSoundEvents.MERCY_DAMAGE.playFollowingSound(entity, 1, 1, false);
+						ModSoundEvents.MERCY_DAMAGE_VOICE.playFollowingSound(entity, 1, 1, false);
 				}
 			}
 			if (beams.containsKey(entity) && beams.get(entity).target != null) {

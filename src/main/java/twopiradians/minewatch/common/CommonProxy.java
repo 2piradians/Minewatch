@@ -107,7 +107,6 @@ public class CommonProxy {
 
 	public void init(FMLInitializationEvent event) {
 		ModPotions.init();
-		registerEventListeners();
 		registerCraftingRecipes();
 	}
 

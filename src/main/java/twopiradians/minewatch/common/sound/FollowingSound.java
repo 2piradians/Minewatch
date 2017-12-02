@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.sound;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.entity.Entity;
@@ -7,13 +9,14 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 
 @SideOnly(Side.CLIENT)
 public class FollowingSound extends MovingSound {
 
 	private final Entity entity;
 	private int junkratGrenadeBounces;
+	public boolean lucioSound;
 
 	public FollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
 		super(event, category);
@@ -25,19 +28,26 @@ public class FollowingSound extends MovingSound {
 
 		// junkrat grenade tick
 		if (entity instanceof EntityJunkratGrenade)
-			for (int i=0; i<ModSoundEvents.junkratGrenadeTick.length; ++i)
-				if (event.equals(ModSoundEvents.junkratGrenadeTick[i]))
-					junkratGrenadeBounces = i;
+			junkratGrenadeBounces = ((EntityJunkratGrenade)entity).bounces;
 	}
 
 	public void update() {
-		if (this.entity != null && this.entity.isEntityAlive() && (!(entity instanceof EntityJunkratGrenade) || 
-				((EntityJunkratGrenade)entity).bounces == this.junkratGrenadeBounces)) {
+		if (this.entity != null && this.entity.isEntityAlive() && 
+				(!(entity instanceof EntityJunkratGrenade) || 
+						((EntityJunkratGrenade)entity).bounces == this.junkratGrenadeBounces)) {
 			this.xPosF = (float)this.entity.posX;
 			this.yPosF = (float)this.entity.posY;
 			this.zPosF = (float)this.entity.posZ;
+			if (this.lucioSound && this.volume > 0.1f)
+				this.volume = Math.max(0.1f, this.volume-0.005f);
 		}
 		else 
 			this.donePlaying = true;
 	}
+
+	public static void stopPlaying(@Nullable FollowingSound sound) {
+		if (sound != null)
+			sound.donePlaying = true;
+	}
+
 }

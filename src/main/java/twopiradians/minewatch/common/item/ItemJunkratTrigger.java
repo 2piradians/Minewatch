@@ -25,6 +25,11 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 	}
 
 	@Override
+	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
+		return false;
+	}
+
+	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;
 	}
@@ -34,24 +39,24 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 		if (!world.isRemote) {
 			// if not wearing full set, mine is dead, or main is not junkrat's launcher
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
-					(ItemMWArmor.SetManager.entitiesWearingSets.get(entity.getPersistentID()) != EnumHero.JUNKRAT ||
+					(ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||
 					EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) {
-				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, null);
+				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
 			}
 			// if not in offhand
 			else if (entity instanceof EntityPlayer && 
 					((EntityPlayer)entity).getHeldItemOffhand() != stack &&
 					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
-				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
+				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			}
 		}
 	}
 
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null) {
+		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null) {
 			entityItem.setDead();
 			return true;
 		}

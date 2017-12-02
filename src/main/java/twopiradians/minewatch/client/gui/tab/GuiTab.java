@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -55,10 +56,10 @@ public class GuiTab extends GuiScreen {
 
 	public GuiTab() {
 		GuiTab.activeTab = this;
-		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer.getGameProfile(), Minecraft.getMinecraft().thePlayer);
-		mainScreenHero = EnumHero.values()[guiPlayer.worldObj.rand.nextInt(EnumHero.values().length)];
+		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().world, Minecraft.getMinecraft().player.getGameProfile(), Minecraft.getMinecraft().player);
+		mainScreenHero = EnumHero.values()[guiPlayer.world.rand.nextInt(EnumHero.values().length)];
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
-			guiPlayer.setItemStackToSlot(slot, mainScreenHero.getEquipment(slot) == null ? null : new ItemStack(mainScreenHero.getEquipment(slot)));
+			guiPlayer.setItemStackToSlot(slot, mainScreenHero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(mainScreenHero.getEquipment(slot)));
 		GuiTab.currentScreen = Screen.MAIN;
 		GuiTab.currentMap = MinecraftMap.values()[0];
 	}
@@ -78,7 +79,7 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+0, 95, 20, "Hero Gallery", Screen.MAIN));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+25, 95, 20, "Options", Screen.MAIN));
 		if (!this.mc.isSingleplayer())
-			Minewatch.network.sendToServer(new CPacketSimple(1, mc.thePlayer));
+			Minewatch.network.sendToServer(new CPacketSimple(1, false, mc.player));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+50, 95, 20, "Submit a Skin/Map", Screen.MAIN));
 		// Screen.MAPS
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
@@ -117,7 +118,7 @@ public class GuiTab extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.guiPlayer.ticksExisted = Minecraft.getMinecraft().thePlayer.ticksExisted;
+		this.guiPlayer.ticksExisted = Minecraft.getMinecraft().player.ticksExisted;
 
 		GlStateManager.pushMatrix();
 		// background
@@ -129,7 +130,7 @@ public class GuiTab extends GuiScreen {
 		switch (GuiTab.currentScreen) {
 		case MAIN:
 			this.drawTexturedModalRect(this.guiLeft, this.guiTop+2, 0, 230, 130, 24);
-			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().thePlayer.getPersistentID()), mouseX, mouseY);
+			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
 			break;
 		case MAPS:
@@ -142,7 +143,7 @@ public class GuiTab extends GuiScreen {
 			currentMap.drawBackground(this);
 			// map info
 			this.drawDefaultBackground();
-			int textHeight = mc.fontRendererObj.splitStringWidth(currentMap.map.info, 300);
+			int textHeight = mc.fontRendererObj.getWordWrappedHeight(currentMap.map.info, 300);
 			mc.fontRendererObj.drawSplitString(currentMap.map.info, this.width/2-150, this.height/2-textHeight/2, 300, 0xFFFFFF);
 			break;
 		case GALLERY:
@@ -154,7 +155,7 @@ public class GuiTab extends GuiScreen {
 			this.fontRendererObj.drawString(TextFormatting.ITALIC+"HERO GALLERY", (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO:
-			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().thePlayer.getPersistentID()), mouseX, mouseY);
+			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			// hero name
 			textScale = 1.5d;
 			GlStateManager.scale(textScale, textScale, 1);
@@ -167,7 +168,7 @@ public class GuiTab extends GuiScreen {
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		case GALLERY_HERO_SKINS:
-			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().thePlayer.getPersistentID()), mouseX, mouseY);
+			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			// hero name
 			textScale = 1.5d;
 			GlStateManager.scale(textScale, textScale, 1);
@@ -208,9 +209,7 @@ public class GuiTab extends GuiScreen {
 			else if (button.displayString.equals("Hero Gallery"))
 				GuiTab.currentScreen = Screen.GALLERY;
 			else if (button.displayString.equals("Options"))
-				try {
-					Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().mainConfigGuiClass().getConstructor(GuiScreen.class).newInstance(this));
-				} catch (Exception e) {} 	
+				Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().createConfigGui(this));
 			else if (button.displayString.equals("") && button instanceof GuiButtonTab)
 				Minewatch.network.sendToServer(new CPacketSyncConfig());
 			else if (button.displayString.equals("Submit a Skin/Map"))
@@ -265,16 +264,22 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS_INFO;
 			else if (button.displayString.equals("?")) {
 				EnumHero.Skin skin = galleryHero.skinInfo[button.id];
-				Minecraft.getMinecraft().thePlayer.addChatMessage(new TextComponentString(
+				ITextComponent component = new TextComponentString(
 						"This skin is ")
 						.appendSibling(new TextComponentString(TextFormatting.BLUE+""+TextFormatting.UNDERLINE+skin.skinName).setStyle(
 								new Style().setClickEvent(new ClickEvent(Action.OPEN_URL, skin.address))))
-						.appendSibling(new TextComponentString(" by "+skin.author)));
+						.appendSibling(new TextComponentString(" by "+skin.author));
+				if (skin.originalSkinName != null && skin.originalAddress != null && skin.originalAuthor != null)
+					component = component.appendSibling(new TextComponentString(", edited from "))
+					.appendSibling(new TextComponentString(TextFormatting.BLUE+""+TextFormatting.UNDERLINE+skin.originalSkinName).setStyle(
+							new Style().setClickEvent(new ClickEvent(Action.OPEN_URL, skin.originalAddress))))
+					.appendSibling(new TextComponentString(" by "+skin.originalAuthor));
+				Minecraft.getMinecraft().player.sendMessage(component);
 			}
 			else if (button instanceof GuiButtonSkin) 
-				if (galleryHero.getSkin(Minecraft.getMinecraft().thePlayer.getPersistentID()) != button.id) {
-					galleryHero.setSkin(Minecraft.getMinecraft().thePlayer.getPersistentID(), button.id);
-					Minewatch.network.sendToServer(new CPacketSyncSkins(Minecraft.getMinecraft().thePlayer.getPersistentID()));
+				if (galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()) != button.id) {
+					galleryHero.setSkin(Minecraft.getMinecraft().player.getPersistentID(), button.id);
+					Minewatch.network.sendToServer(new CPacketSyncSkins(Minecraft.getMinecraft().player.getPersistentID()));
 				}
 			break;
 		case GALLERY_HERO_SKINS_INFO:
@@ -321,7 +326,7 @@ public class GuiTab extends GuiScreen {
 				return;
 			}
 		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
-			this.mc.displayGuiScreen(new GuiInventory(this.mc.thePlayer));
+			this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
 			for (AbstractTab tab : TabRegistry.getTabList())
 				tab.visible = true;
 		}
@@ -334,7 +339,7 @@ public class GuiTab extends GuiScreen {
 				(this.guiPlayer.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
 						((ItemMWWeapon)this.guiPlayer.getHeldItemMainhand().getItem()).hero != hero))
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
-				guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? null : new ItemStack(hero.getEquipment(slot)));
+				guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
 		this.guiPlayer.skin = skin;
 		// draw hero
 		int x = this.guiLeft + 190;

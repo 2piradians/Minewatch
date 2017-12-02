@@ -17,7 +17,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,8 +29,8 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntitySombraBullet;
-import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -49,10 +48,11 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			if (this.entity != null && this.entity.isEntityAlive() && this.entityLiving != null && 
-					ItemMWArmor.SetManager.entitiesWearingSets.get(this.entityLiving.getPersistentID()) == EnumHero.SOMBRA &&
+					ItemMWArmor.SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
 					!this.entityLiving.canEntityBeSeen(entity) && entity instanceof EntityLivingBase && 
 					((EntityLivingBase)entity).getHealth() > 0 &&
-					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f) {
+					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f &&
+					!TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE)) {
 				this.ticksLeft = this.initialTicks;
 				return null;
 			}
@@ -69,10 +69,10 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
 				if (this.ticksLeft == 8) 
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.worldObj, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.world, 
 							this.entityLiving.posX, this.entityLiving.posY+this.entityLiving.height/2d, this.entityLiving.posZ, 0, 0, 0, 0x9F62E5, 0x8E77BC, 1f, 15, 25, 1, 0, 0);
 				else if (this.ticksLeft == 2)
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.worldObj, this.entityLiving, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.world, this.entityLiving, 
 							0x9F62E5, 0x8E77BC, 1f, 10, 5, 40, 0, 0);
 			}
 
@@ -93,10 +93,10 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (this.ticksLeft == 14) {
-				if (this.player == Minewatch.proxy.getClientPlayer() && player.worldObj.isRemote)
-					Minewatch.proxy.stopSound(player, ModSoundEvents.sombraInvisibleStart, SoundCategory.PLAYERS);
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleStop, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
-				Minewatch.proxy.playFollowingSound(entity, ModSoundEvents.sombraInvisibleVoice, SoundCategory.PLAYERS, 0.7f, 1.0f, false);
+				if (this.player == Minewatch.proxy.getClientPlayer() && player.world.isRemote)
+					ModSoundEvents.SOMBRA_INVISIBLE_START.stopSound(player);
+				ModSoundEvents.SOMBRA_INVISIBLE_STOP.playFollowingSound(entity, 1, 1, false);
+				ModSoundEvents.SOMBRA_INVISIBLE_VOICE.playFollowingSound(entity, 0.7f, 1, false);
 			}
 
 			return super.onClientTick();
@@ -115,15 +115,15 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public Handler onClientRemove() {
 			Handler handler = TickHandler.getHandler(entity, Identifier.ABILITY_USING);
 			if (handler != null && handler.ability == EnumHero.SOMBRA.ability3 && entity != null)
-				TickHandler.unregister(entity.worldObj.isRemote, handler);
+				TickHandler.unregister(entity.world.isRemote, handler);
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-			EnumHero.SOMBRA.ability3.keybind.setCooldown(player, 120, false); 
+			EnumHero.SOMBRA.ability3.keybind.setCooldown(entityLiving, 120, false); 
 			Handler handler = TickHandler.getHandler(entity, Identifier.ABILITY_USING);
 			if (handler != null && handler.ability == EnumHero.SOMBRA.ability3 && entity != null)
-				TickHandler.unregister(entity.worldObj.isRemote, handler);
+				TickHandler.unregister(entity.world.isRemote, handler);
 			return super.onServerRemove();
 		}
 	};
@@ -135,18 +135,16 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		cancelInvisibility(player);
 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 1.5F, hand, 12, 0.43f);
-				world.spawnEntityInWorld(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.sombraShoot, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-						world.rand.nextFloat()/3+0.8f);	
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, hand, 12, 0.43f);
+				world.spawnEntity(bullet);
+				ModSoundEvents.SOMBRA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
@@ -158,8 +156,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// cancel invisibility
 			Handler handler = TickHandler.getHandler(player, Identifier.SOMBRA_INVISIBLE);
@@ -183,11 +181,12 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				Entity translocator = hero.ability2.entities.get(player);
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
 					if (translocator.ticksExisted > 10) {
-						Minewatch.proxy.stopSound(player, ModSoundEvents.sombraTranslocatorDuring, SoundCategory.PLAYERS);
-						Minewatch.proxy.playFollowingSound(player, ModSoundEvents.sombraTranslocatorTeleport, SoundCategory.PLAYERS, 1.0f, 1.0f, false);
+						if (player instanceof EntityPlayer)
+							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
+						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
 						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
 								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
-						Minewatch.network.sendToDimension(new SPacketSimple(29, false, player, 
+						Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
 								translocator.posX, translocator.posY, translocator.posZ), world.provider.getDimension());
 						translocator.setDead();
 						hero.ability2.keybind.setCooldown(player, 80, false);
@@ -196,26 +195,27 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// throw new translocator
 				else {
 					translocator = new EntitySombraTranslocator(world, player);
-					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYaw, 25, 0, null, 0, 0);
-					world.playSound(null, player.getPosition(), ModSoundEvents.sombraTranslocatorThrow, SoundCategory.PLAYERS, 1.0f, 1.0f);
-					world.spawnEntityInWorld(translocator);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
+					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 					hero.ability2.entities.put(player, translocator);
 					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
-					Minewatch.network.sendToDimension(new SPacketSimple(35, false, player, 0, 0, 0, translocator), world.provider.getDimension());
+					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), world.provider.getDimension());
 				}
 			}
 
 			// passive
-			if (isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-					world.isRemote && entity.ticksExisted % 5 == 0) {
-				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-				List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			if (player == Minewatch.proxy.getClientPlayer() && isSelected && 
+					this.canUse(player, false, EnumHand.MAIN_HAND, true) &&
+					world.isRemote && player.ticksExisted % 5 == 0) {
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(30);
+				List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 				for (Entity entity2 : list) 
 					if (!TickHandler.hasHandler(entity2, Identifier.SOMBRA_OPPORTUNIST) && 
 							entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
 							((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f &&
-							!entity2.isGlowing() && !((EntityPlayer)entity).canEntityBeSeen(entity2)) {
+							!entity2.isGlowing() && !player.canEntityBeSeen(entity2) && !TickHandler.hasHandler(entity2, Identifier.SOMBRA_INVISIBLE)) {
 						entity2.setGlowing(true);
 						TickHandler.register(true, OPPORTUNIST.setEntity(entity2).setEntityLiving(player).setTicks(5));
 					}
@@ -228,8 +228,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
 		if (handler != null && handler.ticksLeft > 14) {
 			handler.ticksLeft = 14;
-			if (!entity.worldObj.isRemote)
-				Minewatch.network.sendToDimension(new SPacketSimple(27, entity, false), entity.worldObj.provider.getDimension());
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(27, entity, false), entity.world.provider.getDimension());
 		}
 	}
 
@@ -241,7 +241,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
 		// invisibility / teleport
 		float time = 14;
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
@@ -257,9 +257,11 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			else if (handler.ticksLeft < time)
 				percent = handler.ticksLeft / time;
 			// full alpha if not friendly
-			float alpha = EntityHelper.shouldHit(entity, Minecraft.getMinecraft().thePlayer, false) ? 1 : 0.5f;
+			float alpha = EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, false) ? 1 : 0.5f;
 			GlStateManager.color((255f-20f*percent)/255f, (255f-109f*percent)/255f, (255f-3f*percent)/255f, 1f-percent*alpha);
+			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -267,7 +269,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
 		// hide gun if not friendly
 		if (TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) && 
-				EntityHelper.shouldHit(entity, Minecraft.getMinecraft().thePlayer, false)) 
+				EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, false)) 
 			ret.getRight().setScale(0);
 		return ret;
 	}
@@ -275,7 +277,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
-		Entity entity = ItemMWWeapon.getEntity(Minecraft.getMinecraft().theWorld, stack);
+		Entity entity = ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack);
 		return TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) ||
 				TickHandler.hasHandler(entity, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
 	}

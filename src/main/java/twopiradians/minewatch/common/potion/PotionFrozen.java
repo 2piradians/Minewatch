@@ -11,7 +11,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -59,9 +58,8 @@ public class PotionFrozen extends Potion {
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entity, AbstractAttributeMap map, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entity, map, amplifier);
 
-		Minewatch.network.sendToDimension(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ), entity.worldObj.provider.getDimension());
-		entity.worldObj.playSound(null, entity.getPosition(), ModSoundEvents.meiUnfreeze, SoundCategory.NEUTRAL, 0.8f, 1.0f);
-
+		Minewatch.network.sendToDimension(new SPacketSimple(23, entity, false, entity.posX, entity.posY+entity.height/2, entity.posZ), entity.world.provider.getDimension());
+		ModSoundEvents.MEI_UNFREEZE.playSound(entity, 0.8f, 1);
 		// remove potion effect on client
 		if (entity instanceof EntityPlayerMP)
 			Minewatch.network.sendTo(new SPacketSimple(8), (EntityPlayerMP) entity);
@@ -78,9 +76,9 @@ public class PotionFrozen extends Potion {
 					event.getEntity().maxHurtTime = -1;
 					event.getEntity().hurtTime = -1;
 					GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
-					Random rand = event.getEntity().worldObj.rand;
+					Random rand = event.getEntity().world.rand;
 					if (rand.nextInt(130 - freeze*2) == 0)
-						event.getEntity().worldObj.spawnParticle(EnumParticleTypes.SNOW_SHOVEL, 
+						event.getEntity().world.spawnParticle(EnumParticleTypes.SNOW_SHOVEL, 
 								(event.getEntity().posX+rand.nextDouble()-0.5d)*event.getEntity().width, 
 								event.getEntity().posY+rand.nextDouble()-0.5d+event.getEntity().height/2, 
 								(event.getEntity().posZ+rand.nextDouble()-0.5d)*event.getEntity().width, 
@@ -89,7 +87,7 @@ public class PotionFrozen extends Potion {
 								(rand.nextDouble()-0.5d)*0.5d, 
 								new int[0]);
 					if (rand.nextInt(70 - freeze*2) == 0)
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, event.getEntity().worldObj, 
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, event.getEntity().world, 
 								event.getEntity().posX+rand.nextDouble()-0.5d, 
 								event.getEntity().posY+rand.nextDouble()-0.5d+event.getEntity().height/2, 
 								event.getEntity().posZ+rand.nextDouble()-0.5d, 

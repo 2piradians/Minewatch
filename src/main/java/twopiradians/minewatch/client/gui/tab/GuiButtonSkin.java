@@ -19,7 +19,7 @@ public class GuiButtonSkin extends GuiButton {
 		this.visible = GuiTab.currentScreen == screen && id < GuiTab.galleryHero.skinInfo.length;
 		
 		if (this.visible && !this.displayString.equals("?")) {
-			this.enabled = GuiTab.galleryHero.getSkin(mc.thePlayer.getPersistentID()) != this.id;
+			this.enabled = GuiTab.galleryHero.getSkin(mc.player.getPersistentID()) != this.id;
 			EnumHero.Skin skin = GuiTab.galleryHero.skinInfo[id];
 			this.displayString = skin.owName.toUpperCase();
 		}

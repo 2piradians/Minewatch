@@ -51,7 +51,7 @@ public class SPacketSyncCooldown implements IMessage{
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+					EntityPlayer player = Minecraft.getMinecraft().player;
 					KeyBind keybind = KeyBind.valueOf(packet.keybind);
 					if (player != null && keybind != null)
 						keybind.setCooldown(player, packet.cooldown, packet.silent);

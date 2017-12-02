@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,7 +51,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);
+			EntityHelper.setRotations(this); 
 		}
 	}
 
@@ -79,7 +80,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
-				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
+				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
 		}
 
 		if (this.hurtTime > 0)
@@ -89,12 +90,18 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (this.recentlyHit > 0)
 			--this.recentlyHit;
 
-		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
+		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
 				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64 || !this.getThrower().isEntityAlive()))
 			this.setDead();
+		
+		// spawn trail particles
+		if (this.world.isRemote)
+			this.spawnTrailParticles();
 
 		this.firstUpdate = false;
 	}
+	
+	public void spawnTrailParticles() {}
 
 	/**Should this result trigger onImpact - moves to hit position if entity*/
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
@@ -146,7 +153,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn) {
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -160,7 +167,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	}
 	
 	@Override
-    public boolean canBeCollidedWith() {return false;}
+    public boolean canBeCollidedWith() {return true;}
     @Override
     public boolean canBePushed() {return false;}
 	@Override

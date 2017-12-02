@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {
@@ -29,7 +29,7 @@ public class RenderJunkratTrap extends RenderOBJModel<EntityJunkratTrap> {
 		GlStateManager.rotate(180, 1, 0, 0);
 		
 		if (entity.onGround && entity.trappedTicks == 0 && 
-				EntityHelper.shouldHit(entity, Minecraft.getMinecraft().thePlayer, false))
+				EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, false))
 			GlStateManager.translate(0, -0.2d, 0);
 		
 		// rotate while thrown

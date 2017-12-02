@@ -15,7 +15,6 @@ import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
@@ -28,10 +27,11 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -57,32 +57,32 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.ticksLeft < this.initialTicks - 10 && this.ticksLeft > 10) {
 				// sleep particles in overlay
-				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().thePlayer && player != null &&
+				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().player && player != null &&
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					Vec3d eyes = EntityHelper.getPositionEyes(player).add(player.getLookVec());
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.worldObj, 
-							eyes.xCoord+player.worldObj.rand.nextFloat()-0.5f, 
-							eyes.yCoord+player.worldObj.rand.nextFloat()-0.5f, 
-							eyes.zCoord+player.worldObj.rand.nextFloat()-0.5f, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.world, 
+							eyes.xCoord+player.world.rand.nextFloat()-0.5f, 
+							eyes.yCoord+player.world.rand.nextFloat()-0.5f, 
+							eyes.zCoord+player.world.rand.nextFloat()-0.5f, 
 							0, 0.02f, 0, 0xFFFFFF, 0xACD8E5, 1f, 20, 0.5f, 0.7f, 
-							(player.worldObj.rand.nextFloat()-0.5f)*0.8f, (player.worldObj.rand.nextFloat()-0.5f)*0.05f);
+							(player.world.rand.nextFloat()-0.5f)*0.8f, (player.world.rand.nextFloat()-0.5f)*0.05f);
 				}
 				// sleep particles over entity
 				if (this.ticksLeft % 7 == 0) 
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, entity.worldObj, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, entity.world, 
 							entity.posX-entity.getEyeHeight()/2d, 
 							entity.posY+entity.width/2d, 
 							entity.posZ+entity.width/2d, 
-							(entity.worldObj.rand.nextFloat()-0.5f)*0.1f, 
+							(entity.world.rand.nextFloat()-0.5f)*0.1f, 
 							0.2f*Math.max(entity.width, 1), 
-							(entity.worldObj.rand.nextFloat()-0.5f)*0.1f, 0xFFFFFF, 0xACD8E5, 1f, 
-							(int) ((entity.worldObj.rand.nextInt(20)+10)*Math.max(entity.width, 1)), 2, 4, 
-							(entity.worldObj.rand.nextFloat()-0.5f)*0.8f, (entity.worldObj.rand.nextFloat()-0.5f)*0.05f);
+							(entity.world.rand.nextFloat()-0.5f)*0.1f, 0xFFFFFF, 0xACD8E5, 1f, 
+							(int) ((entity.world.rand.nextInt(20)+10)*Math.max(entity.width, 1)), 2, 4, 
+							(entity.world.rand.nextFloat()-0.5f)*0.8f, (entity.world.rand.nextFloat()-0.5f)*0.05f);
 				// smokey particles on entity
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.worldObj, 
-						entity.posX+(entity.worldObj.rand.nextFloat()-0.5f)*entity.height, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
+						entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.height, 
 						entity.posY+0.2f, 
-						entity.posZ+(entity.worldObj.rand.nextFloat()-0.5f)*entity.width, 
+						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
 						0, 0.1f*entity.width, 0, 0x828BA5, 0xBDCAEF, 0.5f, (int) (13*entity.width), 4, 4, 0, 0);
 			}
 			return super.onClientTick();
@@ -113,22 +113,19 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			if (!world.isRemote) {
 				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
-						hero.playersUsingAlt.contains(player.getPersistentID()));
+						isAlternate(stack));
 				boolean scoped = isScoped(player, stack);
-				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, scoped ? -1f : 90f, 0,  
+				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
-				world.spawnEntityInWorld(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.anaShoot, SoundCategory.PLAYERS, 
-						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				world.spawnEntity(bullet);
+				ModSoundEvents.ANA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 20);
+				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
@@ -140,23 +137,20 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, itemSlot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// sleep dart
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
-				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYaw, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
-				world.spawnEntityInWorld(dart);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						ModSoundEvents.anaSleepShoot, SoundCategory.PLAYERS, 
-						world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);	
+				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYawHead, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
+				world.spawnEntity(dart);
+				ModSoundEvents.ANA_SLEEP_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				if (player instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketSimple(21, false, player, 10, 0, 0), (EntityPlayerMP) player);
+					Minewatch.network.sendTo(new SPacketSimple(21, false, (EntityPlayer) player, 10, 0, 0), (EntityPlayerMP) player);
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
-				if (!player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 20);
+				this.setCooldown(player, 20);
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability2.keybind.setCooldown(player, 240, false); 
@@ -164,13 +158,13 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 
 		// scope while right click
-		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() != stack && 
-				isScoped((EntityPlayer) entity, stack)) 
-			((EntityPlayer)entity).setActiveHand(EnumHand.MAIN_HAND);
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
+				isScoped((EntityLivingBase) entity, stack)) 
+			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
-		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).getActiveItemStack() == stack && 
-				!isScoped((EntityPlayer) entity, stack))
-			((EntityPlayer)entity).resetActiveHand();
+		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
+				!isScoped((EntityLivingBase) entity, stack))
+			((EntityLivingBase)entity).resetActiveHand();
 	}
 
 	@SubscribeEvent
@@ -185,8 +179,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					handler.ticksLeft = 10;
 			}
 			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));
-			for (EntityPlayer player : event.getEntity().worldObj.playerEntities)
-				Minewatch.proxy.stopSound(player, ModSoundEvents.anaSleepHit, SoundCategory.PLAYERS);
+			ModSoundEvents.ANA_SLEEP_HIT.stopSound(event.getEntity().world);
 		}
 	}
 
@@ -223,18 +216,18 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	/**Is this player scoping with the stack*/
-	public static boolean isScoped(EntityPlayer player, ItemStack stack) {
+	public static boolean isScoped(EntityLivingBase player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-				(player.getActiveItemStack() == stack || Minewatch.keys.rmb(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
-				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !Minewatch.keys.jump(player);
+				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
+				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 
 	//PORT correct scope scale
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -278,10 +271,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					// scope
-					GlStateManager.color(1, 1, 1, 0.6f);
-					double scale = event.getResolution().getScaleFactor();
-					GlStateManager.scale(scale, scale, 1);
-					scale = 2;
+					double scale = Math.max(height/256d, width/256d);
 					GlStateManager.scale(scale, scale, 1);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 					GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
@@ -307,7 +297,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		boolean scoping = entity instanceof EntityPlayer && isScoped((EntityPlayer) entity, stack);
+		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
 

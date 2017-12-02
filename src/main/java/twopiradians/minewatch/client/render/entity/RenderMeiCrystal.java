@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
 
 public class RenderMeiCrystal extends RenderOBJModel<EntityMeiCrystal> { 
 

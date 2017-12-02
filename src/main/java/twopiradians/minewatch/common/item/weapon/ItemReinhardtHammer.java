@@ -13,9 +13,7 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -23,7 +21,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -46,10 +44,10 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (entityLiving != null && this.ticksLeft == 1) {
-				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.worldObj, entityLiving);
-				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYaw, (26.66f) * 1f, 0, null, 60, 0);
-				entityLiving.worldObj.spawnEntityInWorld(strike);
-				EnumHero.REINHARDT.ability2.keybind.setCooldown(player, 120, false); 
+				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.world, entityLiving);
+				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, (26.66f) * 1f, 0, null, 60, 0);
+				entityLiving.world.spawnEntity(strike);
+				EnumHero.REINHARDT.ability2.keybind.setCooldown(entityLiving, 120, false); 
 			}
 			return super.onServerTick();
 		}
@@ -63,50 +61,53 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 75d*Config.damageScale-1, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*Config.damageScale-1, 0));
 		return multimap;
 	}
 
 	@Override
 	public boolean onEntitySwing(EntityLivingBase entity, ItemStack stack) {
-		if (entity instanceof EntityPlayer && entity.getHeldItemMainhand() != null && 
+		if (entity instanceof EntityLivingBase && entity.getHeldItemMainhand() != null && 
 				entity.getHeldItemMainhand().getItem() == this)
 			return false;
 		else 
 			return true;
 	}
 
-	@Override
-	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+	public void attack(ItemStack stack, EntityLivingBase player, Entity entity) {
 		// swing
-		if (!player.worldObj.isRemote && this.canUse(player, true, getHand(player, stack), false)) {
-			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 75f*Config.damageScale);
+		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
+				player.canEntityBeSeen(entity) && 
+				EntityHelper.attemptDamage(player, entity, 75, false)) {
 			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
 						(double)(-MathHelper.cos(player.rotationYaw * 0.017453292F)));
 			player.getHeldItemMainhand().damageItem(1, player);
 		}
+	}
+
+	@Override
+	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+		this.attack(stack, player, entity);
 		return false;
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// swing
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !hero.ability1.isSelected(player) &&
 				hand == EnumHand.MAIN_HAND) {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
-				player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().offset(player.getLookVec().xCoord*3, player.getLookVec().yCoord*3, player.getLookVec().zCoord*3).expand(2.0D, 1D, 2.0D))) 
+				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
+						player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
-					this.onLeftClickEntity(stack, player, entity);
-			player.worldObj.playSound(null, player.posX, player.posY, player.posZ, 
-					ModSoundEvents.reinhardtWeapon, SoundCategory.PLAYERS, 
-					1.0F, player.worldObj.rand.nextFloat()/3+0.8f);
-			player.getCooldownTracker().setCooldown(this, 20);
+					this.attack(stack, player, entity);
+			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);
+			this.setCooldown(player, 20);
 		}
 	}
 
@@ -124,8 +125,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 			player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 8, 3, true, false));
 
 			// fire strike

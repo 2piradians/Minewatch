@@ -7,7 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 
 public class RenderJunkratMine extends RenderOBJModel<EntityJunkratMine> {
 

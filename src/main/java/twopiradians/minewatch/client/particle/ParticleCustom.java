@@ -21,14 +21,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
 
-	private float fadeTargetRed;//TEST that opacity is fixed with modpack
+	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
@@ -105,13 +105,13 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.particleAngle += rotationSpeed;
 		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.05f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
-		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().thePlayer != null)
-			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().thePlayer.getDistance(posX, posY, posZ) / 5f);
+		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
+			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
 	}
 
 	public void followEntity() {
 		if (this.followEntity != null) {
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer player = Minecraft.getMinecraft().player;
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
 						((EntityLivingBase) followEntity).getHealth() <= 0 ||
@@ -202,7 +202,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
 
-			int frame = MathHelper.clamp_int(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
+			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
 			int col = (frame-1) % framesPerRow;
@@ -240,7 +240,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-
 			
 			// disable depth for health particles
 			if (enumParticle.disableDepth) {

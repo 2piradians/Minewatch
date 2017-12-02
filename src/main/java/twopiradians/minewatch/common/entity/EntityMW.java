@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.MoverType;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -22,6 +23,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> POSITION = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public static final DataParameter<Integer> HAND = EntityDataManager.<Integer>createKey(EntityMW.class, DataSerializers.VARINT);
 	public boolean notDeflectible;
 	public int lifetime;
@@ -45,24 +47,39 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	@Override
 	protected void entityInit() {
 		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+		this.dataManager.register(POSITION, new Rotations(0, 0, 0));
 		this.dataManager.register(HAND, -1);
 	}
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
+		// velocity
 		if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);	
+			EntityHelper.setRotations(this);
+			}
+		// update prev position and spawn trail (for genji's deflect mostly)
+		else if (key.getId() == POSITION.getId() && this.world.isRemote && 
+				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
+			this.posX = this.dataManager.get(POSITION).getX();
+			this.posY = this.dataManager.get(POSITION).getY();
+			this.posZ = this.dataManager.get(POSITION).getZ();
+			this.spawnTrailParticles();
+			this.prevPosX = this.posX;
+			this.prevPosY = this.posY;
+			this.prevPosZ = this.posZ;
 		}
 		// muzzle particle
-		else if (key.getId() == HAND.getId() && this.worldObj.isRemote && this.ticksExisted == 0 && !this.isDead && 
+		else if (key.getId() == HAND.getId() && this.world.isRemote && this.ticksExisted == 0 && !this.isDead && 
 				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase)
 			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
 					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
 
 	}
+
+	public void spawnTrailParticles() {}
 
 	/**Spawn muzzle particles when first spawning*/
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {}
@@ -86,13 +103,17 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
-				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
+				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
 		}
 
 		// set dead if needed
-		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
+		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
 				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
+
+		// spawn trail particles
+		if (this.world.isRemote)
+			this.spawnTrailParticles();
 
 		this.firstUpdate = false;
 	}

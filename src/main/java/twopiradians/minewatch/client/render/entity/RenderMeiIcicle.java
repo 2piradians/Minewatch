@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
 
 public class RenderMeiIcicle extends RenderOBJModel<EntityMeiIcicle> { 
 

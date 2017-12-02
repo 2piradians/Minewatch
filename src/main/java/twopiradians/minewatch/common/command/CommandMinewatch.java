@@ -40,17 +40,17 @@ public class CommandMinewatch implements ICommand {
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "minewatch";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender) {
+	public String getUsage(ICommandSender sender) {
 		return "/mw hero <Hero> [target] or /mw syncConfigToServer";
 	}
 
 	@Override
-	public List<String> getCommandAliases() {
+	public List<String> getAliases() {
 		return new ArrayList<String>() {{add("mw");}};
 	}
 
@@ -59,7 +59,7 @@ public class CommandMinewatch implements ICommand {
 		// sync config
 		if (args.length == 1 && args[0].equalsIgnoreCase("syncConfigToServer") && sender instanceof EntityPlayerMP) {
 			if (server.isSinglePlayer())
-				sender.addChatMessage(new TextComponentString(TextFormatting.RED+"The config only needs to be synced on a multiplayer server."));
+				sender.sendMessage(new TextComponentString(TextFormatting.RED+"The config only needs to be synced on a multiplayer server."));
 			else
 				Minewatch.network.sendTo(new SPacketSimple(17), (EntityPlayerMP) sender);
 		}
@@ -77,22 +77,22 @@ public class CommandMinewatch implements ICommand {
 						if (!(entity instanceof EntityLivingBaseMW)) {
 							for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 								ItemStack stack = entity.getItemStackFromSlot(slot);
-								if (stack == null || stack.getItem() instanceof ItemMWArmor ||
+								if (stack == null || stack.isEmpty() || stack.getItem() instanceof ItemMWArmor ||
 										stack.getItem() instanceof ItemMWWeapon)
 									entity.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
-											null : new ItemStack(hero.getEquipment(slot)));
+											ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
 								else if (hero.getEquipment(slot) != null && entity instanceof EntityPlayer)
 									((EntityPlayer)entity).inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
 							}
-							sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name+
+							sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name+
 									(args.length == 3 ? " on "+entity.getName() : "")));
 						}
 			}
 			else
-				sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
+				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 		}
 		else
-			throw new WrongUsageException(this.getCommandUsage(sender), new Object[0]);
+			throw new WrongUsageException(this.getUsage(sender), new Object[0]);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class CommandMinewatch implements ICommand {
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
 			if (!server.isSinglePlayer())
 				return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"hero", "syncConfigToServer"});
@@ -112,7 +112,7 @@ public class CommandMinewatch implements ICommand {
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, ALL_HERO_NAMES);
 		else if (args.length == 3 && args[0].equalsIgnoreCase("hero"))
-			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
 		else
 			return new ArrayList<String>();
 	}

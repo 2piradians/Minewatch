@@ -21,14 +21,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
 
-	private float fadeTargetRed;//TEST that opacity is fixed with modpack
+	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
 	private float initialAlpha;
@@ -240,7 +240,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			buffer.pos((double)f5 + avec3d[1].x, (double)f6 + avec3d[1].y, (double)f7 + avec3d[1].z).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].x, (double)f6 + avec3d[2].y, (double)f7 + avec3d[2].z).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].x, (double)f6 + avec3d[3].y, (double)f7 + avec3d[3].z).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-
 			
 			// disable depth for health particles
 			if (enumParticle.disableDepth) {

@@ -5,15 +5,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 
 public class SPacketFollowingSound implements IMessage{
 	
-    private SoundEvent sound;
+    private ModSoundEvent sound;
     private SoundCategory category;
     private int entity;
     private float volume;
@@ -22,7 +22,7 @@ public class SPacketFollowingSound implements IMessage{
 
 	public SPacketFollowingSound() {}
 
-	public SPacketFollowingSound(Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+	public SPacketFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
         this.sound = sound;
         this.category = category;
         this.entity = entity.getEntityId();
@@ -33,7 +33,7 @@ public class SPacketFollowingSound implements IMessage{
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-        this.sound = SoundEvent.REGISTRY.getObjectById(buf.readInt());
+        this.sound = ModSoundEvents.values()[buf.readInt()].event;
         this.category = SoundCategory.values()[buf.readInt()];
         this.entity = buf.readInt();
         this.volume = buf.readFloat();
@@ -43,7 +43,7 @@ public class SPacketFollowingSound implements IMessage{
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-        buf.writeInt(SoundEvent.REGISTRY.getIDForObject(this.sound));
+        buf.writeInt(this.sound.event.ordinal());
         buf.writeInt(this.category.ordinal());
         buf.writeInt(this.entity);
         buf.writeFloat(this.volume);
@@ -59,7 +59,7 @@ public class SPacketFollowingSound implements IMessage{
 				@Override
 				public void run() {
 					Entity entity = Minecraft.getMinecraft().world.getEntityByID(packet.entity);
-					Minewatch.proxy.playFollowingSound(entity, packet.sound, packet.category, packet.volume, packet.pitch, packet.repeat);
+					packet.sound.event.playFollowingSound(entity, packet.volume, packet.pitch, packet.repeat);
 				}
 			});
 			return null;

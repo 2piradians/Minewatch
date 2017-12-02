@@ -19,7 +19,8 @@ public class Maps {
 		NECROPOLIS_CAGRIMANOKA(OverwatchMap.NECROPOLIS, "Cagrimanoka_TR", "https://www.planetminecraft.com/project/necropolis-overwatch-world-download/"),
 		BLACK_FOREST_CAGRIMANOKA(OverwatchMap.BLACK_FOREST, "Cagrimanoka_TR", "https://www.planetminecraft.com/project/world-save-black-forest-overwatch/"),
 		DR_JUNKENSTEINS_DANL(OverwatchMap.DR_JUNKENSTEINS, "danl16boon", "https://www.planetminecraft.com/project/dr-junkensteins-revenge/"),
-		ECOPOINT_MARSHMELLOCAT(OverwatchMap.ECOPOINT, "MarshmelloCAT", "https://www.planetminecraft.com/project/ecopoint-antarctica/");
+		ECOPOINT_MARSHMELLOCAT(OverwatchMap.ECOPOINT, "MarshmelloCAT", "https://www.planetminecraft.com/project/ecopoint-antarctica/"),
+		CASTILLO_ISAK20(OverwatchMap.CASTILLO, "iSAK20", "https://www.planetminecraft.com/project/castillo-overwatch/");
 
 		public OverwatchMap map;
 		public String creator;
@@ -64,7 +65,9 @@ public class Maps {
 		DR_JUNKENSTEINS("The event uses a modified version of the Eichenwalde castle gate, known as Adlersbrunn. Unlike Eichenwalde, Adlersbrunn does not have any zone that players can fall off of. the two sides of the bridge are replaced by pools of water, and the drop on the right side is blocked by rocks. The entrance to the bridge has been blocked and is used as a spawn location for Zomnics.\n" + 
 				"The area is lit by moonlight and torches. There are occasional flashes of lightning and crashes of thunder."), 
 		ECOPOINT("Ecopoint: Antarctica was an Overwatch-run research facility near the coast of Antarctica. The scientists stationed here - Adams, MacReady, Opara, Torres, Arrhenius, and Mei-Ling Zhou - were investigating climate anomalies and cryostasis technology when a massive storm hit the ecopoint, and they lost connection to the outside world. As their food and energy supplies dwindled, the scientists were forced to freeze themselves in cryostasis until help arrived.\n" + 
-				"A decade later, the scientists were found, but all had died in the storm except for Mei.");
+				"A decade later, the scientists were found, but all had died in the storm except for Mei."), 
+		CASTILLO("Castillo is a colonial-era fort overlooking Dorado and its bay. The fort is home to a Los Muertos hideout, as well as Sombra's home and Calaveras. Junkrat and Roadhog went to Calaveras to plan their heist on the Bank of Dorado.\n" + 
+				"In Reflections, Sombra and McCree are both at Calaveras, sitting at opposite sides of the bar.");
 		
 		public String info;
 

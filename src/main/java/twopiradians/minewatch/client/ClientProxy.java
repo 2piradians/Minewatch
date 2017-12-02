@@ -2,7 +2,10 @@ package twopiradians.minewatch.client;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 
@@ -53,7 +56,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
-import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
@@ -61,9 +64,11 @@ import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleTrail;
 import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
+import twopiradians.minewatch.client.render.entity.RenderHero;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderJunkratMine;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
+import twopiradians.minewatch.client.render.entity.RenderLucioSonic;
 import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
@@ -73,42 +78,46 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityAnaBullet;
-import twopiradians.minewatch.common.entity.EntityAnaSleepDart;
-import twopiradians.minewatch.common.entity.EntityBastionBullet;
-import twopiradians.minewatch.common.entity.EntityGenjiShuriken;
-import twopiradians.minewatch.common.entity.EntityHanzoArrow;
-import twopiradians.minewatch.common.entity.EntityHanzoScatterArrow;
-import twopiradians.minewatch.common.entity.EntityHanzoSonicArrow;
-import twopiradians.minewatch.common.entity.EntityJunkratGrenade;
-import twopiradians.minewatch.common.entity.EntityJunkratMine;
-import twopiradians.minewatch.common.entity.EntityJunkratTrap;
-import twopiradians.minewatch.common.entity.EntityMcCreeBullet;
-import twopiradians.minewatch.common.entity.EntityMeiBlast;
-import twopiradians.minewatch.common.entity.EntityMeiCrystal;
-import twopiradians.minewatch.common.entity.EntityMeiIcicle;
-import twopiradians.minewatch.common.entity.EntityMercyBeam;
-import twopiradians.minewatch.common.entity.EntityMercyBullet;
-import twopiradians.minewatch.common.entity.EntityReaperBullet;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
-import twopiradians.minewatch.common.entity.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.entity.EntitySoldier76HelixRocket;
-import twopiradians.minewatch.common.entity.EntitySombraBullet;
-import twopiradians.minewatch.common.entity.EntitySombraTranslocator;
-import twopiradians.minewatch.common.entity.EntityTracerBullet;
-import twopiradians.minewatch.common.entity.EntityWidowmakerBullet;
-import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
+import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
+import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy {
 
-	public static ArrayList<UUID> healthParticleEntities = new ArrayList<UUID>();
+	public static HashSet<UUID> healthParticleEntities = new HashSet();
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
@@ -122,11 +131,9 @@ public class ClientProxy extends CommonProxy {
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
 		registerNonWeaponRenders();
-		ClientRegistry.registerKeyBinding(Keys.HERO_INFORMATION);
-		ClientRegistry.registerKeyBinding(Keys.RELOAD);
-		ClientRegistry.registerKeyBinding(Keys.ABILITY_1);
-		ClientRegistry.registerKeyBinding(Keys.ABILITY_2);
-		ClientRegistry.registerKeyBinding(Keys.ULTIMATE);
+		for (KeyBind key : KeyBind.values())
+			if (key.keyBind != null)
+				ClientRegistry.registerKeyBinding(key.keyBind);
 
 		for (IChangingModel item : ModItems.changingModelItems)
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
@@ -162,7 +169,7 @@ public class ClientProxy extends CommonProxy {
 		for (String materialName : model.getMatLib().getMaterialNames()) {
 			Material material = model.getMatLib().getMaterial(materialName);
 			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
-				FMLLog.bigWarning("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
+				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
 				builder.put(materialName, missing);
 			}
 			else
@@ -173,11 +180,11 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void createKeybinds() {
-		Keys.HERO_INFORMATION = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
-		Keys.RELOAD = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
-		Keys.ABILITY_1 = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
-		Keys.ABILITY_2 = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		Keys.ULTIMATE = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+		KeyBind.HERO_INFORMATION.keyBind = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
+		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
+		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
+		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
+		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
 	}
 
 	private void registerInventoryTab() {
@@ -198,26 +205,32 @@ public class ClientProxy extends CommonProxy {
 	public static class RegistrationHandler {
 
 		@SubscribeEvent
-public static void registerWeaponRenders(ModelRegistryEvent event) { 	
-		for (IChangingModel item : ModItems.changingModelItems) {
-			String loc = Minewatch.MODID+":" + item.getItem().getUnlocalizedName().substring(5);
-			for (String modelLoc : item.getAllModelLocations(new ArrayList<String>())) {
-				ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc, "inventory"));
-				ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc+"_3d", "inventory"));
-			}
-			ModelLoader.setCustomMeshDefinition(item.getItem(), new ItemMeshDefinition() {
-				@Override
-				public ModelResourceLocation getModelLocation(ItemStack stack) {
-					return new ModelResourceLocation(loc + 
-							item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack)) + 
-							(Config.useObjModels ? "_3d" : ""), "inventory");
+		public static void registerWeaponRenders(ModelRegistryEvent event) { 	
+			for (IChangingModel item : ModItems.changingModelItems) {
+				String loc = Minewatch.MODID+":" + item.getItem().getUnlocalizedName().substring(5);
+				for (String modelLoc : item.getAllModelLocations(new ArrayList<String>())) {
+					ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc, "inventory"));
+					ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc+"_3d", "inventory"));
 				}
-			});
+				ModelLoader.setCustomMeshDefinition(item.getItem(), new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						return new ModelResourceLocation(loc + 
+								item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack)) + 
+								(Config.useObjModels ? "_3d" : ""), "inventory");
+					}
+				});
+			}
 		}
 	}
-	}
-
+	
 	private void registerEntityRenders() {
+		// heroes
+		RenderingRegistry.registerEntityRenderingHandler(EntityHero.class, new RenderFactory());
+		for (EnumHero hero : EnumHero.values())
+			RenderingRegistry.registerEntityRenderingHandler(hero.heroClass, RenderHero::new);
+
+		// projectiles and abilities
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 2));
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoArrow.class, new RenderFactory("hanzo_arrow"));
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoSonicArrow.class, new RenderFactory("hanzo_sonic_arrow"));
@@ -243,6 +256,7 @@ public static void registerWeaponRenders(ModelRegistryEvent event) {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraBullet.class, new RenderFactory(new Color(0xFFF1F1), 1, 1, 2));
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraTranslocator.class, RenderSombraTranslocator::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
 	}
 
 	@Override
@@ -273,16 +287,19 @@ public static void registerWeaponRenders(ModelRegistryEvent event) {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/sombra_translocator"));
 		for (int i=0; i<6; ++i)
 			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/lucio_sonic"));
 	}
 
 	@Override
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && event != null && category != null && entity.world.isRemote) {
+	@Nullable
+	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
+		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.world.isRemote) {
 			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+			return sound;
 		}
 		else
-			super.playFollowingSound(entity, event, category, volume, pitch, repeat);
+			return super.playFollowingSound(entity, event, category, volume, pitch, repeat);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/
@@ -352,7 +369,7 @@ public static void registerWeaponRenders(ModelRegistryEvent event) {
 	}
 
 	@Override
-	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) { 
+	public void spawnParticlesReaperTeleport(World world, EntityLivingBase player, boolean spawnAtPlayer, int type) { 
 		if (spawnAtPlayer || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null) {
 			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type, 
 					TickHandler.getHandler(player, Identifier.REAPER_TELEPORT));
@@ -362,7 +379,8 @@ public static void registerWeaponRenders(ModelRegistryEvent event) {
 
 	@Override
 	public UUID getClientUUID() {
-		return Minecraft.getMinecraft().getSession().getProfile().getId();
+		return this.getClientPlayer() == null ? Minecraft.getMinecraft().getSession().getProfile().getId() :
+			this.getClientPlayer().getPersistentID();
 	}
 
 	@Override

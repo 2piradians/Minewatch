@@ -16,10 +16,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderMercyBeam extends Render<EntityMercyBeam> {
@@ -44,7 +45,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 
 	@Override
 	public void doRender(EntityMercyBeam entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (entity.player == null || (!Minewatch.keys.rmb(entity.player) && !Minewatch.keys.lmb(entity.player) && entity.player == Minecraft.getMinecraft().player))
+		if (entity.player == null || (!KeyBind.RMB.isKeyDown(entity.player) && !KeyBind.LMB.isKeyDown(entity.player) && entity.player == Minecraft.getMinecraft().player))
 			return;
 
 		Color color = entity.isHealing() ? COLOR_HEAL : COLOR_DAMAGE;

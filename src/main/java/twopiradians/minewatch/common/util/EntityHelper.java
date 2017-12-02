@@ -12,10 +12,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
@@ -29,11 +30,15 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.entity.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntityLucio;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 
@@ -69,16 +74,12 @@ public class EntityHelper {
 	/**Get the position that an entity should be thrown/shot from*/ 
 	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		// adjust based on hand
-		if (hand == null) {
-			//horizontalAdjust = 0;
-			//verticalAdjust = 20f;
-		}
-		else if (hand == EnumHand.OFF_HAND)
+		if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
 
 		// adjust based on fov (only client-side: mainly for muzzle particles and Mercy beam)
 		if (shooter.world.isRemote && shooter instanceof EntityPlayer) {
-			float fovSettings = Minewatch.keys.fov((EntityPlayer)shooter)-70f;
+			float fovSettings = KeyBind.FOV.getFOV((EntityPlayer)shooter)-70f;
 			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
 			horizontalAdjust += fov / 80f;
 			verticalAdjust += fov / 5f;
@@ -97,17 +98,19 @@ public class EntityHelper {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
+		if (shooter instanceof EntityHero)
+			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
-		RayTraceResult blockTrace = EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
+		RayTraceResult blockTrace = shooter instanceof EntityHero ? null : EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
 		if (blockTrace != null && blockTrace.typeOfHit == RayTraceResult.Type.BLOCK)
 			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.x, blockTrace.hitVec.y, blockTrace.hitVec.z));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
-		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, 512, friendly, pitch, yaw);
+		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
 			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.x, entityTrace.hitVec.y, entityTrace.hitVec.z));
 
@@ -178,7 +181,7 @@ public class EntityHelper {
 			return ((IThrowableEntity)entity).getThrower();
 		return entity;
 	}
-	
+
 	/**Should entity entity be hit by entity projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
@@ -196,19 +199,39 @@ public class EntityHelper {
 		// prevent healing EntityLivingBaseMW
 		if (entityHit instanceof EntityLivingBaseMW && friendly)
 			return false;
+		// can't hit creative players
+		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
+			return false;
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
-				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-				entityHit instanceof EntityDragon) && !entityHit.isEntityInvulnerable(source); 
+				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0)) && !entityHit.isEntityInvulnerable(source); 
 	}
-	
+
 	/**Should target be hit by entity / should entity render red*/
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
 			target = Minewatch.proxy.getClientPlayer();
 		entity = getThrower(entity);
 		target = getThrower(target);
+		// prevent EntityHero attacking/targeting things it shouldn't
+		if (entity instanceof EntityHero && target != null &&
+				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
+						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetPassives == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
+						(target instanceof EntityHero && Config.mobTargetHeroes == friendly)))
+			return false;
+		// prevent EntityHero healing other than healTarget (except Lucio)
+		if (friendly && entity instanceof EntityHero && !(entity instanceof EntityLucio) && 
+				((EntityHero)entity).healTarget != null && ((EntityHero)entity).healTarget != target)
+			return false;
+		// prevent healing attacking enemy
+		if (friendly && target instanceof EntityLiving && 
+				((EntityLiving)target).getAttackTarget() == entity)
+			return false;
+		// prevent healing mobs with config option disabled
+		if (!Config.healMobs && friendly && !(target instanceof EntityPlayer || target instanceof EntityHero))
+			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 
 				entity.isOnSameTeam(target) == friendly);
@@ -253,22 +276,37 @@ public class EntityHelper {
 					projectile.posZ = ray.hitVec.z; 
 				}
 
+				// change prevPos to deflect pos so particles follow properly
+				if (TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
+						result.entityHit instanceof EntityLivingBase && 
+						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile)) {
+					if (projectile instanceof EntityMW)
+						projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
+				}
 				// don't kill if deflecting
-				if (kill && !TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT))
+				else if (kill)
 					projectile.setDead();
 			}
 		}
 	}
 
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
+		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
+	}
+
+	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
 		Entity actualThrower = getThrower(thrower);
 		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
-		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, source);
+		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
+	}
+
+	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+		return attemptDamage(thrower, entityHit, damage, neverKnockback, true, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
-	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
 		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.world.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
@@ -278,6 +316,9 @@ public class EntityHelper {
 			// damage
 			else if (damage >= 0) {
 				boolean damaged = false;
+				int prevHurtResist = entityHit.hurtResistantTime;
+				if (ignoreHurtResist)
+					entityHit.hurtResistantTime = 0;
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
@@ -286,6 +327,9 @@ public class EntityHelper {
 				}
 				else
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+
+				if (damaged && ignoreHurtResist)
+					entityHit.hurtResistantTime = prevHurtResist;
 
 				return damaged;
 			}
@@ -301,7 +345,7 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
-		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));//(int) ((Math.abs(entity.motionX)+Math.abs(entity.motionY)+Math.abs(entity.motionZ))*amountPerBlock);
+		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
 		for (float i=0; i<numParticles; ++i) 
 			Minewatch.proxy.spawnParticlesTrail(entity.world, 
 					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
@@ -442,6 +486,21 @@ public class EntityHelper {
 				}
 		}
 		return nearest;
+	}
+
+	/**Returns if e1 is with maxAngle degrees of looking at e2*/
+	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
+		// calculate angles if e1 was directly facing e2
+		double d0 = e2.posX - e1.posX;
+		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1.posY + (double)e1.getEyeHeight());
+		double d2 = e2.posZ - e1.posZ;
+		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
+		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
+		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facingYaw));
+		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
+		return deltaYaw <= maxAngle && deltaPitch <= maxAngle;
 	}
 
 }

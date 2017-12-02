@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -78,7 +79,7 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+0, 95, 20, "Hero Gallery", Screen.MAIN));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+25, 95, 20, "Options", Screen.MAIN));
 		if (!this.mc.isSingleplayer())
-			Minewatch.network.sendToServer(new CPacketSimple(1, mc.player));
+			Minewatch.network.sendToServer(new CPacketSimple(1, false, mc.player));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+50, 95, 20, "Submit a Skin/Map", Screen.MAIN));
 		// Screen.MAPS
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
@@ -263,11 +264,17 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS_INFO;
 			else if (button.displayString.equals("?")) {
 				EnumHero.Skin skin = galleryHero.skinInfo[button.id];
-				Minecraft.getMinecraft().player.sendMessage(new TextComponentString(
+				ITextComponent component = new TextComponentString(
 						"This skin is ")
 						.appendSibling(new TextComponentString(TextFormatting.BLUE+""+TextFormatting.UNDERLINE+skin.skinName).setStyle(
 								new Style().setClickEvent(new ClickEvent(Action.OPEN_URL, skin.address))))
-						.appendSibling(new TextComponentString(" by "+skin.author)));
+						.appendSibling(new TextComponentString(" by "+skin.author));
+				if (skin.originalSkinName != null && skin.originalAddress != null && skin.originalAuthor != null)
+					component = component.appendSibling(new TextComponentString(", edited from "))
+					.appendSibling(new TextComponentString(TextFormatting.BLUE+""+TextFormatting.UNDERLINE+skin.originalSkinName).setStyle(
+							new Style().setClickEvent(new ClickEvent(Action.OPEN_URL, skin.originalAddress))))
+					.appendSibling(new TextComponentString(" by "+skin.originalAuthor));
+				Minecraft.getMinecraft().player.sendMessage(component);
 			}
 			else if (button instanceof GuiButtonSkin) 
 				if (galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()) != button.id) {

@@ -1,13 +1,54 @@
 package twopiradians.minewatch.common.entity;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
+import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
+import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
+import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
+import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
+import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModEntities {
 
 	public static void registerEntities() {
 		int id = 0;
+
+		// heroes
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "random_hero"), EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
+		Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
+		for (EnumHero hero : EnumHero.values()) {
+			EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero"), hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
+			Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));
+		}
+
+		// projectile / ability
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reaper_bullet"), EntityReaperBullet.class, "reaper_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoArrow.class, "hanzo_arrow", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoSonicArrow.class, "hanzo_sonic_arrow", id++, Minewatch.instance, 64, 20, false);
@@ -33,5 +74,18 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_bullet"), EntitySombraBullet.class, "sombra_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_translocator"), EntitySombraTranslocator.class, "sombra_translocator", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reinhardt_strike"), EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "lucio_sonic"), EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
 	}
+	
+    /**Get spawn egg for given entity class*/
+	public static ItemStack getSpawnEgg(ResourceLocation id) {
+		ItemStack stack = new ItemStack(Items.SPAWN_EGG);
+		NBTTagCompound nbt = new NBTTagCompound();    	
+		nbt.setString("id", id.toString());
+		NBTTagCompound nbt2 = new NBTTagCompound();
+		nbt2.setTag("EntityTag", nbt);
+		stack.setTagCompound(nbt2);
+		return stack;
+	}
+	
 }

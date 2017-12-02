@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.hero;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
@@ -29,7 +30,7 @@ public class Ability {
 	public boolean isEnabled;
 	public boolean isToggleable;
 	public HashMap<EntityLivingBase, Entity> entities = Maps.newHashMap();
-	private HashMap<UUID, Boolean> toggled = Maps.newHashMap();
+	private HashSet<UUID> toggled = new HashSet();
 
 	// multi use ability stuff
 	public int maxUses;
@@ -38,8 +39,8 @@ public class Ability {
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
 		public Handler onServerRemove() {
-			if (!player.world.isRemote) {
-				UUID uuid = player.getPersistentID();
+			if (!entityLiving.world.isRemote) {
+				UUID uuid = entityLiving.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
 					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
@@ -47,12 +48,12 @@ public class Ability {
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);
-				if (player instanceof EntityPlayerMP)
+				if (entityLiving instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(
 							new SPacketSyncAbilityUses(uuid, ability.hero, ability.getNumber(), 
-									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) player);
+									ability.multiAbilityUses.get(uuid), true), (EntityPlayerMP) entityLiving);
 			}
-			return (this.ticksLeft <= 0 || !player.isEntityAlive()) ? super.onServerRemove() : null;
+			return (this.ticksLeft <= 0 || !entityLiving.isEntityAlive()) ? super.onServerRemove() : null;
 		}
 	};
 
@@ -81,28 +82,48 @@ public class Ability {
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(Entity entity, boolean toggle) {
 		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isEnabled) {
-			if (toggle) 
+			if (toggle) {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(entity.getPersistentID());
-			toggled.put(entity.getPersistentID(), toggle);
+				toggled.add(entity.getPersistentID());
+			}
+			else
+				toggled.remove(entity.getPersistentID());
+		}
+	}
+
+	/**Toggle this ability - untoggles all other abilities*/
+	public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
+		if (TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null && isEnabled) {
+			if (toggle) {
+				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+					ability.toggled.remove(uuid);
+				toggled.add(uuid);
+			}
+			else
+				toggled.remove(uuid);
 		}
 	}
 
 	public boolean isToggled(Entity entity) {
-		return toggled.containsKey(entity.getPersistentID()) && toggled.get(entity.getPersistentID());
+		return toggled.contains(entity.getPersistentID());
+	}
+
+	public boolean isToggled(UUID uuid) {
+		return toggled.contains(uuid);
 	}
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
-	public boolean isSelected(EntityPlayer player, KeyBind keybind) {
-		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
-				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
-			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
+	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
+		if (entity.world.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
+				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)) {
+			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f, true);
+			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(entity).setTicks(20));
 		}
 
 		KeyBind prev = this.keybind;
 		this.keybind = keybind;
-		boolean ret = isSelected(player) && prev.getCooldown(player) == 0;
+		boolean ret = isSelected(entity) && prev.getCooldown(entity) == 0;
 		this.keybind = prev;
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
@@ -112,23 +133,37 @@ public class Ability {
 	}
 
 	/**Is this ability selected and able to be used*/
-	public boolean isSelected(EntityPlayer player) {
+	public boolean isSelected(EntityLivingBase player) {
+		return isSelected(player, false);
+	}
+	
+	/**Is this ability selected and able to be used*/
+	public boolean isSelected(EntityLivingBase player, boolean isPressed) {
+		return isSelected(player, isPressed, new Ability[0]);
+	}
+	
+	/**Is this ability selected and able to be used*/
+	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
-			player.playSound(ModSoundEvents.abilityNotReady, 1.0f, 1.0f);
+			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
 
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
 				player.getActivePotionEffect(ModPotions.frozen).getAmplifier() > 0) &&
-				ItemMWArmor.SetManager.entitiesWearingSets.containsKey(player.getPersistentID()) &&
-				ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero) &&
-				keybind.getCooldown(player) == 0 && ((!this.isToggleable && keybind.isKeyDown(player)) ||
-						(toggled.containsKey(player.getPersistentID()) && toggled.get(player.getPersistentID())));
+				ItemMWArmor.SetManager.getWornSet(player) == hero) &&
+				keybind.getCooldown(player) == 0 && ((!isPressed && keybind.isKeyDown(player)) ||
+						(isPressed && keybind.isKeyPressed(player))||
+						toggled.contains(player.getPersistentID()));
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
-		if (handler != null && handler.ability != null && !handler.bool)
+		boolean ignoreAbility = false;
+		for (Ability ability : ignoreAbilities)
+			if (handler != null && handler.ability == ability)
+				ignoreAbility = true;
+		if (handler != null && handler.ability != null && !handler.bool && !ignoreAbility)
 			return this == handler.ability;
 
 		if (ret && player.world.isRemote)
@@ -137,8 +172,8 @@ public class Ability {
 	}
 
 	/**Get number of available uses for multi-use ability (i.e. Tracer's Blink)*/
-	public int getUses(EntityPlayer player) {
-		if (player == null || maxUses == 0)
+	public int getUses(EntityLivingBase player) {
+		if (!(player instanceof EntityLivingBase) || maxUses == 0)
 			return maxUses;
 		else if (!multiAbilityUses.containsKey(player.getPersistentID()))
 			multiAbilityUses.put(player.getPersistentID(), maxUses);
@@ -147,14 +182,15 @@ public class Ability {
 	}
 
 	/**Use one of the multi-uses*/
-	public void subtractUse(EntityPlayer player) {
-		if (player != null && !player.world.isRemote && getUses(player) > 0 && player instanceof EntityPlayerMP) {
-			multiAbilityUses.put(player.getPersistentID(), multiAbilityUses.get(player.getPersistentID())-1);
-			if (!TickHandler.hasHandler(player, Identifier.ABILITY_MULTI_COOLDOWNS))
-				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(player).setTicks(useCooldown));
-			Minewatch.network.sendTo(
-					new SPacketSyncAbilityUses(player.getPersistentID(), hero, getNumber(), 
-							multiAbilityUses.get(player.getPersistentID()), false), (EntityPlayerMP) player);
+	public void subtractUse(EntityLivingBase entity) {
+		if (entity != null && !entity.world.isRemote && getUses(entity) > 0) {
+			multiAbilityUses.put(entity.getPersistentID(), multiAbilityUses.get(entity.getPersistentID())-1);
+			if (!TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
+				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(useCooldown));
+			if (entity instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(
+						new SPacketSyncAbilityUses(entity.getPersistentID(), hero, getNumber(), 
+								multiAbilityUses.get(entity.getPersistentID()), false), (EntityPlayerMP) entity);
 		}
 	}
 

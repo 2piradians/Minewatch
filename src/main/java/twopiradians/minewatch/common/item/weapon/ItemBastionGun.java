@@ -7,18 +7,17 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -34,9 +33,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public boolean onClientTick() {
-			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+			if (entityLiving != null && entityLiving.isEntityAlive() && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-					EnumHero.BASTION.playersUsingAlt.contains(entityLiving.getPersistentID())) {
+					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -46,18 +45,17 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 				return false;
 			}
-			else if (EnumHero.BASTION.playersUsingAlt.contains(entityLiving.getPersistentID())) {
-				EnumHero.BASTION.playersUsingAlt.remove(entityLiving.getPersistentID());
-				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
+			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
+				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 			}
 
 			return super.onClientTick();
 		}
 		@Override
 		public boolean onServerTick() {
-			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+			if (entityLiving != null && entityLiving.isEntityAlive() && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon && 
-					EnumHero.BASTION.playersUsingAlt.contains(entityLiving.getPersistentID())) {
+					isAlternate(entityLiving.getHeldItemMainhand())) {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
@@ -67,9 +65,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 
 				return false;
 			}
-			else if (EnumHero.BASTION.playersUsingAlt.contains(entityLiving.getPersistentID())) {
-				EnumHero.BASTION.playersUsingAlt.remove(entityLiving.getPersistentID());
-				EnumHero.BASTION.reloadSound = ModSoundEvents.bastionReload;
+			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
+				setAlternate(entityLiving.getHeldItemMainhand(), false);
+				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 			}
 
 			return super.onServerTick();
@@ -83,25 +81,26 @@ public class ItemBastionGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
-			boolean turret = hero.playersUsingAlt.contains(player.getPersistentID());
+			boolean turret = isAlternate(stack);
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
 				if (turret)
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 1.5F, null, 20, 0);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, null, 20, 0);
 				else
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYaw, -1, 0.6F, hand, 12, 0.43f);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
 				world.spawnEntity(bullet);
-				world.playSound(null, player.posX, player.posY, player.posZ, 
-						turret ? ModSoundEvents.bastionShoot1 : ModSoundEvents.bastionShoot0, SoundCategory.PLAYERS, world.rand.nextFloat()+0.5F, 
-						world.rand.nextFloat()/3+0.8f);	
+				if (turret)
+					ModSoundEvents.BASTION_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+				else
+					ModSoundEvents.BASTION_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
 				if (world.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
-				if (!turret && !player.getCooldownTracker().hasCooldown(this))
-					player.getCooldownTracker().setCooldown(this, 3);
+				if (!turret)
+					this.setCooldown(player, 3);
 			}
 		}
 	}
@@ -110,15 +109,14 @@ public class ItemBastionGun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityPlayer) {	
-			EntityPlayer player = (EntityPlayer) entity;
-			
+		if (isSelected && entity instanceof EntityLivingBase) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
 			// stop turret if doesn't have handler (i.e. dies in turret form)
-			if (!world.isRemote && hero.playersUsingAlt.contains(player.getPersistentID()) &&
+			if (!world.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
-				hero.playersUsingAlt.remove(player.getPersistentID());
-				Minewatch.network.sendToAll(new SPacketSimple(31, false, player));
-				hero.reloadSound = ModSoundEvents.bastionReload;
+				setAlternate(stack, false);
+				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));
+				hero.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}
 
@@ -126,19 +124,17 @@ public class ItemBastionGun extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
-				if (hero.playersUsingAlt.contains(player.getPersistentID())) {
-					hero.playersUsingAlt.remove(player.getPersistentID());
-					hero.reloadSound = ModSoundEvents.bastionReload;
-				}
+				setAlternate(stack, !isAlternate(stack));
+				if (!isAlternate(stack)) 
+					hero.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
 				else {
-					hero.playersUsingAlt.add(player.getPersistentID());
-					hero.reloadSound = ModSoundEvents.bastionTurretReload;
+					hero.reloadSound = ModSoundEvents.BASTION_RELOAD_1;
 					turret = true;
 				}
 				if (turret) 
 					TickHandler.register(false, TURRET.setEntity(player).setTicks(10));
-				Minewatch.network.sendToAll(new SPacketSimple(31, turret, player));
-				player.getCooldownTracker().setCooldown(this, turret ? 20 : 10);
+				Minewatch.network.sendToAll(new SPacketSimple(31, player, turret));
+				this.setCooldown(player, turret ? 20 : 10);
 				hero.ability2.keybind.setCooldown(player, turret ? 20 : 10, true);
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND);
 			}
@@ -146,16 +142,23 @@ public class ItemBastionGun extends ItemMWWeapon {
 		}
 	}	
 
+	@SubscribeEvent
+	public void reduceDamage(LivingHurtEvent event) {
+		// reduce damage
+		if (TickHandler.hasHandler(event.getEntityLiving(), Identifier.BASTION_TURRET) && event.getEntityLiving() != null) 
+			event.setAmount(event.getAmount()*0.8f);
+	}
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void hideOffhand(RenderSpecificHandEvent event) {
 		if (event.getHand() == EnumHand.OFF_HAND && 
-				EnumHero.BASTION.playersUsingAlt.contains(Minewatch.proxy.getClientUUID()) &&
+				isAlternate(Minecraft.getMinecraft().player.getHeldItemMainhand()) &&
 				Minecraft.getMinecraft().player.getHeldItemMainhand() != null && 
 				Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon)
 			event.setCanceled(true);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
@@ -163,11 +166,11 @@ public class ItemBastionGun extends ItemMWWeapon {
 		locs.add("_1");
 		return locs;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
-		boolean turret = entity != null && EnumHero.BASTION.playersUsingAlt.contains(entity.getPersistentID());
+		boolean turret = isAlternate(stack);
 		return turret ? "_1" : "_0";
 	}
 

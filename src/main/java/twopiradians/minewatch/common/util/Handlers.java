@@ -192,6 +192,10 @@ public class Handlers {
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
+			if (entityLiving != null) {
+				this.entityLiving.moveForward = 0;
+				this.entityLiving.moveStrafing = 0;
+			}
 			entity.fallDistance *= 0.5f;
 			return super.onClientTick();
 		}
@@ -204,12 +208,16 @@ public class Handlers {
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
+			if (entityLiving != null) {
+				this.entityLiving.moveForward = 0;
+				this.entityLiving.moveStrafing = 0;
+			}
 			entity.fallDistance *= 0.5f;
 			// slowness
 			if (this.entityLiving != null) {
 				PotionEffect effect = this.entityLiving.getActivePotionEffect(MobEffects.SLOWNESS);
-				if (effect == null || effect.getDuration() <= 0 || effect.getAmplifier() < 200)
-					entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.ticksLeft, 200, true, false));
+				if (effect == null || effect.getDuration() <= 0 || effect.getAmplifier() < 254)
+					entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.ticksLeft, 254, true, false));
 			}
 			return super.onServerTick();
 		}

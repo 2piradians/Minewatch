@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderReinhardtStrike extends RenderOBJModel<EntityReinhardtStrike> { 

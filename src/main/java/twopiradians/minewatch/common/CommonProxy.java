@@ -41,9 +41,11 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
+import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -68,7 +70,8 @@ public class CommonProxy {
 		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
 		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
 		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
-		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike");
+		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike"),
+		HOLLOW_CIRCLE("hollow_circle");
 
 		public final ResourceLocation loc;
 		public final int frames;
@@ -106,7 +109,7 @@ public class CommonProxy {
 
 	public void init(FMLInitializationEvent event) {
 		ModPotions.init();
-		ModSoundEvents.postInit();
+		registerEventListeners();
 		registerCraftingRecipes();
 	}
 
@@ -133,7 +136,7 @@ public class CommonProxy {
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}	
-	public void spawnParticlesReaperTeleport(World world, EntityPlayer player, boolean spawnAtPlayer, int type) {}
+	public void spawnParticlesReaperTeleport(World world, EntityLivingBase entityLiving, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -144,7 +147,6 @@ public class CommonProxy {
 	}
 
 	private void registerCraftingRecipes() {
-
 		for (EnumHero hero : EnumHero.values()) {
 			ForgeRegistries.RECIPES.register(new ShapelessMatchingDamageRecipe(Minewatch.MODNAME, new ItemStack(hero.helmet), 
 					new NonNullList<Ingredient>() {{add(Ingredient.fromStacks(new ItemStack(hero.token))); 
@@ -185,9 +187,11 @@ public class CommonProxy {
 		return null;
 	}
 
-	public void playFollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && event != null && category != null) 
-			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, event, category, volume, pitch, repeat), entity.world.provider.getDimension());
+	@Nullable
+	public Object playFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
+			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity.world.provider.getDimension());
+		return null;
 	}
 
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
@@ -237,7 +241,7 @@ public class CommonProxy {
 							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
 							if (EntityHelper.attemptDamage(exploder, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
-									(entity == exploder && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode))) {
+									entity == exploder) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;
 

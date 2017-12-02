@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.model.IModel;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {

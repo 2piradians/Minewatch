@@ -98,7 +98,7 @@ public class CommonProxy {
 		}
 	}
 
-	//PORT add registerEventListeners();
+	//PORT add registerEventListeners(); AND REMOVE THE OLD ONE IN init()
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);

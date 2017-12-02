@@ -41,8 +41,10 @@ public class EntitySoldier76 extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
 				}
 			}
-			else 
+			else {
 				this.resetKeybinds();
+				this.entity.setSprinting(true);
+			}
 		}
 
 	}

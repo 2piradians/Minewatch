@@ -167,6 +167,7 @@ public class ClientProxy extends CommonProxy {
 		for (String materialName : model.getMatLib().getMaterialNames()) {
 			Material material = model.getMatLib().getMaterial(materialName);
 			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
+				// PORT 1.10.2: bigWarning
 				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
 				builder.put(materialName, missing);
 			}

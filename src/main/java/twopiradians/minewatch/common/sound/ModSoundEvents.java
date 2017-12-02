@@ -151,6 +151,7 @@ public enum ModSoundEvents {
 	private ModSoundEvents() {
 		loc = new ResourceLocation(Minewatch.MODID, this.name().toLowerCase());
 		event = new ModSoundEvent(loc, this);
+		// PORT 1.12: event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())

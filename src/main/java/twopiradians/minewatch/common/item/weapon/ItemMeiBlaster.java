@@ -125,7 +125,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 			Handler handler = TickHandler.getHandler(player, Identifier.MEI_CRYSTAL);
 			if (!world.isRemote && handler != null && 
-					(KeyBind.RMB.isKeyDown(player) || KeyBind.LMB.isKeyDown(player)) &&
+					(KeyBind.RMB.isKeyDown(player, true) || KeyBind.LMB.isKeyDown(player, true)) &&
 					hero.ability2.keybind.getCooldown(player) == 0) {
 				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
 						TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),

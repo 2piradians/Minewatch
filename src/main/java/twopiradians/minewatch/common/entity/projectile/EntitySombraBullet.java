@@ -24,7 +24,7 @@ public class EntitySombraBullet extends EntityMW {
 	
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, shooter, 
 				0xF37BFF, 0xF37BFF, 0.7f, 1, 2, 1, 0, 0, hand, 9, 0.41f);
 	}
 	

@@ -53,7 +53,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 		ModelBiped.ArmPose mainPose = ModelBiped.ArmPose.EMPTY;
 		ModelBiped.ArmPose offPose = ModelBiped.ArmPose.EMPTY;
 
-		if (!itemstack.isEmpty()) {
+		if (itemstack != null) {
 			mainPose = ModelBiped.ArmPose.ITEM;
 
 			if (entity.getItemInUseCount() > 0) {
@@ -66,7 +66,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 			}
 		}
 
-		if (!itemstack1.isEmpty()) {
+		if (itemstack1 != null) {
 			offPose = ModelBiped.ArmPose.ITEM;
 
 			if (entity.getItemInUseCount() > 0) {
@@ -109,7 +109,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 
 	        if (i > 0)
 	        {
-	            Entity entity = new EntityTippedArrow(entitylivingbaseIn.world, entitylivingbaseIn.posX, entitylivingbaseIn.posY, entitylivingbaseIn.posZ);
+	            Entity entity = new EntityTippedArrow(entitylivingbaseIn.worldObj, entitylivingbaseIn.posX, entitylivingbaseIn.posY, entitylivingbaseIn.posZ);
 	            Random random = new Random((long)entitylivingbaseIn.getEntityId());
 	           // RenderHelper.disableStandardItemLighting(); these cause lighting bugs
 
@@ -132,7 +132,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 	                f = f * -1.0F;
 	                f1 = f1 * -1.0F;
 	                f2 = f2 * -1.0F;
-	                float f6 = MathHelper.sqrt(f * f + f2 * f2);
+	                float f6 = MathHelper.sqrt_float(f * f + f2 * f2);
 	                entity.rotationYaw = (float)(Math.atan2((double)f, (double)f2) * (180D / Math.PI));
 	                entity.rotationPitch = (float)(Math.atan2((double)f1, (double)f6) * (180D / Math.PI));
 	                entity.prevRotationYaw = entity.rotationYaw;

@@ -142,7 +142,7 @@ public class Handlers {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void viewEvent(EntityViewRenderEvent.CameraSetup event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (player != null && rotations.containsKey(player) &&
 				TickHandler.hasHandler(player, Identifier.PREVENT_ROTATION) &&
 				Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
@@ -159,7 +159,7 @@ public class Handlers {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void mouseEvent(MouseEvent event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		// prevent clicking / scrolling
 		if ((event.getDx() != 0 || event.getDy() != 0 ||
 				event.isButtonstate() || event.getDwheel() != 0) && player != null && 
@@ -233,7 +233,7 @@ public class Handlers {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (event.side == Side.CLIENT && event.phase == Phase.START &&
 				TickHandler.hasHandler(player, Identifier.PREVENT_MOVEMENT)) {
 			player.motionX = 0;

@@ -25,11 +25,6 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 	}
 
 	@Override
-	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
-		return false;
-	}
-
-	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;
 	}
@@ -43,20 +38,20 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 					EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) {
-				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
+				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, null);
 			}
 			// if not in offhand
 			else if (entity instanceof EntityPlayer && 
 					((EntityPlayer)entity).getHeldItemOffhand() != stack &&
 					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
-				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
 			}
 		}
 	}
 
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null) {
+		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null) {
 			entityItem.setDead();
 			return true;
 		}

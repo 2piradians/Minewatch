@@ -126,7 +126,7 @@ public class CPacketSyncConfig implements IMessage {
 	public static class Handler implements IMessageHandler<CPacketSyncConfig, IMessage> {
 		@Override
 		public IMessage onMessage(final CPacketSyncConfig packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() {
 
 				@Override
@@ -158,10 +158,10 @@ public class CPacketSyncConfig implements IMessage {
 							Config.mobInaccuracy = packet.mobInaccuracy;
 							
 							Config.config.save();
-							player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
+							player.addChatMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
 						}
 						else
-							player.sendMessage(new TextComponentString(TextFormatting.RED+"You do not have permission to do that."));
+							player.addChatMessage(new TextComponentString(TextFormatting.RED+"You do not have permission to do that."));
 					}
 				}
 			});

@@ -91,7 +91,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, null, 20, 0);
 				else
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
-				world.spawnEntity(bullet);
+				world.spawnEntityInWorld(bullet);
 				if (turret)
 					ModSoundEvents.BASTION_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 				else
@@ -153,9 +153,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@SubscribeEvent
 	public void hideOffhand(RenderSpecificHandEvent event) {
 		if (event.getHand() == EnumHand.OFF_HAND && 
-				isAlternate(Minecraft.getMinecraft().player.getHeldItemMainhand()) &&
-				Minecraft.getMinecraft().player.getHeldItemMainhand() != null && 
-				Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon)
+				isAlternate(Minecraft.getMinecraft().thePlayer.getHeldItemMainhand()) &&
+				Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() != null && 
+				Minecraft.getMinecraft().thePlayer.getHeldItemMainhand().getItem() == EnumHero.BASTION.weapon)
 			event.setCanceled(true);
 	}
 

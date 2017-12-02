@@ -56,7 +56,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 		super.onUpdate();
 		
 		// spawn trail particles
-		if (this.world.isRemote)
+		if (this.worldObj.isRemote)
 			this.spawnTrailParticles();
 	}
 	

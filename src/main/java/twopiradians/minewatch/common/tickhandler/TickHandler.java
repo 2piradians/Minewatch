@@ -73,7 +73,7 @@ public class TickHandler {
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
-		return entity == null ? null : getHandler(entity.getPersistentID(), identifier, entity.world.isRemote);
+		return entity == null ? null : getHandler(entity.getPersistentID(), identifier, entity.worldObj.isRemote);
 	}
 
 	/**Get a registered handler by its entity and/or identifier*/
@@ -98,7 +98,7 @@ public class TickHandler {
 	/**Get all registered handlers by their entity and/or identifier*/
 	public static ArrayList<Handler> getHandlers(Entity entity, Identifier identifier) {
 		ArrayList<Handler> handlers = new ArrayList<Handler>();
-		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+		CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
 			if ((entity == null || handler.entity == entity) &&
@@ -112,13 +112,13 @@ public class TickHandler {
 	 * Used by stuns/similar to cancel active abilities - only needs to be called on SERVER*/
 	public static void interrupt(Entity entity) {
 		if (entity != null) {
-			CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+			CopyOnWriteArrayList<Handler> handlerList = entity.worldObj.isRemote ? clientHandlers : serverHandlers;
 			for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				if (handler.interruptible && entity != null && entity == handler.entity) 
-					unregister(entity.world.isRemote, handler);
+					unregister(entity.worldObj.isRemote, handler);
 			}
-			if (!entity.world.isRemote)
+			if (!entity.worldObj.isRemote)
 				Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
 		}
 	}
@@ -242,13 +242,13 @@ public class TickHandler {
 			return this;
 		}
 
-		/**Overridden to check that only entities, identifiers, and world.isRemote are equal*/
+		/**Overridden to check that only entities, identifiers, and worldObj.isRemote are equal*/
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Handler && this.identifier == ((Handler)obj).identifier && 
 					(this.string == null || this.string == ((Handler)obj).string))
 				if (this.entity != null && ((Handler)obj).entity != null)
-					return this.entity == ((Handler)obj).entity && this.entity.world.isRemote == ((Handler)obj).entity.world.isRemote;
+					return this.entity == ((Handler)obj).entity && this.entity.worldObj.isRemote == ((Handler)obj).entity.worldObj.isRemote;
 				else 
 					return true;
 			else

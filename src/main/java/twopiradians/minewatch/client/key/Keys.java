@@ -104,11 +104,11 @@ public class Keys {
 			if (player != null) {
 				if (player instanceof EntityHero)
 					cooldown *= Config.mobAttackCooldown;
-				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
-				if (player.world.isRemote && silent) {
+				TickHandler.register(player.worldObj.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
+				if (player.worldObj.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());
 				}
-				else if (!player.world.isRemote && player instanceof EntityPlayerMP) 
+				else if (!player.worldObj.isRemote && player instanceof EntityPlayerMP) 
 					Minewatch.network.sendTo(new SPacketSyncCooldown(player.getPersistentID(), this, cooldown, silent), (EntityPlayerMP) player);
 			}
 		}
@@ -174,7 +174,7 @@ public class Keys {
 			if (this.keyBind != null)
 				return this.keyBind.isKeyDown();
 			else if (this == JUMP)
-				return mc.player.movementInput.jump;
+				return mc.thePlayer.movementInput.jump;
 			else if (this == RMB)
 				return mc.gameSettings.keyBindUseItem.isKeyDown();
 			// check keyboard directly because we set the mc keybind to false
@@ -208,9 +208,9 @@ public class Keys {
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
 		public static void mouseEvents(MouseEvent event) {
-			if (Minecraft.getMinecraft().player != null) {
+			if (Minecraft.getMinecraft().thePlayer != null) {
 				Minecraft mc = Minecraft.getMinecraft();
-				EntityPlayerSP player = mc.player;
+				EntityPlayerSP player = mc.thePlayer;
 				ItemStack main = player.getHeldItemMainhand();
 				ItemStack off = player.getHeldItemOffhand();
 
@@ -251,9 +251,9 @@ public class Keys {
 
 		@SideOnly(Side.CLIENT)
 		private static void updateKeys(@Nullable Boolean lmbDown) {
-			if (Minecraft.getMinecraft().player != null) {
+			if (Minecraft.getMinecraft().thePlayer != null) {
 				Minecraft mc = Minecraft.getMinecraft();
-				EntityPlayerSP player = mc.player;
+				EntityPlayerSP player = mc.thePlayer;
 				UUID uuid = player.getPersistentID();
 				ItemStack main = player.getHeldItemMainhand();
 				ItemStack off = player.getHeldItemOffhand();

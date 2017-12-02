@@ -59,11 +59,11 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			if (!world.isRemote)
+			if (!worldObj.isRemote)
 				ModSoundEvents.JUNKRAT_TRAP_LAND.playSound(this, 1, 1);
-			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
+			if (worldObj.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP, worldObj, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
 		}
 		this.prevOnGround = this.onGround;
 
@@ -80,9 +80,9 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		this.motionZ *= d1;
 
 		// check for entities to trap
-		if (!this.world.isRemote && this.trappedEntity == null && 
+		if (!this.worldObj.isRemote && this.trappedEntity == null && 
 				this.onGround && this.getThrower() instanceof EntityLivingBase) {
-			List<Entity> entities = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expandXyz(0.5d));
+			List<Entity> entities = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expandXyz(0.5d));
 			for (Entity entity : entities) 
 				if (!(entity instanceof EntityLivingBaseMW) && entity instanceof EntityLivingBase && EntityHelper.shouldHit(this.getThrower(), entity, false) && 
 						!TickHandler.hasHandler(entity, Identifier.JUNKRAT_TRAP) && EntityHelper.attemptDamage(this.getThrower(), entity, 80, true)) {
@@ -113,7 +113,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 		}
 
 		// check to set dead
-		if (!this.world.isRemote && this.trappedEntity != null && (this.trappedEntity.getHealth() <= 0 || !this.onGround)) 
+		if (!this.worldObj.isRemote && this.trappedEntity != null && (this.trappedEntity.getHealth() <= 0 || !this.onGround)) 
 			this.setDead();
 
 		super.onUpdate();
@@ -131,9 +131,9 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	public void onDeath(DamageSource cause) {
 		super.onDeath(cause);
 
-		if (this.world.isRemote && this.getThrower() instanceof EntityPlayer && 
+		if (this.worldObj.isRemote && this.getThrower() instanceof EntityPlayer && 
 				this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_DESTROYED, world, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_DESTROYED, worldObj, posX, posY+1.5d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 	}
 
 	@Override
@@ -142,10 +142,10 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	@Override
 	public void setDead() {
 		this.isDead = true;
-		if (!this.world.isRemote) {
-			ModSoundEvents.JUNKRAT_TRAP_TRIGGER.stopSound(this.world);
+		if (!this.worldObj.isRemote) {
+			ModSoundEvents.JUNKRAT_TRAP_TRIGGER.stopSound(this.worldObj);
 			ModSoundEvents.JUNKRAT_TRAP_BREAK.playSound(this, 1, 1);
-			Minewatch.network.sendToDimension(new SPacketSimple(26, this, true, posX, posY, posZ), this.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(26, this, true, posX, posY, posZ), this.worldObj.provider.getDimension());
 		}
 	}
 

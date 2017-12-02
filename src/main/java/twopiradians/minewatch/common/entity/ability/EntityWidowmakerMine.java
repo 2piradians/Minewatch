@@ -42,10 +42,10 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		public boolean onClientTick() {
 			// particles on entity
 			if (this.entity != null && this.entityLiving != null) {
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
-						entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
-						entity.posY+(entity.world.rand.nextFloat()-0.5f)*entity.height+entity.height/2f, 
-						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.worldObj, 
+						entity.posX+(entity.worldObj.rand.nextFloat()-0.5f)*entity.width, 
+						entity.posY+(entity.worldObj.rand.nextFloat()-0.5f)*entity.height+entity.height/2f, 
+						entity.posZ+(entity.worldObj.rand.nextFloat()-0.5f)*entity.width, 
 						0, 0.01f, 0, 0xBE8FC5, 0xB589BC, 0.5f, 10, 4, 4, 0, 0);
 				if (this.entityLiving == Minewatch.proxy.getClientPlayer() && 
 						entity.isGlowing() == this.entityLiving.canEntityBeSeen(entity))
@@ -64,7 +64,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		@Override
 		public Handler onClientRemove() {
 			if (this.entity != null && this.entityLiving != null &&
-					this.entityLiving == Minecraft.getMinecraft().player)
+					this.entityLiving == Minecraft.getMinecraft().thePlayer)
 				entity.setGlowing(false);
 			return super.onClientRemove();
 		}
@@ -131,17 +131,17 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			if (!world.isRemote)
+			if (!worldObj.isRemote)
 				ModSoundEvents.WIDOWMAKER_MINE_LAND.playSound(this, 1, 1);
-			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
+			if (worldObj.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID())) 
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE, worldObj, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
 		}
 		this.prevOnGround = this.onGround;
 
 		// check if not attached
-		if (!this.world.isRemote && this.onGround && 
-				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.2d))) {
+		if (!this.worldObj.isRemote && this.onGround && 
+				this.facing != null && !worldObj.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.2d))) {
 			this.onGround = false;
 			this.facing = null;
 			this.dataManager.set(FACING, -1);		
@@ -150,15 +150,15 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 			this.motionY -= 0.03D;
 
 		// check for entities
-		if (!this.world.isRemote  && this.onGround && this.getThrower() instanceof EntityLivingBase) {
-			List<Entity> entities = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expandXyz(3d));
+		if (!this.worldObj.isRemote  && this.onGround && this.getThrower() instanceof EntityLivingBase) {
+			List<Entity> entities = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expandXyz(3d));
 			for (Entity entity : entities) 
 				if (!(entity instanceof EntityLivingBaseMW) && entity instanceof EntityLivingBase && 
 						EntityHelper.shouldHit(this.getThrower(), entity, false) &&
 						this.canEntityBeSeen(entity)) {
 					TickHandler.register(false, POISONED.setTicks(100).setEntity(entity).setEntityLiving(getThrower()));
 					Minewatch.network.sendToDimension(new SPacketSimple(28, false, null, 
-							posX, posY, posZ, entity, getThrower()), world.provider.getDimension());
+							posX, posY, posZ, entity, getThrower()), worldObj.provider.getDimension());
 					ModSoundEvents.WIDOWMAKER_MINE_TRIGGER.playSound(this, 1, 1);
 					this.setDead();
 				}
@@ -175,15 +175,15 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getBrightnessForRender(float partialTicks) {
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor(this.posX), 0, MathHelper.floor(this.posZ));
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor_double(this.posX), 0, MathHelper.floor_double(this.posZ));
 
 		// offset by facing
 		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
 			pos.move(facing.getOpposite());
 
-		if (this.world.isBlockLoaded(pos)) {
-			pos.setY(MathHelper.floor(this.posY + (double)this.getEyeHeight()));
-			return this.world.getCombinedLight(pos, 0);
+		if (this.worldObj.isBlockLoaded(pos)) {
+			pos.setY(MathHelper.floor_double(this.posY + (double)this.getEyeHeight()));
+			return this.worldObj.getCombinedLight(pos, 0);
 		}
 		else
 			return 0;
@@ -196,7 +196,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		else {
 			AxisAlignedBB aabb = this.getEntityBoundingBox();
 			Vec3d vec = new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
-			return this.world.rayTraceBlocks(vec.add(new Vec3d(facing.getOpposite().getDirectionVec()).scale(0.3d)), new Vec3d(entityIn.posX, entityIn.posY + (double)entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
+			return this.worldObj.rayTraceBlocks(vec.add(new Vec3d(facing.getOpposite().getDirectionVec()).scale(0.3d)), new Vec3d(entityIn.posX, entityIn.posY + (double)entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
 		}
 	}
 
@@ -206,9 +206,9 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
-			if (!this.world.isRemote) {
+			if (!this.worldObj.isRemote) {
 				this.dataManager.set(FACING, this.facing.ordinal());
-				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), worldObj.provider.getDimension());
 			}
 			this.motionX = 0;
 			this.motionY = 0;
@@ -220,9 +220,9 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	public void onDeath(DamageSource cause) {
 		super.onDeath(cause);
 
-		if (this.world.isRemote && this.getThrower() instanceof EntityPlayer && 
+		if (this.worldObj.isRemote && this.getThrower() instanceof EntityPlayer && 
 				this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID())) {
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_DESTROYED, world, posX, posY+1d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_DESTROYED, worldObj, posX, posY+1d, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 			ModSoundEvents.WIDOWMAKER_MINE_DESTROYED.playFollowingSound(this.getThrower(), 1, 1, false);
 		}
 	}

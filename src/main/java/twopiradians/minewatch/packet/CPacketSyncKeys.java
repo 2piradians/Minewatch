@@ -62,7 +62,7 @@ public class CPacketSyncKeys implements IMessage
 	public static class Handler implements IMessageHandler<CPacketSyncKeys, IMessage> {
 		@Override
 		public IMessage onMessage(final CPacketSyncKeys packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() {
 
 				@Override

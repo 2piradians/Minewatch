@@ -76,13 +76,13 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			if (hand != null && this.ticksLeft < this.initialTicks && this.ticksLeft % 2 == 0 && entityLiving != null && entityLiving.getHeldItem(hand) != null && 
 					entityLiving.getHeldItem(hand).getItem() == EnumHero.LUCIO.weapon && 
 					EnumHero.LUCIO.weapon.canUse(entityLiving, false, hand, false, EnumHero.LUCIO.ability1, EnumHero.LUCIO.ability2)) {
-				EntityLucioSonic sonic = new EntityLucioSonic(entityLiving.world, entityLiving, hand.ordinal());
+				EntityLucioSonic sonic = new EntityLucioSonic(entityLiving.worldObj, entityLiving, hand.ordinal());
 				EntityHelper.setAim(sonic, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 50f, 0, hand, 12, 0.15f);
-				entityLiving.world.spawnEntity(sonic);
+				entityLiving.worldObj.spawnEntityInWorld(sonic);
 				if (this.ticksLeft >= this.initialTicks - 2)
-					ModSoundEvents.LUCIO_SHOOT.playFollowingSound(entityLiving, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/20+0.95f, false);
+					ModSoundEvents.LUCIO_SHOOT.playFollowingSound(entityLiving, entityLiving.worldObj.rand.nextFloat()+0.5F, entityLiving.worldObj.rand.nextFloat()/20+0.95f, false);
 				EnumHero.LUCIO.weapon.subtractFromCurrentAmmo(entityLiving, 1);
-				if (entityLiving.world.rand.nextInt(25) == 0)
+				if (entityLiving.worldObj.rand.nextInt(25) == 0)
 					entityLiving.getHeldItem(hand).damageItem(1, entityLiving);
 			}
 			return super.onServerTick();
@@ -195,7 +195,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	public static void soundwave(EntityLivingBase player, double motionX, double motionY, double motionZ) {
 		if (player != null) {
 			boolean playSound = false;
-			for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, player.getEntityBoundingBox().expandXyz(7))) 
+			for (Entity entity : player.worldObj.getEntitiesWithinAABBExcludingEntity(player, player.getEntityBoundingBox().expandXyz(7))) 
 				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90)) {
 					double distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
@@ -207,11 +207,11 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					entity.velocityChanged = true;
 					entity.onGround = false;
 					entity.isAirBorne = true;
-					if (!player.world.isRemote)
+					if (!player.worldObj.isRemote)
 						EntityHelper.attemptDamage(player, entity, 25, false);
 					playSound = true;
 				}
-			if (playSound && !player.world.isRemote)
+			if (playSound && !player.worldObj.isRemote)
 				ModSoundEvents.LUCIO_SOUNDWAVE_VOICE.playFollowingSound(player, 1, 1, false);
 		}
 	}
@@ -219,7 +219,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientTick(LivingUpdateEvent event) {
-		if (event.getEntityLiving().world.isRemote) {
+		if (event.getEntityLiving().worldObj.isRemote) {
 			ItemStack main = event.getEntityLiving().getHeldItemMainhand();
 			UUID uuid = event.getEntityLiving().getPersistentID();
 			boolean heal = ItemMWWeapon.isAlternate(main);
@@ -284,16 +284,16 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderCircle(RenderWorldLastEvent event) {
-		for (Entity entity : Minecraft.getMinecraft().world.loadedEntityList) {
+		for (Entity entity : Minecraft.getMinecraft().theWorld.loadedEntityList) {
 			if (entity instanceof EntityLivingBase && ItemMWArmor.SetManager.getWornSet(entity) == EnumHero.LUCIO && 
 					((EntityLivingBase) entity).getHeldItemMainhand() != null && 
 					((EntityLivingBase) entity).getHeldItemMainhand().getItem() == this &&
-					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, true)) {
+					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().thePlayer, true)) {
 
 				float partialTicks = event.getPartialTicks();
 				Entity player = Minecraft.getMinecraft().getRenderViewEntity();
 				if (player == null)
-					player = Minecraft.getMinecraft().player;
+					player = Minecraft.getMinecraft().thePlayer;
 				double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
 				double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
 				double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
@@ -311,12 +311,12 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 				GlStateManager.depthMask(false);
 				float f = 10;//this.shadowSize;
 
-				int i = MathHelper.floor(entityX - (double)f);
-				int j = MathHelper.floor(entityX + (double)f);
-				int k = MathHelper.floor(entityY - (double)f);
-				int l = MathHelper.floor(entityY + 1);
-				int i1 = MathHelper.floor(entityZ - (double)f);
-				int j1 = MathHelper.floor(entityZ + (double)f);
+				int i = MathHelper.floor_double(entityX - (double)f);
+				int j = MathHelper.floor_double(entityX + (double)f);
+				int k = MathHelper.floor_double(entityY - (double)f);
+				int l = MathHelper.floor_double(entityY + 1);
+				int i1 = MathHelper.floor_double(entityZ - (double)f);
+				int j1 = MathHelper.floor_double(entityZ + (double)f);
 				double d2 = x - entityX;
 				double d3 = y - entityY;
 				double d4 = z - entityZ;
@@ -327,11 +327,11 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 				boolean heal = isAlternate(((EntityLivingBase)entity).getHeldItemMainhand());
 				for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(i, k, i1), new BlockPos(j, l, j1)))
 				{
-					IBlockState iblockstate = entity.world.getBlockState(blockpos.down());
+					IBlockState iblockstate = entity.worldObj.getBlockState(blockpos.down());
 
-					if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE && entity.world.getLightFromNeighbors(blockpos) > 3)
+					if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE && entity.worldObj.getLightFromNeighbors(blockpos) > 3)
 					{
-						this.renderShadowSingle(entity.world, iblockstate, 
+						this.renderShadowSingle(entity.worldObj, iblockstate, 
 								heal ? 253f/255f : 9f/255f, heal ? 253f/255f : 222f/255f, heal ? 71f/255f : 123f/255f, 
 										x, y, z, blockpos, 1, 10, d2, d3, d4);
 					}

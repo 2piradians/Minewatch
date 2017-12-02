@@ -105,13 +105,13 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.particleAngle += rotationSpeed;
 		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.05f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
-		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
-			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
+		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().thePlayer != null)
+			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().thePlayer.getDistance(posX, posY, posZ) / 5f);
 	}
 
 	public void followEntity() {
 		if (this.followEntity != null) {
-			EntityPlayer player = Minecraft.getMinecraft().player;
+			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
 						((EntityLivingBase) followEntity).getHealth() <= 0 ||
@@ -202,7 +202,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
 
-			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
+			int frame = MathHelper.clamp_int(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
 			int col = (frame-1) % framesPerRow;

@@ -24,7 +24,7 @@ public class EntityReaperBullet extends EntityMW {
 	
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, world, shooter, 
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, worldObj, shooter, 
 				0xD93B1A, 0x510D30, 0.3f, 5, 5, 4, 0, 0, hand, 14, 0.5f);
 	}
 	

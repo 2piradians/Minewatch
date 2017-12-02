@@ -46,18 +46,18 @@ public class EntitySombraTranslocator extends EntityMW {
 		
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
-			if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
+			if (this.worldObj.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
 				ModSoundEvents.SOMBRA_TRANSLOCATOR_LAND.playFollowingSound(this.getThrower(), 1, 1, false);
 			if (!this.playedSound) {
-				if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
+				if (this.worldObj.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
 					ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.playFollowingSound(this.getThrower(), 0.8f, 1, false);
 				this.playedSound = true;
-				if (!this.world.isRemote) 
+				if (!this.worldObj.isRemote) 
 					this.lifetime = this.ticksExisted + 235;
 			}
-			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
+			if (worldObj.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_TRANSPOSER, world, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_TRANSPOSER, worldObj, this, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 1, 1, 0, 0);
 		}
 		this.prevOnGround = this.onGround;
 
@@ -65,7 +65,7 @@ public class EntitySombraTranslocator extends EntityMW {
 		this.motionY -= 0.05D;
 
 		// set cooldown when expiring
-		if (!this.world.isRemote && this.ticksExisted > lifetime &&
+		if (!this.worldObj.isRemote && this.ticksExisted > lifetime &&
 				this.getThrower() != null) 
 			EnumHero.SOMBRA.ability2.keybind.setCooldown(this.getThrower(), 80, false);
 
@@ -79,7 +79,7 @@ public class EntitySombraTranslocator extends EntityMW {
 		int color2 = EntityHelper.shouldHit(getThrower(), Minewatch.proxy.getClientPlayer(), false) ? 
 				0xAD2512 : 0x8E77BC;
 		if (this.onGround)
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, posX, posY, posZ, 0, 0.2f, 0, color1, color2, 1f, 10, 2, 1.5f, 0, 0);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, worldObj, posX, posY, posZ, 0, 0.2f, 0, color1, color2, 1f, 10, 2, 1.5f, 0, 0);
 		else 
 			EntityHelper.spawnTrailParticles(this, 5, 0, color1, color2, 0.8f, 5, 0.8f);
 	}

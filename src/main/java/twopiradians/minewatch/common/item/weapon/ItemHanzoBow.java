@@ -65,11 +65,11 @@ public class ItemHanzoBow extends ItemMWWeapon {
 
 		int i = this.getMaxItemUseDuration(stack) - timeLeft;
 		if (player instanceof EntityPlayer)
-			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) player, i, !itemstack.isEmpty() || flag);
+			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) player, i, itemstack != null || flag);
 		if (i < 0) return;
 
-		if (!itemstack.isEmpty() || flag) {
-			if (itemstack.isEmpty())
+		if (itemstack != null || flag) {
+			if (itemstack == null)
 				itemstack = new ItemStack(Items.ARROW);
 
 			float f = (float)i / 20.0F;
@@ -110,15 +110,15 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 					}
 					stack.damageItem(1, player);
-					worldIn.spawnEntity(entityarrow);
+					worldIn.spawnEntityInWorld(entityarrow);
 				}
 
 				ModSoundEvents.HANZO_SHOOT.playSound(player, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
 				if (!flag1 && player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode) {
-					itemstack.shrink(1);
+					--itemstack.stackSize;
 
-					if (itemstack.isEmpty())
+					if (itemstack.stackSize == 0)
 						((EntityPlayer)player).inventory.deleteStack(itemstack);
 				}
 			}
@@ -140,7 +140,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand handIn) {
 		ItemStack itemstack = player.getHeldItem(handIn);	
-		boolean flag = !this.findAmmo(player).isEmpty();
+		boolean flag = this.findAmmo(player) != null;
 
 		if (player instanceof EntityPlayer) {
 			ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, world, (EntityPlayer) player, handIn, flag);

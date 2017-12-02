@@ -41,13 +41,13 @@ public class EntityAnaSleepDart extends EntityMW {
 		if (EntityHelper.attemptDamage(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
 				result.entityHit.isNonBoss() && !(result.entityHit instanceof EntityLivingBaseMW)) {
 			TickHandler.interrupt(result.entityHit);
-			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),
+			TickHandler.register(this.worldObj.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_INPUT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_MOVEMENT.setEntity(result.entityHit).setTicks(120),
 					Handlers.PREVENT_ROTATION.setEntity(result.entityHit).setTicks(120));
 			if (result.entityHit instanceof EntityLivingBase) 
 				Handlers.rotations.put((EntityLivingBase) result.entityHit, Triple.of(0f, 0f, 0f));
-			Minewatch.network.sendToDimension(new SPacketSimple(12, result.entityHit, false), this.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(12, result.entityHit, false), this.worldObj.provider.getDimension());
 			ModSoundEvents.ANA_SLEEP_HIT.playFollowingSound(result.entityHit, 1, 1, false);
 			ModSoundEvents.ANA_SLEEP_VOICE.playFollowingSound(this.getThrower(), 0.5f, 1.0f, false);
 		}

@@ -479,7 +479,7 @@ public enum EnumHero {
 				double height = event.getResolution().getScaledHeight_double();
 				double width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
-				EntityPlayer player = Minecraft.getMinecraft().player;
+				EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				EnumHand hand = null;
 				for (EnumHand hand2 : EnumHand.values())
@@ -498,7 +498,7 @@ public enum EnumHero {
 					if (handler != null &&
 							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 3 ? 0 : (1f-handler.ticksLeft/3f)*0.7f));
-						double scale = MathHelper.clamp(0.014f*handler.number, 0.03f, 0.25f);
+						double scale = MathHelper.clamp_double(0.014f*handler.number, 0.03f, 0.25f);
 						GlStateManager.scale(scale, scale, 1);
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/hit_overlay.png"));
 						GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
@@ -581,7 +581,7 @@ public enum EnumHero {
 		@SideOnly(Side.CLIENT)
 		public static void renderOverlay(RenderGameOverlayEvent.Post event) {			
 			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
-				EntityPlayer player = Minecraft.getMinecraft().player;
+				EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
@@ -776,9 +776,9 @@ public enum EnumHero {
 		@SubscribeEvent
 		public static void hurtTime(TickEvent.RenderTickEvent event) {
 			// limit hurt time when wearing full set
-			if (Minecraft.getMinecraft().player != null && 
-					ItemMWArmor.SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
-				Minecraft.getMinecraft().player.hurtTime = Math.min(5, Minecraft.getMinecraft().player.hurtTime);
+			if (Minecraft.getMinecraft().thePlayer != null && 
+					ItemMWArmor.SetManager.getWornSet(Minecraft.getMinecraft().thePlayer) != null)
+				Minecraft.getMinecraft().thePlayer.hurtTime = Math.min(5, Minecraft.getMinecraft().thePlayer.hurtTime);
 		}
 
 		@SubscribeEvent
@@ -806,7 +806,7 @@ public enum EnumHero {
 				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
 
 			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
-				if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) != null) {
+				if (!player.worldObj.isRemote && ItemMWArmor.SetManager.getWornSet(player) != null) {
 					try {
 						float damage = event.getAmount();
 						damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
@@ -839,7 +839,7 @@ public enum EnumHero {
 						damage = entityDamage.get(event.getEntityLiving()).get(uuid).getFirst();
 					}
 				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) {
-					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
+					EntityPlayer player = event.getEntityLiving().worldObj.getPlayerEntityByUUID(uuid);
 					if (player instanceof EntityPlayerMP) {
 						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
 						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
@@ -851,14 +851,14 @@ public enum EnumHero {
 									handler.setBoolean(true);
 							}
 							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
-									(int)MathHelper.clamp(percent, 0, 100),
+									(int)MathHelper.clamp_int(percent, 0, 100),
 									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
 						}
 					}
 				}
 				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)
 					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
-							0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
+							0, 0, event.getEntityLiving().worldObj.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
 				entityDamage.remove(event.getEntityLiving());
 			}
 		}
@@ -868,7 +868,7 @@ public enum EnumHero {
 			if (source.isDamageAbsolute())
 				return damage;
 			else {
-				if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD) {
+				if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.outOfWorld) {
 					int i = (player.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
 					int j = 25 - i;
 					float f = damage * (float)j;

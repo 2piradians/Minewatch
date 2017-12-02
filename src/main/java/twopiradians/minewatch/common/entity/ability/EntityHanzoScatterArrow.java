@@ -28,7 +28,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		if (this.inGround)
 			this.inGround = false;
 
-		if (!this.world.isRemote && !this.scatter && this.ticksExisted > 100) 
+		if (!this.worldObj.isRemote && !this.scatter && this.ticksExisted > 100) 
 			this.setDead();
 	}
 	
@@ -40,11 +40,11 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 	@Override
 	protected void onHit(RayTraceResult result) {
 		EntityHelper.moveToHitPosition(this, result, false);
-		if (!this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityLivingBase) 
+		if (!this.worldObj.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityLivingBase) 
 			// scatter
 			if (scatter) {
 				for (int i=0; i<6; ++i) {
-					EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
+					EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(worldObj, (EntityLivingBase) this.shootingEntity, false);
 					entityarrow.setDamage(this.getDamage());
 					entityarrow.copyLocationAndAnglesFrom(this);
 
@@ -61,7 +61,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 					entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
 					entityarrow.getDataManager().set(VELOCITY, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
-					this.world.spawnEntity(entityarrow);
+					this.worldObj.spawnEntityInWorld(entityarrow);
 				}
 				EntityHelper.moveToHitPosition(this, result);
 			}

@@ -24,11 +24,6 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class ItemMWToken extends Item {
 
 	@Override
-	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
-		return false;
-	}
-
-	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;
 	}
@@ -37,9 +32,9 @@ public class ItemMWToken extends Item {
 	public void onEvent(LivingDropsEvent event) {
 		int tokenRate = event.getEntityLiving() instanceof EntityHero ? Config.mobTokenDropRate : Config.tokenDropRate;
 		int wildCardRate = event.getEntityLiving() instanceof EntityHero ? Config.mobWildCardDropRate : Config.wildCardRate;
-		if (!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityLiving 
+		if (!event.getEntityLiving().worldObj.isRemote && event.getEntityLiving() instanceof EntityLiving 
 				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < tokenRate * (1 + event.getLootingLevel())) {
-			int i = event.getEntityLiving().world.rand.nextInt(EnumHero.values().length);
+			int i = event.getEntityLiving().worldObj.rand.nextInt(EnumHero.values().length);
 			ItemStack stack;
 			if (event.getEntityLiving().getEntityWorld().rand.nextInt(100) < wildCardRate)
 				stack = new ItemStack(ModItems.wild_card_token);
@@ -47,7 +42,7 @@ public class ItemMWToken extends Item {
 				stack = new ItemStack(((EntityHero)event.getEntityLiving()).hero.token);
 			else
 				stack = new ItemStack(EnumHero.values()[i].token);
-			EntityItem drop = new EntityItem(event.getEntityLiving().world, event.getEntityLiving().posX, 
+			EntityItem drop = new EntityItem(event.getEntityLiving().worldObj, event.getEntityLiving().posX, 
 					event.getEntityLiving().posY, event.getEntityLiving().posZ, stack);
 			event.getDrops().add(drop);
 		}
@@ -56,7 +51,7 @@ public class ItemMWToken extends Item {
 	public static class ItemWildCardToken extends ItemMWToken {
 
 		@Override
-		public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
 			if (world.isRemote)
 				Minewatch.proxy.openWildCardGui();
 

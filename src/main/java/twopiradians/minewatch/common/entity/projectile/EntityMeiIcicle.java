@@ -40,8 +40,8 @@ public class EntityMeiIcicle extends EntityMW {
 
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
-				0x2B9191, 0x2B9191, 0.7f, 3, 3, 2.5f, world.rand.nextFloat(), 0.01f, hand, 10, 0.55f);
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, (EntityLivingBase) getThrower(), 
+				0x2B9191, 0x2B9191, 0.7f, 3, 3, 2.5f, worldObj.rand.nextFloat(), 0.01f, hand, 10, 0.55f);
 	}
 
 	@Override
@@ -53,17 +53,17 @@ public class EntityMeiIcicle extends EntityMW {
 			this.lifetime = 240;
 
 		BlockPos blockpos = new BlockPos(this.xTile, this.yTile, this.zTile);
-		IBlockState iblockstate = this.world.getBlockState(blockpos);
+		IBlockState iblockstate = this.worldObj.getBlockState(blockpos);
 		Block block = iblockstate.getBlock();
 
 		if (iblockstate.getMaterial() != Material.AIR) {
-			AxisAlignedBB axisalignedbb = iblockstate.getCollisionBoundingBox(this.world, blockpos);
+			AxisAlignedBB axisalignedbb = iblockstate.getCollisionBoundingBox(this.worldObj, blockpos);
 
 			if (axisalignedbb != Block.NULL_AABB && axisalignedbb.offset(blockpos).isVecInside(new Vec3d(this.posX, this.posY, this.posZ)))
 				this.inGround = true;
 		}
 		if (this.inGround && (block != this.inTile || block.getMetaFromState(iblockstate) != this.inData) && 
-				!this.world.collidesWithAnyBlock(this.getEntityBoundingBox().expandXyz(0.05D))) {
+				!this.worldObj.collidesWithAnyBlock(this.getEntityBoundingBox().expandXyz(0.05D))) {
 			this.setDead();
 		}
 
@@ -82,7 +82,7 @@ public class EntityMeiIcicle extends EntityMW {
 			this.xTile = blockpos.getX();
 			this.yTile = blockpos.getY();
 			this.zTile = blockpos.getZ();
-			IBlockState iblockstate = this.world.getBlockState(blockpos);
+			IBlockState iblockstate = this.worldObj.getBlockState(blockpos);
 			this.inTile = iblockstate.getBlock();
 			this.inData = this.inTile.getMetaFromState(iblockstate);
 			this.inGround = true;
@@ -94,8 +94,8 @@ public class EntityMeiIcicle extends EntityMW {
 			for (Vec3d vec : new Vec3d[] {result.hitVec, result.hitVec.addVector(-this.width/2, 0, 0), 
 					result.hitVec.addVector(0, -this.width/2, 0), result.hitVec.addVector(0, 0, -this.width/2)}) {
 				BlockPos pos = new BlockPos(vec);
-				IBlockState state = this.world.getBlockState(pos);
-				if (state.getBlock().isPassable(this.world, pos) || state.getMaterial() == Material.AIR) {
+				IBlockState state = this.worldObj.getBlockState(pos);
+				if (state.getBlock().isPassable(this.worldObj, pos) || state.getMaterial() == Material.AIR) {
 					this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 					setPos = true;
 				}
@@ -104,7 +104,7 @@ public class EntityMeiIcicle extends EntityMW {
 				this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
 
 			if (iblockstate.getMaterial() != Material.AIR)
-				this.inTile.onEntityCollidedWithBlock(this.world, blockpos, iblockstate, this);
+				this.inTile.onEntityCollidedWithBlock(this.worldObj, blockpos, iblockstate, this);
 		}
 		else if (!this.inGround) {
 			if (EntityHelper.shouldHit(getThrower(), result.entityHit, false)) {

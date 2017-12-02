@@ -41,40 +41,40 @@ public class ModEntities {
 		int id = 0;
 
 		// heroes
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "random_hero"), EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
+		EntityRegistry.registerModEntity(EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
 		Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
 		for (EnumHero hero : EnumHero.values()) {
-			EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero"), hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
+			EntityRegistry.registerModEntity(hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
 			Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));
 		}
 
 		// projectile / ability
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reaper_bullet"), EntityReaperBullet.class, "reaper_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoArrow.class, "hanzo_arrow", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoSonicArrow.class, "hanzo_sonic_arrow", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation("arrow"), EntityHanzoScatterArrow.class, "hanzo_scatter_arrow", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "ana_bullet"), EntityAnaBullet.class, "ana_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "ana_sleep_dart"), EntityAnaSleepDart.class, "ana_sleep_dart", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "genji_shuriken"), EntityGenjiShuriken.class, "genji_shuriken", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "tracer_bullet"), EntityTracerBullet.class, "tracer_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mccree_bullet"), EntityMcCreeBullet.class, "mccree_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "soldier76_bullet"), EntitySoldier76Bullet.class, "soldier76_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "soldier76_helix_rocket"), EntitySoldier76HelixRocket.class, "soldier76_helix_rocket", id++, Minewatch.instance, 64, 200, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "bastion_bullet"), EntityBastionBullet.class, "bastion_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_blast"), EntityMeiBlast.class, "mei_blast", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_icicle"), EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mei_crystal"), EntityMeiCrystal.class, "mei_crystal", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "widowmaker_bullet"), EntityWidowmakerBullet.class, "widowmaker_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "widowmaker_mine"), EntityWidowmakerMine.class, "widowmaker_mine", id++, Minewatch.instance, 64, 20, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mercy_bullet"), EntityMercyBullet.class, "mercy_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "mercy_beam"), EntityMercyBeam.class, "mercy_beam", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "junkrat_grenade"), EntityJunkratGrenade.class, "junkrat_grenade", id++, Minewatch.instance, 64, 30, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "junkrat_trap"), EntityJunkratTrap.class, "junkrat_trap", id++, Minewatch.instance, 64, 20, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "junkrat_mine"), EntityJunkratMine.class, "junkrat_mine", id++, Minewatch.instance, 64, 1, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_bullet"), EntitySombraBullet.class, "sombra_bullet", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_translocator"), EntitySombraTranslocator.class, "sombra_translocator", id++, Minewatch.instance, 64, 20, true);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reinhardt_strike"), EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "lucio_sonic"), EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityReaperBullet.class, "reaper_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityHanzoArrow.class, "hanzo_arrow", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityHanzoSonicArrow.class, "hanzo_sonic_arrow", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityHanzoScatterArrow.class, "hanzo_scatter_arrow", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityAnaBullet.class, "ana_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityAnaSleepDart.class, "ana_sleep_dart", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityGenjiShuriken.class, "genji_shuriken", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityTracerBullet.class, "tracer_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMcCreeBullet.class, "mccree_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntitySoldier76Bullet.class, "soldier76_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntitySoldier76HelixRocket.class, "soldier76_helix_rocket", id++, Minewatch.instance, 64, 200, false);
+		EntityRegistry.registerModEntity(EntityBastionBullet.class, "bastion_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMeiBlast.class, "mei_blast", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMeiIcicle.class, "mei_icicle", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
+		EntityRegistry.registerModEntity(EntityMeiCrystal.class, "mei_crystal", id++, Minewatch.instance, 64, Integer.MAX_VALUE, false);
+		EntityRegistry.registerModEntity(EntityWidowmakerBullet.class, "widowmaker_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityWidowmakerMine.class, "widowmaker_mine", id++, Minewatch.instance, 64, 20, true);
+		EntityRegistry.registerModEntity(EntityMercyBullet.class, "mercy_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMercyBeam.class, "mercy_beam", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityJunkratGrenade.class, "junkrat_grenade", id++, Minewatch.instance, 64, 30, true);
+		EntityRegistry.registerModEntity(EntityJunkratTrap.class, "junkrat_trap", id++, Minewatch.instance, 64, 20, true);
+		EntityRegistry.registerModEntity(EntityJunkratMine.class, "junkrat_mine", id++, Minewatch.instance, 64, 1, true);
+		EntityRegistry.registerModEntity(EntitySombraBullet.class, "sombra_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntitySombraTranslocator.class, "sombra_translocator", id++, Minewatch.instance, 64, 20, true);
+		EntityRegistry.registerModEntity(EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

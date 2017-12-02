@@ -66,7 +66,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (player == Minecraft.getMinecraft().player)
+			if (player == Minecraft.getMinecraft().thePlayer)
 				if (this.ticksLeft > 1)
 					Minecraft.getMinecraft().gameSettings.viewBobbing = false;
 				else if (wraithViewBobbing.containsKey(player)) {
@@ -74,18 +74,18 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					wraithViewBobbing.remove(player);
 				}
 			if (this.ticksLeft > 8) {
-				boolean firstPerson = player == Minecraft.getMinecraft().player && 
+				boolean firstPerson = player == Minecraft.getMinecraft().thePlayer && 
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ;
 				for (int i=0; i<3; ++i) {
-					entityLiving.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, 
-							entityLiving.posX+entityLiving.world.rand.nextDouble()-0.5d, 
-							entityLiving.posY+entityLiving.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
-							entityLiving.posZ+entityLiving.world.rand.nextDouble()-0.5d, 
+					entityLiving.worldObj.spawnParticle(EnumParticleTypes.SMOKE_LARGE, 
+							entityLiving.posX+entityLiving.worldObj.rand.nextDouble()-0.5d, 
+							entityLiving.posY+entityLiving.worldObj.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
+							entityLiving.posZ+entityLiving.worldObj.rand.nextDouble()-0.5d, 
 							0, (firstPerson ? -0.1d : 0d), 0);
-					entityLiving.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
-							entityLiving.posX+entityLiving.world.rand.nextDouble()-0.5d, 
-							entityLiving.posY+entityLiving.world.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
-							entityLiving.posZ+entityLiving.world.rand.nextDouble()-0.5d, 
+					entityLiving.worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+							entityLiving.posX+entityLiving.worldObj.rand.nextDouble()-0.5d, 
+							entityLiving.posY+entityLiving.worldObj.rand.nextDouble()*(firstPerson ? 0d : 1.5d), 
+							entityLiving.posZ+entityLiving.worldObj.rand.nextDouble()-0.5d, 
 							0, (firstPerson ? -0.1d : 0d), 0);
 				}
 			}
@@ -122,7 +122,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			}
 			else {		
 				// change view
-				if (this.ticksLeft != -1 && Minecraft.getMinecraft().player == player) {
+				if (this.ticksLeft != -1 && Minecraft.getMinecraft().thePlayer == player) {
 					if (this.ticksLeft > 1)
 						Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
 					else if (tpThirdPersonView.containsKey(player)) {
@@ -131,23 +131,23 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					}
 				}
 				// particles
-				if (this.ticksLeft != -1 || entityLiving == Minecraft.getMinecraft().player) {
+				if (this.ticksLeft != -1 || entityLiving == Minecraft.getMinecraft().thePlayer) {
 					if (entityLiving.ticksExisted % 2 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 1);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, false, 1);
 					else if (entityLiving.ticksExisted % 3 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 3);
-					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, false, 2);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, false, 3);
+					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, false, 2);
 				}
 				// tp sound
 				if (entityLiving.ticksExisted % 13 == 0 && this.ticksLeft == -1)
-					ModSoundEvents.REAPER_TELEPORT_DURING.playSound(entityLiving, entityLiving.world.rand.nextFloat()*0.5f+0.3f, entityLiving.world.rand.nextFloat()*0.5f+0.75f, true);
+					ModSoundEvents.REAPER_TELEPORT_DURING.playSound(entityLiving, entityLiving.worldObj.rand.nextFloat()*0.5f+0.3f, entityLiving.worldObj.rand.nextFloat()*0.5f+0.75f, true);
 				// particles at entityLiving
 				if (this.ticksLeft > 40 && this.ticksLeft != -1) {
 					if (entityLiving.ticksExisted % 2 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 1);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, true, 1);
 					else if (entityLiving.ticksExisted % 3 == 0)
-						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 3);
-					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.world, entityLiving, true, 2);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, true, 3);
+					Minewatch.proxy.spawnParticlesReaperTeleport(entityLiving.worldObj, entityLiving, true, 2);
 				}
 			}
 			return this.ticksLeft != -1 && --this.ticksLeft <= 0;
@@ -165,7 +165,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				entityLiving.setPositionAndUpdate(this.position.xCoord, 
 						this.position.yCoord, 
 						this.position.zCoord);
-				if (entityLiving.world.rand.nextBoolean())
+				if (entityLiving.worldObj.rand.nextBoolean())
 					ModSoundEvents.REAPER_TELEPORT_VOICE.playSound(entityLiving, 1, 1);
 			}
 			return super.onServerTick();
@@ -203,7 +203,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				for (int i=0; i<20; i++) {
 					EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand.ordinal());
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 8F, hand, 14, 0.55f);
-					world.spawnEntity(bullet);
+					world.spawnEntityInWorld(bullet);
 				}
 				ModSoundEvents.REAPER_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
@@ -218,7 +218,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@Nullable
 	private Vec3d getTeleportPos(EntityLivingBase player) {
 		try {
-			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
+			RayTraceResult result = player.worldObj.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
@@ -227,17 +227,17 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				double adjustX = result.sideHit == EnumFacing.EAST ? -0.5d : 0;
 
 				pos = pos.add(adjustX, 0, adjustZ);
-				IBlockState state = player.world.getBlockState(pos);
-				IBlockState state1 = player.world.getBlockState(pos.up());
-				IBlockState state2 = player.world.getBlockState(pos.up(2));
+				IBlockState state = player.worldObj.getBlockState(pos);
+				IBlockState state1 = player.worldObj.getBlockState(pos.up());
+				IBlockState state2 = player.worldObj.getBlockState(pos.up(2));
 
-				if ((player.world.isAirBlock(pos.up()) || state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == null ||
-						state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == Block.NULL_AABB) && 
-						(player.world.isAirBlock(pos.up(2)) || state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == null ||
-						state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == Block.NULL_AABB) && 
-						!player.world.isAirBlock(pos) && 
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&
+				if ((player.worldObj.isAirBlock(pos.up()) || state1.getBlock().getCollisionBoundingBox(state1, player.worldObj, pos.up()) == null ||
+						state1.getBlock().getCollisionBoundingBox(state1, player.worldObj, pos.up()) == Block.NULL_AABB) && 
+						(player.worldObj.isAirBlock(pos.up(2)) || state2.getBlock().getCollisionBoundingBox(state2, player.worldObj, pos.up(2)) == null ||
+						state2.getBlock().getCollisionBoundingBox(state2, player.worldObj, pos.up(2)) == Block.NULL_AABB) && 
+						!player.worldObj.isAirBlock(pos) && 
+						state.getBlock().getCollisionBoundingBox(state, player.worldObj, pos) != null &&
+						state.getBlock().getCollisionBoundingBox(state, player.worldObj, pos) != Block.NULL_AABB &&
 						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35)
 					return new Vec3d(result.hitVec.xCoord + adjustX, 
 							result.getBlockPos().getY()+1+(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
@@ -320,7 +320,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderWraithOverlay(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (event.getType() == ElementType.ALL && player != null && 
 				TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
 			float ticks = TickHandler.hasHandler(player, Identifier.REAPER_WRAITH) ? 
@@ -331,7 +331,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					//PORT scale x event.getResolution().getScaleFactor()
-					GlStateManager.scale(width/256d, height/256d, 1);
+					GlStateManager.scale(width/256d*event.getResolution().getScaleFactor(), height/256d*event.getResolution().getScaleFactor(), 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;
 					if (firstImage < 6) {
@@ -358,9 +358,9 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void moveTpCamera(FOVUpdateEvent event) {
-		if (Minecraft.getMinecraft().world != null &&
-				TickHandler.getHandler(Minecraft.getMinecraft().player, Identifier.REAPER_TELEPORT) != null &&
-				TickHandler.getHandler(Minecraft.getMinecraft().player, Identifier.REAPER_TELEPORT).ticksLeft > 0) 
+		if (Minecraft.getMinecraft().theWorld != null &&
+				TickHandler.getHandler(Minecraft.getMinecraft().thePlayer, Identifier.REAPER_TELEPORT) != null &&
+				TickHandler.getHandler(Minecraft.getMinecraft().thePlayer, Identifier.REAPER_TELEPORT).ticksLeft > 0) 
 			event.setNewfov(event.getFov()+0.8f);
 	}
 
@@ -370,7 +370,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			EntityLivingBase source = ((EntityLivingBase)event.getSource().getEntity());
 			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
-			if (!source.world.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero &&
+			if (!source.worldObj.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero &&
 					source.getHeldItemMainhand() != null && source.getHeldItemMainhand().getItem() == this) {
 				try {
 					float damage = event.getAmount();
@@ -382,7 +382,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				catch (Exception e) {}
 			}
 			// cancel attack in wraith
-			if (!source.world.isRemote && TickHandler.hasHandler(target, Identifier.REAPER_WRAITH)) 
+			if (!source.worldObj.isRemote && TickHandler.hasHandler(target, Identifier.REAPER_WRAITH)) 
 				event.setCanceled(true);
 		}
 	}

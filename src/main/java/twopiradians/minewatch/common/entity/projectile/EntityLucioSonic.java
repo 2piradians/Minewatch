@@ -27,7 +27,7 @@ public class EntityLucioSonic extends EntityMW {
 
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, world, shooter, 
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, worldObj, shooter, 
 				0x8CAB46, 0x819765, 0.8f, 3, 3, 6, 0, 0, hand, 14, 0.65f);
 	}
 
@@ -40,10 +40,10 @@ public class EntityLucioSonic extends EntityMW {
 	@Override
 	public void onUpdate() {
 		// initial particle spawn / sound start
-		if (this.world.isRemote) {
+		if (this.worldObj.isRemote) {
 			if (this.firstUpdate)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, this, 0x7EA950, 0x7EA950, 0.9f, Integer.MAX_VALUE, 2.5f, 2.5f, 0, 1);
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE, world, this.posX, this.posY+height/2f, this.posZ, motionX/10f, motionY/10f, motionZ/10f, 0xABBF85, 0xD3EAA4, 0.9f, 10, 2, 0.5f, world.rand.nextFloat(), world.rand.nextFloat()/3f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, worldObj, this, 0x7EA950, 0x7EA950, 0.9f, Integer.MAX_VALUE, 2.5f, 2.5f, 0, 1);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE, worldObj, this.posX, this.posY+height/2f, this.posZ, motionX/10f, motionY/10f, motionZ/10f, 0xABBF85, 0xD3EAA4, 0.9f, 10, 2, 0.5f, worldObj.rand.nextFloat(), worldObj.rand.nextFloat()/3f);
 		}
 
 		super.onUpdate(); 

@@ -210,7 +210,7 @@ public class ClientProxy extends CommonProxy {
 				@Override
 				public ModelResourceLocation getModelLocation(ItemStack stack) {
 					return new ModelResourceLocation(loc + 
-							item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack)) + 
+							item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().theWorld, stack)) + 
 							(Config.useObjModels ? "_3d" : ""), "inventory");
 				}
 			});
@@ -286,7 +286,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	@Nullable
 	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.world.isRemote) {
+		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.worldObj.isRemote) {
 			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 			return sound;
@@ -299,17 +299,17 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void mouseClick() {
 		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.objectMouseOver != null && !mc.player.isRowingBoat()) {
+		if (mc.objectMouseOver != null && !mc.thePlayer.isRowingBoat()) {
 			switch (mc.objectMouseOver.typeOfHit) {
 			case ENTITY:
-				mc.playerController.attackEntity(mc.player, mc.objectMouseOver.entityHit);
+				mc.playerController.attackEntity(mc.thePlayer, mc.objectMouseOver.entityHit);
 				break;
 			case BLOCK:
 			case MISS:
-				mc.player.resetCooldown();
-				net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.player);
+				mc.thePlayer.resetCooldown();
+				net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.thePlayer, mc.thePlayer.getHeldItemMainhand());
 			}
-			mc.player.swingArm(EnumHand.MAIN_HAND);
+			mc.thePlayer.swingArm(EnumHand.MAIN_HAND);
 		}
 	}
 
@@ -378,7 +378,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public EntityPlayer getClientPlayer() {
-		return Minecraft.getMinecraft().player;
+		return Minecraft.getMinecraft().thePlayer;
 	}
 
 	@Override

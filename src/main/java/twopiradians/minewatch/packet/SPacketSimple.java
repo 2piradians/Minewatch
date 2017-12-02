@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
@@ -161,7 +160,7 @@ public class SPacketSimple implements IMessage {
 			player.velocityChanged = true;
 		}
 		vec = vec.normalize().scale(scale);
-		player.move(MoverType.SELF, vec.xCoord, vec.yCoord, vec.zCoord);
+		player.moveEntity(vec.xCoord, vec.yCoord, vec.zCoord);
 	}
 
 	public static class Handler implements IMessageHandler<SPacketSimple, IMessage> {
@@ -171,10 +170,10 @@ public class SPacketSimple implements IMessage {
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					EntityPlayerSP player = Minecraft.getMinecraft().player;
-					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
-					Entity entity = packet.id == -1 ? null : player.world.getEntityByID(packet.id);
-					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
+					EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+					EntityPlayer packetPlayer = packet.uuid == null ? null : player.worldObj.getPlayerEntityByUUID(packet.uuid);
+					Entity entity = packet.id == -1 ? null : player.worldObj.getEntityByID(packet.id);
+					Entity entity2 = packet.id2 == -1 ? null : player.worldObj.getEntityByID(packet.id2);
 
 					// Tracer's dash
 					if (packet.type == 0) {
@@ -186,8 +185,8 @@ public class SPacketSimple implements IMessage {
 						entity.rotationPitch = 0;
 						TickHandler.register(true, ItemReaperShotgun.TPS.setEntity(entity).setTicks(70).setPosition(new Vec3d(packet.x, packet.y, packet.z)), 
 								Ability.ABILITY_USING.setEntity(entity).setTicks(70).setAbility(EnumHero.REAPER.ability1));
-						Minewatch.proxy.spawnParticlesReaperTeleport(entity.world, (EntityLivingBase) entity, true, 0);
-						Minewatch.proxy.spawnParticlesReaperTeleport(entity.world, (EntityLivingBase) entity, false, 0);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entity.worldObj, (EntityLivingBase) entity, true, 0);
+						Minewatch.proxy.spawnParticlesReaperTeleport(entity.worldObj, (EntityLivingBase) entity, false, 0);
 						if (player == entity)
 							ItemReaperShotgun.tpThirdPersonView.put(player, Minecraft.getMinecraft().gameSettings.thirdPersonView);
 					}
@@ -281,7 +280,7 @@ public class SPacketSimple implements IMessage {
 						// spawn sweep particle
 						double d0 = (double)(-MathHelper.sin(entity.rotationYaw * 0.017453292F));
 						double d1 = (double)MathHelper.cos(entity.rotationYaw * 0.017453292F);
-						entity.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, entity.posX + d0, entity.posY + (double)entity.height * 0.8D, entity.posZ + d1, 0, d0, 0.0D, new int[0]);
+						entity.worldObj.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, entity.posX + d0, entity.posY + (double)entity.height * 0.8D, entity.posZ + d1, 0, d0, 0.0D, new int[0]);
 						if (entity == player)
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(entity).setTicks(5));
 					}
@@ -331,7 +330,7 @@ public class SPacketSimple implements IMessage {
 						else 
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound
-						ModSoundEvents.HURT.playSound(player, (float) MathHelper.clamp(packet.x/18f, 0.1f, 0.4f), 1.0f, true);
+						ModSoundEvents.HURT.playSound(player, (float) MathHelper.clamp_float((float) (packet.x/18f), 0.1f, 0.4f), 1.0f, true);
 					}
 					// Interrupt
 					else if (packet.type == 16 && entity != null) {
@@ -371,8 +370,8 @@ public class SPacketSimple implements IMessage {
 								ModSoundEvents.JUNKRAT_GRENADE_TICK_2.playFollowingSound(entity, 1, 1, true);
 							else
 								ModSoundEvents.JUNKRAT_GRENADE_TICK_3.playSound(entity, 1, 1);
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY, entity.posZ,
-									0, 0, 0, 0xFCCD75, 0xFFDA93, 0.7f, 2, 3, 2.5f, entity.world.rand.nextFloat(), 0.01f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.worldObj, entity.posX, entity.posY, entity.posZ,
+									0, 0, 0, 0xFCCD75, 0xFFDA93, 0.7f, 2, 3, 2.5f, entity.worldObj.rand.nextFloat(), 0.01f);
 							ModSoundEvents.JUNKRAT_GRENADE_BOUNCE.playSound(entity, 0.7f, 1);
 						}
 					}
@@ -385,12 +384,12 @@ public class SPacketSimple implements IMessage {
 					// Frozen particles
 					else if (packet.type == 23 && entity != null) {
 						for (int i=0; i<3; ++i)
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
-									packet.x+entity.world.rand.nextDouble()-0.5d, 
-									packet.y+entity.world.rand.nextDouble()-0.5d, 
-									packet.z+entity.world.rand.nextDouble()-0.5d, 
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.worldObj, 
+									packet.x+entity.worldObj.rand.nextDouble()-0.5d, 
+									packet.y+entity.worldObj.rand.nextDouble()-0.5d, 
+									packet.z+entity.worldObj.rand.nextDouble()-0.5d, 
 									0, 0.01f, 0, 0x5BC8E0, 0xAED4FF,
-									entity.world.rand.nextFloat(), 5, 20f, 25f, 0, 0);
+									entity.worldObj.rand.nextFloat(), 5, 20f, 25f, 0, 0);
 					}
 					// Junkrat death grenades
 					else if (packet.type == 24 && entity instanceof EntityJunkratGrenade) {
@@ -410,14 +409,14 @@ public class SPacketSimple implements IMessage {
 							}
 						}
 						if (packetPlayer == player && player != null)
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_TRIGGERED, player.world, entity.posX, entity.posY+1.5d, entity.posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.JUNKRAT_TRAP_TRIGGERED, player.worldObj, entity.posX, entity.posY+1.5d, entity.posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 					}
 					// Junkrat trap destroyed
 					else if (packet.type == 26 && entity instanceof EntityJunkratTrap) {
 						if (packet.bool)
 							for (int i=0; i<30; ++i)
-								entity.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, 
-										entity.posX+(entity.world.rand.nextDouble()-0.5d)*1d, entity.posY+entity.world.rand.nextDouble()*1d, entity.posZ+(entity.world.rand.nextDouble()-0.5d)*1d, 0, 0, 0, new int[0]);
+								entity.worldObj.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, 
+										entity.posX+(entity.worldObj.rand.nextDouble()-0.5d)*1d, entity.posY+entity.worldObj.rand.nextDouble()*1d, entity.posZ+(entity.worldObj.rand.nextDouble()-0.5d)*1d, 0, 0, 0, new int[0]);
 						else
 							TickHandler.unregister(true, 
 									TickHandler.getHandler(((EntityJunkratTrap)entity).trappedEntity, Identifier.PREVENT_MOVEMENT),
@@ -439,7 +438,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 28 && entity != null && entity2 instanceof EntityLivingBase) {
 						TickHandler.register(true, EntityWidowmakerMine.POISONED.setTicks(100).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
 						if (entity2 == player && player != null) 
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.world, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.WIDOWMAKER_MINE_TRIGGERED, entity2.worldObj, packet.x, packet.y+1, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 5, 5, 0, 0);
 					}
 					// Sombra's teleport
 					else if (packet.type == 29 && entity != null) {
@@ -514,16 +513,16 @@ public class SPacketSimple implements IMessage {
 					}
 					// Lucio's soundwave
 					else if (packet.type == 38 && entity instanceof EntityLivingBase) {
-						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.worldObj, (EntityLivingBase) entity, 
 								0xE2EA7D, 0xABBF78, 1, 13, 1, 10, 0, 0, EnumHand.MAIN_HAND, 17, 0.65f);
-						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.worldObj, (EntityLivingBase) entity, 
 								0xE2EA7D, 0xABBF78, 0.9f, 13, 6, 10, 0, 0, EnumHand.MAIN_HAND, 17, 0.65f);
-						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
-								0xDFED8B, 0xABBF78, 0.7f, 15, 5+(entity.world.rand.nextFloat()-0.5f)*2f, 7+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
-						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
-								0xDFED8B, 0xABBF78, 0.7f, 14, 2+(entity.world.rand.nextFloat()-0.5f)*2f, 6+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
-						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.world, (EntityLivingBase) entity, 
-								0xDFED8B, 0xABBF78, 0.7f, 13, 3+(entity.world.rand.nextFloat()-0.5f)*2f, 6+(entity.world.rand.nextFloat()-0.5f)*2f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.worldObj, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 15, 5+(entity.worldObj.rand.nextFloat()-0.5f)*2f, 7+(entity.worldObj.rand.nextFloat()-0.5f)*2f, entity.worldObj.rand.nextFloat(), entity.worldObj.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.worldObj, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 14, 2+(entity.worldObj.rand.nextFloat()-0.5f)*2f, 6+(entity.worldObj.rand.nextFloat()-0.5f)*2f, entity.worldObj.rand.nextFloat(), entity.worldObj.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.HOLLOW_CIRCLE, entity.worldObj, (EntityLivingBase) entity, 
+								0xDFED8B, 0xABBF78, 0.7f, 13, 3+(entity.worldObj.rand.nextFloat()-0.5f)*2f, 6+(entity.worldObj.rand.nextFloat()-0.5f)*2f, entity.worldObj.rand.nextFloat(), entity.worldObj.rand.nextFloat()/10f, EnumHand.MAIN_HAND, 17, 0.65f);
 						ItemLucioSoundAmplifier.soundwave((EntityLivingBase) entity, entity.motionX, entity.motionY, entity.motionZ);							
 						ModSoundEvents.LUCIO_SOUNDWAVE.playFollowingSound(entity, 1, 1, false);
 					}
@@ -533,7 +532,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Hurt sound for Mercy's power beam
 					else if (packet.type == 40 && entity != null) {
-						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.world.rand.nextFloat()/2+0.75f, true);
+						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.worldObj.rand.nextFloat()/2+0.75f, true);
 					}
 				}
 			});

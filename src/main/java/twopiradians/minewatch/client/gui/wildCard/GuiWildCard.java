@@ -84,8 +84,8 @@ public class GuiWildCard extends GuiScreen {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
-		if (mc.player != null && ((GuiButtonWildCard)button).hero != null)
-			Minewatch.network.sendToServer(new CPacketSimple(2, mc.player, ((GuiButtonWildCard)button).hero.ordinal(), 0, 0));
+		if (mc.thePlayer != null && ((GuiButtonWildCard)button).hero != null)
+			Minewatch.network.sendToServer(new CPacketSimple(2, mc.thePlayer, ((GuiButtonWildCard)button).hero.ordinal(), 0, 0));
 	}
 
 }

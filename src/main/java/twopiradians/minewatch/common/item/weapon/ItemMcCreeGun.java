@@ -32,14 +32,14 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.entityLiving != null) {
 				entityLiving.onGround = true;
-				if (entityLiving == Minecraft.getMinecraft().player)
+				if (entityLiving == Minecraft.getMinecraft().thePlayer)
 					SPacketSimple.move(entityLiving, 0.6d, false, false);
 				if (this.ticksLeft % 3 == 0 && this.ticksLeft > 2)
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, entityLiving.world, 
-							entityLiving.prevPosX+entityLiving.world.rand.nextDouble()-0.5d, 
-							entityLiving.prevPosY+entityLiving.world.rand.nextDouble(), 
-							entityLiving.prevPosZ+entityLiving.world.rand.nextDouble()-0.5d, 
-							0, 0, 0, 0xB4907B, 0xE6C4AC, 0.7f, 10, 15+entityLiving.world.rand.nextInt(5), 15+entityLiving.world.rand.nextInt(5), 0, 0);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, entityLiving.worldObj, 
+							entityLiving.prevPosX+entityLiving.worldObj.rand.nextDouble()-0.5d, 
+							entityLiving.prevPosY+entityLiving.worldObj.rand.nextDouble(), 
+							entityLiving.prevPosZ+entityLiving.worldObj.rand.nextDouble()-0.5d, 
+							0, 0, 0, 0xB4907B, 0xE6C4AC, 0.7f, 10, 15+entityLiving.worldObj.rand.nextInt(5), 15+entityLiving.worldObj.rand.nextInt(5), 0, 0);
 			}
 			return super.onClientTick();
 		}
@@ -75,7 +75,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, hand.ordinal(), false);
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 10, 0.5f);
-			world.spawnEntity(bullet);
+			world.spawnEntityInWorld(bullet);
 			ModSoundEvents.MCCREE_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			this.setCooldown(player, 9);
@@ -105,16 +105,16 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			for (EnumHand hand2 : EnumHand.values())
 				if (entity.getHeldItem(hand2) == stack)
 					hand = hand2;
-			if (!entity.world.isRemote && hand != null) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.world, entity, hand.ordinal(), true);
+			if (!entity.worldObj.isRemote && hand != null) {
+				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.worldObj, entity, hand.ordinal(), true);
 				EntityHelper.setAim(bullet, entity, entity.rotationPitch, entity.rotationYawHead, -1, 3F, hand, 10, 0.5f);
-				entity.world.spawnEntity(bullet);	
-				ModSoundEvents.MCCREE_SHOOT.playSound(entity, entity.world.rand.nextFloat()+0.5F, entity.world.rand.nextFloat()/20+0.95f);
+				entity.worldObj.spawnEntityInWorld(bullet);	
+				ModSoundEvents.MCCREE_SHOOT.playSound(entity, entity.worldObj.rand.nextFloat()+0.5F, entity.worldObj.rand.nextFloat()/20+0.95f);
 				if (count == this.getMaxItemUseDuration(stack))
 					this.subtractFromCurrentAmmo(entity, 1, hand);
 				else
 					this.subtractFromCurrentAmmo(entity, 1);
-				if (entity.world.rand.nextInt(25) == 0)
+				if (entity.worldObj.rand.nextInt(25) == 0)
 					entity.getHeldItem(hand).damageItem(1, entity);
 			} 
 			else 

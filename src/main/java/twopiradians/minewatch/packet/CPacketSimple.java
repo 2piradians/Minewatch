@@ -111,14 +111,14 @@ public class CPacketSimple implements IMessage {
 	public static class Handler implements IMessageHandler<CPacketSimple, IMessage> {
 		@Override
 		public IMessage onMessage(final CPacketSimple packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() {
 
 				@Override
 				public void run() {
 					EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-					EntityPlayer packetPlayer = packet.uuid == null ? null : player.world.getPlayerEntityByUUID(packet.uuid);
-					Entity entity = packet.id == -1 ? null : player.world.getEntityByID(packet.id);
+					EntityPlayer packetPlayer = packet.uuid == null ? null : player.worldObj.getPlayerEntityByUUID(packet.uuid);
+					Entity entity = packet.id == -1 ? null : player.worldObj.getEntityByID(packet.id);
 					//Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// reset fall distance
@@ -136,8 +136,8 @@ public class CPacketSimple implements IMessage {
 						// take wild card and give token
 						for (ItemStack stack : packetPlayer.getHeldEquipment())
 							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
-							stack.getCount() > 0) {
-								stack.shrink(1);
+							stack.stackSize > 0) {
+								--stack.stackSize;
 								packetPlayer.inventory.addItemStackToInventory(
 										new ItemStack(EnumHero.values()[(int) packet.x].token));
 								break;
@@ -146,7 +146,7 @@ public class CPacketSimple implements IMessage {
 						boolean hasWildCard = false;
 						for (ItemStack stack : packetPlayer.getHeldEquipment())
 							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
-							stack.getCount() > 0)
+							stack.stackSize > 0)
 								hasWildCard = true;
 						if (!hasWildCard)
 							packetPlayer.closeScreen();

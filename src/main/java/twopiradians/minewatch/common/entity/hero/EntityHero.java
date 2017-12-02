@@ -9,7 +9,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAIWanderAvoidWater;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -64,7 +63,7 @@ public class EntityHero extends EntityMob {
 	protected void initEntityAI() {
 		this.tasks.addTask(1, new EntityAISwimming(this));
 		this.tasks.addTask(5, new EntityAIMoveTowardsRestriction(this, 1D));
-		this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F));
+	//	this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F)); //PORT water AI //TODO ?
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
 		this.targetTasks.addTask(1, new EntityHeroAIHurtByTarget(this, true, new Class[0]));
@@ -93,7 +92,7 @@ public class EntityHero extends EntityMob {
 		super.onUpdate(); 
 
 		// random hero
-		if (this.hero == null && !this.world.isRemote)
+		if (this.hero == null && !this.worldObj.isRemote)
 			this.spawnRandomHero();
 
 		// set drop chances
@@ -107,7 +106,7 @@ public class EntityHero extends EntityMob {
 			return;
 
 		// reset to default skin if random skins disabled
-		if (!world.isRemote && !Config.mobRandomSkins && this.getDataManager().get(SKIN) != 0)
+		if (!worldObj.isRemote && !Config.mobRandomSkins && this.getDataManager().get(SKIN) != 0)
 			this.getDataManager().set(SKIN, 0);
 
 		// make body follow head
@@ -118,24 +117,24 @@ public class EntityHero extends EntityMob {
 		}
 
 		// clear dead/invalid target
-		if (!this.world.isRemote && this.getAttackTarget() != null && 
+		if (!this.worldObj.isRemote && this.getAttackTarget() != null && 
 				(!this.getAttackTarget().isEntityAlive() || !EntityHelper.shouldHit(this, this.getAttackTarget(), false)))
 			this.setAttackTarget(null);
 
 		// update items and armor
 		this.setLeftHanded(false);
-		if (!this.world.isRemote) {
+		if (!this.worldObj.isRemote) {
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 				ItemStack stack = this.getItemStackFromSlot(slot);
-				if (stack == null || stack.isEmpty()) {
+				if (stack == null) {
 					stack = new ItemStack(hero.getEquipment(slot));
 					this.setItemStackToSlot(slot, stack);
 				}
 
 				if (stack != null && stack.getItem() instanceof ItemMWArmor)
-					((ItemMWArmor)stack.getItem()).onArmorTick(world, this, stack);
+					((ItemMWArmor)stack.getItem()).onArmorTick(worldObj, this, stack);
 				if (stack != null)
-					stack.getItem().onUpdate(stack, world, this, 0, stack == this.getHeldItemMainhand());
+					stack.getItem().onUpdate(stack, worldObj, this, 0, stack == this.getHeldItemMainhand());
 			}
 		}
 	}
@@ -144,14 +143,14 @@ public class EntityHero extends EntityMob {
 	public void spawnRandomHero() {
 		try {
 			EnumHero hero = EnumHero.values()[this.rand.nextInt(EnumHero.values().length)];
-			EntityHero heroMob = (EntityHero) hero.heroClass.getConstructor(World.class).newInstance(this.world);
+			EntityHero heroMob = (EntityHero) hero.heroClass.getConstructor(World.class).newInstance(this.worldObj);
 			heroMob.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
 			heroMob.setNoAI(this.isAIDisabled());
 			if (this.hasCustomName()) {
 				heroMob.setCustomNameTag(this.getCustomNameTag());
 				heroMob.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
 			}
-			this.world.spawnEntity(heroMob);
+			this.worldObj.spawnEntityInWorld(heroMob);
 		}
 		catch (Exception e) {
 			System.out.println("Minewatch was unable to spawn a random hero, please report this to the authors: ");
@@ -162,7 +161,7 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	protected boolean isValidLightLevel() {
-		return this.rand.nextInt(world.isDaytime() ? 50 : 20) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
+		return this.rand.nextInt(worldObj.isDaytime() ? 50 : 20) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
 	}
 
 	@Override

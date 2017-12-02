@@ -32,10 +32,10 @@ public class EntityGenjiShuriken extends EntityMW {
 
 		EntityHelper.attemptDamage(this, result.entityHit, 28, false);
 
-		if (this.world.isRemote)
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, result.entityHit == null ? result.hitVec.xCoord : posX, 
+		if (this.worldObj.isRemote)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, worldObj, result.entityHit == null ? result.hitVec.xCoord : posX, 
 					result.entityHit == null ? result.hitVec.yCoord : posY, 
 							result.entityHit == null ? result.hitVec.zCoord : posZ, 
-									0, 0, 0, 0xC8E682, 0x709233, 0.7f, 5, 5, 4.5f, world.rand.nextFloat(), 0.01f);
+									0, 0, 0, 0xC8E682, 0x709233, 0.7f, 5, 5, 4.5f, worldObj.rand.nextFloat(), 0.01f);
 	}
 }

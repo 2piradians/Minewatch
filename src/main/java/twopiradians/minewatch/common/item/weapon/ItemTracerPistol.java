@@ -34,10 +34,10 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
-			EntityTracerBullet bullet = new EntityTracerBullet(player.world, player, hand.ordinal());
+			EntityTracerBullet bullet = new EntityTracerBullet(player.worldObj, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2, hand, 7, 0.58f);
-			player.world.spawnEntity(bullet);
-			ModSoundEvents.TRACER_SHOOT.playSound(player, 1.0f, player.world.rand.nextFloat()/20+0.95f);
+			player.worldObj.spawnEntityInWorld(bullet);
+			ModSoundEvents.TRACER_SHOOT.playSound(player, 1.0f, player.worldObj.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(40) == 0)
 				player.getHeldItem(hand).damageItem(1, player);

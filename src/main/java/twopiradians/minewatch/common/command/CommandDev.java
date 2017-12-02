@@ -38,17 +38,17 @@ public class CommandDev implements ICommand {
 	}
 
 	@Override
-	public String getName() {
+	public String getCommandName() {
 		return "minewatchdev";
 	}
 
 	@Override
-	public String getUsage(ICommandSender sender) {
+	public String getCommandUsage(ICommandSender sender) {
 		return "";
 	}
 
 	@Override
-	public List<String> getAliases() {
+	public List<String> getCommandAliases() {
 		return new ArrayList<String>() {{add("mwdev");}};
 	}
 
@@ -68,22 +68,22 @@ public class CommandDev implements ICommand {
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = player.getItemStackFromSlot(slot);
 					ItemStack newStack = hero.getEquipment(slot) == null ? 
-							ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot));
-					if (newStack != ItemStack.EMPTY) {
+							null : new ItemStack(hero.getEquipment(slot));
+					if (newStack != null) {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setBoolean("devSpawned", true);
 						newStack.setTagCompound(nbt);
 					}
-					if (stack == null || stack.isEmpty() || stack.getItem() instanceof ItemMWArmor ||
+					if (stack == null || stack.getItem() instanceof ItemMWArmor ||
 							stack.getItem() instanceof ItemMWWeapon)
 						player.setItemStackToSlot(slot, newStack);
 					else if (hero.getEquipment(slot) != null)
 						player.inventory.addItemStackToInventory(newStack);
 				}
-				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name));
+				sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name));
 			}
 			else
-				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
+				sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 			return true;
 		}
 		else if (sender instanceof EntityPlayerMP && args.length == 2 && args[0].equalsIgnoreCase("display")) {
@@ -101,7 +101,7 @@ public class CommandDev implements ICommand {
 	}
 
 	@Override
-	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
 			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display");}});
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))

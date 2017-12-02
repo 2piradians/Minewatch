@@ -30,7 +30,7 @@ public class EntityLucio extends EntityHero {
 
 	@Override
 	public void onUpdate() {
-		if (!this.world.isRemote) {
+		if (!this.worldObj.isRemote) {
 			// change to speed when no heal target and full health
 			if (this.healTarget == null && this.getHealth() >= this.getMaxHealth() && 
 					ItemMWWeapon.isAlternate(this.getHeldItemMainhand()))

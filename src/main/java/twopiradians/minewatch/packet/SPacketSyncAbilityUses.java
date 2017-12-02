@@ -58,7 +58,7 @@ public class SPacketSyncAbilityUses implements IMessage{
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					EntityPlayer player = Minecraft.getMinecraft().player;
+					EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 					EnumHero hero = EnumHero.valueOf(packet.hero);
 					Ability ability = null;
 					if (packet.ability == 1)

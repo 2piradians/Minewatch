@@ -82,15 +82,15 @@ public class EntityMeiBlast extends EntityMW {
 	public void onUpdate() {		
 		super.onUpdate();
 
-		if (this.world.isRemote) {
+		if (this.worldObj.isRemote) {
 			int numParticles = (int) ((Math.abs(motionX)+Math.abs(motionY)+Math.abs(motionZ))*3d);
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.world, 
-						this.posX+(this.prevPosX-this.posX)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
-						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d, 
-						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(world.rand.nextDouble()-0.5d)*0.05d,
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.worldObj, 
+						this.posX+(this.prevPosX-this.posX)*i/numParticles+(worldObj.rand.nextDouble()-0.5d)*0.05d, 
+						this.posY+this.height/2+(this.prevPosY-this.posY)*i/numParticles+(worldObj.rand.nextDouble()-0.5d)*0.05d, 
+						this.posZ+(this.prevPosZ-this.posZ)*i/numParticles+(worldObj.rand.nextDouble()-0.5d)*0.05d,
 						motionX/10d, motionY/10d, motionZ/10d, 0x5BC8E0, 0xAED4FF, 0.8f, 3, 2.5f, 2f, 0, 0);
-			if (this.world.rand.nextInt(5) == 0)
+			if (this.worldObj.rand.nextInt(5) == 0)
 				EntityHelper.spawnTrailParticles(this, 1, 0.8d, motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5, 1);
 		}
 	}
@@ -102,7 +102,7 @@ public class EntityMeiBlast extends EntityMW {
 		if (result.entityHit != null) {
 			if (result.entityHit instanceof EntityDragonPart && ((EntityDragonPart)result.entityHit).entityDragonObj instanceof EntityDragon)
 				result.entityHit = (Entity) ((EntityDragonPart)result.entityHit).entityDragonObj;
-			if (this.world.isRemote && 
+			if (this.worldObj.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {
 				Handler handler = TickHandler.getHandler(result.entityHit, Identifier.POTION_FROZEN);

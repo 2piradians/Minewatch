@@ -49,7 +49,7 @@ public class EntityHelper {
 		ArrayList<RayTraceResult> results = new ArrayList<RayTraceResult>();
 		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY+entityIn.height/2d, entityIn.posZ);
 		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY+entityIn.height/2d + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
-		RayTraceResult result = entityIn.world.rayTraceBlocks(vec3d, vec3d1, false, true, true);
+		RayTraceResult result = entityIn.worldObj.rayTraceBlocks(vec3d, vec3d1, false, true, true);
 		if (result != null)
 			results.add(result);
 
@@ -58,7 +58,7 @@ public class EntityHelper {
 		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
 		if (fast)
 			aabb = aabb.addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
-		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
+		List<Entity> list = entityIn.worldObj.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
 			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
@@ -78,7 +78,7 @@ public class EntityHelper {
 			horizontalAdjust *= -1;
 
 		// adjust based on fov (only client-side: mainly for muzzle particles and Mercy beam)
-		if (shooter.world.isRemote && shooter instanceof EntityPlayer) {
+		if (shooter.worldObj.isRemote && shooter instanceof EntityPlayer) {
 			float fovSettings = KeyBind.FOV.getFOV((EntityPlayer)shooter)-70f;
 			float fov = getFovModifier((EntityPlayer)shooter)-1+fovSettings;
 			horizontalAdjust += fov / 80f;
@@ -100,8 +100,8 @@ public class EntityHelper {
 
 		if (shooter instanceof EntityHero)
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
-		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
-		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
+		pitch += (entity.worldObj.rand.nextFloat()-0.5f)*inaccuracy;
+		yaw += (entity.worldObj.rand.nextFloat()-0.5f)*inaccuracy;
 
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
@@ -158,7 +158,7 @@ public class EntityHelper {
 	/**Set rotations based on entity's motion*/
 	public static void setRotations(Entity entity) {
 		Vec3d vec = new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize();
-		float f = MathHelper.sqrt(vec.xCoord * vec.xCoord + vec.zCoord * vec.zCoord);
+		float f = MathHelper.sqrt_float((float) (vec.xCoord * vec.xCoord + vec.zCoord * vec.zCoord));
 		entity.rotationYaw = (float)(MathHelper.atan2(vec.xCoord, vec.zCoord) * (180D / Math.PI));
 		entity.rotationPitch = (float)(MathHelper.atan2(vec.yCoord, (double)f) * (180D / Math.PI));
 		if (!(entity instanceof EntityArrow)) {
@@ -238,7 +238,7 @@ public class EntityHelper {
 	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
 		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
 			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
-			if (distance <= maxFalloff && attemptDamage(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
+			if (distance <= maxFalloff && attemptDamage(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp_double((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
 				return true;
 		}
 		return false;
@@ -254,8 +254,8 @@ public class EntityHelper {
 		if (projectile != null && result != null) {
 			// move to collide with block
 			if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-				IBlockState state = projectile.world.getBlockState(result.getBlockPos());
-				if (!state.getBlock().isPassable(projectile.world, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
+				IBlockState state = projectile.worldObj.getBlockState(result.getBlockPos());
+				if (!state.getBlock().isPassable(projectile.worldObj, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
 					projectile.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
 					if (kill)
 						projectile.setDead();
@@ -304,7 +304,7 @@ public class EntityHelper {
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
-		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.world.isRemote) {
+		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.worldObj.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
 				((EntityLivingBase)entityHit).heal(Math.abs(damage*Config.damageScale));
@@ -342,12 +342,12 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
-		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
+		int numParticles = MathHelper.ceiling_double_int(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
 		for (float i=0; i<numParticles; ++i) 
-			Minewatch.proxy.spawnParticlesTrail(entity.world, 
-					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posY+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(entity.prevPosY-entity.posY)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posZ+(entity.prevPosZ-entity.posZ)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+			Minewatch.proxy.spawnParticlesTrail(entity.worldObj, 
+					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.worldObj.rand.nextDouble()-0.5d)*random, 
+					entity.posY+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(entity.prevPosY-entity.posY)*i/numParticles+(entity.worldObj.rand.nextDouble()-0.5d)*random, 
+					entity.posZ+(entity.prevPosZ-entity.posZ)*i/numParticles+(entity.worldObj.rand.nextDouble()-0.5d)*random, 
 					motionX, motionY, motionZ, color, colorFade, scale, maxAge, (i/numParticles), alpha);
 	}
 
@@ -363,7 +363,7 @@ public class EntityHelper {
 		Vec3d vec3d = getPositionEyes(shooter);
 		Vec3d vec3d1 = getLook(pitch, yawHead);
 		Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * distance, vec3d1.yCoord * distance, vec3d1.zCoord * distance);
-		return shooter.world.rayTraceBlocks(vec3d, vec3d2, false, true, true);
+		return shooter.worldObj.rayTraceBlocks(vec3d, vec3d2, false, true, true);
 	}
 
 	/**Get entity that shooter is looking at within distance blocks - modified from EntityRenderer#getMouseOver*/
@@ -380,7 +380,7 @@ public class EntityHelper {
 			double d1 = d0;
 			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
-			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
+			List<Entity> list = shooter.worldObj.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
 					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
 				}
@@ -491,7 +491,7 @@ public class EntityHelper {
 		double d0 = e2.posX - e1.posX;
 		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1.posY + (double)e1.getEyeHeight());
 		double d2 = e2.posZ - e1.posZ;
-		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
+		double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
 		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
 		// calculate difference between facing and current angles

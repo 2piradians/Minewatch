@@ -44,9 +44,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (entityLiving != null && this.ticksLeft == 1) {
-				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.world, entityLiving);
+				EntityReinhardtStrike strike = new EntityReinhardtStrike(entityLiving.worldObj, entityLiving);
 				EntityHelper.setAim(strike, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, (26.66f) * 1f, 0, null, 60, 0);
-				entityLiving.world.spawnEntity(strike);
+				entityLiving.worldObj.spawnEntityInWorld(strike);
 				EnumHero.REINHARDT.ability2.keybind.setCooldown(entityLiving, 120, false); 
 			}
 			return super.onServerTick();
@@ -61,8 +61,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*Config.damageScale-1, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 75d*Config.damageScale-1, 0));
 		return multimap;
 	}
 
@@ -77,7 +77,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	public void attack(ItemStack stack, EntityLivingBase player, Entity entity) {
 		// swing
-		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
+		if (!player.worldObj.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
 				player.canEntityBeSeen(entity) && 
 				EntityHelper.attemptDamage(player, entity, 75, false)) {
 			if (entity instanceof EntityLivingBase) 
@@ -102,11 +102,11 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
-				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().move(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
+				player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, 
+						player.getEntityBoundingBox().offset(player.getLookVec().xCoord*3, player.getLookVec().yCoord*3, player.getLookVec().zCoord*3).expand(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
 					this.attack(stack, player, entity);
-			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);
+			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.worldObj.rand.nextFloat()/3+0.8f);
 			this.setCooldown(player, 20);
 		}
 	}

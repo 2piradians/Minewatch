@@ -87,13 +87,13 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 		}
 
 		// prevOnGround and normal particle
-		if (prevOnGround != onGround && onGround && !world.isRemote) 
+		if (prevOnGround != onGround && onGround && !worldObj.isRemote) 
 			ModSoundEvents.JUNKRAT_MINE_LAND.playSound(this, 1, 1);
 		this.prevOnGround = this.onGround;
 
 		// check if not attached
-		if (!this.world.isRemote && this.onGround && 
-				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) {
+		if (!this.worldObj.isRemote && this.onGround && 
+				this.facing != null && !worldObj.collidesWithAnyBlock(getEntityBoundingBox().expandXyz(0.01d))) {
 			this.onGround = false;
 			this.facing = null;
 			this.dataManager.set(FACING, -1);
@@ -111,15 +111,15 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getBrightnessForRender(float partialTicks) {
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor(this.posX), 0, MathHelper.floor(this.posZ));
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(MathHelper.floor_double(this.posX), 0, MathHelper.floor_double(this.posZ));
 		
 		// offset by facing
 		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
 			pos.move(facing.getOpposite());
 
-		if (this.world.isBlockLoaded(pos)) {
-			pos.setY(MathHelper.floor(this.posY + (double)this.getEyeHeight()));
-			return this.world.getCombinedLight(pos, 0);
+		if (this.worldObj.isBlockLoaded(pos)) {
+			pos.setY(MathHelper.floor_double(this.posY + (double)this.getEyeHeight()));
+			return this.worldObj.getCombinedLight(pos, 0);
 		}
 		else
 			return 0;
@@ -131,30 +131,30 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();
 			this.setPosition(result.hitVec.xCoord, result.hitVec.yCoord-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.zCoord);
-			if (!this.world.isRemote) {
+			if (!this.worldObj.isRemote) {
 				this.dataManager.set(FACING, this.facing.ordinal());
-				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(34, this, false, this.posX, this.posY, this.posZ), worldObj.provider.getDimension());
 			}
 			this.motionX = 0;
 			this.motionY = 0;
 			this.motionZ = 0;
 		}
 		else if (result.typeOfHit == RayTraceResult.Type.ENTITY && this.deflectTimer >= 0 &&
-				EntityHelper.shouldHit(getThrower(), result.entityHit, false) && !world.isRemote)
+				EntityHelper.shouldHit(getThrower(), result.entityHit, false) && !worldObj.isRemote)
 			this.explode();
 	}
 
 	/**Only call directly on server - sends packet to client*/
 	public void explode() {
-		if (this.world.isRemote) {
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, 
+		if (this.worldObj.isRemote) {
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, worldObj, 
 					this.posX, this.posY+height/2d, this.posZ, 0, 0, 0, 
-					0xFFFFFF, 0xFFFFFF, 1, 35+world.rand.nextInt(10), 40, 40, 0, 0);
+					0xFFFFFF, 0xFFFFFF, 1, 35+worldObj.rand.nextInt(10), 40, 40, 0, 0);
 			ModSoundEvents.JUNKRAT_MINE_EXPLODE.playSound(this, 1, 1);
 		}
 		else {
-			Minewatch.proxy.createExplosion(world, getThrower(), posX, posY, posZ, 2f, 0, 120, 120, null, 120, false, 2.2f, 2.2f);
-			Minewatch.network.sendToDimension(new SPacketSimple(30, this, false), world.provider.getDimension());
+			Minewatch.proxy.createExplosion(worldObj, getThrower(), posX, posY, posZ, 2f, 0, 120, 120, null, 120, false, 2.2f, 2.2f);
+			Minewatch.network.sendToDimension(new SPacketSimple(30, this, false), worldObj.provider.getDimension());
 			this.setDead();
 		}
 	}

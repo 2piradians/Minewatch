@@ -25,7 +25,7 @@ public class EntityGuiPlayer extends AbstractClientPlayer
 		this.player = player;
 		
 		if (team == null) {
-			team = Minecraft.getMinecraft().world.getScoreboard().createTeam("");
+			team = Minecraft.getMinecraft().theWorld.getScoreboard().createTeam("");
 			team.setNameTagVisibility(Team.EnumVisible.NEVER);
 		}
 	}

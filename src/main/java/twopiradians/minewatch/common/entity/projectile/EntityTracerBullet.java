@@ -24,8 +24,8 @@ public class EntityTracerBullet extends EntityMW {
 	
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
-				0x4AFDFD, 0x4AFDFD, 1, 3, 4, 1, world.rand.nextFloat(), 0.01f, hand, 7, 0.6f);
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, shooter, 
+				0x4AFDFD, 0x4AFDFD, 1, 3, 4, 1, worldObj.rand.nextFloat(), 0.01f, hand, 7, 0.6f);
 	}
 	
 	@Override

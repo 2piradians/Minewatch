@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -80,7 +79,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
-				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
+				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
 		}
 
 		if (this.hurtTime > 0)
@@ -90,12 +89,12 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (this.recentlyHit > 0)
 			--this.recentlyHit;
 
-		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
+		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) || this.getHealth() <= 0
 				|| !(this.getThrower() instanceof EntityLivingBase) || posY <= -64 || !this.getThrower().isEntityAlive()))
 			this.setDead();
 		
 		// spawn trail particles
-		if (this.world.isRemote)
+		if (this.worldObj.isRemote)
 			this.spawnTrailParticles();
 
 		this.firstUpdate = false;
@@ -153,7 +152,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn) {
-		return ItemStack.EMPTY;
+		return null;
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 
 	@Override
 	public void doRender(EntityMercyBeam entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (entity.player == null || (!KeyBind.RMB.isKeyDown(entity.player) && !KeyBind.LMB.isKeyDown(entity.player) && entity.player == Minecraft.getMinecraft().player))
+		if (entity.player == null || (!KeyBind.RMB.isKeyDown(entity.player) && !KeyBind.LMB.isKeyDown(entity.player) && entity.player == Minecraft.getMinecraft().thePlayer))
 			return;
 
 		Color color = entity.isHealing() ? COLOR_HEAL : COLOR_DAMAGE;
@@ -61,7 +61,7 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		GlStateManager.color(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, 1);
 
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL);
-		double scale = entity.player == Minecraft.getMinecraft().player && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ? 0.02d : 0.05d;
+		double scale = entity.player == Minecraft.getMinecraft().thePlayer && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ? 0.02d : 0.05d;
 
 		Vec3d vec = EntityHelper.getShootingPos(entity.player, entity.player.rotationPitch, entity.player.rotationYaw, EnumHand.MAIN_HAND, 12.5f, 0.34f);
 		double d10 = vec.xCoord - (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks);
@@ -83,18 +83,18 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		tessellator.draw();
 
 		// spawn/position particles
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		double posX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
 		double posY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
 		double posZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
-			entity.particleStaff = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, vec.xCoord, vec.yCoord+0.05d, vec.zCoord, 
+			entity.particleStaff = new ParticleCustom(EnumParticle.CIRCLE, entity.player.worldObj, vec.xCoord, vec.yCoord+0.05d, vec.zCoord, 
 					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleStaff);
 		}
 		if (entity.particleTarget == null || !entity.particleTarget.isAlive()) {
 			float size = entity.target != null ? Math.min(entity.target.height, entity.target.width)*8f : 5f;
-			entity.particleTarget = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, posX+x, posY+y, posZ+z, 
+			entity.particleTarget = new ParticleCustom(EnumParticle.CIRCLE, entity.player.worldObj, posX+x, posY+y, posZ+z, 
 					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, size * 1.3f, size, 0, 0.1f, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleTarget);
 		}
@@ -102,14 +102,14 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		float pulse = (entity.ticksExisted % rate)/(rate*2) - 0.25f;
 		if (entity.ticksExisted % rate > rate/2)
 			pulse *= -1;
-		entity.particleStaff.setRBGColorF(MathHelper.clamp(color.getRed()/255f+pulse, 0, 1),
-				MathHelper.clamp(color.getGreen()/255f+pulse, 0, 1), 
-				MathHelper.clamp(color.getBlue()/255f+pulse, 0, 1));
+		entity.particleStaff.setRBGColorF(MathHelper.clamp_float(color.getRed()/255f+pulse, 0, 1),
+				MathHelper.clamp_float(color.getGreen()/255f+pulse, 0, 1), 
+				MathHelper.clamp_float(color.getBlue()/255f+pulse, 0, 1));
 		entity.particleStaff.setPosition(vec.xCoord, vec.yCoord+0.05d, vec.zCoord);
 		entity.particleStaff.oneTickToLive();
-		entity.particleTarget.setRBGColorF(MathHelper.clamp(color.getRed()/255f+pulse, 0, 1),
-				MathHelper.clamp(color.getGreen()/255f+pulse, 0, 1), 
-				MathHelper.clamp(color.getBlue()/255f+pulse, 0, 1));
+		entity.particleTarget.setRBGColorF(MathHelper.clamp_float(color.getRed()/255f+pulse, 0, 1),
+				MathHelper.clamp_float(color.getGreen()/255f+pulse, 0, 1), 
+				MathHelper.clamp_float(color.getBlue()/255f+pulse, 0, 1));
 		entity.particleTarget.setPosition(posX+x, posY+y, posZ+z);
 		entity.particleTarget.oneTickToLive();
 

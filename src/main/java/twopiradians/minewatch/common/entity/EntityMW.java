@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -61,7 +60,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			EntityHelper.setRotations(this);
 			}
 		// update prev position and spawn trail (for genji's deflect mostly)
-		else if (key.getId() == POSITION.getId() && this.world.isRemote && 
+		else if (key.getId() == POSITION.getId() && this.worldObj.isRemote && 
 				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
 			this.posX = this.dataManager.get(POSITION).getX();
 			this.posY = this.dataManager.get(POSITION).getY();
@@ -72,7 +71,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.prevPosZ = this.posZ;
 		}
 		// muzzle particle
-		else if (key.getId() == HAND.getId() && this.world.isRemote && this.ticksExisted == 0 && !this.isDead && 
+		else if (key.getId() == HAND.getId() && this.worldObj.isRemote && this.ticksExisted == 0 && !this.isDead && 
 				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase)
 			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
 					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
@@ -103,16 +102,16 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
-				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
+				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
 		}
 
 		// set dead if needed
-		if (!this.world.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
+		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
 				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
 
 		// spawn trail particles
-		if (this.world.isRemote)
+		if (this.worldObj.isRemote)
 			this.spawnTrailParticles();
 
 		this.firstUpdate = false;

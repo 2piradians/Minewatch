@@ -41,7 +41,7 @@ public class GuiButtonGalleryHero extends GuiButtonTab {
 						GuiTab.galleryHero.skinInfo.length+TextFormatting.GRAY+"/"+GuiTab.galleryHero.skinInfo.length, 
 						this.xPosition+5, this.yPosition+6, 0xFFFFFF);
 				this.drawString(mc.fontRendererObj, 
-						TextFormatting.DARK_AQUA+TextFormatting.getTextWithoutFormattingCodes(GuiTab.galleryHero.skinInfo[GuiTab.galleryHero.getSkin(mc.player.getPersistentID())].owName).toUpperCase(),
+						TextFormatting.DARK_AQUA+TextFormatting.getTextWithoutFormattingCodes(GuiTab.galleryHero.skinInfo[GuiTab.galleryHero.getSkin(mc.thePlayer.getPersistentID())].owName).toUpperCase(),
 						this.xPosition+5, this.yPosition+16, 0xFFFFFF);
 			}		
 		}

@@ -17,7 +17,7 @@ public class EntityBastion extends EntityHero {
 
 	@Override
 	public void onUpdate() {
-		if (!this.world.isRemote) {
+		if (!this.worldObj.isRemote) {
 			// change to sentry when no attack target
 			if (this.getAttackTarget() == null && ItemMWWeapon.isAlternate(this.getHeldItemMainhand()))
 				this.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);

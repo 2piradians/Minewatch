@@ -58,7 +58,7 @@ public class SPacketFollowingSound implements IMessage{
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					Entity entity = Minecraft.getMinecraft().world.getEntityByID(packet.entity);
+					Entity entity = Minecraft.getMinecraft().theWorld.getEntityByID(packet.entity);
 					packet.sound.event.playFollowingSound(entity, packet.volume, packet.pitch, packet.repeat);
 				}
 			});

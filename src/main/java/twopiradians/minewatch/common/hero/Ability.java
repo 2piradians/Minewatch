@@ -39,7 +39,7 @@ public class Ability {
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
 		public Handler onServerRemove() {
-			if (!entityLiving.world.isRemote) {
+			if (!entityLiving.worldObj.isRemote) {
 				UUID uuid = entityLiving.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
@@ -115,7 +115,7 @@ public class Ability {
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
 	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
-		if (entity.world.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
+		if (entity.worldObj.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
 				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(entity).setTicks(20));
@@ -144,7 +144,7 @@ public class Ability {
 	
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
-		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
+		if (player.worldObj.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
@@ -166,7 +166,7 @@ public class Ability {
 		if (handler != null && handler.ability != null && !handler.bool && !ignoreAbility)
 			return this == handler.ability;
 
-		if (ret && player.world.isRemote)
+		if (ret && player.worldObj.isRemote)
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		return ret;
 	}
@@ -183,7 +183,7 @@ public class Ability {
 
 	/**Use one of the multi-uses*/
 	public void subtractUse(EntityLivingBase entity) {
-		if (entity != null && !entity.world.isRemote && getUses(entity) > 0) {
+		if (entity != null && !entity.worldObj.isRemote && getUses(entity) > 0) {
 			multiAbilityUses.put(entity.getPersistentID(), multiAbilityUses.get(entity.getPersistentID())-1);
 			if (!TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
 				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(useCooldown));

@@ -57,7 +57,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
-		if (player.world.isRemote) {
+		if (player.worldObj.isRemote) {
 			int time = this.getMaxItemUseDuration(stack)-count-10;
 			if (time == 4) 
 				ModSoundEvents.WIDOWMAKER_CHARGE.playSound(player, 0.3f, 1f, true);
@@ -92,7 +92,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
 				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
-				world.spawnEntity(mine);
+				world.spawnEntityInWorld(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 300, false); 
 				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
@@ -109,15 +109,15 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false)) {
 			// scoped
 			if (KeyBind.RMB.isKeyDown(player) && player.getActiveItemStack() == stack) {
-				if (!player.world.isRemote) {
-					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.world, player, 2, true, 
+				if (!player.worldObj.isRemote) {
+					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(player.worldObj, player, 2, true, 
 							(int) (12+(120d-12d)*getPower(player)));
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0, null, 10, 0);
-					player.world.spawnEntity(bullet);
-					ModSoundEvents.WIDOWMAKER_SHOOT_1.playSound(player, player.world.rand.nextFloat()+0.5F, player.world.rand.nextFloat()/2+0.75f);
+					player.worldObj.spawnEntityInWorld(bullet);
+					ModSoundEvents.WIDOWMAKER_SHOOT_1.playSound(player, player.worldObj.rand.nextFloat()+0.5F, player.worldObj.rand.nextFloat()/2+0.75f);
 					this.setCooldown(player, 10);
 					this.subtractFromCurrentAmmo(player, 3);
-					if (player.world.rand.nextInt(10) == 0)
+					if (player.worldObj.rand.nextInt(10) == 0)
 						stack.damageItem(1, player);
 					player.stopActiveHand();
 				}
@@ -129,7 +129,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				if (!world.isRemote) {
 					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 3, hand, 6, 0.43f);
-					world.spawnEntity(bullet);
+					world.spawnEntityInWorld(bullet);
 					ModSoundEvents.WIDOWMAKER_SHOOT_0.playSound(player, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);
 					this.subtractFromCurrentAmmo(player, 1);
 					if (world.rand.nextInt(30) == 0)
@@ -151,7 +151,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	/**Returns power: 0 - 1*/
 	public double getPower(EntityLivingBase player) {
-		return MathHelper.clamp((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount()-10)/15d, 0, 1);
+		return MathHelper.clamp_double((this.getMaxItemUseDuration(player.getHeldItemMainhand())-player.getItemInUseCount()-10)/15d, 0, 1);
 	}
 
 	/**Is this player scoping with the stack*/
@@ -165,7 +165,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -190,6 +190,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				// power
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
+				double scale = event.getResolution().getScaleFactor();
+				GlStateManager.scale(scale, scale, 1);
 				int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) (getPower(player)*100d) : 0;
 				int powerWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(power+"%");
 				Minecraft.getMinecraft().fontRendererObj.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);

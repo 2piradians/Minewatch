@@ -93,7 +93,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 						((EntityLivingBase) player).getHeldItemMainhand().getItem() == this ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
 				Minewatch.network.sendTo(new SPacketSyncAmmo(hero, player.getPersistentID(), hand, amount, hands), (EntityPlayerMP) player); 
 			}
-			if (player.world.isRemote && player instanceof EntityLivingBase)
+			if (player.worldObj.isRemote && player instanceof EntityLivingBase)
 				for (EnumHand hand2 : hands)
 					if (((EntityLivingBase) player).getHeldItem(hand2) != null && ((EntityLivingBase) player).getHeldItem(hand2).getItem() == this) 
 						this.reequipAnimation(((EntityLivingBase) player).getHeldItem(hand2));
@@ -112,11 +112,11 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void reload(Entity player) {
-		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
+		if (player != null && !player.worldObj.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
 			this.setCooldown(player, reloadTime, true);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null)
-				hero.reloadSound.playFollowingSound(player, 1.0f, player.world.rand.nextFloat()/2+0.75f, false);
+				hero.reloadSound.playFollowingSound(player, 1.0f, player.worldObj.rand.nextFloat()/2+0.75f, false);
 		}
 	}
 
@@ -164,19 +164,19 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			if (!Config.allowGunWarnings)
 				return true;
 			else if (this.hasOffhand && ((off == null || off.getItem() != this) || (main == null || main.getItem() != this))) {
-				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.world.isRemote)
-					player.sendMessage(new TextComponentString(TextFormatting.RED+
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.worldObj.isRemote)
+					player.addChatMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand and off-hand to work."));
 			} 
 			else if ((hand == EnumHand.OFF_HAND && !this.hasOffhand) ||(main == null || main.getItem() != this)) {
-				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.world.isRemote)
-					player.sendMessage(new TextComponentString(TextFormatting.RED+
+				if (shouldWarn && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING) && player.worldObj.isRemote)
+					player.addChatMessage(new TextComponentString(TextFormatting.RED+
 							displayName+" must be held in the main-hand to work."));
 			}
 			else
 				return true;
 
-			if (shouldWarn && player.world.isRemote && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING))
+			if (shouldWarn && player.worldObj.isRemote && !TickHandler.hasHandler(player, Identifier.WEAPON_WARNING))
 				TickHandler.register(true, WARNING_CLIENT.setEntity(player).setTicks(60));
 
 			return false;
@@ -190,7 +190,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
 		return this.onItemRightClick(world, (EntityLivingBase) player, hand);
 	}
 
@@ -209,12 +209,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
-			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
 			return;
 		}
 
 		// set entity in nbt for model changer to reference
-		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.world.isRemote && 
+		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.worldObj.isRemote && 
 				stack != null && stack.getItem() == this) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
@@ -277,7 +277,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
 				world.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
-			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
+			List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
 						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
@@ -332,23 +332,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			cooldown *= Config.mobAttackCooldown;
 			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
 			if (handler == null)
-				TickHandler.register(entity.world.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
+				TickHandler.register(entity.worldObj.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
 			else if (handler.ticksLeft < cooldown)
 				handler.ticksLeft = cooldown;
 
-			if (!entity.world.isRemote)
-				Minewatch.network.sendToDimension(new SPacketSimple(36, entity, false, cooldown, 0, 0), entity.world.provider.getDimension());
+			if (!entity.worldObj.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(36, entity, false, cooldown, 0, 0), entity.worldObj.provider.getDimension());
 		}
 	}
 
 	@Override
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
-	}
-
-	@Override
-	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
-		return false;
 	}
 
 	@Override
@@ -451,7 +446,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		//delete dev spawned items if not worn by dev
-		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
 				entityItem.getEntityItem().hasTagCompound() && 
 				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
 			entityItem.setDead();

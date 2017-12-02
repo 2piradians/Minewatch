@@ -29,7 +29,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityJunkratGrenade grenade = new EntityJunkratGrenade(world, player, hand.ordinal());
 			EntityHelper.setAim(grenade, player, player.rotationPitch, player.rotationYawHead, 35f, 0.6F, hand, 10, 0.55f);
-			world.spawnEntity(grenade);
+			world.spawnEntityInWorld(grenade);
 			ModSoundEvents.JUNKRAT_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(25) == 0)
@@ -48,7 +48,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// give trigger if mine active and offhand is empty
-			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
+			if (!world.isRemote && (player.getHeldItemOffhand() == null) && 
 					hero.ability2.entities.containsKey(entity) && 
 					hero.ability2.entities.get(entity).isEntityAlive()) 
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
@@ -67,7 +67,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
 				EntityHelper.setAim(trap, player, player.rotationPitch, player.rotationYawHead, 15, 0, null, 0, 0);
 				ModSoundEvents.JUNKRAT_TRAP_THROW.playSound(player, 1, 1);
-				world.spawnEntity(trap);
+				world.spawnEntityInWorld(trap);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 200, false);
 				if (hero.ability1.entities.get(player) instanceof EntityJunkratTrap && hero.ability1.entities.get(player).isEntityAlive()) {
@@ -88,7 +88,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				EntityJunkratMine mine = new EntityJunkratMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
 				ModSoundEvents.JUNKRAT_MINE_THROW.playSound(player, 1, 1);
-				world.spawnEntity(mine);
+				world.spawnEntityInWorld(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				Entity entity2 = hero.ability2.entities.get(player);
 				if (entity2 instanceof EntityJunkratMine && entity2.isEntityAlive()) 

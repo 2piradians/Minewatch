@@ -27,8 +27,8 @@ public class GuiDisplay extends GuiScreen {
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/white.png");
 
 	public GuiDisplay(int mode) {
-		this.mode = MathHelper.clamp(mode, 0, 2);
-		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().world, Minecraft.getMinecraft().player.getGameProfile(), Minecraft.getMinecraft().player);
+		this.mode = MathHelper.clamp_int(mode, 0, 2);
+		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer.getGameProfile(), Minecraft.getMinecraft().thePlayer);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class GuiDisplay extends GuiScreen {
 
 			// equip player
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
-				guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(EnumHero.values()[i].getEquipment(slot)));
+				guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? null : new ItemStack(EnumHero.values()[i].getEquipment(slot)));
 
 			// render player
 			float scale = 30f;

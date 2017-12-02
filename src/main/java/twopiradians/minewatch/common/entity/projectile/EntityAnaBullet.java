@@ -25,11 +25,11 @@ public class EntityAnaBullet extends EntityMW {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (this.ticksLeft == 18)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entity.world, this.entity, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entity.worldObj, this.entity, 
 						0xCA91DA, 0xB886A2, 1.0f, 18, (float)this.number, (float)this.number-1, 0, 0.1f);
 			if (this.ticksLeft % 8 == 0)
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_DAMAGE, this.entity.world, this.entity, 
-						0xFFFFFF, 0xFFFFFF, 1.0f, 8, (float)this.number+8, (float)this.number-5, this.entity.world.rand.nextFloat(), 0);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_DAMAGE, this.entity.worldObj, this.entity, 
+						0xFFFFFF, 0xFFFFFF, 1.0f, 8, (float)this.number+8, (float)this.number-5, this.entity.worldObj.rand.nextFloat(), 0);
 			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
 		@Override
@@ -84,13 +84,13 @@ public class EntityAnaBullet extends EntityMW {
 		if (this.isFriendly ) {
 			EntityHelper.attemptDamage(this, result.entityHit, -75, true);
 			// particles / sounds
-			if (this.world.isRemote && result.entityHit != null) {
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, world, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
-						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, world, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
-						30+world.rand.nextInt(10), size, size/1.5f, world.rand.nextFloat(), (world.rand.nextFloat()-0.5f)/5f);
-				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.world.rand.nextFloat()/2+1.5f, true);
-				ModSoundEvents.ANA_HEAL.playSound(result.entityHit, 0.2f, result.entityHit.world.rand.nextFloat()/2+1.5f);
+			if (this.worldObj.isRemote && result.entityHit != null) {
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
+						30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
+						30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
+				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f, true);
+				ModSoundEvents.ANA_HEAL.playSound(result.entityHit, 0.2f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f);
 			}
 		}
 		// damage
@@ -98,7 +98,7 @@ public class EntityAnaBullet extends EntityMW {
 			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
 			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && // TODO change to 70
 					!TickHandler.hasHandler(result.entityHit, Identifier.REAPER_WRAITH)) {
-				TickHandler.register(this.world.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
+				TickHandler.register(this.worldObj.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();
 			}
 		}

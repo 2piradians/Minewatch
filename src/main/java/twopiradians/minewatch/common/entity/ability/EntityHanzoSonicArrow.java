@@ -23,7 +23,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC, false) {
 		@Override
 		public boolean onServerTick() {
-			return entity == null || entity.isDead || doEffect(entity.world, entityLiving, entity, entity.posX, 
+			return entity == null || entity.isDead || doEffect(entity.worldObj, entityLiving, entity, entity.posX, 
 					entity.posY, entity.posZ, this.ticksLeft++);
 		}
 		@Override
@@ -72,11 +72,11 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	public void onUpdate() {
 		super.onUpdate();
 
-		if (this.inGround && doEffect(world, this.getThrower(), null, posX, posY, posZ, timeInGround))
+		if (this.inGround && doEffect(worldObj, this.getThrower(), null, posX, posY, posZ, timeInGround))
 			this.setDead();
-		else if (!this.inGround && this.world.isRemote) {
+		else if (!this.inGround && this.worldObj.isRemote) {
 			if (this.ticksExisted % 2 == 0)
-				Minewatch.proxy.spawnParticlesHanzoSonic(world, posX, posY, posZ, false, true);
+				Minewatch.proxy.spawnParticlesHanzoSonic(worldObj, posX, posY, posZ, false, true);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		super.onHit(result);	
 
 		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) 
-			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0));
+			TickHandler.register(result.entityHit.worldObj.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0));
 	}
 
 }

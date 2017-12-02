@@ -56,7 +56,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.particleGravity = 0;
 		this.particleMaxAge = type == 0 ? Integer.MAX_VALUE : type == 3 ? 50 : 17;
 		this.particleScale = type == 0 ? 14f : type == 1 ? 3f + world.rand.nextFloat()*2f : type == 2 ? 3f + world.rand.nextFloat()*3f : 0.5f;
-		boolean friendly = !EntityHelper.shouldTarget(player, Minecraft.getMinecraft().player, false);
+		boolean friendly = !EntityHelper.shouldTarget(player, Minecraft.getMinecraft().thePlayer, false);
 		if (type != 0)
 			if (friendly) 
 				this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+world.rand.nextInt(10));

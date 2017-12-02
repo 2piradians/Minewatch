@@ -50,12 +50,12 @@ public class CPacketSyncSkins implements IMessage {
 	public static class Handler implements IMessageHandler<CPacketSyncSkins, IMessage> {
 		@Override
 		public IMessage onMessage(final CPacketSyncSkins packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() {
 
 				@Override
 				public void run() {
-					EntityPlayer player = ctx.getServerHandler().playerEntity.world.getPlayerEntityByUUID(packet.player);
+					EntityPlayer player = ctx.getServerHandler().playerEntity.worldObj.getPlayerEntityByUUID(packet.player);
 					if (player != null && packet.numSkins == EnumHero.values().length) {
 						for (int i=0; i<packet.numSkins; ++i)
 							EnumHero.values()[i].setSkin(player.getPersistentID(), packet.skins[i]);

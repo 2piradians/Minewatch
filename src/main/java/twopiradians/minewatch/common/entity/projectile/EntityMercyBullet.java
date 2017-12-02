@@ -24,8 +24,8 @@ public class EntityMercyBullet extends EntityMW {
 	
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
-				0xEF5D1F, 0xEF5D1F, 0.7f, 3, 4, 3, world.rand.nextFloat(), 0.01f, hand, 8.5f, 0.6f);
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, (EntityLivingBase) getThrower(), 
+				0xEF5D1F, 0xEF5D1F, 0.7f, 3, 4, 3, worldObj.rand.nextFloat(), 0.01f, hand, 8.5f, 0.6f);
 	}
 
 	@Override
@@ -40,10 +40,10 @@ public class EntityMercyBullet extends EntityMW {
 
 		EntityHelper.attemptDamage(this, result.entityHit, 20, false);
 
-		if (this.world.isRemote)
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, result.entityHit == null ? result.hitVec.xCoord : posX, 
+		if (this.worldObj.isRemote)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, worldObj, result.entityHit == null ? result.hitVec.xCoord : posX, 
 					result.entityHit == null ? result.hitVec.yCoord : posY, 
 							result.entityHit == null ? result.hitVec.zCoord : posZ,
-									0, 0, 0, 0xE39684, 0xE26E53, 1, 5, 5, 4, world.rand.nextFloat(), 0.01f);
+									0, 0, 0, 0xE39684, 0xE26E53, 1, 5, 5, 4, worldObj.rand.nextFloat(), 0.01f);
 	}
 }

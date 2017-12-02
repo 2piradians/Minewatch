@@ -15,7 +15,6 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -228,18 +227,18 @@ public class ItemMWArmor extends ItemArmor {
 
 		@SubscribeEvent
 		public static void junkratDeath(LivingDeathEvent event) {
-			if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().world.isRemote &&
+			if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().worldObj.isRemote &&
 					SetManager.getWornSet(event.getEntity()) == EnumHero.JUNKRAT) {
 				ModSoundEvents.JUNKRAT_DEATH.playSound(event.getEntity(), 1, 1);
 				for (int i=0; i<6; ++i) {
-					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().world, 
+					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().worldObj, 
 							(EntityLivingBase) event.getEntity(), -1);
 					grenade.explodeTimer = 20+i*2;
 					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
-					grenade.motionX = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
-					grenade.motionY = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
-					grenade.motionZ = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
-					event.getEntity().world.spawnEntity(grenade);
+					grenade.motionX = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionY = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					grenade.motionZ = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
+					event.getEntity().worldObj.spawnEntityInWorld(grenade);
 					grenade.isDeathGrenade = true;
 					Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
 				}
@@ -261,7 +260,7 @@ public class ItemMWArmor extends ItemArmor {
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
-			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
 			return;
 		}
 
@@ -276,7 +275,7 @@ public class ItemMWArmor extends ItemArmor {
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		// delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
-		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
 				entityItem.getEntityItem().hasTagCompound() && 
 				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
 			entityItem.setDead();
@@ -295,11 +294,11 @@ public class ItemMWArmor extends ItemArmor {
 		EnumHero set = SetManager.getWornSet(player);
 
 		// delete dev spawned items if not worn by dev
-		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
+		if (stack == null || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
 				player.getItemStackFromSlot(this.armorType) == stack)) {
-			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
+			player.setItemStackToSlot(this.armorType, null);
 			return;
 		}
 
@@ -349,10 +348,10 @@ public class ItemMWArmor extends ItemArmor {
 							ModSoundEvents.WALL_CLIMB.playSound(player, 0.9f, 1);
 						player.fallDistance = 0.0F;
 					}
-					player.motionX = MathHelper.clamp(player.motionX, -0.15D, 0.15D);
-					player.motionZ = MathHelper.clamp(player.motionZ, -0.15D, 0.15D);
+					player.motionX = MathHelper.clamp_double(player.motionX, -0.15D, 0.15D);
+					player.motionZ = MathHelper.clamp_double(player.motionZ, -0.15D, 0.15D);
 					player.motionY = Math.max(0.2d, player.motionY);
-					player.move(MoverType.SELF, player.motionX, player.motionY, player.motionZ);
+					player.moveEntity(player.motionX, player.motionY, player.motionZ);
 					if (player instanceof EntityHero) {
 						Vec3d vec = player.getPositionVector().add(new Vec3d(player.getHorizontalFacing().getDirectionVec()));
 						((EntityHero) player).getLookHelper().setLookPosition(vec.xCoord, vec.yCoord, vec.zCoord, 30, 30);
@@ -391,7 +390,7 @@ public class ItemMWArmor extends ItemArmor {
 				(x != 0 || y != 0 || z != 0)) {
 			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(player.world, 
+				Minewatch.proxy.spawnParticlesTrail(player.worldObj, 
 						player.posX+(x-player.posX)*i/numParticles, 
 						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(z-player.posZ)*i/numParticles, 

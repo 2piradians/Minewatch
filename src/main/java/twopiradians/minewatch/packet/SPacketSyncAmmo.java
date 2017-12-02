@@ -63,7 +63,7 @@ public class SPacketSyncAmmo implements IMessage{
 			{
 				@Override
 				public void run() {
-					EntityPlayer player = Minecraft.getMinecraft().player;
+					EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 					if (player != null && packet.hero != null)
 						packet.hero.weapon.setCurrentAmmo(player, packet.ammo, packet.hands);
 				}

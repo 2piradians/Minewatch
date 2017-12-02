@@ -167,9 +167,9 @@ public enum ModSoundEvents {
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	public void playSound(Entity entity, float volume, float pitch, boolean onlyPlayToEntity) {
-		if (entity != null && (!entity.world.isRemote || !onlyPlayToEntity || entity == Minewatch.proxy.getClientPlayer()) && 
+		if (entity != null && (!entity.worldObj.isRemote || !onlyPlayToEntity || entity == Minewatch.proxy.getClientPlayer()) && 
 				this.shouldPlay(entity)) 
-			this.playSound(entity.world, entity.posX, entity.posY, entity.posZ, volume, pitch);
+			this.playSound(entity.worldObj, entity.posX, entity.posY, entity.posZ, volume, pitch);
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
@@ -190,7 +190,7 @@ public enum ModSoundEvents {
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(100));
+			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(100));
 			return true;
 		}
 	}

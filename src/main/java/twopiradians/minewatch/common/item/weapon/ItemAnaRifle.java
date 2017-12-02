@@ -57,32 +57,32 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.ticksLeft < this.initialTicks - 10 && this.ticksLeft > 10) {
 				// sleep particles in overlay
-				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().player && player != null &&
+				if (this.ticksLeft % 3 == 0 && entity == Minecraft.getMinecraft().thePlayer && player != null &&
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					Vec3d eyes = EntityHelper.getPositionEyes(player).add(player.getLookVec());
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.world, 
-							eyes.xCoord+player.world.rand.nextFloat()-0.5f, 
-							eyes.yCoord+player.world.rand.nextFloat()-0.5f, 
-							eyes.zCoord+player.world.rand.nextFloat()-0.5f, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, player.worldObj, 
+							eyes.xCoord+player.worldObj.rand.nextFloat()-0.5f, 
+							eyes.yCoord+player.worldObj.rand.nextFloat()-0.5f, 
+							eyes.zCoord+player.worldObj.rand.nextFloat()-0.5f, 
 							0, 0.02f, 0, 0xFFFFFF, 0xACD8E5, 1f, 20, 0.5f, 0.7f, 
-							(player.world.rand.nextFloat()-0.5f)*0.8f, (player.world.rand.nextFloat()-0.5f)*0.05f);
+							(player.worldObj.rand.nextFloat()-0.5f)*0.8f, (player.worldObj.rand.nextFloat()-0.5f)*0.05f);
 				}
 				// sleep particles over entity
 				if (this.ticksLeft % 7 == 0) 
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, entity.world, 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SLEEP, entity.worldObj, 
 							entity.posX-entity.getEyeHeight()/2d, 
 							entity.posY+entity.width/2d, 
 							entity.posZ+entity.width/2d, 
-							(entity.world.rand.nextFloat()-0.5f)*0.1f, 
+							(entity.worldObj.rand.nextFloat()-0.5f)*0.1f, 
 							0.2f*Math.max(entity.width, 1), 
-							(entity.world.rand.nextFloat()-0.5f)*0.1f, 0xFFFFFF, 0xACD8E5, 1f, 
-							(int) ((entity.world.rand.nextInt(20)+10)*Math.max(entity.width, 1)), 2, 4, 
-							(entity.world.rand.nextFloat()-0.5f)*0.8f, (entity.world.rand.nextFloat()-0.5f)*0.05f);
+							(entity.worldObj.rand.nextFloat()-0.5f)*0.1f, 0xFFFFFF, 0xACD8E5, 1f, 
+							(int) ((entity.worldObj.rand.nextInt(20)+10)*Math.max(entity.width, 1)), 2, 4, 
+							(entity.worldObj.rand.nextFloat()-0.5f)*0.8f, (entity.worldObj.rand.nextFloat()-0.5f)*0.05f);
 				// smokey particles on entity
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
-						entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.height, 
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.worldObj, 
+						entity.posX+(entity.worldObj.rand.nextFloat()-0.5f)*entity.height, 
 						entity.posY+0.2f, 
-						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
+						entity.posZ+(entity.worldObj.rand.nextFloat()-0.5f)*entity.width, 
 						0, 0.1f*entity.width, 0, 0x828BA5, 0xBDCAEF, 0.5f, (int) (13*entity.width), 4, 4, 0, 0);
 			}
 			return super.onClientTick();
@@ -122,7 +122,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				boolean scoped = isScoped(player, stack);
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
-				world.spawnEntity(bullet);
+				world.spawnEntityInWorld(bullet);
 				ModSoundEvents.ANA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 20);
@@ -145,7 +145,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYawHead, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
-				world.spawnEntity(dart);
+				world.spawnEntityInWorld(dart);
 				ModSoundEvents.ANA_SLEEP_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				if (player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(21, false, (EntityPlayer) player, 10, 0, 0), (EntityPlayerMP) player);
@@ -179,7 +179,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					handler.ticksLeft = 10;
 			}
 			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));
-			ModSoundEvents.ANA_SLEEP_HIT.stopSound(event.getEntity().world);
+			ModSoundEvents.ANA_SLEEP_HIT.stopSound(event.getEntity().worldObj);
 		}
 	}
 
@@ -227,7 +227,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -271,7 +271,10 @@ public class ItemAnaRifle extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					// scope
-					double scale = Math.max(height/256d, width/256d);
+					GlStateManager.color(1, 1, 1, 0.6f);
+					double scale = event.getResolution().getScaleFactor();
+					GlStateManager.scale(scale, scale, 1);
+					scale = 2;
 					GlStateManager.scale(scale, scale, 1);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 					GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);

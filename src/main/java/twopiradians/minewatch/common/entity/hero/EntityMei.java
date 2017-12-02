@@ -25,7 +25,7 @@ public class EntityMei extends EntityHero {
 	@Override
 	public void onUpdate() {
 		// crystal
-		if (!world.isRemote)
+		if (!worldObj.isRemote)
 			if (this.getHealth() < this.getMaxHealth() / 2f && !TickHandler.hasHandler(this, Identifier.MEI_CRYSTAL))
 				this.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 			else

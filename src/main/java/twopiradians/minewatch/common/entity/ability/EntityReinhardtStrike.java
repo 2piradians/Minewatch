@@ -36,21 +36,21 @@ public class EntityReinhardtStrike extends EntityMW {
 
 	@Override
 	public void onUpdate() {
-		if (world.isRemote) {
+		if (worldObj.isRemote) {
 			for (int i=0; i<3; ++i) {
-				world.spawnParticle(EnumParticleTypes.FLAME, 
-						posX+(world.rand.nextDouble()-0.5f)*1.5d, 
-						posY+height/2d+(world.rand.nextDouble()-0.5f)*1.5d, 
-						posZ+(world.rand.nextDouble()-0.5f)*1.5d, 
+				worldObj.spawnParticle(EnumParticleTypes.FLAME, 
+						posX+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
+						posY+height/2d+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
+						posZ+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
 						0, 0, 0, new int[0]);
-				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
-						posX+(world.rand.nextDouble()-0.5f)*1.5d, 
-						posY+height/2d+(world.rand.nextDouble()-0.5f)*1.5d, 
-						posZ+(world.rand.nextDouble()-0.5f)*1.5d, 
+				worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+						posX+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
+						posY+height/2d+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
+						posZ+(worldObj.rand.nextDouble()-0.5f)*1.5d, 
 						0, 0, 0, new int[0]);
 			}
 			boolean enemy = EntityHelper.shouldHit(this, Minewatch.proxy.getClientPlayer(), false);
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, prevPosX, prevPosY+height/2d, prevPosZ, 0, 0, 0,
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, worldObj, prevPosX, prevPosY+height/2d, prevPosZ, 0, 0, 0,
 					enemy ? 0xFF6666 : 0xFFFFF5, enemy ? 0xFF6666 : 0xF2DEA2, 0.2f, 10, 14, 12, 0, 0);
 		}
 		
@@ -67,10 +67,10 @@ public class EntityReinhardtStrike extends EntityMW {
 	protected void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			EntityHelper.moveToHitPosition(this, result);
-			if (world.isRemote) {
+			if (worldObj.isRemote) {
 				ModSoundEvents.REINHARDT_STRIKE_COLLIDE.playSound(this, 4, 1);
 				Vec3d vec = this.getPositionVector().add(new Vec3d(result.sideHit.getDirectionVec()).scale(0.01d));
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, worldObj, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, worldObj.rand.nextFloat(), 0, result.sideHit);
 			}
 		}
 		

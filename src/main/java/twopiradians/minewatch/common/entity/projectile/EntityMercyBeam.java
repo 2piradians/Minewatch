@@ -62,21 +62,21 @@ public class EntityMercyBeam extends Entity {
 		super.onUpdate();
 
 		// set player on client
-		if (this.world.isRemote && player == null && this.dataManager.get(PLAYER) != -1) {
-			Entity entity = this.world.getEntityByID(this.dataManager.get(PLAYER));
+		if (this.worldObj.isRemote && player == null && this.dataManager.get(PLAYER) != -1) {
+			Entity entity = this.worldObj.getEntityByID(this.dataManager.get(PLAYER));
 			if (entity instanceof EntityLivingBase)
 				player = (EntityLivingBase) entity;
 		}
 		// set target on client
-		if (this.world.isRemote && target == null && this.dataManager.get(TARGET) != -1) {
-			Entity entity = this.world.getEntityByID(this.dataManager.get(TARGET));
+		if (this.worldObj.isRemote && target == null && this.dataManager.get(TARGET) != -1) {
+			Entity entity = this.worldObj.getEntityByID(this.dataManager.get(TARGET));
 			if (entity instanceof EntityLivingBase)
 				target = (EntityLivingBase) entity;
 		}
 
 		// kill if player/target is null/dead, player is not holding staff, target is more than 15 blocks from player, 
 		// 	 player cannot see target, or player is not holding right/left click
-		if (!this.world.isRemote && (player == null || !player.isEntityAlive() || target == null || !target.isEntityAlive() || 
+		if (!this.worldObj.isRemote && (player == null || !player.isEntityAlive() || target == null || !target.isEntityAlive() || 
 				(!KeyBind.RMB.isKeyDown(player) && !KeyBind.LMB.isKeyDown(player)) ||
 				((player.getHeldItemMainhand() == null || player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon || 
 				!ItemMercyWeapon.isStaff(player.getHeldItemMainhand())) &&
@@ -87,7 +87,7 @@ public class EntityMercyBeam extends Entity {
 		else if (target != null && player != null) {
 			this.setPosition(target.posX, target.posY+target.height/2, target.posZ);
 			this.prevHeal = this.isHealing();
-			if (!this.world.isRemote)
+			if (!this.worldObj.isRemote)
 				this.dataManager.set(HEAL, !KeyBind.RMB.isKeyDown(player));
 		}
 	}

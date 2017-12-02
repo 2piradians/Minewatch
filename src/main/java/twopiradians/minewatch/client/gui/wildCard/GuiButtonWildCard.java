@@ -29,7 +29,7 @@ public class GuiButtonWildCard extends GuiButton {
 		this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
 		if (hovered && prev != hovered)
-			ModSoundEvents.GUI_HOVER.playSound(mc.player, 0.8f, 1.0f, true);
+			ModSoundEvents.GUI_HOVER.playSound(mc.thePlayer, 0.8f, 1.0f, true);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1, 1, 1, 1);

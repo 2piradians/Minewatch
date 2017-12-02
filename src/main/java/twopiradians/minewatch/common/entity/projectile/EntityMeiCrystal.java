@@ -52,7 +52,7 @@ public class EntityMeiCrystal extends EntityMW {
 	public void onUpdate() {
 		super.onUpdate();
 		
-		if (!this.world.isRemote && (this.getThrower() == null || 
+		if (!this.worldObj.isRemote && (this.getThrower() == null || 
 				!TickHandler.hasHandler(this.getThrower(), Identifier.MEI_CRYSTAL)))
 			this.setDead();
 		else if (this.getThrower() != null) {

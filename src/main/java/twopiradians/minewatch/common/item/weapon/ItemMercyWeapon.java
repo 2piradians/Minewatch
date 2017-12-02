@@ -56,9 +56,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			entity.motionZ = (position.zCoord - entity.posZ)/10;
 			entity.velocityChanged = true;
 
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, 
-					entity.posX+entity.world.rand.nextFloat()-0.5f, entity.posY+(entity.getEyeHeight()-entity.height/2f), entity.posZ+entity.world.rand.nextFloat()-0.5f, 
-					0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 20, 1f+entity.world.rand.nextFloat(), 0.3f, entity.world.rand.nextFloat(), entity.world.rand.nextFloat());
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.worldObj, 
+					entity.posX+entity.worldObj.rand.nextFloat()-0.5f, entity.posY+(entity.getEyeHeight()-entity.height/2f), entity.posZ+entity.worldObj.rand.nextFloat()-0.5f, 
+					0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 20, 1f+entity.worldObj.rand.nextFloat(), 0.3f, entity.worldObj.rand.nextFloat(), entity.worldObj.rand.nextFloat());
 
 			return super.onClientTick() || KeyBind.JUMP.isKeyDown(entityLiving) ||
 					Math.sqrt(entity.getDistanceSq(position.xCoord, position.yCoord , position.zCoord)) <= 2; 	
@@ -80,8 +80,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onClientRemove() {
 			if (this.entityLiving != null) {
-				ModSoundEvents.MERCY_ANGEL.stopSound(Minecraft.getMinecraft().player);
-				TickHandler.unregister(entityLiving.world.isRemote, 
+				ModSoundEvents.MERCY_ANGEL.stopSound(Minecraft.getMinecraft().thePlayer);
+				TickHandler.unregister(entityLiving.worldObj.isRemote, 
 						TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING));
 			}
 			return super.onClientRemove();
@@ -90,7 +90,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		public Handler onServerRemove() {
 			if (this.entityLiving != null) {
 				EnumHero.MERCY.ability3.keybind.setCooldown(this.entityLiving, 30, false);
-				TickHandler.unregister(this.entityLiving.world.isRemote, 
+				TickHandler.unregister(this.entityLiving.worldObj.isRemote, 
 						TickHandler.getHandler(this.entityLiving, Identifier.ABILITY_USING));
 			}
 			return super.onServerRemove();
@@ -122,7 +122,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (!world.isRemote) {
 				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 45, 0.6F, hand, 8.5f, 0.6f);
-				world.spawnEntity(bullet);
+				world.spawnEntityInWorld(bullet);
 				ModSoundEvents.MERCY_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 5);
@@ -155,7 +155,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
 				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
-					world.spawnEntity(beam);
+					world.spawnEntityInWorld(beam);
 					beams.put((EntityLivingBase) entity, beam);
 					ModSoundEvents.MERCY_BEAM_START.playSound(entity, 0.8f, 1f);
 					ModSoundEvents.MERCY_BEAM_DURING.playSound(entity, 0.8f, 1f);
@@ -201,7 +201,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		Entity source = event.getSource().getEntity();
 
 		// add to notRegening if hurt
-		if (target instanceof EntityLivingBase && !target.world.isRemote &&
+		if (target instanceof EntityLivingBase && !target.worldObj.isRemote &&
 				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
 			target.removePotionEffect(MobEffects.REGENERATION);
@@ -210,7 +210,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		source = EntityHelper.getThrower(source);
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
-			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote) {
+			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.worldObj.isRemote) {
 				if (!beam.isHealing())
 					event.setAmount(event.getAmount()*1.3f);
 				if (beam.player instanceof EntityPlayerMP)

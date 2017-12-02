@@ -44,7 +44,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		public boolean onClientTick() {
 			if (this.entityLiving != null) {
 				this.entityLiving.extinguish();
-				if (this.entityLiving == Minecraft.getMinecraft().player)
+				if (this.entityLiving == Minecraft.getMinecraft().thePlayer)
 					Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
 			}
 
@@ -62,9 +62,9 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			ModSoundEvents.MEI_CRYSTAL_START.stopSound(Minecraft.getMinecraft().player);
+			ModSoundEvents.MEI_CRYSTAL_START.stopSound(Minecraft.getMinecraft().thePlayer);
 			ModSoundEvents.MEI_CRYSTAL_STOP.playFollowingSound(entity, 1, 1, false);
-			if (entity == Minecraft.getMinecraft().player)
+			if (entity == Minecraft.getMinecraft().thePlayer)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
 			return super.onClientRemove();
 		}
@@ -89,7 +89,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 20, 0.6F, hand, 14, 0.8f);
-			world.spawnEntity(bullet);
+			world.spawnEntityInWorld(bullet);
 			ModSoundEvents.MEI_SHOOT_0.playSound(player, world.rand.nextFloat()/3, world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1);
 			if (world.rand.nextInt(200) == 0)
@@ -104,7 +104,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 			if (!world.isRemote) {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
 				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYawHead, 100, 0.4F, hand, 8, 0.35f);
-				world.spawnEntity(icicle);
+				world.spawnEntityInWorld(icicle);
 				this.setCooldown(player, 24);
 				ModSoundEvents.MEI_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
 				if (world.rand.nextInt(8) == 0)
@@ -139,7 +139,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityMeiCrystal crystal = new EntityMeiCrystal(world, player);
-				world.spawnEntity(crystal);
+				world.spawnEntityInWorld(crystal);
 				TickHandler.register(false, CRYSTAL.setEntity(player).setTicks(80),
 						Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80),
 						Handlers.PREVENT_INPUT.setEntity(player).setTicks(80),
@@ -168,8 +168,8 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void moveCrystalCamera(FOVUpdateEvent event) {
-		if (Minecraft.getMinecraft().world != null &&
-				TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.MEI_CRYSTAL)) 
+		if (Minecraft.getMinecraft().theWorld != null &&
+				TickHandler.hasHandler(Minecraft.getMinecraft().thePlayer, Identifier.MEI_CRYSTAL)) 
 			event.setNewfov(event.getFov()+0.8f);
 	}
 	

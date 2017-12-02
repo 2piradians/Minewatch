@@ -43,7 +43,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, worldObj, shooter, 
 				0x2B9191, 0x2B9191, 0.7f, 3, 8, 7.5f, 0, 0, hand, 12, 0.45f);
 	}
 
@@ -77,11 +77,11 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 
 			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT)) {
 				// explosion
-				if (this.world.isRemote) 
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, world, posX, posY, posZ, 
+				if (this.worldObj.isRemote) 
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.SMOKE, worldObj, posX, posY, posZ, 
 							0, 0, 0, 0x62E2FC, 0x203B7E, 1, 10, 25, 20, 0, 0);
 				else {
-					Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
+					Minewatch.proxy.createExplosion(worldObj, this.getThrower(), posX, posY, posZ, 
 							1.6f, 40f, 80/3, 80/3, result.entityHit, 120/3, true, 0.4f, 0.4f);
 					this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 				}

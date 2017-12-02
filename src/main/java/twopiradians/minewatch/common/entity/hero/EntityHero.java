@@ -118,19 +118,17 @@ public class EntityHero extends EntityMob {
 
 		// update items and armor
 		this.setLeftHanded(false);
-		if (!this.worldObj.isRemote) {
-			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-				ItemStack stack = this.getItemStackFromSlot(slot);
-				if (stack == null && hero.getEquipment(slot) != null) {
-					stack = new ItemStack(hero.getEquipment(slot));
-					this.setItemStackToSlot(slot, stack);
-				}
-
-				if (stack != null && stack.getItem() instanceof ItemMWArmor)
-					((ItemMWArmor)stack.getItem()).onArmorTick(worldObj, this, stack);
-				if (stack != null)
-					stack.getItem().onUpdate(stack, worldObj, this, 0, stack == this.getHeldItemMainhand());
+		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+			ItemStack stack = this.getItemStackFromSlot(slot);
+			if (stack == null && hero.getEquipment(slot) != null) {
+				stack = new ItemStack(hero.getEquipment(slot));
+				this.setItemStackToSlot(slot, stack);
 			}
+
+			if (stack != null && stack.getItem() instanceof ItemMWArmor)
+				((ItemMWArmor)stack.getItem()).onArmorTick(worldObj, this, stack);
+			if (stack != null)
+				stack.getItem().onUpdate(stack, worldObj, this, 0, stack == this.getHeldItemMainhand());
 		}
 	}
 

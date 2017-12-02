@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
@@ -42,10 +41,10 @@ public class ModEntities {
 
 		// heroes
 		EntityRegistry.registerModEntity(EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
-		Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
+		Minewatch.tab.orderedStacks.add(getSpawnEgg(Minewatch.MODNAME.toLowerCase()+".random_hero"));
 		for (EnumHero hero : EnumHero.values()) {
 			EntityRegistry.registerModEntity(hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
-			Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));
+			Minewatch.tab.orderedStacks.add(getSpawnEgg(Minewatch.MODNAME.toLowerCase()+"."+hero.toString().toLowerCase()+"_hero"));
 		}
 
 		// projectile / ability
@@ -78,10 +77,10 @@ public class ModEntities {
 	}
 	
     /**Get spawn egg for given entity class*/
-	public static ItemStack getSpawnEgg(ResourceLocation id) {
+	public static ItemStack getSpawnEgg(String id) {
 		ItemStack stack = new ItemStack(Items.SPAWN_EGG);
 		NBTTagCompound nbt = new NBTTagCompound();    	
-		nbt.setString("id", id.toString());
+		nbt.setString("id", id);
 		NBTTagCompound nbt2 = new NBTTagCompound();
 		nbt2.setTag("EntityTag", nbt);
 		stack.setTagCompound(nbt2);

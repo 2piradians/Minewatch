@@ -63,7 +63,6 @@ public class EntityHero extends EntityMob {
 	protected void initEntityAI() {
 		this.tasks.addTask(1, new EntityAISwimming(this));
 		this.tasks.addTask(5, new EntityAIMoveTowardsRestriction(this, 1D));
-	//	this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F)); //PORT water AI //TODO ?
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
 		this.targetTasks.addTask(1, new EntityHeroAIHurtByTarget(this, true, new Class[0]));
@@ -105,10 +104,6 @@ public class EntityHero extends EntityMob {
 		if (!this.isEntityAlive() || hero == null)
 			return;
 
-		// reset to default skin if random skins disabled
-		if (!worldObj.isRemote && !Config.mobRandomSkins && this.getDataManager().get(SKIN) != 0)
-			this.getDataManager().set(SKIN, 0);
-
 		// make body follow head
 		if (this.getHeldItemMainhand() != null && 
 				this.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
@@ -126,7 +121,7 @@ public class EntityHero extends EntityMob {
 		if (!this.worldObj.isRemote) {
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 				ItemStack stack = this.getItemStackFromSlot(slot);
-				if (stack == null) {
+				if (stack == null && hero.getEquipment(slot) != null) {
 					stack = new ItemStack(hero.getEquipment(slot));
 					this.setItemStackToSlot(slot, stack);
 				}

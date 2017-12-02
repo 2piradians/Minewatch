@@ -92,8 +92,8 @@ public enum ModSoundEvents {
 	WIDOWMAKER_MINE_DESTROYED,
 	MERCY_RELOAD,
 	MERCY_SHOOT,
-	MERCY_HEAL,
-	MERCY_DAMAGE,
+	MERCY_HEAL_VOICE,
+	MERCY_DAMAGE_VOICE,
 	MERCY_HOVER,
 	MERCY_ANGEL,
 	MERCY_ANGEL_VOICE,
@@ -184,7 +184,7 @@ public enum ModSoundEvents {
 	}
 
 	/**Handles voice cooldown - only works for same client / server...*/
-	public boolean shouldPlay(Entity entity) {
+	public boolean shouldPlay(Entity entity) { 
 		if (!this.isVoiceLine)
 			return true;
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))

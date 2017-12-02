@@ -37,6 +37,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -221,6 +222,10 @@ public class EntityHelper {
 						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
 						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetPassives == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
 						(target instanceof EntityHero && Config.mobTargetHeroes == friendly)))
+			return false;
+		// prevent EntityHero healing other than healTarget (except Lucio)
+		if (friendly && entity instanceof EntityHero && !(entity instanceof EntityLucio) && 
+				((EntityHero)entity).healTarget != null && ((EntityHero)entity).healTarget != target)
 			return false;
 		// prevent healing attacking enemy
 		if (friendly && target instanceof EntityLiving && 

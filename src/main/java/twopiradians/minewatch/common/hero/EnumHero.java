@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
@@ -383,6 +385,7 @@ public enum EnumHero {
 		}
 	}
 
+	@Nullable
 	public Item getEquipment(EntityEquipmentSlot slot) {
 		switch (slot) {
 		case HEAD:

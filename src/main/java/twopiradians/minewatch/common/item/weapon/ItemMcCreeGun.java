@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.item.weapon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.EntityMoveHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -47,7 +46,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (this.entityLiving instanceof EntityHero) {
-				((EntityHero) this.entityLiving).getMoveHelper().action = EntityMoveHelper.Action.WAIT;
+				//((EntityHero) this.entityLiving).getMoveHelper().action = EntityMoveHelper.Action.WAIT;
 				SPacketSimple.move(entityLiving, 0.6d, false, false);
 			}
 			return super.onServerTick();

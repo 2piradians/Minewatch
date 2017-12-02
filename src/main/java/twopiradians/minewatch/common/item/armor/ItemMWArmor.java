@@ -121,9 +121,11 @@ public class ItemMWArmor extends ItemArmor {
 
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
 			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
-			hero.getSkin(entity.getPersistentID());
-		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
-		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
+				hero.getSkin(entity.getPersistentID());
+			if (skin < 0 || skin >= hero.skinInfo.length)
+				skin = 0;
+			return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
+			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
 	@Mod.EventBusSubscriber
@@ -194,7 +196,7 @@ public class ItemMWArmor extends ItemArmor {
 				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
 						(fullSet && (SetManager.getWornSet(event.player) == null ||
-								SetManager.getWornSet(event.player) != hero)))
+						SetManager.getWornSet(event.player) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						ability.toggle(event.player, false);
 

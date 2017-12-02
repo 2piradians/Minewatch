@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.entity.hero;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.EntityMoveHelper;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
@@ -47,8 +46,8 @@ public class EntityBastion extends EntityHero {
 			super.attackTarget(target, canSee, distance);
 			
 			// stop moving when turret
-			if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
-				entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
+			//if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
+				//entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
 
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// normal attack

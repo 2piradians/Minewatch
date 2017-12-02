@@ -111,9 +111,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					}
 					stack.damageItem(1, player);
 					worldIn.spawnEntityInWorld(entityarrow);
+					ModSoundEvents.HANZO_SHOOT.playSound(player, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 				}
-
-				ModSoundEvents.HANZO_SHOOT.playSound(player, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
 
 				if (!flag1 && player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode) {
 					--itemstack.stackSize;
@@ -152,7 +151,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		}
 		else if (this.canUse(player, true, handIn, false)) {
 			player.setActiveHand(handIn);
-			ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
+			if (!world.isRemote)
+				ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 		else

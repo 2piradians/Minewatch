@@ -87,7 +87,7 @@ public class CommandDev implements ICommand {
 			return true;
 		}
 		else if (sender instanceof EntityPlayerMP && args.length == 2 && args[0].equalsIgnoreCase("display")) {
-			if (NumberUtils.isNumber(args[1]))
+			if (NumberUtils.isCreatable(args[1]))
 				Minewatch.network.sendTo(new SPacketSimple(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), (EntityPlayerMP) sender);
 		}
 		return false;

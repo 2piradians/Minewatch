@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
@@ -154,6 +153,7 @@ public enum ModSoundEvents {
 	private ModSoundEvents() {
 		loc = new ResourceLocation(Minewatch.MODID, this.name().toLowerCase());
 		event = new ModSoundEvent(loc, this);
+		event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())
@@ -238,7 +238,7 @@ public enum ModSoundEvents {
 		@SubscribeEvent
 		public static void registerSounds(final RegistryEvent.Register<SoundEvent> events) { 
 			for (ModSoundEvents event : ModSoundEvents.values())
-				events.getRegistry().register(new SoundEvent(loc));
+				events.getRegistry().register(event.event);
 		}
 	}
 }

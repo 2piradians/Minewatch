@@ -137,15 +137,23 @@ public class Keys {
 		}
 
 		public boolean isKeyDown(EntityLivingBase entity) {
-			return entity != null && this.isKeyDown(entity.getPersistentID()) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT);
+			return isKeyDown(entity, false);
+		}
+		
+		public boolean isKeyDown(EntityLivingBase entity, boolean ignorePreventInput) {
+			return entity != null && this.isKeyDown(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}
 
 		public boolean isKeyDown(UUID uuid) {
 			return uuid != null && this.keyDownEntities.contains(uuid);
 		}
-
+		
 		public boolean isKeyPressed(EntityLivingBase entity) {
-			return entity != null && this.isKeyPressed(entity.getPersistentID()) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT);
+			return isKeyPressed(entity, false);
+		}
+
+		public boolean isKeyPressed(EntityLivingBase entity, boolean ignorePreventInput) {
+			return entity != null && this.isKeyPressed(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}
 
 		public boolean isKeyPressed(UUID uuid) {

@@ -370,8 +370,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			EntityLivingBase source = ((EntityLivingBase)event.getSource().getEntity());
 			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
-			if (!source.world.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero &&
-					source.getHeldItemMainhand() != null && source.getHeldItemMainhand().getItem() == this) {
+			if (!source.world.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero) {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());

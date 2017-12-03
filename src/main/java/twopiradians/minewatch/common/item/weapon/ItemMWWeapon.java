@@ -422,7 +422,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 				stack.getTagCompound().hasKey("alt_weapon");
 	}
 
-	/**Set this weapon to use / not use alternate version - make sure to only call on server!*/
+	/**Set this weapon to use / not use alternate version - can be called on client if needed (make sure it's correct value)*/
 	public static void setAlternate(ItemStack stack, boolean usingAlt) {
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon && 
 				((ItemMWWeapon)stack.getItem()).hero.hasAltWeapon) {

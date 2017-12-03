@@ -550,11 +550,10 @@ public enum EnumHero {
 					GlStateManager.popMatrix();
 				}
 
-				if (weapon != null &&
-						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+				if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 					GlStateManager.color(1, 1, 1, 1f);
 
-					if (!(weapon.hero == hero && KeyBind.HERO_INFORMATION.isKeyDown(player))) {
+					if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
 						GlStateManager.pushMatrix();
 						GlStateManager.enableBlend();
 
@@ -571,7 +570,7 @@ public enum EnumHero {
 						GlStateManager.popMatrix();
 					}
 
-					if (Config.customCrosshairs)
+					if (Config.customCrosshairs || KeyBind.HERO_INFORMATION.isKeyDown(player))
 						event.setCanceled(true);
 				}
 			}
@@ -586,7 +585,7 @@ public enum EnumHero {
 				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 				// hero information screen
-				if (hero != null && weapon != null && weapon.hero == hero && KeyBind.HERO_INFORMATION.isKeyDown(player))
+				if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
 					hero.displayInfoScreen(event.getResolution());
 				else {
 					if (hero != null) {

@@ -314,8 +314,8 @@ public class ItemMWArmor extends ItemArmor {
 			// double jump
 			else if (world.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
 				playersJumped.remove(player);
-			else if (KeyBind.JUMP.isKeyDown(player) && !player.onGround && !player.isOnLadder() && 
-					player.motionY < 0.0d && !playersJumped.contains(player)) {
+			else if (KeyBind.JUMP.isKeyPressed(player) && !player.onGround && !player.isOnLadder() && 
+					player.motionY < 0.2d && !playersJumped.contains(player)) {
 				if (world.isRemote) {
 					if (player instanceof EntityPlayer)
 						((EntityPlayer)player).jump();
@@ -368,7 +368,7 @@ public class ItemMWArmor extends ItemArmor {
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < 0 && !player.isInWater() && !player.isInLava()) {
+			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < -0.09d && !player.isInWater() && !player.isInLava()) {
 				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
 				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(player) && !world.isRemote) {

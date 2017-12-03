@@ -128,7 +128,7 @@ public class TickHandler {
 	public void clientSide(ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) {
 			for (KeyBind key : KeyBind.values())
-				key.keyPressedEntities.clear();
+				key.keyPressedEntitiesClient.clear();
 			
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
@@ -148,7 +148,7 @@ public class TickHandler {
 	public void serverSide(ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
 			for (KeyBind key : KeyBind.values())
-				key.keyPressedEntities.clear();
+				key.keyPressedEntitiesServer.clear();
 			
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();

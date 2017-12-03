@@ -451,7 +451,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Bastion's reconfigure
 					else if (packet.type == 31 && entity instanceof EntityLivingBase) {
-						//ItemMWWeapon.setAlternate(((EntityLivingBase)entity).getHeldItemMainhand(), packet.bool);
+						ItemMWWeapon.setAlternate(((EntityLivingBase)entity).getHeldItemMainhand(), packet.bool);
 						if (packet.bool) {
 							TickHandler.register(true, ItemBastionGun.TURRET.setEntity(entity).setTicks(10));
 							ModSoundEvents.BASTION_RECONFIGURE_1.playFollowingSound(entity, 1, 1, false);

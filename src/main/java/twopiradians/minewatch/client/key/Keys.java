@@ -21,6 +21,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -43,11 +44,11 @@ import twopiradians.minewatch.packet.SPacketSyncCooldown;
 
 public class Keys {
 	public enum KeyBind {
-		NONE(Identifier.NONE), ABILITY_1(Identifier.KEYBIND_ABILITY_1), 
-		ABILITY_2(Identifier.KEYBIND_ABILITY_2), RMB(Identifier.KEYBIND_RMB),
-		LMB(Identifier.KEYBIND_LMB), HERO_INFORMATION(Identifier.KEYBIND_HERO_INFO), 
-		RELOAD(Identifier.KEYBIND_RELOAD), ULTIMATE(Identifier.KEYBIND_ULTIMATE), 
-		JUMP(Identifier.KEYBIND_JUMP), FOV(Identifier.KEYBIND_FOV); 
+		NONE(Identifier.NONE, false), ABILITY_1(Identifier.KEYBIND_ABILITY_1, false), 
+		ABILITY_2(Identifier.KEYBIND_ABILITY_2, false), RMB(Identifier.KEYBIND_RMB, false),
+		LMB(Identifier.KEYBIND_LMB, false), HERO_INFORMATION(Identifier.KEYBIND_HERO_INFO, true), 
+		RELOAD(Identifier.KEYBIND_RELOAD, false), ULTIMATE(Identifier.KEYBIND_ULTIMATE, false), 
+		JUMP(Identifier.KEYBIND_JUMP, true), FOV(Identifier.KEYBIND_FOV, false); 
 
 		public final Handler COOLDOWNS = new Handler(null, false) {
 			@SideOnly(Side.CLIENT)
@@ -68,20 +69,23 @@ public class Keys {
 		public Identifier identifier;
 		private HashSet<UUID> silentRecharge = new HashSet();
 		private HashSet<UUID> keyDownEntities = new HashSet();
-		public HashSet<UUID> keyPressedEntities = new HashSet();
+		public HashSet<UUID> keyPressedEntitiesClient = new HashSet();
+		public HashSet<UUID> keyPressedEntitiesServer = new HashSet();
 		private HashMap<UUID, Float> fov = Maps.newHashMap();
 		@Nullable
 		@SideOnly(Side.CLIENT)
 		public KeyBinding keyBind;
 		public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
+		public boolean updateWithoutWeapon;
 
 		private KeyBind() {
-			this(null);
+			this(null, false);
 		}
 
-		private KeyBind(Identifier identifier) {
+		private KeyBind(Identifier identifier, boolean updateWithoutWeapon) {
 			this.identifier = identifier;
 			COOLDOWNS.identifier = identifier;
+			this.updateWithoutWeapon = updateWithoutWeapon;
 		}
 
 		public int getCooldown(EntityLivingBase player) {
@@ -119,27 +123,32 @@ public class Keys {
 		}
 
 		public void setKeyDown(EntityLivingBase entity, boolean isKeyDown) {
-			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown);
+			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown,
+					entity != null ? entity.worldObj.isRemote : true);
 		}
 
-		public void setKeyDown(UUID uuid, boolean isKeyDown) {
+		public void setKeyDown(UUID uuid, boolean isKeyDown, boolean isRemote) {
 			if (uuid != null) {
 				// set key down
 				if (isKeyDown) {
 					this.keyDownEntities.add(uuid);
-					this.keyPressedEntities.add(uuid);
+					this.getKeyPressedEntities(isRemote).add(uuid);
 				}
 				else {
 					this.keyDownEntities.remove(uuid);
-					this.keyPressedEntities.remove(uuid);
+					this.getKeyPressedEntities(isRemote).remove(uuid);
 				}
 			}
+		}
+
+		private HashSet<UUID> getKeyPressedEntities(boolean isRemote) {
+			return isRemote ? this.keyPressedEntitiesClient : this.keyPressedEntitiesServer;
 		}
 
 		public boolean isKeyDown(EntityLivingBase entity) {
 			return isKeyDown(entity, false);
 		}
-		
+
 		public boolean isKeyDown(EntityLivingBase entity, boolean ignorePreventInput) {
 			return entity != null && this.isKeyDown(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}
@@ -153,11 +162,11 @@ public class Keys {
 		}
 
 		public boolean isKeyPressed(EntityLivingBase entity, boolean ignorePreventInput) {
-			return entity != null && this.isKeyPressed(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
+			return entity != null && this.isKeyPressed(entity.getPersistentID(), entity.worldObj.isRemote) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}
 
-		public boolean isKeyPressed(UUID uuid) {
-			return uuid != null && this.keyPressedEntities.contains(uuid);
+		public boolean isKeyPressed(UUID uuid, boolean isRemote) {
+			return uuid != null && this.getKeyPressedEntities(isRemote).contains(uuid);
 		}
 
 		public void setFOV(EntityLivingBase entity, float fov) {
@@ -248,7 +257,7 @@ public class Keys {
 			}
 		}
 
-		@SubscribeEvent
+		@SubscribeEvent(priority=EventPriority.LOWEST)
 		@SideOnly(Side.CLIENT)
 		public static void updateKeys(ClientTickEvent event) {
 			if (event.phase == Phase.END) {
@@ -278,10 +287,10 @@ public class Keys {
 						Minewatch.network.sendToServer(new CPacketSyncKeys(key, mc.gameSettings.fovSetting, uuid));
 					}
 					else if (isKeyDown != key.isKeyDown(uuid) && ((isKeyDown && 
-							((main != null && main.getItem() instanceof ItemMWWeapon) || 
+							(key.updateWithoutWeapon || (main != null && main.getItem() instanceof ItemMWWeapon) || 
 									(off != null && off.getItem() instanceof ItemMWWeapon)) &&
 							mc.currentScreen == null) || !isKeyDown)) {
-						key.setKeyDown(uuid, isKeyDown);
+						key.setKeyDown(uuid, isKeyDown, true);
 						Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
 						if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))
 							key.toggle(uuid, true, true);

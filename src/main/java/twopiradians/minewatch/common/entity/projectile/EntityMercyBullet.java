@@ -35,15 +35,15 @@ public class EntityMercyBullet extends EntityMW {
 	}
 	
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptDamage(this, result.entityHit, 20, false);
 
-		if (this.world.isRemote)
+		/*if (this.world.isRemote)
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, result.entityHit == null ? result.hitVec.xCoord : posX, 
 					result.entityHit == null ? result.hitVec.yCoord : posY, 
 							result.entityHit == null ? result.hitVec.zCoord : posZ,
-									0, 0, 0, 0xE39684, 0xE26E53, 1, 5, 5, 4, world.rand.nextFloat(), 0.01f);
+									0, 0, 0, 0xE39684, 0xE26E53, 1, 5, 5, 4, world.rand.nextFloat(), 0.01f);*/
 	}
 }

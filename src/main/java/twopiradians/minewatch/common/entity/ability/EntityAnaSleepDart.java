@@ -35,7 +35,7 @@ public class EntityAnaSleepDart extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (EntityHelper.attemptDamage(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&

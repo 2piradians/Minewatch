@@ -570,7 +570,7 @@ public enum EnumHero {
 						GlStateManager.popMatrix();
 					}
 
-					if (Config.customCrosshairs || KeyBind.HERO_INFORMATION.isKeyDown(player))
+					if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
 						event.setCanceled(true);
 				}
 			}

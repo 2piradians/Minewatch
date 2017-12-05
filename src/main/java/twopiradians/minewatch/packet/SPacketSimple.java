@@ -13,10 +13,13 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -29,6 +32,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -61,6 +65,9 @@ public class SPacketSimple implements IMessage {
 	private double x;
 	private double y;
 	private double z;
+	private double x2;
+	private double y2;
+	private double z2;
 	private int id;
 	private int id2;
 
@@ -126,6 +133,18 @@ public class SPacketSimple implements IMessage {
 		this.z = z;
 	}
 
+	public SPacketSimple(int type, Entity entity, RayTraceResult result) {
+		this.type = type;
+		this.uuid = UUID.randomUUID();
+		this.id = entity == null ? -1 : entity.getEntityId();
+		this.id2 = result.entityHit == null ? -1 : result.entityHit.getEntityId();
+		this.x = result.hitVec.xCoord;
+		this.y = result.hitVec.yCoord;
+		this.z = result.hitVec.zCoord;
+		this.x2 = result.typeOfHit == null ? -1 : result.typeOfHit.ordinal();
+		this.y2 = result.sideHit == null ? -1 : result.sideHit.ordinal();
+	}
+
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		this.type = buf.readInt();
@@ -136,6 +155,9 @@ public class SPacketSimple implements IMessage {
 		this.x = buf.readDouble();
 		this.y = buf.readDouble();
 		this.z = buf.readDouble();
+		this.x2 = buf.readDouble();
+		this.y2 = buf.readDouble();
+		this.z2 = buf.readDouble();
 	}
 
 	@Override
@@ -148,6 +170,9 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.x);
 		buf.writeDouble(this.y);
 		buf.writeDouble(this.z);
+		buf.writeDouble(this.x2);
+		buf.writeDouble(this.y2);
+		buf.writeDouble(this.z2);
 	}
 
 	public static void move(EntityLivingBase player, double scale, boolean useLook, boolean giveMotionY) {
@@ -534,6 +559,18 @@ public class SPacketSimple implements IMessage {
 					// Hurt sound for Mercy's power beam
 					else if (packet.type == 40 && entity != null) {
 						ModSoundEvents.HURT.playSound(entity, 0.3f, entity.world.rand.nextFloat()/2+0.75f, true);
+					}
+					// Entity collision raytraceresult onImpact
+					else if (packet.type == 41 && entity instanceof EntityMW) {
+						Vec3d hitVec = new Vec3d(packet.x, packet.y, packet.z);
+						RayTraceResult.Type typeOfHit = packet.x2 >= 0 && packet.x2 < RayTraceResult.Type.values().length ? 
+								RayTraceResult.Type.values()[(int) packet.x2] : null;
+						EnumFacing sideHit = packet.y2 >= 0 && packet.y2 < EnumFacing.values().length ? 
+								EnumFacing.values()[(int) packet.y2] : null;
+						if (typeOfHit == RayTraceResult.Type.BLOCK && sideHit != null)
+							((EntityMW)entity).onImpact(new RayTraceResult(hitVec, sideHit, new BlockPos(hitVec)));
+						else if (typeOfHit == RayTraceResult.Type.ENTITY && entity2 != null)
+							((EntityMW)entity).onImpact(new RayTraceResult(entity2, hitVec));
 					}
 				}
 			});

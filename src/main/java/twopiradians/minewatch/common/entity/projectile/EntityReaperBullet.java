@@ -34,7 +34,7 @@ public class EntityReaperBullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 2, 7, 11, 20))

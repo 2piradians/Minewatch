@@ -14,6 +14,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -204,7 +205,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		if (target instanceof EntityLivingBase && !target.world.isRemote &&
 				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
-			target.removePotionEffect(MobEffects.REGENERATION);
+			PotionEffect effect = target.getActivePotionEffect(MobEffects.REGENERATION);
+			if (effect != null)
+				target.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 1, 1, true, false));
 		}
 		
 		source = EntityHelper.getThrower(source);

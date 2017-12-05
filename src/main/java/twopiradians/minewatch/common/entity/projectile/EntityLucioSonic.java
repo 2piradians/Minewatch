@@ -50,7 +50,7 @@ public class EntityLucioSonic extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptDamage(getThrower(), result.entityHit, 20, false);

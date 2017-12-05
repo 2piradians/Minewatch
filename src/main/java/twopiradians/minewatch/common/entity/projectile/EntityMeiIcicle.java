@@ -76,7 +76,7 @@ public class EntityMeiIcicle extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos blockpos = result.getBlockPos();
 			this.xTile = blockpos.getX();

@@ -39,6 +39,7 @@ import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
@@ -59,12 +60,13 @@ public class EntityHelper {
 		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
 		if (fast)
 			aabb = aabb.addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
+		// list of entities in (possibly very big) area
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
 			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
 				aabb = entity.getEntityBoundingBox();
-				if (!fast || aabb.calculateIntercept(vec3d, vec3d1) != null)
+				if (!fast || aabb.calculateIntercept(vec3d, vec3d1) != null) 
 					results.add(new RayTraceResult(entity));
 			}
 		}
@@ -142,6 +144,9 @@ public class EntityHelper {
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
 		if (metersPerSecond != -1) // hitscan if -1
 			scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d);
+		else if (entityTrace != null && entityTrace.entityHit != null) // scale velocity by hit entity width (for leeway since lifetime is 1)
+			scaledVelocity = scaledVelocity.add(scaledVelocity.normalize().scale(entityTrace.entityHit.width));
+
 		DataParameter<Rotations> data = getVelocityParameter(entity);
 		if (data != null)
 			entity.getDataManager().set(data, new Rotations((float)scaledVelocity.xCoord, (float)scaledVelocity.yCoord, (float)scaledVelocity.zCoord));

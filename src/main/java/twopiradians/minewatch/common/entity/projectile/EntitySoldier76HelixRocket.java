@@ -68,7 +68,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (!(result.entityHit instanceof EntitySoldier76HelixRocket)) {

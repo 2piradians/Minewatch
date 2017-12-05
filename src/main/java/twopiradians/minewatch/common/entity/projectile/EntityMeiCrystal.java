@@ -62,6 +62,6 @@ public class EntityMeiCrystal extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {}
+	public void onImpact(RayTraceResult result) {}
 
 }

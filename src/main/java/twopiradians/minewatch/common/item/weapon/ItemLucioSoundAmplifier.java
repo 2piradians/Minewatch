@@ -55,7 +55,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
-	public int affectedEntities;
+	public int affectedEntities;// TODO prevent speed / heal w/o set
 	public static HashMap<UUID, FollowingSound> healSounds = Maps.newHashMap();
 	public static HashMap<UUID, FollowingSound> speedSounds = Maps.newHashMap();
 
@@ -139,7 +139,8 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			boolean amp = TickHandler.hasHandler(player, Identifier.LUCIO_AMP);
 
 			// passive
-			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
+			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2) &&
+					ItemMWArmor.SetManager.getWornSet(player) == hero) {
 				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
 					this.affectedEntities = 0;
 				else if (!world.isRemote && player instanceof EntityLucio)

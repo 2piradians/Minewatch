@@ -114,7 +114,7 @@ public class EntityJunkratGrenade extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {	
+	public void onImpact(RayTraceResult result) {	
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			// bounce
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 

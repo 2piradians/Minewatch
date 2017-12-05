@@ -137,7 +137,7 @@ public class EntityJunkratTrap extends EntityLivingBaseMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {}
+	public void onImpact(RayTraceResult result) {}
 
 	@Override
 	public void setDead() {

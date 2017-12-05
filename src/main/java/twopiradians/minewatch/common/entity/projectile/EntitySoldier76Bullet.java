@@ -34,7 +34,7 @@ public class EntitySoldier76Bullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 5.7f, 19, 30, 55);

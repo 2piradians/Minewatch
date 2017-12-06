@@ -5,19 +5,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.ModItems;
 
-public class MinewatchTab extends CreativeTabs {
+public class MapMakingTab extends CreativeTabs implements IMinewatchTab {
 	
 	public NonNullList<ItemStack> orderedStacks = NonNullList.create();
 	
-	public MinewatchTab(String label) {
+	public MapMakingTab(String label) {
 		super(label);
 	}
 	
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(EnumHero.REAPER.token);
+		return new ItemStack(ModItems.team_selector);
 	}
 	
 	@Override
@@ -25,6 +25,11 @@ public class MinewatchTab extends CreativeTabs {
 	public void displayAllRelevantItems(NonNullList<ItemStack> list) {
 		list.clear();
 		list.addAll(orderedStacks);
+	}
+	
+	@Override
+	public NonNullList<ItemStack> getOrderedStacks() {
+		return orderedStacks;
 	}
 	
 }

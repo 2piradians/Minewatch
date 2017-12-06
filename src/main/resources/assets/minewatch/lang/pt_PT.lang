@@ -1,4 +1,5 @@
-itemGroup.tabMinewatch=Minewatch
+itemGroup.tabMinewatchArmorWeapons=Minewatch
+itemGroup.tabMinewatchMapMaking=Minewatch
 config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=skins dos heróis

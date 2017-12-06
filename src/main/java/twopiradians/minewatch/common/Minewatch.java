@@ -13,7 +13,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
-import twopiradians.minewatch.creativetab.MinewatchTab;
+import twopiradians.minewatch.creativetab.ArmorWeaponsTab;
+import twopiradians.minewatch.creativetab.IMinewatchTab;
+import twopiradians.minewatch.creativetab.MapMakingTab;
 
 //PORT change json location, search for scala library
 // 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
@@ -26,7 +28,8 @@ public class Minewatch {
     public static final String VERSION = "3.7";
     @Mod.Instance(MODID)
     public static Minewatch instance;
-    public static MinewatchTab tab = new MinewatchTab("tabMinewatch");
+    public static IMinewatchTab tabArmorWeapons = new ArmorWeaponsTab("tabMinewatchArmorWeapons");
+    public static IMinewatchTab tabMapMaking = new MapMakingTab("tabMinewatchMapMaking");
     @SidedProxy(clientSide = "twopiradians.minewatch.client.ClientProxy", serverSide = "twopiradians.minewatch.common.CommonProxy")
 	public static CommonProxy proxy;
     public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);

@@ -52,6 +52,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
+import twopiradians.minewatch.client.gui.targetSelector.GuiTeamSelector;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
@@ -400,8 +401,15 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void openWildCardGui() {
-		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+	public void openGui(EnumGui gui) {
+		switch (gui) {
+		case WILDCARD:
+			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+			break;
+		case TARGET_SELECTOR:
+			Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSelector());
+			break;
+		}
 	}
 
 	@Override

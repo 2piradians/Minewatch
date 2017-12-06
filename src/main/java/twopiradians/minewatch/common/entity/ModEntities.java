@@ -42,10 +42,10 @@ public class ModEntities {
 
 		// heroes
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "random_hero"), EntityHero.class, "random_hero", id++, Minewatch.instance, 144, 3, true, 0xffffff, 0xeaeaea);
-		Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
+		Minewatch.tabMapMaking.getOrderedStacks().add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
 		for (EnumHero hero : EnumHero.values()) {
 			EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero"), hero.heroClass, hero.toString().toLowerCase()+"_hero", id++, Minewatch.instance, 144, 3, true, hero.color.getRGB(), hero.color.darker().getRGB());
-			Minewatch.tab.orderedStacks.add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));
+			Minewatch.tabMapMaking.getOrderedStacks().add(getSpawnEgg(new ResourceLocation(Minewatch.MODID, hero.toString().toLowerCase()+"_hero")));
 		}
 
 		// projectile / ability

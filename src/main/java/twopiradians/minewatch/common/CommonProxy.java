@@ -63,6 +63,10 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 
 public class CommonProxy {
 
+	public enum EnumGui {
+		WILDCARD, TARGET_SELECTOR
+	}
+	
 	public enum EnumParticle {
 		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
 		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
@@ -257,7 +261,7 @@ public class CommonProxy {
 		return 1;
 	}
 
-	public void openWildCardGui() {}
+	public void openGui(EnumGui gui) {}
 
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return handler.onServerRemove();

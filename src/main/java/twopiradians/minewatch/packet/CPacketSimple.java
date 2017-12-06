@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -16,6 +17,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
+import twopiradians.minewatch.common.item.ItemTeamSelector;
+import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -30,50 +33,59 @@ public class CPacketSimple implements IMessage {
 	private double z;
 	private int id;
 	private int id2;
+	private String string;
 
 	public CPacketSimple() { }
 
 	public CPacketSimple(int type) {
-		this(type, false, null, 0, 0, 0, null, null);
+		this(type, false, null, 0, 0, 0, null, null, null);
 	}
 
 	public CPacketSimple(int type, boolean bool) {
-		this(type, bool, null, 0, 0, 0, null, null);
+		this(type, bool, null, 0, 0, 0, null, null, null);
 	}
 
 	public CPacketSimple(int type, Entity entity, boolean bool) {
-		this(type, bool, null, 0, 0, 0, entity, null);
+		this(type, bool, null, 0, 0, 0, entity, null, null);
 	}
 
+	public CPacketSimple(int type, Entity entity, String string) {
+		this(type, false, null, 0, 0, 0, entity, null, string);
+	}
+	
 	public CPacketSimple(int type, Entity entity, boolean bool, Entity entity2) {
-		this(type, bool, null, 0, 0, 0, entity, entity2);
+		this(type, bool, null, 0, 0, 0, entity, entity2, null);
 	}
 
 	public CPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
-		this(type, bool, null, x, y, z, entity, null);
+		this(type, bool, null, x, y, z, entity, null, null);
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player) {
-		this(type, bool, player, 0, 0, 0, null, null);
+		this(type, bool, player, 0, 0, 0, null, null, null);
+	}
+
+	public CPacketSimple(int type, String string, EntityPlayer player) {
+		this(type, false, player, 0, 0, 0, null, null, string);
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
-		this(type, bool, player, x, y, z, null, null);
+		this(type, bool, player, x, y, z, null, null, null);
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity) {
-		this(type, bool, player, x, y, z, entity, null);
+		this(type, bool, player, x, y, z, entity, null, null);
 	}
 
 	public CPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
-		this(type, false, player, x, y, z, null, null);
+		this(type, false, player, x, y, z, null, null, null);
 	}
 
 	public CPacketSimple(int type, EntityPlayer player, double x, double y, double z, Entity entity) {
-		this(type, false, player, x, y, z, entity, null);
+		this(type, false, player, x, y, z, entity, null, null);
 	}
 
-	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
+	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, String string) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
@@ -82,6 +94,7 @@ public class CPacketSimple implements IMessage {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.string = string == null ? "" : string;
 	}
 
 	@Override
@@ -94,6 +107,7 @@ public class CPacketSimple implements IMessage {
 		this.x = buf.readDouble();
 		this.y = buf.readDouble();
 		this.z = buf.readDouble();
+		this.string = ByteBufUtils.readUTF8String(buf);
 	}
 
 	@Override
@@ -106,6 +120,7 @@ public class CPacketSimple implements IMessage {
 		buf.writeDouble(this.x);
 		buf.writeDouble(this.y);
 		buf.writeDouble(this.z);
+		ByteBufUtils.writeUTF8String(buf, this.string);
 	}
 
 	public static class Handler implements IMessageHandler<CPacketSimple, IMessage> {
@@ -160,6 +175,25 @@ public class CPacketSimple implements IMessage {
 					// Lucio's soundwave
 					else if (packet.type == 4 && packetPlayer != null) {
 						ItemLucioSoundAmplifier.soundwave(packetPlayer, packet.x, packet.y, packet.z);
+					}
+					// Team Selector set team
+					else if (packet.type == 5 && packetPlayer != null) {
+						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
+						for (ItemStack stack : packetPlayer.getHeldEquipment())
+							if (stack != null && stack.getItem() == ModItems.team_selector)
+								ItemTeamSelector.setTeam(stack, team);
+					}
+					// Team Selector gui set entity team
+					else if (packet.type == 6 && packetPlayer != null && entity != null && 
+							((packetPlayer.getHeldItemMainhand() != null && packetPlayer.getHeldItemMainhand().getItem() == ModItems.team_selector) ||
+									(packetPlayer.getHeldItemOffhand() != null && packetPlayer.getHeldItemOffhand().getItem() == ModItems.team_selector))) {
+						try {
+							if (packet.string.isEmpty())
+								packetPlayer.world.getScoreboard().removePlayerFromTeams(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString());
+							else
+								packetPlayer.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), packet.string);
+						}
+						catch (Exception e) {}
 					}
 				}
 			});

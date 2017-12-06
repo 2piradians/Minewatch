@@ -1,5 +1,6 @@
-package twopiradians.minewatch.client.gui.targetSelector;
+package twopiradians.minewatch.client.gui.teamSelector;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,8 +13,10 @@ import com.google.common.base.Predicate;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ResourceLocation;
@@ -49,9 +52,12 @@ public class GuiTeamSelector extends GuiScreen {
 	public ArrayList<EntityLivingBase> entitiesTeam = new ArrayList<EntityLivingBase>();
 	public ArrayList<EntityLivingBase> entitiesFind = new ArrayList<EntityLivingBase>();
 	public ArrayList<Team> teams = new ArrayList<Team>();
+	public int selectedColor;
+	public GuiTextField teamNameField;
 
 	public GuiTeamSelector() {
 		currentScreen = Screen.MAIN;
+		selectedColor = 15;
 	}
 
 	@Override
@@ -74,11 +80,9 @@ public class GuiTeamSelector extends GuiScreen {
 		// create buttons
 		this.buttonList.add(new GuiButton(0, guiLeft-105, guiTop+Y_SIZE-22, 105, 20, "Add to team >"));
 		this.buttonList.add(new GuiButton(1, guiLeft+X_SIZE+1, guiTop+Y_SIZE-22, 105, 20, "< Remove from team"));
-
-		// find selected team
-		for (ItemStack stack : mc.player.getHeldEquipment())
-			if (stack != null && stack.getItem() == ModItems.team_selector)
-				setSelectedTeam(ItemTeamSelector.getTeam(mc.world, stack));
+		this.buttonList.add(new GuiButton(2, guiLeft+X_SIZE/2-50, guiTop+50, 100, 20, "Create New Team"));
+		for (int i=0; i<16; ++i)
+			this.buttonList.add(new GuiButtonTeamColor(i, guiLeft+12+i*18-(i/8)*144, guiTop+30+(i/8)*18, 11, 11, "", this));
 
 		// create and sort all teams
 		teams = new ArrayList<Team>(mc.world.getScoreboard().getTeams());
@@ -88,21 +92,44 @@ public class GuiTeamSelector extends GuiScreen {
 				return team1.getRegisteredName().compareToIgnoreCase(team2.getRegisteredName());
 			}
 		});
+
+		// set up team name text field
+		teamNameField = new GuiTextField(0, mc.fontRendererObj, guiLeft+5, guiTop+70, 104, 14);
+		teamNameField.setFocused(true);
+		teamNameField.setCanLoseFocus(false);
+		teamNameField.setMaxStringLength(16);
+		
+		// find selected team
+		for (ItemStack stack : mc.player.getHeldEquipment())
+			if (stack != null && stack.getItem() == ModItems.team_selector)
+				setSelectedTeam(ItemTeamSelector.getTeam(mc.world, stack));
+	}
+
+	@Override
+	public void updateScreen() {
+		super.updateScreen();
+		teamNameField.updateCursorCounter();
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		// update buttons
 		for (GuiButton button : this.buttonList) {
-			// add to team
-			if (button.id == 0) {
-				button.visible = this.getSelectedTeam() != null && currentScreen == Screen.MAIN;
-				button.enabled = this.scrollingFindEntities.getSelectedIndex() != -1;
-			}
-			// remove from team
-			else if (button.id == 1) {
-				button.visible = this.getSelectedTeam() != null && currentScreen == Screen.MAIN;
-				button.enabled = this.scrollingTeamEntities.getSelectedIndex() != -1;
+			if (!(button instanceof GuiButtonTeamColor)) {
+				// add to team
+				if (button.id == 0) {
+					button.visible = currentScreen == Screen.MAIN && this.getSelectedTeam() != null;
+					button.enabled = this.scrollingFindEntities.getSelectedIndex() != -1;
+				}
+				// remove from team
+				else if (button.id == 1) {
+					button.visible = currentScreen == Screen.MAIN && this.getSelectedTeam() != null;
+					button.enabled = this.scrollingTeamEntities.getSelectedIndex() != -1;
+				}
+				// create new team
+				else if (button.id == 2) {
+					button.visible = currentScreen == Screen.MAIN && this.getSelectedTeam() == null;
+				}
 			}
 		}
 
@@ -117,6 +144,10 @@ public class GuiTeamSelector extends GuiScreen {
 		// draw screen for scrolling lists
 		scrollingTeams.drawScreen(mouseX, mouseY, partialTicks);
 		if (getSelectedTeam() != null) {
+			this.drawCenteredString(mc.fontRendererObj, getSelectedTeam().getChatFormat()+""+TextFormatting.UNDERLINE+"Team Color", guiLeft+X_SIZE/2, guiTop+11, 0xFFFFFF);
+
+			teamNameField.drawTextBox();
+
 			scrollingFindEntities.drawScreen(mouseX, mouseY, partialTicks);
 			scrollingTeamEntities.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -129,6 +160,9 @@ public class GuiTeamSelector extends GuiScreen {
 		}
 		else if (this.teams.isEmpty())
 			this.drawCenteredString(mc.fontRendererObj, TextFormatting.GRAY+""+TextFormatting.ITALIC+"No teams created", guiLeft+X_SIZE/2, guiTop+Y_SIZE-3-52-mc.fontRendererObj.FONT_HEIGHT/2, 0xFFFFFF);
+		else {
+			this.drawCenteredString(mc.fontRendererObj, TextFormatting.GRAY+""+TextFormatting.ITALIC+"or select a team below...", guiLeft+X_SIZE/2, guiTop+100, 0xFFFFFF);
+		}
 
 		// buttons
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -140,9 +174,15 @@ public class GuiTeamSelector extends GuiScreen {
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (currentScreen) {
 		case MAIN:
+			// team color
+			if (button instanceof GuiButtonTeamColor) {
+				if (this.getSelectedTeam() != null && this.getSelectedTeam().getChatFormat() != null && 
+						this.getSelectedTeam().getChatFormat().getColorIndex() != button.id)
+					Minewatch.network.sendToServer(new CPacketSimple(7, this.getSelectedTeam().getRegisteredName(), mc.player, button.id, 0, 0));
+			}
 			// add to team
-			if (button.id == 0 && this.scrollingFindEntities.getSelectedIndex() >= 0 && 
-			this.scrollingFindEntities.getSelectedIndex() <= this.entitiesFind.size()) {
+			else if (button.id == 0 && this.scrollingFindEntities.getSelectedIndex() >= 0 && 
+					this.scrollingFindEntities.getSelectedIndex() <= this.entitiesFind.size()) {
 				EntityLivingBase entity = this.entitiesFind.get(this.scrollingFindEntities.getSelectedIndex());
 				Minewatch.network.sendToServer(new CPacketSimple(6, false, mc.player, 0, 0, 0, entity, null, this.getSelectedTeam().getRegisteredName()));
 				this.entitiesFind.remove(entity);
@@ -166,6 +206,7 @@ public class GuiTeamSelector extends GuiScreen {
 
 	@Override
 	public void handleMouseInput() throws IOException {
+		super.handleMouseInput();
 		int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
 		int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 		scrollingTeams.handleMouseInput(mouseX, mouseY);
@@ -173,7 +214,26 @@ public class GuiTeamSelector extends GuiScreen {
 			scrollingFindEntities.handleMouseInput(mouseX, mouseY);
 			scrollingTeamEntities.handleMouseInput(mouseX, mouseY);
 		}
-		super.handleMouseInput();
+	}
+
+	@Override
+	protected void mouseClicked(int x, int y, int button) throws IOException {
+		teamNameField.mouseClicked(x, y, button);
+		if (button == 1 && x >= teamNameField.xPosition && x < teamNameField.xPosition + teamNameField.width && y >= teamNameField.yPosition && y < teamNameField.yPosition + teamNameField.height) 
+			teamNameField.setText("");
+		super.mouseClicked(x, y, button);
+	}
+
+	@Override
+	protected void keyTyped(char c, int keyCode) throws IOException {
+		super.keyTyped(c, keyCode);
+		teamNameField.textboxKeyTyped(c, keyCode);
+		teamNameField.setTextColor(-1);
+		for (Team team : teams) // TODO switch over to display name and use actual team name check here
+			if (teamNameField.getText().isEmpty() || 
+					(!team.isSameTeam(getSelectedTeam()) && team.getRegisteredName().equals(teamNameField.getText()))) {
+				teamNameField.setTextColor(new Color(0xFF5555).getRGB());
+			}
 	}
 
 	@Nullable
@@ -192,6 +252,8 @@ public class GuiTeamSelector extends GuiScreen {
 				entitiesTeam.clear();
 			}
 			else {
+				teamNameField.setText(team.getRegisteredName());
+				teamNameField.setFocused(true);
 				entitiesFind = new ArrayList<EntityLivingBase>(mc.world.getEntities(EntityLivingBase.class, new Predicate<EntityLivingBase>() {
 					@Override
 					public boolean apply(EntityLivingBase entity) {

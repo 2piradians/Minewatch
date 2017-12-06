@@ -7,8 +7,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -71,6 +73,10 @@ public class CPacketSimple implements IMessage {
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
 		this(type, bool, player, x, y, z, null, null, null);
+	}
+	
+	public CPacketSimple(int type, String string, EntityPlayer player, double x, double y, double z) {
+		this(type, false, player, x, y, z, null, null, string);
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity) {
@@ -194,6 +200,18 @@ public class CPacketSimple implements IMessage {
 								packetPlayer.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), packet.string);
 						}
 						catch (Exception e) {}
+					}
+					// Team Selector set team color
+					else if (packet.type == 7 && packetPlayer != null && packet.x >= 0 && packet.x < 16 && 
+							((packetPlayer.getHeldItemMainhand() != null && packetPlayer.getHeldItemMainhand().getItem() == ModItems.team_selector) ||
+									(packetPlayer.getHeldItemOffhand() != null && packetPlayer.getHeldItemOffhand().getItem() == ModItems.team_selector))) {
+						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
+						TextFormatting format = TextFormatting.fromColorIndex((int) packet.x);
+						if (team instanceof ScorePlayerTeam) {
+							((ScorePlayerTeam)team).setChatFormat(format);
+							((ScorePlayerTeam)team).setNamePrefix(format.toString());
+							((ScorePlayerTeam)team).setNameSuffix(TextFormatting.RESET.toString());
+						}
 					}
 				}
 			});

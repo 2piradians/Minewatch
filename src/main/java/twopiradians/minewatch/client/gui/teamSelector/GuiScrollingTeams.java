@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.targetSelector;
+package twopiradians.minewatch.client.gui.teamSelector;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.scoreboard.Team;

@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.targetSelector;
+package twopiradians.minewatch.client.gui.teamSelector;
 
 import org.lwjgl.opengl.GL11;
 

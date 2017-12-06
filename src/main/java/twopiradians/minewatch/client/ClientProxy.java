@@ -52,7 +52,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
-import twopiradians.minewatch.client.gui.targetSelector.GuiTeamSelector;
+import twopiradians.minewatch.client.gui.teamSelector.GuiTeamSelector;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;

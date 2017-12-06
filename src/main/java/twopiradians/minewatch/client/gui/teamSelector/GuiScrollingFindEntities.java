@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.targetSelector;
+package twopiradians.minewatch.client.gui.teamSelector;
 
 import java.util.List;
 

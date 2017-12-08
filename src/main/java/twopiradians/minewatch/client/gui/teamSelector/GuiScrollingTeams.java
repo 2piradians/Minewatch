@@ -3,8 +3,6 @@ package twopiradians.minewatch.client.gui.teamSelector;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.scoreboard.Team;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.packet.CPacketSimple;
 
 public class GuiScrollingTeams extends GuiScrollingList {
 

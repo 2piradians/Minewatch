@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.client.gui.teamSelector.GuiTeamSelector.Screen;
+import twopiradians.minewatch.common.util.ColorHelper;
 
 public class GuiButtonTeamColor extends GuiButton {
 
@@ -19,72 +20,8 @@ public class GuiButtonTeamColor extends GuiButton {
 	public GuiButtonTeamColor(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, GuiTeamSelector gui) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
 		this.gui = gui;
-		switch (TextFormatting.fromColorIndex(buttonId)) {
-		case AQUA:
-			foregroundColor = new Color(0x55FFFF).getRGB();
-			backgroundColor = new Color(0x153F3F).getRGB();
-			break;
-		case BLACK:
-			foregroundColor = new Color(0x000000).getRGB();
-			backgroundColor = new Color(0x000000).getRGB();
-			break;
-		case BLUE:
-			foregroundColor = new Color(0x5555FF).getRGB();
-			backgroundColor = new Color(0x15153F).getRGB();
-			break;
-		case DARK_AQUA:
-			foregroundColor = new Color(0x00AAAA).getRGB();
-			backgroundColor = new Color(0x002A2A).getRGB();
-			break;
-		case DARK_BLUE:
-			foregroundColor = new Color(0x0000AA).getRGB();
-			backgroundColor = new Color(0x00002A).getRGB();
-			break;
-		case DARK_GRAY:
-			foregroundColor = new Color(0x555555).getRGB();
-			backgroundColor = new Color(0x151515).getRGB();
-			break;
-		case DARK_GREEN:
-			foregroundColor = new Color(0x00AA00).getRGB();
-			backgroundColor = new Color(0x002A00).getRGB();
-			break;
-		case DARK_PURPLE:
-			foregroundColor = new Color(0xAA00AA).getRGB();
-			backgroundColor = new Color(0x2A002A).getRGB();
-			break;
-		case DARK_RED:
-			foregroundColor = new Color(0xAA0000).getRGB();
-			backgroundColor = new Color(0x2A0000).getRGB();
-			break;
-		case GOLD:
-			foregroundColor = new Color(0xFFAA00).getRGB();
-			backgroundColor = new Color(0x2A2A00).getRGB();
-			break;
-		case GRAY:
-			foregroundColor = new Color(0xAAAAAA).getRGB();
-			backgroundColor = new Color(0x2A2A2A).getRGB();
-			break;
-		case GREEN:
-			foregroundColor = new Color(0x55FF55).getRGB();
-			backgroundColor = new Color(0x153F15).getRGB();
-			break;
-		case LIGHT_PURPLE:
-			foregroundColor = new Color(0xFF55FF).getRGB();
-			backgroundColor = new Color(0x3F153F).getRGB();
-			break;
-		case RED:
-			foregroundColor = new Color(0xFF5555).getRGB();
-			backgroundColor = new Color(0x3F1515).getRGB();
-			break;
-		case WHITE:
-			foregroundColor = new Color(0xFFFFFF).getRGB();
-			backgroundColor = new Color(0x3F3F3F).getRGB();
-			break;
-		case YELLOW:
-			foregroundColor = new Color(0xFFFF55).getRGB();
-			backgroundColor = new Color(0x3F3F15).getRGB();
-			break;
-		}
+		foregroundColor = new Color(ColorHelper.getForegroundColor(TextFormatting.fromColorIndex(buttonId))).getRGB();
+		backgroundColor = new Color(ColorHelper.getBackgroundColor(TextFormatting.fromColorIndex(buttonId))).getRGB();
 		this.checkColor = new Color(this.backgroundColor).brighter().brighter().getRGB();
 		switch (TextFormatting.fromColorIndex(buttonId)) {
 		case BLACK:

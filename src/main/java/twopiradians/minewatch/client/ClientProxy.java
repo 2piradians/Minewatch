@@ -105,6 +105,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
+import twopiradians.minewatch.common.item.ItemTeamSelector;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
@@ -141,6 +142,12 @@ public class ClientProxy extends CommonProxy {
 					return item.getColorFromItemStack(stack, tintIndex);
 				}
 			}, item.getItem());
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				return ItemTeamSelector.getColorFromItemStack(stack, tintIndex);
+			}
+		}, ModItems.team_selector);
 	}
 
 	@Override

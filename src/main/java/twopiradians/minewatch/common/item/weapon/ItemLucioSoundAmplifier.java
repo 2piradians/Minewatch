@@ -3,8 +3,6 @@ package twopiradians.minewatch.common.item.weapon;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;

@@ -1,15 +1,6 @@
 package twopiradians.minewatch.client.gui.teamSelector;
 
-import org.lwjgl.opengl.GL11;
-
-import mezz.jei.gui.GuiHelper;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
 public class GuiScrollingTeamEntities extends GuiScrollingList {

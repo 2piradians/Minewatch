@@ -1,11 +1,6 @@
 package twopiradians.minewatch.client.gui.teamSelector;
 
-import java.util.List;
-
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.Entity;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
 public class GuiScrollingFindEntities extends GuiScrollingList {

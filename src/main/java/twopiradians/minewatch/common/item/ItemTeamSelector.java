@@ -1,14 +1,19 @@
 package twopiradians.minewatch.common.item;
 
+import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,8 +22,10 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -32,16 +39,26 @@ import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.ColorHelper;
 
 public class ItemTeamSelector extends Item {
 
+	private static HashMap<ItemStack, TextFormatting> formatCache = Maps.newHashMap();
+	
 	public ItemTeamSelector() {
 		super();
-		MinecraftForge.EVENT_BUS.register(this); // TODO update team name color
+		MinecraftForge.EVENT_BUS.register(this);
+		this.addPropertyOverride(new ResourceLocation("hasTeam"), new IItemPropertyGetter() {
+			@SideOnly(Side.CLIENT)
+			public float apply(ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity) {
+				return getTeamName(stack, false) != null ? 1 : 0;
+			}
+		});
 	}
 
 	/**Get a team's display name / registry name*/
 	public static String getTeamName(Team team) {
+		//System.out.println("getteamname1"); // TODO
 		if (team instanceof ScorePlayerTeam)
 			return ((ScorePlayerTeam)team).getTeamName();
 		else if (team != null)
@@ -51,21 +68,31 @@ public class ItemTeamSelector extends Item {
 	}
 
 	/**Get the stack's team registry name*/
-	@Nullable
 	public static String getTeamName(ItemStack stack, boolean displayName) {
+		//System.out.println("getteamname2"); // TODO
 		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamRegistryName")) {
 			if (displayName && stack.getTagCompound().hasKey("teamDisplayName"))
-				return stack.getTagCompound().getString("teamDisplayName");
+				return getTeamFormat(stack)+stack.getTagCompound().getString("teamDisplayName");
 			else
-				return stack.getTagCompound().getString("teamRegistryName");
+				return getTeamFormat(stack)+stack.getTagCompound().getString("teamRegistryName");
 		}
 		else
 			return null;
 	}
 
+	/**Get the stack's team chat format*/
+	public static TextFormatting getTeamFormat(ItemStack stack) {
+		//System.out.println("getteamformat: "+formatCache); // TODO
+		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamFormat")) 
+			return TextFormatting.fromColorIndex(stack.getTagCompound().getInteger("teamFormat"));
+		else
+			return TextFormatting.RESET;
+	}
+
 	/**Get the stack's team*/
 	@Nullable
 	public static ScorePlayerTeam getTeam(World world, ItemStack stack) {
+		//System.out.println("getteam"); // TODO
 		String name = getTeamName(stack, false);
 		if (name != null) 
 			return world.getScoreboard().getTeam(TextFormatting.getTextWithoutFormattingCodes(name));
@@ -75,6 +102,7 @@ public class ItemTeamSelector extends Item {
 
 	/**Set the stack's team*/
 	public static void setTeam(ItemStack stack, @Nullable Team team) {
+		//System.out.println("setteam"); // TODO
 		if (stack != null) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
@@ -84,13 +112,15 @@ public class ItemTeamSelector extends Item {
 			if (team == null) {// remove team
 				nbt.removeTag("teamRegistryName");
 				nbt.removeTag("teamDisplayName");
+				nbt.removeTag("teamFormat");
 			}
 			else {// set team
-				nbt.setString("teamRegistryName", team.getChatFormat()+team.getRegisteredName());
+				nbt.setString("teamRegistryName", team.getRegisteredName());
 				if (team instanceof ScorePlayerTeam)
-					nbt.setString("teamDisplayName", team.getChatFormat()+((ScorePlayerTeam)team).getTeamName());
+					nbt.setString("teamDisplayName", ((ScorePlayerTeam)team).getTeamName());
 				else
 					nbt.removeTag("teamDisplayName");
+				nbt.setInteger("teamFormat", team.getChatFormat().getColorIndex());
 			}
 
 			stack.setTagCompound(nbt);
@@ -104,10 +134,10 @@ public class ItemTeamSelector extends Item {
 		String format2 = TextFormatting.BLUE+"";
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
 		tooltip.add(format1+"RMB:"+format2+" Open Team Selector GUI");
-		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
-		tooltip.add(format1+"LMB+Sneak+Entity:"+format2+" Copy team");
 		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
-		tooltip.add(format1+"RMB+Sneak+Entity:"+format2+" Clear selected team");
+		tooltip.add(format1+"RMB+Entity+Sneak:"+format2+" Clear selected team");
+		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
+		tooltip.add(format1+"LMB+Entity+Sneak:"+format2+" Copy team");
 	}
 
 	@Override
@@ -115,7 +145,7 @@ public class ItemTeamSelector extends Item {
 		String name = getTeamName(stack, true);
 		return super.getItemStackDisplayName(stack)+(name == null ? "" : ": "+name);
 	}
-	
+
 	/**Send a message to the player*/
 	public static void sendMessage(EntityPlayer player, String string) {
 		ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Selector] "+TextFormatting.RESET+string);
@@ -215,14 +245,33 @@ public class ItemTeamSelector extends Item {
 	public void glowTeams(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		boolean glow = false;
 		for (ItemStack stack : Minecraft.getMinecraft().player.getHeldEquipment())
-			if (stack != null && stack.getItem() == this && event.getEntity().getTeam() != null/* && 
-				Minecraft.getMinecraft().player.canEntityBeSeen(event.getEntity())*/)
+			if (stack != null && stack.getItem() == this && event.getEntity().getTeam() != null)
 				glow = true;
 
 		if (glow)
 			event.getEntity().setGlowing(true);
 		else if (!TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_OPPORTUNIST))
 			event.getEntity().setGlowing(false);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		if (tintIndex == 1 || Minecraft.getMinecraft().player == null)
+			return -1;
+
+		TextFormatting format = getTeamFormat(stack);
+		int rate = 20;
+		float glow = (Minecraft.getMinecraft().player.ticksExisted % rate);
+		if (glow > rate/2)
+			glow = rate-glow;
+		glow *= 2f;
+		if (format.isColor()) {
+			Color color = new Color(ColorHelper.getForegroundColor(format));
+			return new Color((int) MathHelper.clamp(color.getRed()+glow, 0, 255), 
+					(int) MathHelper.clamp(color.getGreen()+glow, 0, 255), 
+					(int) MathHelper.clamp(color.getBlue()+glow, 0, 255)).getRGB();
+		}
+		return -1;
 	}
 
 }

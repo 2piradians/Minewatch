@@ -23,14 +23,10 @@ public class GuiScrollingTeams extends GuiScrollingList {
 	@Override
 	protected void elementClicked(int index, boolean doubleClick) {
 		Team team = gui.teams.toArray(new Team[0])[index];
-		if (!team.isSameTeam(gui.getSelectedTeam())) {
-			Minewatch.network.sendToServer(new CPacketSimple(5, team.getRegisteredName(), gui.mc.player));
+		if (!team.isSameTeam(gui.getSelectedTeam())) 
 			gui.setSelectedTeam(team);
-		}
-		else {
-			Minewatch.network.sendToServer(new CPacketSimple(5, null, gui.mc.player));
+		else 
 			gui.setSelectedTeam(null);
-		}
 	}
 
 	@Override
@@ -46,7 +42,7 @@ public class GuiScrollingTeams extends GuiScrollingList {
 	@Override
 	protected void drawSlot(int index, int right, int top, int height, Tessellator tess) {		
 		Team team = gui.teams.toArray(new Team[0])[index];
-		String name = team.getChatFormat()+team.getRegisteredName();
+		String name = team.getChatFormat()+gui.getTeamName(team);
 		gui.mc.fontRendererObj.drawStringWithShadow(name, left+this.listWidth/2-gui.mc.fontRendererObj.getStringWidth(name)/2, top+gui.mc.fontRendererObj.FONT_HEIGHT/2, 0xFFFFFF);
 	}
 

@@ -8,14 +8,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -33,22 +37,36 @@ public class ItemTeamSelector extends Item {
 
 	public ItemTeamSelector() {
 		super();
-		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(this); // TODO update team name color
 	}
 
-	/**Get the stack's team*/
+	/**Get a team's display name / registry name*/
+	public static String getTeamName(Team team) {
+		if (team instanceof ScorePlayerTeam)
+			return ((ScorePlayerTeam)team).getTeamName();
+		else if (team != null)
+			return team.getRegisteredName();
+		else
+			return "";
+	}
+
+	/**Get the stack's team registry name*/
 	@Nullable
-	public static String getTeamName(ItemStack stack) {
-		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("team")) 
-			return stack.getTagCompound().getString("team");
+	public static String getTeamName(ItemStack stack, boolean displayName) {
+		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamRegistryName")) {
+			if (displayName && stack.getTagCompound().hasKey("teamDisplayName"))
+				return stack.getTagCompound().getString("teamDisplayName");
+			else
+				return stack.getTagCompound().getString("teamRegistryName");
+		}
 		else
 			return null;
 	}
 
 	/**Get the stack's team*/
 	@Nullable
-	public static Team getTeam(World world, ItemStack stack) {
-		String name = getTeamName(stack);
+	public static ScorePlayerTeam getTeam(World world, ItemStack stack) {
+		String name = getTeamName(stack, false);
 		if (name != null) 
 			return world.getScoreboard().getTeam(TextFormatting.getTextWithoutFormattingCodes(name));
 		else
@@ -63,41 +81,61 @@ public class ItemTeamSelector extends Item {
 
 			NBTTagCompound nbt = stack.getTagCompound();
 
-			if (team == null) // remove team
-				nbt.removeTag("team");
-			else // set team
-				nbt.setString("team", team.getChatFormat()+team.getRegisteredName());
+			if (team == null) {// remove team
+				nbt.removeTag("teamRegistryName");
+				nbt.removeTag("teamDisplayName");
+			}
+			else {// set team
+				nbt.setString("teamRegistryName", team.getChatFormat()+team.getRegisteredName());
+				if (team instanceof ScorePlayerTeam)
+					nbt.setString("teamDisplayName", team.getChatFormat()+((ScorePlayerTeam)team).getTeamName());
+				else
+					nbt.removeTag("teamDisplayName");
+			}
 
 			stack.setTagCompound(nbt);
 		}
 	}
 
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-
+		String format1 = TextFormatting.GRAY+""+TextFormatting.UNDERLINE;
+		String format2 = TextFormatting.BLUE+"";
+		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
+		tooltip.add(format1+"RMB:"+format2+" Open Team Selector GUI");
+		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
+		tooltip.add(format1+"LMB+Sneak+Entity:"+format2+" Copy team");
+		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
+		tooltip.add(format1+"RMB+Sneak+Entity:"+format2+" Clear selected team");
 	}
 
+	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String name = getTeamName(stack);
+		String name = getTeamName(stack, true);
 		return super.getItemStackDisplayName(stack)+(name == null ? "" : ": "+name);
+	}
+	
+	/**Send a message to the player*/
+	public static void sendMessage(EntityPlayer player, String string) {
+		ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Selector] "+TextFormatting.RESET+string);
+		Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
 	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		/*if (!world.isRemote) {
-			Team team = getTeam(world, player.getHeldItem(hand));
-			if ((team != null && !team.isSameTeam(player.getTeam())) || 
-					(player.getTeam() != null && !player.getTeam().isSameTeam(team))) {
-				setTeam(player.getHeldItem(hand), player.getTeam());
-				player.sendMessage(new TextComponentString("Set selector's team to: "+(player.getTeam() == null ? "null" : player.getTeam().getRegisteredName())));
-			}
-		}*/
-		if (world.isRemote && !player.isSneaking()) {
-			Minewatch.proxy.openGui(EnumGui.TARGET_SELECTOR);
+		// right click air - open gui
+		if (!player.isSneaking()) {
+			if (world.isRemote)
+				Minewatch.proxy.openGui(EnumGui.TARGET_SELECTOR);
 			return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
-		else if (!world.isRemote && player.isSneaking()) {
-			setTeam(player.getHeldItem(hand), null);
+		// sneak right click - remove selected
+		else if (player.isSneaking()) {
+			if (!world.isRemote) {
+				setTeam(player.getHeldItem(hand), null);
+				sendMessage(player, "Cleared selected team");
+			}
 			return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
 
@@ -108,24 +146,58 @@ public class ItemTeamSelector extends Item {
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (!player.world.isRemote) {
 			Team team = getTeam(player.world, stack);
-			if (team == null && entity.getTeam() != null) {
+			// copy team
+			if (player.isSneaking()) {
+				if (entity.getTeam() != null) {
+					setTeam(stack, entity.getTeam());
+					sendMessage(player, "Copied "+entity.getName()+"'s team: "+getTeamName(stack, true));
+				}
+				else 
+					sendMessage(player, entity.getName()+" isn't on a team");
+			}
+			// add to team
+			else if (team != null && !team.isSameTeam(entity.getTeam())) {
+				player.world.getScoreboard().addPlayerToTeam(entity.getCachedUniqueIdString(), team.getRegisteredName());
+				sendMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
+				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
+			}
+			// add to team already on
+			else if (team != null && team.isSameTeam(entity.getTeam()))
+				sendMessage(player, entity.getName()+" is already on team "+getTeamName(stack, true));
+			// no team selected
+			else if (team == null)
+				sendMessage(player, "No team selected; select a team by right-click the air first");
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
+		if (!player.world.isRemote) {
+			// remove from team
+			if (entity.getTeam() != null) {
 				try {
 					player.world.getScoreboard().removePlayerFromTeams(entity.getCachedUniqueIdString());
 				}
 				catch (Exception e) {}
-				player.sendMessage(new TextComponentString("Cleared "+entity.getName()+"'s team"));
+				sendMessage(player, "Removed "+entity.getName()+"'s team");
+				player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.PLAYERS, 0.8f, 1);
+				return true;
 			}
-			else if (team != null && !team.isSameTeam(entity.getTeam())) {
-				player.world.getScoreboard().addPlayerToTeam(entity.getCachedUniqueIdString(), team.getRegisteredName());
-				player.sendMessage(new TextComponentString("Set "+entity.getName()+"'s team to: "+getTeamName(stack)));
-			}
-			else if (team == null && entity.getTeam() == null)
-				player.sendMessage(new TextComponentString(entity.getName()+" is not on a team"));
-			else if (team != null && team.isSameTeam(entity.getTeam()))
-				player.sendMessage(new TextComponentString(entity.getName()+" is already on team "+getTeamName(stack)));
+			// remove from team when not on team
+			else if (entity.getTeam() == null)
+				sendMessage(player, entity.getName()+" is not on a team");
 		}
 
-		return true;
+		return false;
+	}
+
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+		// update team - mainly color
+		if (!world.isRemote && entity.ticksExisted % 20 == 0) 
+			setTeam(stack, getTeam(world, stack));
 	}
 
 	@Override

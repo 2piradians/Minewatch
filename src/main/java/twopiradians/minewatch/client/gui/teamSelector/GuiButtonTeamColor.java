@@ -99,14 +99,14 @@ public class GuiButtonTeamColor extends GuiButton {
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		this.visible = gui.currentScreen == Screen.CREATE_TEAM || 
-				(gui.currentScreen == Screen.MAIN && gui.getSelectedTeam() != null);
+				(gui.currentScreen == Screen.EDIT_TEAM && gui.getSelectedTeam() != null);
 
 		if (this.visible) {
 			GlStateManager.pushMatrix();
 			Gui.drawRect(this.xPosition-2, this.yPosition-2, this.xPosition+this.width+2, this.yPosition+this.height+2, this.backgroundColor);
 			Gui.drawRect(this.xPosition, this.yPosition, this.xPosition+this.width, this.yPosition+this.height, this.foregroundColor);
-			if (gui.getSelectedTeam() != null && ((gui.getSelectedTeam().getChatFormat().getColorIndex() == this.id) || 
-					(this.id == TextFormatting.WHITE.getColorIndex() && !gui.getSelectedTeam().getChatFormat().isColor()))) {
+			if ((gui.currentScreen == Screen.CREATE_TEAM && gui.selectedColor.getColorIndex() == this.id) || (gui.getSelectedTeam() != null && ((gui.getSelectedTeam().getChatFormat().getColorIndex() == this.id) || 
+					(this.id == TextFormatting.WHITE.getColorIndex() && !gui.getSelectedTeam().getChatFormat().isColor())))) {
 				double scale = 2d;
 				GlStateManager.scale(scale, scale, scale);
 				this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD+String.valueOf('\u2713'), (int) ((this.xPosition+this.width/2+4f)/scale), (int) ((this.yPosition+(this.height-8)/2)/scale)-3, this.checkColor);

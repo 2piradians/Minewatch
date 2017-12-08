@@ -46,7 +46,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	@Override
 	public void spawnTrailParticles() {
 		if (this.getDataManager().get(SCOPED)) 
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFF0000, 0xB2B2B2, 0.5f, 50, 0.8f); // TODO 15
+			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFF0000, 0xB2B2B2, 0.5f, 15, 0.8f); 
 		else 
 			EntityHelper.spawnTrailParticles(this, 5, 0, 0xFF0000, 0xFF0000, 0.5f, 2, 0.5f);
 	}

@@ -21,6 +21,8 @@ import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
@@ -507,6 +509,22 @@ public class EntityHelper {
 		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facingYaw));
 		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
 		return deltaYaw <= maxAngle && deltaPitch <= maxAngle;
+	}
+	
+	/**Is entity holding the item in either hand*/
+	public static boolean isHoldingItem(EntityLivingBase entity, Item item) {
+		return isHoldingItem(entity, item, EnumHand.values());
+	}
+
+	/**Is entity holding the item in any of the specified hands*/
+	public static boolean isHoldingItem(EntityLivingBase entity, Item item, EnumHand...hands) {
+		if (entity != null && item != null) 
+			for (EnumHand hand : hands) {
+				ItemStack stack = entity.getHeldItem(hand);
+				if (stack != null && stack.getItem() == item)
+					return true;
+			}
+		return false;
 	}
 
 }

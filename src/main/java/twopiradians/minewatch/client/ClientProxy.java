@@ -407,7 +407,8 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
 			break;
 		case TARGET_SELECTOR:
-			Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSelector());
+			if (Minecraft.getMinecraft().objectMouseOver.entityHit == null)
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSelector());
 			break;
 		}
 	}

@@ -30,6 +30,8 @@ public class EntityGenjiShuriken extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
+		EntityHelper.attemptDamage(this, result.entityHit, 28, false);
+		
 		if (this.world.isRemote)
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, result.entityHit == null ? result.hitVec.xCoord : posX, 
 					result.entityHit == null ? result.hitVec.yCoord : posY, 

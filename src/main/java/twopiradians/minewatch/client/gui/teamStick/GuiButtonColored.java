@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.teamSelector;
+package twopiradians.minewatch.client.gui.teamStick;
 
 import java.awt.Color;
 
@@ -6,15 +6,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import twopiradians.minewatch.client.gui.teamSelector.GuiTeamSelector.Screen;
+import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick.Screen;
 
 public class GuiButtonColored extends GuiButton {
 
 	private Screen screen;
 	private Color color;
-	private GuiTeamSelector gui;
+	private GuiTeamStick gui;
 
-	public GuiButtonColored(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Color color, Screen screen, GuiTeamSelector gui) {
+	public GuiButtonColored(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Color color, Screen screen, GuiTeamStick gui) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
 		this.screen = screen;
 		this.color = color;

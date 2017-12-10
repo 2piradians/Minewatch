@@ -33,6 +33,7 @@ import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocke
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ModEntities {
@@ -75,6 +76,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "sombra_translocator"), EntitySombraTranslocator.class, "sombra_translocator", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "reinhardt_strike"), EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "lucio_sonic"), EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "zenyatta_orb"), EntityZenyattaOrb.class, "zenyatta_orb", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

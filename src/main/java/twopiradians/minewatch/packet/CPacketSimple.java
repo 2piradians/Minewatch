@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
-import twopiradians.minewatch.common.item.ItemTeamSelector;
+import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -196,20 +196,21 @@ public class CPacketSimple implements IMessage {
 						ItemLucioSoundAmplifier.soundwave(packetPlayer, packet.x, packet.y, packet.z);
 					}
 					// Team Selector set team
-					else if (packet.type == 5 && packetPlayer != null) {
+					else if (packet.type == 5 && packetPlayer != null && 
+							EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
 						for (ItemStack stack : packetPlayer.getHeldEquipment())
-							if (stack != null && stack.getItem() == ModItems.team_selector) {
-								ItemTeamSelector.setTeam(stack, team);
+							if (stack != null && stack.getItem() == ModItems.team_stick) {
+								ItemTeamStick.setTeam(stack, team);
 								if (team == null)
-									ItemTeamSelector.sendMessage(packetPlayer, "Cleared selected team");
+									ItemTeamStick.sendMessage(packetPlayer, "Cleared selected team");
 								else
-									ItemTeamSelector.sendMessage(packetPlayer, "Selected team: "+team.getChatFormat()+ItemTeamSelector.getTeamName(team));
+									ItemTeamStick.sendMessage(packetPlayer, "Selected team: "+team.getChatFormat()+ItemTeamStick.getTeamName(team));
 							}
 					}
 					// Team Selector gui set entity team
 					else if (packet.type == 6 && packetPlayer != null && entity != null && 
-							EntityHelper.isHoldingItem(packetPlayer, ModItems.team_selector)) {
+							EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						try {
 							if (packet.string.isEmpty())
 								packetPlayer.world.getScoreboard().removePlayerFromTeams(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString());
@@ -220,7 +221,7 @@ public class CPacketSimple implements IMessage {
 					}
 					// Team Selector set team color
 					else if (packet.type == 7 && packet.x >= 0 && packet.x < 16 && 
-							EntityHelper.isHoldingItem(packetPlayer, ModItems.team_selector)) {
+							EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
 						TextFormatting format = TextFormatting.fromColorIndex((int) packet.x);
 						if (team instanceof ScorePlayerTeam) {
@@ -230,20 +231,20 @@ public class CPacketSimple implements IMessage {
 						}
 					}
 					// Team Selector delete team
-					else if (packet.type == 8 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_selector)) {
+					else if (packet.type == 8 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						ScorePlayerTeam team = packetPlayer.world.getScoreboard().getTeam(packet.string);
 						if (team != null)
 							packetPlayer.world.getScoreboard().removeTeam(team);
 					}
 					// Team Selector set team display name
-					else if (packet.type == 9 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_selector)) {
+					else if (packet.type == 9 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						ScorePlayerTeam team = packetPlayer.world.getScoreboard().getTeam(packet.string);
 						if (team != null && !packet.string2.isEmpty()) {
 							team.setTeamName(packet.string2); 
 						}
 					}
 					// Team Selector create team
-					else if (packet.type == 10 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_selector)) {
+					else if (packet.type == 10 && EntityHelper.isHoldingItem(packetPlayer, ModItems.team_stick)) {
 						try {
 							ScorePlayerTeam team = packetPlayer.world.getScoreboard().createTeam(packet.string);
 							if (team != null) {

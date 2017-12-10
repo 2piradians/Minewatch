@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.teamSelector;
+package twopiradians.minewatch.client.gui.teamStick;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.scoreboard.Team;
@@ -6,9 +6,9 @@ import net.minecraftforge.fml.client.GuiScrollingList;
 
 public class GuiScrollingTeams extends GuiScrollingList {
 
-	private GuiTeamSelector gui;
+	private GuiTeamStick gui;
 
-	public GuiScrollingTeams(GuiTeamSelector gui, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
+	public GuiScrollingTeams(GuiTeamStick gui, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
 		super(gui.mc, width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
 		this.gui = gui;
 	}

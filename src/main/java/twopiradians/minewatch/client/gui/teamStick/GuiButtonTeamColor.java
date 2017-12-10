@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.teamSelector;
+package twopiradians.minewatch.client.gui.teamStick;
 
 import java.awt.Color;
 
@@ -7,17 +7,17 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextFormatting;
-import twopiradians.minewatch.client.gui.teamSelector.GuiTeamSelector.Screen;
+import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick.Screen;
 import twopiradians.minewatch.common.util.ColorHelper;
 
 public class GuiButtonTeamColor extends GuiButton {
 
-	private GuiTeamSelector gui;
+	private GuiTeamStick gui;
 	private int foregroundColor;
 	private int backgroundColor;
 	private int checkColor;
 
-	public GuiButtonTeamColor(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, GuiTeamSelector gui) {
+	public GuiButtonTeamColor(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, GuiTeamStick gui) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
 		this.gui = gui;
 		foregroundColor = new Color(ColorHelper.getForegroundColor(TextFormatting.fromColorIndex(buttonId))).getRGB();

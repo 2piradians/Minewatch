@@ -64,7 +64,7 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 public class CommonProxy {
 
 	public enum EnumGui {
-		WILDCARD, TARGET_SELECTOR
+		WILDCARD, TEAM_STICK
 	}
 	
 	public enum EnumParticle {

@@ -52,7 +52,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
-import twopiradians.minewatch.client.gui.teamSelector.GuiTeamSelector;
+import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
@@ -73,6 +73,7 @@ import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
+import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -103,9 +104,10 @@ import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocke
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
-import twopiradians.minewatch.common.item.ItemTeamSelector;
+import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
@@ -145,9 +147,9 @@ public class ClientProxy extends CommonProxy {
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-				return ItemTeamSelector.getColorFromItemStack(stack, tintIndex);
+				return ItemTeamStick.getColorFromItemStack(stack, tintIndex);
 			}
-		}, ModItems.team_selector);
+		}, ModItems.team_stick);
 	}
 
 	@Override
@@ -259,6 +261,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraTranslocator.class, RenderSombraTranslocator::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
 	}
 
 	@Override
@@ -413,9 +416,9 @@ public class ClientProxy extends CommonProxy {
 		case WILDCARD:
 			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
 			break;
-		case TARGET_SELECTOR:
+		case TEAM_STICK:
 			if (Minecraft.getMinecraft().objectMouseOver.entityHit == null)
-				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSelector());
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamStick());
 			break;
 		}
 	}

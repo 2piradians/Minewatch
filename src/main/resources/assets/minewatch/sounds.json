@@ -784,5 +784,57 @@
 			"minewatch:lucio_soundwave_voice_1",
 			"minewatch:lucio_soundwave_voice_2"
 		]
+	},
+	"zenyatta_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_shoot"
+		]
+	},
+	"zenyatta_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_reload"
+		]
+	},
+	"zenyatta_damage": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_damage"
+		]
+	},
+	"zenyatta_damage_return": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_damage_return"
+		]
+	},
+	"zenyatta_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_damage_voice_0",
+			"minewatch:zenyatta_damage_voice_1"
+		]
+	},
+	"zenyatta_heal": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_heal"
+		]
+	}
+	,
+	"zenyatta_heal_return": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_heal_return"
+		]
+	},
+	"zenyatta_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_heal_voice_0",
+			"minewatch:zenyatta_heal_voice_1",
+			"minewatch:zenyatta_heal_voice_2"
+		]
 	}
 }

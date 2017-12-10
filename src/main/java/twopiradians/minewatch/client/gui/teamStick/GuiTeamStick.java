@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.teamSelector;
+package twopiradians.minewatch.client.gui.teamStick;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -30,12 +30,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.item.ItemTeamSelector;
+import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
-public class GuiTeamSelector extends GuiScreen {
+public class GuiTeamStick extends GuiScreen {
 
 	public enum Screen {
 		MAIN, INFO, EDIT_TEAM, CREATE_TEAM;
@@ -68,7 +68,7 @@ public class GuiTeamSelector extends GuiScreen {
 	private static final int Y_SIZE = 444/2;
 	private int guiLeft;
 	private int guiTop;
-	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/team_selector.png");
+	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/team_stick.png");
 
 	public Screen currentScreen;
 	private Team selectedTeam;
@@ -86,7 +86,7 @@ public class GuiTeamSelector extends GuiScreen {
 	private int stackX;
 	private int stackY;
 
-	public GuiTeamSelector() {
+	public GuiTeamStick() {
 		currentScreen = Screen.MAIN;
 		selectedColor = TextFormatting.WHITE;
 		filter = Filter.ENTITIES;
@@ -101,8 +101,8 @@ public class GuiTeamSelector extends GuiScreen {
 	public void initGui() {
 		super.initGui();
 
-		this.guiLeft = (this.width - GuiTeamSelector.X_SIZE) / 2;
-		this.guiTop = (this.height - GuiTeamSelector.Y_SIZE) / 2;
+		this.guiLeft = (this.width - GuiTeamStick.X_SIZE) / 2;
+		this.guiTop = (this.height - GuiTeamStick.Y_SIZE) / 2;
 
 		this.stackX = guiLeft+X_SIZE/2-8;
 		this.stackY = guiTop+70;
@@ -142,7 +142,7 @@ public class GuiTeamSelector extends GuiScreen {
 		teamNameField.setMaxStringLength(16);
 
 		// find selected team
-		setSelectedTeam(ItemTeamSelector.getTeam(mc.world, getStack()), false);
+		setSelectedTeam(ItemTeamStick.getTeam(mc.world, getStack()), false);
 	}
 
 	@Override
@@ -216,7 +216,7 @@ public class GuiTeamSelector extends GuiScreen {
 		// background
 		this.drawDefaultBackground();
 		mc.getTextureManager().bindTexture(BACKGROUND);
-		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiTeamSelector.X_SIZE, GuiTeamSelector.Y_SIZE);
+		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiTeamStick.X_SIZE, GuiTeamStick.Y_SIZE);
 
 		// set text box pos
 		if (this.currentScreen == Screen.MAIN)
@@ -235,7 +235,7 @@ public class GuiTeamSelector extends GuiScreen {
 
 				String text = TextFormatting.DARK_GRAY.toString()+TextFormatting.ITALIC+
 						"Add or remove nearby "+filter.name.toLowerCase()+" using the left and right sidebars, respectively.\n\n"
-						+ "Or click on entities with the Team Selector to assign or remove teams.";
+						+ "Or click on entities with the Team Stick to assign or remove teams.";
 				int y = guiTop+8;
 				for (String s : mc.fontRendererObj.listFormattedStringToWidth(text, X_SIZE-16)) {
 					mc.fontRendererObj.drawString(s, guiLeft+8, y, 0xFFFFFF);
@@ -485,12 +485,12 @@ public class GuiTeamSelector extends GuiScreen {
 					teamNameField.setTextColor(new Color(255, 100, 100).getRGB());
 	}
 
-	/**Get first team selector held - or use fake one*/
+	/**Get first team stick held - or use fake one*/
 	public ItemStack getStack() {
 		for (ItemStack stack : mc.player.getHeldEquipment())
-			if (stack != null && stack.getItem() == ModItems.team_selector) 
+			if (stack != null && stack.getItem() == ModItems.team_stick) 
 				return stack;
-		return new ItemStack(ModItems.team_selector);
+		return new ItemStack(ModItems.team_stick);
 	}
 
 }

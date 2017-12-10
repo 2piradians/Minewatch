@@ -1,15 +1,15 @@
 {
     "parent": "item/handheld",
     "textures": {
-        "layer0": "minewatch:items/team_selector_noteam",
-        "layer1": "minewatch:items/team_selector_team_1"
+        "layer0": "minewatch:items/team_stick_noteam",
+        "layer1": "minewatch:items/team_stick_team_1"
     },
     "overrides": [
         {
             "predicate": {
                 "hasTeam": 1
             },
-            "model": "minewatch:item/team_selector_team"
+            "model": "minewatch:item/team_stick_team"
         }
     ]
 

@@ -63,6 +63,7 @@ import twopiradians.minewatch.common.entity.hero.EntitySoldier76;
 import twopiradians.minewatch.common.entity.hero.EntitySombra;
 import twopiradians.minewatch.common.entity.hero.EntityTracer;
 import twopiradians.minewatch.common.entity.hero.EntityWidowmaker;
+import twopiradians.minewatch.common.entity.hero.EntityZenyatta;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -81,6 +82,7 @@ import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
+import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
@@ -233,7 +235,17 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
 			new Skin(TextFormatting.GOLD+"Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
 			new Skin(TextFormatting.GOLD+"Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
-			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/"));
+			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/")),
+	ZENYATTA("Zenyatta", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
+			20, 20, new int[] {2,2,2,2}, new ItemZenyattaWeapon(), Crosshair.CIRCLE_SMALL, 0xEDE582, true, EntityZenyatta.class, 
+			new Skin("Classic", "Zenyatta (OverWatch)", "Kill3rCreeper", "https://www.planetminecraft.com/skin/zenyatta-overwatch/"),
+			new Skin(TextFormatting.DARK_PURPLE+"Ascendant", "Zenyatta Ascendance skin", "brainman", "http://www.minecraftskins.com/skin/10621836/zenyatta-ascendance-skin/"),
+			new Skin(TextFormatting.GOLD+"Djinnyatta", "Djinnyatta", "brainman", "http://www.minecraftskins.com/skin/11033097/djinnyatta/"),
+			new Skin(TextFormatting.GOLD+"Ifrit", "Zenyatta Ifrit Skin", "brainman", "http://www.minecraftskins.com/skin/10626002/zenyatta-ifrit-skin/"),
+			new Skin(TextFormatting.GOLD+"Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
+			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/"));
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
 	

@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.gui.teamSelector;
+package twopiradians.minewatch.client.gui.teamStick;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

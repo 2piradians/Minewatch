@@ -17,7 +17,7 @@ public class MapMakingTab extends CreativeTabs implements IMinewatchTab {
 	
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(ModItems.team_selector);
+		return new ItemStack(ModItems.team_stick);
 	}
 	
 	@Override

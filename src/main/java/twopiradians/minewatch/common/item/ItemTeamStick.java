@@ -41,11 +41,11 @@ import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.ColorHelper;
 
-public class ItemTeamSelector extends Item {
+public class ItemTeamStick extends Item {
 
 	private static HashMap<ItemStack, TextFormatting> formatCache = Maps.newHashMap();
 	
-	public ItemTeamSelector() {
+	public ItemTeamStick() {
 		super();
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("hasTeam"), new IItemPropertyGetter() {
@@ -133,7 +133,7 @@ public class ItemTeamSelector extends Item {
 		String format1 = TextFormatting.GRAY+""+TextFormatting.UNDERLINE;
 		String format2 = TextFormatting.BLUE+"";
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
-		tooltip.add(format1+"RMB:"+format2+" Open Team Selector GUI");
+		tooltip.add(format1+"RMB:"+format2+" Open Team Stick GUI");
 		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
 		tooltip.add(format1+"RMB+Entity+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
@@ -148,7 +148,7 @@ public class ItemTeamSelector extends Item {
 
 	/**Send a message to the player*/
 	public static void sendMessage(EntityPlayer player, String string) {
-		ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Selector] "+TextFormatting.RESET+string);
+		ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Stick] "+TextFormatting.RESET+string);
 		Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
 	}
 
@@ -157,7 +157,7 @@ public class ItemTeamSelector extends Item {
 		// right click air - open gui
 		if (!player.isSneaking()) {
 			if (world.isRemote)
-				Minewatch.proxy.openGui(EnumGui.TARGET_SELECTOR);
+				Minewatch.proxy.openGui(EnumGui.TEAM_STICK);
 			return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
 		// sneak right click - remove selected

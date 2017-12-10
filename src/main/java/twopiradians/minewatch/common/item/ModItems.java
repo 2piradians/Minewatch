@@ -27,7 +27,7 @@ public class ModItems {
 	public static Item wild_card_token;
 	public static Item genji_shuriken_single; // used for projectile
 	public static Item junkrat_trigger; // used with Junkrat's mine
-	public static Item team_selector;
+	public static Item team_stick;
 
 	public static void preInit () {
 		// hero armor, weapons, and tokens
@@ -56,7 +56,7 @@ public class ModItems {
 		junkrat_trigger = registerItem(new ItemJunkratTrigger(), "junkrat_trigger", null, true);
 		
 		// other items
-		team_selector = registerItem(new ItemTeamSelector(), "team_selector", Minewatch.tabMapMaking, false);
+		team_stick = registerItem(new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);
 	}
 
 	private static Item registerItem(Item item, String unlocalizedName, @Nullable IMinewatchTab tab, boolean usesObjModel) {

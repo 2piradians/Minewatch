@@ -148,7 +148,9 @@ public enum ModSoundEvents {
 	ZENYATTA_HEAL_VOICE,
 	ZENYATTA_DAMAGE,
 	ZENYATTA_DAMAGE_RETURN,
-	ZENYATTA_DAMAGE_VOICE;
+	ZENYATTA_DAMAGE_VOICE,
+	ZENYATTA_VOLLEY_CHARGE,
+	ZENYATTA_VOLLEY_SHOOT;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;

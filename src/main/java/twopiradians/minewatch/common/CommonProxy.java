@@ -75,7 +75,7 @@ public class CommonProxy {
 		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
 		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
 		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike"),
-		HOLLOW_CIRCLE("hollow_circle");
+		HOLLOW_CIRCLE("hollow_circle"), ZENYATTA("zenyatta", 4, 1);
 
 		public final ResourceLocation loc;
 		public final int frames;
@@ -137,7 +137,7 @@ public class CommonProxy {
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {}
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {}
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {}
-	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}	
@@ -265,5 +265,9 @@ public class CommonProxy {
 
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return handler.onServerRemove();
+	}
+
+	public Entity getRenderViewEntity() {
+		return null;
 	}
 }

@@ -347,7 +347,7 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
 		ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
@@ -426,5 +426,11 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return isRemote ? handler.onClientRemove() : handler.onServerRemove();
+	}
+	
+	@Override
+	public Entity getRenderViewEntity() {
+		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
+		return entity == null ? Minecraft.getMinecraft().player : entity;
 	}
 }

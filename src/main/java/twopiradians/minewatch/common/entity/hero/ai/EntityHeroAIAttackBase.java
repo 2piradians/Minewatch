@@ -154,7 +154,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 	protected void lookAtTarget(EntityLivingBase target) {
 		if (!TickHandler.hasHandler(entity, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(entity, Identifier.PREVENT_ROTATION))
-			this.entity.getLookHelper().setLookPosition(target.posX, target.posY+target.getEyeHeight()+lookYOffset, target.posZ, 360, 360);
+			this.entity.getLookHelper().setLookPosition(target.prevPosX, target.prevPosY+target.getEyeHeight()+lookYOffset, target.prevPosZ, 360, 360);
 		this.entity.rotationYaw = this.entity.rotationYawHead;
 	}
 

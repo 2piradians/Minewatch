@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
@@ -34,6 +35,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -87,6 +90,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
@@ -248,7 +252,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/"));
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
-	
+
 	public Ability ability1;
 	public Ability ability2;
 	public Ability ability3;
@@ -310,7 +314,7 @@ public enum EnumHero {
 		private Skin(String owName, String skinName, String author, String address) {
 			this(owName, skinName, author, address, null, null, null);
 		}
-		
+
 		private Skin(String owName, String skinName, String author, String address, String originalSkinName, String originalAuthor, String originalAddress) {
 			this.owName = owName;
 			this.skinName = skinName;
@@ -482,6 +486,42 @@ public enum EnumHero {
 					}
 				}
 			}
+
+			// ItemMWWeapon#preRenderEntity
+			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
+			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)stack.getItem()).preRenderEntity(event);
+				GlStateManager.popMatrix();
+			}
+		}
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void postRender(RenderLivingEvent.Post<EntityLivingBase> event) {
+			// ItemMWWeapon#postRenderEntity
+			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
+			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)stack.getItem()).postRenderEntity(event);
+				GlStateManager.popMatrix();
+			}
+		}
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void renderWorldLast(RenderWorldLastEvent event) {
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			if (player != null && player.getHeldItemMainhand() != null && 
+					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
+					((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == ItemMWArmor.SetManager.getWornSet(player)) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
+				GlStateManager.popMatrix();
+			}
 		}
 
 		@SubscribeEvent
@@ -550,7 +590,7 @@ public enum EnumHero {
 							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 						}
 					}
-					
+
 					if (weapon != null && weapon.hero == hero && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
 						GlStateManager.color(1, 1, 1, 1f);
 						GlStateManager.pushMatrix();

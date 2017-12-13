@@ -10,6 +10,7 @@ import com.google.common.base.Predicates;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -24,7 +25,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
@@ -34,6 +34,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -90,6 +92,10 @@ public class EntityHelper {
 			verticalAdjust += fov / 5f;
 		}
 
+		if (pitch == shooter.rotationPitch && yaw == shooter.rotationYawHead) {
+			pitch = shooter.prevRotationPitch + (shooter.rotationPitch - shooter.prevRotationPitch) * Minewatch.proxy.getRenderPartialTicks();
+	        yaw = shooter.prevRotationYawHead + (shooter.rotationYawHead - shooter.prevRotationYawHead) * Minewatch.proxy.getRenderPartialTicks();
+		}
 		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
 		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
 		if (pitch+verticalAdjust > 90)
@@ -511,7 +517,7 @@ public class EntityHelper {
 		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
 		return deltaYaw <= maxAngle && deltaPitch <= maxAngle;
 	}
-	
+
 	/**Is entity holding the item in either hand*/
 	public static boolean isHoldingItem(EntityLivingBase entity, Item item) {
 		return isHoldingItem(entity, item, EnumHand.values());
@@ -519,13 +525,48 @@ public class EntityHelper {
 
 	/**Is entity holding the item in any of the specified hands*/
 	public static boolean isHoldingItem(EntityLivingBase entity, Item item, EnumHand...hands) {
+		return getHeldItem(entity, item, hands) != null;
+	}
+
+	/**Get the item in any of the specified hands*/
+	@Nullable
+	public static ItemStack getHeldItem(EntityLivingBase entity, Item item, EnumHand...hands) {
 		if (entity != null && item != null) 
 			for (EnumHand hand : hands) {
 				ItemStack stack = entity.getHeldItem(hand);
 				if (stack != null && stack.getItem() == item)
-					return true;
+					return stack;
 			}
-		return false;
+		return null;
+	}
+
+	/**Is entity holding an instanceof the item in any of the specified hands*/
+	public static boolean isHoldingItem(EntityLivingBase entity, Class<? extends Item> item, EnumHand...hands) {
+		return getHeldItem(entity, item, hands) != null;
+	}
+
+	/**Get an instanceof the item in any of the specified hands*/
+	@Nullable
+	public static ItemStack getHeldItem(EntityLivingBase entity, Class<? extends Item> item, EnumHand...hands) {
+		if (entity != null && item != null) 
+			for (EnumHand hand : hands) {
+				ItemStack stack = entity.getHeldItem(hand);
+				if (stack != null && item.isInstance(stack.getItem()))
+					return stack;
+			}
+		return null;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static Vec3d getEntityPartialPos(Entity entity) {
+		if (entity != null) {
+			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+			double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
+			double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
+			double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
+			return new Vec3d(x, y, z);
+		}
+		return Vec3d.ZERO;
 	}
 
 }

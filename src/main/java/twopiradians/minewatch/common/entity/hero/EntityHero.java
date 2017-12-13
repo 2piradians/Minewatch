@@ -91,6 +91,9 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void onUpdate() {
 		super.onUpdate(); 
+		
+		//TODO
+		this.setGlowing(true);
 
 		// random hero
 		if (this.hero == null && !this.world.isRemote)
@@ -156,7 +159,7 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	protected boolean isValidLightLevel() {
-		return this.rand.nextInt(world.isDaytime() ? 50 : 20) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
+		return this.rand.nextInt(world.isDaytime() ? 700 : 70) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
 	}
 
 	@Override

@@ -175,9 +175,9 @@ public class Config {
 
 		for (EnumHero hero : EnumHero.values()) 
 			if (mobSpawnFreq == 0 || mobSpawn == 2)
-				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
 			else
-				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 2), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
 		
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
 		mobTargetPlayers = prop.getBoolean();
@@ -203,7 +203,7 @@ public class Config {
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Attack Cooldown Multiplier", 2d, "Multiplied by the normal attack cooldown for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will have twice the normal cooldown.", 0, 10);
 		mobAttackCooldown = prop.getDouble();
 		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Inaccuracy Multiplier", 2d, "Multiplied by the normal inaccuracy for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will be twice as inaccurate.", 0, 20);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Inaccuracy Multiplier", 7d, "Multiplied by the normal inaccuracy for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will be twice as inaccurate.", 0, 20);
 		mobInaccuracy = prop.getDouble();
 	}
 

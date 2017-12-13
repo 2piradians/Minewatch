@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
@@ -31,6 +32,9 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -129,8 +133,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void reequipAnimation(ItemStack stack) {
+		this.reequipAnimation(stack, 2);
+	}
+	
+	public void reequipAnimation(ItemStack stack, int ticks) {
 		if (stack != null)
-			this.reequipAnimation.put(stack, 2);
+			this.reequipAnimation.put(stack, ticks);
 	}
 
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
@@ -374,6 +382,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	/**Called before game overlay is rendered if wearing set and holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
+	
+	/**Called before entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderEntity(RenderLivingEvent.Pre<EntityLivingBase> event) {}
+	
+	/**Called after entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {}
+	
+	/**Called when client player is wearing set and holding weapon in mainhand*/
+	@SideOnly(Side.CLIENT)
+	public void renderWorldLast(RenderWorldLastEvent event, EntityPlayerSP player) {}
 	
 	/**Set weapon model's color*/
 	@Override

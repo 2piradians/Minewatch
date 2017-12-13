@@ -93,9 +93,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	public void onUpdate() {
 		super.onUpdate();
 
-		// follow entity
-		this.followEntity();
-
 		// color fade (faster than vanilla)
 		this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;
 		this.particleGreen += (this.fadeTargetGreen - this.particleGreen) * 0.4F;
@@ -107,6 +104,9 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
 		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
 			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
+	
+		// follow entity
+		this.followEntity();
 	}
 
 	public void followEntity() {
@@ -147,6 +147,13 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 
+			if (this.enumParticle == EnumParticle.ZENYATTA) {
+				this.particleAlpha = this.initialAlpha;
+				if (!(this.followEntity instanceof EntityLivingBase && ((EntityLivingBase)this.followEntity).getActiveItemStack() != null && 
+						((EntityLivingBase)this.followEntity).getActiveItemStack().getItem() == EnumHero.ZENYATTA.weapon))
+					this.setExpired();
+			}
+			
 			if (!this.followEntity.isEntityAlive())
 				this.setExpired();
 		}
@@ -191,11 +198,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					yaw = 180f * rotation - 90f;
 				}
 				// translated from ActiveRenderInfo#updateRenderInfo
-		        rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-		        rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-		        rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-		        rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-		        rotationZ = MathHelper.cos(pitch * 0.017453292F);
+				rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationZ = MathHelper.cos(pitch * 0.017453292F);
 			}
 
 			// update muzzle every render so it's always rendered accurately
@@ -235,12 +242,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-			
+
 			buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[2].xCoord, (double)f6 + avec3d[2].yCoord, (double)f7 + avec3d[2].zCoord).tex((double)f, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[3].xCoord, (double)f6 + avec3d[3].yCoord, (double)f7 + avec3d[3].zCoord).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
-			
+
 			// disable depth for health particles
 			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();

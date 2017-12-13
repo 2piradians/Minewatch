@@ -26,12 +26,13 @@ public class EntityZenyattaOrb extends EntityMW {
 
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
-		EnumHero.ZENYATTA.weapon.reequipAnimation(shooter.getHeldItem(hand));
+		if (hand != null)
+			EnumHero.ZENYATTA.weapon.reequipAnimation(shooter.getHeldItem(hand));
 	}
 
 	@Override
 	public void spawnTrailParticles() {
-		EntityHelper.spawnTrailParticles(this, 8, 0, 0x86F3FF, 0x929EC8, 1, 4, 1);
+		EntityHelper.spawnTrailParticles(this, 5, 0, 0x86F3FF, 0x929EC8, 1, 4, 1);
 		if (this.ticksExisted % 2 == 0)
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, posX, posY+height/2d, posZ, 0, 0, 0, 0x90E3FF, 0x91C3ED, 1f, 7, 2, 2.2f, 0, 0);
 	}

@@ -7,9 +7,9 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 

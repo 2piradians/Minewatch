@@ -25,10 +25,10 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {

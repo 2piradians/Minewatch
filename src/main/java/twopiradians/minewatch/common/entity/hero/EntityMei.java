@@ -6,9 +6,9 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityMei extends EntityHero {
 

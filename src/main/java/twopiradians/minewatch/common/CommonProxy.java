@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,10 +47,10 @@ import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
@@ -68,37 +69,45 @@ public class CommonProxy {
 	}
 	
 	public enum EnumParticle {
-		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
-		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
-		JUNKRAT_TRAP("junkrat_trap", true), JUNKRAT_TRAP_TRIGGERED("junkrat_trap_triggered", true), 
-		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
-		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
-		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
-		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike"),
-		HOLLOW_CIRCLE("hollow_circle"), ZENYATTA("zenyatta", 4, 1);
+		CIRCLE, SLEEP, SMOKE(4, 1), SPARK(1, 4), HEALTH(true, true),
+		EXPLOSION(16, 1), ANA_HEAL, ANA_DAMAGE(1, 4),
+		JUNKRAT_TRAP(true), JUNKRAT_TRAP_TRIGGERED(true), 
+		JUNKRAT_TRAP_DESTROYED(true),
+		WIDOWMAKER_MINE(true), WIDOWMAKER_MINE_TRIGGERED(true), 
+		WIDOWMAKER_MINE_DESTROYED(true),
+		SOMBRA_TRANSPOSER(true), REINHARDT_STRIKE,
+		HOLLOW_CIRCLE, ZENYATTA(4, 1), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true);
 
+		public HashSet<UUID> particleEntities = new HashSet();
+		
 		public final ResourceLocation loc;
 		public final int frames;
 		public final int variations;
 		public boolean disableDepth;
+		public boolean onePerEntity;
 
-		private EnumParticle(String loc) {
-			this(loc, 1, 1, false);
+		private EnumParticle() {
+			this(false);
+		}
+		
+		private EnumParticle(boolean disableDepth) {
+			this(1, 1, disableDepth, false);
+		}
+		
+		private EnumParticle(boolean disableDepth, boolean onePerEntity) {
+			this(1, 1, disableDepth, onePerEntity);
 		}
 
-		private EnumParticle(String loc, boolean disableDepth) {
-			this(loc, 1, 1, disableDepth);
+		private EnumParticle(int frames, int variations) {
+			this(frames, variations, false, false);
 		}
 
-		private EnumParticle(String loc, int frames, int variations) {
-			this(loc, frames, variations, false);
-		}
-
-		private EnumParticle(String loc, int frames, int variations, boolean disableDepth) {
-			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+loc);
+		private EnumParticle(int frames, int variations, boolean disableDepth, boolean onePerEntity) {
+			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+this.name().toLowerCase());
 			this.frames = frames;
 			this.variations = variations;
 			this.disableDepth = disableDepth;
+			this.onePerEntity = onePerEntity;
 		}
 	}
 
@@ -140,7 +149,8 @@ public class CommonProxy {
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}	
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) {}	
 	public void spawnParticlesReaperTeleport(World world, EntityLivingBase entityLiving, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {

@@ -12,9 +12,9 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemJunkratLauncher extends ItemMWWeapon {

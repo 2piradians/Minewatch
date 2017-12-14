@@ -82,6 +82,7 @@ import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -96,7 +97,6 @@ import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
-import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
@@ -112,13 +112,11 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy {
-
-	public static HashSet<UUID> healthParticleEntities = new HashSet();
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
@@ -354,11 +352,11 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		if (!enumParticle.equals(EnumParticle.HEALTH) || !healthParticleEntities.contains(followEntity.getPersistentID())) {
+		if (!enumParticle.onePerEntity || !enumParticle.particleEntities.contains(followEntity.getPersistentID())) {
 			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
-			if (enumParticle.equals(EnumParticle.HEALTH))
-				healthParticleEntities.add(followEntity.getPersistentID());
+			if (enumParticle.onePerEntity)
+				enumParticle.particleEntities.add(followEntity.getPersistentID());
 		}
 	}
 
@@ -369,7 +367,12 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, facing);
+		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, facing);
+	}
+	
+	@Override
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, pulseRate, facing);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 

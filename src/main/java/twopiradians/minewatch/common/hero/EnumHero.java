@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.Maps;
 
@@ -15,6 +16,10 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -30,12 +35,13 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -87,10 +93,10 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
@@ -433,6 +439,8 @@ public enum EnumHero {
 		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
 		public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
 		public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
+		/**Used for debugging*/
+		public static CopyOnWriteArrayList<AxisAlignedBB> boundingBoxesToRender = new CopyOnWriteArrayList<AxisAlignedBB>();
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
@@ -520,6 +528,35 @@ public enum EnumHero {
 				GlStateManager.color(1, 1, 1, 1f);
 				GlStateManager.pushMatrix();
 				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
+				GlStateManager.popMatrix();
+			}
+
+			if (!boundingBoxesToRender.isEmpty()) {
+				GlStateManager.pushMatrix();
+				GlStateManager.depthMask(false);
+				GlStateManager.disableDepth();
+				GlStateManager.disableTexture2D();
+				GlStateManager.disableLighting();
+				GlStateManager.disableCull();
+				GlStateManager.disableBlend();
+
+				Vec3d vec = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()).scale(-1);
+
+				for (AxisAlignedBB aabb : boundingBoxesToRender) {
+					Tessellator tessellator = Tessellator.getInstance();
+					VertexBuffer vertexbuffer = tessellator.getBuffer();
+					vertexbuffer.begin(3, DefaultVertexFormats.POSITION_NORMAL);
+					RenderGlobal.drawBoundingBox(vertexbuffer, aabb.minX + vec.xCoord, aabb.minY + vec.yCoord, aabb.minZ + vec.zCoord, aabb.maxX + vec.xCoord, aabb.maxY + vec.yCoord, aabb.maxZ + vec.zCoord, 
+							255, 255, 255, 1f);
+					tessellator.draw();
+				}
+				
+				GlStateManager.enableTexture2D();
+				GlStateManager.enableLighting();
+				GlStateManager.enableCull();
+				GlStateManager.disableBlend();
+				GlStateManager.depthMask(true);
+				GlStateManager.enableDepth();
 				GlStateManager.popMatrix();
 			}
 		}

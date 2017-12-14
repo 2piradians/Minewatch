@@ -27,16 +27,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMercyWeapon extends ItemMWWeapon {
@@ -152,9 +152,8 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (isStaff(stack) && 
 					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 15, true);
-				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 15, true);
+				if (target != null && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
 					world.spawnEntity(beam);
 					beams.put((EntityLivingBase) entity, beam);
@@ -182,10 +181,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 
 			// angel
-			if (hero.ability3.isSelected((EntityLivingBase) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 30, true);
-				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
+			if (hero.ability3.isSelected((EntityLivingBase) entity, true) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 30, 20, true);
+				if (target != null && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
 							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));

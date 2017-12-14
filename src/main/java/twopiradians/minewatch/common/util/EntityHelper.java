@@ -44,9 +44,9 @@ import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHelper {
 
@@ -92,10 +92,6 @@ public class EntityHelper {
 			verticalAdjust += fov / 5f;
 		}
 
-		if (pitch == shooter.rotationPitch && yaw == shooter.rotationYawHead) {
-			pitch = shooter.prevRotationPitch + (shooter.rotationPitch - shooter.prevRotationPitch) * Minewatch.proxy.getRenderPartialTicks();
-	        yaw = shooter.prevRotationYawHead + (shooter.rotationYawHead - shooter.prevRotationYawHead) * Minewatch.proxy.getRenderPartialTicks();
-		}
 		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
 		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
 		if (pitch+verticalAdjust > 90)
@@ -505,6 +501,11 @@ public class EntityHelper {
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
+		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
+	}
+	
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
 		// calculate angles if e1 was directly facing e2
 		double d0 = e2.posX - e1.posX;
 		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1.posY + (double)e1.getEyeHeight());
@@ -515,7 +516,40 @@ public class EntityHelper {
 		// calculate difference between facing and current angles
 		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facingYaw));
 		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
-		return deltaYaw <= maxAngle && deltaPitch <= maxAngle;
+		return Math.max(deltaYaw, deltaPitch);
+	}
+	
+	/**Get target within maxAngle degrees of being looked at by shooter*/
+	@Nullable
+	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly) {
+		return getTargetInFieldOfVision(shooter, range, maxAngle, friendly, null);
+	}
+	
+	/**Get target within maxAngle degrees of being looked at by shooter*/
+	@Nullable
+	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, @Nullable Predicate<EntityLivingBase> predicate) {
+		Vec3d look = shooter.getLookVec().scale(range-1);
+		AxisAlignedBB aabb = shooter.getEntityBoundingBox().expandXyz(5).addCoord(look.xCoord, look.yCoord, look.zCoord);
+		EntityLivingBase closest = null;
+		float angle = Float.MAX_VALUE;
+		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
+			@Override
+			public boolean apply(Entity input) {
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && 
+						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
+			}
+		})) {
+			float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, entity);
+			if (closest == null || newAngle < angle) {
+				closest = (EntityLivingBase) entity;
+				angle = newAngle;
+			}
+		}
+		
+		// debug visualize
+		//EnumHero.RenderManager.boundingBoxesToRender.clear();
+		//EnumHero.RenderManager.boundingBoxesToRender.add(aabb);
+		return angle <= maxAngle ? closest : null;
 	}
 
 	/**Is entity holding the item in either hand*/
@@ -557,10 +591,10 @@ public class EntityHelper {
 		return null;
 	}
 
-	@SideOnly(Side.CLIENT)
+	/**Get exact entity position - accounting for partial ticks and lastTickPos*/
 	public static Vec3d getEntityPartialPos(Entity entity) {
 		if (entity != null) {
-			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+			float partialTicks = Minewatch.proxy.getRenderPartialTicks();
 			double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
 			double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
 			double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;

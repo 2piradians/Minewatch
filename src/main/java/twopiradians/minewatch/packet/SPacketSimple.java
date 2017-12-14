@@ -51,11 +51,13 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
+import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class SPacketSimple implements IMessage {
 
@@ -565,12 +567,68 @@ public class SPacketSimple implements IMessage {
 						Vec3d hitVec = new Vec3d(packet.x, packet.y, packet.z);
 						RayTraceResult.Type typeOfHit = packet.x2 >= 0 && packet.x2 < RayTraceResult.Type.values().length ? 
 								RayTraceResult.Type.values()[(int) packet.x2] : null;
-						EnumFacing sideHit = packet.y2 >= 0 && packet.y2 < EnumFacing.values().length ? 
-								EnumFacing.values()[(int) packet.y2] : null;
-						if (typeOfHit == RayTraceResult.Type.BLOCK && sideHit != null)
-							((EntityMW)entity).onImpact(new RayTraceResult(hitVec, sideHit, new BlockPos(hitVec)));
-						else if (typeOfHit == RayTraceResult.Type.ENTITY && entity2 != null)
-							((EntityMW)entity).onImpact(new RayTraceResult(entity2, hitVec));
+								EnumFacing sideHit = packet.y2 >= 0 && packet.y2 < EnumFacing.values().length ? 
+										EnumFacing.values()[(int) packet.y2] : null;
+										if (typeOfHit == RayTraceResult.Type.BLOCK && sideHit != null)
+											((EntityMW)entity).onImpact(new RayTraceResult(hitVec, sideHit, new BlockPos(hitVec)));
+										else if (typeOfHit == RayTraceResult.Type.ENTITY && entity2 != null)
+											((EntityMW)entity).onImpact(new RayTraceResult(entity2, hitVec));
+					}
+					// Zenyatta's Harmony (entity is zen, entity2 is target)
+					else if (packet.type == 42 && entity != null && entity2 instanceof EntityLivingBase) {
+						// refresh / start
+						if (packet.bool) {
+							// remove discord by same player
+							TickHandler.Handler discord = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
+							if (discord != null && discord.entityLiving == entity2)
+								TickHandler.unregister(false, discord);
+							// apply harmony
+							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
+							if (handler != null) 
+								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
+							else
+								TickHandler.register(true, ItemZenyattaWeapon.HARMONY.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
+							EnumHero.ZENYATTA.ability1.entities.put((EntityLivingBase) entity, entity2);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+						}
+						// end
+						else {
+							EnumHero.ZENYATTA.ability1.entities.remove(entity);
+							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
+							if (handler != null) {
+								TickHandler.unregister(true, handler);
+								if (packet.x <= 0)
+									ModSoundEvents.ZENYATTA_HEAL_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+							}
+						}
+					}
+					// Zenyatta's Discord (entity is zen, entity2 is target)
+					else if (packet.type == 43 && entity instanceof EntityLivingBase && entity2 instanceof EntityLivingBase) {
+						// refresh / start
+						if (packet.bool) {
+							// remove harmony by same player
+							TickHandler.Handler harmony = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
+							if (harmony != null && harmony.entityLiving == entity2)
+								TickHandler.unregister(false, harmony);
+							// apply discord
+							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
+							if (handler != null) 
+								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
+							else
+								TickHandler.register(true, ItemZenyattaWeapon.DISCORD.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
+							EnumHero.ZENYATTA.ability2.entities.put((EntityLivingBase) entity, entity2);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+						}
+						// end
+						else {
+							EnumHero.ZENYATTA.ability2.entities.remove(entity);
+							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
+							if (handler != null) {
+								TickHandler.unregister(true, handler);
+								if (packet.x <= 0)
+									ModSoundEvents.ZENYATTA_DAMAGE_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+							}
+						}
 					}
 				}
 			});

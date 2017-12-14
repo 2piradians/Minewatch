@@ -17,7 +17,7 @@ public class ArmorWeaponsTab extends CreativeTabs implements IMinewatchTab {
 	
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(EnumHero.REAPER.token);
+		return new ItemStack(EnumHero.REAPER.weapon);
 	}
 	
 	@Override

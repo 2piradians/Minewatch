@@ -11,9 +11,9 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityAnaSleepDart extends EntityMW {

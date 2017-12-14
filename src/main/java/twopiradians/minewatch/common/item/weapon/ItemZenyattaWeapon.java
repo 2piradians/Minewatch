@@ -1,9 +1,15 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import javax.vecmath.Matrix4f;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.base.Predicate;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -23,6 +29,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
@@ -118,7 +125,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (entityLiving != null && this.ticksLeft % 2 == 0) {
-				EntityZenyattaOrb orb = new EntityZenyattaOrb(entityLiving.world, entityLiving, 2);
+				EntityZenyattaOrb orb = new EntityZenyattaOrb(entityLiving.world, entityLiving, 2, 0);
 				EntityHelper.setAim(orb, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 80, 0, null, 22, 0.78f*(this.ticksLeft%4 == 0 ? -1 : 1));
 				entityLiving.world.spawnEntity(orb);
 				ModSoundEvents.ZENYATTA_VOLLEY_SHOOT.playFollowingSound(player, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/3+0.8f, false);
@@ -143,7 +150,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && !player.isHandActive()) {
 			if (!world.isRemote) {
-				EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, hand.ordinal());
+				EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, hand.ordinal(), 0);
 				EntityHelper.setAim(orb, player, player.rotationPitch, player.rotationYawHead, 80, 0.2F, hand, 22, 0.78f);
 				world.spawnEntity(orb);
 				ModSoundEvents.ZENYATTA_SHOOT.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f, false);
@@ -176,7 +183,12 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					// apply harmony
 					TickHandler.register(false, HARMONY.setEntity(player).setEntityLiving(target).setTicks(60));
 					Minewatch.network.sendToDimension(new SPacketSimple(42, player, true, target), world.provider.getDimension());
-					ModSoundEvents.ZENYATTA_HEAL.playFollowingSound(player, 1.0f, 1.0f, false);
+					ModSoundEvents.ZENYATTA_HEAL.playFollowingSound(player, 0.5f, 1.0f, false);
+					ModSoundEvents.ZENYATTA_HEAL_VOICE.playFollowingSound(player, 1.0f, 1.0f, false);
+					// shoot orb
+					EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, EnumHand.OFF_HAND.ordinal(), 2);
+					EntityHelper.setAim(orb, player, target, 120, EnumHand.OFF_HAND, 22, 0.78f);
+					world.spawnEntity(orb);
 				}
 			}
 
@@ -194,7 +206,12 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					// apply discord
 					TickHandler.register(false, DISCORD.setEntity(player).setEntityLiving(target).setTicks(60));
 					Minewatch.network.sendToDimension(new SPacketSimple(43, player, true, target), world.provider.getDimension());
-					ModSoundEvents.ZENYATTA_DAMAGE.playFollowingSound(player, 1.0f, 1.0f, false);
+					ModSoundEvents.ZENYATTA_DAMAGE.playFollowingSound(player, 0.5f, 1.0f, false);
+					ModSoundEvents.ZENYATTA_DAMAGE_VOICE.playFollowingSound(player, 1.0f, 1.0f, false);
+					// shoot orb
+					EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, EnumHand.MAIN_HAND.ordinal(), 1);
+					EntityHelper.setAim(orb, player, target, 120, EnumHand.MAIN_HAND, 22, 0.78f);
+					world.spawnEntity(orb);
 				}
 			}
 		}
@@ -301,21 +318,42 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			event.setNewfov(1);
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void discord(LivingHurtEvent event) {
 		EntityLivingBase target = event.getEntityLiving();
-		
+
 		// discord boosted damage
 		if (target != null && !target.world.isRemote && 
 				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == target, false)) 
 			event.setAmount(event.getAmount() * 1.3f);
 	}
 
+	@Override
+	@SideOnly(Side.CLIENT)
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
+		//if (entity == null) // TODO HashMap<ItemStack, Integer> for animating stack and ticksExisted end
+		//	System.out.println(entity);
+		return ret;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		if (stack == RenderZenyattaOrb.NORMAL)
+			return 0x82ECFE;
+		else if (stack == RenderZenyattaOrb.DISCORD)
+			return 0x000000;
+		else if (stack == RenderZenyattaOrb.HARMONY)
+			return 0xFFD800;
+		else 
+			return -1;
+	}
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void renderDiscordAndHarmony(RenderLivingEvent.Post<EntityLivingBase> event) {
-		 // TODO
+		// TODO
 	}
 
 }

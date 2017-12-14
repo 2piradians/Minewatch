@@ -11,8 +11,12 @@ import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class RenderZenyattaOrb extends RenderSimple<EntityZenyattaOrb> {
-	
+
 	private final RenderItem itemRenderer;
+
+	public static final ItemStack NORMAL = new ItemStack(EnumHero.ZENYATTA.weapon);
+	public static final ItemStack HARMONY = new ItemStack(EnumHero.ZENYATTA.weapon);
+	public static final ItemStack DISCORD = new ItemStack(EnumHero.ZENYATTA.weapon);
 
 	public RenderZenyattaOrb(RenderManager manager) {
 		super(manager, null, "", 0, 0, 0);
@@ -20,7 +24,14 @@ public class RenderZenyattaOrb extends RenderSimple<EntityZenyattaOrb> {
 	}
 
 	public ItemStack getStackToRender(EntityZenyattaOrb entityIn) {
-		return new ItemStack(EnumHero.ZENYATTA.weapon);
+		if (entityIn.type == 0)
+			return NORMAL;
+		else if (entityIn.type == 1)
+			return DISCORD;
+		else if (entityIn.type == 2)
+			return HARMONY;
+		else
+			return new ItemStack(EnumHero.ZENYATTA.weapon);
 	}
 
 	@Override
@@ -28,15 +39,15 @@ public class RenderZenyattaOrb extends RenderSimple<EntityZenyattaOrb> {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 
 		GlStateManager.pushMatrix();
-        GlStateManager.translate(x+0.15d, y+0.07d, z);
-        
-        // render white
-        GlStateManager.enableColorLogic();
-        GlStateManager.colorLogicOp(GlStateManager.LogicOp.SET);
-		
-        this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.FIXED);
+		GlStateManager.translate(x+0.15d, y+0.07d, z);
 
-        GlStateManager.disableColorLogic();
-        GlStateManager.popMatrix();
+		// render white
+		//GlStateManager.enableColorLogic();
+		//GlStateManager.colorLogicOp(GlStateManager.LogicOp.SET);
+
+		this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.FIXED);
+
+		//GlStateManager.disableColorLogic();
+		GlStateManager.popMatrix();
 	}
 }

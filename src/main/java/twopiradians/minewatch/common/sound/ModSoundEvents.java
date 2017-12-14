@@ -201,7 +201,7 @@ public enum ModSoundEvents {
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(100));
+			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
 			return true;
 		}
 	}

@@ -99,9 +99,19 @@ public class EntityHelper {
 		Vec3d posVec = new Vec3d(shooter.lastTickPosX+(shooter.posX-shooter.lastTickPosX)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosY+(shooter.posY-shooter.lastTickPosY)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosZ+(shooter.posZ-shooter.lastTickPosZ)*Minewatch.proxy.getRenderPartialTicks());
 		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
-
+	
+	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust);
+	}
+	
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust);
+	}
+
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
 
@@ -117,19 +127,20 @@ public class EntityHelper {
 			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.xCoord, blockTrace.hitVec.yCoord, blockTrace.hitVec.zCoord));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
-		RayTraceResult entityTrace = EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
+		RayTraceResult entityTrace = target != null ? new RayTraceResult(target, new Vec3d(target.posX, target.posY+target.height/2d, target.posZ)) : 
+			EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
 			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.xCoord, entityTrace.hitVec.yCoord, entityTrace.hitVec.zCoord));
 
 		double x, y, z;
 		// block is closest
-		if (blockDistance < entityDistance && blockDistance < Double.MAX_VALUE) {
+		if (target == null && blockDistance < entityDistance && blockDistance < Double.MAX_VALUE) {
 			x = blockTrace.hitVec.xCoord - vec.xCoord;
 			y = blockTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
 			z = blockTrace.hitVec.zCoord - vec.zCoord;
 		}
 		// entity is closest
-		else if (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE) {
+		else if (target != null || (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE)) {
 			x = entityTrace.hitVec.xCoord - vec.xCoord;
 			y = entityTrace.hitVec.yCoord - vec.yCoord - entity.height/2d;
 			z = entityTrace.hitVec.zCoord - vec.zCoord; 

@@ -130,7 +130,8 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		// direct hit explosion
 		else if (result.entityHit != null && !this.isDeathGrenade) {
-			EntityHelper.moveToHitPosition(this, result);
+			super.onImpact(result);
+
 			if (this.world.isRemote) {
 				this.motionX = 0;
 				this.motionY = 0;

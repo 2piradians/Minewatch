@@ -58,7 +58,6 @@ public class ItemTeamStick extends Item {
 
 	/**Get a team's display name / registry name*/
 	public static String getTeamName(Team team) {
-		//System.out.println("getteamname1"); // TODO
 		if (team instanceof ScorePlayerTeam)
 			return ((ScorePlayerTeam)team).getTeamName();
 		else if (team != null)
@@ -69,7 +68,6 @@ public class ItemTeamStick extends Item {
 
 	/**Get the stack's team registry name*/
 	public static String getTeamName(ItemStack stack, boolean displayName) {
-		//System.out.println("getteamname2"); // TODO
 		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamRegistryName")) {
 			if (displayName && stack.getTagCompound().hasKey("teamDisplayName"))
 				return getTeamFormat(stack)+stack.getTagCompound().getString("teamDisplayName");
@@ -82,7 +80,6 @@ public class ItemTeamStick extends Item {
 
 	/**Get the stack's team chat format*/
 	public static TextFormatting getTeamFormat(ItemStack stack) {
-		//System.out.println("getteamformat: "+formatCache); // TODO
 		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamFormat")) 
 			return TextFormatting.fromColorIndex(stack.getTagCompound().getInteger("teamFormat"));
 		else
@@ -92,7 +89,6 @@ public class ItemTeamStick extends Item {
 	/**Get the stack's team*/
 	@Nullable
 	public static ScorePlayerTeam getTeam(World world, ItemStack stack) {
-		//System.out.println("getteam"); // TODO
 		String name = getTeamName(stack, false);
 		if (name != null) 
 			return world.getScoreboard().getTeam(TextFormatting.getTextWithoutFormattingCodes(name));
@@ -102,7 +98,6 @@ public class ItemTeamStick extends Item {
 
 	/**Set the stack's team*/
 	public static void setTeam(ItemStack stack, @Nullable Team team) {
-		//System.out.println("setteam"); // TODO
 		if (stack != null) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());

@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 
@@ -37,17 +36,15 @@ public class RenderZenyattaOrb extends RenderSimple<EntityZenyattaOrb> {
 	@Override
 	public void doRender(EntityZenyattaOrb entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+		
+		if (entity.ticksExisted <= 2)
+			return;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x+0.15d, y+0.07d, z);
 
-		// render white
-		//GlStateManager.enableColorLogic();
-		//GlStateManager.colorLogicOp(GlStateManager.LogicOp.SET);
-
 		this.itemRenderer.renderItem(this.getStackToRender(entity), ItemCameraTransforms.TransformType.FIXED);
 
-		//GlStateManager.disableColorLogic();
 		GlStateManager.popMatrix();
 	}
 }

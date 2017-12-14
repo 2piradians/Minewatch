@@ -2,7 +2,6 @@ package twopiradians.minewatch.client;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.UUID;
 
 import javax.annotation.Nullable;

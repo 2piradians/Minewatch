@@ -4,28 +4,26 @@ import javax.vecmath.Matrix4f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.google.common.base.Predicate;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.CombatRules;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -45,6 +43,11 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	private static final int VOLLEY_CHARGE_DELAY = 8;
+	public static final int ANIMATION_TIME = 40;
+	/**Client: ItemStacks and the ticksExisted that their animations stop*/
+	public static ItemStack animatingDiscord;
+	public static ItemStack animatingHarmony;
+	public static int animatingTime = -1;
 
 	public static final Handler HARMONY = new Handler(Identifier.ZENYATTA_HARMONY, false) {
 		@Override
@@ -142,6 +145,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	public ItemZenyattaWeapon() {
 		super(40);
 		this.hasOffhand = true;
+		this.showHealthParticles = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -166,7 +170,8 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
+				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// harmony
@@ -319,7 +324,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void discord(LivingHurtEvent event) {
 		EntityLivingBase target = event.getEntityLiving();
 
@@ -330,10 +335,44 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	}
 
 	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		// prevent reequip while animating
+		if (animatingTime != -1 && (newStack == animatingHarmony || newStack == animatingDiscord))
+			return false;
+		else
+			return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
-		//if (entity == null) // TODO HashMap<ItemStack, Integer> for animating stack and ticksExisted end
-		//	System.out.println(entity);
+		if (animatingTime != -1 && entity != null && Minewatch.proxy.getClientPlayer() != null && 
+				(animatingHarmony == stack && entity.getHeldItemMainhand() == stack && 
+				(cameraTransformType.equals(TransformType.FIRST_PERSON_RIGHT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_RIGHT_HAND))) ||
+				(animatingDiscord == stack && entity.getHeldItemOffhand() == stack && 
+				(cameraTransformType.equals(TransformType.FIRST_PERSON_LEFT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_LEFT_HAND)))) {
+			// check if done animating
+			if (animatingTime < Minewatch.proxy.getClientPlayer().ticksExisted) {
+				animatingTime = -1;
+				animatingHarmony = null;
+				animatingDiscord = null;
+				return ret;
+			}
+
+			float percent = 1f - ((((float)animatingTime) - Minewatch.proxy.getClientPlayer().ticksExisted-Minewatch.proxy.getRenderPartialTicks()) / ANIMATION_TIME);
+			float upTime = 0.1f;
+			float downTime = 0.05f;
+
+			if (percent < upTime) // up
+				percent /= upTime;
+			else if (percent > 1f-downTime) // down
+				percent = (1f - percent) / downTime;
+			else // top
+				percent = 1f;
+			percent = MathHelper.clamp(percent, 0, 1);
+			
+			GlStateManager.translate(0, percent*0.25f, 0);
+		}
 		return ret;
 	}
 
@@ -346,14 +385,12 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			return 0x000000;
 		else if (stack == RenderZenyattaOrb.HARMONY)
 			return 0xFFD800;
+		else if (stack == animatingDiscord)
+			return 0x630063;
+		else if (stack == animatingHarmony)
+			return 0xFFD800;
 		else 
 			return -1;
-	}
-
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void renderDiscordAndHarmony(RenderLivingEvent.Post<EntityLivingBase> event) {
-		// TODO
 	}
 
 }

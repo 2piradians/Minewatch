@@ -55,7 +55,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
-	public int affectedEntities;// TODO prevent speed / heal w/o set
+	public int affectedEntities;
 	public static HashMap<UUID, FollowingSound> healSounds = Maps.newHashMap();
 	public static HashMap<UUID, FollowingSound> speedSounds = Maps.newHashMap();
 

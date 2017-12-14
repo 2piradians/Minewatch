@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -128,8 +129,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
 						((EntityLivingBase) followEntity).getHealth() <= 0 ||
-						player.getHeldItemMainhand() == null || (player.getHeldItemMainhand().getItem() != EnumHero.ANA.weapon &&
-						player.getHeldItemMainhand().getItem() != EnumHero.MERCY.weapon)) 
+						player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon) || 
+						!((ItemMWWeapon)player.getHeldItemMainhand().getItem()).showHealthParticles) 
 					this.setExpired();
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 			}
@@ -156,6 +157,16 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			else if (this.enumParticle.equals(EnumParticle.ZENYATTA_DISCORD)) {
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height+0.5d+(Math.sin(this.followEntity.ticksExisted/5d))/10d, this.followEntity.posZ);
 				if (!TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == this.followEntity, true))
+					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.ZENYATTA_DISCORD_ORB)) {
+				this.setPosition(this.followEntity.posX+0.25d, this.followEntity.posY+this.followEntity.height+0.25d, this.followEntity.posZ);
+				if (!TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == this.followEntity, true))
+					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.ZENYATTA_HARMONY_ORB)) {
+				this.setPosition(this.followEntity.posX-0.25d, this.followEntity.posY+this.followEntity.height+0.25d, this.followEntity.posZ);
+				if (!TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == this.followEntity, true))
 					this.setExpired();
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
@@ -230,7 +241,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
 
+			// change frame
 			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
+			if (enumParticle == EnumParticle.ZENYATTA_DISCORD_ORB || enumParticle == EnumParticle.ZENYATTA_HARMONY_ORB)
+				frame = Minecraft.getMinecraft().player.ticksExisted % 15 / 4 + 1;
 			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
 			int row = (frame-1) / framesPerRow;
 			int col = (frame-1) % framesPerRow;
@@ -263,6 +277,14 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
+			
+			// draw normally to clear buffer
+			if (enumParticle.disableDepth) {
+				Tessellator tessellator = Tessellator.getInstance();
+				VertexBuffer vertexbuffer = tessellator.getBuffer();
+				tessellator.draw();
+				vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+			}
 
 			buffer.pos((double)f5 + avec3d[0].xCoord, (double)f6 + avec3d[0].yCoord, (double)f7 + avec3d[0].zCoord).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
 			buffer.pos((double)f5 + avec3d[1].xCoord, (double)f6 + avec3d[1].yCoord, (double)f7 + avec3d[1].zCoord).tex((double)f1, (double)f2).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
@@ -278,6 +300,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				GlStateManager.enableDepth();
 				vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 			}
+
 		}
 	}
 	

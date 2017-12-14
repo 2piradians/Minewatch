@@ -104,7 +104,8 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 					this.onImpact(result);
 		}
 		// move if still alive and has motion
-		if (!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
+		if ((!world.isRemote || this.ticksExisted > 2 || !this.hasNoGravity()) && 
+				!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
@@ -136,12 +137,15 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	}
 
 	public void onImpact(RayTraceResult result) {
-		if (this.shouldMoveToHitPosition(result))
+		if (!world.isRemote && this.shouldMoveToHitPosition(result))
 			EntityHelper.moveToHitPosition(this, result);
 		
-		if (!world.isRemote) // TEST
+		if (!world.isRemote) { // TEST
+			if (this.shouldMoveToHitPosition(result))
+				EntityHelper.moveToHitPosition(this, result);
 			Minewatch.network.sendToAllAround(new SPacketSimple(41, this, result), 
 					new TargetPoint(world.provider.getDimension(), posX, posY, posZ, 64));
+		}
 		else
 			this.spawnTrailParticles();
 	}

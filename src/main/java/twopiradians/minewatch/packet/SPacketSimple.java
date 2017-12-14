@@ -54,9 +54,9 @@ import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
-import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class SPacketSimple implements IMessage {
@@ -70,6 +70,9 @@ public class SPacketSimple implements IMessage {
 	private double x2;
 	private double y2;
 	private double z2;
+	private double x3;
+	private double y3;
+	private double z3;
 	private int id;
 	private int id2;
 
@@ -145,6 +148,9 @@ public class SPacketSimple implements IMessage {
 		this.z = result.hitVec.zCoord;
 		this.x2 = result.typeOfHit == null ? -1 : result.typeOfHit.ordinal();
 		this.y2 = result.sideHit == null ? -1 : result.sideHit.ordinal();
+		this.x3 = entity.posX;
+		this.y3 = entity.posY;
+		this.z3 = entity.posZ;
 	}
 
 	@Override
@@ -160,6 +166,9 @@ public class SPacketSimple implements IMessage {
 		this.x2 = buf.readDouble();
 		this.y2 = buf.readDouble();
 		this.z2 = buf.readDouble();
+		this.x3 = buf.readDouble();
+		this.y3 = buf.readDouble();
+		this.z3 = buf.readDouble();
 	}
 
 	@Override
@@ -175,6 +184,9 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.x2);
 		buf.writeDouble(this.y2);
 		buf.writeDouble(this.z2);
+		buf.writeDouble(this.x3);
+		buf.writeDouble(this.y3);
+		buf.writeDouble(this.z3);
 	}
 
 	public static void move(EntityLivingBase player, double scale, boolean useLook, boolean giveMotionY) {
@@ -564,6 +576,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Entity collision raytraceresult onImpact
 					else if (packet.type == 41 && entity instanceof EntityMW) {
+						entity.setPosition(packet.x3, packet.y3, packet.z3);
 						Vec3d hitVec = new Vec3d(packet.x, packet.y, packet.z);
 						RayTraceResult.Type typeOfHit = packet.x2 >= 0 && packet.x2 < RayTraceResult.Type.values().length ? 
 								RayTraceResult.Type.values()[(int) packet.x2] : null;
@@ -586,10 +599,19 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
-							else
+							else {
 								TickHandler.register(true, ItemZenyattaWeapon.HARMONY.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
-							EnumHero.ZENYATTA.ability1.entities.put((EntityLivingBase) entity, entity2);
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
+								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.MAIN_HAND)) {
+									ItemZenyattaWeapon.animatingHarmony = player.getHeldItemMainhand();
+									ItemZenyattaWeapon.animatingDiscord = null;
+									ItemZenyattaWeapon.animatingTime = player.ticksExisted + ItemZenyattaWeapon.ANIMATION_TIME;
+								}
+							}
+							if (entity == player) {
+								EnumHero.ZENYATTA.ability1.entities.put((EntityLivingBase) entity, entity2);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+							}
 						}
 						// end
 						else {
@@ -597,7 +619,7 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (packet.x <= 0)
+								if (entity == player && packet.x <= 0)
 									ModSoundEvents.ZENYATTA_HEAL_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
 							}
 						}
@@ -614,10 +636,19 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
-							else
+							else {
 								TickHandler.register(true, ItemZenyattaWeapon.DISCORD.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
-							EnumHero.ZENYATTA.ability2.entities.put((EntityLivingBase) entity, entity2);
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
+								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.OFF_HAND)) {
+									ItemZenyattaWeapon.animatingDiscord = player.getHeldItemOffhand();
+									ItemZenyattaWeapon.animatingHarmony = null;
+									ItemZenyattaWeapon.animatingTime = player.ticksExisted + ItemZenyattaWeapon.ANIMATION_TIME;
+								}							
+							}
+							if (entity == player) {
+								EnumHero.ZENYATTA.ability2.entities.put((EntityLivingBase) entity, entity2);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 1, 1, 0, 0);
+							}
 						}
 						// end
 						else {
@@ -625,7 +656,7 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (packet.x <= 0)
+								if (entity == player && packet.x <= 0)
 									ModSoundEvents.ZENYATTA_DAMAGE_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
 							}
 						}

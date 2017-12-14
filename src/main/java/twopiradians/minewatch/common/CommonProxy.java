@@ -76,7 +76,8 @@ public class CommonProxy {
 		WIDOWMAKER_MINE(true), WIDOWMAKER_MINE_TRIGGERED(true), 
 		WIDOWMAKER_MINE_DESTROYED(true),
 		SOMBRA_TRANSPOSER(true), REINHARDT_STRIKE,
-		HOLLOW_CIRCLE, ZENYATTA(4, 1), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true);
+		HOLLOW_CIRCLE, ZENYATTA(4, 1), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true),
+		ZENYATTA_DISCORD_ORB(4, 1, false, true), ZENYATTA_HARMONY_ORB(4, 1, false, true);
 
 		public HashSet<UUID> particleEntities = new HashSet();
 		

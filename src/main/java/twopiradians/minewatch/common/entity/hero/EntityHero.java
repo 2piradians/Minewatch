@@ -91,9 +91,6 @@ public class EntityHero extends EntityMob {
 	@Override
 	public void onUpdate() {
 		super.onUpdate(); 
-		
-		//TODO
-		this.setGlowing(true);
 
 		// random hero
 		if (this.hero == null && !this.world.isRemote)

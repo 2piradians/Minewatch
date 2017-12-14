@@ -572,8 +572,10 @@ public enum EnumHero {
 				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				EnumHand hand = null;
 				for (EnumHand hand2 : EnumHand.values())
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
+					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero)) {
 						hand = hand2;
+						break;
+					}
 				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
 				if (hero != null) {

@@ -33,7 +33,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -66,7 +65,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
 	protected boolean saveEntityToNBT;
-	protected boolean showHealthParticles;
+	public boolean showHealthParticles;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -282,8 +281,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			stack.setItemDamage(0);
 
 		// health particles
-		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
+		if (this.showHealthParticles && entity instanceof EntityPlayer && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+				this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) && world.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 			for (Entity entity2 : list) 
@@ -333,7 +332,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (entity instanceof EntityPlayer) {
 			CooldownTracker tracker = ((EntityPlayer)entity).getCooldownTracker();
 			if (!tracker.hasCooldown(this) || overrideCooldown)
-				tracker.setCooldown(this, cooldown);
+				tracker.setCooldown(this, Math.max(2, cooldown));
 		}
 		// use handler for entity heroes
 		else if (entity instanceof EntityHero) {

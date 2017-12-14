@@ -19,8 +19,8 @@ import net.minecraft.util.math.Vec3d;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderMercyBeam extends Render<EntityMercyBeam> {

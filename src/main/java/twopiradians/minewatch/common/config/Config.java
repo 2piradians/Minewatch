@@ -75,13 +75,17 @@ public class Config {
 	public static double mobInaccuracy;
 
 	public static void preInit(final File file) {
-		config = new Configuration(file, String.valueOf(CONFIG_VERSION));
+		config = new Configuration(file, CONFIG_VERSION+Configuration.NEW_LINE+Configuration.NEW_LINE+
+				"##########################################################################################################"+Configuration.NEW_LINE+
+				"# I would recommend editing this config using the in-game menus. The config can be accessed using the Mods button in the main screen, "+Configuration.NEW_LINE+
+				"# the Mod Options button in the escape menu, or the Options button in the Minewatch Tab."+Configuration.NEW_LINE+
+				"##########################################################################################################");
 		config.load();
-
+		
 		//If loaded version < CONFIG_VERSION, delete it
 		String version = Config.config.getLoadedConfigVersion();
 		try {
-			if (version == null || Float.parseFloat(version) < CONFIG_VERSION) 
+			if (version == null || Float.parseFloat(version.split("\n")[0]) < CONFIG_VERSION) 
 				for (String category : Config.config.getCategoryNames())
 					Config.config.removeCategory(Config.config.getCategory(category));
 		}

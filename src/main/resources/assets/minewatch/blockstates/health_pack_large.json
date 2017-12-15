@@ -1,0 +1,21 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			
+		},
+		"model": "minewatch:health_pack_base.obj"
+	},
+	"variants": {
+		"normal": [
+			{
+				
+			}
+		],
+		"inventory": [
+			{
+				"transform": "forge:default-block"
+			}
+		]
+	}
+}

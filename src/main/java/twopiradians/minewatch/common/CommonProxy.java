@@ -37,6 +37,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
+import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
@@ -119,6 +120,7 @@ public class CommonProxy {
 		registerPackets();
 		ModEntities.registerEntities();
 		ModItems.preInit();
+		ModBlocks.preInit();
 		ModSoundEvents.preInit();
 	}
 

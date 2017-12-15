@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
@@ -73,8 +74,10 @@ import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
+import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
@@ -111,6 +114,7 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
+import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -129,24 +133,12 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
+		registerBlockRenders();
 		registerNonWeaponRenders();
 		for (KeyBind key : KeyBind.values())
 			if (key.keyBind != null)
 				ClientRegistry.registerKeyBinding(key.keyBind);
-
-		for (IChangingModel item : ModItems.changingModelItems)
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
-				@Override
-				public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-					return item.getColorFromItemStack(stack, tintIndex);
-				}
-			}, item.getItem());
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
-			@Override
-			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-				return ItemTeamStick.getColorFromItemStack(stack, tintIndex);
-			}
-		}, ModItems.team_stick);
+		registerColoredItems();
 	}
 
 	@Override
@@ -191,6 +183,22 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
 		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+	}
+	
+	private void registerColoredItems() {
+		for (IChangingModel item : ModItems.changingModelItems)
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+				@Override
+				public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+					return item.getColorFromItemStack(stack, tintIndex);
+				}
+			}, item.getItem());
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				return ItemTeamStick.getColorFromItemStack(stack, tintIndex);
+			}
+		}, ModItems.team_stick);
 	}
 
 	private void registerInventoryTab() {
@@ -259,6 +267,14 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
+	}
+	
+	private void registerBlockRenders() {
+		// TODO
+		for (Block block : ModBlocks.allBlocks)
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
+					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
 	}
 
 	@Override

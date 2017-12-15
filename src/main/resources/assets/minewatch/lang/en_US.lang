@@ -9,6 +9,9 @@ config.server-side.hero_mobs=Hero Mobs
 
 effect.frozen=Frozen
 
+tile.health_pack_small.name=Small Health Pack
+tile.health_pack_large.name=Large Health Pack
+
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick
 

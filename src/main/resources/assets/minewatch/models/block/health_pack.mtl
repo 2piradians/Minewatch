@@ -1,0 +1,26 @@
+# Blender MTL File: 'health_pack.blend'
+# Material Count: 4
+
+newmtl Glow
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:blocks/health_pack_base
+
+newmtl Large
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+d 1.000000
+map_Kd minewatch:blocks/health_pack_large
+
+newmtl None
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+d 1
+map_Kd minewatch:blocks/health_pack_base
+
+newmtl Small
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:blocks/health_pack_small

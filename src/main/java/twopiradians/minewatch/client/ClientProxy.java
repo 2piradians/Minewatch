@@ -39,11 +39,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.MultiModelState;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.Material;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLLog;
@@ -75,6 +77,7 @@ import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
+import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
@@ -147,14 +150,21 @@ public class ClientProxy extends CommonProxy {
 		registerInventoryTab();
 	}
 
+	/**Replace OBJBakedModels with BakedMWItems*/
 	@SubscribeEvent
 	public void modelBake(ModelBakeEvent event) {
 		for (ModelResourceLocation modelLocation : event.getModelRegistry().getKeys()) 
 			if (modelLocation.getResourceDomain().equals(Minewatch.MODID) &&
-					modelLocation.getResourcePath().contains("3d")) {
+					(modelLocation.getResourcePath().contains("3d") || modelLocation.getResourcePath().contains("health_pack"))) {
 				if (event.getModelRegistry().getObject(modelLocation) instanceof OBJBakedModel) {
 					OBJBakedModel model = (OBJBakedModel) event.getModelRegistry().getObject(modelLocation);
-					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), model.getState(), DefaultVertexFormats.ITEM, getTextures(model.getModel())));
+					IModelState state = model.getState();
+					// only show parts in item for health packs
+					if (modelLocation.getResourcePath().contains("health_pack_small")) 
+						state = new TileEntityOBJRenderer.OBJModelState(state, "base", "small");
+					else if (modelLocation.getResourcePath().contains("health_pack_large")) 
+						state = new TileEntityOBJRenderer.OBJModelState(state, "base", "large");
+					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), state, DefaultVertexFormats.ITEM, getTextures(model.getModel())));
 				}
 			}
 	}
@@ -184,7 +194,7 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
 		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
 	}
-	
+
 	private void registerColoredItems() {
 		for (IChangingModel item : ModItems.changingModelItems)
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
@@ -268,7 +278,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
 	}
-	
+
 	private void registerBlockRenders() {
 		// TODO
 		for (Block block : ModBlocks.allBlocks)
@@ -384,7 +394,7 @@ public class ClientProxy extends CommonProxy {
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
 		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, facing);
 	}
-	
+
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) { 
 		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, pulseRate, facing);
@@ -445,7 +455,7 @@ public class ClientProxy extends CommonProxy {
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return isRemote ? handler.onClientRemove() : handler.onServerRemove();
 	}
-	
+
 	@Override
 	public Entity getRenderViewEntity() {
 		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();

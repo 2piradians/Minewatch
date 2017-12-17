@@ -4,18 +4,36 @@
 		"textures": {
 			
 		},
-		"model": "minewatch:health_pack_base.obj"
+		"model": "minewatch:health_pack.obj"
 	},
-	"variants": {
-		"normal": [
-			{
-				
-			}
-		],
-		"inventory": [
-			{
-				"transform": "forge:default-block"
-			}
-		]
+	 "variants": {
+    	"inventory": [{
+		"transform": {
+                "firstperson": {
+                    "translation": [0, 0, 0],
+                    "rotation": [ { "x": 0}, {"y": 225}, {"z": 0} ],
+                    "scale": 0.4
+                },
+                "thirdperson": {
+                    "translation": [0, 2.5, 0],
+                    "rotation": [ { "x": 75}, {"y": 45}, {"z": 0} ],
+                    "scale": 0.375
+                },
+                "gui": {
+                    "translation": [-0.5, 0, 0],
+					"rotation": [ { "x": 30}, {"y": 225}, {"z": 0} ],
+                    "scale": 0.625
+                },
+				"ground": {
+					"translation": [0, 3, 0],
+					"rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
+					"scale": 0.25
+				},
+				"fixed": {
+					"translation": [0, 0, 0],
+					"rotation": [ { "x": 0}, {"y": 0}, {"z": 0} ],
+					"scale": 0.5
+				}
+    }}]
 	}
 }

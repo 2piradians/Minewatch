@@ -847,5 +847,17 @@
 		"sounds": [
 			"minewatch:zenyatta_volley_shoot"
 		]
+	},
+	"health_pack_use": {
+	"category": "player",
+		"sounds": [
+			"minewatch:health_pack_use"
+		]
+	},
+	"health_pack_respawn": {
+	"category": "player",
+		"sounds": [
+			"minewatch:health_pack_respawn"
+		]
 	}
 }

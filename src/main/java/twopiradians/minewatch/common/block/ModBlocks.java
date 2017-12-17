@@ -13,7 +13,6 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 
 
-@SuppressWarnings("deprecation")
 public class ModBlocks {
 
 	public static ArrayList<Block> allBlocks = new ArrayList<Block>();
@@ -24,8 +23,8 @@ public class ModBlocks {
 	public static void preInit() {
 		allBlocks = new ArrayList<Block>();
 
-		healthPackSmall = registerBlock(new BlockHealthPackSmall(), "health_pack_small", TileEntityHealthPack.class, true, true);
-		healthPackLarge = registerBlock(new BlockHealthPackLarge(), "health_pack_large", null, true, true);
+		healthPackSmall = registerBlock(new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true, true);
+		healthPackLarge = registerBlock(new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true, true);
 	}
 
 	public static Block registerBlock(Block block, String unlocalizedName, @Nullable Class tileEntityClass, boolean isItemBlock, boolean addToTab) {

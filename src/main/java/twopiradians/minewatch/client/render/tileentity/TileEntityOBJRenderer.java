@@ -48,18 +48,19 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 
 	protected abstract String[] getModelParts();
 	protected abstract boolean preRender(T te, int model, VertexBuffer buffer, double x, double y, double z, float partialTicks);
+	protected abstract void postRender(T te, int model, VertexBuffer buffer, double x, double y, double z, float partialTicks);
 	protected int getColor(int i, T entity) {return -1;}
 
 	@Override
 	public void renderTileEntityAt(T te, double x, double y, double z, float partialTicks, int destroyStage) {
-		if (this.bakedModels == null) {
+		//if (this.bakedModels == null) {
 			this.bakedModels = new IBakedModel[this.getModelParts().length];
 			IModel model = ModelLoaderRegistry.getModelOrLogError(loc, "Minewatch is missing a model. Please report this to the mod authors.");
 			IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
 			if (bakedModel instanceof OBJBakedModel && model instanceof OBJModel) 
 				for (int i=0; i<this.getModelParts().length; ++i) 
 					this.bakedModels[i] = new BakedMWItem((OBJModel) model, new OBJModelState(this.getModelParts()[i]), DefaultVertexFormats.ITEM, ClientProxy.getTextures((OBJModel) model));
-		}
+		//}
 
 		for (int i=0; i<this.bakedModels.length; ++i) {
 			GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -98,6 +99,8 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			}
 			buffer.setTranslation(0, 0, 0);
 			tessellator.draw();	
+			
+			this.postRender(te, i, buffer, x, y, z, partialTicks); // TODO
 
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
 			GlStateManager.popMatrix();

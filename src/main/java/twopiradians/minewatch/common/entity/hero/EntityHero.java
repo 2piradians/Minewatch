@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
+import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIMoveToHealthPack;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -37,6 +38,8 @@ public class EntityHero extends EntityMob {
 	public EnumHero hero;
 	@Nullable
 	public EntityLivingBase healTarget;
+	public boolean movingToHealthPack;
+	public boolean onPack;
 
 	public EntityHero(World worldIn) {
 		this(worldIn, null);
@@ -67,6 +70,8 @@ public class EntityHero extends EntityMob {
 		this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F));
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
+		
+		this.tasks.addTask(1, new EntityHeroAIMoveToHealthPack(this));
 		this.targetTasks.addTask(1, new EntityHeroAIHurtByTarget(this, true, new Class[0]));
 		this.targetTasks.addTask(2, new EntityHeroAINearestAttackableTarget(this, EntityLivingBase.class, true));
 	}

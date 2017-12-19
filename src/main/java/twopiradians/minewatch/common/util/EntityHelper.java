@@ -34,6 +34,7 @@ import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
@@ -42,9 +43,13 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityHelper {
+
+	private static final Handler HEALTH_PARTICLES = new Handler(Identifier.HEALTH_PARTICLES, false) {};
 
 	/**Copied from EntityThrowable*/
 	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn) {
@@ -95,12 +100,12 @@ public class EntityHelper {
 		Vec3d posVec = new Vec3d(shooter.lastTickPosX+(shooter.posX-shooter.lastTickPosX)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosY+(shooter.posY-shooter.lastTickPosY)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosZ+(shooter.posZ-shooter.lastTickPosZ)*Minewatch.proxy.getRenderPartialTicks());
 		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
-	
+
 	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust);
 	}
-	
+
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust);
@@ -328,7 +333,7 @@ public class EntityHelper {
 		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.world.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
-				((EntityLivingBase)entityHit).heal(Math.abs(damage*Config.damageScale));
+				heal((EntityLivingBase)entityHit, damage);
 				return true;
 			}
 			// damage
@@ -354,6 +359,34 @@ public class EntityHelper {
 		}
 
 		return false;
+	}
+
+	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking*/
+	public static void heal(EntityLivingBase entity, float damage) {
+		if (entity != null && entity.getHealth() < entity.getMaxHealth()) {
+			entity.heal(Math.abs(damage*Config.damageScale));
+			spawnHealParticles(entity);
+		}
+	}
+
+	/**Spawn healing particles on entity - sends packet to clients if called on server*/
+	public static void spawnHealParticles(Entity entity) {
+		if (entity != null && !TickHandler.hasHandler(entity, Identifier.HEALTH_PARTICLES)) {
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(44, entity, false), entity.world.provider.getDimension());
+			else {
+				float size = Math.min(entity.height, entity.width);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, entity, 0xCFC77F, 0xCFC77F, 0.3f, 
+						40, size*8f, size*8f/1.1f, 0, 0);
+				for (int i=0; i<15; ++i)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH_PLUS, entity.world, 
+							entity.posX+(entity.world.rand.nextFloat()-0.5f)*entity.width/2f, entity.posY+entity.height/1.5f+(entity.world.rand.nextFloat()-0.5f)*entity.height/2f, entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width/2f, 
+							(entity.world.rand.nextFloat()-0.5f)*0.25f*size, entity.world.rand.nextFloat()*0.2f*size, (entity.world.rand.nextFloat()-0.5f)*0.25f*size, 
+							0xFFFFFF, 0xC0C0C0, 1, 
+							20, size*1.4f, size*0.9f, 0, 0);
+			}
+			TickHandler.register(entity.world.isRemote, HEALTH_PARTICLES.setEntity(entity).setTicks(20));
+		}
 	}
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
@@ -510,7 +543,7 @@ public class EntityHelper {
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
-	
+
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
 		// calculate angles if e1 was directly facing e2
@@ -525,13 +558,13 @@ public class EntityHelper {
 		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
 		return Math.max(deltaYaw, deltaPitch);
 	}
-	
+
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
 	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly) {
 		return getTargetInFieldOfVision(shooter, range, maxAngle, friendly, null);
 	}
-	
+
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
 	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, @Nullable Predicate<EntityLivingBase> predicate) {
@@ -552,7 +585,7 @@ public class EntityHelper {
 				angle = newAngle;
 			}
 		}
-		
+
 		// debug visualize
 		//EnumHero.RenderManager.boundingBoxesToRender.clear();
 		//EnumHero.RenderManager.boundingBoxesToRender.add(aabb);

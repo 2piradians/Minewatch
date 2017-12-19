@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.tileentity;
 
+import java.util.HashSet;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -7,28 +9,45 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 @SideOnly(Side.CLIENT)
 public abstract class TileEntityHealthPack extends TileEntity implements ITickable {
 
-	/**full ticks until health pack would respawn*/
-	public final int resetCooldown;
-	/**current ticks until health pack respawns*/
-	public int cooldown;
+	/**Set of health pack positions for use by EntityHero AI*/
+	public static HashSet<BlockPos> healthPackPositions = new HashSet<BlockPos>();
 
-	public TileEntityHealthPack(int resetCooldown) {
+	/**full ticks until health pack would respawn*/
+	private final double resetCooldown;
+	/**current ticks until health pack respawns*/
+	private double cooldown;
+	private final double healAmount;
+
+	public TileEntityHealthPack(int resetCooldown, int healAmount) {
 		super();
 		this.resetCooldown = resetCooldown;
+		this.healAmount = healAmount;
+	}
+
+	@Override
+	public void setPos(BlockPos posIn) {
+		super.setPos(posIn);
+		if (!this.world.isRemote) 
+			healthPackPositions.add(getPos());
 	}
 
 	@Override
 	public void update() {		
 		if (this.cooldown > 0) {
+			// make sure cooldown is <= resetCooldown (incase it's changed in config)
+			if (this.cooldown > this.getResetCooldown())
+				this.cooldown = this.getResetCooldown();
 			// sync to client every once in a while
-			if (--this.cooldown % 100 == 0 && this.cooldown < this.resetCooldown && !world.isRemote) {
+			if (--this.cooldown % 100 == 0 && this.cooldown < this.getResetCooldown() && !world.isRemote) {
 				this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), this.getBlockType().getDefaultState(), this.getBlockType().getDefaultState(), 2);
 				if (this.cooldown == 0)
 					ModSoundEvents.HEALTH_PACK_RESPAWN.playSound(world, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
@@ -46,7 +65,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		if (pkt.getNbtCompound().hasKey("cooldown")) 
-			this.cooldown = pkt.getNbtCompound().getInteger("cooldown");
+			this.cooldown = pkt.getNbtCompound().getDouble("cooldown");
 	}
 
 	@Override
@@ -57,27 +76,44 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		NBTTagCompound nbt = super.writeToNBT(compound);
-		nbt.setInteger("cooldown", cooldown);
+		nbt.setDouble("cooldown", cooldown);
 		return nbt;
 	}
 
+	/**Get current cooldown*/ 
+	public double getCooldown() {
+		if (this.cooldown > this.getResetCooldown())
+			this.cooldown = this.getResetCooldown();
+		return this.cooldown;
+	}
+
+	/**Get reset cooldown*/
+	public double getResetCooldown() {
+		return this.resetCooldown * Config.healthPackRespawnMultiplier;
+	}
+
 	/**Sets cooldown to resetCooldown*/
-	public void setCooldown() {
-		this.cooldown = this.resetCooldown;
+	public void setResetCooldown() {
+		this.cooldown = this.getResetCooldown();
 		if (!world.isRemote) {
 			this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), this.getBlockType().getDefaultState(), this.getBlockType().getDefaultState(), 2);
 			ModSoundEvents.HEALTH_PACK_USE.playSound(world, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 		}
 	}
 
+	/**Get unscaled heal amount*/
+	public float getHealAmount() {
+		return (float) (this.healAmount * Config.healthPackHealMultiplier);
+	}
+
 	public static class Large extends TileEntityHealthPack {
 		public Large() {
-			super(300);
+			super(300, 250);
 		}
 	}
 	public static class Small extends TileEntityHealthPack {
 		public Small() {
-			super(200);
+			super(200, 75);
 		}
 	}
 

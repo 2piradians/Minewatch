@@ -3,6 +3,7 @@ package twopiradians.minewatch.packet;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.text.TextComponentString;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 
-public class CPacketSyncConfig implements IMessage {
+public class PacketSyncConfig implements IMessage {
 
 	private UUID uuid;
 	private boolean preventFallDamage;
@@ -27,6 +28,8 @@ public class CPacketSyncConfig implements IMessage {
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
 	private boolean healMobs;
+	private double healthPackHealMultiplier;
+	private double healthPackRespawnMultiplier;
 	
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -41,7 +44,7 @@ public class CPacketSyncConfig implements IMessage {
 	private double mobAttackCooldown;
 	private double mobInaccuracy;
 
-	public CPacketSyncConfig() {
+	public PacketSyncConfig() {
 		if (Minewatch.proxy.getClientUUID() != null) {
 			this.uuid = Minewatch.proxy.getClientUUID();
 			this.preventFallDamage = Config.preventFallDamage;
@@ -53,6 +56,8 @@ public class CPacketSyncConfig implements IMessage {
 			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
 			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
 			this.healMobs = Config.healMobs;
+			this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
+			this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
 			
 			this.mobRandomSkins = Config.mobRandomSkins;
 			this.mobSpawn = Config.mobSpawn;
@@ -81,6 +86,8 @@ public class CPacketSyncConfig implements IMessage {
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
 		this.healMobs = buf.readBoolean();
+		this.healthPackHealMultiplier = buf.readDouble();
+		this.healthPackRespawnMultiplier = buf.readDouble();
 		
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -108,6 +115,8 @@ public class CPacketSyncConfig implements IMessage {
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
 		buf.writeBoolean(this.healMobs);
+		buf.writeDouble(this.healthPackHealMultiplier);
+		buf.writeDouble(this.healthPackRespawnMultiplier);
 		
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -122,10 +131,56 @@ public class CPacketSyncConfig implements IMessage {
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
 	}
+	
+	public void run() {
+		Config.preventFallDamage = this.preventFallDamage;
+		Config.allowGunWarnings = this.allowGunWarnings;
+		Config.projectilesCauseKnockback = this.projectilesCauseKnockback;
+		Config.tokenDropRate = this.tokenDropRate;
+		Config.wildCardRate = this.wildCardRate;
+		Config.damageScale = this.damageScale;
+		Config.durabilityOptionArmors = this.durabilityOptionsArmor;
+		Config.durabilityOptionWeapons = this.durabilityOptionsWeapons;
+		Config.healMobs = this.healMobs;
+		Config.healthPackHealMultiplier = this.healthPackHealMultiplier;
+		Config.healthPackRespawnMultiplier = this.healthPackRespawnMultiplier;
+		
+		Config.mobRandomSkins = this.mobRandomSkins;
+		Config.mobSpawn = this.mobSpawn;
+		Config.mobSpawnFreq = this.mobSpawnFreq;
+		Config.mobTargetPlayers = this.mobTargetPlayers;
+		Config.mobTargetHostiles = this.mobTargetHostiles;
+		Config.mobTargetPassives = this.mobTargetPassives;
+		Config.mobTargetHeroes = this.mobTargetHeroes;
+		Config.mobTokenDropRate = this.mobTokenDropRate;
+		Config.mobWildCardDropRate = this.mobWildCardDropRate;
+		Config.mobEquipmentDropRate = this.mobEquipmentDropRate;
+		Config.mobAttackCooldown = this.mobAttackCooldown;
+		Config.mobInaccuracy = this.mobInaccuracy;
+		
+		Config.config.save();
+	}
 
-	public static class Handler implements IMessageHandler<CPacketSyncConfig, IMessage> {
+	/**Sync config to client on login or config synced to server via tab button / command*/
+	public static class HandlerClient implements IMessageHandler<PacketSyncConfig, IMessage> {
 		@Override
-		public IMessage onMessage(final CPacketSyncConfig packet, final MessageContext ctx) {
+		public IMessage onMessage(final PacketSyncConfig packet, final MessageContext ctx) {
+			IThreadListener mainThread = Minecraft.getMinecraft();
+			mainThread.addScheduledTask(new Runnable() {
+				@Override
+				public void run() {
+					packet.run();
+					Minewatch.logger.info("Synced config from server.");
+				}
+			});
+			return null;
+		}
+	}
+	
+	/**Sync config to server with tab button / command*/
+	public static class HandlerServer implements IMessageHandler<PacketSyncConfig, IMessage> {
+		@Override
+		public IMessage onMessage(final PacketSyncConfig packet, final MessageContext ctx) {
 			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
 			mainThread.addScheduledTask(new Runnable() {
 
@@ -134,30 +189,8 @@ public class CPacketSyncConfig implements IMessage {
 					EntityPlayer player = ctx.getServerHandler().playerEntity;
 					if (player != null) {
 						if (player.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
-							Config.preventFallDamage = packet.preventFallDamage;
-							Config.allowGunWarnings = packet.allowGunWarnings;
-							Config.projectilesCauseKnockback = packet.projectilesCauseKnockback;
-							Config.tokenDropRate = packet.tokenDropRate;
-							Config.wildCardRate = packet.wildCardRate;
-							Config.damageScale = packet.damageScale;
-							Config.durabilityOptionArmors = packet.durabilityOptionsArmor;
-							Config.durabilityOptionWeapons = packet.durabilityOptionsWeapons;
-							Config.healMobs = packet.healMobs;
-							
-							Config.mobRandomSkins = packet.mobRandomSkins;
-							Config.mobSpawn = packet.mobSpawn;
-							Config.mobSpawnFreq = packet.mobSpawnFreq;
-							Config.mobTargetPlayers = packet.mobTargetPlayers;
-							Config.mobTargetHostiles = packet.mobTargetHostiles;
-							Config.mobTargetPassives = packet.mobTargetPassives;
-							Config.mobTargetHeroes = packet.mobTargetHeroes;
-							Config.mobTokenDropRate = packet.mobTokenDropRate;
-							Config.mobWildCardDropRate = packet.mobWildCardDropRate;
-							Config.mobEquipmentDropRate = packet.mobEquipmentDropRate;
-							Config.mobAttackCooldown = packet.mobAttackCooldown;
-							Config.mobInaccuracy = packet.mobInaccuracy;
-							
-							Config.config.save();
+							packet.run(); // TEST (with health pack timers on server)
+							Minewatch.network.sendToAll(new PacketSyncConfig()); // sync new config to all clients
 							player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
 						}
 						else

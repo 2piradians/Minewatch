@@ -2,6 +2,8 @@ package twopiradians.minewatch.common;
 
 import java.io.File;
 
+import org.apache.logging.log4j.Logger;
+
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -34,6 +36,7 @@ public class Minewatch {
     public static IMinewatchTab tabMapMaking = new MapMakingTab("tabMinewatchMapMaking");
     @SidedProxy(clientSide = "twopiradians.minewatch.client.ClientProxy", serverSide = "twopiradians.minewatch.common.CommonProxy")
 	public static CommonProxy proxy;
+	public static Logger logger;
     public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static File configFile;
 	

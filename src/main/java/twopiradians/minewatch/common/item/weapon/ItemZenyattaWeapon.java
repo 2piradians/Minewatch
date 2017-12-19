@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -131,7 +132,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 				EntityZenyattaOrb orb = new EntityZenyattaOrb(entityLiving.world, entityLiving, 2, 0);
 				EntityHelper.setAim(orb, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 80, 0, null, 22, 0.78f*(this.ticksLeft%4 == 0 ? -1 : 1));
 				entityLiving.world.spawnEntity(orb);
-				ModSoundEvents.ZENYATTA_VOLLEY_SHOOT.playFollowingSound(player, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/3+0.8f, false);
+				ModSoundEvents.ZENYATTA_VOLLEY_SHOOT.playFollowingSound(entityLiving, entityLiving.world.rand.nextFloat()+0.5F, entityLiving.world.rand.nextFloat()/3+0.8f, false);
 			}
 			return super.onServerTick();
 		}
@@ -150,9 +151,9 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 		
 		// shoot
-		if (this.canUse(player, true, hand, false) && !player.isHandActive()) {
+		if (this.canUse(player, true, hand, false) && !player.isHandActive() && !TickHandler.hasHandler(player, Identifier.ZENYATTA_VOLLEY)) {
 			if (!world.isRemote) {
 				EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, hand.ordinal(), 0);
 				EntityHelper.setAim(orb, player, player.rotationPitch, player.rotationYawHead, 80, 0.2F, hand, 22, 0.78f);
@@ -182,7 +183,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// harmony
-			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
+			if (!world.isRemote && hero.ability1.isSelected(player, player instanceof EntityPlayer) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, true, 
 						// ignore if harmony from anyone
@@ -262,7 +263,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
 		// prevent speed reduction
-		if (!player.isRiding()) 
+		if (!player.isRiding() && player instanceof EntityPlayer) 
 			player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 0, 8, false, false));
 		// secondary shaking screen
 		if (player.world.isRemote) {

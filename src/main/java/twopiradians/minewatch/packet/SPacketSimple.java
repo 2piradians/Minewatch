@@ -378,7 +378,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// sync config
 					else if (packet.type == 17) {
-						Minewatch.network.sendToServer(new CPacketSyncConfig());
+						Minewatch.network.sendToServer(new PacketSyncConfig());
 					}
 					// add opped button to tab
 					else if (packet.type == 18) {
@@ -660,6 +660,10 @@ public class SPacketSimple implements IMessage {
 									ModSoundEvents.ZENYATTA_DAMAGE_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
 							}
 						}
+					}
+					// health plus particles
+					else if (packet.type == 44 && entity != null) {
+						EntityHelper.spawnHealParticles(entity);
 					}
 				}
 			});

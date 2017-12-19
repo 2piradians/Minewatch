@@ -118,6 +118,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			this.particleGreen += pulse;
 			this.particleBlue += pulse;
 		}
+		
+		// gravity
+		if (this.enumParticle.gravity != 0)
+			this.motionY += this.enumParticle.gravity;
 
 		// follow entity
 		this.followEntity();

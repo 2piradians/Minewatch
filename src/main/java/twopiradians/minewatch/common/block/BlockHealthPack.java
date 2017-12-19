@@ -9,6 +9,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -19,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class BlockHealthPack extends Block {
 
@@ -32,10 +34,14 @@ public abstract class BlockHealthPack extends Block {
 
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (!worldIn.isRemote && worldIn.getTileEntity(pos) instanceof TileEntityHealthPack) {
+		if (!worldIn.isRemote && worldIn.getTileEntity(pos) instanceof TileEntityHealthPack && 
+				entityIn instanceof EntityLivingBase) {
 			TileEntityHealthPack te = (TileEntityHealthPack) worldIn.getTileEntity(pos);
-			if (te.cooldown <= 0) 
-				te.setCooldown();
+			EntityLivingBase entity = (EntityLivingBase) entityIn;
+			if (te.getCooldown() <= 0 && entity.getHealth() < entity.getMaxHealth()) {
+				EntityHelper.heal(entity, te.getHealAmount());
+				te.setResetCooldown();
+			}
 		}
 	}
 
@@ -80,31 +86,6 @@ public abstract class BlockHealthPack extends Block {
 	@Deprecated
 	public int getLightValue(IBlockState state) {
 		return 8;
-	}
-
-	@Override
-	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return super.getExtendedState(state, world, pos);
-	}
-
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return super.getStateFromMeta(meta);
-	}
-
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return super.getMetaFromState(state);
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return super.createBlockState();
-	}
-
-	@Override
-	public String getUnlocalizedName() {
-		return super.getUnlocalizedName();
 	}
 
 	public static class Small extends BlockHealthPack {

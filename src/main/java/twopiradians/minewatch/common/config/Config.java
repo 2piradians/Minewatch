@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.config.Configuration;
@@ -13,12 +15,14 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
+import twopiradians.minewatch.packet.PacketSyncConfig;
 
 public class Config {
 
@@ -60,6 +64,8 @@ public class Config {
 	public static int trackKillsOption;
 	public static boolean preventFallDamage;
 	public static boolean healMobs;
+	public static double healthPackHealMultiplier;
+	public static double healthPackRespawnMultiplier;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -161,6 +167,12 @@ public class Config {
 		
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow healing mobs", true, "Should healing abilities and attacks affect other mobs? This does not apply to Hero Mobs.");
 		healMobs = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Heal Multiplier", 1d, "Multiplied by the healing amount for health packs (which is scaled by the Damage Scale). For example with this set to 2, Health Packs will heal twice as much as normal.", 0, 10);
+		healthPackHealMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Respawn Multiplier", 1d, "Multiplied by the respawn timer for health packs. For example with this set to 2, Health Packs will take twice as long to respawn.", 0, 10);
+		healthPackRespawnMultiplier = prop.getDouble();
 
 		// Hero Mob options
 
@@ -218,6 +230,7 @@ public class Config {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void syncSkins(EntityJoinWorldEvent event) {
+		// sync skins client -> server
 		if (event.getWorld().isRemote && Minewatch.proxy.getClientUUID() != null && 
 				event.getEntity().getPersistentID().toString().equals(Minewatch.proxy.getClientUUID().toString())) {
 			syncConfig();
@@ -230,6 +243,16 @@ public class Config {
 		if (event.getModID().equals(Minewatch.MODID)) {
 			syncConfig();
 			config.save();
+		}
+	}
+	
+	/**Send PacketSyncConfig when a player joins a server*/
+	@SubscribeEvent
+	public void onJoinWorld(PlayerLoggedInEvent event) {
+		if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP && 
+				!(event.player.world.getMinecraftServer() instanceof IntegratedServer)) {
+			Minewatch.logger.info("Sending config sync packet to: "+event.player.getName());
+			Minewatch.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);
 		}
 	}
 }

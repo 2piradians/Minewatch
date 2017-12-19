@@ -38,21 +38,21 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			GlStateManager.rotate((Minecraft.getMinecraft().player.ticksExisted+partialTicks)*4f, 0, 1, 0);
 		}
 
-		return (te.getBlockType() == ModBlocks.healthPackLarge && model == 3 && te.cooldown <= 0) || 
-				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.cooldown <= 0) || model == 0;
+		return (te.getBlockType() == ModBlocks.healthPackLarge && model == 3 && te.getCooldown() <= 0) || 
+				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.getCooldown() <= 0) || model == 0;
 	}
 
 	@Override
 	protected void postRender(TileEntityHealthPack te, int model, VertexBuffer buffer, double x, double y, double z, float partialTicks) {
 		// respawn progress circle (modified from EntityRenderer#drawNameplate
-		if (te.cooldown > 0 && model == 0) {
+		if (te.getCooldown() > 0 && model == 0) {
 			boolean isThirdPersonFrontal = Minecraft.getMinecraft().getRenderManager().options.thirdPersonView == 2;
 			float viewerYaw = Minecraft.getMinecraft().getRenderManager().playerViewY;
 			float viewerPitch = Minecraft.getMinecraft().getRenderManager().playerViewX;
 
 			float size = 11;
 			float scale = 0.025f;
-			float progress = 1f - (te.cooldown / ((float)te.resetCooldown));
+			double progress = 1f - (te.getCooldown() / ((float)te.getResetCooldown()));
 
 			GlStateManager.pushMatrix();
 			GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);

@@ -31,7 +31,7 @@
                     "scale": 0.375
                 },
                 "gui": {
-                    "translation": [-0.45, 0, 0],
+                    "translation": [-0.42, 0, 0],
 					"rotation": [ { "x": 30}, {"y": 225}, {"z": 0} ],
                     "scale": 0.625
                 },
@@ -41,7 +41,7 @@
 					"scale": 0.75
 				},
 				"fixed": {
-					"translation": [0.35, 0., -0.45],
+					"translation": [0.35, 0.1, -0.45],
 					"rotation": [ { "x": 0}, {"y": 90}, {"z": 0} ],
 					"scale": 0.75
 				}

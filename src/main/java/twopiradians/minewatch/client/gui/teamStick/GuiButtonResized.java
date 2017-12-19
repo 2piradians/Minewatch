@@ -15,13 +15,13 @@ public class GuiButtonResized extends GuiButton {
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
 		int actualHeight = this.height;
-		this.height = 20;
 		float yScale = actualHeight/20f;
+		float xScale = this.height == this.width ? yScale : 1;
+		this.height = 20;
 		GlStateManager.translate(0, this.yPosition-this.yPosition*(yScale), 0);
 		GlStateManager.scale(1, yScale, 1);
 		// copied - hovered edited
-		if (this.visible)
-        {
+		if (this.visible) {
             FontRenderer fontrenderer = mc.fontRendererObj;
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -49,7 +49,9 @@ public class GuiButtonResized extends GuiButton {
                 j = 16777120;
             }
 
-            this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
+            GlStateManager.translate(this.xPosition-this.xPosition*(xScale), 0, 0);
+    		GlStateManager.scale(xScale, 1, 1);
+            this.drawCenteredString(fontrenderer, this.displayString, (int) (this.xPosition + this.width/xScale / 2), this.yPosition + (this.height - 8) / 2, j);
         }
 		this.height = actualHeight;
 		GlStateManager.popMatrix();

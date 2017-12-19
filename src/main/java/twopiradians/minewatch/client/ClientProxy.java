@@ -39,7 +39,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.MultiModelState;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.Material;
@@ -280,7 +279,6 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void registerBlockRenders() {
-		// TODO
 		for (Block block : ModBlocks.allBlocks)
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
 					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));

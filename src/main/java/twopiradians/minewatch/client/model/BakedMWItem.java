@@ -38,6 +38,11 @@ public class BakedMWItem extends OBJBakedModel {
 	public BakedMWItem(OBJModel model, IModelState state, VertexFormat format, ImmutableMap<String, TextureAtlasSprite> textures) {
 		model.super(model, state, format, textures);
 	}
+	
+	@Override
+    public TextureAtlasSprite getParticleTexture() {
+        return super.getParticleTexture();
+    }
 
 	@Override
 	public ItemOverrideList getOverrides() {

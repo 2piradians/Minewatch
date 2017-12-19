@@ -7,7 +7,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -26,9 +25,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	}
 
 	@Override
-	public void update() {
-		//this.cooldown = this.resetCooldown;
-		
+	public void update() {		
 		if (this.cooldown > 0) {
 			// sync to client every once in a while
 			if (--this.cooldown % 100 == 0 && this.cooldown < this.resetCooldown && !world.isRemote) {
@@ -43,13 +40,11 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	@Nullable
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket() {
-		System.out.println("get update packet");
 		return new SPacketUpdateTileEntity(this.pos, 6, this.getUpdateTag());
 	}
 
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		System.out.println("on update packet");
 		if (pkt.getNbtCompound().hasKey("cooldown")) 
 			this.cooldown = pkt.getNbtCompound().getInteger("cooldown");
 	}
@@ -61,7 +56,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		NBTTagCompound nbt = super.writeToNBT(compound);System.out.println("writetonbt");
+		NBTTagCompound nbt = super.writeToNBT(compound);
 		nbt.setInteger("cooldown", cooldown);
 		return nbt;
 	}

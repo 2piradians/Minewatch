@@ -44,7 +44,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	private static final int VOLLEY_CHARGE_DELAY = 8;
 	public static final int ANIMATION_TIME = 40;
-	/**Client: ItemStacks and the ticksExisted that their animations stop*/
+	/**Client: ItemStacks and the ticksExisted that their animations stop - only for client player*/
 	public static ItemStack animatingDiscord;
 	public static ItemStack animatingHarmony;
 	public static int animatingTime = -1;
@@ -170,6 +170,13 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
+		// check if done animating
+		if (animatingTime != -1 && animatingTime < Minewatch.proxy.getClientPlayer().ticksExisted) {
+			animatingTime = -1;
+			animatingHarmony = null;
+			animatingDiscord = null;
+		}
+		
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
@@ -241,6 +248,11 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			this.reequipAnimation(player.getHeldItem(EnumHand.OFF_HAND), this.getMaxItemUseDuration(player.getHeldItem(hand)));
 			if (!world.isRemote)
 				ModSoundEvents.ZENYATTA_VOLLEY_CHARGE.playFollowingSound(player, 1.0f, 1.0f, false);
+			else {
+				animatingTime = -1;
+				animatingDiscord = null;
+				animatingHarmony = null;
+			}
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
 		else
@@ -351,13 +363,6 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 				(cameraTransformType.equals(TransformType.FIRST_PERSON_RIGHT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_RIGHT_HAND))) ||
 				(animatingDiscord == stack && entity.getHeldItemOffhand() == stack && 
 				(cameraTransformType.equals(TransformType.FIRST_PERSON_LEFT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_LEFT_HAND)))) {
-			// check if done animating
-			if (animatingTime < Minewatch.proxy.getClientPlayer().ticksExisted) {
-				animatingTime = -1;
-				animatingHarmony = null;
-				animatingDiscord = null;
-				return ret;
-			}
 
 			float percent = 1f - ((((float)animatingTime) - Minewatch.proxy.getClientPlayer().ticksExisted-Minewatch.proxy.getRenderPartialTicks()) / ANIMATION_TIME);
 			float upTime = 0.1f;
@@ -370,7 +375,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			else // top
 				percent = 1f;
 			percent = MathHelper.clamp(percent, 0, 1);
-			
+
 			GlStateManager.translate(0, percent*0.25f, 0);
 		}
 		return ret;

@@ -24,7 +24,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
@@ -38,7 +42,7 @@ import twopiradians.minewatch.packet.CPacketSimple;
 public class GuiTeamStick extends GuiScreen {
 
 	public enum Screen {
-		MAIN, INFO, EDIT_TEAM, CREATE_TEAM;
+		MAIN, INFO, EDIT_TEAM, CREATE_TEAM, QUESTION_MARK;
 	};
 
 	public enum Filter {
@@ -119,6 +123,10 @@ public class GuiTeamStick extends GuiScreen {
 		this.buttonList.add(new GuiButton(3, guiLeft+X_SIZE/2+35, guiTop+70, 40, 20, "Set"));
 		this.buttonList.add(new GuiButton(4, guiLeft+X_SIZE/2+2, guiTop+93, 65, 20, "Edit Team"));
 		this.buttonList.add(new GuiButton(5, guiLeft+X_SIZE/2-2-65, guiTop+93, 65, 20, "Done"));
+		this.buttonList.add(new GuiButtonResized(6, guiLeft+X_SIZE-15, guiTop+5, 10, 10, "?"));
+		this.buttonList.add(new GuiButton(7, guiLeft+X_SIZE/2-15, guiTop+93, 30, 20, "OK"));
+		this.buttonList.add(new GuiButtonURL(8, guiLeft+X_SIZE/2-70, guiTop+30, 140, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+"How to use the Team Stick", "https://www.youtube.com/channel/UCj-AVlTdovbbnzQKVtjtDoA", this)); // TODO
+		this.buttonList.add(new GuiButtonURL(9, guiLeft+X_SIZE/2-40, guiTop+65, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+"Minecraft Wiki", "https://minecraft.gamepedia.com/Scoreboard#Teams", this)); 
 		for (int i=0; i<16; ++i)
 			this.buttonList.add(new GuiButtonTeamColor(i, guiLeft+12+i*18-(i/8)*144, guiTop+23+(i/8)*18, 11, 11, "", this));
 		this.buttonList.add(new GuiButtonColored(0, guiLeft+X_SIZE/2+2, guiTop+93, 65, 20, "Delete Team", new Color(255, 50, 50), Screen.EDIT_TEAM, this));
@@ -207,6 +215,12 @@ public class GuiTeamStick extends GuiScreen {
 				else if (button.displayString.equals("Done"))
 					button.visible = (currentScreen == Screen.EDIT_TEAM || currentScreen == Screen.INFO) && 
 					this.getSelectedTeam() != null;
+				// QUESTION_MARK button
+				else if (button.displayString.equals("?"))
+					button.visible = currentScreen != Screen.QUESTION_MARK;
+				// OK QUESTION_MARK button
+				else if (button.displayString.equals("OK"))
+					button.visible = currentScreen == Screen.QUESTION_MARK;
 			}
 		}
 
@@ -224,6 +238,14 @@ public class GuiTeamStick extends GuiScreen {
 		else
 			teamNameField.xPosition = guiLeft+X_SIZE/2-teamNameField.width/2;
 
+		// QUESTION_MARK info screen
+		if (this.currentScreen == Screen.QUESTION_MARK) {
+			mc.fontRendererObj.drawString(TextFormatting.DARK_GRAY.toString()+TextFormatting.ITALIC+
+					"Video demonstration:", guiLeft+8, guiTop+24, 0xFFFFFF);
+			mc.fontRendererObj.drawString(TextFormatting.DARK_GRAY.toString()+TextFormatting.ITALIC+
+					"More info on teams:", guiLeft+8, guiTop+60, 0xFFFFFF);
+		}
+		
 		// draw screen for scrolling lists
 		scrollingTeams.drawScreen(mouseX, mouseY, partialTicks);
 		if (getSelectedTeam() != null) {
@@ -250,8 +272,10 @@ public class GuiTeamStick extends GuiScreen {
 		}
 		else if (this.teams.isEmpty())
 			this.drawCenteredString(mc.fontRendererObj, TextFormatting.GRAY+""+TextFormatting.ITALIC+"No teams created", guiLeft+X_SIZE/2, guiTop+Y_SIZE-3-52-mc.fontRendererObj.FONT_HEIGHT/2, 0xFFFFFF);
-		else if (this.currentScreen == Screen.MAIN)
-			this.drawCenteredString(mc.fontRendererObj, TextFormatting.GRAY+""+TextFormatting.ITALIC+"or select a team below...", guiLeft+X_SIZE/2, guiTop+100, 0xFFFFFF);
+		else if (this.currentScreen == Screen.MAIN) {
+			String text = TextFormatting.DARK_GRAY+""+TextFormatting.ITALIC+"or select a team below...";
+			mc.fontRendererObj.drawString(text, guiLeft+X_SIZE/2-mc.fontRendererObj.getStringWidth(text)/2, guiTop+100, 0xFFFFFF);
+		}
 
 		if ((this.getSelectedTeam() != null && this.currentScreen == Screen.EDIT_TEAM) || this.currentScreen == Screen.CREATE_TEAM) {
 			TextFormatting format = this.getSelectedTeam() == null ? this.selectedColor : this.getSelectedTeam().getChatFormat();
@@ -274,7 +298,7 @@ public class GuiTeamStick extends GuiScreen {
 			this.drawCenteredString(mc.fontRendererObj, title, guiLeft-3-50, guiTop+11, 0xFFFFFF);
 		}
 
-		if (getSelectedTeam() != null && 
+		if (getSelectedTeam() != null && currentScreen == Screen.INFO && 
 				mouseX <= stackX+16 && mouseX >= stackX && mouseY <= stackY+16 && mouseY >= stackY)
 			this.drawHoveringText(getStack().getTooltip(mc.player, false), mouseX, mouseY);
 
@@ -336,10 +360,10 @@ public class GuiTeamStick extends GuiScreen {
 		}
 		// create team
 		else if (button.displayString.equals("Create Team")) {
-			boolean valid = true;
+			boolean valid = !teamNameField.getText().isEmpty() && 
+					!teamNameField.getText().contains(" ");
 			for (Team team : this.teams)
-				if (team.getRegisteredName().equals(teamNameField.getText()) || teamNameField.getText().isEmpty() || 
-						teamNameField.getText().contains(" "))
+				if (team.getRegisteredName().equals(teamNameField.getText()))
 					valid = false;
 			if (valid) {
 				Minewatch.network.sendToServer(new CPacketSimple(10, teamNameField.getText(), mc.player, this.selectedColor.getColorIndex(), 0, 0));
@@ -358,6 +382,16 @@ public class GuiTeamStick extends GuiScreen {
 				this.currentScreen = Screen.MAIN;
 			}
 		}
+		// QUESTION_MARK
+		else if (button.displayString.equals("?"))
+			this.currentScreen = Screen.QUESTION_MARK;
+		// OK 
+		else if (button.displayString.equals("OK"))
+			this.currentScreen = this.getSelectedTeam() != null ? Screen.INFO : Screen.MAIN;
+		// GuiButtonURL
+		else if (button instanceof GuiButtonURL) 
+			this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
+					new ClickEvent(Action.OPEN_URL, ((GuiButtonURL)button).url))));
 	}
 
 	@Override
@@ -374,6 +408,8 @@ public class GuiTeamStick extends GuiScreen {
 			else if (!result && this.getSelectedTeam() != null)
 				teamNameField.setText(getTeamName(this.getSelectedTeam()));
 		}
+		
+		super.confirmClicked(result, id);
 	}
 
 	@Override
@@ -478,11 +514,14 @@ public class GuiTeamStick extends GuiScreen {
 	public void updateTextBoxColor() {
 		teamNameField.setTextColor(-1);
 		// set color to red if invalid
-		if (this.currentScreen == Screen.CREATE_TEAM)
-			for (Team team : this.teams)
-				if (team.getRegisteredName().equals(teamNameField.getText()) || teamNameField.getText().isEmpty() || 
-						teamNameField.getText().contains(" "))
-					teamNameField.setTextColor(new Color(255, 100, 100).getRGB());
+		if (this.currentScreen == Screen.CREATE_TEAM) {
+			if (teamNameField.getText().isEmpty() || teamNameField.getText().contains(" "))
+				teamNameField.setTextColor(new Color(255, 100, 100).getRGB());
+			else
+				for (Team team : this.teams)
+					if (team.getRegisteredName().equals(teamNameField.getText()))
+						teamNameField.setTextColor(new Color(255, 100, 100).getRGB());
+		}
 	}
 
 	/**Get first team stick held - or use fake one*/

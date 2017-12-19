@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.model.ModelSimple;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 
 public class RenderSimple<T extends Entity> extends Render<T> {
 

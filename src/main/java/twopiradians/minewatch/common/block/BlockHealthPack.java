@@ -4,23 +4,13 @@ package twopiradians.minewatch.common.block;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSlab;
-import net.minecraft.block.BlockStoneSlab;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -36,6 +26,7 @@ public abstract class BlockHealthPack extends Block {
 
 	public BlockHealthPack() {
 		super(Material.STRUCTURE_VOID);
+		this.setBlockUnbreakable();
 		this.setCreativeTab((CreativeTabs) Minewatch.tabMapMaking);
 	}
 
@@ -53,6 +44,7 @@ public abstract class BlockHealthPack extends Block {
 		return AABB;
 	}
 
+	@Override
 	@Deprecated
 	@SideOnly(Side.CLIENT)
 	public boolean isTranslucent(IBlockState state) {

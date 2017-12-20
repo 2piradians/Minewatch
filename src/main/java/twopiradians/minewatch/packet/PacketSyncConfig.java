@@ -18,7 +18,6 @@ import twopiradians.minewatch.common.config.Config;
 
 public class PacketSyncConfig implements IMessage {
 
-	private UUID uuid;
 	private boolean preventFallDamage;
 	private boolean allowGunWarnings;
 	private boolean projectilesCauseKnockback;
@@ -30,7 +29,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean healMobs;
 	private double healthPackHealMultiplier;
 	private double healthPackRespawnMultiplier;
-	
+
 	private boolean mobRandomSkins;
 	private int mobSpawn;
 	private int mobSpawnFreq;
@@ -45,38 +44,34 @@ public class PacketSyncConfig implements IMessage {
 	private double mobInaccuracy;
 
 	public PacketSyncConfig() {
-		if (Minewatch.proxy.getClientUUID() != null) {
-			this.uuid = Minewatch.proxy.getClientUUID();
-			this.preventFallDamage = Config.preventFallDamage;
-			this.allowGunWarnings = Config.allowGunWarnings;
-			this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
-			this.tokenDropRate = Config.tokenDropRate;
-			this.wildCardRate = Config.wildCardRate;
-			this.damageScale = Config.damageScale;
-			this.durabilityOptionsArmor = Config.durabilityOptionArmors;
-			this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
-			this.healMobs = Config.healMobs;
-			this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
-			this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
-			
-			this.mobRandomSkins = Config.mobRandomSkins;
-			this.mobSpawn = Config.mobSpawn;
-			this.mobSpawnFreq = Config.mobSpawnFreq;
-			this.mobTargetPlayers = Config.mobTargetPlayers;
-			this.mobTargetHostiles = Config.mobTargetHostiles;
-			this.mobTargetPassives = Config.mobTargetPassives;
-			this.mobTargetHeroes = Config.mobTargetHeroes;
-			this.mobTokenDropRate = Config.mobTokenDropRate;
-			this.mobWildCardDropRate = Config.mobWildCardDropRate;
-			this.mobEquipmentDropRate = Config.mobEquipmentDropRate;
-			this.mobAttackCooldown = Config.mobAttackCooldown;
-			this.mobInaccuracy = Config.mobInaccuracy;
-		}
+		this.preventFallDamage = Config.preventFallDamage;
+		this.allowGunWarnings = Config.allowGunWarnings;
+		this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
+		this.tokenDropRate = Config.tokenDropRate;
+		this.wildCardRate = Config.wildCardRate;
+		this.damageScale = Config.damageScale;
+		this.durabilityOptionsArmor = Config.durabilityOptionArmors;
+		this.durabilityOptionsWeapons = Config.durabilityOptionWeapons;
+		this.healMobs = Config.healMobs;
+		this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
+		this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
+
+		this.mobRandomSkins = Config.mobRandomSkins;
+		this.mobSpawn = Config.mobSpawn;
+		this.mobSpawnFreq = Config.mobSpawnFreq;
+		this.mobTargetPlayers = Config.mobTargetPlayers;
+		this.mobTargetHostiles = Config.mobTargetHostiles;
+		this.mobTargetPassives = Config.mobTargetPassives;
+		this.mobTargetHeroes = Config.mobTargetHeroes;
+		this.mobTokenDropRate = Config.mobTokenDropRate;
+		this.mobWildCardDropRate = Config.mobWildCardDropRate;
+		this.mobEquipmentDropRate = Config.mobEquipmentDropRate;
+		this.mobAttackCooldown = Config.mobAttackCooldown;
+		this.mobInaccuracy = Config.mobInaccuracy;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		this.uuid = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.preventFallDamage = buf.readBoolean();
 		this.allowGunWarnings = buf.readBoolean();
 		this.projectilesCauseKnockback = buf.readBoolean();
@@ -88,7 +83,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healMobs = buf.readBoolean();
 		this.healthPackHealMultiplier = buf.readDouble();
 		this.healthPackRespawnMultiplier = buf.readDouble();
-		
+
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
 		this.mobSpawnFreq = buf.readInt();
@@ -105,7 +100,6 @@ public class PacketSyncConfig implements IMessage {
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		ByteBufUtils.writeUTF8String(buf, this.uuid.toString());
 		buf.writeBoolean(this.preventFallDamage);
 		buf.writeBoolean(this.allowGunWarnings);
 		buf.writeBoolean(this.projectilesCauseKnockback);
@@ -117,7 +111,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.healMobs);
 		buf.writeDouble(this.healthPackHealMultiplier);
 		buf.writeDouble(this.healthPackRespawnMultiplier);
-		
+
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
 		buf.writeInt(this.mobSpawnFreq);
@@ -131,7 +125,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
 	}
-	
+
 	public void run() {
 		Config.preventFallDamage = this.preventFallDamage;
 		Config.allowGunWarnings = this.allowGunWarnings;
@@ -144,7 +138,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.healMobs = this.healMobs;
 		Config.healthPackHealMultiplier = this.healthPackHealMultiplier;
 		Config.healthPackRespawnMultiplier = this.healthPackRespawnMultiplier;
-		
+
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;
 		Config.mobSpawnFreq = this.mobSpawnFreq;
@@ -157,7 +151,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.mobEquipmentDropRate = this.mobEquipmentDropRate;
 		Config.mobAttackCooldown = this.mobAttackCooldown;
 		Config.mobInaccuracy = this.mobInaccuracy;
-		
+
 		Config.config.save();
 	}
 
@@ -176,7 +170,7 @@ public class PacketSyncConfig implements IMessage {
 			return null;
 		}
 	}
-	
+
 	/**Sync config to server with tab button / command*/
 	public static class HandlerServer implements IMessageHandler<PacketSyncConfig, IMessage> {
 		@Override

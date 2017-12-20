@@ -57,7 +57,9 @@ public class EntityHeroAIMoveToHealthPack extends EntityAIBase {
 	@Override
 	public boolean continueExecuting() {
 		// stop moving while on pack
-		if (this.shouldExecute() && entity.getPosition().equals(this.healthPack)) {
+		if (this.shouldExecute() && entity.getPosition().equals(this.healthPack) && 
+				entity.world.getTileEntity(this.healthPack) instanceof TileEntityHealthPack && 
+				(((TileEntityHealthPack)entity.world.getTileEntity(healthPack)).getCooldown() <= 100)) {
 			entity.moveForward = 0;
 			entity.moveStrafing = 0;
 			entity.getNavigator().clearPathEntity();

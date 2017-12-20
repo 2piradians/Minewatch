@@ -249,8 +249,7 @@ public class Config {
 	/**Send PacketSyncConfig when a player joins a server*/
 	@SubscribeEvent
 	public void onJoinWorld(PlayerLoggedInEvent event) {
-		if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP && 
-				!(event.player.world.getMinecraftServer() instanceof IntegratedServer)) {
+		if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP) {
 			Minewatch.logger.info("Sending config sync packet to: "+event.player.getName());
 			Minewatch.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);
 		}

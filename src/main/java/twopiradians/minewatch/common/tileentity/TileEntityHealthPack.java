@@ -15,7 +15,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
-@SideOnly(Side.CLIENT)
 public abstract class TileEntityHealthPack extends TileEntity implements ITickable {
 
 	/**Set of health pack positions for use by EntityHero AI*/

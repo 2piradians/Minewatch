@@ -203,9 +203,9 @@ public class CPacketSimple implements IMessage {
 							if (stack != null && stack.getItem() == ModItems.team_stick) {
 								ItemTeamStick.setTeam(stack, team);
 								if (team == null)
-									ItemTeamStick.sendMessage(packetPlayer, "Cleared selected team");
+									ItemTeamStick.sendChatMessage(packetPlayer, "Cleared selected team");
 								else
-									ItemTeamStick.sendMessage(packetPlayer, "Selected team: "+team.getChatFormat()+ItemTeamStick.getTeamName(team));
+									ItemTeamStick.sendChatMessage(packetPlayer, "Selected team: "+team.getChatFormat()+ItemTeamStick.getTeamName(team));
 							}
 					}
 					// Team Selector gui set entity team

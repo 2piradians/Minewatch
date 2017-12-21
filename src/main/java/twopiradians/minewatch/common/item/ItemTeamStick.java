@@ -154,7 +154,7 @@ public class ItemTeamStick extends Item {
 		else if (player.isSneaking()) {
 			if (!world.isRemote) {
 				setTeam(player.getHeldItem(hand), null);
-				sendMessage(player, "Cleared selected team");
+				sendChatMessage(player, "Cleared selected team");
 			}
 			return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 		}
@@ -170,23 +170,23 @@ public class ItemTeamStick extends Item {
 			if (player.isSneaking()) {
 				if (entity.getTeam() != null) {
 					setTeam(stack, entity.getTeam());
-					sendMessage(player, "Copied "+entity.getName()+"'s team: "+getTeamName(stack, true));
+					sendChatMessage(player, "Copied "+entity.getName()+"'s team: "+getTeamName(stack, true));
 				}
 				else 
-					sendMessage(player, entity.getName()+" isn't on a team");
+					sendChatMessage(player, entity.getName()+" isn't on a team");
 			}
 			// add to team
 			else if (team != null && !team.isSameTeam(entity.getTeam())) {
 				player.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), team.getRegisteredName());
-				sendMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
+				sendChatMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
 				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
 			}
 			// add to team already on
 			else if (team != null && team.isSameTeam(entity.getTeam()))
-				sendMessage(player, entity.getName()+" is already on team "+getTeamName(stack, true));
+				sendChatMessage(player, entity.getName()+" is already on team "+getTeamName(stack, true));
 			// no team selected
 			else if (team == null)
-				sendMessage(player, "No team selected; select a team by right-click the air first");
+				sendChatMessage(player, "No team selected; select a team by right-click the air first");
 		}
 
 		return true;
@@ -201,13 +201,13 @@ public class ItemTeamStick extends Item {
 					player.world.getScoreboard().removePlayerFromTeams(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString());
 				}
 				catch (Exception e) {}
-				sendMessage(player, "Removed "+entity.getName()+"'s team");
+				sendChatMessage(player, "Removed "+entity.getName()+"'s team");
 				player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.PLAYERS, 0.8f, 1);
 				return true;
 			}
 			// remove from team when not on team
 			else if (entity.getTeam() == null)
-				sendMessage(player, entity.getName()+" is not on a team");
+				sendChatMessage(player, entity.getName()+" is not on a team");
 		}
 
 		return false;

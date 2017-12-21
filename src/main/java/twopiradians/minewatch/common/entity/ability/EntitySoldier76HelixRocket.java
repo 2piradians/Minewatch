@@ -1,4 +1,4 @@
-package twopiradians.minewatch.common.entity.projectile;
+package twopiradians.minewatch.common.entity.ability;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;

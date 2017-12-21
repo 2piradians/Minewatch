@@ -52,9 +52,6 @@ public abstract class RenderOBJModel<T extends Entity> extends Render<T> {
 	/**Adapted from ForgeBlockModelRenderer#render*/
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {	
-		if (entity.ticksExisted <= 2 && entity.hasNoGravity() && !(entity instanceof EntityJunkratMine))
-			return;
-		
 		if (this.bakedModels == null) {
 			this.bakedModels = new IBakedModel[this.getEntityModels().length];
 			for (int i=0; i<this.getEntityModels().length; ++i) {

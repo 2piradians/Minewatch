@@ -742,7 +742,8 @@ public enum EnumHero {
 								GlStateManager.translate(0, -0.3f, 0);
 							}
 							GlStateManager.color(1, 1, 1);
-							if (hero.ability2.isSelected(player)) 
+							if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
 								GlStateManager.translate(-1, -1, 0);
 							// slot 3
 							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 

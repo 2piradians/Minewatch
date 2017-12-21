@@ -77,7 +77,7 @@ public class Keys {
 		public KeyBinding keyBind;
 		public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
 		public boolean updateWithoutWeapon;
-		
+
 		private KeyBind() {
 			this(null, false);
 		}
@@ -127,7 +127,7 @@ public class Keys {
 		}
 
 		public void setKeyDown(UUID uuid, boolean isKeyDown, boolean isRemote) {
- 			if (uuid != null) {
+			if (uuid != null) {
 				// set key down
 				if (isKeyDown) {
 					this.keyDownEntities.add(uuid);
@@ -147,7 +147,7 @@ public class Keys {
 		public boolean isKeyDown(EntityLivingBase entity) {
 			return isKeyDown(entity, false);
 		}
-		
+
 		public boolean isKeyDown(EntityLivingBase entity, boolean ignorePreventInput) {
 			return entity != null && this.isKeyDown(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}

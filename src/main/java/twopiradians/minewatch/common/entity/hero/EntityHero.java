@@ -23,6 +23,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIMoveToHealthPack;
@@ -70,7 +71,7 @@ public class EntityHero extends EntityMob {
 		this.tasks.addTask(7, new EntityAIWanderAvoidWater(this, 1.0D, 0.0F));
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
-		
+
 		this.tasks.addTask(1, new EntityHeroAIMoveToHealthPack(this));
 		this.targetTasks.addTask(1, new EntityHeroAIHurtByTarget(this, true, new Class[0]));
 		this.targetTasks.addTask(2, new EntityHeroAINearestAttackableTarget(this, EntityLivingBase.class, true));
@@ -153,7 +154,7 @@ public class EntityHero extends EntityMob {
 			this.world.spawnEntity(heroMob);
 		}
 		catch (Exception e) {
-			System.out.println("Minewatch was unable to spawn a random hero, please report this to the authors: ");
+			Minewatch.logger.error("Minewatch was unable to spawn a random hero, please report this to the authors: ");
 			e.printStackTrace();
 		}
 		this.setDead();

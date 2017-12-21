@@ -152,7 +152,7 @@ public class TickHandler {
 			
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler); 
+				//Minewatch.logger.info(handler); 
 				try {
 					if (handler.onClientTick()) 
 						unregister(true, handler);
@@ -172,7 +172,7 @@ public class TickHandler {
 			
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
-				//System.out.println(handler);
+				//Minewatch.logger.info(handler);
 				try {
 					if (handler.onServerTick()) 
 						unregister(false, handler);

@@ -75,6 +75,9 @@ public class SPacketSimple implements IMessage {
 	private double x3;
 	private double y3;
 	private double z3;
+	private double x4;
+	private double y4;
+	private double z4;
 	private int id;
 	private int id2;
 	private String string;
@@ -159,6 +162,9 @@ public class SPacketSimple implements IMessage {
 		this.x3 = entity.posX;
 		this.y3 = entity.posY;
 		this.z3 = entity.posZ;
+		this.x4 = entity.prevPosX;
+		this.y4 = entity.prevPosY;
+		this.z4 = entity.prevPosZ;
 		this.string = "";
 	}
 
@@ -178,6 +184,9 @@ public class SPacketSimple implements IMessage {
 		this.x3 = buf.readDouble();
 		this.y3 = buf.readDouble();
 		this.z3 = buf.readDouble();
+		this.x4 = buf.readDouble();
+		this.y4 = buf.readDouble();
+		this.z4 = buf.readDouble();
 		this.string = ByteBufUtils.readUTF8String(buf);
 	}
 
@@ -197,6 +206,9 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.x3);
 		buf.writeDouble(this.y3);
 		buf.writeDouble(this.z3);
+		buf.writeDouble(this.x4);
+		buf.writeDouble(this.y4);
+		buf.writeDouble(this.z4);
 		ByteBufUtils.writeUTF8String(buf, this.string);
 	}
 
@@ -480,7 +492,7 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3).setBoolean(true));
 							if (entity == player)
-								ModSoundEvents.SOMBRA_INVISIBLE_STOP.playFollowingSound(entity, 1, 1, false);
+								ModSoundEvents.SOMBRA_INVISIBLE_START.playFollowingSound(entity, 1, 1, false);
 						}
 						else if (entity instanceof EntityLivingBase)
 							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
@@ -588,6 +600,11 @@ public class SPacketSimple implements IMessage {
 					// Entity collision raytraceresult onImpact
 					else if (packet.type == 41 && entity instanceof EntityMW) {
 						entity.setPosition(packet.x3, packet.y3, packet.z3);
+						if (entity.ticksExisted == 0) {
+							entity.prevPosX = packet.x4;
+							entity.prevPosY = packet.y4;
+							entity.prevPosZ = packet.z4;
+						}
 						Vec3d hitVec = new Vec3d(packet.x, packet.y, packet.z);
 						RayTraceResult.Type typeOfHit = packet.x2 >= 0 && packet.x2 < RayTraceResult.Type.values().length ? 
 								RayTraceResult.Type.values()[(int) packet.x2] : null;

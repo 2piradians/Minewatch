@@ -139,7 +139,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		cancelInvisibility(player);
 
 		// shoot
-		if (this.canUse(player, true, hand, false)) {
+		if (this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE)) {
 			if (!world.isRemote) {
 				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, hand, 12, 0.43f);
@@ -180,7 +180,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// teleport
 				Entity translocator = hero.ability2.entities.get(player);
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
-					if (translocator.ticksExisted > 10) {
+					if (hero.ability2.keybind.isKeyPressed(player)) {
 						if (player instanceof EntityPlayer)
 							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
 						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);

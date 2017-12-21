@@ -70,7 +70,12 @@ public class EntityHelper {
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
 			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
-				aabb = entity.getEntityBoundingBox();
+				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
+				double y2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
+				double z2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
+				// move to prev pos
+				aabb = entity.getEntityBoundingBox().move(new Vec3d(x2-entity.posX, y2-entity.posY, z2-entity.posZ));
+
 				if (!fast || aabb.calculateIntercept(vec3d, vec3d1) != null) 
 					results.add(new RayTraceResult(entity));
 			}
@@ -162,12 +167,14 @@ public class EntityHelper {
 			scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d);
 		else if (entityTrace != null && entityTrace.entityHit != null) // scale velocity by hit entity width (for leeway since lifetime is 1)
 			scaledVelocity = scaledVelocity.add(scaledVelocity.normalize().scale(entityTrace.entityHit.width));
+		else // go a little faster for blocks when hitscanning - so it only takes 1 tick to hit
+			scaledVelocity = scaledVelocity.add(scaledVelocity.normalize().scale(0.1d));
 
 		DataParameter<Rotations> data = getVelocityParameter(entity);
 		if (data != null)
 			entity.getDataManager().set(data, new Rotations((float)scaledVelocity.xCoord, (float)scaledVelocity.yCoord, (float)scaledVelocity.zCoord));
 		else
-			System.out.println("Missing velocity parameter for: "+entity);
+			Minewatch.logger.error("Missing velocity parameter for: "+entity);
 	}
 
 	/**Get DataParemeter for setting velocity for entity*/
@@ -528,8 +535,8 @@ public class EntityHelper {
 		if (entity != null && results != null) {
 			double nearestDistance = Double.MAX_VALUE;
 			for (RayTraceResult result : results)
-				if (result != null && result.typeOfHit == RayTraceResult.Type.ENTITY) {
-					double distance = entity.getDistanceSqToEntity(result.entityHit);
+				if (result != null && result.hitVec != null) {
+					double distance = entity.getDistanceSq(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
 					if (distance < nearestDistance) {
 						nearest = result;
 						nearestDistance = distance;

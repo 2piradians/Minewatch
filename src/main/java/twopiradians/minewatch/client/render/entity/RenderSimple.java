@@ -30,9 +30,6 @@ public class RenderSimple<T extends Entity> extends Render<T> {
 
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {	
-		if (entity.ticksExisted <= 2 && entity.hasNoGravity())
-			return;
-
 		if (this.MODEL != null && (entity.ticksExisted > 1 || !entity.hasNoGravity())) {
 			float scale = 0.05f;
 			GlStateManager.pushMatrix();

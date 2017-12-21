@@ -183,7 +183,7 @@ public class ItemTeamStick extends Item {
 			}
 			// add to team
 			else if (team != null && !team.isSameTeam(entity.getTeam())) {
-				player.world.getScoreboard().addPlayerToTeam(entity.getCachedUniqueIdString(), team.getRegisteredName());
+				player.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), team.getRegisteredName());
 				sendMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
 				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
 			}
@@ -204,7 +204,7 @@ public class ItemTeamStick extends Item {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {
-					player.world.getScoreboard().removePlayerFromTeams(entity.getCachedUniqueIdString());
+					player.world.getScoreboard().removePlayerFromTeams(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString());
 				}
 				catch (Exception e) {}
 				sendMessage(player, "Removed "+entity.getName()+"'s team");

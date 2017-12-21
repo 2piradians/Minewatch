@@ -154,6 +154,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.mobAttackCooldown = this.mobAttackCooldown;
 		Config.mobInaccuracy = this.mobInaccuracy;
 
+		Config.syncConfig(true);
 		Config.config.save();
 	}
 

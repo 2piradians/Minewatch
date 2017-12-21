@@ -174,7 +174,7 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
 		if (overriding)
-			prop.set(damageScale * 10d);
+			prop.set(damageScale * 10f);
 		else
 			damageScale = (float) (0.1d * prop.getDouble());
 
@@ -280,7 +280,7 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment drop percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
 		if (overriding)
-			prop.set((int) mobEquipmentDropRate*100);
+			prop.set((int) (mobEquipmentDropRate*100f));
 		else
 			mobEquipmentDropRate = prop.getInt()/100f;
 

@@ -30,8 +30,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.CPacketSimple;
-import twopiradians.minewatch.packet.PacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
+import twopiradians.minewatch.packet.PacketSyncConfig;
 
 @SideOnly(Side.CLIENT)
 public class GuiTab extends GuiScreen {

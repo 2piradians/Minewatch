@@ -35,6 +35,7 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import twopiradians.minewatch.client.ClientProxy;
 import twopiradians.minewatch.client.model.BakedMWItem;
 
+@SuppressWarnings("deprecation")
 public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
 
 	// Note: Make sure to register new textures in ClientProxy#stitchEventPre
@@ -128,7 +129,6 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			this.partNames = partNames;
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public Optional<TRSRTransformation> apply(Optional<? extends IModelPart> part) {
 			

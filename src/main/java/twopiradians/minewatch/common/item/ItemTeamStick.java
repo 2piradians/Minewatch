@@ -1,12 +1,9 @@
 package twopiradians.minewatch.common.item;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -39,12 +36,9 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
-import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTeamStick extends Item {
-
-	private static HashMap<ItemStack, TextFormatting> formatCache = Maps.newHashMap();
 	
 	public ItemTeamStick() {
 		super();

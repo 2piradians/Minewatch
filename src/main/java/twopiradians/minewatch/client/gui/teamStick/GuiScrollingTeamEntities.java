@@ -5,7 +5,6 @@ import net.minecraftforge.fml.client.GuiScrollingList;
 
 public class GuiScrollingTeamEntities extends GuiScrollingList {
 
-	private String selectedEntity;
 	private GuiTeamStick gui;
 
 	public GuiScrollingTeamEntities(GuiTeamStick gui, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {

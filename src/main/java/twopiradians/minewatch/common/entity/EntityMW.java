@@ -104,7 +104,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 					this.onImpact(result);
 		}
 		// move if still alive and has motion
-		if ((!world.isRemote || this.ticksExisted > 2 || !this.hasNoGravity()) && 
+		if ((!world.isRemote || this.ticksExisted > 3 || !this.hasNoGravity()) && 
 				!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);

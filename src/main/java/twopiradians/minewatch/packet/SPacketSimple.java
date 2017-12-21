@@ -21,6 +21,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -75,6 +77,7 @@ public class SPacketSimple implements IMessage {
 	private double z3;
 	private int id;
 	private int id2;
+	private String string;
 
 	public SPacketSimple() { }
 
@@ -89,9 +92,13 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool) {
 		this(type, bool, null, 0, 0, 0, entity, null);
 	}
+	
+	public SPacketSimple(int type, Entity entity, String string) {
+		this(type, false, UUID.randomUUID(), 0, 0, 0, entity == null ? -1 : entity.getEntityId(), -1, string);
+	}
 
 	public SPacketSimple(int type, UUID uuid, boolean bool) {
-		this(type, bool, uuid, 0, 0, 0, -1, -1);
+		this(type, bool, uuid, 0, 0, 0, -1, -1, null);
 	}
 
 	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2) {
@@ -124,10 +131,10 @@ public class SPacketSimple implements IMessage {
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
 		this(type, bool, player == null ? UUID.randomUUID() : player.getPersistentID(), x, y, z, 
-				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId());
+				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId(), null);
 	}
 
-	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2) {
+	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2, String string) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = playerUUID;
@@ -136,6 +143,7 @@ public class SPacketSimple implements IMessage {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.string = string == null ? "" : string;
 	}
 
 	public SPacketSimple(int type, Entity entity, RayTraceResult result) {
@@ -151,6 +159,7 @@ public class SPacketSimple implements IMessage {
 		this.x3 = entity.posX;
 		this.y3 = entity.posY;
 		this.z3 = entity.posZ;
+		this.string = "";
 	}
 
 	@Override
@@ -169,6 +178,7 @@ public class SPacketSimple implements IMessage {
 		this.x3 = buf.readDouble();
 		this.y3 = buf.readDouble();
 		this.z3 = buf.readDouble();
+		this.string = ByteBufUtils.readUTF8String(buf);
 	}
 
 	@Override
@@ -187,6 +197,7 @@ public class SPacketSimple implements IMessage {
 		buf.writeDouble(this.x3);
 		buf.writeDouble(this.y3);
 		buf.writeDouble(this.z3);
+		ByteBufUtils.writeUTF8String(buf, this.string);
 	}
 
 	public static void move(EntityLivingBase player, double scale, boolean useLook, boolean giveMotionY) {
@@ -664,6 +675,12 @@ public class SPacketSimple implements IMessage {
 					// health plus particles
 					else if (packet.type == 44 && entity != null) {
 						EntityHelper.spawnHealParticles(entity);
+					}
+
+					// Team Selector send message
+					else if (packet.type == 45 && packet.string != null) {
+						ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Stick] "+TextFormatting.RESET+packet.string);
+						Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
 					}
 				}
 			});

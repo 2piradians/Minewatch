@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
@@ -26,8 +27,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -40,6 +39,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
+import twopiradians.minewatch.packet.CPacketSimple;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTeamStick extends Item {
 
@@ -141,10 +142,10 @@ public class ItemTeamStick extends Item {
 		return super.getItemStackDisplayName(stack)+(name == null ? "" : ": "+name);
 	}
 
-	/**Send a message to the player*/
+	/**Send a message to the player - only call on server*/
 	public static void sendMessage(EntityPlayer player, String string) {
-		ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Stick] "+TextFormatting.RESET+string);
-		Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
+		if (player != null && !player.world.isRemote && player instanceof EntityPlayerMP)
+			Minewatch.network.sendTo(new SPacketSimple(45, player, string), (EntityPlayerMP) player);
 	}
 
 	@Override

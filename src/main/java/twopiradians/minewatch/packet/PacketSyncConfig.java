@@ -55,7 +55,6 @@ public class PacketSyncConfig implements IMessage {
 		this.healMobs = Config.healMobs;
 		this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
 		this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
-		System.out.println("created packet with: "+this.healthPackRespawnMultiplier); // TODO
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -128,7 +127,6 @@ public class PacketSyncConfig implements IMessage {
 	}
 
 	public void run() {
-		System.out.println("prev: "+Config.healthPackRespawnMultiplier+", updated: "+this.healthPackRespawnMultiplier); // TODO
 		Config.preventFallDamage = this.preventFallDamage;
 		Config.allowGunWarnings = this.allowGunWarnings;
 		Config.projectilesCauseKnockback = this.projectilesCauseKnockback;
@@ -186,7 +184,7 @@ public class PacketSyncConfig implements IMessage {
 					EntityPlayer player = ctx.getServerHandler().playerEntity;
 					if (player != null) {
 						if (player.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
-							packet.run(); // TEST (with health pack timers on server)
+							packet.run(); 
 							Minewatch.network.sendToAll(new PacketSyncConfig()); // sync new config to all clients
 							player.sendMessage(new TextComponentString(TextFormatting.GREEN+"Successfully synced config to server."));
 						}

@@ -140,7 +140,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		if (!world.isRemote && this.shouldMoveToHitPosition(result))
 			EntityHelper.moveToHitPosition(this, result);
 		
-		if (!world.isRemote) { // TEST
+		if (!world.isRemote) { 
 			if (this.shouldMoveToHitPosition(result))
 				EntityHelper.moveToHitPosition(this, result);
 			Minewatch.network.sendToAllAround(new SPacketSimple(41, this, result), 

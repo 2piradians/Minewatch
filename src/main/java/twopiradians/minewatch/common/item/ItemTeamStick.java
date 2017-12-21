@@ -137,7 +137,7 @@ public class ItemTeamStick extends Item {
 	}
 
 	/**Send a message to the player - only call on server*/
-	public static void sendMessage(EntityPlayer player, String string) {
+	public static void sendChatMessage(EntityPlayer player, String string) {
 		if (player != null && !player.world.isRemote && player instanceof EntityPlayerMP)
 			Minewatch.network.sendTo(new SPacketSimple(45, player, string), (EntityPlayerMP) player);
 	}

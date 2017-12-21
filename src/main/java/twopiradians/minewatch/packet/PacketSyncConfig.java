@@ -55,6 +55,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healMobs = Config.healMobs;
 		this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
 		this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
+		System.out.println("created packet with: "+this.healthPackRespawnMultiplier); // TODO
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -127,6 +128,7 @@ public class PacketSyncConfig implements IMessage {
 	}
 
 	public void run() {
+		System.out.println("prev: "+Config.healthPackRespawnMultiplier+", updated: "+this.healthPackRespawnMultiplier); // TODO
 		Config.preventFallDamage = this.preventFallDamage;
 		Config.allowGunWarnings = this.allowGunWarnings;
 		Config.projectilesCauseKnockback = this.projectilesCauseKnockback;

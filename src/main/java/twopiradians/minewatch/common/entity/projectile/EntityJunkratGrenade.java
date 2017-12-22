@@ -114,7 +114,7 @@ public class EntityJunkratGrenade extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {	
+	public void onImpact(RayTraceResult result) {	
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			// bounce
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
@@ -130,7 +130,8 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		// direct hit explosion
 		else if (result.entityHit != null && !this.isDeathGrenade) {
-			EntityHelper.moveToHitPosition(this, result);
+			super.onImpact(result);
+
 			if (this.world.isRemote) {
 				this.motionX = 0;
 				this.motionY = 0;

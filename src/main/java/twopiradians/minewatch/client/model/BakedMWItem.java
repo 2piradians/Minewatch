@@ -2,6 +2,7 @@ package twopiradians.minewatch.client.model;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,16 +28,27 @@ import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class BakedMWItem extends OBJBakedModel {
 
 	public ItemStack stack;
 	public EntityLivingBase entity;
+	@Nullable
+	private TextureAtlasSprite particleTexture;
 
 	public BakedMWItem(OBJModel model, IModelState state, VertexFormat format, ImmutableMap<String, TextureAtlasSprite> textures) {
 		model.super(model, state, format, textures);
+		// set health pack particle texture to base texture
+		if (state instanceof TileEntityOBJRenderer.OBJModelState && textures.containsKey("None"))
+			this.particleTexture = textures.get("None");
 	}
+	
+	@Override
+    public TextureAtlasSprite getParticleTexture() {
+        return this.particleTexture != null ? this.particleTexture : super.getParticleTexture();
+    }
 
 	@Override
 	public ItemOverrideList getOverrides() {
@@ -51,7 +63,7 @@ public class BakedMWItem extends OBJBakedModel {
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
 			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, cameraTransformType, ret);
-
+		
 		return ret;
 	}
 

@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,14 +45,14 @@ import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.packet.CPacketSimple;
-import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
+import twopiradians.minewatch.packet.PacketSyncConfig;
 import twopiradians.minewatch.packet.SPacketFollowingSound;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
@@ -61,43 +62,60 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 
 public class CommonProxy {
 
+	public enum EnumGui {
+		WILDCARD, TEAM_STICK
+	}
+	
 	public enum EnumParticle {
-		CIRCLE("circle"), SLEEP("sleep"), SMOKE("smoke", 4, 1), SPARK("spark", 1, 4), HEALTH("health", true),
-		EXPLOSION("explosion", 16, 1), ANA_HEAL("ana_heal"), ANA_DAMAGE("ana_damage", 1, 4),
-		JUNKRAT_TRAP("junkrat_trap", true), JUNKRAT_TRAP_TRIGGERED("junkrat_trap_triggered", true), 
-		JUNKRAT_TRAP_DESTROYED("junkrat_trap_destroyed", true),
-		WIDOWMAKER_MINE("widowmaker_mine", true), WIDOWMAKER_MINE_TRIGGERED("widowmaker_mine_triggered", true), 
-		WIDOWMAKER_MINE_DESTROYED("widowmaker_mine_destroyed", true),
-		SOMBRA_TRANSPOSER("sombra_transposer", true), REINHARDT_STRIKE("reinhardt_strike"),
-		HOLLOW_CIRCLE("hollow_circle");
+		CIRCLE, SLEEP, SMOKE(4, 1, 0), SPARK(1, 4, 0), HEALTH(true, true),
+		EXPLOSION(16, 1, 0), ANA_HEAL, ANA_DAMAGE(1, 4, 0),
+		JUNKRAT_TRAP(true), JUNKRAT_TRAP_TRIGGERED(true), 
+		JUNKRAT_TRAP_DESTROYED(true),
+		WIDOWMAKER_MINE(true), WIDOWMAKER_MINE_TRIGGERED(true), 
+		WIDOWMAKER_MINE_DESTROYED(true),
+		SOMBRA_TRANSPOSER(true), REINHARDT_STRIKE,
+		HOLLOW_CIRCLE, ZENYATTA(4, 1, 0), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true),
+		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
+		HEALTH_PLUS(1, 1, -0.005f);
 
+		public HashSet<UUID> particleEntities = new HashSet();
+		
 		public final ResourceLocation loc;
 		public final int frames;
 		public final int variations;
-		public boolean disableDepth;
+		public final float gravity;
+		public final boolean disableDepth;
+		public final boolean onePerEntity;
 
-		private EnumParticle(String loc) {
-			this(loc, 1, 1, false);
+		private EnumParticle() {
+			this(false);
+		}
+		
+		private EnumParticle(boolean disableDepth) {
+			this(1, 1, 0, disableDepth, false);
+		}
+		
+		private EnumParticle(boolean disableDepth, boolean onePerEntity) {
+			this(1, 1, 0, disableDepth, onePerEntity);
 		}
 
-		private EnumParticle(String loc, boolean disableDepth) {
-			this(loc, 1, 1, disableDepth);
+		private EnumParticle(int frames, int variations, float gravity) {
+			this(frames, variations, gravity, false, false);
 		}
 
-		private EnumParticle(String loc, int frames, int variations) {
-			this(loc, frames, variations, false);
-		}
-
-		private EnumParticle(String loc, int frames, int variations, boolean disableDepth) {
-			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+loc);
+		private EnumParticle(int frames, int variations, float gravity, boolean disableDepth, boolean onePerEntity) {
+			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+this.name().toLowerCase());
 			this.frames = frames;
 			this.variations = variations;
+			this.gravity = gravity;
 			this.disableDepth = disableDepth;
+			this.onePerEntity = onePerEntity;
 		}
 	}
 
-	//PORT add registerEventListeners();
+	//PORT add registerEventListeners(); AND REMOVE THE OLD ONE IN init()
 	public void preInit(FMLPreInitializationEvent event) {
+		Minewatch.logger = event.getModLog();
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
 		Config.preInit(Minewatch.configFile);
 		registerPackets();
@@ -121,7 +139,8 @@ public class CommonProxy {
 		Minewatch.network.registerMessage(SPacketSyncAbilityUses.Handler.class, SPacketSyncAbilityUses.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(SPacketSyncSkins.Handler.class, SPacketSyncSkins.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(CPacketSyncSkins.Handler.class, CPacketSyncSkins.class, id++, Side.SERVER);
-		Minewatch.network.registerMessage(CPacketSyncConfig.Handler.class, CPacketSyncConfig.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(PacketSyncConfig.HandlerServer.class, PacketSyncConfig.class, id++, Side.SERVER);
+		Minewatch.network.registerMessage(PacketSyncConfig.HandlerClient.class, PacketSyncConfig.class, id++, Side.CLIENT);
 		Minewatch.network.registerMessage(CPacketSimple.Handler.class, CPacketSimple.class, id++, Side.SERVER);
 		Minewatch.network.registerMessage(SPacketFollowingSound.Handler.class, SPacketFollowingSound.class, id++, Side.CLIENT);
 	}
@@ -129,10 +148,11 @@ public class CommonProxy {
 	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {}
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {}
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {}
-	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}	
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) {}	
 	public void spawnParticlesReaperTeleport(World world, EntityLivingBase entityLiving, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {
@@ -161,7 +181,7 @@ public class CommonProxy {
 					new NonNullList<Ingredient>() {{add(Ingredient.fromStacks(new ItemStack(hero.token)));}}).setRegistryName(Minewatch.MODID, hero.name.toLowerCase()+"_weapon"));
 
 		}
-	}
+}
 
 	@SubscribeEvent(receiveCanceled=true)
 	public void commandDev(CommandEvent event) {
@@ -261,9 +281,13 @@ public class CommonProxy {
 		return 1;
 	}
 
-	public void openWildCardGui() {}
+	public void openGui(EnumGui gui) {}
 
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return handler.onServerRemove();
+	}
+
+	public Entity getRenderViewEntity() {
+		return null;
 	}
 }

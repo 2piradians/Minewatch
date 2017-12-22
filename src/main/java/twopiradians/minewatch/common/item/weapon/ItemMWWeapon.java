@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.util.ITooltipFlag;
@@ -32,6 +33,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -45,9 +48,10 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
@@ -63,7 +67,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
 	protected boolean saveEntityToNBT;
-	protected boolean showHealthParticles;
+	public boolean showHealthParticles;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -130,8 +134,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void reequipAnimation(ItemStack stack) {
+		this.reequipAnimation(stack, 2);
+	}
+	
+	public void reequipAnimation(ItemStack stack, int ticks) {
 		if (stack != null)
-			this.reequipAnimation.put(stack, 2);
+			this.reequipAnimation.put(stack, ticks);
 	}
 
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
@@ -275,13 +283,14 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			stack.setItemDamage(0);
 
 		// health particles
-		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
+		if (this.showHealthParticles && entity instanceof EntityPlayer && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+				this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) && world.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(30);
 			List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
-						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f && 
+						EntityHelper.shouldTarget(entity, entity2, true)) {
 					float size = Math.min(entity2.height, entity2.width)*9f;
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}
@@ -326,11 +335,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (entity instanceof EntityPlayer) {
 			CooldownTracker tracker = ((EntityPlayer)entity).getCooldownTracker();
 			if (!tracker.hasCooldown(this) || overrideCooldown)
-				tracker.setCooldown(this, cooldown);
+				tracker.setCooldown(this, Math.max(2, cooldown));
 		}
 		// use handler for entity heroes
 		else if (entity instanceof EntityHero) {
 			cooldown *= Config.mobAttackCooldown;
+			cooldown++;
 			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
 			if (handler == null)
 				TickHandler.register(entity.world.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
@@ -375,6 +385,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	/**Called before game overlay is rendered if wearing set and holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
+	
+	/**Called before entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderEntity(RenderLivingEvent.Pre<EntityLivingBase> event) {}
+	
+	/**Called after entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {}
+	
+	/**Called when client player is wearing set and holding weapon in mainhand*/
+	@SideOnly(Side.CLIENT)
+	public void renderWorldLast(RenderWorldLastEvent event, EntityPlayerSP player) {}
 	
 	/**Set weapon model's color*/
 	@Override

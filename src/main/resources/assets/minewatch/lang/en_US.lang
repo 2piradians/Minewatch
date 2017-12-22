@@ -1,9 +1,19 @@
-itemGroup.tabMinewatch=Minewatch
+itemGroup.tabMinewatch=Minewatch Tab
+itemGroup.tabMinewatchArmorWeapons=Minewatch Armor & Weapons
+itemGroup.tabMinewatchMapMaking=Minewatch Map-Making Tools
+
 config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=Hero Mobs
+
 effect.frozen=Frozen
+
+tile.health_pack_small.name=Small Health Pack
+tile.health_pack_large.name=Large Health Pack
+
+item.wild_card_token.name=Wild Card Token
+item.team_stick.name=Team Stick
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helmet
@@ -112,7 +122,12 @@ item.lucio_leggings.name=Lucio Leggings
 item.lucio_boots.name=Lucio Boots
 item.lucio_weapon.name=Lucio's Sound Amplifier
 
-item.wild_card_token.name=Wild Card Token
+item.zenyatta_token.name=Zenyatta Token
+item.zenyatta_helmet.name=Zenyatta Helmet
+item.zenyatta_chestplate.name=Zenyatta Chestplate
+item.zenyatta_leggings.name=Zenyatta Leggings
+item.zenyatta_boots.name=Zenyatta Boots
+item.zenyatta_weapon.name=Zenyatta's Orb of Destruction
 
 entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
@@ -157,3 +172,5 @@ entity.reinhardt_hero.name=Reinhardt
 entity.reinhardt_strike.name=Reinhardt Fire Strike
 entity.lucio_hero.name=Lucio
 entity.lucio_sonic.name=Lucio Sonic Projectile
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Zenyatta Orb of Destruction

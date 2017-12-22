@@ -9,8 +9,8 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHealBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestHealableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityAna extends EntityHero {
 

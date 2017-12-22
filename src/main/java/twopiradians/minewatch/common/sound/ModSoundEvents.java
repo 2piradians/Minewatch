@@ -13,8 +13,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public enum ModSoundEvents {
 
@@ -131,7 +131,6 @@ public enum ModSoundEvents {
 	SOMBRA_TRANSLOCATOR_THROW,
 	SOMBRA_TRANSLOCATOR_DURING,
 	SOMBRA_TRANSLOCATOR_TELEPORT,
-
 	LUCIO_RELOAD,
 	LUCIO_SHOOT,
 	LUCIO_CROSSFADE,
@@ -142,7 +141,20 @@ public enum ModSoundEvents {
 	LUCIO_PASSIVE_HEAL,
 	LUCIO_PASSIVE_HEAL_VOICE,
 	LUCIO_SOUNDWAVE,
-	LUCIO_SOUNDWAVE_VOICE;
+	LUCIO_SOUNDWAVE_VOICE,
+	
+	ZENYATTA_RELOAD,
+	ZENYATTA_SHOOT,
+	ZENYATTA_HEAL,
+	ZENYATTA_HEAL_RETURN,
+	ZENYATTA_HEAL_VOICE,
+	ZENYATTA_DAMAGE,
+	ZENYATTA_DAMAGE_RETURN,
+	ZENYATTA_DAMAGE_VOICE,
+	ZENYATTA_VOLLEY_CHARGE,
+	ZENYATTA_VOLLEY_SHOOT,
+	HEALTH_PACK_USE,
+	HEALTH_PACK_RESPAWN;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -193,7 +205,7 @@ public enum ModSoundEvents {
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(100));
+			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
 			return true;
 		}
 	}
@@ -211,7 +223,7 @@ public enum ModSoundEvents {
 			Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
 	}
 
-/*	private void register() {
+	/*private void register() {
 		GameRegistry.register(event, loc);	
 	}*/
 
@@ -227,11 +239,6 @@ public enum ModSoundEvents {
 
 	}
 
-/*	public static void preInit() {
-		for (ModSoundEvents event : ModSoundEvents.values())
-			event.register();
-	}*/
-
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 
@@ -240,5 +247,5 @@ public enum ModSoundEvents {
 			for (ModSoundEvents event : ModSoundEvents.values())
 				events.getRegistry().register(event.event);
 		}
-	}
+}
 }

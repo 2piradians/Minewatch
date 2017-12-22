@@ -21,7 +21,7 @@ public class EntityLucioSonic extends EntityMW {
 	public EntityLucioSonic(World worldIn, EntityLivingBase throwerIn, int hand) {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.3f, 0.3f);
-		this.lifetime = 6000;
+		this.lifetime = 60;
 		this.setNoGravity(true);
 	}
 
@@ -50,7 +50,7 @@ public class EntityLucioSonic extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptDamage(getThrower(), result.entityHit, 20, false);

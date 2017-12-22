@@ -25,10 +25,10 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
@@ -103,7 +103,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
 				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).grow(2.0D, 1D, 2.0D))) 
+						player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
 				if (entity != player) 
 					this.attack(stack, player, entity);
 			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);

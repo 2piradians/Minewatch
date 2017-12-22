@@ -12,11 +12,11 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityMeiBlast extends EntityMW {
@@ -93,7 +93,7 @@ public class EntityMeiBlast extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (result.entityHit != null) {

@@ -112,7 +112,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 					stack.damageItem(1, player);
 					worldIn.spawnEntity(entityarrow);
 					ModSoundEvents.HANZO_SHOOT.playSound(player, worldIn.rand.nextFloat()+0.5F, worldIn.rand.nextFloat()/2+0.75f);
-				}	
+				}
 
 				if (!flag1 && player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode) {
 					itemstack.shrink(1);

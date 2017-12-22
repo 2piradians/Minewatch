@@ -122,8 +122,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		if ((source.getTrueSource() == null || EntityHelper.shouldHit(source.getTrueSource(), this, false, source)) &&
-				(source.getTrueSource() == null || EntityHelper.shouldHit(source.getTrueSource(), this, false, source)))
+		if ((source.getTrueSource() == null || EntityHelper.shouldHit(source.getTrueSource(), this, false, source)))
 			return super.attackEntityFrom(source, amount);
 		else 
 			return false;

@@ -30,8 +30,8 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.CPacketSimple;
-import twopiradians.minewatch.packet.CPacketSyncConfig;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
+import twopiradians.minewatch.packet.PacketSyncConfig;
 
 @SideOnly(Side.CLIENT)
 public class GuiTab extends GuiScreen {
@@ -211,7 +211,7 @@ public class GuiTab extends GuiScreen {
 			else if (button.displayString.equals("Options"))
 				Minecraft.getMinecraft().displayGuiScreen(new GuiFactory().createConfigGui(this));
 			else if (button.displayString.equals("") && button instanceof GuiButtonTab)
-				Minewatch.network.sendToServer(new CPacketSyncConfig());
+				Minewatch.network.sendToServer(new PacketSyncConfig());
 			else if (button.displayString.equals("Submit a Skin/Map"))
 				GuiTab.currentScreen = Screen.SUBMIT;
 			break;

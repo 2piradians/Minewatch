@@ -7,9 +7,9 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
@@ -54,11 +54,14 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 	@Override
 	public void resetTask() {
-		super.resetTask();
 		this.seeTime = 0;
 		this.attackCooldown = 0;
 		this.entity.resetActiveHand();
 		this.resetKeybinds();
+		if (entity.getNavigator().noPath() && (this.getTarget() == null || !this.getTarget().isEntityAlive())) {
+			entity.moveForward = 0;
+			entity.moveStrafing = 0;
+		}
 	}
 
 	@Nullable
@@ -78,13 +81,14 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 			if (canSee != positiveSeeTime)
 				this.seeTime = 0;
 
-			if (canSee)
+			if (!entity.movingToHealthPack && canSee)
 				++this.seeTime;
 			else
 				--this.seeTime;
 
-			this.attackTarget(target, canSee, Math.sqrt(distanceSq));
-			
+			if (!entity.movingToHealthPack)
+				this.attackTarget(target, canSee, Math.sqrt(distanceSq));
+
 			this.move(target, canSee, distanceSq);
 		}
 	}
@@ -104,6 +108,16 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	}
 
 	protected void move(EntityLivingBase target, boolean canSee, double distanceSq) {
+		// don't move if already moving to health pack
+		if (entity.movingToHealthPack) {
+			if (entity.onPack)
+				this.lookAtTarget(target);
+			else
+				this.resetKeybinds();
+			this.seeTime = 0;
+			return;
+		}
+
 		switch (movementType) {
 		case STRAFING:
 			if (distanceSq <= (double)this.maxAttackDistance && this.seeTime >= 20) {
@@ -153,8 +167,8 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 	}
 
 	protected void lookAtTarget(EntityLivingBase target) {
-		if (!TickHandler.hasHandler(entity, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(entity, Identifier.PREVENT_ROTATION))
-			this.entity.getLookHelper().setLookPosition(target.posX, target.posY+target.getEyeHeight()+lookYOffset, target.posZ, 360, 360);
+		if (!TickHandler.hasHandler(entity, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(entity, Identifier.PREVENT_ROTATION)) 
+			this.entity.getLookHelper().setLookPosition(target.prevPosX, target.prevPosY+target.getEyeHeight()+lookYOffset, target.prevPosZ, 360, 360);
 		this.entity.rotationYaw = this.entity.rotationYawHead;
 	}
 

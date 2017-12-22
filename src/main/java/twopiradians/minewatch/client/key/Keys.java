@@ -35,9 +35,9 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.SPacketSyncCooldown;
@@ -77,7 +77,7 @@ public class Keys {
 		public KeyBinding keyBind;
 		public final DataParameter<Boolean> datamanager = EntityDataManager.<Boolean>createKey(EntityHero.class, DataSerializers.BOOLEAN);
 		public boolean updateWithoutWeapon;
-		
+
 		private KeyBind() {
 			this(null, false);
 		}
@@ -123,8 +123,7 @@ public class Keys {
 		}
 
 		public void setKeyDown(EntityLivingBase entity, boolean isKeyDown) {
-			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown, 
-					entity != null ? entity.world.isRemote : true);
+			this.setKeyDown(entity == null ? null : entity.getPersistentID(), isKeyDown, entity != null ? entity.world.isRemote : true);
 		}
 
 		public void setKeyDown(UUID uuid, boolean isKeyDown, boolean isRemote) {
@@ -148,7 +147,7 @@ public class Keys {
 		public boolean isKeyDown(EntityLivingBase entity) {
 			return isKeyDown(entity, false);
 		}
-		
+
 		public boolean isKeyDown(EntityLivingBase entity, boolean ignorePreventInput) {
 			return entity != null && this.isKeyDown(entity.getPersistentID()) && (ignorePreventInput || !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT));
 		}
@@ -156,7 +155,7 @@ public class Keys {
 		public boolean isKeyDown(UUID uuid) {
 			return uuid != null && this.keyDownEntities.contains(uuid);
 		}
-		
+
 		public boolean isKeyPressed(EntityLivingBase entity) {
 			return isKeyPressed(entity, false);
 		}
@@ -243,7 +242,7 @@ public class Keys {
 										updateKeys(lmbDown);
 
 										// prevent further lmb processing
-										if (lmbDown != null && lmbDown)
+										if (lmbDown != null && lmbDown) // TODO remove this stupid logic and just do it in the item
 											event.setCanceled(true);
 
 										// switch to alt weapon

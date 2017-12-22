@@ -7,9 +7,9 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -47,10 +47,10 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemLucioSoundAmplifier extends ItemMWWeapon {
@@ -139,7 +139,8 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			boolean amp = TickHandler.hasHandler(player, Identifier.LUCIO_AMP);
 
 			// passive
-			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
+			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2) &&
+					ItemMWArmor.SetManager.getWornSet(player) == hero) {
 				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
 					this.affectedEntities = 0;
 				else if (!world.isRemote && player instanceof EntityLucio)

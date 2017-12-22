@@ -1,11 +1,11 @@
 package twopiradians.minewatch.client.render.entity;
 
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
 
 public class RenderMeiCrystal extends RenderOBJModel<EntityMeiCrystal> { 
 

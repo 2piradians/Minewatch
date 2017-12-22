@@ -53,8 +53,8 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
@@ -123,11 +123,11 @@ public class ItemMWArmor extends ItemArmor {
 
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
 			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
-				hero.getSkin(entity.getPersistentID());
+			hero.getSkin(entity.getPersistentID());
 			if (skin < 0 || skin >= hero.skinInfo.length)
 				skin = 0;
-			return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
-			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
+		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
+		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
 	@Mod.EventBusSubscriber
@@ -198,7 +198,7 @@ public class ItemMWArmor extends ItemArmor {
 				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
 						(fullSet && (SetManager.getWornSet(event.player) == null ||
-						SetManager.getWornSet(event.player) != hero)))
+								SetManager.getWornSet(event.player) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						ability.toggle(event.player, false);
 
@@ -370,7 +370,7 @@ public class ItemMWArmor extends ItemArmor {
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < -0.09d && !player.isInWater() && !player.isInLava()) {
+			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY <= -0.09d && !player.isInWater() && !player.isInLava()) {
 				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
 				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(player) && !world.isRemote) {

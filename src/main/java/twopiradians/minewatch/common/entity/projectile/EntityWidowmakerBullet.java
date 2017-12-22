@@ -25,7 +25,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.1f, 0.1f);
 		this.setNoGravity(true);
-		this.lifetime = 1;
+		this.lifetime = 3;
 		this.damage = damage;
 		if (!this.world.isRemote)
 			this.getDataManager().set(SCOPED, scoped);
@@ -52,7 +52,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptDamage(this, result.entityHit, damage, false);

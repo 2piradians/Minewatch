@@ -12,10 +12,10 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityAnaBullet extends EntityMW {
 
@@ -48,6 +48,7 @@ public class EntityAnaBullet extends EntityMW {
 
 	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean heal) {
 		super(worldIn, throwerIn, hand);
+
 		if (!worldIn.isRemote)
 			this.getDataManager().set(HEAL, heal);
 		this.setNoGravity(true);
@@ -71,11 +72,11 @@ public class EntityAnaBullet extends EntityMW {
 	@Override
 	public void spawnTrailParticles() {
 		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
-				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1);
+				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1); 
 	}
 	
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;

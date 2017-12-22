@@ -126,7 +126,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();

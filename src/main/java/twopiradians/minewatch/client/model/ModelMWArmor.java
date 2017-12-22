@@ -12,8 +12,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.potion.ModPotions;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ModelMWArmor extends ModelPlayer {

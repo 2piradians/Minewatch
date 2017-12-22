@@ -1,4 +1,4 @@
-package twopiradians.minewatch.common.entity.projectile;
+package twopiradians.minewatch.common.entity.ability;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
@@ -12,9 +12,9 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntitySoldier76HelixRocket extends EntityMW {
 
@@ -68,7 +68,7 @@ public class EntitySoldier76HelixRocket extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (!(result.entityHit instanceof EntitySoldier76HelixRocket)) {

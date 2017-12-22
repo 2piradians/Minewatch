@@ -1,0 +1,50 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			
+		},
+		"model": "minewatch:health_pack.obj"
+	},
+	 "variants": {
+	 	"normal": [{}],
+    	"inventory": [{
+		"transform": {
+                "firstperson_lefthand": {
+                    "translation": [0, 0.2, 0],
+                    "rotation": [ { "x": 0}, {"y": 0}, {"z": 0} ],
+                    "scale": 0.4
+                },
+                "firstperson_righthand": {
+                    "translation": [0.4, 0.2, 0],
+                    "rotation": [ { "x": 0}, {"y": 0}, {"z": 0} ],
+                    "scale": 0.4
+                },
+                "thirdperson_lefthand": {
+                    "translation": [-0.2, 0.0, 0.2],
+                    "rotation": [ { "x": 60}, {"y": 0}, {"z": 0} ],
+                    "scale": 0.375
+                },
+                 "thirdperson_righthand": {
+                    "translation": [0.25, 0.2, 0.1],
+                    "rotation": [ { "x": 60}, {"y": 45}, {"z": 0} ],
+                    "scale": 0.375
+                },
+                "gui": {
+                    "translation": [-0.42, 0, 0],
+					"rotation": [ { "x": 30}, {"y": 225}, {"z": 0} ],
+                    "scale": 0.625
+                },
+				"ground": {
+					"translation": [0.4, 0.2, 0.4],
+					"rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
+					"scale": 0.75
+				},
+				"fixed": {
+					"translation": [0.35, 0.1, 0.3],
+					"rotation": [ { "x": 0}, {"y": 0}, {"z": 0} ],
+					"scale": 0.75
+				}
+    }}]
+	}
+}

@@ -3,9 +3,9 @@ package twopiradians.minewatch.client.render.entity;
 import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -20,7 +20,7 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderMercyBeam extends Render<EntityMercyBeam> {
@@ -89,13 +89,13 @@ public class RenderMercyBeam extends Render<EntityMercyBeam> {
 		double posZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
 		if (entity.particleStaff == null || !entity.particleStaff.isAlive()) {
 			entity.particleStaff = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, vec.x, vec.y+0.05d, vec.z, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f, null);
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.97f, Integer.MAX_VALUE, 1f, 0.9f, 0, 0.1f, 0, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleStaff);
 		}
 		if (entity.particleTarget == null || !entity.particleTarget.isAlive()) {
 			float size = entity.target != null ? Math.min(entity.target.height, entity.target.width)*8f : 5f;
 			entity.particleTarget = new ParticleCustom(EnumParticle.CIRCLE, entity.player.world, posX+x, posY+y, posZ+z, 
-					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, size * 1.3f, size, 0, 0.1f, null);
+					0, 0, 0, 0xFFFFFF, color.getRGB(), 0.8f, Integer.MAX_VALUE, size * 1.3f, size, 0, 0.1f, 0, null);
 			Minecraft.getMinecraft().effectRenderer.addEffect(entity.particleTarget);
 		}
 		float rate = 30;

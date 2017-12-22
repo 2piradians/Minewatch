@@ -1,4 +1,5 @@
-itemGroup.tabMinewatch=Minewatch
+itemGroup.tabMinewatchArmorWeapons=Minewatch
+itemGroup.tabMinewatchMapMaking=Minewatch
 config.server-side=Serverseitig
 config.client-side=Clientseitig
 config.client-side.hero_skins=Hero Skins
@@ -110,7 +111,7 @@ item.lucio_helmet.name=Lucio Helm
 item.lucio_chestplate.name=Lucio Brustpanzer
 item.lucio_leggings.name=Lucio Beinschutz
 item.lucio_boots.name=Lucio Stiefel
-item.lucio_weapon.name=Lucio's Schallverstaerker
+item.lucio_weapon.name=Lucio's Schallverstärker
 
 item.wild_card_token.name=Wild Card Token
 

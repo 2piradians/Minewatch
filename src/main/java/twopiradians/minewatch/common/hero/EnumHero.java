@@ -4,18 +4,22 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -31,11 +35,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -65,6 +72,7 @@ import twopiradians.minewatch.common.entity.hero.EntitySoldier76;
 import twopiradians.minewatch.common.entity.hero.EntitySombra;
 import twopiradians.minewatch.common.entity.hero.EntityTracer;
 import twopiradians.minewatch.common.entity.hero.EntityWidowmaker;
+import twopiradians.minewatch.common.entity.hero.EntityZenyatta;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -83,10 +91,12 @@ import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
+import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
@@ -235,10 +245,20 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
 			new Skin(TextFormatting.GOLD+"Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
 			new Skin(TextFormatting.GOLD+"Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
-			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/"));
+			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/")),
+	ZENYATTA("Zenyatta", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, false, false), 
+			20, 20, new int[] {2,2,2,2}, new ItemZenyattaWeapon(), Crosshair.CIRCLE_SMALL, 0xEDE582, true, EntityZenyatta.class, 
+			new Skin("Classic", "Zenyatta (OverWatch)", "Kill3rCreeper", "https://www.planetminecraft.com/skin/zenyatta-overwatch/"),
+			new Skin(TextFormatting.DARK_PURPLE+"Ascendant", "Zenyatta Ascendance skin", "brainman", "http://www.minecraftskins.com/skin/10621836/zenyatta-ascendance-skin/"),
+			new Skin(TextFormatting.GOLD+"Djinnyatta", "Djinnyatta", "brainman", "http://www.minecraftskins.com/skin/11033097/djinnyatta/"),
+			new Skin(TextFormatting.GOLD+"Ifrit", "Zenyatta Ifrit Skin", "brainman", "http://www.minecraftskins.com/skin/10626002/zenyatta-ifrit-skin/"),
+			new Skin(TextFormatting.GOLD+"Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
+			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/"));
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
-	
+
 	public Ability ability1;
 	public Ability ability2;
 	public Ability ability3;
@@ -300,7 +320,7 @@ public enum EnumHero {
 		private Skin(String owName, String skinName, String author, String address) {
 			this(owName, skinName, author, address, null, null, null);
 		}
-		
+
 		private Skin(String owName, String skinName, String author, String address, String originalSkinName, String originalAuthor, String originalAddress) {
 			this.owName = owName;
 			this.skinName = skinName;
@@ -385,7 +405,6 @@ public enum EnumHero {
 		}
 	}
 
-	@Nullable
 	public Item getEquipment(EntityEquipmentSlot slot) {
 		switch (slot) {
 		case HEAD:
@@ -420,6 +439,8 @@ public enum EnumHero {
 		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
 		public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
 		public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
+		/**Used for debugging*/
+		public static CopyOnWriteArrayList<AxisAlignedBB> boundingBoxesToRender = new CopyOnWriteArrayList<AxisAlignedBB>();
 
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
@@ -473,6 +494,71 @@ public enum EnumHero {
 					}
 				}
 			}
+
+			// ItemMWWeapon#preRenderEntity
+			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
+			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)stack.getItem()).preRenderEntity(event);
+				GlStateManager.popMatrix();
+			}
+		}
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void postRender(RenderLivingEvent.Post<EntityLivingBase> event) {
+			// ItemMWWeapon#postRenderEntity
+			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
+			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)stack.getItem()).postRenderEntity(event);
+				GlStateManager.popMatrix();
+			}
+		}
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void renderWorldLast(RenderWorldLastEvent event) {
+			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+			if (player != null && player.getHeldItemMainhand() != null && 
+					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
+					((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == ItemMWArmor.SetManager.getWornSet(player)) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
+				GlStateManager.popMatrix();
+			}
+
+			if (!boundingBoxesToRender.isEmpty()) {
+				GlStateManager.pushMatrix();
+				GlStateManager.depthMask(false);
+				GlStateManager.disableDepth();
+				GlStateManager.disableTexture2D();
+				GlStateManager.disableLighting();
+				GlStateManager.disableCull();
+				GlStateManager.disableBlend();
+
+				Vec3d vec = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()).scale(-1);
+
+				for (AxisAlignedBB aabb : boundingBoxesToRender) {
+					Tessellator tessellator = Tessellator.getInstance();
+					VertexBuffer vertexbuffer = tessellator.getBuffer();
+					vertexbuffer.begin(3, DefaultVertexFormats.POSITION_NORMAL);
+					RenderGlobal.drawBoundingBox(vertexbuffer, aabb.minX + vec.xCoord, aabb.minY + vec.yCoord, aabb.minZ + vec.zCoord, aabb.maxX + vec.xCoord, aabb.maxY + vec.yCoord, aabb.maxZ + vec.zCoord, 
+							255, 255, 255, 1f);
+					tessellator.draw();
+				}
+				
+				GlStateManager.enableTexture2D();
+				GlStateManager.enableLighting();
+				GlStateManager.enableCull();
+				GlStateManager.disableBlend();
+				GlStateManager.depthMask(true);
+				GlStateManager.enableDepth();
+				GlStateManager.popMatrix();
+			}
 		}
 
 		@SubscribeEvent
@@ -486,8 +572,10 @@ public enum EnumHero {
 				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
 				EnumHand hand = null;
 				for (EnumHand hand2 : EnumHand.values())
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero))
+					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero)) {
 						hand = hand2;
+						break;
+					}
 				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
 				if (hero != null) {
@@ -541,7 +629,7 @@ public enum EnumHero {
 							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 						}
 					}
-					
+
 					if (weapon != null && weapon.hero == hero && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
 						GlStateManager.color(1, 1, 1, 1f);
 						GlStateManager.pushMatrix();
@@ -654,7 +742,8 @@ public enum EnumHero {
 								GlStateManager.translate(0, -0.3f, 0);
 							}
 							GlStateManager.color(1, 1, 1);
-							if (hero.ability2.isSelected(player)) 
+							if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
+									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
 								GlStateManager.translate(-1, -1, 0);
 							// slot 3
 							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
@@ -853,7 +942,7 @@ public enum EnumHero {
 									handler.setBoolean(true);
 							}
 							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
-									(int)MathHelper.clamp_int(percent, 0, 100),
+									(int)MathHelper.clamp_double(percent, 0, 100),
 									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
 						}
 					}

@@ -35,7 +35,7 @@ public class EntityBastionBullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (this.getThrower() != null && ItemMWWeapon.isAlternate(this.getThrower().getHeldItemMainhand())) 

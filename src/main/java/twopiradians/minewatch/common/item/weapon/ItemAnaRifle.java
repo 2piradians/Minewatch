@@ -35,10 +35,10 @@ import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemAnaRifle extends ItemMWWeapon {
@@ -113,20 +113,20 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
-			if (!world.isRemote) {
-				EntityAnaBullet bullet = new EntityAnaBullet(world, player, hand.ordinal(),
+			if (!worldObj.isRemote) {
+				EntityAnaBullet bullet = new EntityAnaBullet(worldObj, player, hand.ordinal(),
 						isAlternate(stack));
 				boolean scoped = isScoped(player, stack);
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, scoped ? -1f : 90f, 0,  
 						scoped ? null : hand, scoped ? 10 : 9, scoped ? 0 : 0.27f);
-				world.spawnEntityInWorld(bullet);
-				ModSoundEvents.ANA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				worldObj.spawnEntityInWorld(bullet);
+				ModSoundEvents.ANA_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 20);
-				if (world.rand.nextInt(10) == 0)
+				if (worldObj.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 			player.stopActiveHand();
@@ -134,24 +134,24 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, itemSlot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int itemSlot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, itemSlot, isSelected);
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// sleep dart
-			if (!world.isRemote && hero.ability2.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				EntityAnaSleepDart dart = new EntityAnaSleepDart(world, player, EnumHand.MAIN_HAND.ordinal());
+				EntityAnaSleepDart dart = new EntityAnaSleepDart(worldObj, player, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(dart, player, player.rotationPitch, player.rotationYawHead, 60, 0F, EnumHand.MAIN_HAND, 9, 0.27f);
-				world.spawnEntityInWorld(dart);
-				ModSoundEvents.ANA_SLEEP_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				worldObj.spawnEntityInWorld(dart);
+				ModSoundEvents.ANA_SLEEP_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f);
 				if (player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(21, false, (EntityPlayer) player, 10, 0, 0), (EntityPlayerMP) player);
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(EnumHero.ANA.ability2));
 				this.setCooldown(player, 20);
-				if (world.rand.nextInt(10) == 0)
+				if (worldObj.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability2.keybind.setCooldown(player, 240, false); 
 			}

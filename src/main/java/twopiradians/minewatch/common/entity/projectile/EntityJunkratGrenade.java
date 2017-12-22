@@ -53,7 +53,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 
 		// spin forward in the direction it's moving
-		float f = MathHelper.sqrt_float((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
+		float f = MathHelper.sqrt_double((float) (this.motionX * this.motionX + this.motionZ * this.motionZ));
 		this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
 		this.rotationPitch = this.prevRotationPitch-f*1000f;
 
@@ -114,7 +114,7 @@ public class EntityJunkratGrenade extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {	
+	public void onImpact(RayTraceResult result) {	
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			// bounce
 			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
@@ -130,7 +130,8 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		// direct hit explosion
 		else if (result.entityHit != null && !this.isDeathGrenade) {
-			EntityHelper.moveToHitPosition(this, result);
+			super.onImpact(result);
+
 			if (this.worldObj.isRemote) {
 				this.motionX = 0;
 				this.motionY = 0;

@@ -1,0 +1,7 @@
+{
+    "parent": "item/handheld",
+    "textures": {
+        "layer0": "minewatch:items/team_stick_team_0",
+        "layer1": "minewatch:items/team_stick_team_1"
+    }
+}

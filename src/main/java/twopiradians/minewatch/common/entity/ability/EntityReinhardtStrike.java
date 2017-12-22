@@ -64,7 +64,7 @@ public class EntityReinhardtStrike extends EntityMW {
     }
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 			EntityHelper.moveToHitPosition(this, result);
 			if (worldObj.isRemote) {

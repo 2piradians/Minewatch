@@ -25,10 +25,10 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
@@ -95,9 +95,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// swing
-		if (!world.isRemote && this.canUse(player, true, hand, false) && !hero.ability1.isSelected(player) &&
+		if (!worldObj.isRemote && this.canUse(player, true, hand, false) && !hero.ability1.isSelected(player) &&
 				hand == EnumHand.MAIN_HAND) {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
@@ -122,17 +122,17 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 			player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 8, 3, true, false));
 
 			// fire strike
-			if (!world.isRemote && hero.ability2.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				Minewatch.network.sendToDimension(new SPacketSimple(33, player, false), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(33, player, false), worldObj.provider.getDimension());
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(13),
 						Ability.ABILITY_USING.setEntity(player).setTicks(13).setAbility(hero.ability2));
 				player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 13, 2, true, false));

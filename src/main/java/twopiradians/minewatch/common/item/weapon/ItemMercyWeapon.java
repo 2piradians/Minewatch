@@ -14,8 +14,8 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,16 +26,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMercyWeapon extends ItemMWWeapon {
@@ -116,27 +116,27 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && isAlternate(stack)) {
-			if (!world.isRemote) {
-				EntityMercyBullet bullet = new EntityMercyBullet(world, player, hand.ordinal());
+			if (!worldObj.isRemote) {
+				EntityMercyBullet bullet = new EntityMercyBullet(worldObj, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 45, 0.6F, hand, 8.5f, 0.6f);
-				world.spawnEntityInWorld(bullet);
-				ModSoundEvents.MERCY_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				worldObj.spawnEntityInWorld(bullet);
+				ModSoundEvents.MERCY_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 5);
-				if (world.rand.nextInt(20) == 0)
+				if (worldObj.rand.nextInt(20) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
-		if (isSelected && !world.isRemote && entity instanceof EntityLivingBase) {
+		if (isSelected && !worldObj.isRemote && entity instanceof EntityLivingBase) {
 			// remove beams that are dead or too far away (unloaded - where they can't kill themselves)
 			if (beams.containsKey(entity) && (!beams.get(entity).isEntityAlive()|| 
 					Math.sqrt(entity.getDistanceSqToEntity(beams.get(entity))) > 16)) {
@@ -151,11 +151,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (isStaff(stack) && 
 					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 15, true);
-				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {				
-					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
-					world.spawnEntityInWorld(beam);
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 15, true);
+				if (target != null && !(target instanceof EntityArmorStand)) {				
+					EntityMercyBeam beam = new EntityMercyBeam(worldObj, (EntityLivingBase) entity, target);
+					worldObj.spawnEntityInWorld(beam);
 					beams.put((EntityLivingBase) entity, beam);
 					ModSoundEvents.MERCY_BEAM_START.playSound(entity, 0.8f, 1f);
 					ModSoundEvents.MERCY_BEAM_DURING.playSound(entity, 0.8f, 1f);
@@ -181,14 +180,13 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			}
 
 			// angel
-			if (hero.ability3.isSelected((EntityLivingBase) entity) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
-				RayTraceResult result = EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 30, true);
-				EntityLivingBase target = result == null ? null : (EntityLivingBase)result.entityHit;
-				if (target != null && ((EntityLivingBase) entity).canEntityBeSeen(target) && !(target instanceof EntityArmorStand)) {	
+			if (hero.ability3.isSelected((EntityLivingBase) entity, true) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 30, 20, true);
+				if (target != null && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
 							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));
-					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, world.rand.nextInt(3) == 0, vec.xCoord, vec.yCoord, vec.zCoord));
+					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, worldObj.rand.nextInt(3) == 0, vec.xCoord, vec.yCoord, vec.zCoord));
 				}
 			}
 
@@ -204,7 +202,9 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		if (target instanceof EntityLivingBase && !target.worldObj.isRemote &&
 				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
-			target.removePotionEffect(MobEffects.REGENERATION);
+			PotionEffect effect = target.getActivePotionEffect(MobEffects.REGENERATION);
+			if (effect != null)
+				target.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 1, 1, true, false));
 		}
 		
 		source = EntityHelper.getThrower(source);

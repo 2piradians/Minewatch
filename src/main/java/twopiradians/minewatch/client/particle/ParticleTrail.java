@@ -25,8 +25,8 @@ public class ParticleTrail extends ParticleSimpleAnimated {
 	private float initialScale;
 	private int initialColor;
 	
-	public ParticleTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
-		super(world, x, y, z, 0, 0, 0);
+	public ParticleTrail(World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
+		super(worldObj, x, y, z, 0, 0, 0);
 		this.motionX = motionX;
 		this.motionY = motionY;
 		this.motionZ = motionZ;

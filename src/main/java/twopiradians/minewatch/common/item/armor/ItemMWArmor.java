@@ -51,8 +51,8 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
@@ -121,11 +121,11 @@ public class ItemMWArmor extends ItemArmor {
 
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
 			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
-				hero.getSkin(entity.getPersistentID());
+			hero.getSkin(entity.getPersistentID());
 			if (skin < 0 || skin >= hero.skinInfo.length)
 				skin = 0;
-			return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
-			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
+		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
+		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
 	@Mod.EventBusSubscriber
@@ -196,7 +196,7 @@ public class ItemMWArmor extends ItemArmor {
 				if (hero != null && (event.player.getHeldItemMainhand() == null || 
 						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
 						(fullSet && (SetManager.getWornSet(event.player) == null ||
-						SetManager.getWornSet(event.player) != hero)))
+								SetManager.getWornSet(event.player) != hero)))
 					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 						ability.toggle(event.player, false);
 
@@ -257,9 +257,9 @@ public class ItemMWArmor extends ItemArmor {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
 		// delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
-		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
@@ -270,7 +270,7 @@ public class ItemMWArmor extends ItemArmor {
 		if (Config.durabilityOptionArmors == 2 && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
 
-		super.onUpdate(stack, world, entity, slot, isSelected);
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 	}
 
 	/**Delete dev spawned dropped items*/
@@ -287,16 +287,16 @@ public class ItemMWArmor extends ItemArmor {
 	}
 
 	@Override
-	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {	
-		this.onArmorTick(world, (EntityLivingBase) player, stack);
+	public void onArmorTick(World worldObj, EntityPlayer player, ItemStack stack) {	
+		this.onArmorTick(worldObj, (EntityLivingBase) player, stack);
 	}
 
 	/**Handles most of the armor set special effects and bonuses.*/
-	public void onArmorTick(World world, EntityLivingBase player, ItemStack stack) {	
+	public void onArmorTick(World worldObj, EntityLivingBase player, ItemStack stack) {	
 		EnumHero set = SetManager.getWornSet(player);
 
 		// delete dev spawned items if not worn by dev
-		if (stack == null || (!world.isRemote && stack.hasTagCompound() && 
+		if (stack == null || (!worldObj.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
 				player.getItemStackFromSlot(this.armorType) == stack)) {
@@ -308,22 +308,22 @@ public class ItemMWArmor extends ItemArmor {
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				set == EnumHero.GENJI) {
 			// jump boost
-			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
+			if (!worldObj.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
 					player.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
 			// double jump
-			else if (world.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
+			else if (worldObj.isRemote && (player.onGround || player.isInWater() || player.isInLava()))
 				playersJumped.remove(player);
 			else if (KeyBind.JUMP.isKeyPressed(player) && !player.onGround && !player.isOnLadder() && 
 					player.motionY < 0.2d && !playersJumped.contains(player)) {
-				if (world.isRemote) {
+				if (worldObj.isRemote) {
 					if (player instanceof EntityPlayer)
 						((EntityPlayer)player).jump();
 					else if (player instanceof EntityHero)
 						((EntityHero)player).jump();
 					player.motionY += 0.2d;
 					playersJumped.add(player);
-					ModSoundEvents.GENJI_JUMP.playSound(player, 0.8f, world.rand.nextFloat()/6f+0.9f);
+					ModSoundEvents.GENJI_JUMP.playSound(player, 0.8f, worldObj.rand.nextFloat()/6f+0.9f);
 				}
 				player.fallDistance = 0;
 			}
@@ -331,11 +331,11 @@ public class ItemMWArmor extends ItemArmor {
 
 		// genji/hanzo wall climb
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
-				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
+				(set == EnumHero.GENJI || set == EnumHero.HANZO) && worldObj.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
 			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
+			if ((player instanceof EntityPlayer && player.onGround) || (worldObj.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					worldObj.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
 			}
 			else if (player.isCollidedHorizontally && 
@@ -344,7 +344,7 @@ public class ItemMWArmor extends ItemArmor {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;
 				if (ticks <= 17) {
 					if (ticks % 4 == 0 || ticks == 1) { // reset fall distance and play sound
-						if (world.isRemote)
+						if (worldObj.isRemote)
 							Minewatch.network.sendToServer(new CPacketSimple(0, player, false));
 						else 
 							ModSoundEvents.WALL_CLIMB.playSound(player, 0.9f, 1);
@@ -365,20 +365,20 @@ public class ItemMWArmor extends ItemArmor {
 		// mercy's regen/slow fall
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && set == EnumHero.MERCY) 
 			if (TickHandler.getHandler(player, Identifier.MERCY_NOT_REGENING) == null &&
-			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
+			!worldObj.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY < -0.09d && !player.isInWater() && !player.isInLava()) {
+			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY <= -0.09d && !player.isInWater() && !player.isInLava()) {
 				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
 				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
-				if (!playersHovering.contains(player) && !world.isRemote) {
+				if (!playersHovering.contains(player) && !worldObj.isRemote) {
 					ModSoundEvents.MERCY_HOVER.playSound(player, 0.2f, 1);
 					playersHovering.add(player);
 				}
-				if (world.isRemote)
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
-							player.posX+world.rand.nextFloat()-0.5f, player.posY+(player.getEyeHeight()-player.height/2f), player.posZ+world.rand.nextFloat()-0.5f, 
-							0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 10, 1f+world.rand.nextFloat(), 0.3f, world.rand.nextFloat(), world.rand.nextFloat());
+				if (worldObj.isRemote)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, worldObj, 
+							player.posX+worldObj.rand.nextFloat()-0.5f, player.posY+(player.getEyeHeight()-player.height/2f), player.posZ+worldObj.rand.nextFloat()-0.5f, 
+							0, 0, 0, 0xFFFAC3, 0xC1C090, 0.8f, 10, 1f+worldObj.rand.nextFloat(), 0.3f, worldObj.rand.nextFloat(), worldObj.rand.nextFloat());
 			}
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
@@ -388,7 +388,7 @@ public class ItemMWArmor extends ItemArmor {
 		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
 		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
 		if (this.armorType == EntityEquipmentSlot.CHEST &&
-				set == EnumHero.TRACER && world.isRemote && 
+				set == EnumHero.TRACER && worldObj.isRemote && 
 				(x != 0 || y != 0 || z != 0)) {
 			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
@@ -400,7 +400,7 @@ public class ItemMWArmor extends ItemArmor {
 		}
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
-		if (!world.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 
+		if (!worldObj.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 
 				stack.getItemDamage() != 0 && set == hero)
 			stack.setItemDamage(0);
 	}

@@ -37,7 +37,7 @@ public class EntityMcCreeBullet extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		if (this.fanTheHammer && EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 13.5f, 45, 18, 30))

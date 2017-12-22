@@ -71,8 +71,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, itemSlot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int itemSlot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, itemSlot, isSelected);
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
@@ -87,12 +87,12 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// venom mine
-			if (!world.isRemote && hero.ability1.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
+				EntityWidowmakerMine mine = new EntityWidowmakerMine(worldObj, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
 				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
-				world.spawnEntityInWorld(mine);
+				worldObj.spawnEntityInWorld(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 300, false); 
 				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
@@ -104,7 +104,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			// scoped
@@ -126,13 +126,13 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			}
 			// unscoped
 			else if (!KeyBind.RMB.isKeyDown(player) && player.ticksExisted % 2 == 0) {
-				if (!world.isRemote) {
-					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(world, player, hand.ordinal(), false, 13);
+				if (!worldObj.isRemote) {
+					EntityWidowmakerBullet bullet = new EntityWidowmakerBullet(worldObj, player, hand.ordinal(), false, 13);
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 3, hand, 6, 0.43f);
-					world.spawnEntityInWorld(bullet);
-					ModSoundEvents.WIDOWMAKER_SHOOT_0.playSound(player, world.rand.nextFloat()/2f+0.2f, world.rand.nextFloat()/2+0.75f);
+					worldObj.spawnEntityInWorld(bullet);
+					ModSoundEvents.WIDOWMAKER_SHOOT_0.playSound(player, worldObj.rand.nextFloat()/2f+0.2f, worldObj.rand.nextFloat()/2+0.75f);
 					this.subtractFromCurrentAmmo(player, 1);
-					if (world.rand.nextInt(30) == 0)
+					if (worldObj.rand.nextInt(30) == 0)
 						player.getHeldItem(hand).damageItem(1, player);
 				}
 			}

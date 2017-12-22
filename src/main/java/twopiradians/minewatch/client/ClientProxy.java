@@ -2,7 +2,6 @@ package twopiradians.minewatch.client;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -14,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
@@ -44,6 +44,7 @@ import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.Material;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLLog;
@@ -52,6 +53,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
+import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
@@ -72,15 +74,23 @@ import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
+import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
+import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
+import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
+import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -92,29 +102,26 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
-import twopiradians.minewatch.common.entity.projectile.EntityMeiCrystal;
-import twopiradians.minewatch.common.entity.projectile.EntityMeiIcicle;
-import twopiradians.minewatch.common.entity.projectile.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
+import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class ClientProxy extends CommonProxy {
-
-	public static HashSet<UUID> healthParticleEntities = new HashSet();
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
@@ -128,18 +135,12 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
+		registerBlockRenders();
 		registerNonWeaponRenders();
 		for (KeyBind key : KeyBind.values())
 			if (key.keyBind != null)
 				ClientRegistry.registerKeyBinding(key.keyBind);
-
-		for (IChangingModel item : ModItems.changingModelItems)
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
-				@Override
-				public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-					return item.getColorFromItemStack(stack, tintIndex);
-				}
-			}, item.getItem());
+		registerColoredItems();
 	}
 
 	@Override
@@ -148,14 +149,21 @@ public class ClientProxy extends CommonProxy {
 		registerInventoryTab();
 	}
 
+	/**Replace OBJBakedModels with BakedMWItems*/
 	@SubscribeEvent
 	public void modelBake(ModelBakeEvent event) {
 		for (ModelResourceLocation modelLocation : event.getModelRegistry().getKeys()) 
 			if (modelLocation.getResourceDomain().equals(Minewatch.MODID) &&
-					modelLocation.getResourcePath().contains("3d")) {
+					(modelLocation.getResourcePath().contains("3d") || modelLocation.getResourcePath().contains("health_pack"))) {
 				if (event.getModelRegistry().getObject(modelLocation) instanceof OBJBakedModel) {
 					OBJBakedModel model = (OBJBakedModel) event.getModelRegistry().getObject(modelLocation);
-					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), model.getState(), DefaultVertexFormats.ITEM, getTextures(model.getModel())));
+					IModelState state = model.getState();
+					// only show parts in item for health packs
+					if (modelLocation.getResourcePath().contains("health_pack_small")) 
+						state = new TileEntityOBJRenderer.OBJModelState(state, "base", "small");
+					else if (modelLocation.getResourcePath().contains("health_pack_large")) 
+						state = new TileEntityOBJRenderer.OBJModelState(state, "base", "large");
+					event.getModelRegistry().putObject(modelLocation, new BakedMWItem(model.getModel(), state, DefaultVertexFormats.ITEM, getTextures(model.getModel())));
 				}
 			}
 	}
@@ -167,7 +175,8 @@ public class ClientProxy extends CommonProxy {
 		for (String materialName : model.getMatLib().getMaterialNames()) {
 			Material material = model.getMatLib().getMaterial(materialName);
 			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
-				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
+				// PORT 1.10.2: bigWarning
+				FMLLog.bigWarning("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
 				builder.put(materialName, missing);
 			}
 			else
@@ -183,6 +192,22 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
 		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+	}
+
+	private void registerColoredItems() {
+		for (IChangingModel item : ModItems.changingModelItems)
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+				@Override
+				public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+					return item.getColorFromItemStack(stack, tintIndex);
+				}
+			}, item.getItem());
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				return ItemTeamStick.getColorFromItemStack(stack, tintIndex);
+			}
+		}, ModItems.team_stick);
 	}
 
 	private void registerInventoryTab() {
@@ -250,6 +275,14 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySombraTranslocator.class, RenderSombraTranslocator::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
+	}
+
+	private void registerBlockRenders() {
+		for (Block block : ModBlocks.allBlocks)
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
+					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
 	}
 
 	@Override
@@ -314,57 +347,62 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void spawnParticlesHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {
-		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, x, y, z, isBig, isFast);
+	public void spawnParticlesHanzoSonic(World worldObj, double x, double y, double z, boolean isBig, boolean isFast) {
+		ParticleHanzoSonic particle = new ParticleHanzoSonic(worldObj, x, y, z, isBig, isFast);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
-	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {
-		ParticleHanzoSonic particle = new ParticleHanzoSonic(world, trackEntity, isBig);
+	public void spawnParticlesHanzoSonic(World worldObj, Entity trackEntity, boolean isBig) {
+		ParticleHanzoSonic particle = new ParticleHanzoSonic(worldObj, trackEntity, isBig);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
-	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
+	public void spawnParticlesTrail(World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {
 		int i = Minecraft.getMinecraft().gameSettings.particleSetting;
-		if (i == 0 || world.rand.nextInt(i*2) == 0) {
-			ParticleTrail particle = new ParticleTrail(world, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge, initialAge, alpha);
+		if (i == 0 || worldObj.rand.nextInt(i*2) == 0) {
+			ParticleTrail particle = new ParticleTrail(worldObj, x, y, z, motionX, motionY, motionZ, color, colorFade, scale, maxAge, initialAge, alpha);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
 
 	@Override
-	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		if (!enumParticle.equals(EnumParticle.HEALTH) || !healthParticleEntities.contains(followEntity.getPersistentID())) {
-			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
+		if (!enumParticle.onePerEntity || !enumParticle.particleEntities.contains(followEntity.getPersistentID())) {
+			ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
-			if (enumParticle.equals(EnumParticle.HEALTH))
-				healthParticleEntities.add(followEntity.getPersistentID());
+			if (enumParticle.onePerEntity)
+				enumParticle.particleEntities.add(followEntity.getPersistentID());
 		}
 	}
 
 	@Override
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
+		this.spawnParticlesCustom(enumParticle, worldObj, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
 	}
 
 	@Override
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, facing);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
+		this.spawnParticlesCustom(enumParticle, worldObj, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, facing);
+	}
+
+	@Override
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, pulseRate, facing);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
-	public void spawnParticlesReaperTeleport(World world, EntityLivingBase player, boolean spawnAtPlayer, int type) { 
+	public void spawnParticlesReaperTeleport(World worldObj, EntityLivingBase player, boolean spawnAtPlayer, int type) { 
 		if (spawnAtPlayer || TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null) {
-			ParticleReaperTeleport particle = new ParticleReaperTeleport(world, player, spawnAtPlayer, type, 
+			ParticleReaperTeleport particle = new ParticleReaperTeleport(worldObj, player, spawnAtPlayer, type, 
 					TickHandler.getHandler(player, Identifier.REAPER_TELEPORT));
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
@@ -399,12 +437,26 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void openWildCardGui() {
-		Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+	public void openGui(EnumGui gui) {
+		switch (gui) {
+		case WILDCARD:
+			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
+			break;
+		case TEAM_STICK:
+			if (Minecraft.getMinecraft().objectMouseOver.entityHit == null)
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamStick());
+			break;
+		}
 	}
 
 	@Override
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return isRemote ? handler.onClientRemove() : handler.onServerRemove();
+	}
+
+	@Override
+	public Entity getRenderViewEntity() {
+		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
+		return entity == null ? Minecraft.getMinecraft().thePlayer : entity;
 	}
 }

@@ -30,8 +30,8 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		if (!world.isRemote) {
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
+		if (!worldObj.isRemote) {
 			// if not wearing full set, mine is dead, or main is not junkrat's launcher
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
 					(ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||

@@ -52,11 +52,11 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
@@ -194,21 +194,21 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false) && 
 				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) == null && 
 				!hero.ability1.isSelected(player)) {
-			if (!world.isRemote) {
+			if (!worldObj.isRemote) {
 				for (int i=0; i<20; i++) {
-					EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand.ordinal());
+					EntityReaperBullet bullet = new EntityReaperBullet(worldObj, player, hand.ordinal());
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 8F, hand, 14, 0.55f);
-					world.spawnEntityInWorld(bullet);
+					worldObj.spawnEntityInWorld(bullet);
 				}
-				ModSoundEvents.REAPER_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				ModSoundEvents.REAPER_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f);
 				this.subtractFromCurrentAmmo(player, 1, hand);
 				this.setCooldown(player, 11);
-				if (world.rand.nextInt(8) == 0)
+				if (worldObj.rand.nextInt(8) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
@@ -249,21 +249,21 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, itemSlot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int itemSlot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, itemSlot, isSelected);
 
 		if (entity instanceof EntityLivingBase && isSelected) {
 			EntityLivingBase player = (EntityLivingBase)entity;
 			// teleport
 			if (hero.ability1.isSelected(player) && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {   
-				if (world.isRemote) {
+				if (worldObj.isRemote) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
 					if (tpVec != null) {
 						if (handler == null) {
 							TickHandler.register(true, TPS.setEntity(player).setPosition(tpVec).setTicks(-1));
 							if (player == Minewatch.proxy.getClientPlayer())
-								Minewatch.proxy.spawnParticlesReaperTeleport(world, player, false, 0);
+								Minewatch.proxy.spawnParticlesReaperTeleport(worldObj, player, false, 0);
 							if (KeyBind.ABILITY_2.isKeyDown(player))
 								ModSoundEvents.REAPER_TELEPORT_START.playSound(player, 1, 1, true);
 						}
@@ -276,7 +276,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				else if (KeyBind.LMB.isKeyDown(player)) {
 					Vec3d tpVec = this.getTeleportPos(player);
 					// don't tp if hero and tp is less than 10 blocks or tp is farther from attack target than current position
-					if (tpVec != null && !world.isRemote && 
+					if (tpVec != null && !worldObj.isRemote && 
 							!(player instanceof EntityHero && (player.getPositionVector().distanceTo(tpVec) < 10 || 
 									(((EntityHero)player).getAttackTarget() != null && 
 									player.getDistanceToEntity(((EntityHero)player).getAttackTarget()) < 
@@ -298,7 +298,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					hero.ability1.toggle(player, false);
 			}
 			// wraith
-			else if (hero.ability2.isSelected(player) && !world.isRemote &&
+			else if (hero.ability2.isSelected(player) && !worldObj.isRemote &&
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2),
 						WRAITH.setEntity(player).setTicks(60));

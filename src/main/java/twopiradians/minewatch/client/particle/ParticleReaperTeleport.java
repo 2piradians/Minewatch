@@ -14,10 +14,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ParticleReaperTeleport extends ParticleSimpleAnimated {
@@ -40,14 +40,14 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 	private Handler handler;
 
 	/**type: 0 = base, 1 = inside, 2 = outside, 3 = small outside*/
-	public ParticleReaperTeleport(World world, EntityLivingBase player, boolean spawnAtPlayer, int type, Handler handler) {
-		super(world, spawnAtPlayer ? player.posX : handler.position.xCoord, 
+	public ParticleReaperTeleport(World worldObj, EntityLivingBase player, boolean spawnAtPlayer, int type, Handler handler) {
+		super(worldObj, spawnAtPlayer ? player.posX : handler.position.xCoord, 
 				spawnAtPlayer ? player.posY : handler.position.yCoord, 
 						spawnAtPlayer ? player.posZ : handler.position.zCoord, 0, 0, 0);
 		this.handler = handler;
 		this.origin = spawnAtPlayer ? player.getPositionVector() : handler.position;
-		double t = 2d*Math.PI*world.rand.nextDouble();
-		double u = world.rand.nextDouble()+world.rand.nextDouble();
+		double t = 2d*Math.PI*worldObj.rand.nextDouble();
+		double u = worldObj.rand.nextDouble()+worldObj.rand.nextDouble();
 		double r = u > 1 ? 2-u : u;
 		this.offset = type == 0 ? new Vec3d(0, 0.01d, 0) : type == 1 ? new Vec3d(0, 0.5d, 0) : new Vec3d(r*Math.cos(t), 0.3d, r*Math.sin(t));
 		this.motionX = 0;
@@ -55,13 +55,13 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.motionZ = 0;
 		this.particleGravity = 0;
 		this.particleMaxAge = type == 0 ? Integer.MAX_VALUE : type == 3 ? 50 : 17;
-		this.particleScale = type == 0 ? 14f : type == 1 ? 3f + world.rand.nextFloat()*2f : type == 2 ? 3f + world.rand.nextFloat()*3f : 0.5f;
+		this.particleScale = type == 0 ? 14f : type == 1 ? 3f + worldObj.rand.nextFloat()*2f : type == 2 ? 3f + worldObj.rand.nextFloat()*3f : 0.5f;
 		boolean friendly = !EntityHelper.shouldTarget(player, Minecraft.getMinecraft().thePlayer, false);
 		if (type != 0)
 			if (friendly) 
-				this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+world.rand.nextInt(10));
+				this.setColor(type == 1 ? 0x743BEF : type == 3 ? 0xCB97FF : 0x130029+worldObj.rand.nextInt(10));
 			else
-				this.setColor(type == 1 ? 0xCF4F17 : type == 3 ? 0xC12828 : 0x511D12+world.rand.nextInt(10));
+				this.setColor(type == 1 ? 0xCF4F17 : type == 3 ? 0xC12828 : 0x511D12+worldObj.rand.nextInt(10));
 		this.player = player;
 		this.spawnAtPlayer = spawnAtPlayer;
 		this.type = type;
@@ -74,7 +74,7 @@ public class ParticleReaperTeleport extends ParticleSimpleAnimated {
 		this.prevPosY = posY;
 		this.prevPosZ = posZ;
 		this.randomNumber = rand.nextFloat();
-		String texture = type == 0 ? (friendly ? TEXTURES[0].toString() : TEXTURES[1].toString()) : type == 1 || type == 3 ? TEXTURES[2].toString() : TEXTURES[world.rand.nextInt(3)+3].toString();
+		String texture = type == 0 ? (friendly ? TEXTURES[0].toString() : TEXTURES[1].toString()) : type == 1 || type == 3 ? TEXTURES[2].toString() : TEXTURES[worldObj.rand.nextInt(3)+3].toString();
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture);
 		this.setParticleTexture(sprite); 
 	}

@@ -14,10 +14,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
@@ -58,7 +61,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
 			EntityHelper.setRotations(this);
-			}
+		}
 		// update prev position and spawn trail (for genji's deflect mostly)
 		else if (key.getId() == POSITION.getId() && this.worldObj.isRemote && 
 				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
@@ -84,29 +87,34 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {}
 
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {	
+		// check for impacts
+		if (!worldObj.isRemote) { 
+			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
+			RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
+			for (RayTraceResult result : results) 
+				if (result != null && isValidImpact(result, result == nearest))
+					this.onImpact(result);
+		}
+
+		// set prev's
 		this.prevPosX = this.posX; 
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
 		this.prevRotationPitch = this.rotationPitch;
 		this.prevRotationYaw = this.rotationYaw;
 
-		// check for impacts
-		ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
-		RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
-		for (RayTraceResult result : results) 
-			if (result != null && isValidImpact(result, result == nearest))
-				this.onImpact(result);
 		// move if still alive and has motion
-		if (!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
+		if ((!worldObj.isRemote || this.ticksExisted > 1 || !this.hasNoGravity()) && 
+				!this.isDead && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) > 0) {
 			if (this.hasNoGravity())
 				this.setPosition(this.posX+this.motionX, this.posY+this.motionY, this.posZ+this.motionZ);
 			else // needed to set onGround / do block collisions
 				this.moveEntity(this.motionX, this.motionY, this.motionZ); 
 		}
 
-		// set dead if needed
-		if (!this.worldObj.isRemote && ((this.ticksExisted > lifetime && lifetime > 0) ||
+		// set dead if needed (why was this only server? - what if on client but not server?)
+		if (/*!this.worldObj.isRemote && */((this.ticksExisted > lifetime) || 
 				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
 
@@ -117,21 +125,33 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		this.firstUpdate = false;
 	}
 
-	/**Should this result trigger onImpact - moves to hit position if entity*/
+	/**Should this result trigger onImpact*/
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
 		return result != null && result.typeOfHit != RayTraceResult.Type.MISS && 
 				(result.typeOfHit != RayTraceResult.Type.ENTITY || 
-				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly) && nearest));
+				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly))) && nearest;
 	}
 
 	/**Should this move to the hit position of the RayTraceResult*/
-	protected boolean shouldMoveToHitPosition(RayTraceResult result) {
-		return result != null;
+	protected void onImpactMoveToHitPosition(RayTraceResult result) {
+		if (result != null) {
+			if (worldObj.isRemote)
+				this.setDead();
+			else
+				EntityHelper.moveToHitPosition(this, result);
+		}
 	}
 
-	protected void onImpact(RayTraceResult result) {
-		if (this.shouldMoveToHitPosition(result))
-			EntityHelper.moveToHitPosition(this, result);
+	public void onImpact(RayTraceResult result) {
+		if (!worldObj.isRemote) { 
+			this.onImpactMoveToHitPosition(result);
+			Minewatch.network.sendToAllAround(new SPacketSimple(41, this, result), 
+					new TargetPoint(worldObj.provider.getDimension(), posX, posY, posZ, 64));
+		}
+		else {
+			this.spawnTrailParticles();
+			this.onImpactMoveToHitPosition(result);
+		}
 	}
 
 	@Override

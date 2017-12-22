@@ -40,10 +40,10 @@ import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
@@ -155,13 +155,13 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// throw single shuriken TODO make triple w/ delay
 		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
 			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.worldObj, player, hand.ordinal());
 			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead, 60, 1, hand, 15, 0.6f);
 			player.worldObj.spawnEntityInWorld(shuriken);
-			ModSoundEvents.GENJI_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, player.worldObj.rand.nextFloat()/2+0.75f);
+			ModSoundEvents.GENJI_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, player.worldObj.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
 				this.setCooldown(player, 15);
@@ -171,7 +171,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		// throw triple shuriken
 		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
@@ -181,7 +181,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			ModSoundEvents.GENJI_SHOOT.playSound(player, 1, player.worldObj.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 3, hand);
-			if (world.rand.nextInt(8) == 0)
+			if (worldObj.rand.nextInt(8) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 			this.setCooldown(player, 15);
 		}
@@ -190,29 +190,29 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		if (entity instanceof EntityLivingBase) {
 			EntityLivingBase player = (EntityLivingBase)entity;
 
 			// deflect
-			if (isSelected && !world.isRemote && hero.ability1.isSelected(player) && 
+			if (isSelected && !worldObj.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				if (player instanceof EntityHero)
 					SPacketSimple.move(player, 1.8d, false, true);
-				Minewatch.network.sendToDimension(new SPacketSimple(4, player, true, 40, 0, 0), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(4, player, true, 40, 0, 0), worldObj.provider.getDimension());
 				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
 				ModSoundEvents.GENJI_DEFLECT.playFollowingSound(entity, 1, 1, false);
 			}
 
 			// strike
-			if (isSelected && !world.isRemote && hero.ability2.isSelected(player) &&
+			if (isSelected && !worldObj.isRemote && hero.ability2.isSelected(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
-				Minewatch.network.sendToDimension(new SPacketSimple(3, (EntityLivingBase) entity, true), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(3, (EntityLivingBase) entity, true), worldObj.provider.getDimension());
 				ModSoundEvents.GENJI_STRIKE.playFollowingSound(entity, 1, 1, false);
 			}
 		}

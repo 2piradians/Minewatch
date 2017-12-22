@@ -31,28 +31,28 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+		if (this.canUse(player, true, hand, false) && !worldObj.isRemote) {
 			EntityTracerBullet bullet = new EntityTracerBullet(player.worldObj, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2, hand, 7, 0.58f);
 			player.worldObj.spawnEntityInWorld(bullet);
 			ModSoundEvents.TRACER_SHOOT.playSound(player, 1.0f, player.worldObj.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);
-			if (world.rand.nextInt(40) == 0)
+			if (worldObj.rand.nextInt(40) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		// dash
 		if (isSelected && entity instanceof EntityLivingBase && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
-				!world.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
+				!worldObj.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 			entity.setSneaking(false);
-			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, world.rand.nextFloat()/2f+0.75f);
+			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, worldObj.rand.nextFloat()/2f+0.75f);
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
 			else if (entity instanceof EntityHero)

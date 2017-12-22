@@ -26,6 +26,9 @@ public class RenderGenjiShuriken extends RenderSimple<EntityGenjiShuriken> {
 	public void doRender(EntityGenjiShuriken entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
+		if (entity.ticksExisted <= 2)
+			return;
+		
 		double scale = 0.5d;
 		GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y+0.05d, (float)z);

@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public enum ModSoundEvents {
 
@@ -129,7 +129,6 @@ public enum ModSoundEvents {
 	SOMBRA_TRANSLOCATOR_THROW,
 	SOMBRA_TRANSLOCATOR_DURING,
 	SOMBRA_TRANSLOCATOR_TELEPORT,
-
 	LUCIO_RELOAD,
 	LUCIO_SHOOT,
 	LUCIO_CROSSFADE,
@@ -140,7 +139,20 @@ public enum ModSoundEvents {
 	LUCIO_PASSIVE_HEAL,
 	LUCIO_PASSIVE_HEAL_VOICE,
 	LUCIO_SOUNDWAVE,
-	LUCIO_SOUNDWAVE_VOICE;
+	LUCIO_SOUNDWAVE_VOICE,
+	
+	ZENYATTA_RELOAD,
+	ZENYATTA_SHOOT,
+	ZENYATTA_HEAL,
+	ZENYATTA_HEAL_RETURN,
+	ZENYATTA_HEAL_VOICE,
+	ZENYATTA_DAMAGE,
+	ZENYATTA_DAMAGE_RETURN,
+	ZENYATTA_DAMAGE_VOICE,
+	ZENYATTA_VOLLEY_CHARGE,
+	ZENYATTA_VOLLEY_SHOOT,
+	HEALTH_PACK_USE,
+	HEALTH_PACK_RESPAWN;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -151,6 +163,7 @@ public enum ModSoundEvents {
 	private ModSoundEvents() {
 		loc = new ResourceLocation(Minewatch.MODID, this.name().toLowerCase());
 		event = new ModSoundEvent(loc, this);
+		// PORT 1.12: event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())
@@ -173,9 +186,9 @@ public enum ModSoundEvents {
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
-	public void playSound(World world, double x, double y, double z, float volume, float pitch) {
-		if (world != null) 
-			world.playSound(world.isRemote ? Minewatch.proxy.getClientPlayer() : null, x, y, z, event, SoundCategory.PLAYERS, volume, pitch);
+	public void playSound(World worldObj, double x, double y, double z, float volume, float pitch) {
+		if (worldObj != null) 
+			worldObj.playSound(worldObj.isRemote ? Minewatch.proxy.getClientPlayer() : null, x, y, z, event, SoundCategory.PLAYERS, volume, pitch);
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
@@ -184,21 +197,21 @@ public enum ModSoundEvents {
 	}
 
 	/**Handles voice cooldown - only works for same client / server...*/
-	public boolean shouldPlay(Entity entity) { 
+	public boolean shouldPlay(Entity entity) {
 		if (!this.isVoiceLine)
 			return true;
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(100));
+			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
 			return true;
 		}
 	}
 
 	/**Stops sound for all players*/
-	public void stopSound(World world) {
-		if (world != null)
-			for (EntityPlayer player : world.playerEntities)
+	public void stopSound(World worldObj) {
+		if (worldObj != null)
+			for (EntityPlayer player : worldObj.playerEntities)
 				Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
 	}
 

@@ -35,7 +35,7 @@ public class EntityMercyBullet extends EntityMW {
 	}
 	
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
 		EntityHelper.attemptDamage(this, result.entityHit, 20, false);

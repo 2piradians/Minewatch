@@ -35,10 +35,10 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemSombraMachinePistol extends ItemMWWeapon {
@@ -135,26 +135,26 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		cancelInvisibility(player);
 
 		// shoot
-		if (this.canUse(player, true, hand, false)) {
-			if (!world.isRemote) {
-				EntitySombraBullet bullet = new EntitySombraBullet(world, player, hand.ordinal());
+		if (this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE)) {
+			if (!worldObj.isRemote) {
+				EntitySombraBullet bullet = new EntitySombraBullet(worldObj, player, hand.ordinal());
 				EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, hand, 12, 0.43f);
-				world.spawnEntityInWorld(bullet);
-				ModSoundEvents.SOMBRA_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+				worldObj.spawnEntityInWorld(bullet);
+				ModSoundEvents.SOMBRA_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0)
+				if (worldObj.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
@@ -167,48 +167,48 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 
 			// invisibility
-			if (handler == null && !world.isRemote && hero.ability3.isSelected(player) && hero.ability3.keybind.isKeyDown(player) && 
+			if (handler == null && !worldObj.isRemote && hero.ability3.isSelected(player) && hero.ability3.keybind.isKeyDown(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, INVISIBLE.setEntity(player).setTicks(130),
 						Ability.ABILITY_USING.setEntity(player).setTicks(130).setAbility(hero.ability3).setBoolean(true));
-				Minewatch.network.sendToDimension(new SPacketSimple(27, player, true), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(27, player, true), worldObj.provider.getDimension());
 			}
 
 			// translocator
-			if (!world.isRemote && hero.ability2.isSelected(player) && hero.ability2.keybind.isKeyDown(player) &&
+			if (!worldObj.isRemote && hero.ability2.isSelected(player) && hero.ability2.keybind.isKeyDown(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				// teleport
 				Entity translocator = hero.ability2.entities.get(player);
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
-					if (translocator.ticksExisted > 10) {
+					if (hero.ability2.keybind.isKeyPressed(player)) {
 						if (player instanceof EntityPlayer)
 							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
 						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
 						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
 								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
 						Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
-								translocator.posX, translocator.posY, translocator.posZ), world.provider.getDimension());
+								translocator.posX, translocator.posY, translocator.posZ), worldObj.provider.getDimension());
 						translocator.setDead();
 						hero.ability2.keybind.setCooldown(player, 80, false);
 					}
 				}
 				// throw new translocator
 				else {
-					translocator = new EntitySombraTranslocator(world, player);
+					translocator = new EntitySombraTranslocator(worldObj, player);
 					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
 					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
-					world.spawnEntityInWorld(translocator);
+					worldObj.spawnEntityInWorld(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 					hero.ability2.entities.put(player, translocator);
 					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
-					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), world.provider.getDimension());
+					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), worldObj.provider.getDimension());
 				}
 			}
 
 			// passive
 			if (player == Minewatch.proxy.getClientPlayer() && isSelected && 
 					this.canUse(player, false, EnumHand.MAIN_HAND, true) &&
-					world.isRemote && player.ticksExisted % 5 == 0) {
+					worldObj.isRemote && player.ticksExisted % 5 == 0) {
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expandXyz(30);
 				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 				for (Entity entity2 : list) 

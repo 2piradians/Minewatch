@@ -20,11 +20,11 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemBastionGun extends ItemMWWeapon {
@@ -81,23 +81,23 @@ public class ItemBastionGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
 		if (this.canUse(player, true, hand, false)) {
 			boolean turret = isAlternate(stack);
-			if (!world.isRemote) {
-				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
+			if (!worldObj.isRemote) {
+				EntityBastionBullet bullet = new EntityBastionBullet(worldObj, player, turret ? 2 : hand.ordinal());
 				if (turret)
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, null, 20, 0);
 				else
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
-				world.spawnEntityInWorld(bullet);
+				worldObj.spawnEntityInWorld(bullet);
 				if (turret)
-					ModSoundEvents.BASTION_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+					ModSoundEvents.BASTION_SHOOT_1.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/3+0.8f);
 				else
-					ModSoundEvents.BASTION_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+					ModSoundEvents.BASTION_SHOOT_0.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/3+0.8f);
 				this.subtractFromCurrentAmmo(player, 1);
-				if (world.rand.nextInt(25) == 0)
+				if (worldObj.rand.nextInt(25) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 				if (!turret)
 					this.setCooldown(player, 3);
@@ -106,13 +106,13 @@ public class ItemBastionGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		if (isSelected && entity instanceof EntityLivingBase) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 			// stop turret if doesn't have handler (i.e. dies in turret form)
-			if (!world.isRemote && isAlternate(stack) &&
+			if (!worldObj.isRemote && isAlternate(stack) &&
 					!TickHandler.hasHandler(player, Identifier.BASTION_TURRET)) {
 				setAlternate(stack, false);
 				Minewatch.network.sendToAll(new SPacketSimple(31, player, false));
@@ -121,7 +121,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 			}
 
 			// reconfigure
-			if (!world.isRemote && hero.ability2.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
 				setAlternate(stack, !isAlternate(stack));

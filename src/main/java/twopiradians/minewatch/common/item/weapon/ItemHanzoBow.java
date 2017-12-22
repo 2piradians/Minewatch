@@ -43,7 +43,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 				if (this.isArrow(itemstack))
 					return itemstack;
 			}
-			return ItemStack.EMPTY;
+			return null;
 		}*/
 	}
 
@@ -137,12 +137,12 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand handIn) {
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand handIn) {
 		ItemStack itemstack = player.getHeldItem(handIn);	
 		boolean flag = this.findAmmo(player) != null;
 
 		if (player instanceof EntityPlayer) {
-			ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, world, (EntityPlayer) player, handIn, flag);
+			ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, worldObj, (EntityPlayer) player, handIn, flag);
 			if (ret != null) return ret;
 		}
 
@@ -151,8 +151,8 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		}
 		else if (this.canUse(player, true, handIn, false)) {
 			player.setActiveHand(handIn);
-			if (!world.isRemote)
-				ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
+			if (!worldObj.isRemote)
+				ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, worldObj.rand.nextFloat()/2+0.75f);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 		}
 		else

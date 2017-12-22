@@ -47,10 +47,10 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemLucioSoundAmplifier extends ItemMWWeapon {
@@ -101,14 +101,14 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		// soundwave
-		if (hand == EnumHand.MAIN_HAND && !world.isRemote && this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
+		if (hand == EnumHand.MAIN_HAND && !worldObj.isRemote && this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
 				hero.ability1.isSelected(player, false, hero.ability1, hero.ability2) && this.getCurrentAmmo(player) >= 4) {
 			this.subtractFromCurrentAmmo(player, 4, EnumHand.MAIN_HAND);
 			hero.ability1.keybind.setCooldown(player, 80, false);
 			player.getHeldItem(hand).damageItem(1, player);
-			Minewatch.network.sendToDimension(new SPacketSimple(38, player, false), world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(38, player, false), worldObj.provider.getDimension());
 			// if player, needs to get player motion from client
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(39, false, (EntityPlayerMP) player), (EntityPlayerMP) player);
@@ -120,15 +120,15 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		if (entity instanceof EntityLivingBase && isSelected) {
 			EntityLivingBase player = (EntityLivingBase)entity;
 			boolean doPassive = player.ticksExisted % 3 == 0;
 
 			// crossfade
-			if (!world.isRemote && hero.ability3.isSelected(player, true, hero.ability1, hero.ability2) && 
+			if (!worldObj.isRemote && hero.ability3.isSelected(player, true, hero.ability1, hero.ability2) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
 				ModSoundEvents.LUCIO_CROSSFADE.playFollowingSound(player, 1, 1, false);
 				setAlternate(stack, !isAlternate(stack));
@@ -139,18 +139,19 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			boolean amp = TickHandler.hasHandler(player, Identifier.LUCIO_AMP);
 
 			// passive
-			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2)) {
-				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
+			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2) &&
+					ItemMWArmor.SetManager.getWornSet(player) == hero) {
+				if (worldObj.isRemote && player == Minewatch.proxy.getClientPlayer())
 					this.affectedEntities = 0;
-				else if (!world.isRemote && player instanceof EntityLucio)
+				else if (!worldObj.isRemote && player instanceof EntityLucio)
 					((EntityLucio)player).affectedEntities.clear();
-				for (Entity entity2 : world.getEntitiesWithinAABBExcludingEntity(player, 
+				for (Entity entity2 : worldObj.getEntitiesWithinAABBExcludingEntity(player, 
 						new AxisAlignedBB(player.getPosition().add(-10, -10, -10), 
 								player.getPosition().add(10, 10, 10))))
 					// nearby
 					if (entity2 instanceof EntityLivingBase && entity2.getDistanceToEntity(player) <= 10 &&
 					EntityHelper.shouldHit(player, entity2, true)) {
-						if (!world.isRemote) {
+						if (!worldObj.isRemote) {
 							if (heal)
 								EntityHelper.attemptDamage(player, entity2, amp ? -7.02f : -2.4375f, true);
 							else
@@ -162,7 +163,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 							++this.affectedEntities;
 					}
 				// self
-				if (!world.isRemote)
+				if (!worldObj.isRemote)
 					if (heal)
 						EntityHelper.attemptDamage(player, player, amp ? -5.265f : -1.828125f, true);
 					else
@@ -170,7 +171,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			}
 
 			// amp
-			if (!world.isRemote && hero.ability2.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, AMP.setEntity(player).setTicks(60),
 						Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2));
@@ -183,10 +184,10 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	}	
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// sonic attack
 		if (this.canUse(player, true, hand, false, hero.ability1, hero.ability2) && 
-				!world.isRemote && !TickHandler.hasHandler(player, Identifier.LUCIO_SONIC)) {
+				!worldObj.isRemote && !TickHandler.hasHandler(player, Identifier.LUCIO_SONIC)) {
 			TickHandler.register(false, SONIC.setEntity(player).setTicks(10).setNumber(hand.ordinal()));
 		}
 	}
@@ -347,13 +348,13 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	}
 
 	@SideOnly(Side.CLIENT)
-	private void renderShadowSingle(World world, IBlockState state, float red, float green, float blue, double x, double y, double z, BlockPos pos, float one, float size, double x2, double y2, double z2)
+	private void renderShadowSingle(World worldObj, IBlockState state, float red, float green, float blue, double x, double y, double z, BlockPos pos, float one, float size, double x2, double y2, double z2)
 	{
 		if (!state.isTranslucent() || state.getBlock() == Blocks.SNOW_LAYER)
 		{
 			Tessellator tessellator = Tessellator.getInstance();
 			VertexBuffer vertexbuffer = tessellator.getBuffer();
-			double d0 = ((double)one - (y - ((double)pos.getY() + y2)) / 2.0D) * 0.5D * (double)world.getLightBrightness(pos);
+			double d0 = ((double)one - (y - ((double)pos.getY() + y2)) / 2.0D) * 0.5D * (double)worldObj.getLightBrightness(pos);
 
 			if (d0 >= 0.0D)
 			{
@@ -362,7 +363,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 					d0 = 1.0D;
 				}
 
-				AxisAlignedBB axisalignedbb = state.getBoundingBox(world, pos);
+				AxisAlignedBB axisalignedbb = state.getBoundingBox(worldObj, pos);
 				double d1 = (double)pos.getX() + axisalignedbb.minX + x2;
 				double d2 = (double)pos.getX() + axisalignedbb.maxX + x2;
 				double d3 = (double)pos.getY() + axisalignedbb.minY + y2 + 0.015625D - (1d-axisalignedbb.maxY);

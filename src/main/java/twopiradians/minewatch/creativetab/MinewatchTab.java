@@ -2,18 +2,18 @@ package twopiradians.minewatch.creativetab;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.tab.GuiTab;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class MinewatchTab extends CreativeTabs {
-	
-	public List<ItemStack> orderedStacks = Lists.<ItemStack>newArrayList();
 
 	public MinewatchTab(String label) {
 		super(label);
@@ -27,7 +27,19 @@ public class MinewatchTab extends CreativeTabs {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void displayAllRelevantItems(List<ItemStack> list) {
-		list.clear();
-		list.addAll(orderedStacks);
-}
+		if (Minecraft.getMinecraft().currentScreen instanceof GuiContainerCreative) {
+			Minecraft.getMinecraft().displayGuiScreen(new GuiTab());
+		}
+	}
+
+	/**Trick tab into switching to inventory when exiting in creative*/
+	@SideOnly(Side.CLIENT)
+	public int getTabIndex() {
+		if (Minecraft.getMinecraft().currentScreen instanceof GuiContainerCreative && 
+				((GuiContainerCreative)Minecraft.getMinecraft().currentScreen).getSelectedTabIndex() == CreativeTabs.INVENTORY.getTabIndex()) 
+			return ((CreativeTabs)Minewatch.tabArmorWeapons).getTabIndex();
+		else
+			return CreativeTabs.INVENTORY.getTabIndex();
+	}
+
 }

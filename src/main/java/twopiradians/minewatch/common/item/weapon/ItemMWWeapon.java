@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.entity.Entity;
@@ -31,6 +32,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -44,9 +47,10 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAmmo;
 
@@ -62,7 +66,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
 	private int reloadTime;
 	protected boolean saveEntityToNBT;
-	protected boolean showHealthParticles;
+	public boolean showHealthParticles;
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
@@ -129,8 +133,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void reequipAnimation(ItemStack stack) {
+		this.reequipAnimation(stack, 2);
+	}
+	
+	public void reequipAnimation(ItemStack stack, int ticks) {
 		if (stack != null)
-			this.reequipAnimation.put(stack, 2);
+			this.reequipAnimation.put(stack, ticks);
 	}
 
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
@@ -182,16 +190,16 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			return false;
 	}
 
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { }
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { }
 
 	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
-		return this.onItemRightClick(world, (EntityLivingBase) player, hand);
+	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldObj, EntityPlayer player, EnumHand hand) {
+		return this.onItemRightClick(worldObj, (EntityLivingBase) player, hand);
 	}
 
 	/**Cancel swing animation when left clicking*/
@@ -201,12 +209,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
 		if (entity == null || !entity.isEntityAlive())
 			return;
 		
 		//delete dev spawned items if not in dev's inventory
-		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
@@ -226,7 +234,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 
 		// reloading
-		if (!world.isRemote && entity instanceof EntityLivingBase && (((EntityLivingBase)entity).getHeldItemMainhand() == stack ||
+		if (!worldObj.isRemote && entity instanceof EntityLivingBase && (((EntityLivingBase)entity).getHeldItemMainhand() == stack ||
 				((EntityLivingBase)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
 			// automatic reload
 			if (this.getCurrentAmmo((EntityLivingBase) entity) == 0 && this.getMaxAmmo((EntityLivingBase) entity) > 0 &&
@@ -246,14 +254,14 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0 || 
 							this == EnumHero.TRACER.weapon))))
-				onItemLeftClick(stack, world, (EntityLivingBase) entity, hand);
+				onItemLeftClick(stack, worldObj, (EntityLivingBase) entity, hand);
 		}
 
 		// right click - for EntityHeroes
 		if (entity instanceof EntityHero)
 			if (KeyBind.RMB.isKeyPressed((EntityLivingBase) entity) || 
 					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()))
-				this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
+				this.onItemRightClick(worldObj, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 			else if (KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
 				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityHero) entity).getItemInUseCount());
 			else if (((EntityHero) entity).isHandActive())
@@ -266,23 +274,24 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					ability.toggle(entity, false);
 
 		// set damage to full if option set to never use durability
-		if (!world.isRemote && (Config.durabilityOptionWeapons == 2 || entity instanceof EntityHero) && stack.getItemDamage() != 0)
+		if (!worldObj.isRemote && (Config.durabilityOptionWeapons == 2 || entity instanceof EntityHero) && stack.getItemDamage() != 0)
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
-		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
+		else if (!worldObj.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
 				SetManager.getWornSet(entity.getPersistentID()) == hero)
 			stack.setItemDamage(0);
 
 		// health particles
-		if (this.showHealthParticles && isSelected && entity instanceof EntityPlayer && this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) &&
-				world.isRemote && entity.ticksExisted % 5 == 0) {
+		if (this.showHealthParticles && entity instanceof EntityPlayer && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+				this.canUse((EntityPlayer) entity, false, EnumHand.MAIN_HAND, true) && worldObj.isRemote && entity.ticksExisted % 5 == 0) {
 			AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(30);
 			List<Entity> list = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb);
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
-						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f) {
+						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f && 
+						EntityHelper.shouldTarget(entity, entity2, true)) {
 					float size = Math.min(entity2.height, entity2.width)*9f;
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, worldObj, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}
 		}
 	}
@@ -325,11 +334,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (entity instanceof EntityPlayer) {
 			CooldownTracker tracker = ((EntityPlayer)entity).getCooldownTracker();
 			if (!tracker.hasCooldown(this) || overrideCooldown)
-				tracker.setCooldown(this, cooldown);
+				tracker.setCooldown(this, Math.max(2, cooldown));
 		}
 		// use handler for entity heroes
 		else if (entity instanceof EntityHero) {
 			cooldown *= Config.mobAttackCooldown;
+			cooldown++;
 			Handler handler = TickHandler.getHandler(entity, Identifier.WEAPON_COOLDOWN);
 			if (handler == null)
 				TickHandler.register(entity.worldObj.isRemote, ENTITY_HERO_COOLDOWN.setEntity(entity).setTicks(cooldown));
@@ -370,6 +380,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
 	
+	/**Called before entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void preRenderEntity(RenderLivingEvent.Pre<EntityLivingBase> event) {}
+	
+	/**Called after entity wearing set and holding weapon in mainhand is rendered*/
+	@SideOnly(Side.CLIENT)
+	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {}
+	
+	/**Called when client player is wearing set and holding weapon in mainhand*/
+	@SideOnly(Side.CLIENT)
+	public void renderWorldLast(RenderWorldLastEvent event, EntityPlayerSP player) {}
+	
 	/**Set weapon model's color*/
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -399,11 +421,11 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	/**Get entity holding stack from stack's nbt*/
 	@Nullable
-	public static EntityLivingBase getEntity(World world, ItemStack stack) {
+	public static EntityLivingBase getEntity(World worldObj, ItemStack stack) {
 		if (stack != null && stack.hasTagCompound() &&
 				stack.getTagCompound().getUniqueId("entity") != null) {
 			UUID uuid = stack.getTagCompound().getUniqueId("entity");
-			for (Entity entity : world.loadedEntityList)
+			for (Entity entity : worldObj.loadedEntityList)
 				if (uuid.equals(entity.getPersistentID()) && entity instanceof EntityLivingBase)
 					return (EntityLivingBase) entity;
 		}

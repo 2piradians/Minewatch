@@ -85,7 +85,7 @@ public class EntitySombraTranslocator extends EntityMW {
 	}
 
 	@Override
-	protected void onImpact(RayTraceResult result) {
+	public void onImpact(RayTraceResult result) {
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK)
 			this.onGround = true;
 	}

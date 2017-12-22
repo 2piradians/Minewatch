@@ -20,13 +20,13 @@ public class ParticleHanzoSonic extends ParticleSimpleAnimated {
 	private Entity entity;
 	private boolean isFast;
 
-	public ParticleHanzoSonic(World world, Entity entity, boolean isBig) {
-		this(world, entity.posX, entity.posY+entity.height/2, entity.posZ, isBig, false);
+	public ParticleHanzoSonic(World worldObj, Entity entity, boolean isBig) {
+		this(worldObj, entity.posX, entity.posY+entity.height/2, entity.posZ, isBig, false);
 		this.entity = entity;
 	}
 
-	public ParticleHanzoSonic(World world, double x, double y, double z, boolean isBig, boolean isFast) {
-		super(world, x, y, z, 0, 0, 0);
+	public ParticleHanzoSonic(World worldObj, double x, double y, double z, boolean isBig, boolean isFast) {
+		super(worldObj, x, y, z, 0, 0, 0);
 		this.isBig = isBig;
 		this.isFast = isFast;
 		this.particleGravity = 0.0f;

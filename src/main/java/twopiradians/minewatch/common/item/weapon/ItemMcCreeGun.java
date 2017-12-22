@@ -17,10 +17,10 @@ import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.tickhandler.TickHandler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Handler;
-import twopiradians.minewatch.common.tickhandler.TickHandler.Identifier;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
@@ -69,16 +69,16 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && !world.isRemote) {
-			EntityMcCreeBullet bullet = new EntityMcCreeBullet(world, player, hand.ordinal(), false);
+		if (this.canUse(player, true, hand, false) && !worldObj.isRemote) {
+			EntityMcCreeBullet bullet = new EntityMcCreeBullet(worldObj, player, hand.ordinal(), false);
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 10, 0.5f);
-			world.spawnEntityInWorld(bullet);
-			ModSoundEvents.MCCREE_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+			worldObj.spawnEntityInWorld(bullet);
+			ModSoundEvents.MCCREE_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			this.setCooldown(player, 9);
-			if (world.rand.nextInt(6) == 0)
+			if (worldObj.rand.nextInt(6) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 		}
 	}
@@ -122,14 +122,14 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		// roll
 		if (isSelected && entity.onGround && entity instanceof EntityLivingBase && hero.ability2.isSelected((EntityLivingBase) entity) &&
-				!world.isRemote && this.canUse((EntityLivingBase) entity, true, getHand((EntityLivingBase) entity, stack), true)) {
-			ModSoundEvents.MCCREE_ROLL.playFollowingSound(entity, 1.3f, world.rand.nextFloat()/4f+0.8f, false);
-			Minewatch.network.sendToDimension(new SPacketSimple(2, entity, true), world.provider.getDimension());
+				!worldObj.isRemote && this.canUse((EntityLivingBase) entity, true, getHand((EntityLivingBase) entity, stack), true)) {
+			ModSoundEvents.MCCREE_ROLL.playFollowingSound(entity, 1.3f, worldObj.rand.nextFloat()/4f+0.8f, false);
+			Minewatch.network.sendToDimension(new SPacketSimple(2, entity, true), worldObj.provider.getDimension());
 			if (entity instanceof EntityHero)
 				SPacketSimple.move((EntityLivingBase) entity, 0.6d, false, false);
 			this.setCurrentAmmo((EntityLivingBase)entity, this.getMaxAmmo((EntityLivingBase) entity));

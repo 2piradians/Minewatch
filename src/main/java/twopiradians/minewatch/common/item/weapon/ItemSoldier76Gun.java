@@ -18,8 +18,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.entity.projectile.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -42,17 +42,17 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		// helix rockets
 		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
-			if (!world.isRemote) {
+			if (!worldObj.isRemote) {
 				for (int i=1; i<=3; ++i) {
-					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, hand.ordinal(), i);
+					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(worldObj, player, hand.ordinal(), i);
 					EntityHelper.setAim(rocket, player, player.rotationPitch, player.rotationYawHead, 50, 0, hand, 12, 0.45f);
-					world.spawnEntityInWorld(rocket);
+					worldObj.spawnEntityInWorld(rocket);
 				}
 				hero.ability1.keybind.setCooldown(player, 160, false);
-				ModSoundEvents.SOLDIER76_HELIX.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);	
+				ModSoundEvents.SOLDIER76_HELIX.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/20+0.95f);	
 				player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
@@ -61,14 +61,14 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		super.onUpdate(stack, world, entity, slot, isSelected);
+	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
+		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		// stop sprinting if right clicking (since onItemRightClick isn't called while blocking)
 		if (isSelected && entity instanceof EntityLivingBase && KeyBind.RMB.isKeyDown((EntityLivingBase) entity)) {
 			if (entity.isSprinting())
 				entity.setSprinting(false);
-			this.onItemRightClick(world, (EntityLivingBase) entity, EnumHand.MAIN_HAND);
+			this.onItemRightClick(worldObj, (EntityLivingBase) entity, EnumHand.MAIN_HAND);
 		}
 
 		// block while running
@@ -79,7 +79,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityLivingBase && 
 				ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) == hero) {
-			if (!world.isRemote)
+			if (!worldObj.isRemote)
 				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, entity instanceof EntityPlayer ? 2 : 0, false, false));
 			hero.ability3.toggle(entity, true);
 		}
@@ -88,18 +88,18 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	}	
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		if (player.isSprinting())
 			player.setSprinting(false);
 
 		// shoot TODO add continual usage spread
-		if (this.canUse(player, true, hand, false) && !world.isRemote) {
-			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player, hand.ordinal());
+		if (this.canUse(player, true, hand, false) && !worldObj.isRemote) {
+			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(worldObj, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2.4F, hand, 12, 0.45f);
-			world.spawnEntityInWorld(bullet);
-			ModSoundEvents.SOLDIER76_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
+			worldObj.spawnEntityInWorld(bullet);
+			ModSoundEvents.SOLDIER76_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);
-			if (world.rand.nextInt(25) == 0)
+			if (worldObj.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 			this.setCooldown(player, 1);
 		}

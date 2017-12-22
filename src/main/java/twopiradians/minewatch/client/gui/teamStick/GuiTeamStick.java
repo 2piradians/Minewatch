@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -300,7 +301,7 @@ public class GuiTeamStick extends GuiScreen {
 
 		if (getSelectedTeam() != null && currentScreen == Screen.INFO && 
 				mouseX <= stackX+16 && mouseX >= stackX && mouseY <= stackY+16 && mouseY >= stackY)
-			this.drawHoveringText(getStack().getTooltip(mc.player, false), mouseX, mouseY);
+			this.drawHoveringText(getStack().getTooltip(mc.player, TooltipFlags.NORMAL), mouseX, mouseY);
 
 		GlStateManager.popMatrix();	
 	}

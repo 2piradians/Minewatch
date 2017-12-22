@@ -1,12 +1,12 @@
 package twopiradians.minewatch.client.render.tileentity;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.UnmodifiableIterator;
 
 import net.minecraft.client.Minecraft;
@@ -152,7 +152,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 					return state.apply(part);
 			}
 
-			return Optional.absent();
+			return Optional.empty();
 		}
 	}
 }

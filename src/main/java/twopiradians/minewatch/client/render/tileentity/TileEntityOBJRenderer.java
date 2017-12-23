@@ -52,6 +52,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 	protected abstract void postRender(T te, int model, VertexBuffer buffer, double x, double y, double z, float partialTicks);
 	protected int getColor(int i, T entity) {return -1;}
 
+	// PORT 1.12 render
 	@Override
 	public void renderTileEntityAt(T te, double x, double y, double z, float partialTicks, int destroyStage) {
 		if (this.bakedModels == null) {

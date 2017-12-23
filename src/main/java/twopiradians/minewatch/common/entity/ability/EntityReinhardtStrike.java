@@ -62,18 +62,23 @@ public class EntityReinhardtStrike extends EntityMW {
     public int getBrightnessForRender(float partialTicks) {
 		return 15728880;
     }
+	
+	@Override
+	protected void onImpactMoveToHitPosition(RayTraceResult result) {
+		if (result.typeOfHit == RayTraceResult.Type.BLOCK)
+			super.onImpactMoveToHitPosition(result);
+	}
 
 	@Override
 	public void onImpact(RayTraceResult result) {
-		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-			EntityHelper.moveToHitPosition(this, result);
-			if (world.isRemote) {
-				ModSoundEvents.REINHARDT_STRIKE_COLLIDE.playSound(this, 4, 1);
-				Vec3d vec = this.getPositionVector().add(new Vec3d(result.sideHit.getDirectionVec()).scale(0.01d));
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
-			}
+		super.onImpact(result);
+
+		if (result.typeOfHit == RayTraceResult.Type.BLOCK && world.isRemote) {
+			ModSoundEvents.REINHARDT_STRIKE_COLLIDE.playSound(this, 4, 1);
+			Vec3d vec = this.getPositionVector().add(new Vec3d(result.sideHit.getDirectionVec()).scale(0.01d));
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
 		}
-		
+
 		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, false, false);
 	}
 	

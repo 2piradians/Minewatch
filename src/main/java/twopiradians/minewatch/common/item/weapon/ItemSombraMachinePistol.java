@@ -167,7 +167,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 
 			// invisibility
-			if (handler == null && !world.isRemote && hero.ability3.isSelected(player) && hero.ability3.keybind.isKeyDown(player) && 
+			if (handler == null && !world.isRemote && hero.ability3.isSelected(player, false, hero.ability2) && hero.ability3.keybind.isKeyDown(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, INVISIBLE.setEntity(player).setTicks(130),
 						Ability.ABILITY_USING.setEntity(player).setTicks(130).setAbility(hero.ability3).setBoolean(true));
@@ -175,7 +175,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 
 			// translocator
-			if (!world.isRemote && hero.ability2.isSelected(player) && hero.ability2.keybind.isKeyDown(player) &&
+			if (!world.isRemote && hero.ability2.isSelected(player, false, hero.ability3) && hero.ability2.keybind.isKeyDown(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				// teleport
 				Entity translocator = hero.ability2.entities.get(player);
@@ -200,7 +200,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 					hero.ability2.entities.put(player, translocator);
-					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player).setBoolean(true));
+					TickHandler.register(false, Ability.ABILITY_USING.setAbility(hero.ability2).setTicks(10).setEntity(player));
 					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), world.provider.getDimension());
 				}
 			}

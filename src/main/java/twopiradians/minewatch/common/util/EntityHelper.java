@@ -63,7 +63,7 @@ public class EntityHelper {
 		// if entityIn moving more than its collision box per tick - check for lookVec intercept, otherwise just check collision boxes
 		boolean fast = Math.abs(entityIn.motionX) > entityIn.width || Math.abs(entityIn.motionY) > entityIn.height || Math.abs(entityIn.motionZ) > entityIn.width;
 		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
-		if (fast)
+		if (fast) // PORT 1.12 grow
 			aabb = aabb.addCoord(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
 		// list of entities in (possibly very big) area
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);

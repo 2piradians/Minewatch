@@ -154,10 +154,6 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 	
-		// TODO
-		if (player instanceof EntityPlayer)
-			((EntityPlayer)player).inventory.addItemStackToInventory(ModEntities.getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
-		
 		// shoot
 		if (this.canUse(player, true, hand, false) && !player.isHandActive() && !TickHandler.hasHandler(player, Identifier.ZENYATTA_VOLLEY)) {
 			if (!worldObj.isRemote) {

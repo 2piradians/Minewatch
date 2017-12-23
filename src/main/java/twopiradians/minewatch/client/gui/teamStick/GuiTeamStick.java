@@ -125,7 +125,7 @@ public class GuiTeamStick extends GuiScreen {
 		this.buttonList.add(new GuiButton(5, guiLeft+X_SIZE/2-2-65, guiTop+93, 65, 20, "Done"));
 		this.buttonList.add(new GuiButtonResized(6, guiLeft+X_SIZE-15, guiTop+5, 10, 10, "?"));
 		this.buttonList.add(new GuiButton(7, guiLeft+X_SIZE/2-15, guiTop+93, 30, 20, "OK"));
-		this.buttonList.add(new GuiButtonURL(8, guiLeft+X_SIZE/2-70, guiTop+30, 140, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+"How to use the Team Stick", "https://www.youtube.com/channel/UCj-AVlTdovbbnzQKVtjtDoA", this)); // TODO
+		this.buttonList.add(new GuiButtonURL(8, guiLeft+X_SIZE/2-70, guiTop+30, 140, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+"How to use the Team Stick", "https://youtu.be/6LMpimAFEDs", this)); 
 		this.buttonList.add(new GuiButtonURL(9, guiLeft+X_SIZE/2-40, guiTop+65, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+"Minecraft Wiki", "https://minecraft.gamepedia.com/Scoreboard#Teams", this)); 
 		for (int i=0; i<16; ++i)
 			this.buttonList.add(new GuiButtonTeamColor(i, guiLeft+12+i*18-(i/8)*144, guiTop+23+(i/8)*18, 11, 11, "", this));

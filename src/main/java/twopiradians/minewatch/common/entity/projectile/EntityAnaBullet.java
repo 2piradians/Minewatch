@@ -64,19 +64,21 @@ public class EntityAnaBullet extends EntityMW {
 
 	@Override
 	public void onUpdate() {
-		this.isFriendly = this.getDataManager().get(HEAL);
-
 		super.onUpdate();
 	}
 
 	@Override
 	public void spawnTrailParticles() {
+		this.isFriendly = this.getDataManager().get(HEAL);
+		
 		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
 				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1); 
 	}
 	
 	@Override
 	public void onImpact(RayTraceResult result) {
+		this.isFriendly = this.getDataManager().get(HEAL);
+		
 		super.onImpact(result);
 
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;

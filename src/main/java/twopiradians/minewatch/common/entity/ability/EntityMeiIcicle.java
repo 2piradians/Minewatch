@@ -46,6 +46,13 @@ public class EntityMeiIcicle extends EntityMW {
 
 	@Override
 	public void onUpdate() {
+		// remove velocity when in ground - can be set with data manager update otherwise
+		if (this.inGround) {
+			this.motionX = 0;
+			this.motionY = 0;
+			this.motionZ = 0;
+		}
+		
 		super.onUpdate();
 
 		// in ground

@@ -37,7 +37,7 @@ public class TickHandler {
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
 	private static CopyOnWriteArrayList<Handler> serverHandlers = new CopyOnWriteArrayList<Handler>();
-	
+
 	/**Register a new handler to be tracked each tick, removes duplicate handlers and resets handlers before registering*/
 	public static void register(boolean isRemote, Handler... handlers) {
 		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
@@ -71,7 +71,7 @@ public class TickHandler {
 				}
 			}
 	}
-	
+
 	/**Get a registered handler that matches a predicate*/
 	@Nullable
 	public static Handler getHandler(Predicate<Handler> predicate, boolean isRemote) {
@@ -85,13 +85,13 @@ public class TickHandler {
 		}
 		return null;
 	}
-	
+
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
 		return entity == null ? null : getHandler(entity.getPersistentID(), identifier, entity.world.isRemote);
 	}
-	
+
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(UUID uuid, Identifier identifier, boolean isRemote) {
@@ -110,7 +110,7 @@ public class TickHandler {
 	public static boolean hasHandler(Entity entity, Identifier identifier) {
 		return getHandler(entity, identifier) != null;
 	}
-	
+
 	public static boolean hasHandler(Predicate<Handler> predicate, boolean isRemote) {
 		return getHandler(predicate, isRemote) != null;
 	}
@@ -126,6 +126,12 @@ public class TickHandler {
 				handlers.add(handler);
 		}
 		return handlers;
+	}
+
+	/**Unregister all handlers*/
+	public static void unregisterAllHandlers(boolean isRemote) {
+		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+		unregister(isRemote, handlerList.toArray(new Handler[0]));
 	}
 
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.
@@ -149,7 +155,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) {
 			for (KeyBind key : KeyBind.values())
 				key.keyPressedEntitiesClient.clear();
-			
+
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//Minewatch.logger.info(handler); 
@@ -169,7 +175,7 @@ public class TickHandler {
 		if (event.phase == TickEvent.Phase.END) {
 			for (KeyBind key : KeyBind.values())
 				key.keyPressedEntitiesServer.clear();
-			
+
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//Minewatch.logger.info(handler);
@@ -239,7 +245,7 @@ public class TickHandler {
 		public Handler onClientRemove() {
 			return this;
 		}
-		
+
 		/**Called before the handler is removed*/
 		public Handler onServerRemove() {
 			return this;
@@ -298,7 +304,7 @@ public class TickHandler {
 		}
 
 		// methods that are only sometimes used by handlers are below (for convenience)
-		
+
 		public Handler setEntityLiving(EntityLivingBase entity) {
 			this.entityLiving = (EntityLivingBase) entity;
 			if (entity instanceof EntityPlayer)

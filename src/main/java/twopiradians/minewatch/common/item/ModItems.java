@@ -68,8 +68,8 @@ public class ModItems {
 			team_stick = registerItem(event.getRegistry(), new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);
 			
 			// item blocks
-			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackSmall), ModBlocks.healthPackSmall.getUnlocalizedName(), Minewatch.tabMapMaking, false);
-			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackLarge), ModBlocks.healthPackLarge.getUnlocalizedName(), Minewatch.tabMapMaking, false);
+			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackSmall), ModBlocks.healthPackSmall.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
+			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackLarge), ModBlocks.healthPackLarge.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 		}
 	}
 

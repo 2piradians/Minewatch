@@ -63,7 +63,7 @@ public class EntityHelper {
 		boolean fast = Math.abs(entityIn.motionX) > entityIn.width || Math.abs(entityIn.motionY) > entityIn.height || Math.abs(entityIn.motionZ) > entityIn.width;
 		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
 		if (fast)
-			aabb = aabb.offset(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
+			aabb = aabb.expand(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
 		// list of entities in (possibly very big) area
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
@@ -439,7 +439,7 @@ public class EntityHelper {
 			double d1 = d0;
 			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
-			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().offset(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
+			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
 					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
 				}
@@ -574,7 +574,7 @@ public class EntityHelper {
 	@Nullable
 	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, @Nullable Predicate<EntityLivingBase> predicate) {
 		Vec3d look = shooter.getLookVec().scale(range-1);
-		AxisAlignedBB aabb = shooter.getEntityBoundingBox().grow(5).offset(look.x, look.y, look.z);
+		AxisAlignedBB aabb = shooter.getEntityBoundingBox().grow(5).expand(look.x, look.y, look.z);
 		EntityLivingBase closest = null;
 		float angle = Float.MAX_VALUE;
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {

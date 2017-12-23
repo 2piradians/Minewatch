@@ -93,7 +93,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 
 		// check if not attached
 		if (!this.world.isRemote && this.onGround && 
-				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().grow(0.01d))) {
+				this.facing != null && !world.collidesWithAnyBlock(getEntityBoundingBox().grow(0.2d))) {
 			this.onGround = false;
 			this.facing = null;
 			this.dataManager.set(FACING, -1);

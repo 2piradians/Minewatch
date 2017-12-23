@@ -53,7 +53,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 	protected int getColor(int i, T entity) {return -1;}
 
 	@Override
-	public void renderTileEntityFast(T te, double x, double y, double z, float partialTicks, int destroyStage, float partial, net.minecraft.client.renderer.BufferBuilder buffer) {
+	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		if (this.bakedModels == null) {
 			this.bakedModels = new IBakedModel[this.getModelParts().length];
 			IModel model = ModelLoaderRegistry.getModelOrLogError(loc, "Minewatch is missing a model. Please report this to the mod authors.");
@@ -77,7 +77,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			GlStateManager.enableDepth();
 
 			Tessellator tessellator = Tessellator.getInstance();
-			buffer = tessellator.getBuffer();
+			BufferBuilder buffer = tessellator.getBuffer();
 			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 
 			GlStateManager.rotate(180, 0, 0, 1);

@@ -43,7 +43,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 				else
 					handler.ticksLeft = this.ticksLeft;
 
-				return false;
+				++ticksLeft;
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
 				EnumHero.BASTION.reloadSound = ModSoundEvents.BASTION_RELOAD_0;
@@ -63,7 +63,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 				else
 					handler.ticksLeft = this.ticksLeft;
 
-				return false;
+				++ticksLeft;
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
 				setAlternate(entityLiving.getHeldItemMainhand(), false);

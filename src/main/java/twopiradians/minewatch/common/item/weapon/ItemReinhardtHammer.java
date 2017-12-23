@@ -80,10 +80,11 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
 				player.canEntityBeSeen(entity) && 
 				EntityHelper.attemptDamage(player, entity, 75, false)) {
-			if (entity instanceof EntityLivingBase) 
+			if (entity instanceof EntityLivingBase) {
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
 						(double)(-MathHelper.cos(player.rotationYaw * 0.017453292F)));
+			}
 			player.getHeldItemMainhand().damageItem(1, player);
 		}
 	}
@@ -102,9 +103,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
-				player.world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().offset(player.getLookVec().scale(3)).expand(2.0D, 1D, 2.0D))) 
-				if (entity != player) 
+				player.world.getEntitiesWithinAABB(EntityLivingBase.class, player.getEntityBoundingBox().grow(5))) 
+				if (entity != player && entity != null && player.getDistanceToEntity(entity) <= 5 &&
+				EntityHelper.isInFieldOfVision(player, entity, 80)) 
 					this.attack(stack, player, entity);
 			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);
 			this.setCooldown(player, 20);

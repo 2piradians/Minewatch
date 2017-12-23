@@ -19,6 +19,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
@@ -31,6 +32,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ModEntities;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -151,7 +153,11 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 		
+	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 	
+		// TODO
+		if (player instanceof EntityPlayer)
+			((EntityPlayer)player).inventory.addItemStackToInventory(ModEntities.getSpawnEgg(new ResourceLocation(Minewatch.MODID, "random_hero")));
+		
 		// shoot
 		if (this.canUse(player, true, hand, false) && !player.isHandActive() && !TickHandler.hasHandler(player, Identifier.ZENYATTA_VOLLEY)) {
 			if (!worldObj.isRemote) {

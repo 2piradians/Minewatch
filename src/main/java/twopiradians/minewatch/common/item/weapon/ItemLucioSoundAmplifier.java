@@ -98,6 +98,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	public ItemLucioSoundAmplifier() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
+		this.showHealthParticles = true;
 	}
 
 	@Override

@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -150,6 +151,11 @@ public class ItemMWArmor extends ItemArmor {
 								new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
 										ability.maxUses, false), (EntityPlayerMP) event.player);
 					}
+		}
+		
+		@SubscribeEvent
+		public static void clearHandlers(PlayerLoggedOutEvent event) {
+			TickHandler.unregisterAllHandlers(true);
 		}
 
 		@Nullable

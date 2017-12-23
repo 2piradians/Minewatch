@@ -489,7 +489,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 27 && entity != null) {
 						if (packet.bool) {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
-									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3).setBoolean(true));
+									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3));
 							if (entity == player)
 								ModSoundEvents.SOMBRA_INVISIBLE_START.playFollowingSound(entity, 1, 1, false);
 						}
@@ -554,7 +554,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Sombra's translocator
 					else if (packet.type == 35 && entity instanceof EntityLivingBase && entity2 != null) {
-						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(entity).setBoolean(true));
+						TickHandler.register(true, Ability.ABILITY_USING.setAbility(EnumHero.SOMBRA.ability2).setTicks(10).setEntity(entity));
 						if (EnumHero.SOMBRA.ability2.entities.get(entity) == null || 
 								EnumHero.SOMBRA.ability2.entities.get(entity).getEntityId() != entity2.getEntityId())
 							EnumHero.SOMBRA.ability2.entities.put((EntityLivingBase) entity, entity2);

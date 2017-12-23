@@ -102,9 +102,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
 			for (EntityLivingBase entity : 
-				player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, 
-						player.getEntityBoundingBox().offset(player.getLookVec().xCoord*3, player.getLookVec().yCoord*3, player.getLookVec().zCoord*3).expand(2.0D, 1D, 2.0D))) 
-				if (entity != player) 
+				player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, player.getEntityBoundingBox().expandXyz(5))) 
+				if (entity != player && entity != null && player.getDistanceToEntity(entity) <= 5 &&
+				EntityHelper.isInFieldOfVision(player, entity, 80)) 
 					this.attack(stack, player, entity);
 			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.worldObj.rand.nextFloat()/3+0.8f);
 			this.setCooldown(player, 20);

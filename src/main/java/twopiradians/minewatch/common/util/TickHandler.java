@@ -25,6 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 /**Used to easily create/manage tick timers and other tick-dependent things*/
@@ -126,6 +127,12 @@ public class TickHandler {
 				handlers.add(handler);
 		}
 		return handlers;
+	}
+	
+	/**Unregister all handlers*/
+	public static void unregisterAllHandlers(boolean isRemote) {
+		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
+		unregister(isRemote, handlerList.toArray(new Handler[0]));
 	}
 
 	/**Unregister all Handlers linked to this entity that are marked as interruptible.

@@ -1,0 +1,26 @@
+# Blender MTL File: 'moira_weapon_0.blend'
+# Material Count: 4
+
+newmtl Glass_Veins
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/moira_glass_3d
+
+newmtl Veins
+Ka 1.000000 1.000000 1.000000
+Kd 0.200784 0.000000 0.401569
+d 1.000000
+map_Kd minewatch:items/moira_liquid_3d
+
+newmtl Wrist
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/moira_wrist_3d
+
+newmtl Wrist_g
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/moira_wrist_g_3d

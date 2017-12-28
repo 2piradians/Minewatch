@@ -76,11 +76,11 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			GlStateManager.scale(scale, scale, 1);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
 			int uses = this.hero.ability2.getUses(player);
-			GuiUtils.drawTexturedModalRect(-5, 8, 218, uses > 2 ? 0 : 4, 10, 4, 0);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 2 ? 239 : 243, 10, 4, 0);
 			GlStateManager.scale(0.75f, 0.75f, 1);
-			GuiUtils.drawTexturedModalRect(-5, 8, 218, uses > 1 ? 0 : 4, 10, 4, 0);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 1 ? 239 : 243, 10, 4, 0);
 			GlStateManager.scale(0.75f, 0.75f, 1);
-			GuiUtils.drawTexturedModalRect(-5, 8, 218, uses > 0 ? 0 : 4, 10, 4, 0);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 0 ? 239 : 243, 10, 4, 0);
 
 			GlStateManager.disableBlend();
 		}

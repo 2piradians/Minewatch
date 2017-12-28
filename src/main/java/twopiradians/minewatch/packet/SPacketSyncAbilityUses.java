@@ -74,7 +74,7 @@ public class SPacketSyncAbilityUses implements IMessage{
 						ability.multiAbilityUses.put(player.getPersistentID(), packet.uses);
 						if (!TickHandler.hasHandler(player, Identifier.ABILITY_MULTI_COOLDOWNS))
 							TickHandler.register(true, Ability.ABILITY_MULTI_COOLDOWNS.setAbility(ability).setEntity(player).setTicks(ability.useCooldown));
-						TickHandler.register(true, ability.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(1));
+						TickHandler.register(true, ability.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 					}
 				}
 			});

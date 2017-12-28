@@ -348,7 +348,7 @@ public class RenderManager {
 					int index = ItemMWWeapon.isAlternate(player.getHeldItemMainhand()) && 
 							weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 					// weapon
-					int u = 1+72*(index/14);
+					int u = 1+85*(index/14);
 					int v = 1+17*(index%14);
 					GuiUtils.drawTexturedModalRect(0, 0, u, v, 32, 16, 0);
 
@@ -378,7 +378,7 @@ public class RenderManager {
 							// not implemented icon
 							if (!ability.isEnabled && ability.keybind != KeyBind.NONE) {
 								GlStateManager.translate(i*0.3d, -i*0.5d, 0);
-								GuiUtils.drawTexturedModalRect(-i*9+1, 7, 233, 8, 5, 9, 0);
+								GuiUtils.drawTexturedModalRect(-i*9+1, 6, 16, 246, 5, 5, 0);
 							}
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.popMatrix();
@@ -389,15 +389,17 @@ public class RenderManager {
 							// background
 							if (ability.showKeybind(player)) {
 								if (ability.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 217, 8, 11, 6, 0);
+									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 6, 0);
+								else if (hero.ability1.keybind == KeyBind.RMB)		
+									GuiUtils.drawTexturedModalRect(-i*9-2, 9, 11, 247, 5, 5, 0);
 							}
 							// multi-use background
 							if (ability.maxUses > 0)
-								GuiUtils.drawTexturedModalRect(-i*9+2, -3, 238, 8, 5, 9, 0);
+								GuiUtils.drawTexturedModalRect(-i*9+2, -3, 21, 247, 5, 9, 0);
 							// ability entity icon
 							if (ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive() && !(hero == EnumHero.SOMBRA && 
 									ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive())) 
-								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 243, 8, 5, 5, 0);
+								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 26, 247, 5, 5, 0);
 							// text
 							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(ability.keybind.getKeyName());
 							GlStateManager.scale(0.25d, 0.25d, 1);

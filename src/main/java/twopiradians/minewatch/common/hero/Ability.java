@@ -115,8 +115,9 @@ public class Ability {
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
 	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
-		if (entity.world.isRemote && this.keybind.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
-				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)) {
+		if (entity.world.isRemote && this.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
+				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)/* && 
+				(this.maxUses == 0 || this.getUses(entity) == 0)*/) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(entity, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(entity).setTicks(20));
 		}

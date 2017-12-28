@@ -25,7 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.Ability;
-import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 /**Used to easily create/manage tick timers and other tick-dependent things*/

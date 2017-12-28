@@ -594,8 +594,8 @@ public class EntityHelper {
 		}
 
 		// debug visualize
-		//EnumHero.RenderManager.boundingBoxesToRender.clear();
-		//EnumHero.RenderManager.boundingBoxesToRender.add(aabb);
+		//RenderManager.boundingBoxesToRender.clear();
+		//RenderManager.boundingBoxesToRender.add(aabb);
 		return angle <= maxAngle ? closest : null;
 	}
 

@@ -34,7 +34,7 @@ public class Ability {
 
 	// multi use ability stuff
 	public int maxUses;
-	private int useCooldown;
+	public int useCooldown;
 	public HashMap<UUID, Integer> multiAbilityUses = Maps.newHashMap();
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
@@ -136,12 +136,12 @@ public class Ability {
 	public boolean isSelected(EntityLivingBase player) {
 		return isSelected(player, false);
 	}
-	
+
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityLivingBase player, boolean isPressed) {
 		return isSelected(player, isPressed, new Ability[0]);
 	}
-	
+
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
@@ -169,6 +169,14 @@ public class Ability {
 		if (ret && player.world.isRemote)
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		return ret;
+	}
+
+	/**Get cooldown of keybind or multi-use cooldown*/
+	public int getCooldown(EntityLivingBase entity) {
+		if (this.maxUses > 0 && this.getUses(entity) == 0 && TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
+			return TickHandler.getHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS).ticksLeft;
+		else
+			return keybind.getCooldown(entity);
 	}
 
 	/**Get number of available uses for multi-use ability (i.e. Tracer's Blink)*/

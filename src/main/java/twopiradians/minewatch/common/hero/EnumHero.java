@@ -1,59 +1,21 @@
 package twopiradians.minewatch.common.hero;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelBiped.ArmPose;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.CombatRules;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.common.registry.IThrowableEntity;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -95,11 +57,8 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
-import twopiradians.minewatch.common.util.EntityHelper;
-import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
-import twopiradians.minewatch.packet.SPacketSimple;
 
 public enum EnumHero {
 
@@ -301,10 +260,10 @@ public enum EnumHero {
 	public Skin[] skinInfo;
 	public String[] skinCredits;
 	public HashMap<String, Integer> skins = Maps.newHashMap();
-	private Crosshair crosshair;
+	protected Crosshair crosshair;
 	public Color color;
 
-	private static enum Crosshair {
+	protected static enum Crosshair {
 		CIRCLE_SMALL(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_circle_small.png")),
 		CIRCLE_BIG(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_circle_big.png")),
 		PLUS(new ResourceLocation(Minewatch.MODID, "textures/gui/crosshair_plus.png")),
@@ -366,10 +325,7 @@ public enum EnumHero {
 		this.hasAltWeapon = hasAltWeapon;
 		this.switchAltWithScroll = switchAltWithScroll;
 		if (this.hasAltWeapon)
-			if (name.equals("Bastion"))
-				this.altWeaponIndex = 19;
-			else
-				this.altWeaponIndex = IndexCounter.index++;
+			this.altWeaponIndex = IndexCounter.index++;
 		this.ability1 = ability1;
 		this.ability2 = ability2;
 		this.ability3 = ability3;
@@ -414,6 +370,16 @@ public enum EnumHero {
 		}
 	}
 
+	public Ability getAbility(int ability) {
+		if (ability == 1)
+			return this.ability1;
+		else if (ability == 2)
+			return this.ability2;
+		else if (ability == 3)
+			return this.ability3;
+		else return this.ability1;
+	}
+
 	public Item getEquipment(EntityEquipmentSlot slot) {
 		switch (slot) {
 		case HEAD:
@@ -430,561 +396,6 @@ public enum EnumHero {
 			return weapon.hasOffhand ? weapon : null;
 		}
 		return null;
-	}
-
-	@Mod.EventBusSubscriber
-	public static class RenderManager {
-
-		public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
-		public static HashMap<EntityLivingBase, HashMap<UUID, Tuple<Float, Integer>>> entityDamage = Maps.newHashMap();
-		public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
-			@Override
-			@SideOnly(Side.CLIENT)
-			public boolean onClientTick() {
-				ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
-				return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
-			}
-		};
-		public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
-		public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
-		public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
-		/**Used for debugging*/
-		public static CopyOnWriteArrayList<AxisAlignedBB> boundingBoxesToRender = new CopyOnWriteArrayList<AxisAlignedBB>();
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {			
-			// make entity body follow head
-			if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
-					event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					(KeyBind.LMB.isKeyDown((EntityLivingBase) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityLivingBase) event.getEntity()))) {
-				event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
-			}
-
-			// hide ModelBipeds with armor layer that are wearing armor
-			if (event.getRenderer().getMainModel() instanceof ModelBiped && 
-					ItemMWArmor.classesWithArmor.contains(event.getEntity().getClass())) {
-				ModelBiped model = (ModelBiped) event.getRenderer().getMainModel();
-				// block when running with soldier's gun
-				ItemStack stack = event.getEntity().getHeldItemMainhand();
-				if (event.getEntity().isSprinting() && stack != null && stack.getItem() == EnumHero.SOLDIER76.weapon) 
-					model.rightArmPose = ArmPose.BLOCK;
-				// sneak
-				if (TickHandler.hasHandler(event.getEntity(), Identifier.HERO_SNEAKING))
-					model.isSneak = true;
-				model.setInvisible(true);
-				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-					stack = event.getEntity().getItemStackFromSlot(slot);
-					if (stack != null && stack.getItem() instanceof ItemMWArmor) {
-						if (slot == EntityEquipmentSlot.LEGS && 
-								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET) != null && 
-								event.getEntity().getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemMWArmor) {
-							model.bipedLeftLeg.showModel = false;
-							model.bipedRightLeg.showModel = false;
-							if (model instanceof ModelPlayer) {
-								((ModelPlayer)model).bipedLeftLegwear.showModel = false;
-								((ModelPlayer)model).bipedRightLegwear.showModel = false;
-							}
-						}
-						else if (slot == EntityEquipmentSlot.CHEST) {
-							model.bipedBody.showModel = false;
-							if (model instanceof ModelPlayer) {
-								model.bipedLeftArm.showModel = false;
-								model.bipedRightArm.showModel = false;
-								((ModelPlayer)model).bipedRightArmwear.showModel = false;
-								((ModelPlayer)model).bipedLeftArmwear.showModel = false;
-								((ModelPlayer)model).bipedBodyWear.showModel = false;
-							}
-						}
-						else if (slot == EntityEquipmentSlot.HEAD) {
-							model.bipedHeadwear.showModel = false;
-							model.bipedHead.showModel = false;
-						}
-					}
-				}
-			}
-
-			// ItemMWWeapon#preRenderEntity
-			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
-			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
-				GlStateManager.color(1, 1, 1, 1f);
-				GlStateManager.pushMatrix();
-				((ItemMWWeapon)stack.getItem()).preRenderEntity(event);
-				GlStateManager.popMatrix();
-			}
-		}
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void postRender(RenderLivingEvent.Post<EntityLivingBase> event) {
-			// ItemMWWeapon#postRenderEntity
-			ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
-			if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
-				GlStateManager.color(1, 1, 1, 1f);
-				GlStateManager.pushMatrix();
-				((ItemMWWeapon)stack.getItem()).postRenderEntity(event);
-				GlStateManager.popMatrix();
-			}
-		}
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void renderWorldLast(RenderWorldLastEvent event) {
-			EntityPlayerSP player = Minecraft.getMinecraft().player;
-			if (player != null && player.getHeldItemMainhand() != null && 
-					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
-					((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == ItemMWArmor.SetManager.getWornSet(player)) {
-				GlStateManager.color(1, 1, 1, 1f);
-				GlStateManager.pushMatrix();
-				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
-				GlStateManager.popMatrix();
-			}
-
-			if (!boundingBoxesToRender.isEmpty()) {
-				GlStateManager.pushMatrix();
-				GlStateManager.depthMask(false);
-				GlStateManager.disableDepth();
-				GlStateManager.disableTexture2D();
-				GlStateManager.disableLighting();
-				GlStateManager.disableCull();
-				GlStateManager.disableBlend();
-
-				Vec3d vec = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()).scale(-1);
-
-				for (AxisAlignedBB aabb : boundingBoxesToRender) {
-					Tessellator tessellator = Tessellator.getInstance();
-					VertexBuffer vertexbuffer = tessellator.getBuffer();
-					vertexbuffer.begin(3, DefaultVertexFormats.POSITION_NORMAL);
-					RenderGlobal.drawBoundingBox(vertexbuffer, aabb.minX + vec.xCoord, aabb.minY + vec.yCoord, aabb.minZ + vec.zCoord, aabb.maxX + vec.xCoord, aabb.maxY + vec.yCoord, aabb.maxZ + vec.zCoord, 
-							255, 255, 255, 1f);
-					tessellator.draw();
-				}
-				
-				GlStateManager.enableTexture2D();
-				GlStateManager.enableLighting();
-				GlStateManager.enableCull();
-				GlStateManager.disableBlend();
-				GlStateManager.depthMask(true);
-				GlStateManager.enableDepth();
-				GlStateManager.popMatrix();
-			}
-		}
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
-			if (event.getType() == ElementType.CROSSHAIRS && Config.guiScale > 0) {
-				double height = event.getResolution().getScaledHeight_double();
-				double width = event.getResolution().getScaledWidth_double();
-				int imageSize = 256;
-				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
-				EnumHand hand = null;
-				for (EnumHand hand2 : EnumHand.values())
-					if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero)) {
-						hand = hand2;
-						break;
-					}
-				ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
-
-				if (hero != null) {
-					GlStateManager.pushMatrix();
-					GlStateManager.color(1, 1, 1, 1);
-					GlStateManager.enableBlend();
-					GlStateManager.enableAlpha();
-
-					// hit overlay
-					Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
-					if (handler != null &&
-							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 3 ? 0 : (1f-handler.ticksLeft/3f)*0.7f));
-						double scale = MathHelper.clamp(0.014f*handler.number, 0.03f, 0.25f);
-						GlStateManager.scale(scale, scale, 1);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/hit_overlay.png"));
-						GuiUtils.drawTexturedModalRect((int) ((width/2/scale-imageSize/2)), (int) ((height/2/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
-						GlStateManager.scale(1/scale, 1/scale, 1);
-					}
-
-					// kill overlay
-					handler = TickHandler.getHandler(player, Identifier.KILL_OVERLAY);
-					if (handler != null &&
-							Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-						GlStateManager.color(1, 1, 1, 0.7f-(handler.ticksLeft >= 5 ? 0 : (1f-handler.ticksLeft/5f)*0.7f));
-						double scale = 0.1f;
-						GlStateManager.scale(scale, scale, 1);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/kill_overlay.png"));
-						GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/2/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
-						GlStateManager.scale(1/scale, 1/scale, 1);
-					}
-
-					// eliminate/assist text overlay
-					double yOffset = 0;
-					ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
-					for (int i=0; i<Math.min(6, handlers.size()); ++i) {
-						handler = handlers.get(i);
-						if (handler != null && handler.string != null) {
-							float alpha = 0.7f;
-							if (handler.ticksLeft < 15)
-								alpha -= (1f-(handler.ticksLeft-10)/5f)*alpha;
-							else if (handler.ticksLeft > handler.initialTicks-8)
-								alpha -= (1f-(handler.initialTicks-handler.ticksLeft+1)/8f)*alpha;
-							if (alpha > 0) {
-								double scale = handler.bool ? 0.8f :1f;
-								GlStateManager.scale(scale, scale, 1);
-								FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
-								font.drawString(handler.string, (float)((width/2/scale) - font.getStringWidth(handler.string)/2), (float) (height/1.6f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), false);
-								GlStateManager.scale(1/scale, 1/scale, 1);
-							}
-							yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
-						}
-					}
-
-					if (weapon != null && weapon.hero == hero && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-						GlStateManager.color(1, 1, 1, 1f);
-						GlStateManager.pushMatrix();
-						weapon.preRenderGameOverlay(event, player, width, height);
-						GlStateManager.popMatrix();
-					}
-
-					GlStateManager.disableBlend();
-					GlStateManager.popMatrix();
-				}
-
-				if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-					GlStateManager.color(1, 1, 1, 1f);
-
-					if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-						GlStateManager.pushMatrix();
-						GlStateManager.enableBlend();
-
-						// render crosshair
-						double scale = 0.2d*Config.guiScale;
-						GlStateManager.scale(scale, scale, 1);
-						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-						if (Config.customCrosshairs) {
-							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
-							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
-						}
-
-						GlStateManager.disableBlend();
-						GlStateManager.popMatrix();
-					}
-
-					if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-						event.setCanceled(true);
-				}
-			}
-		}
-
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void renderOverlay(RenderGameOverlayEvent.Post event) {			
-			if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
-				EntityPlayer player = Minecraft.getMinecraft().player;
-				EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
-				ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
-
-				// hero information screen
-				if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-					hero.displayInfoScreen(event.getResolution());
-				else {
-					if (hero != null) {
-						// display icon
-						GlStateManager.pushMatrix();
-						GlStateManager.color(1, 1, 1, 1);
-						GlStateManager.enableDepth();
-						GlStateManager.enableAlpha();
-
-						double scale = 0.25d*Config.guiScale;
-						GlStateManager.scale(scale, scale, 1);
-						GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-
-						GlStateManager.popMatrix();
-					}
-
-					// display abilities/weapon
-					if (weapon != null) {
-						GlStateManager.pushMatrix();
-						GlStateManager.enableDepth();
-						GlStateManager.enableAlpha();
-
-						double scale = 0.67d*Config.guiScale;
-						GlStateManager.scale(1*scale, 4*scale, 1);
-						GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-125, ((int)event.getResolution().getScaledHeight()/scale/4)-18+scale*3, 0);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-						int index = ItemMWWeapon.isAlternate(player.getHeldItemMainhand()) && 
-								weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
-						int vertical = 11;
-						// weapon
-						GuiUtils.drawTexturedModalRect(0, 0, 1, (index+1)+index*vertical, 122, vertical, 0);
-
-						if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.getWornSet(player) != null) {
-							// slot 1
-							if (hero.ability1.keybind.getCooldown(player) > 0 || (hero.ability1.maxUses > 0 && hero.ability1.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.ability1.isSelected(player)) {
-								GlStateManager.color(0.8f, 0.6f, 0);
-								GlStateManager.translate(1, 1, 0);
-							}
-							GuiUtils.drawTexturedModalRect(-50, -2, 124, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.ability1.isEnabled && hero.ability1.keybind != KeyBind.NONE) 
-								GuiUtils.drawTexturedModalRect(-28, 0, 65, 1015, 12, 9, 0);
-							GlStateManager.color(1, 1, 1);
-							if (hero.ability1.isSelected(player)) 
-								GlStateManager.translate(-1, -1, 0);
-							// slot 2
-							if (hero.ability2.keybind.getCooldown(player) > 0 || (hero.ability2.maxUses > 0 && hero.ability2.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
-									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) {
-								GlStateManager.color(0.8f, 0.6f, 0);
-								GlStateManager.translate(1, 1, 0);
-							}
-							GuiUtils.drawTexturedModalRect(-87, -2, 165, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.ability2.isEnabled && hero.ability2.keybind != KeyBind.NONE) {
-								GlStateManager.translate(0, 0.3f, 0);
-								GuiUtils.drawTexturedModalRect(-65, -1, 65, 1015, 12, 9, 0);
-								GlStateManager.translate(0, -0.3f, 0);
-							}
-							GlStateManager.color(1, 1, 1);
-							if (hero.ability2.isSelected(player) || (hero == EnumHero.SOMBRA && 
-									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
-								GlStateManager.translate(-1, -1, 0);
-							// slot 3
-							if (hero.ability3.keybind.getCooldown(player) > 0 || (hero.ability3.maxUses > 0 && hero.ability3.getUses(player) == 0)) 
-								GlStateManager.color(0.4f, 0.4f, 0.4f);
-							else if (hero.ability3.isSelected(player)) {
-								GlStateManager.color(0.8f, 0.6f, 0);
-								GlStateManager.translate(1, 1, 0);
-							}
-							GuiUtils.drawTexturedModalRect(-124, -2, 206, (index+1)+index*vertical, 40, vertical, 0);
-							if (!hero.ability3.isEnabled && hero.ability3.keybind != KeyBind.NONE) {
-								GlStateManager.translate(0, 0.5f, 0);
-								GuiUtils.drawTexturedModalRect(-102, -2, 65, 1015, 12, 9, 0);
-								GlStateManager.translate(0, -0.5f, 0);
-							}
-							GlStateManager.color(1, 1, 1);
-							if (hero.ability3.isSelected(player))
-								GlStateManager.translate(-1, -1, 0);
-
-							// keybinds 
-							int width1 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability1.keybind.getKeyName());
-							int width2 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability2.keybind.getKeyName());
-							int width3 = Minecraft.getMinecraft().fontRendererObj.getStringWidth(hero.ability3.keybind.getKeyName());
-							// background
-							// slot 1
-							if (hero.ability1.showKeybind(player)) {
-								if (hero.ability1.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-58, 7, 0, 1019, 40, 5, 0);
-								else if (hero.ability1.keybind == KeyBind.RMB)
-									GuiUtils.drawTexturedModalRect(-43, 3, 46, 1015, 10, 9, 0);
-							}
-							if (hero.ability1.maxUses > 0)
-								GuiUtils.drawTexturedModalRect(-30, -10, 81, 1015, 20, 9, 0);
-							if (hero.ability1.entities.get(player) != null && hero.ability1.entities.get(player).isEntityAlive()) 
-								GuiUtils.drawTexturedModalRect(hero.ability1.maxUses > 0 ? -27 : -30, hero.ability1.maxUses > 0 ? -15 : -9, 101, 1015, 20, 9, 0);
-							// slot 2
-							if (hero.ability2.showKeybind(player)) {
-								if (hero.ability2.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-98, 6, 0, 1019, 40, 5, 0);
-							}
-							if (hero.ability2.maxUses > 0)
-								GuiUtils.drawTexturedModalRect(-69, -10, 81, 1015, 20, 9, 0);
-							if (hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive() && !(hero == EnumHero.SOMBRA && 
-									hero.ability2.entities.get(player) != null && hero.ability2.entities.get(player).isEntityAlive())) 
-								GuiUtils.drawTexturedModalRect(hero.ability2.maxUses > 0 ? -66 : -69, hero.ability2.maxUses > 0 ? -15 : -10, 101, 1015, 20, 9, 0);
-							// slot 3
-							if (hero.ability3.showKeybind(player)) {
-								if (hero.ability3.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-137, 5, 0, 1019, 40, 5, 0);
-							}
-							if (hero.ability3.maxUses > 0)
-								GuiUtils.drawTexturedModalRect(-106, -11, 81, 1015, 20, 9, 0);
-							if (hero.ability3.entities.get(player) != null && hero.ability3.entities.get(player).isEntityAlive()) 
-								GuiUtils.drawTexturedModalRect(hero.ability3.maxUses > 0 ? -103 : -106, hero.ability3.maxUses > 0 ? -16 : -11, 101, 1015, 20, 9, 0);
-							// text
-							GlStateManager.scale(1, 0.25d, 1);
-							GlStateManager.rotate(4.5f, 0, 0, 1);
-							// slot 1
-							if (hero.ability1.showKeybind(player)) 
-								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability1.keybind.getKeyName(), -33-width1/2, 38, 0);
-							if (hero.ability1.maxUses > 0)
-								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability1.getUses(player)), -99, -15, 0);
-							// slot 2
-							if (hero.ability2.showKeybind(player)) 
-								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability2.keybind.getKeyName(), -74-width2/2, 37, 0);
-							if (hero.ability2.maxUses > 0)
-								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability2.getUses(player)), -62, -14, 0);
-							// slot 3
-							if (hero.ability3.showKeybind(player)) 
-								Minecraft.getMinecraft().fontRendererObj.drawString(hero.ability3.keybind.getKeyName(), -114-width3/2, 37, 0);
-							if (hero.ability3.maxUses > 0)
-								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(hero.ability3.getUses(player)), -23, -16, 0);
-
-							// cooldowns
-							scale = 2d;
-							GlStateManager.scale(scale, scale, 1);
-							if (hero.ability1.keybind.getCooldown(player) > 0) { 
-								String num = String.valueOf((int)Math.ceil(hero.ability1.keybind.getCooldown(player)/20d));
-								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-								Minecraft.getMinecraft().fontRendererObj.drawString(num, -14-width/2, 4, 0xFFFFFF);
-							}
-							if (hero.ability2.keybind.getCooldown(player) > 0) { 
-								String num = String.valueOf((int)Math.ceil(hero.ability2.keybind.getCooldown(player)/20d));
-								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-								Minecraft.getMinecraft().fontRendererObj.drawString(num, -33-width/2, 4, 0xFFFFFF);
-							}
-							if (hero.ability3.keybind.getCooldown(player) > 0) { 
-								String num = String.valueOf((int)Math.ceil(hero.ability3.keybind.getCooldown(player)/20d));
-								int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-								Minecraft.getMinecraft().fontRendererObj.drawString(num, -51-width/2, 4, 0xFFFFFF);
-							}
-						}
-						// ammo
-						if (weapon.getMaxAmmo(player) > 0) {
-							if (weapon.hero != hero || hero == null) { // adjust things that were skipped
-								GlStateManager.scale(1, 0.25d, 1);
-								GlStateManager.rotate(4.5f, 0, 0, 1);
-								scale = 2d;
-								GlStateManager.scale(scale, scale, 1);
-							}
-
-							scale = 0.9d;
-							GlStateManager.scale(scale, scale, 1);
-							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
-									String.valueOf(weapon.getCurrentAmmo(player)));
-							Minecraft.getMinecraft().fontRendererObj.drawString(
-									String.valueOf(weapon.getCurrentAmmo(player)), 30-width, -11, 0xFFFFFF);
-							scale = 0.6d;
-							GlStateManager.scale(scale, scale, 1);
-							Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -13, 0x00D5FF);
-							Minecraft.getMinecraft().fontRendererObj.drawString(
-									String.valueOf(weapon.getMaxAmmo(player)), 59, -13, 0xFFFFFF);
-						}
-
-						GlStateManager.popMatrix();
-					}
-				}
-			}
-		}
-
-		@SideOnly(Side.CLIENT)
-		@SubscribeEvent
-		public static void hurtTime(TickEvent.RenderTickEvent event) {
-			// limit hurt time when wearing full set
-			if (Minecraft.getMinecraft().player != null && 
-					ItemMWArmor.SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
-				Minecraft.getMinecraft().player.hurtTime = Math.min(5, Minecraft.getMinecraft().player.hurtTime);
-		}
-
-		@SubscribeEvent
-		public static void serverSide(ServerTickEvent event) {
-			// decrement timer for damage
-			if (event.phase == TickEvent.Phase.END) {
-				for (EntityLivingBase entity : entityDamage.keySet()) 
-					for (UUID uuid : entityDamage.get(entity).keySet()) {
-						Tuple<Float, Integer> tup = entityDamage.get(entity).get(uuid);
-						entityDamage.get(entity).put(uuid, new Tuple(tup.getFirst(), tup.getSecond()-1));
-					}
-			}
-		}
-
-
-		@SubscribeEvent
-		public static void damageEntities(LivingHurtEvent event) {
-			EntityPlayerMP player = null;
-			if (event.getSource().getSourceOfDamage() instanceof EntityPlayerMP)
-				player = ((EntityPlayerMP)event.getSource().getSourceOfDamage());
-			else if (event.getSource().getEntity() instanceof EntityPlayerMP)
-				player = ((EntityPlayerMP)event.getSource().getEntity());
-			else if (event.getSource().getSourceOfDamage() instanceof IThrowableEntity && 
-					((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower() instanceof EntityPlayerMP)
-				player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
-
-			if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
-				if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) != null) {
-					try {
-						float damage = event.getAmount();
-						damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-						damage = applyPotionDamageCalculations(player, event.getSource(), damage);
-						damage = Math.min(damage, event.getEntityLiving().getHealth());
-						if (damage > 0) {
-							HashMap<UUID, Tuple<Float, Integer>> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
-							damageMap.put(player.getPersistentID(), new Tuple(damageMap.get(player.getPersistentID()) == null ? damage : damageMap.get(player.getPersistentID()).getFirst() + damage, 200));
-							entityDamage.put(event.getEntityLiving(), damageMap);
-							Minewatch.network.sendTo(new SPacketSimple(15, false, player, damage, 0, 0), player);
-						}
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		@SubscribeEvent
-		public static void deathMessages(LivingDeathEvent event) {
-			if (event.getEntityLiving() != null && entityDamage.containsKey(event.getEntityLiving())) {
-				UUID mostDamage = null;
-				float damage = 0;
-				// find who dealt most damage
-				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) 
-					if ((mostDamage == null || entityDamage.get(event.getEntityLiving()).get(uuid).getFirst() > damage) &&
-							entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
-						mostDamage = uuid;
-						damage = entityDamage.get(event.getEntityLiving()).get(uuid).getFirst();
-					}
-				for (UUID uuid : entityDamage.get(event.getEntityLiving()).keySet()) {
-					EntityPlayer player = event.getEntityLiving().world.getPlayerEntityByUUID(uuid);
-					if (player instanceof EntityPlayerMP) {
-						int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
-						if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
-							// reset genji strike cooldown
-							if (ItemMWArmor.SetManager.getWornSet(uuid) == EnumHero.GENJI) {
-								EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
-								Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
-								if (handler != null)
-									handler.setBoolean(true);
-							}
-							Minewatch.network.sendTo(new SPacketSimple(14, !uuid.equals(mostDamage), player,
-									(int)MathHelper.clamp(percent, 0, 100),
-									0, 0, event.getEntityLiving()), (EntityPlayerMP) player);
-						}
-					}
-				}
-				if (event.getEntityLiving() instanceof EntityPlayerMP && mostDamage != null)
-					Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
-							0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
-				entityDamage.remove(event.getEntityLiving());
-			}
-		}
-
-		/**Copied from EntityLivingBase bc it's protected*/
-		public static float applyPotionDamageCalculations(EntityLivingBase player, DamageSource source, float damage) {
-			if (source.isDamageAbsolute())
-				return damage;
-			else {
-				if (player.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD) {
-					int i = (player.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
-					int j = 25 - i;
-					float f = damage * (float)j;
-					damage = f / 25.0F;
-				}
-				if (damage <= 0.0F)
-					return 0.0F;
-				else {
-					int k = EnchantmentHelper.getEnchantmentModifierDamage(player.getArmorInventoryList(), source);
-					if (k > 0)
-						damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
-					return damage;
-				}
-			}
-		}
-
 	}
 
 	public void displayInfoScreen(ScaledResolution resolution) {

@@ -50,6 +50,7 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -374,7 +375,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-					damage = EnumHero.RenderManager.applyPotionDamageCalculations(source, event.getSource(), damage);
+					damage = RenderManager.applyPotionDamageCalculations(source, event.getSource(), damage);
 					if (damage > 0) 
 						source.heal(damage * 0.2f);
 				}

@@ -16,8 +16,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -163,9 +163,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	//PORT correct scope scale
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -183,8 +181,6 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 			// render scope
 			if (scoped) {
-				double height = event.getResolution().getScaledHeight_double();
-				double width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
 
 				// power

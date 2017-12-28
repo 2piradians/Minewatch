@@ -42,6 +42,7 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -262,7 +263,7 @@ public class SPacketSimple implements IMessage {
 						if (packet.bool) {
 							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(entity).setTicks(10),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(EnumHero.MCCREE.ability2), 
-									EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(11));
+									RenderManager.SNEAKING.setEntity(entity).setTicks(11));
 						}
 						if (entity == player)
 							move((EntityLivingBase) entity, 0.6d, false, false);
@@ -272,7 +273,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(entity).setTicks(8),
 								ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks(8),
 								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
-								EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(9));
+								RenderManager.SNEAKING.setEntity(entity).setTicks(9));
 						if (entity == player) 
 							move(player, 1.8d, false, true);
 					}
@@ -359,16 +360,16 @@ public class SPacketSimple implements IMessage {
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
-						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
+						TickHandler.register(true, RenderManager.MESSAGES.
 								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
-							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
+							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
 							if (!(entity instanceof EntityLivingBaseMW)) {
 								TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
 								if (handler == null)
-									TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
+									TickHandler.register(true, RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
 								else if (handler.number < 6) {
 									handler.setTicks(40);
 									handler.setNumber(handler.number+1);
@@ -389,7 +390,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 15 && packetPlayer == player) {
 						TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
 						if (handler == null || handler.ticksLeft < 11)
-							TickHandler.register(true, EnumHero.RenderManager.HIT_OVERLAY.setEntity(player).setTicks(10).setNumber(packet.x));
+							TickHandler.register(true, RenderManager.HIT_OVERLAY.setEntity(player).setTicks(10).setNumber(packet.x));
 						else 
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound

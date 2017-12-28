@@ -14,6 +14,8 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class SPacketSyncAbilityUses implements IMessage{
 
@@ -60,13 +62,7 @@ public class SPacketSyncAbilityUses implements IMessage{
 				public void run() {
 					EntityPlayer player = Minecraft.getMinecraft().player;
 					EnumHero hero = EnumHero.valueOf(packet.hero);
-					Ability ability = null;
-					if (packet.ability == 1)
-						ability = hero.ability1;
-					else if (packet.ability == 2)
-						ability = hero.ability2;
-					else if (packet.ability == 3)
-						ability = hero.ability3;
+					Ability ability = hero.getAbility(packet.ability);
 
 					if (player != null && ability != null) {
 						if (packet.playSound && 
@@ -76,6 +72,9 @@ public class SPacketSyncAbilityUses implements IMessage{
 							ModSoundEvents.ABILITY_MULTI_RECHARGE.playSound(player, 0.5f, 1.0f, true);
 						}
 						ability.multiAbilityUses.put(player.getPersistentID(), packet.uses);
+						if (!TickHandler.hasHandler(player, Identifier.ABILITY_MULTI_COOLDOWNS))
+							TickHandler.register(true, Ability.ABILITY_MULTI_COOLDOWNS.setAbility(ability).setEntity(player).setTicks(ability.useCooldown));
+						TickHandler.register(true, ability.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(1));
 					}
 				}
 			});

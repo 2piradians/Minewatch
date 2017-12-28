@@ -8,14 +8,14 @@
       {
         "transform": {
           "thirdperson_lefthand": {
-            "rotation": [ { "x": 75 }, { "y": 180 }, { "z": 30 } ],
-        	"translation": [ 1.1, 0.75, 0.22 ],
-        	"scale": [ 1.5, 1.5, 1.5 ]
+            "rotation": [ { "x": 86 }, { "y": 0 }, { "z": 0 } ],
+            "translation": [ -1.04, -1.06, 0.94 ],
+            "scale": [ 2.00, 1.10, 2.00 ]
           },
           "thirdperson_righthand": {
-            "rotation": [ { "x": 75 }, { "y": 180 }, { "z": 30 } ],
-        	"translation": [ -0.2, 0.9, 0.95 ],
-        	"scale": [ 1.5, 1.5, 1.5 ]
+              "rotation": [ { "x": 86 }, { "y": 180 }, { "z": 0 } ],
+              "translation": [ -1.04, 0.92, 0.79 ],
+              "scale": [ 2.00, 1.10, 2.00 ]
           },
           "gui": {
             "rotation": [ { "x": -167 }, { "y": -90 }, { "z": -180 } ],

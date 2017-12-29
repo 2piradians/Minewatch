@@ -18,7 +18,7 @@ public class ModBlocks {
 	public static ArrayList<Block> allBlocks = new ArrayList<Block>();
 
 	public static Block healthPackSmall;
-	public static Block healthPackLarge;// TODO split like 1.12
+	public static Block healthPackLarge;
 
 	public static void preInit() {
 		allBlocks = new ArrayList<Block>();

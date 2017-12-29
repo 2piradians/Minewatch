@@ -60,8 +60,10 @@ public class ModelMWArmor extends ModelPlayer {
 		if (entityIn instanceof EntityLivingBase) {
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
 			EnumHero hero = ItemMWArmor.SetManager.getWornSet(entityIn);
+			if (entity.hurtTime > 0 || entity.deathTime > 0)
+				GlStateManager.color(1, 0.7f, 0.7f);
 			// only do more coloring if preRenderArmor returns false or hero is null
-			if (hero == null || !hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this)) {
+			else if (hero == null || !hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this)) {
 				// frozen coloring
 				if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
 						(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 

@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -51,7 +52,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
 		// dash
-		if (isSelected && entity instanceof EntityLivingBase && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
 				!world.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 			entity.setSneaking(false);
 			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, world.rand.nextFloat()/2f+0.75f);
@@ -68,7 +69,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
 		// tracer's dash
-		if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+		if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			GlStateManager.enableBlend();
 
 			double scale = 3d*Config.guiScale;

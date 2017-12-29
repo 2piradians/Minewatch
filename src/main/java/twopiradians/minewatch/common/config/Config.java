@@ -141,7 +141,7 @@ public class Config {
 
 		// SERVER-SIDE (make sure all new options are synced with command)
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", false, "Should fall damage be prevented while wearing a full set of hero armor?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
 		if (overriding)
 			prop.set(preventFallDamage);
 		else
@@ -153,7 +153,7 @@ public class Config {
 		else
 			allowGunWarnings = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
 		if (overriding)
 			prop.set(projectilesCauseKnockback);
 		else
@@ -237,9 +237,9 @@ public class Config {
 
 		for (EnumHero hero : EnumHero.values()) 
 			if (mobSpawnFreq == 0 || mobSpawn == 2)
-				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
+				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 			else
-				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
+				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)

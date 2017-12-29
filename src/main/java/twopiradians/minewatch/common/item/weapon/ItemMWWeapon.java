@@ -28,6 +28,7 @@ import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -369,7 +370,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public boolean hasEffect(ItemStack stack) {
-		return super.hasEffect(stack); //XXX will be used with golden weapons
+		return super.hasEffect(stack); 
 	}
 
 	/**Called before armor is rendered - mainly used for coloring / alpha
@@ -381,7 +382,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
-	/**Called before game overlay is rendered if wearing set and holding weapon in mainhand*/
+	/**Called before game overlay is rendered if holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
 	

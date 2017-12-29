@@ -202,7 +202,7 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
-		if (event.getType() == ElementType.CROSSHAIRS && Config.guiScale > 0) {
+		if (Config.guiScale > 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
@@ -216,7 +216,14 @@ public class RenderManager {
 				}
 			ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
-			if (hero != null) {
+			if (hand == EnumHand.MAIN_HAND && weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+				GlStateManager.color(1, 1, 1, 1f);
+				GlStateManager.pushMatrix();
+				weapon.preRenderGameOverlay(event, player, width, height);
+				GlStateManager.popMatrix();
+			}
+			
+			if (event.getType() == ElementType.CROSSHAIRS && hero != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1, 1, 1, 1);
 				GlStateManager.enableBlend();
@@ -268,18 +275,11 @@ public class RenderManager {
 					}
 				}
 
-				if (weapon != null && weapon.hero == hero && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-					GlStateManager.color(1, 1, 1, 1f);
-					GlStateManager.pushMatrix();
-					weapon.preRenderGameOverlay(event, player, width, height);
-					GlStateManager.popMatrix();
-				}
-
 				GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
 			}
 
-			if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 				GlStateManager.color(1, 1, 1, 1f);
 
 				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
@@ -390,7 +390,7 @@ public class RenderManager {
 							if (ability.showKeybind(player)) {
 								if (ability.keybind.getKeyName() != "")
 									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 6, 0);
-								else if (hero.ability1.keybind == KeyBind.RMB)		
+								else if (ability.keybind == KeyBind.RMB)		
 									GuiUtils.drawTexturedModalRect(-i*9-2, 9, 11, 247, 5, 5, 0);
 							}
 							// multi-use background

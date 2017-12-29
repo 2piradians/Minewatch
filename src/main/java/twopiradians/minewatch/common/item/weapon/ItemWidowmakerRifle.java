@@ -76,7 +76,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
-				isScoped((EntityLivingBase) entity, stack)) 
+				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack)) 
 			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 

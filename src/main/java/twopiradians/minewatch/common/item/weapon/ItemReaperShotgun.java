@@ -318,37 +318,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						true : super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
 	}
 
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void renderWraithOverlay(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (event.getType() == ElementType.ALL && player != null && 
-				TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
-			float ticks = TickHandler.hasHandler(player, Identifier.REAPER_WRAITH) ? 
-					60 - TickHandler.getHandler(player, Identifier.REAPER_WRAITH).ticksLeft+Minecraft.getMinecraft().getRenderPartialTicks() : 10;
-					double height = event.getResolution().getScaledHeight_double();
-					double width = event.getResolution().getScaledWidth_double();
-
-					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-					//PORT scale x event.getResolution().getScaleFactor()
-					GlStateManager.scale(width/256d, height/256d, 1);
-					int firstImage = (int) (ticks / 10);
-					int secondImage = firstImage + 1;
-					if (firstImage < 6) {
-						GlStateManager.color(1, 1, 1, 1.1f-((ticks) % 10)/10f);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_wraith_"+firstImage+".png"));
-						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-					}
-					if (secondImage < 6) {
-						GlStateManager.color(1, 1, 1, (ticks % 10)/10f);
-						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_wraith_"+secondImage+".png"));
-						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
-					}
-					GlStateManager.popMatrix();
-		}
-	}
-
 	@SubscribeEvent
 	public void preventWraithDamage(LivingAttackEvent event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.REAPER_WRAITH) &&
@@ -442,7 +411,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
 		// reaper's teleport/cancel overlay
-		if (TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
+		if (event.getType() == ElementType.CROSSHAIRS && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
 				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT).ticksLeft == -1) {
 			GlStateManager.enableBlend();
 
@@ -453,6 +422,29 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
 
 			GlStateManager.disableBlend();
+		}
+		else if (event.getType() == ElementType.ALL && 
+				TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
+			float ticks = TickHandler.hasHandler(player, Identifier.REAPER_WRAITH) ? 
+					60 - TickHandler.getHandler(player, Identifier.REAPER_WRAITH).ticksLeft+Minecraft.getMinecraft().getRenderPartialTicks() : 10;
+
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+					//PORT scale x event.getResolution().getScaleFactor()
+					GlStateManager.scale(width/256d, height/256d, 1);
+					int firstImage = (int) (ticks / 10);
+					int secondImage = firstImage + 1;
+					if (firstImage < 6) {
+						GlStateManager.color(1, 1, 1, 1.1f-((ticks) % 10)/10f);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_wraith_"+firstImage+".png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+					}
+					if (secondImage < 6) {
+						GlStateManager.color(1, 1, 1, (ticks % 10)/10f);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_wraith_"+secondImage+".png"));
+						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
+					}
+					GlStateManager.popMatrix();
 		}
 	}
 

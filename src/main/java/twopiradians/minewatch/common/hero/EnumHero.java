@@ -62,7 +62,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public enum EnumHero {
 
-	// do not change order - this is the order in ability_overlay.png TODO count damage per tick
+	// do not change order - this is the order in ability_overlay.png
 	ANA("Ana", true, true, new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 

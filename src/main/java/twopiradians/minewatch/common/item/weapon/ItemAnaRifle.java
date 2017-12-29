@@ -159,7 +159,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
-				isScoped((EntityLivingBase) entity, stack)) 
+				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack)) 
 			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
@@ -184,7 +184,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void preRenderEntity(RenderLivingEvent.Pre<EntityLivingBase> event) {
+	@SubscribeEvent
+	public void rotateSleeping(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
 		if (handler != null && event.getEntity().getHealth() > 0) {
 			GlStateManager.pushMatrix();
@@ -198,7 +199,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {
+	@SubscribeEvent
+	public void rotateSleeping(RenderLivingEvent.Post<EntityLivingBase> event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.ANA_SLEEP) && event.getEntity().getHealth() > 0) 
 			GlStateManager.popMatrix();
 	}

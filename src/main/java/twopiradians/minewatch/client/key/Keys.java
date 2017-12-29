@@ -242,7 +242,7 @@ public class Keys {
 										updateKeys(lmbDown);
 
 										// prevent further lmb processing
-										if (lmbDown != null && lmbDown) // TODO remove this stupid logic and just do it in the item
+										if (lmbDown != null && lmbDown) 
 											event.setCanceled(true);
 
 										// switch to alt weapon
@@ -265,7 +265,7 @@ public class Keys {
 			}
 		}
 
-		@SideOnly(Side.CLIENT)
+		@SideOnly(Side.CLIENT) // all of this lmb logic is just to prevent block breaking particles (otherwise can be done with PlayerInteractEvent.LeftClickBlock)
 		private static void updateKeys(@Nullable Boolean lmbDown) {
 			if (Minecraft.getMinecraft().player != null) {
 				Minecraft mc = Minecraft.getMinecraft();

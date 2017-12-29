@@ -12,6 +12,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -25,6 +26,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
+import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -38,6 +40,21 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMeiBlaster extends ItemMWWeapon {
 
+	public static final Handler ICICLE = new Handler(Identifier.MEI_ICICLE, true) {
+		@Override
+		public Handler onServerRemove() {
+			if (entityLiving != null) {
+				EntityMeiIcicle icicle = new EntityMeiIcicle(entityLiving.world, entityLiving, (int) number);
+				EntityHelper.setAim(icicle, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 100, 0.4F, EnumHand.values()[(int) number], 8, 0.35f);
+				entityLiving.world.spawnEntity(icicle);
+				EnumHero.MEI.weapon.setCooldown(entityLiving, 24);
+				if (entityLiving.world.rand.nextInt(8) == 0)
+					entityLiving.getHeldItem(EnumHand.values()[(int) number]).damageItem(1, entityLiving);
+				EnumHero.MEI.weapon.subtractFromCurrentAmmo(entityLiving, 25, EnumHand.values()[(int) number]);
+			}
+			return super.onServerRemove();
+		}
+	};
 	public static final Handler CRYSTAL = new Handler(Identifier.MEI_CRYSTAL, false) {
 		@SideOnly(Side.CLIENT)
 		@Override
@@ -86,7 +103,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+		if (this.canUse(player, true, hand, false) && !world.isRemote && !TickHandler.hasHandler(player, Identifier.MEI_ICICLE)) {
 			EntityMeiBlast bullet = new EntityMeiBlast(world, player, hand.ordinal());
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, 20, 0.6F, hand, 14, 0.8f);
 			world.spawnEntity(bullet);
@@ -100,17 +117,10 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// shoot
-		if (this.canUse(player, true, hand, false)) {//TODO delay
-			if (!world.isRemote) {
-				EntityMeiIcicle icicle = new EntityMeiIcicle(world, player, hand.ordinal());
-				EntityHelper.setAim(icicle, player, player.rotationPitch, player.rotationYawHead, 100, 0.4F, hand, 8, 0.35f);
-				world.spawnEntity(icicle);
-				this.setCooldown(player, 24);
-				ModSoundEvents.MEI_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
-				if (world.rand.nextInt(8) == 0)
-					player.getHeldItem(hand).damageItem(1, player);
-				this.subtractFromCurrentAmmo(player, 25, hand);
-			}
+		if (this.canUse(player, true, hand, false) && !world.isRemote && 
+				!TickHandler.hasHandler(player, Identifier.MEI_ICICLE)) {
+			TickHandler.register(false, ICICLE.setEntity(player).setTicks(10).setNumber(hand.ordinal()));
+			ModSoundEvents.MEI_SHOOT_1.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f, false);
 		}
 
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -120,7 +130,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityLivingBase) {	
+		if (isSelected && entity instanceof EntityLivingBase && !TickHandler.hasHandler(entity, Identifier.MEI_ICICLE)) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			Handler handler = TickHandler.getHandler(player, Identifier.MEI_CRYSTAL);
@@ -172,12 +182,12 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.MEI_CRYSTAL)) 
 			event.setNewfov(event.getFov()+0.8f);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
 		// mei's crystal cancel overlay
-		if (TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
+		if (event.getType() == ElementType.CROSSHAIRS && TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
 			GlStateManager.enableBlend();
 
 			double scale = 0.8d*Config.guiScale;

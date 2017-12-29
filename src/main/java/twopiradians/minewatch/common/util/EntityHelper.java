@@ -39,6 +39,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
@@ -55,6 +56,8 @@ public class EntityHelper {
 	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn) {
 		ArrayList<RayTraceResult> results = new ArrayList<RayTraceResult>();
 		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY+entityIn.height/2d, entityIn.posZ);
+		if (entityIn instanceof EntityReinhardtStrike) // use prevPos so it doesn't clip in ground if shot too close to ground
+			vec3d = new Vec3d(entityIn.prevPosX, entityIn.prevPosY+entityIn.height/2d, entityIn.prevPosZ);
 		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY+entityIn.height/2d + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
 		RayTraceResult result = entityIn.world.rayTraceBlocks(vec3d, vec3d1, false, true, true);
 		if (result != null)
@@ -288,7 +291,7 @@ public class EntityHelper {
 			// move to collide with block
 			if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
 				IBlockState state = projectile.world.getBlockState(result.getBlockPos());
-				if (!state.getBlock().isPassable(projectile.world, result.getBlockPos()) && state.getMaterial() != Material.AIR) {
+				if (state.getMaterial() != Material.AIR) {
 					projectile.setPosition(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord);
 					if (kill)
 						projectile.setDead();

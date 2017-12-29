@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
+import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
@@ -82,8 +84,11 @@ public class CommonProxy {
 		HEALTH_PLUS(1, 1, -0.005f);
 
 		public HashSet<UUID> particleEntities = new HashSet();
+		/**List of particles with a facing - because they are rendered separately*/
+		public ArrayList<ParticleCustom> facingParticles = new ArrayList<ParticleCustom>();
 		
 		public final ResourceLocation loc;
+		public final ResourceLocation facingLoc;
 		public final int frames;
 		public final int variations;
 		public final float gravity;
@@ -108,6 +113,7 @@ public class CommonProxy {
 
 		private EnumParticle(int frames, int variations, float gravity, boolean disableDepth, boolean onePerEntity) {
 			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+this.name().toLowerCase());
+			this.facingLoc = new ResourceLocation(Minewatch.MODID, "textures/entity/particle/"+this.name().toLowerCase()+".png");
 			this.frames = frames;
 			this.variations = variations;
 			this.gravity = gravity;

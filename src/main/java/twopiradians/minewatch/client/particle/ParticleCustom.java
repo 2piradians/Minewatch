@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -29,7 +30,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
-
+	
 	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
@@ -67,6 +68,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setColorFade(colorFade);
 		this.pulseRate = pulseRate;
 		this.facing = facing;
+		if (facing != null)
+			enumParticle.facingParticles.add(this);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
 		this.setParticleTexture(sprite);
@@ -118,7 +121,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			this.particleGreen += pulse;
 			this.particleBlue += pulse;
 		}
-		
+
 		// gravity
 		if (this.enumParticle.gravity != 0)
 			this.motionY += this.enumParticle.gravity;
@@ -216,31 +219,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		GlStateManager.enableBlend();
-		if (this.particleTexture != null) {
-			// face a direction on an axis TODO have these only render on blocks, like Render#renderShadow
-			if (facing != null) {
-				float pitch = 0, yaw = 0;
-				float rotation = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
-				if (facing == EnumFacing.WEST || facing == EnumFacing.EAST) {
-					pitch = 0;
-					yaw = 90;
-				}
-				else if (facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) {
-					pitch = 0;
-					yaw = 0;
-				}
-				else if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
-					pitch = 90;
-					yaw = 180f * rotation - 90f;
-				}
-				// translated from ActiveRenderInfo#updateRenderInfo
-				rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationZ = MathHelper.cos(pitch * 0.017453292F);
-			}
-
+		if (this.particleTexture != null && facing == null) {
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
@@ -281,7 +260,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-			
+
 			// draw normally to clear buffer
 			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();
@@ -304,16 +283,24 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				GlStateManager.enableDepth();
 				vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 			}
-
 		}
 	}
 	
+	/**Render facing particles*/
+	public void renderOnBlocks(VertexBuffer buffer) {
+		RenderManager.renderOnBlocks(world, buffer, particleRed, particleGreen, particleBlue, particleAlpha, 
+				particleScale/10f, new Vec3d(this.posX, this.posY, this.posZ).subtract(new Vec3d(facing.getDirectionVec())), facing, true);
+	}
+
 	@Override
-    public void setExpired() {
-        super.setExpired();
-        
-        if (this.enumParticle.onePerEntity && this.followEntity != null)
-        	this.enumParticle.particleEntities.remove(this.followEntity.getPersistentID());
-    }
+	public void setExpired() {
+		super.setExpired();
+
+		if (this.facing != null)
+			enumParticle.facingParticles.remove(this);
+
+		if (this.enumParticle.onePerEntity && this.followEntity != null)
+			this.enumParticle.particleEntities.remove(this.followEntity.getPersistentID());
+	}
 
 }

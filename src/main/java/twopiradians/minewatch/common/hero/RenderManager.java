@@ -6,8 +6,11 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.lwjgl.opengl.GL11;
+
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -20,6 +23,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,12 +33,17 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -50,6 +59,8 @@ import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.client.particle.ParticleCustom;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -222,7 +233,7 @@ public class RenderManager {
 				weapon.preRenderGameOverlay(event, player, width, height);
 				GlStateManager.popMatrix();
 			}
-			
+
 			if (event.getType() == ElementType.CROSSHAIRS && hero != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1, 1, 1, 1);
@@ -554,6 +565,144 @@ public class RenderManager {
 				return damage;
 			}
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public static void renderOnBlocks(RenderWorldLastEvent event) {
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.depthMask(false);
+		Tessellator tessellator = Tessellator.getInstance();
+		VertexBuffer buffer = tessellator.getBuffer();
+
+		// lucio circles
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_circle.png"));
+		for (Entity entity : Minecraft.getMinecraft().world.loadedEntityList) {
+			if (entity instanceof EntityLivingBase && ItemMWArmor.SetManager.getWornSet(entity) == EnumHero.LUCIO && 
+					((EntityLivingBase) entity).getHeldItemMainhand() != null && 
+					((EntityLivingBase) entity).getHeldItemMainhand().getItem() == EnumHero.LUCIO.weapon &&
+					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, true)) {
+				Vec3d entityVec = EntityHelper.getEntityPartialPos(entity);
+				boolean heal = ItemMWWeapon.isAlternate(((EntityLivingBase)entity).getHeldItemMainhand());
+				renderOnBlocks(entity.world, buffer, 
+						heal ? 253f/255f : 9f/255f, heal ? 253f/255f : 222f/255f, heal ? 71f/255f : 123f/255f, -1, 10, entityVec.subtract(0, 1, 0), EnumFacing.UP, false);
+			}
+		}
+		tessellator.draw();
+
+		// custom particles with facing
+		for (EnumParticle enumParticle : EnumParticle.values())
+			if (!enumParticle.facingParticles.isEmpty()) {
+				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+				Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(enumParticle.facingLoc);
+				for (ParticleCustom particle : enumParticle.facingParticles)
+					particle.renderOnBlocks(buffer);
+				tessellator.draw();
+			}
+
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.disableBlend();
+		GlStateManager.depthMask(true);
+		GlStateManager.popMatrix();
+	}
+
+	/**Render a texture (must be bound before calling this) on blocks
+	 * entityVec should be INSIDE the block that the texture will be rendered on*/
+	@SideOnly(Side.CLIENT)
+	public static void renderOnBlocks(World world, VertexBuffer buffer, float red, float green, float blue, float alpha, double size, Vec3d entityVec, EnumFacing facing, boolean particle) {
+		Entity player = Minewatch.proxy.getRenderViewEntity();
+		Vec3d playerVec = EntityHelper.getEntityPartialPos(player);
+		Vec3d diffVec = entityVec.subtract(playerVec);
+		Vec3d offsetVec = new Vec3d(facing.getDirectionVec()).scale(0.001d);
+
+		double minX = MathHelper.floor(entityVec.xCoord - (facing.getAxis() == Axis.X ? 0 : size));
+		double maxX = MathHelper.floor(entityVec.xCoord + (facing.getAxis() == Axis.X ? 0 : size));
+		double minY = MathHelper.floor(entityVec.yCoord - (facing.getAxis() == Axis.Y ? 0 : size));
+		double maxY = MathHelper.floor(entityVec.yCoord + (facing.getAxis() == Axis.Y ? 0 : size));
+		double minZ = MathHelper.floor(entityVec.zCoord - (facing.getAxis() == Axis.Z ? 0 : size));
+		double maxZ = MathHelper.floor(entityVec.zCoord + (facing.getAxis() == Axis.Z ? 0 : size));
+
+		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
+			BlockPos[] positions = particle ? new BlockPos[] {blockpos} : new BlockPos[] {blockpos.up(), blockpos, blockpos.down()};
+			for (BlockPos pos : positions) {
+				
+				if (facing == EnumFacing.DOWN || facing == EnumFacing.NORTH || facing == EnumFacing.WEST)
+					pos = pos.add(facing.getDirectionVec());
+				
+				IBlockState state = world.getBlockState(pos);
+				if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
+					if (!particle)
+						alpha = (float) ((1d - (diffVec.yCoord - ((double)pos.getY() - playerVec.yCoord + 0)) / 2.0D) * 0.5D);
+					if (alpha >= 0.0D) {
+						if (alpha > 1.0f)
+							alpha = 1.0f;
+												
+						AxisAlignedBB aabb = state.getBoundingBox(world, pos);
+						minX = (double)pos.getX() + aabb.minX - playerVec.xCoord + offsetVec.xCoord;
+						maxX = (double)pos.getX() + aabb.maxX - playerVec.xCoord + offsetVec.xCoord;
+						minY = (double)pos.getY() + aabb.minY - playerVec.yCoord + offsetVec.yCoord;
+						maxY = (double)pos.getY() + aabb.maxY - playerVec.yCoord + offsetVec.yCoord;
+						minZ = (double)pos.getZ() + aabb.minZ - playerVec.zCoord + offsetVec.zCoord;
+						maxZ = (double)pos.getZ() + aabb.maxZ - playerVec.zCoord + offsetVec.zCoord;
+						switch(facing.getAxis()) {
+						case Y:
+							double y = facing == EnumFacing.UP ? maxY : minY;
+							double f = MathHelper.clamp(((diffVec.xCoord - minX) / 2.0D / size + 0.5D), 0, 1);
+							double f1 = MathHelper.clamp(((diffVec.xCoord - maxX) / 2.0D / size + 0.5D), 0, 1);
+							double f2 = MathHelper.clamp(((diffVec.zCoord - minZ) / 2.0D / size + 0.5D), 0, 1);
+							double f3 = MathHelper.clamp(((diffVec.zCoord - maxZ) / 2.0D / size + 0.5D), 0, 1);
+							buffer.pos(minX, y, minZ).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(minX, y, maxZ).tex(f, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, y, maxZ).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, y, minZ).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+
+							buffer.pos(minX, y, minZ).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, y, minZ).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, y, maxZ).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(minX, y, maxZ).tex(f, f3).color(red, green, blue, alpha).endVertex();
+							break;
+						case Z:
+							double z = facing == EnumFacing.SOUTH ? maxZ : minZ;
+							f = MathHelper.clamp(((diffVec.xCoord - minX) / 2.0D / size + 0.5D), 0, 1);
+							f1 = MathHelper.clamp(((diffVec.xCoord - maxX) / 2.0D / size + 0.5D), 0, 1);
+							f2 = MathHelper.clamp(((diffVec.yCoord - minY) / 2.0D / size + 0.5D), 0, 1);
+							f3 = MathHelper.clamp(((diffVec.yCoord - maxY) / 2.0D / size + 0.5D), 0, 1);
+							buffer.pos(minX, minY, z).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(minX, maxY, z).tex(f, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, maxY, z).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, minY, z).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+
+							buffer.pos(minX, minY, z).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, minY, z).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(maxX, maxY, z).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(minX, maxY, z).tex(f, f3).color(red, green, blue, alpha).endVertex();
+							break;
+						case X:
+							double x = facing == EnumFacing.EAST ? maxX : minX;
+							f = MathHelper.clamp(((diffVec.zCoord - minZ) / 2.0D / size + 0.5D), 0, 1);
+							f1 = MathHelper.clamp(((diffVec.zCoord - maxZ) / 2.0D / size + 0.5D), 0, 1);
+							f2 = MathHelper.clamp(((diffVec.yCoord - minY) / 2.0D / size + 0.5D), 0, 1);
+							f3 = MathHelper.clamp(((diffVec.yCoord - maxY) / 2.0D / size + 0.5D), 0, 1);
+							buffer.pos(x, minY, minZ).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, minY, maxZ).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, maxY, maxZ).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, maxY, minZ).tex(f, f3).color(red, green, blue, alpha).endVertex();
+
+							buffer.pos(x, minY, minZ).tex(f, f2).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, maxY, minZ).tex(f, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, maxY, maxZ).tex(f1, f3).color(red, green, blue, alpha).endVertex();
+							buffer.pos(x, minY, maxZ).tex(f1, f2).color(red, green, blue, alpha).endVertex();
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
+
 	}
 
 }

@@ -217,10 +217,10 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ifrit", "Zenyatta Ifrit Skin", "brainman", "http://www.minecraftskins.com/skin/10626002/zenyatta-ifrit-skin/"),
 			new Skin(TextFormatting.GOLD+"Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
 			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/")),
-	MOIRA("Moira", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
+	MOIRA("Moira", false, false, new Ability(KeyBind.NONE, true, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			new Ability(KeyBind.NONE, false, false), 
-			20, 20, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
+			0, 0, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
 			new Skin("Classic", "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),
 			new Skin("Classic", "Moira - Overwatch (Healer version)", "Elec", "https://www.planetminecraft.com/skin/moira-overwatch-healer-version/"),
 			new Skin(TextFormatting.GOLD+"Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/"));

@@ -43,6 +43,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -699,6 +700,12 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 45 && packet.string != null) {
 						ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Stick] "+TextFormatting.RESET+packet.string);
 						Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
+					}
+					// sync weapon charge
+					else if (packet.type == 46) {
+						EnumHero hero = SetManager.getWornSet(player);
+						if (hero != null)
+							hero.weapon.setCurrentCharge(player, (float) packet.x, false);
 					}
 				}
 			});

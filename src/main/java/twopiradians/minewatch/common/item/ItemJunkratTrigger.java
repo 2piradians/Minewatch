@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -14,6 +15,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 
@@ -88,6 +90,11 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 	@Override
 	public Item getItem() {
 		return this;
+	}
+
+	@Override
+	public boolean shouldRecolor(BakedMWItem model, BakedQuad quad) {
+		return true;
 	}
 
 }

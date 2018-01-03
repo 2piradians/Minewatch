@@ -252,8 +252,9 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
-		if (event.getType() == ElementType.CROSSHAIRS && ItemMWArmor.SetManager.getWornSet(player) == hero) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && 
+				ItemMWArmor.SetManager.getWornSet(player) == hero) {
 			// passive speed / heal
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

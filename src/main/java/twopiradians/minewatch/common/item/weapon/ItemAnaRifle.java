@@ -219,7 +219,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityLivingBase player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
+				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && 
+				(EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 || EnumHero.ANA.weapon.getMaxAmmo(player) == 0) &&
 				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 

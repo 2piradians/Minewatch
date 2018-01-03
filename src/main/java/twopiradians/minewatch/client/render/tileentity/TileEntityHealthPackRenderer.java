@@ -84,11 +84,11 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			double steps=Math.round(angle_diff*precision);
 			double angle=angle_from;
 			vertexbuffer.pos(0, 0, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
+			vertexbuffer.pos(0, -size, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			for (int i=1; i<=steps; i++) {
 				angle=angle_from+angle_diff/steps*i;
 				vertexbuffer.pos(size*Math.cos(angle*deg_to_rad), size*Math.sin(angle*deg_to_rad), -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			}
-			vertexbuffer.pos(0, 0, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			tessellator.draw();
 
 			GlStateManager.enableTexture2D();

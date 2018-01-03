@@ -65,6 +65,7 @@ public class Config {
 	public static boolean healMobs;
 	public static double healthPackHealMultiplier;
 	public static double healthPackRespawnMultiplier;
+	public static double ammoMultiplier;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -210,6 +211,12 @@ public class Config {
 			prop.set(healthPackRespawnMultiplier);
 		else
 			healthPackRespawnMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ammo Multiplier", 1d, "Multiplied by the default max ammo for a weapon. For example with this set to 2, weapons will have twice as much ammo. When this is 0, weapons have unlimited ammo.", 0, 10);
+		if (overriding)
+			prop.set(ammoMultiplier);
+		else
+			ammoMultiplier = prop.getDouble();
 
 		// Hero Mob options
 

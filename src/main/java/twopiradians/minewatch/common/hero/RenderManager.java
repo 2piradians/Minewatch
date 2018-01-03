@@ -227,10 +227,10 @@ public class RenderManager {
 				}
 			ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
-			if (hand == EnumHand.MAIN_HAND && weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+			if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
 				GlStateManager.color(1, 1, 1, 1f);
 				GlStateManager.pushMatrix();
-				weapon.preRenderGameOverlay(event, player, width, height);
+				weapon.preRenderGameOverlay(event, player, width, height, hand);
 				GlStateManager.popMatrix();
 			}
 
@@ -362,6 +362,10 @@ public class RenderManager {
 					int u = 1+85*(index/14);
 					int v = 1+17*(index%14);
 					GuiUtils.drawTexturedModalRect(0, 0, u, v, 32, 16, 0);
+					
+					// infinite ammo
+					if (weapon.getMaxAmmo(player) == 0) 
+						GuiUtils.drawTexturedModalRect(18, -3, 13, 239, 6, 4, 0);
 
 					if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.getWornSet(player) != null) {
 						for (int i=1; i<=3; ++i) {

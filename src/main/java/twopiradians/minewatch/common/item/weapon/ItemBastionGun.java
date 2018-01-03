@@ -83,7 +83,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false)) {
+		if (this.canUse(player, true, hand, false) && hero.ability2.getCooldown(player) == 0) {
 			boolean turret = isAlternate(stack);
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());

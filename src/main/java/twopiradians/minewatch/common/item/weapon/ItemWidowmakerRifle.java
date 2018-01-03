@@ -158,7 +158,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityLivingBase entity, ItemStack stack) {
 		return entity != null && entity.getHeldItemMainhand() != null && 
 				entity.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !KeyBind.JUMP.isKeyDown(entity) &&
-				(entity.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(entity)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0;
+				(entity.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(entity)) && 
+				(EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0 || EnumHero.WIDOWMAKER.weapon.getMaxAmmo(entity) == 0);
 	}
 
 	//PORT correct scope scale

@@ -65,9 +65,9 @@ public class ItemTracerPistol extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// tracer's dash
-		if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			GlStateManager.enableBlend();
 
 			double scale = 3d*Config.guiScale;

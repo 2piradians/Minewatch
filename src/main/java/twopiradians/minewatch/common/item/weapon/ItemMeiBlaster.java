@@ -184,9 +184,9 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// mei's crystal cancel overlay
-		if (event.getType() == ElementType.CROSSHAIRS && TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && TickHandler.hasHandler(player, Identifier.MEI_CRYSTAL)) {
 			GlStateManager.enableBlend();
 
 			double scale = 0.8d*Config.guiScale;

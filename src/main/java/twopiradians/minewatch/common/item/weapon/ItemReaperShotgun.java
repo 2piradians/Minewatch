@@ -408,9 +408,9 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// reaper's teleport/cancel overlay
-		if (event.getType() == ElementType.CROSSHAIRS && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && TickHandler.getHandler(player, Identifier.REAPER_TELEPORT) != null &&
 				TickHandler.getHandler(player, Identifier.REAPER_TELEPORT).ticksLeft == -1) {
 			GlStateManager.enableBlend();
 

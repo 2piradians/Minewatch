@@ -26,6 +26,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean healMobs;
 	private double healthPackHealMultiplier;
 	private double healthPackRespawnMultiplier;
+	private double ammoMultiplier;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -52,6 +53,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healMobs = Config.healMobs;
 		this.healthPackHealMultiplier = Config.healthPackHealMultiplier;
 		this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
+		this.ammoMultiplier = Config.ammoMultiplier;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -80,6 +82,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healMobs = buf.readBoolean();
 		this.healthPackHealMultiplier = buf.readDouble();
 		this.healthPackRespawnMultiplier = buf.readDouble();
+		this.ammoMultiplier = buf.readDouble();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -108,6 +111,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.healMobs);
 		buf.writeDouble(this.healthPackHealMultiplier);
 		buf.writeDouble(this.healthPackRespawnMultiplier);
+		buf.writeDouble(this.ammoMultiplier);
 
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -135,6 +139,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.healMobs = this.healMobs;
 		Config.healthPackHealMultiplier = this.healthPackHealMultiplier;
 		Config.healthPackRespawnMultiplier = this.healthPackRespawnMultiplier;
+		Config.ammoMultiplier = this.ammoMultiplier;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

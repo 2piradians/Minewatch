@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.entity.projectile;
 import java.util.ArrayList;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,7 +39,7 @@ public class EntityMoiraHealEnergy extends EntityMW {
 		super(worldIn, throwerIn, hand);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
-		this.lifetime = 30; 
+		this.lifetime = 10; 
 		this.isFriendly = true;
 	}
 
@@ -48,8 +49,40 @@ public class EntityMoiraHealEnergy extends EntityMW {
 	}
 
 	@Override
+	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
+		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, world, shooter, 
+				0xFFF555, 0xC2B55F, 0.2f, 5, 2, 2, 0, 0, hand, 20, 0.6f);
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
+				posX+(world.rand.nextFloat()-0.5f)*0.1f, 
+				posY+(world.rand.nextFloat()-0.5f)*0.1f, 
+				posZ+(world.rand.nextFloat()-0.5f)*0.1f, 
+				motionX/2f+(world.rand.nextFloat()-0.5f)*0.01f, 
+				motionY/2f+(world.rand.nextFloat()-0.5f)*0.01f, 
+				motionZ/2f+(world.rand.nextFloat()-0.5f)*0.01f, 
+				0xFFF555, 0xE2D171, 0.4f, 20, 0.5f, 5f, world.rand.nextFloat(), world.rand.nextFloat()/10f);
+		for (int i=0; i<5; ++i)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, 
+					posX+(world.rand.nextFloat()-0.5f)*0.1f, 
+					posY+(world.rand.nextFloat()-0.5f)*0.1f, 
+					posZ+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionX/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionY/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionZ/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					0xFFF555, 0xC2B55F, 0.4f, 20, 1, 1.3f, world.rand.nextFloat(), world.rand.nextFloat()/10f);
+		for (int i=0; i<1; ++i)
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, world, 
+					posX+(world.rand.nextFloat()-0.5f)*0.1f, 
+					posY+(world.rand.nextFloat()-0.5f)*0.1f, 
+					posZ+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionX/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionY/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionZ/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					0xFFFCE0, 0xFFFFFF, 0.4f, 20, 0.2f, 0.5f, world.rand.nextFloat(), world.rand.nextFloat()/10f);
+	}
+
+	@Override
 	public void spawnTrailParticles() {
-		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 0xEAE7B9, 0.5f, 8, 1); 
+		//EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 0xEAE7B9, 0.5f, 8, 1); 
 	}
 
 	/**Should this move to the hit position of the RayTraceResult*/

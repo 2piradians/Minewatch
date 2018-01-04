@@ -52,6 +52,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
@@ -706,6 +707,13 @@ public class SPacketSimple implements IMessage {
 						EnumHero hero = SetManager.getWornSet(player);
 						if (hero != null)
 							hero.weapon.setCurrentCharge(player, (float) packet.x, false);
+					}
+					// Moira's Fade
+					else if (packet.type == 47 && entity != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
+								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
+						if (player == entity)
+							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
 				}
 			});

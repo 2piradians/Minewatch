@@ -89,11 +89,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (entityLiving != null && currentChargeClient < maxCharge) {
-				if (entityLiving.ticksExisted > this.number+3) {
-					//System.out.println("increasing");// TODO
-					//System.out.println("number: "+this.number+", "+entityLiving.ticksExisted+", %: "+(getCurrentCharge(player) / maxCharge)); // TODO
+				if (entityLiving.ticksExisted > this.number+3) 
 					currentChargeClient = Math.min(maxCharge, currentChargeClient+rechargeRate);
-				}
 				this.ticksLeft = 2;
 			}
 			else
@@ -149,8 +146,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public void subtractFromCurrentCharge(Entity player, float amount, boolean sendPacket) {
 		float charge = getCurrentCharge(player);
-		if (charge - amount > 0)
+		if (charge - amount > 0.5f)
 			this.setCurrentCharge(player, charge-amount, sendPacket);
+		else {
+			this.setCooldown(player, 30);
+			this.setCurrentCharge(player, 0, sendPacket);
+		}
 	}
 
 	public int getMaxAmmo(Entity player) {
@@ -459,14 +460,14 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	/**Called before weapon is rendered*/
 	@SideOnly(Side.CLIENT)
-	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
 	/**Called before game overlay is rendered if holding weapon in either hand (only called once per tick regardless of hand(s))*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// render charge
-		if (this.maxCharge > 0 && event.getType() == ElementType.CROSSHAIRS/* && 
-				this.getCurrentCharge(player) < this.maxCharge*/) {
+		if (this.maxCharge > 0 && event.getType() == ElementType.CROSSHAIRS && 
+				this.getCurrentCharge(player) < this.maxCharge) {
 			GL11.glEnable(GL11.GL_LINE_SMOOTH);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(width/2d, height/2d, 0);

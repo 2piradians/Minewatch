@@ -1,0 +1,185 @@
+itemGroup.tabMinewatch=Minewatch Tab
+itemGroup.tabMinewatchArmorWeapons=Minewatch Armature e Armi
+itemGroup.tabMinewatchMapMaking=Minewatch Strumenti di Creazione
+
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Modelli degli eroi
+config.server-side.hero_mobs=Mob Eroi
+
+effect.frozen=Ghiacciato
+
+tile.health_pack_small.name=Medikit Piccolo
+tile.health_pack_large.name=Medikit Grande
+
+item.wild_card_token.name=Icone Eroe Comune
+item.team_stick.name=Bastone dei Team
+
+item.reaper_token.name=Icona di Reaper
+item.reaper_helmet.name=Elmetto di Reaper
+item.reaper_chestplate.name=Corazza di Reaper
+item.reaper_leggings.name=Gambiera di Reaper
+item.reaper_boots.name=Stivali di Reaper
+item.reaper_weapon.name=Bocche Infernali di Reaper
+
+item.hanzo_token.name=Icona di Hanzo
+item.hanzo_helmet.name=Elmetto di Hanzo
+item.hanzo_chestplate.name=Corazza di Hanzo
+item.hanzo_leggings.name=Gambiera di Hanzo
+item.hanzo_boots.name=Stivali di Hanzo
+item.hanzo_weapon.name=Arco della Tempesta di Hanzo
+
+item.reinhardt_token.name=Icona di Reinhardt
+item.reinhardt_helmet.name=Elmetto di Reinhardt
+item.reinhardt_chestplate.name=Corazza di Reinhardt
+item.reinhardt_leggings.name=Gambiera di Reinhardt
+item.reinhardt_boots.name=Stivali di Reinhardt
+item.reinhardt_weapon.name=Martello a Reazione di Reinhardt
+
+item.ana_token.name=Icona di Ana
+item.ana_helmet.name=Elmetto di Ana
+item.ana_chestplate.name=Corazza di Ana
+item.ana_leggings.name=Gambiera di Ana
+item.ana_boots.name=Stivali di Ana
+item.ana_weapon.name=Fucile Biotico di Ana
+
+item.genji_token.name=Icona di Genji
+item.genji_helmet.name=Elmetto di Genji
+item.genji_chestplate.name=Corazza di Genji
+item.genji_leggings.name=Gambiera di Genji
+item.genji_boots.name=Stivali di Genji
+item.genji_weapon.name=Shuriken di Genji
+item.genji_shuriken_single.name=Shuriken di Genji
+
+item.tracer_token.name=Icona di Tracer
+item.tracer_helmet.name=Elmetto di Tracer
+item.tracer_chestplate.name=Corazza di Tracer
+item.tracer_leggings.name=Gambiera di Tracer
+item.tracer_boots.name=Stivali di Tracer
+item.tracer_weapon.name=Pistola a Impulsi di Tracer
+
+item.mccree_token.name=Icona di McCree
+item.mccree_helmet.name=Elmetto di McCree
+item.mccree_chestplate.name=Corazza di McCree
+item.mccree_leggings.name=Gambiera di McCree
+item.mccree_boots.name=Stivali di McCree
+item.mccree_weapon.name=Pacificatore di McCree
+
+item.soldier76_token.name=Icona di Soldato76
+item.soldier76_helmet.name=Elmetto di Soldato76
+item.soldier76_chestplate.name=Corazza di Soldato76
+item.soldier76_leggings.name=Gambiera di Soldato76
+item.soldier76_boots.name=Stivali di Soldato76
+item.soldier76_weapon.name=Fucile a Impulsi di Soldato76
+
+item.mei_token.name=Icona di Mei
+item.mei_helmet.name=Elmetto di Mei
+item.mei_chestplate.name=Corazza di Mei
+item.mei_leggings.name=Gambiera di Mei
+item.mei_boots.name=Stivali di Mei
+item.mei_weapon.name=Pistola Endotermica di Mei
+
+item.bastion_token.name=Icona di Bastion
+item.bastion_helmet.name=Elmetto di Bastion
+item.bastion_chestplate.name=Corazza di Bastion
+item.bastion_leggings.name=Gambiera di Bastion
+item.bastion_boots.name=Stivali di Bastion
+item.bastion_weapon.name=Assetto di Bastion
+
+item.widowmaker_token.name=Icona di Widowmaker
+item.widowmaker_helmet.name=Elmetto di Widowmaker
+item.widowmaker_chestplate.name=Corazza di Widowmaker
+item.widowmaker_leggings.name=Gambiera di Widowmaker
+item.widowmaker_boots.name=Stivali di Widowmaker
+item.widowmaker_weapon.name=Bacio della Vedova di Widowmaker
+
+item.mercy_token.name=Icona di Mercy
+item.mercy_helmet.name=Elmetto di Mercy
+item.mercy_chestplate.name=Corazza di Mercy
+item.mercy_leggings.name=Gambiera di Mercy
+item.mercy_boots.name=Stivali di Mercy
+item.mercy_weapon.name=Armi di Mercy
+
+item.junkrat_token.name=Icona di Junkrat
+item.junkrat_helmet.name=Elmetto di Junkrat
+item.junkrat_chestplate.name=Corazza di Junkrat
+item.junkrat_leggings.name=Gambiera di Junkrat
+item.junkrat_boots.name=Stivali di Junkrat
+item.junkrat_weapon.name=Lanciagranate di Junkrat
+item.junkrat_trigger.name=Mina Dirompente di Junkrat
+
+item.sombra_token.name=Icona di Sombra
+item.sombra_helmet.name=Elmetto di Sombra
+item.sombra_chestplate.name=Corazza di Sombra
+item.sombra_leggings.name=Gambiera di Sombra
+item.sombra_boots.name=Stivali di Sombra
+item.sombra_weapon.name=Pistola Mitragliatrice di Sombra
+
+item.lucio_token.name=Icona di Lucio
+item.lucio_helmet.name=Elmetto di Lucio
+item.lucio_chestplate.name=Corazza di Lucio
+item.lucio_leggings.name=Gambiera di Lucio
+item.lucio_boots.name=Stivali di Lucio
+item.lucio_weapon.name=Amplificatore Sonico di Lucio
+
+item.zenyatta_token.name=Icona di Zenyatta
+item.zenyatta_helmet.name=Elmetto di Zenyatta
+item.zenyatta_chestplate.name=Corazza di Zenyatta
+item.zenyatta_leggings.name=Gambiera di Zenyatta
+item.zenyatta_boots.name=Stivali di Zenyatta
+item.zenyatta_weapon.name=Globo della Rovina di Zenyatta
+
+item.moira_token.name=Icona di Moira
+item.moira_helmet.name=Elmetto di Moira
+item.moira_chestplate.name=Corazza di Moira 
+item.moira_leggings.name=Gambiera di Moira
+item.moira_boots.name=Stivali di Moira
+item.moira_weapon.name=Biomanipolazione di Moira
+
+entity.random_hero.name=Eroe casuale
+entity.hanzo_hero.name=Hanzo
+entity.hanzo_arrow.name=Freccia di Hanzo
+entity.hanzo_sonic_arrow.name=Freccia Sonica di Hanzo
+entity.hanzo_scatter_arrow.name=Freccia Infida di Hanzo
+entity.reaper_hero.name=Reaper
+entity.reaper_bullet.name=Proiettile di Reaper
+entity.ana_hero.name=Ana
+entity.ana_bullet.name=Proiettile di Ana
+entity.ana_sleep_dart.name=Dardo Soporifero di Ana
+entity.genji_hero.name=Genji
+entity.genji_shuriken.name=Shuriken di Genji
+entity.genji_shuriken_single.name=Shuriken di Genji
+entity.tracer_hero.name=Tracer
+entity.tracer_bullet.name=Proiettile di Tracer
+entity.mccree_hero.name=McCree
+entity.mccree_bullet.name=Proiettile di McCree
+entity.soldier76_hero.name=Soldato: 76
+entity.soldier76_bullet.name=Soldato: 76 Proiettile
+entity.soldier76_helix_rocket.name=Soldato: 76 Razzi Helix
+entity.bastion_hero.name=Bastion
+entity.bastion_bullet.name=Proiettile di Bastion
+entity.mei_hero.name=Mei
+entity.mei_blast.name=Raggio Congelante di Mei
+entity.mei_icicle.name=Dardo di Ghiaccio di Mei
+entity.mei_crystal.name=Ibernazione di Mei
+entity.mercy_hero.name=Mercy
+entity.mercy_bullet.name=Proiettile di Mercy
+entity.mercy_beam.name=Raggio di Mercy
+entity.junkrat_hero.name=Junkrat
+entity.junkrat_grenade.name=Granata di Junkrat
+entity.junkrat_trap.name=Tagliola di Junkrat
+entity.junkrat_mine.name=Mina Dirompente di Junkrat
+entity.widowmaker_hero.name=Widowmaker
+entity.widowmaker_bullet.name=Proiettile di Widowmaker
+entity.widowmaker_mine.name=Mina Venefica di Widowmaker
+entity.sombra_hero.name=Sombra
+entity.sombra_bullet.name=Proiettile di Sombra
+entity.sombra_translocator.name=Rilocatore di Sombra
+entity.reinhardt_hero.name=Reinhardt
+entity.reinhardt_strike.name=Dardo di Fuoco di Reinhardt
+entity.lucio_hero.name=Lucio
+entity.lucio_sonic.name=Proiettili di Energia Sonica di Lucio
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Globo della Rovina di Zenyatta
+entity.moira_hero.name=Moira
+entity.moira_heal_energy.name=Energia Curativa di Moira

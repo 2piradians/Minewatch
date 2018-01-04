@@ -859,5 +859,53 @@
 		"sounds": [
 			"minewatch:health_pack_respawn"
 		]
+	},
+	"moira_damage_during_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_during_hit"
+		]
+	},
+	"moira_damage_during_miss": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_during_miss"
+		]
+	},
+	"moira_damage_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_start"
+		]
+	},
+	"moira_fade": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_fade"
+		]
+	},
+	"moira_heal_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_during"
+		]
+	},
+	"moira_heal_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_start"
+		]
+	},
+	"moira_orb_select": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_select"
+		]
+	},
+	"moira_orb_deselect": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_deselect"
+		]
 	}
 }

@@ -31,6 +31,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -105,7 +106,7 @@ public class EntityHelper {
 		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
 		if (pitch+verticalAdjust > 90)
 			horizontalVec = horizontalVec.scale(-1);
-		Vec3d posVec = new Vec3d(shooter.lastTickPosX+(shooter.posX-shooter.lastTickPosX)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosY+(shooter.posY-shooter.lastTickPosY)*Minewatch.proxy.getRenderPartialTicks(), shooter.lastTickPosZ+(shooter.posZ-shooter.lastTickPosZ)*Minewatch.proxy.getRenderPartialTicks());
+		Vec3d posVec = EntityHelper.getEntityPartialPos(shooter);
 		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
 
@@ -554,18 +555,25 @@ public class EntityHelper {
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
 
-	/**Returns maxAngle degrees between e1's look and e2*/
-	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
-		// calculate angles if e1 was directly facing e2
-		double d0 = e2.posX - e1.posX;
-		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1.posY + (double)e1.getEyeHeight());
-		double d2 = e2.posZ - e1.posZ;
+	/**Returns angles if e1 was directly facing e2*/
+	public static Vec2f getDirectLookAngles(Entity e1, Entity e2) {
+		Vec3d e1Vec = EntityHelper.getEntityPartialPos(e1);
+		Vec3d e2Vec = EntityHelper.getEntityPartialPos(e2);
+		double d0 = e2Vec.xCoord - e1Vec.xCoord;
+		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1Vec.yCoord + (double)e1.getEyeHeight());
+		double d2 = e2Vec.zCoord - e1Vec.zCoord;
 		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
+		return new Vec2f(facingYaw, facingPitch);
+	}
+
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
+		Vec2f facing = getDirectLookAngles(e1, e2);
 		// calculate difference between facing and current angles
-		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facingYaw));
-		float deltaPitch = Math.abs(e1.rotationPitch-facingPitch);
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
+		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
 		return Math.max(deltaYaw, deltaPitch);
 	}
 
@@ -651,6 +659,17 @@ public class EntityHelper {
 			return new Vec3d(x, y, z);
 		}
 		return Vec3d.ZERO;
+	}
+
+	/**Get exact entity rotations - accounting for partial ticks and lastTickPos*/
+	public static Vec2f getEntityPartialRotations(Entity entity) {
+		if (entity != null) {
+			float partialTicks = Minewatch.proxy.getRenderPartialTicks();
+			float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+			float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
+			return new Vec2f(pitch, yaw);
+		}
+		return Vec2f.ZERO;
 	}
 
 }

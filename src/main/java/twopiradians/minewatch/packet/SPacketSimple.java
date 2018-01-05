@@ -98,7 +98,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool) {
 		this(type, bool, null, 0, 0, 0, entity, null);
 	}
-	
+
 	public SPacketSimple(int type, Entity entity, String string) {
 		this(type, false, UUID.randomUUID(), 0, 0, 0, entity == null ? -1 : entity.getEntityId(), -1, string);
 	}
@@ -712,8 +712,16 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 47 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
 								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
+						TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE));
 						if (player == entity)
 							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
+					}
+					// Moira's damage
+					else if (packet.type == 48 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemMoiraWeapon.DAMAGE.setEntity(entity).setEntityLiving(entity2 instanceof EntityLivingBase ? (EntityLivingBase) entity2 : null).setTicks(10));
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
 					}
 				}
 			});

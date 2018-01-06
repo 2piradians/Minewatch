@@ -1,0 +1,185 @@
+itemGroup.tabMinewatch=Minewatch Tab 
+itemGroup.tabMinewatchArmorWeapons=Armadura y Armas de Minewatch 
+itemGroup.tabMinewatchMapMaking=Herramientas de creación de Minewatch 
+
+config.server-side=Server-Side 
+config.client-side=Client-Side 
+config.client-side.hero_skins=Modelos Hero 
+config.server-side.hero_mobs=Mob Héroes 
+
+effect.frozen=Congelado 
+
+tile.health_pack_small.name=Medikit Pequeño 
+tile.health_pack_large.name=Medikit Grand 
+
+item.wild_card_token.name=Iconos de héroe comunes 
+item.team_stick.name=Equipo del equipo 
+
+item.reaper_token.name=Icono de Reaper 
+item.reaper_helmet.name=Casco de Reaper 
+item.reaper_chestplate.name=Armadura del segador 
+item.reaper_leggings.name=Leotardos de Reaper 
+item.reaper_boots.name=Botas Reaper 
+item.reaper_weapon.name=Bocas infernales de Reaper 
+
+item.hanzo_token.name=Icono de Hanzo 
+item.hanzo_helmet.name=Casco de Hanzo 
+item.hanzo_chestplate.name = Armadura Hanzo 
+item.hanzo_leggings.name = Gafas de Hanzo 
+item.hanzo_boots.name = Botas Hanzo 
+item.hanzo_weapon.name = Hanzo Storm Arch 
+
+item.reinhardt_token.name = Icono de Reinhardt 
+item.reinhardt_helmet.name = Casco de Reinhardt 
+item.reinhardt_chestplate.name = Pechera de Reinhardt 
+item.reinhardt_leggings.name = Leotardos de Reinhardt 
+item.reinhardt_boots.name = botas de Reinhardt 
+item.reinhardt_weapon.name = Martillo de Reacción de Reinhardt 
+
+item.ana_token.name = Icono de Ana 
+item.ana_helmet.name = Casco de Ana 
+item.ana_chestplate.name = La armadura de Ana 
+item.ana_leggings.name = Leotardos de Ana 
+item.ana_boots.name = Ana botas 
+item.ana_weapon.name = Rifle Ana Biótico 
+
+item.genji_token.name = Icono de Genji 
+item.genji_helmet.name = Casco de Genji 
+item.genji_chestplate.name = Genji Armor 
+item.genji_leggings.name = Polainas de Genji 
+item.genji_boots.name = Botas Genji 
+item.genji_weapon.name = Genji Shuriken 
+item.genji_shuriken_single.name = Genji Shuriken 
+
+item.tracer_token.name = Icono de Tracer 
+item.tracer_helmet.name = Casco Tracer 
+item.tracer_chestplate.name = Armadura de Tracer 
+item.tracer_leggings.name = Tracer's Trunk 
+item.tracer_boots.name = Botas Tracer 
+item.tracer_weapon.name = Tracer Impulse Gun 
+
+item.mccree_token.name = Icono de McCree 
+item.mccree_helmet.name = Casco de McCree 
+item.mccree_chestplate.name = Armadura de McCree 
+item.mccree_leggings.name = McCree's Greater 
+item.mccree_boots.name = Botas de McCree 
+item.mccree_weapon.name = Chupete de McCree 
+
+item.soldier76_token.name = Icono de soldado76 
+item.soldier76_helmet.name = Casco del soldado76 
+item.soldier76_chestplate.name = Armadura del soldado76 
+item.soldier76_leggings.name = Polainas de soldado76 
+item.soldier76_boots.name = Botas de soldado76 
+item.soldier76_weapon.name = Rifle de pulso del soldado76 
+
+item.mei_token.name = Icono de Mei 
+item.mei_helmet.name = Casco de Mei 
+item.mei_chestplate.name = La armadura de Mei 
+item.mei_leggings.name = Mei's Greater 
+item.mei_boots.name = Mei Boots 
+item.mei_weapon.name = Mei Arma endotérmica 
+
+item.bastion_token.name = Icono de Bastion 
+item.bastion_helmet.name = Casco de bastión 
+item.bastion_chestplate.name = Bastion Armor 
+item.bastion_leggings.name = Leotardos de bastión 
+item.bastion_boots.name = Bastion boots 
+item.bastion_weapon.name = Recorte de bastión 
+
+item.widowmaker_token.name = Icono de Widowmaker 
+item.widowmaker_helmet.name = Casco de Widowmaker 
+item.widowmaker_chestplate.name = Armadura de Widowmaker 
+item.widowmaker_leggings.name = Leotardos de Widowmaker 
+item.widowmaker_boots.name = Botas Widowmaker 
+item.widowmaker_weapon.name = Widowmaker Widow's Kiss 
+
+item.mercy_token.name = Icono de Mercy 
+item.mercy_helmet.name = Casco de Misericordia 
+item.mercy_chestplate.name = La armadura de Mercy 
+item.mercy_leggings.name = Mercy's Greater 
+item.mercy_boots.name = Las botas de Mercy 
+item.mercy_weapon.name = Armas de Misericordia 
+
+item.junkrat_token.name = Icono de Junkrat 
+item.junkrat_helmet.name = Casco de Junkrat 
+item.junkrat_chestplate.name = Armadura de Junkrat 
+item.junkrat_leggings.name = Leotardos de Junkrat 
+item.junkrat_boots.name = Botas de basura 
+item.junkrat_weapon.name = Lanzador de junkrat 
+item.junkrat_trigger.name = Mina disruptiva de Junkrat 
+
+item.sombra_token.name = Icono de Sombra 
+item.sombra_helmet.name = Casco de Sombra 
+item.sombra_chestplate.name = La armadura de Sombra 
+item.sombra_leggings.name = Leotardos de Sombra 
+item.sombra_boots.name = Botas de Sombra 
+item.sombra_weapon.name = La ametralladora de Sombra 
+
+item.lucio_token.name = Icono de Lucio 
+item.lucio_helmet.name = Casco de Lucio 
+item.lucio_chestplate.name = Armadura de Lucio 
+item.lucio_leggings.name = Leotardos de Lucio 
+item.lucio_boots.name = Botas de Lucio 
+item.lucio_weapon.name = Lucio Sonic Amplifier 
+
+item.zenyatta_token.name = Icono de Zenyatta 
+item.zenyatta_helmet.name = Casco Zenyatta 
+item.zenyatta_chestplate.name = La armadura de Zenyatta 
+item.zenyatta_leggings.name = Mayor de Zenyatta 
+item.zenyatta_boots.name = Botas Zenyatta 
+item.zenyatta_weapon.name = Globo de la ruina Zenyatta 
+
+item.moira_token.name = Icono de Moira 
+item.moira_helmet.name = Casco de Moira 
+item.moira_chestplate.name = La armadura de Moira 
+item.moira_leggings.name = Leotardos de Moira 
+item.moira_boots.name = Moira Boots 
+item.moira_weapon.name = La biomanipulación de Moira 
+
+entity.random_hero.name = Random Hero 
+entity.hanzo_hero.name = Hanzo 
+entity.hanzo_arrow.name = Hanzo arrow 
+entity.hanzo_sonic_arrow.name = Hanzo Sonic 
+entity.hanzo_scatter_arrow.name = Flecha de Hida Infida 
+entity.reaper_hero.name = Reaper 
+entity.reaper_bullet.name = Reaper proyectil 
+entity.ana_hero.name = Ana 
+entity.ana_bullet.name = Ana proyectil 
+entity.ana_sleep_dart.name = Ana's Soporific Dart 
+entity.genji_hero.name = Genji 
+entity.genji_shuriken.name = Genji Shuriken 
+entity.genji_shuriken_single.name = Genji Shuriken 
+entity.tracer_hero.name = trazador 
+entity.tracer_bullet.name = Proyectil Tracer 
+entity.mccree_hero.name = McCree 
+entity.mccree_bullet.name = Proyectil McCree 
+entity.soldier76_hero.name = Soldado: 76 
+entity.soldier76_bullet.name = Soldado: 76 Bullet 
+entity.soldier76_helix_rocket.name = Soldado: 76 Helix cohetes 
+entity.bastion_hero.name = Bastion 
+entity.bastion_bullet.name = Proyectil de bastión 
+entity.mei_hero.name = Mei 
+entity.mei_blast.name = Rayo congelado de Mei 
+entity.mei_icicle.name = Ice Dart of Mei 
+entity.mei_crystal.name = Hibernación de Mei 
+entity.mercy_hero.name = Misericordia 
+entity.mercy_bullet.name = Misil proyectil 
+entity.mercy_beam.name = Radio de Misericordia 
+entity.junkrat_hero.name = Junkrat 
+entity.junkrat_grenade.name = Granada de junkrat 
+entity.junkrat_trap.name = Tagliola de Junkrat 
+entity.junkrat_mine.name = Mina disruptiva de Junkrat 
+entity.widowmaker_hero.name = Widowmaker 
+entity.widowmaker_bullet.name = Proyectil Widowmaker 
+entity.widowmaker_mine.name = La venganza de Widowmaker 
+entity.sombra_hero.name = Sombra 
+entity.sombra_bullet.name = Proyectil de Sombra 
+entity.sombra_translocator.name = Sombra relocator 
+entity.reinhardt_hero.name = Reinhardt 
+entity.reinhardt_strike.name = Reinhardt's Dart of Fire 
+entity.lucio_hero.name = Lucio 
+entity.lucio_sonic.name = Lucio Sonic Energy Projectiles 
+entity.zenyatta_hero.name = Zenyatta 
+entity.zenyatta_orb.name = Globo de la Ruina Zenyatta 
+entity.moira_hero.name = Moira 
+entity.moira_heal_energy.name = La energía curativa de Moira

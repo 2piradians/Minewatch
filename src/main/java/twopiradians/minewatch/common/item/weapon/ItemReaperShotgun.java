@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.opengl.GL11;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
@@ -174,7 +176,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			if (this.ticksLeft != -1) 
+			if (this.ticksLeft != -1 && entityLiving == Minecraft.getMinecraft().player) 
 				EnumHero.REAPER.ability1.toggle(entityLiving, false);
 			return super.onClientRemove();
 		}
@@ -428,6 +430,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					60 - TickHandler.getHandler(player, Identifier.REAPER_WRAITH).ticksLeft+Minecraft.getMinecraft().getRenderPartialTicks() : 10;
 
 					GlStateManager.pushMatrix();
+					GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 					GlStateManager.enableBlend();
 					//PORT scale x event.getResolution().getScaleFactor()
 					GlStateManager.scale(width/256d, height/256d, 1);
@@ -443,6 +446,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/reaper_wraith_"+secondImage+".png"));
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
 					}
+					GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 					GlStateManager.popMatrix();
 		}
 	}

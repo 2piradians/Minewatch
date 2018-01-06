@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -29,6 +30,21 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
+			// glowing
+			if ((this.ticksLeft+1) % 10 == 0) { // TEST glowing only works for teammates
+				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(10);
+				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entityLiving, aabb);
+				for (Entity entity2 : list) 
+					if (entity2 instanceof EntityLivingBase && EntityHelper.shouldHit(entityLiving, entity2, false) &&
+							EntityHelper.shouldTarget(entityLiving, Minewatch.proxy.getRenderViewEntity(), true)) {
+						Handler handler = TickHandler.getHandler(entity2, Identifier.GLOWING);
+						if (handler == null)
+							TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(entity2).setTicks(30));
+						else
+							handler.ticksLeft = 30;
+					}
+			}
+
 			return onServerTick();
 		}
 	};
@@ -41,15 +57,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		super(worldIn, shooter);
 	}
 
-	public static boolean doEffect(World world, Entity ignoreEntity, Entity trackEntity, double x, double y, double z, int ticks) {
-		if (!world.isRemote && (ticks+1) % 10 == 0) {
-			AxisAlignedBB aabb = new AxisAlignedBB(x-10d, y-10d, z-10d, x+10d, y+10d, z+10d);
-			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(ignoreEntity, aabb);
-			for (Entity entity2 : list) 
-				if (entity2 instanceof EntityLivingBase && EntityHelper.shouldHit(ignoreEntity, entity2, false)) 
-					((EntityLivingBase) entity2).addPotionEffect(new PotionEffect(MobEffects.GLOWING, 30, 0, true, false));
-		}
-
+	public static boolean doEffect(World world, EntityLivingBase ignoreEntity, Entity trackEntity, double x, double y, double z, int ticks) {
 		if (world.isRemote && 
 				(ticks == 1 || ticks == 7 || ticks == 10 || ticks == 13))
 			if (trackEntity != null)
@@ -77,6 +85,21 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		else if (!this.inGround && this.world.isRemote) {
 			if (this.ticksExisted % 2 == 0)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, posX, posY, posZ, false, true);
+		}
+
+		// glowing
+		if (this.inGround && world.isRemote && this.ticksExisted % 10 == 0) { // TEST glowing only works for teammates
+			AxisAlignedBB aabb = this.getEntityBoundingBox().expandXyz(10);
+			List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(getThrower(), aabb);
+			for (Entity entity2 : list) 
+				if (entity2 instanceof EntityLivingBase && EntityHelper.shouldHit(getThrower(), entity2, false) &&
+						EntityHelper.shouldTarget(getThrower(), Minewatch.proxy.getRenderViewEntity(), true)) {
+					Handler handler = TickHandler.getHandler(entity2, Identifier.GLOWING);
+					if (handler == null)
+						TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(entity2).setTicks(30));
+					else
+						handler.ticksLeft = 30;
+				}
 		}
 	}
 

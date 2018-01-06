@@ -93,7 +93,7 @@ public class RenderManager {
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {			
+	public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {	
 		// make entity body follow head
 		if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
 				event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&

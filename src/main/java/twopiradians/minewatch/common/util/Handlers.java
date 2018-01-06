@@ -26,12 +26,35 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class Handlers {
 
+	/**Clientside glowing effect - if entityLiving != null, will only give glowing to entities friendly to it*/
+	public static final Handler CLIENT_GLOWING = new Handler(Identifier.GLOWING, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (this.entity != null && !this.entity.isGlowing() && (this.entityLiving == null || 
+					EntityHelper.shouldTarget(entityLiving, Minewatch.proxy.getRenderViewEntity(), true)))
+				this.entity.setGlowing(true);
+
+			return super.onClientTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			if (this.entity != null && (((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING) == null ||
+					((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING).getDuration() <= 0))
+				this.entity.setGlowing(false);
+			
+			return super.onClientRemove();
+		}
+	};
+	
 	/**Set mainhand active (for item use action)*/
 	public static final Handler ACTIVE_HAND = new Handler(Identifier.ACTIVE_HAND, true) {
 		@Override

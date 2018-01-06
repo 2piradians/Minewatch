@@ -218,7 +218,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
 			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/")),
 	MOIRA("Moira", false, false, new Ability(KeyBind.NONE, true, false), 
-			new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			0, 0, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
 			new Skin("Classic", "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),

@@ -2,6 +2,8 @@ package twopiradians.minewatch.client.particle;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSimpleAnimated;
 import net.minecraft.client.renderer.GlStateManager;
@@ -15,6 +17,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -30,7 +33,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class ParticleCustom extends ParticleSimpleAnimated {
-	
+
 	private float fadeTargetRed;
 	private float fadeTargetGreen;
 	private float fadeTargetBlue;
@@ -176,6 +179,18 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == this.followEntity, true))
 					this.setExpired();
 			}
+			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityLivingBase) {
+				this.horizontalAdjust = this.verticalAdjust = 1; 
+				Vec2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, this.initialAlpha != 1 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND, 10, 0.65f);
+				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
+				this.prevPosX = this.posX;
+				this.prevPosY = this.posY;
+				this.prevPosZ = this.posZ;
+				this.particleAlpha = this.initialAlpha;
+				if (!TickHandler.hasHandler(followEntity, Identifier.MOIRA_ORB_SELECT))
+					this.setExpired();
+			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
@@ -224,21 +239,28 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
 
-			// change frame
-			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
-			if (enumParticle == EnumParticle.ZENYATTA_DISCORD_ORB || enumParticle == EnumParticle.ZENYATTA_HARMONY_ORB)
-				frame = Minecraft.getMinecraft().player.ticksExisted % 15 / 4 + 1;
-			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
-			int row = (frame-1) / framesPerRow;
-			int col = (frame-1) % framesPerRow;
-			double uSize = (this.particleTexture.getMaxU()-this.particleTexture.getMinU()) / framesPerRow;
-			double vSize = (this.particleTexture.getMaxV()-this.particleTexture.getMinV()) / framesPerRow;
-
-			float f = (float) (this.particleTexture.getMinU()+uSize*col);
-			float f1 = (float) (f+uSize);
-			float f2 = (float) (this.particleTexture.getMinV()+vSize*row);
-			float f3 = (float) (f2+vSize);
+			float f = this.particleTexture.getMinU();
+			float f1 = this.particleTexture.getMaxU();
+			float f2 = this.particleTexture.getMinV();
+			float f3 = this.particleTexture.getMaxV();
 			float f4 = 0.1F * this.particleScale;
+
+			// change frame
+			if (enumParticle.frames > 1) {
+				int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
+				if (enumParticle == EnumParticle.ZENYATTA_DISCORD_ORB || enumParticle == EnumParticle.ZENYATTA_HARMONY_ORB)
+					frame = Minecraft.getMinecraft().player.ticksExisted % 15 / 4 + 1;
+				int framesPerRow = (int) Math.sqrt(enumParticle.frames);
+				int row = (frame-1) / framesPerRow;
+				int col = (frame-1) % framesPerRow;
+				double uSize = (this.particleTexture.getMaxU()-this.particleTexture.getMinU()) / framesPerRow;
+				double vSize = (this.particleTexture.getMaxV()-this.particleTexture.getMinV()) / framesPerRow;
+
+				f = (float) (this.particleTexture.getMinU()+uSize*col);
+				f1 = (float) (f+uSize);
+				f2 = (float) (this.particleTexture.getMinV()+vSize*row);
+				f3 = (float) (f2+vSize);
+			}
 
 			float f5 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)partialTicks - interpPosX);
 			float f6 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)partialTicks - interpPosY);
@@ -285,7 +307,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 		}
 	}
-	
+
 	/**Render facing particles*/
 	public void renderOnBlocks(VertexBuffer buffer) {
 		RenderManager.renderOnBlocks(world, buffer, particleRed, particleGreen, particleBlue, particleAlpha, 

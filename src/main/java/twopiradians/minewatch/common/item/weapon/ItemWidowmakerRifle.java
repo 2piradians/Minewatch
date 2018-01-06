@@ -163,8 +163,9 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	}
 
 	//PORT correct scope scale
+	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;

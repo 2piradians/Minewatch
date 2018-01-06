@@ -723,6 +723,18 @@ public class SPacketSimple implements IMessage {
 						else
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
 					}
+					// Moira's orb select
+					else if (packet.type == 49 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemMoiraWeapon.ORB_SELECT.setEntity(entity).setTicks(12000));
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.world, entity, 0x251A60, 0x231A58, 0.99f, 12000, 2, 2, 0, 0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.world, entity, 0xFBF235, 0xFBF235, 1, 12000, 2, 2, 0, -0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.world, entity, 0x251A60, 0x231A58, 0.99f, 12000, 2, 2, 0, 0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.world, entity, 0xFBF235, 0xFBF235, 1, 12000, 2, 2, 0, -0.05f);
+						}
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_ORB_SELECT));
+					}
 				}
 			});
 			return null;

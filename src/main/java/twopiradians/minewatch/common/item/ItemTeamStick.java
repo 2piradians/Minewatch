@@ -34,12 +34,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.ColorHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTeamStick extends Item {
-	
+
 	public ItemTeamStick() {
 		super();
 		MinecraftForge.EVENT_BUS.register(this);
@@ -238,10 +240,13 @@ public class ItemTeamStick extends Item {
 			if (stack != null && stack.getItem() == this && event.getEntity().getTeam() != null)
 				glow = true;
 
-		if (glow)
-			event.getEntity().setGlowing(true);
-		else if (!TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_OPPORTUNIST))
-			event.getEntity().setGlowing(false);
+		if (glow) {
+			Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.GLOWING);
+			if (handler == null)
+				TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(event.getEntity()).setTicks(2));
+			else
+				handler.ticksLeft = 2;
+		}
 	}
 
 	@SideOnly(Side.CLIENT)

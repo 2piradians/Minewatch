@@ -56,11 +56,12 @@ public class EntityHelper {
 	/**Copied from EntityThrowable*/
 	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn) {
 		ArrayList<RayTraceResult> results = new ArrayList<RayTraceResult>();
-		Vec3d vec3d = new Vec3d(entityIn.posX, entityIn.posY+entityIn.height/2d, entityIn.posZ);
+		Vec3d posVec = EntityHelper.getEntityPartialPos(entityIn).addVector(0, entityIn.height/2f, 0);
 		if (entityIn instanceof EntityReinhardtStrike) // use prevPos so it doesn't clip in ground if shot too close to ground
-			vec3d = new Vec3d(entityIn.prevPosX, entityIn.prevPosY+entityIn.height/2d, entityIn.prevPosZ);
-		Vec3d vec3d1 = new Vec3d(entityIn.posX + entityIn.motionX, entityIn.posY+entityIn.height/2d + entityIn.motionY, entityIn.posZ + entityIn.motionZ);
-		RayTraceResult result = entityIn.world.rayTraceBlocks(vec3d, vec3d1, false, true, true);
+			posVec = new Vec3d(entityIn.prevPosX, entityIn.prevPosY+entityIn.height/2d, entityIn.prevPosZ);
+		Vec3d motionVec = new Vec3d(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
+		Vec3d posMotionVec = posVec.add(motionVec).add(motionVec.normalize().scale(entityIn.width*0.75f));
+		RayTraceResult result = entityIn.world.rayTraceBlocks(posVec, posMotionVec, false, true, true);
 		if (result != null)
 			results.add(result);
 
@@ -80,7 +81,7 @@ public class EntityHelper {
 				// move to prev pos
 				aabb = entity.getEntityBoundingBox().move(new Vec3d(x2-entity.posX, y2-entity.posY, z2-entity.posZ));
 
-				if (!fast || aabb.calculateIntercept(vec3d, vec3d1) != null) 
+				if (!fast || aabb.calculateIntercept(posVec, posMotionVec) != null) 
 					results.add(new RayTraceResult(entity));
 			}
 		}

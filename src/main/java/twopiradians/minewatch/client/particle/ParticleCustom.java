@@ -2,8 +2,6 @@ package twopiradians.minewatch.client.particle;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSimpleAnimated;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,6 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -206,6 +205,9 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!(this.followEntity instanceof EntityLivingBase && ((EntityLivingBase)this.followEntity).getActiveItemStack() != null && 
 						((EntityLivingBase)this.followEntity).getActiveItemStack().getItem() == EnumHero.ZENYATTA.weapon))
 					this.setExpired();
+			}
+			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityMoiraOrb) {
+				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
 			}
 
 			if (!this.followEntity.isEntityAlive())

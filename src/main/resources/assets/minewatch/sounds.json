@@ -53,6 +53,12 @@
 			"minewatch:hurt"
 		]
 	},
+	"heal": {
+		"category": "player",
+		"sounds": [
+			"minewatch:heal"
+		]
+	},
 	"ability_recharge": {
 		"category": "player",
 		"sounds": [
@@ -906,6 +912,69 @@
 	"category": "player",
 		"sounds": [
 			"minewatch:moira_orb_deselect"
+		]
+	},
+	"moira_orb_heal_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_throw"
+		]
+	},
+	"moira_orb_damage_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_throw"
+		]
+	},
+	"moira_orb_heal_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_bounce"
+		]
+	},
+	"moira_orb_damage_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_bounce"
+		]
+	},
+	"moira_orb_passive": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_passive"
+		]
+	},
+	"moira_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_voice_0",
+			"minewatch:moira_damage_voice_1",
+			"minewatch:moira_damage_voice_2",
+			"minewatch:moira_damage_voice_3"
+		]
+	},
+	"moira_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_voice_0",
+			"minewatch:moira_heal_voice_1",
+			"minewatch:moira_heal_voice_2"
+		]
+	},
+	"moira_orb_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_voice_0",
+			"minewatch:moira_orb_damage_voice_1",
+			"minewatch:moira_orb_damage_voice_2"
+		]
+	},
+	"moira_orb_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_voice_0",
+			"minewatch:moira_orb_heal_voice_1",
+			"minewatch:moira_orb_heal_voice_2"
 		]
 	}
 }

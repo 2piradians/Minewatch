@@ -11,6 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -80,11 +81,6 @@ public class EntityMoiraHealEnergy extends EntityMW {
 					0xFFFCE0, 0xFFFFFF, 0.4f, 20, 0.2f, 0.5f, world.rand.nextFloat(), world.rand.nextFloat()/10f);
 	}
 
-	@Override
-	public void spawnTrailParticles() {
-		//EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 0xEAE7B9, 0.5f, 8, 1); 
-	}
-
 	/**Should this move to the hit position of the RayTraceResult*/
 	protected void onImpactMoveToHitPosition(RayTraceResult result) {}
 
@@ -93,9 +89,11 @@ public class EntityMoiraHealEnergy extends EntityMW {
 		super.onImpact(result);
 
 		// heal
-		if (!this.world.isRemote && !affectedEntities.contains(result.entityHit) && 
-				EntityHelper.attemptDamage(this, result.entityHit, -4f+0.8333f, true) && 
-				result.entityHit instanceof EntityLivingBase) {
+		if (!this.world.isRemote && result.entityHit instanceof EntityLivingBase &&
+				((EntityLivingBase)result.entityHit).getHealth() < ((EntityLivingBase)result.entityHit).getMaxHealth() && 
+				!affectedEntities.contains(result.entityHit) && 
+				EntityHelper.attemptDamage(this, result.entityHit, -4f+0.8333f, true)) {
+			ModSoundEvents.MOIRA_HEAL_VOICE.playFollowingSound(getThrower(), 1, 1, false);
 			affectedEntities.add((EntityLivingBase) result.entityHit);
 			TickHandler.register(false, HEAL.setEntity(getThrower()).setEntityLiving((EntityLivingBase) result.entityHit).setTicks(61));
 		}

@@ -32,6 +32,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public int lifetime;
 	private EntityLivingBase thrower;
 	public boolean isFriendly;
+	protected boolean impactOnClient;
 
 	public EntityMW(World worldIn) {
 		this(worldIn, null, -1);
@@ -90,7 +91,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	@Override
 	public void onUpdate() {	
 		// check for impacts
-		if (!world.isRemote) { 
+		if (!world.isRemote || this.impactOnClient) { 
 			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
 			RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
 			for (RayTraceResult result : results) 

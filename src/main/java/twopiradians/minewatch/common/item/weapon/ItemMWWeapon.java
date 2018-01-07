@@ -273,7 +273,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { }
 
-	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
+	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase
+	 * NOTE: this is only called every 4 ticks for some reason*/
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}

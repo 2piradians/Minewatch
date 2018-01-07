@@ -80,7 +80,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "lucio_sonic"), EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "zenyatta_orb"), EntityZenyattaOrb.class, "zenyatta_orb", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_heal_energy"), EntityMoiraHealEnergy.class, "moira_heal_energy", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_orb"), EntityMoiraOrb.class, "moira_orb", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_orb"), EntityMoiraOrb.class, "moira_orb", id++, Minewatch.instance, 64, 1, true);
 	}
 	
     /**Get spawn egg for given entity class*/

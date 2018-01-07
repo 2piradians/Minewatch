@@ -50,6 +50,7 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.hero.EntityMoira;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
@@ -88,9 +89,29 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			if (entityLiving.getHeldItemMainhand() == null || 
 					entityLiving.getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
 					!EnumHero.MOIRA.ability2.isSelected(entityLiving) || 
-					!EnumHero.MOIRA.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) 
+					!EnumHero.MOIRA.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) {
+				ModSoundEvents.MOIRA_ORB_DESELECT.playFollowingSound(player, 1, 1, false);
 				return true;
-			//EnumHero.MOIRA.ability2.keybind.setCooldown(entityLiving, 20, false); //TODO
+			}
+			// spawn orb
+			else if (KeyBind.RMB.isKeyDown(entityLiving) || KeyBind.LMB.isKeyDown(entityLiving)) {
+				boolean heal = KeyBind.LMB.isKeyDown(entityLiving);
+				EnumHand hand = heal ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
+				EntityMoiraOrb orb = new EntityMoiraOrb(entityLiving.world, entityLiving, hand.ordinal(), heal);
+				EntityHelper.setAim(orb, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 20, 0, hand, 30, 0);
+				entityLiving.world.spawnEntity(orb);
+				EnumHero.MOIRA.ability2.keybind.setCooldown(entityLiving, 200, false); 
+				EnumHero.MOIRA.weapon.setCooldown(entityLiving, 20);
+				if (heal) {
+					ModSoundEvents.MOIRA_ORB_HEAL_THROW.playFollowingSound(player, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_HEAL_VOICE.playFollowingSound(player, 1, 1, false);
+				}
+				else {
+					ModSoundEvents.MOIRA_ORB_DAMAGE_THROW.playFollowingSound(player, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_DAMAGE_VOICE.playFollowingSound(player, 1, 1, false);
+				}
+				return true;
+			}
 			return super.onServerTick();
 		}
 		@Override
@@ -100,7 +121,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		}
 		@Override
 		public Handler onServerRemove() {
-			ModSoundEvents.MOIRA_ORB_DESELECT.playFollowingSound(player, 1, 1, false);
+			Minewatch.network.sendToDimension(new SPacketSimple(49, player, false), entityLiving.world.provider.getDimension());
 			return super.onServerRemove();
 		}
 	};
@@ -210,7 +231,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	};
 
 	public ItemMoiraWeapon() {
-		super(0); // TODO add voicelines
+		super(0); 
 		this.maxCharge = 180;
 		this.rechargeRate = 1/5f;
 		this.hasOffhand = true;
@@ -219,16 +240,16 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	}
 
 	@Override
-	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 		
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 	
 		if (hand == EnumHand.OFF_HAND && this.canUse(player, true, hand, false) && this.getCurrentCharge(player) >= 1 && 
-				!KeyBind.RMB.isKeyDown(player)) {
+				!KeyBind.RMB.isKeyDown(player) && !TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
 			this.subtractFromCurrentCharge(player, 1, player.ticksExisted % 10 == 0);
 			if (!world.isRemote) {
 				EntityMoiraHealEnergy energy = new EntityMoiraHealEnergy(world, player, hand.ordinal());
 				EntityHelper.setAim(energy, player, player.rotationPitch, player.rotationYawHead, 30, 0,  
 						hand, 20, 0.6f);
 				world.spawnEntity(energy);
-				if (KeyBind.LMB.isKeyPressed(player))
+				if (KeyBind.LMB.isKeyPressed(player)) 
 					ModSoundEvents.MOIRA_HEAL_START.playFollowingSound(player, world.rand.nextFloat()+0.5F, 1, false);
 				else if (player.ticksExisted % 24 == 0)
 					ModSoundEvents.MOIRA_HEAL_DURING.playFollowingSound(player, world.rand.nextFloat()+0.5F, 1, false);
@@ -277,20 +298,23 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// find new damage target
-		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, false)) {
+		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, false) &&
+				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
 			// start damage
 			if (!TickHandler.hasHandler(player, Identifier.MOIRA_DAMAGE)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 10, false);
 				TickHandler.register(false, DAMAGE.setEntity(player).setEntityLiving(target).setTicks(10));
 				Minewatch.network.sendToDimension(new SPacketSimple(48, player, true, target), world.provider.getDimension());
 				ModSoundEvents.MOIRA_DAMAGE_START.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f, false);
+				if (target != null)
+					ModSoundEvents.MOIRA_DAMAGE_VOICE.playFollowingSound(player, 1, 1, false);
 			}
 
 			// do effects
 			Handler handler = TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE);
 			if (handler != null && handler.entityLiving != null) {
-				EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f, true, true);
-				EntityHelper.heal(player, 1.5f);
+				EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true);
+				EntityHelper.heal(player, 1.5f*4f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
 		}

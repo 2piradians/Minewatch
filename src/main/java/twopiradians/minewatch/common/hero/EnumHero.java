@@ -141,7 +141,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
 			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
 			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
-	BASTION("Bastion", true, false, new Ability(KeyBind.RMB, false, false), 
+	BASTION("Bastion", true, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false, EntityBastion.class,
@@ -256,6 +256,7 @@ public enum EnumHero {
 	public ItemMWToken token;
 
 	public ModSoundEvents reloadSound;
+	public ModSoundEvents selectSound;
 	public boolean smallArms;
 	public Skin[] skinInfo;
 	public String[] skinCredits;

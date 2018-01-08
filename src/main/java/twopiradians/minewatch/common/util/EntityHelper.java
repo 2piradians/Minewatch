@@ -10,6 +10,7 @@ import com.google.common.base.Predicates;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -44,6 +45,7 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -89,8 +91,13 @@ public class EntityHelper {
 		return results;
 	}
 
-	/**Get the position that an entity should be thrown/shot from*/ 
+	/**Get the position that an entity should be thrown/shot from - make sure yaw is rotationYawHead*/ 
 	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		return getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, 1);
+	}
+
+	/**Get the position that an entity should be thrown/shot from - make sure yaw is rotationYawHead*/ 
+	public static Vec3d getShootingPos(EntityLivingBase shooter, float pitch, float yaw, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
 		// adjust based on hand
 		if (hand == EnumHand.OFF_HAND)
 			horizontalAdjust *= -1;
@@ -103,7 +110,7 @@ public class EntityHelper {
 			verticalAdjust += fov / 5f;
 		}
 
-		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw);
+		Vec3d lookVec = getLook(pitch+verticalAdjust, yaw).scale(distance);
 		Vec3d horizontalVec = new Vec3d(-lookVec.zCoord, 0, lookVec.xCoord).normalize().scale(horizontalAdjust);
 		if (pitch+verticalAdjust > 90)
 			horizontalVec = horizontalVec.scale(-1);
@@ -113,18 +120,23 @@ public class EntityHelper {
 
 	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust);
+		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust, 1);
 	}
 
-	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1. Make sure yaw is rotationYawHead*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust);
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, distance);
+	}
+
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
 		boolean friendly = isFriendly(entity);
-		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust);
+		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
 
 		if (shooter instanceof EntityHero)
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
@@ -249,8 +261,9 @@ public class EntityHelper {
 			target = Minewatch.proxy.getClientPlayer();
 		entity = getThrower(entity);
 		target = getThrower(target);
-		// prevent EntityHero attacking/targeting things it shouldn't
-		if (entity instanceof EntityHero && target != null &&
+		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
+		if (entity instanceof EntityHero && target != null && 
+				!(friendly && entity.getTeam() != null && entity.getTeam().isSameTeam(target.getTeam())) &&
 				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
 						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
 						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetPassives == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
@@ -383,7 +396,9 @@ public class EntityHelper {
 
 	/**Spawn healing particles on entity - sends packet to clients if called on server*/
 	public static void spawnHealParticles(Entity entity) {
-		if (entity != null && !TickHandler.hasHandler(entity, Identifier.HEALTH_PARTICLES)) {
+		if (entity != null && !TickHandler.hasHandler(entity, Identifier.HEALTH_PARTICLES) && 
+				!TickHandler.hasHandler(entity, Identifier.MOIRA_FADE) && 
+				!TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE)) {
 			if (!entity.world.isRemote)
 				Minewatch.network.sendToDimension(new SPacketSimple(44, entity, false), entity.world.provider.getDimension());
 			else {
@@ -558,15 +573,80 @@ public class EntityHelper {
 
 	/**Returns angles if e1 was directly facing e2*/
 	public static Vec2f getDirectLookAngles(Entity e1, Entity e2) {
-		Vec3d e1Vec = EntityHelper.getEntityPartialPos(e1);
-		Vec3d e2Vec = EntityHelper.getEntityPartialPos(e2);
-		double d0 = e2Vec.xCoord - e1Vec.xCoord;
-		double d1 = (e2.getEntityBoundingBox().minY + e2.getEntityBoundingBox().maxY) / 2.0D - (e1Vec.yCoord + (double)e1.getEyeHeight());
-		double d2 = e2Vec.zCoord - e1Vec.zCoord;
+		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
+		return getDirectLookAngles(e1EyePos,  
+				getClosestPointOnBoundingBox(e1EyePos, e1.getLookVec(), e2));
+	}
+
+	/**Returns angles if e1 was directly facing e2*/
+	public static Vec2f getDirectLookAngles(Vec3d e1EyePos, Vec3d e2Vec) {
+		double d0 = e2Vec.xCoord - e1EyePos.xCoord;
+		double d1 = e2Vec.yCoord - e1EyePos.yCoord;
+		double d2 = e2Vec.zCoord - e1EyePos.zCoord;
 		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
 		return new Vec2f(facingYaw, facingPitch);
+	}
+
+	/**Get closest point on an e2's bounding box to e1's look*/
+	public static Vec3d getClosestPointOnBoundingBox(Vec3d eyePos, Vec3d lookVec, Entity e2) {
+		Vec3d line1 = eyePos;
+		Vec3d line2 = line1.add(lookVec.scale(30));
+
+		AxisAlignedBB aabb = e2.getEntityBoundingBox();
+		double x = (aabb.maxX - aabb.minX)/2d;
+		double y = (aabb.maxY - aabb.minY)/2d;
+		double z = (aabb.maxZ - aabb.minZ)/2d;
+		Vec3d[] points = new Vec3d[] { // TODO improve
+				new Vec3d(aabb.minX, aabb.minY, aabb.minZ),
+				new Vec3d(aabb.minX, aabb.maxY, aabb.minZ),
+				new Vec3d(aabb.minX, aabb.minY, aabb.maxZ),
+				new Vec3d(aabb.minX, aabb.maxY, aabb.maxZ),
+				new Vec3d(aabb.maxX, aabb.minY, aabb.minZ),
+				new Vec3d(aabb.maxX, aabb.maxY, aabb.minZ),
+				new Vec3d(aabb.maxX, aabb.minY, aabb.maxZ),
+				new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ),
+				aabb.getCenter(),
+				new Vec3d(aabb.minX+x, aabb.minY+y, aabb.minZ+z),
+				new Vec3d(aabb.minX+x, aabb.maxY, aabb.minZ+z),
+				new Vec3d(aabb.minX+x, aabb.minY+y, aabb.maxZ),
+				new Vec3d(aabb.minX+x, aabb.maxY, aabb.maxZ),
+				new Vec3d(aabb.maxX, aabb.minY+y, aabb.minZ+z),
+				new Vec3d(aabb.maxX, aabb.maxY, aabb.minZ+z),
+				new Vec3d(aabb.maxX, aabb.minY+y, aabb.maxZ),
+				new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ)
+		};
+		Vec3d closest = null;
+		double distance = 0;
+		for (Vec3d point : points) {
+			double newDistance = 0;
+			
+			Vec3d v = line2.subtract(line1);
+			Vec3d w = point.subtract(line1);
+
+			double c1 = w.dotProduct(v);
+			if ( c1 <= 0 )
+				newDistance = point.distanceTo(line1);
+
+			double c2 = v.dotProduct(v);
+			if ( c2 <= c1 )
+				newDistance = point.distanceTo(line2);
+
+			double b = c1 / c2;
+			Vec3d Pb = line1.add(v.scale(b));
+			newDistance = point.distanceTo(Pb);
+
+			if (closest == null || newDistance < distance) {
+				closest = point;
+				distance = newDistance;
+			}
+		}
+		
+		// TODO
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
+		
+		return closest;
 	}
 
 	/**Returns maxAngle degrees between e1's look and e2*/
@@ -606,8 +686,9 @@ public class EntityHelper {
 		}
 
 		// debug visualize
-		//RenderManager.boundingBoxesToRender.clear();
+		//RenderManager.boundingBoxesToRender.clear(); // TODO
 		//RenderManager.boundingBoxesToRender.add(aabb);
+		System.out.println(angle); // TODO
 		return angle <= maxAngle ? closest : null;
 	}
 
@@ -668,6 +749,9 @@ public class EntityHelper {
 			float partialTicks = Minewatch.proxy.getRenderPartialTicks();
 			float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 			float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
+			// use yawHead for EntityLivingBase - using prevRotationYawHead is bit buggy (cuz of changing to look where aiming?)
+			if (entity instanceof EntityLivingBase)
+				yaw = ((EntityLivingBase) entity).rotationYawHead;
 			return new Vec2f(pitch, yaw);
 		}
 		return Vec2f.ZERO;

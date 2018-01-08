@@ -153,7 +153,8 @@ public enum ModSoundEvents {
 	HEALTH_PACK_USE,
 	HEALTH_PACK_RESPAWN,
 	
-	HEAL,
+	HEAL, // TODO
+	BASTION_HEAL,
 	MOIRA_DAMAGE_DURING_HIT,
 	MOIRA_DAMAGE_DURING_MISS,
 	MOIRA_DAMAGE_START,
@@ -170,7 +171,33 @@ public enum ModSoundEvents {
 	MOIRA_HEAL_VOICE,
 	MOIRA_DAMAGE_VOICE,
 	MOIRA_ORB_HEAL_VOICE,
-	MOIRA_ORB_DAMAGE_VOICE;
+	MOIRA_ORB_DAMAGE_VOICE,
+	DOOMFIST_SELECT_VOICE,
+	GENJI_SELECT_VOICE,
+	MCCREE_SELECT_VOICE,
+	PHARAH_SELECT_VOICE,
+	REAPER_SELECT_VOICE,
+	SOLDIER76_SELECT_VOICE,
+	SOMBRA_SELECT_VOICE,
+	TRACER_SELECT_VOICE,
+	BASTION_SELECT_VOICE,
+	HANZO_SELECT_VOICE,
+	JUNKRAT_SELECT_VOICE,
+	MEI_SELECT_VOICE,
+	TORBJORN_SELECT_VOICE,
+	WIDOWMAKER_SELECT_VOICE,
+	DVA_SELECT_VOICE,
+	ORISA_SELECT_VOICE,
+	REINHARDT_SELECT_VOICE,
+	ROADHOG_SELECT_VOICE,
+	WINSTON_SELECT_VOICE,
+	ZARYA_SELECT_VOICE,
+	ANA_SELECT_VOICE,
+	LUCIO_SELECT_VOICE,
+	MERCY_SELECT_VOICE,
+	MOIRA_SELECT_VOICE,
+	SYMMETRA_SELECT_VOICE,
+	ZENYATTA_SELECT_VOICE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -189,6 +216,8 @@ public enum ModSoundEvents {
 				this.hero = hero;
 		if (this.hero != null && this.name().contains("RELOAD") && this.hero.reloadSound == null)
 			this.hero.reloadSound = this;
+		else if (this.hero != null && this.name().contains("SELECT_VOICE") && this.hero.selectSound == null)
+			this.hero.selectSound = this;
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
@@ -216,7 +245,7 @@ public enum ModSoundEvents {
 
 	/**Handles voice cooldown - only works for same client / server...*/
 	public boolean shouldPlay(Entity entity) {
-		if (!this.isVoiceLine)
+		if (!this.isVoiceLine) 
 			return true;
 		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;

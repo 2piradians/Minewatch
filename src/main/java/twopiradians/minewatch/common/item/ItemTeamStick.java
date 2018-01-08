@@ -126,8 +126,8 @@ public class ItemTeamStick extends Item {
 		String format2 = TextFormatting.BLUE+"";
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
 		tooltip.add(format1+"RMB:"+format2+" Open Team Stick GUI");
+		tooltip.add(format1+"RMB+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
-		tooltip.add(format1+"RMB+Entity+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
 		tooltip.add(format1+"LMB+Entity+Sneak:"+format2+" Copy team");
 	}
@@ -196,7 +196,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
-		if (!player.world.isRemote) {
+		if (!player.world.isRemote && !player.isSneaking()) {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {

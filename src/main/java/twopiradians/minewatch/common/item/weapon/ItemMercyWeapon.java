@@ -30,7 +30,7 @@ import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -200,7 +200,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 		// add to notRegening if hurt
 		if (target instanceof EntityLivingBase && !target.world.isRemote &&
-				ItemMWArmor.SetManager.getWornSet(target) == EnumHero.MERCY) {
+				SetManager.getWornSet(target) == EnumHero.MERCY) {
 			TickHandler.register(false, NOT_REGENING_SERVER.setEntity(target).setTicks(40));
 			PotionEffect effect = target.getActivePotionEffect(MobEffects.REGENERATION);
 			if (effect != null)

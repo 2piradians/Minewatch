@@ -38,8 +38,16 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			GlStateManager.rotate((Minecraft.getMinecraft().player.ticksExisted+partialTicks)*4f, 0, 1, 0);
 		}
 
+		if (model == 1) {
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
+			GlStateManager.depthMask(false);
+		}
+		else
+			GlStateManager.depthMask(true);
+
 		return (te.getBlockType() == ModBlocks.healthPackLarge && model == 3 && te.getCooldown() <= 0) || 
-				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.getCooldown() <= 0) || model == 0;
+				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.getCooldown() <= 0) || model == 0 || 
+				(model == 1 && te.getCooldown() <= 0);
 	}
 
 	@Override
@@ -63,12 +71,12 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			GlStateManager.disableLighting();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			
+
 			// outside rings
 			GlStateManager.enableTexture2D();
 			this.bindTexture(new ResourceLocation(Minewatch.MODID, "textures/blocks/health_pack_recharge.png"));
 			Gui.drawModalRectWithCustomSizedTexture((int) -size, (int) -size, 0, 0, (int) size*2, (int) size*2, size*2, size*2);
-			
+
 			size -= 3.15f;
 			GlStateManager.disableTexture2D();
 			Tessellator tessellator = Tessellator.getInstance();

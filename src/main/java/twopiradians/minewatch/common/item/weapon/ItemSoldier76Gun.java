@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -94,7 +94,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityLivingBase && 
-				ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) == hero) {
+				SetManager.getWornSet((EntityLivingBase) entity) == hero) {
 			if (!world.isRemote)
 				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, entity instanceof EntityPlayer ? 2 : 0, false, false));
 			hero.ability3.toggle(entity, true);

@@ -191,7 +191,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					this.setExpired();
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
-				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, ((EntityLivingBase)followEntity).rotationYawHead, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 				this.prevPosX = this.posX;
 				this.prevPosY = this.posY;
@@ -210,7 +210,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
 			}
 
-			if (!this.followEntity.isEntityAlive())
+			if (!this.followEntity.isEntityAlive() || TickHandler.hasHandler(followEntity, Identifier.MOIRA_FADE) || 
+					TickHandler.hasHandler(followEntity, Identifier.SOMBRA_INVISIBLE))
 				this.setExpired();
 		}
 	}

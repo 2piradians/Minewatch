@@ -30,6 +30,12 @@ public abstract class BlockHealthPack extends Block {
 		this.setBlockUnbreakable();
 		this.setCreativeTab((CreativeTabs) Minewatch.tabMapMaking);
 	}
+	
+	// PORT 1.12
+	/*@Override 
+	public BlockFaceShape getBlockFaceShape(IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing facing) {
+		return facing == EnumFacing.DOWN ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+	}*/
 
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {

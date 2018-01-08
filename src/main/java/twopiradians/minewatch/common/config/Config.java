@@ -66,6 +66,7 @@ public class Config {
 	public static double healthPackHealMultiplier;
 	public static double healthPackRespawnMultiplier;
 	public static double ammoMultiplier;
+	public static boolean tokenDropRequiresPlayer;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -217,6 +218,12 @@ public class Config {
 			prop.set(ammoMultiplier);
 		else
 			ammoMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drops Require Player", false, "Should tokens only drop from mobs killed by a player?");
+		if (overriding)
+			prop.set(tokenDropRequiresPlayer);
+		else
+			tokenDropRequiresPlayer = prop.getBoolean();
 
 		// Hero Mob options
 

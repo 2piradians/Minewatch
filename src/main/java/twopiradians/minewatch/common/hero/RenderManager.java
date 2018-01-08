@@ -146,7 +146,7 @@ public class RenderManager {
 
 		// ItemMWWeapon#preRenderEntity
 		ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
-		if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+		if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == SetManager.getWornSet(event.getEntity())) {
 			GlStateManager.color(1, 1, 1, 1f);
 			GlStateManager.pushMatrix();
 			((ItemMWWeapon)stack.getItem()).preRenderEntity(event);
@@ -159,7 +159,7 @@ public class RenderManager {
 	public static void postRender(RenderLivingEvent.Post<EntityLivingBase> event) {
 		// ItemMWWeapon#postRenderEntity
 		ItemStack stack = EntityHelper.getHeldItem(event.getEntity(), ItemMWWeapon.class, EnumHand.MAIN_HAND);
-		if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == ItemMWArmor.SetManager.getWornSet(event.getEntity())) {
+		if (stack != null && ((ItemMWWeapon)stack.getItem()).hero == SetManager.getWornSet(event.getEntity())) {
 			GlStateManager.color(1, 1, 1, 1f);
 			GlStateManager.pushMatrix();
 			((ItemMWWeapon)stack.getItem()).postRenderEntity(event);
@@ -173,7 +173,7 @@ public class RenderManager {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		if (player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
-				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == ItemMWArmor.SetManager.getWornSet(player)) {
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == SetManager.getWornSet(player)) {
 			GlStateManager.color(1, 1, 1, 1f);
 			GlStateManager.pushMatrix();
 			((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
@@ -218,7 +218,7 @@ public class RenderManager {
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
 			EntityPlayer player = Minecraft.getMinecraft().player;
-			EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
+			EnumHero hero = SetManager.getWornSet(player);
 			EnumHand hand = null;
 			for (EnumHand hand2 : EnumHand.values())
 				if (player.getHeldItem(hand2) != null && player.getHeldItem(hand2).getItem() instanceof ItemMWWeapon && (((ItemMWWeapon)player.getHeldItem(hand2).getItem()).hero == hero || hand == null || ((ItemMWWeapon)player.getHeldItem(hand).getItem()).hero != hero)) {
@@ -321,7 +321,7 @@ public class RenderManager {
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
 		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
 			EntityPlayer player = Minecraft.getMinecraft().player;
-			EnumHero hero = ItemMWArmor.SetManager.getWornSet(player);
+			EnumHero hero = SetManager.getWornSet(player);
 			ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 
 			// hero information screen
@@ -367,7 +367,7 @@ public class RenderManager {
 					if (weapon.getMaxAmmo(player) == 0) 
 						GuiUtils.drawTexturedModalRect(18, -3, 13, 239, 6, 4, 0);
 
-					if (hero != null && weapon.hero == hero && ItemMWArmor.SetManager.getWornSet(player) != null) {
+					if (hero != null && weapon.hero == hero && SetManager.getWornSet(player) != null) {
 						for (int i=1; i<=3; ++i) {
 							Minecraft.getMinecraft().getTextureManager().bindTexture(ABILITY_OVERLAY);
 							Ability ability = hero.getAbility(i);
@@ -463,7 +463,7 @@ public class RenderManager {
 	public static void hurtTime(TickEvent.RenderTickEvent event) {
 		// limit hurt time when wearing full set
 		if (Minecraft.getMinecraft().player != null && 
-				ItemMWArmor.SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
+				SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
 			Minecraft.getMinecraft().player.hurtTime = Math.min(5, Minecraft.getMinecraft().player.hurtTime);
 	}
 
@@ -492,7 +492,7 @@ public class RenderManager {
 			player = (EntityPlayerMP) ((IThrowableEntity) event.getSource().getSourceOfDamage()).getThrower();
 
 		if (player != null && event.getEntityLiving() != null && player != event.getEntityLiving()) {
-			if (!player.world.isRemote && ItemMWArmor.SetManager.getWornSet(player) != null) {
+			if (!player.world.isRemote && SetManager.getWornSet(player) != null) {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
@@ -530,7 +530,7 @@ public class RenderManager {
 					int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
 					if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
 						// reset genji strike cooldown
-						if (ItemMWArmor.SetManager.getWornSet(uuid) == EnumHero.GENJI) {
+						if (SetManager.getWornSet(uuid) == EnumHero.GENJI) {
 							EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
 							Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
 							if (handler != null)
@@ -585,7 +585,7 @@ public class RenderManager {
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_circle.png"));
 		for (Entity entity : Minecraft.getMinecraft().world.loadedEntityList) {
-			if (entity instanceof EntityLivingBase && ItemMWArmor.SetManager.getWornSet(entity) == EnumHero.LUCIO && 
+			if (entity instanceof EntityLivingBase && SetManager.getWornSet(entity) == EnumHero.LUCIO && 
 					((EntityLivingBase) entity).getHeldItemMainhand() != null && 
 					((EntityLivingBase) entity).getHeldItemMainhand().getItem() == EnumHero.LUCIO.weapon &&
 					EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, true)) {

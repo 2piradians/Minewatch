@@ -86,6 +86,9 @@ public class CommandMinewatch implements ICommand {
 							}
 							sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name+
 									(args.length == 3 ? " on "+entity.getName() : "")));
+							// sync inventory - needed for when called from GuiTab
+							if (sender instanceof EntityPlayerMP)
+								((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
 						}
 			}
 			else

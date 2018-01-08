@@ -42,7 +42,7 @@ public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.7";
+    public static final String VERSION = "3.8";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tabMinewatch = new MinewatchTab("tabMinewatch");

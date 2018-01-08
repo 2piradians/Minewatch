@@ -33,7 +33,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -56,7 +56,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// send keep-alive packet to client
 			if (this.entityLiving != null && this.entity instanceof EntityLivingBase 
 					&& (this.ticksLeft-1) % 20 == 0 && ((EntityLivingBase)this.entity).canEntityBeSeen(this.entityLiving) &&
-					ItemMWArmor.SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
+					SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
 				this.ticksLeft = 60;
 				Minewatch.network.sendToDimension(new SPacketSimple(42, this.entity, true, this.entityLiving), this.entity.world.provider.getDimension());
 			}
@@ -95,7 +95,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// send keep-alive packet to client
 			if (this.entityLiving != null && this.entity instanceof EntityLivingBase 
 					&& (this.ticksLeft-1) % 20 == 0 && ((EntityLivingBase)this.entity).canEntityBeSeen(this.entityLiving) &&
-					ItemMWArmor.SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
+					SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
 				this.ticksLeft = 60;
 				Minewatch.network.sendToDimension(new SPacketSimple(43, this.entity, true, this.entityLiving), this.entity.world.provider.getDimension());
 			}

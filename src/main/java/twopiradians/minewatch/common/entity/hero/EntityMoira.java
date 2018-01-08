@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.entity.hero;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHealBase;
@@ -41,22 +42,33 @@ public class EntityMoira extends EntityHero {
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			if (canSee && this.isFacingTarget()) 
-				if (distance <= Math.sqrt(this.maxAttackDistance)) {
-					// discord
-					if (this.entity.shouldUseAbility() && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == target, false))
-						this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
-					else
-						this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+			// fade
+			if (this.entity.shouldUseAbility())
+				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
+			else
+				this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
 
-					// normal attack
-					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
-					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
-				}
-				else { // charge volley if out of range
-					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
+			if (canSee && this.isFacingTarget()) {
+				// orb
+				if (this.entity.shouldUseAbility() && KeyBind.ABILITY_2.getCooldown(entity) <= 0) {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 				}
+				// normal attack
+				else if (distance <= Math.sqrt(this.maxAttackDistance)) {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
+				}
+				else {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+				}
+
+
+			}
 			else 
 				this.resetKeybinds();
 		}
@@ -71,19 +83,32 @@ public class EntityMoira extends EntityHero {
 
 		@Override
 		public boolean shouldExecute() {
-			return super.shouldExecute() && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == entity.healTarget, false);
+			return super.shouldExecute() && this.entity.hero.weapon.getCurrentCharge(this.entity) > 0;
 		}
 
 		@Override
 		protected void attackTarget(EntityLivingBase target, boolean canSee, double distance) {
 			super.attackTarget(target, canSee, distance);
 
-			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
-				// harmony
-				this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+			if (canSee && this.isFacingTarget()) { 
+				// orb
+				if (this.entity.shouldUseAbility() && KeyBind.ABILITY_2.getCooldown(entity) <= 0) {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+				}// heal
+				else if (distance <= Math.sqrt(this.maxAttackDistance)*0.7f) {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+				}
+				else {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
+				}
 
-				this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
-				this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+
 			}
 			else 
 				this.resetKeybinds();

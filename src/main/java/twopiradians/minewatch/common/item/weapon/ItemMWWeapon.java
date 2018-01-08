@@ -54,8 +54,8 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.IChangingModel;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -102,7 +102,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		public boolean onServerTick() {
 			if (entityLiving != null && currentChargeServer.containsKey(entityLiving.getPersistentID()) && 
 					currentChargeServer.get(entityLiving.getPersistentID()) < maxCharge) {
-				if (entityLiving.ticksExisted > this.number)
+				if (entityLiving.ticksExisted > this.number+3)
 					currentChargeServer.put(entityLiving.getPersistentID(), Math.min(maxCharge, currentChargeServer.get(entityLiving.getPersistentID())+rechargeRate));
 				this.ticksLeft = 2;
 			}
@@ -122,7 +122,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (player != null)
 			if (!player.world.isRemote && currentChargeServer.containsKey(player.getPersistentID())) 
 				return currentChargeServer.get(player.getPersistentID());
-			else if (player.world.isRemote && this.currentChargeClient >= 0)
+			else if (player.world.isRemote && this.currentChargeClient >= 0 && player == Minewatch.proxy.getClientPlayer())
 				return currentChargeClient;
 		return this.maxCharge;
 	}
@@ -137,9 +137,9 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 				handler.setNumber(player.ticksExisted);
 			else if (amount < this.maxCharge)
 				TickHandler.register(player.world.isRemote, this.CHARGE_RECOVERY.setEntity(player).setTicks(2));
-			if (player.world.isRemote)
+			if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer())
 				currentChargeClient = amount;
-			else 
+			else if (!player.world.isRemote)
 				currentChargeServer.put(player.getPersistentID(), amount);
 		}
 	}
@@ -149,7 +149,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (charge - amount > 0.5f)
 			this.setCurrentCharge(player, charge-amount, sendPacket);
 		else {
-			this.setCooldown(player, 30);
+			this.setCooldown(player, 20);
 			this.setCurrentCharge(player, 0, sendPacket);
 		}
 	}
@@ -342,7 +342,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		// right click - for EntityHeroes
 		if (entity instanceof EntityHero)
 			if (KeyBind.RMB.isKeyPressed((EntityLivingBase) entity) || 
-					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()))
+					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()) &&
+					entity.ticksExisted % 4 == 0)
 				this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 			else if (KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
 				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityHero) entity).getItemInUseCount());

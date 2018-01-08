@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
@@ -36,7 +37,7 @@ import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -133,7 +134,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 
 			// passive
 			if (doPassive && this.canUse(player, true, EnumHand.MAIN_HAND, true, hero.ability1, hero.ability2) &&
-					ItemMWArmor.SetManager.getWornSet(player) == hero) {
+					SetManager.getWornSet(player) == hero) {
 				if (world.isRemote && player == Minewatch.proxy.getClientPlayer())
 					this.affectedEntities = 0;
 				else if (!world.isRemote && player instanceof EntityLucio)
@@ -143,7 +144,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 								player.getPosition().add(10, 10, 10))))
 					// nearby
 					if (entity2 instanceof EntityLivingBase && entity2.getDistanceToEntity(player) <= 10 &&
-					EntityHelper.shouldHit(player, entity2, true)) {
+					EntityHelper.shouldHit(player, entity2, true) && !(entity2 instanceof EntityArmorStand)) {
 						if (!world.isRemote) {
 							if (heal)
 								EntityHelper.attemptDamage(player, entity2, amp ? -7.02f : -2.4375f, true);
@@ -218,7 +219,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			UUID uuid = event.getEntityLiving().getPersistentID();
 			boolean heal = ItemMWWeapon.isAlternate(main);
 			// stop sounds if not holding amplifier
-			if (ItemMWArmor.SetManager.getWornSet(event.getEntityLiving()) != EnumHero.LUCIO ||
+			if (SetManager.getWornSet(event.getEntityLiving()) != EnumHero.LUCIO ||
 					main == null || main.getItem() != this) {
 				FollowingSound.stopPlaying(healSounds.get(uuid));
 				FollowingSound.stopPlaying(speedSounds.get(uuid));
@@ -254,7 +255,7 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && 
-				ItemMWArmor.SetManager.getWornSet(player) == hero) {
+				SetManager.getWornSet(player) == hero) {
 			// passive speed / heal
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

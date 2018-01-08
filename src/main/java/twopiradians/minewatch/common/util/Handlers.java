@@ -38,8 +38,7 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (this.entity != null && !this.entity.isGlowing() && (this.entityLiving == null || 
-					EntityHelper.shouldTarget(entityLiving, Minewatch.proxy.getRenderViewEntity(), true)))
+			if (this.entity != null && !this.entity.isGlowing())
 				this.entity.setGlowing(true);
 
 			return super.onClientTick();

@@ -117,7 +117,6 @@ import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
@@ -320,7 +319,6 @@ public class ClientProxy extends CommonProxy {
 		for (int i=0; i<6; ++i)
 			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/lucio_sonic"));
-		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/moira_damage"));
 		RenderMoiraOrb.sprite = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/particle/moira_orb"));
 	}
 

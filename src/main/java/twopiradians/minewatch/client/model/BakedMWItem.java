@@ -60,7 +60,7 @@ public class BakedMWItem extends OBJBakedModel {
 	@Override
 	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {			
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
-
+	
 		Pair<? extends IBakedModel, Matrix4f> ret = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.getState(), cameraTransformType);
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)

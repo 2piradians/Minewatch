@@ -17,8 +17,6 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -51,7 +49,6 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
-import twopiradians.minewatch.common.entity.hero.EntityMoira;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -86,11 +83,11 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			// stop handler
-			if (entityLiving.getHeldItemMainhand() == null || 
+			if (entityLiving == null || entityLiving.getHeldItemMainhand() == null || 
 					entityLiving.getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
 					!EnumHero.MOIRA.ability2.isSelected(entityLiving) || 
 					!EnumHero.MOIRA.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, true)) {
-				ModSoundEvents.MOIRA_ORB_DESELECT.playFollowingSound(player, 1, 1, false);
+				ModSoundEvents.MOIRA_ORB_DESELECT.playFollowingSound(entityLiving, 1, 1, false);
 				return true;
 			}
 			// spawn orb
@@ -103,12 +100,12 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 				EnumHero.MOIRA.ability2.keybind.setCooldown(entityLiving, 200, false); 
 				EnumHero.MOIRA.weapon.setCooldown(entityLiving, 20);
 				if (heal) {
-					ModSoundEvents.MOIRA_ORB_HEAL_THROW.playFollowingSound(player, 1, 1, false);
-					ModSoundEvents.MOIRA_ORB_HEAL_VOICE.playFollowingSound(player, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_HEAL_THROW.playFollowingSound(entityLiving, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_HEAL_VOICE.playFollowingSound(entityLiving, 1, 1, false);
 				}
 				else {
-					ModSoundEvents.MOIRA_ORB_DAMAGE_THROW.playFollowingSound(player, 1, 1, false);
-					ModSoundEvents.MOIRA_ORB_DAMAGE_VOICE.playFollowingSound(player, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_DAMAGE_THROW.playFollowingSound(entityLiving, 1, 1, false);
+					ModSoundEvents.MOIRA_ORB_DAMAGE_VOICE.playFollowingSound(entityLiving, 1, 1, false);
 				}
 				return true;
 			}
@@ -121,7 +118,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		}
 		@Override
 		public Handler onServerRemove() {
-			Minewatch.network.sendToDimension(new SPacketSimple(49, player, false), entityLiving.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(49, entityLiving, false), entityLiving.world.provider.getDimension());
 			return super.onServerRemove();
 		}
 	};
@@ -132,7 +129,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		public boolean onClientTick() {
 			// basic checks
 			if (!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
-					((EntityLivingBase)entity).getHeldItemMainhand() == null || ((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
+					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
 					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity)) 
 				return true;
 			// find new target / clear target
@@ -160,8 +158,10 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		public boolean onServerTick() {
 			// basic checks
 			if (!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
-					((EntityLivingBase)entity).getHeldItemMainhand() == null || ((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
-					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
+					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
+					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || 
+					EnumHero.MOIRA.weapon.hasCooldown(entity)) 
 				return true;
 			// find new target / clear target
 			else if (entity.ticksExisted % 5 == 0) {
@@ -177,7 +177,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		}
 		@Override
 		public Handler onServerRemove() {
-			EnumHero.MOIRA.ability2.keybind.setCooldown(entityLiving, 120, false); 
 			Minewatch.network.sendToDimension(new SPacketSimple(48, entity, false),  entity.world.provider.getDimension());
 			return super.onServerRemove();
 		}
@@ -266,6 +265,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
+			EntityHelper.getTargetInFieldOfVision(player, 21, 10, false); // TODO
 
 			// fade
 			if (hero.ability3.isSelected(player, true) && !world.isRemote &&
@@ -273,7 +273,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(16).setAbility(hero.ability3),
 						FADE.setEntity(player).setTicks(16)); 
-				Minewatch.network.sendToAll(new SPacketSimple(47, player, false));
+				Minewatch.network.sendToDimension(new SPacketSimple(47, player, false), world.provider.getDimension());
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 16, 16, true, false));
 				player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 16, 0, true, false));
 				player.extinguish();
@@ -283,7 +283,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			}
 
 			// orb select
-			if (hero.ability2.isSelected(player, true) && !world.isRemote && 
+			if (hero.ability2.isSelected(player, player instanceof EntityPlayer) && !world.isRemote && 
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				Handler handler =  TickHandler.getHandler(player, Identifier.MOIRA_ORB_SELECT);
 				if (handler == null) {
@@ -299,7 +299,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// find new damage target
 		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, false) &&
-				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
+				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) { // TODO up close
 			// start damage
 			if (!TickHandler.hasHandler(player, Identifier.MOIRA_DAMAGE)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 10, false);
@@ -351,10 +351,13 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			GlStateManager.color(1, 1, 1, (float) (0.4f+Math.abs(Math.sin(handler.entity.ticksExisted/5d))/3d));
 			vertexbuffer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
 
+			Vec3d entityPos = EntityHelper.getEntityPartialPos(handler.entity);
+			Vec3d entityLivingPos = EntityHelper.getEntityPartialPos(handler.entityLiving);
 			Vec2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
-			Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) handler.entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f).subtract(EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()));
+			Vec3d shooting = EntityHelper.getShootingPos((EntityLivingBase) handler.entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f);
+			Vec3d vec = shooting.subtract(EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()));
 			if (handler.entityLiving != null) {
-				rotations = EntityHelper.getDirectLookAngles(handler.entity, handler.entityLiving);
+				rotations = EntityHelper.getDirectLookAngles(shooting, entityLivingPos.addVector(0, handler.entityLiving.height/2f, 0));
 				rotations = new Vec2f(rotations.y, rotations.x);
 			}
 			double x = vec.xCoord; 
@@ -368,7 +371,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 
 			Minecraft.getMinecraft().getTextureManager().bindTexture(handler.entityLiving == null ? DAMAGE_BEAM_MISS : DAMAGE_BEAM_HIT);
 
-			double distance = handler.entityLiving == null ? 5 : handler.entityLiving.getDistanceToEntity(handler.entity);
+			double distance = handler.entityLiving == null ? 5 : handler.entityLiving.getDistanceToEntity(handler.entity)-handler.entity.width/2f-handler.entityLiving.width/2f;
 			double size = handler.entityLiving == null ? 5 : 2;
 			double deg_to_rad = 0.0174532925d;
 			double precision = 0.05d;
@@ -406,14 +409,14 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
 		boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
 		// damage
-		if (select || KeyBind.RMB.isKeyDown(entity)) {
+		if (select || (KeyBind.RMB.isKeyDown(entity) && !this.hasCooldown(entity))) {
 			model.bipedRightArmwear.rotateAngleX = 5;
 			model.bipedRightArm.rotateAngleX = 5;
 			model.bipedRightArmwear.rotateAngleY = 0.2f;
 			model.bipedRightArm.rotateAngleY = 0.2f;
 		}
 		// heal
-		if (select || (KeyBind.LMB.isKeyDown(entity) && !KeyBind.RMB.isKeyDown(entity))) {
+		if (select || (KeyBind.LMB.isKeyDown(entity) && !KeyBind.RMB.isKeyDown(entity) && !this.hasCooldown(entity))) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
 			model.bipedLeftArmwear.rotateAngleY = -0.2f;
@@ -435,7 +438,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {
 		boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
 		// damage
-		if (select || (KeyBind.RMB.isKeyDown(entity) && entity != null)) {
+		if (select || (KeyBind.RMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
 			if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) {
 				GlStateManager.rotate(50, 29f, -10f, -1.2f);
 				GlStateManager.translate(0.15f, 0.5f, -0.11f);
@@ -444,7 +447,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 				ret.getRight().setScale(0);
 		}
 		// heal
-		if (select || (!KeyBind.RMB.isKeyDown(entity) && KeyBind.LMB.isKeyDown(entity) && entity != null)) {
+		if (select || (!KeyBind.RMB.isKeyDown(entity) && KeyBind.LMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
 			if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) {
 				GlStateManager.rotate(50, 29f, 10f, 1.2f);
 				GlStateManager.translate(-0.15f, 0.5f, -0.11f);

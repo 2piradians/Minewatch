@@ -10,13 +10,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ItemTeamStick;
@@ -162,7 +167,8 @@ public class CPacketSimple implements IMessage {
 					}
 					// check if opped
 					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null) {
-						if (packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile()))
+						if (packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile()) ||
+								CommandDev.DEVS.contains(packetPlayer.getPersistentID()))
 							Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
 					}
 					// Wild Card Token selection
@@ -255,6 +261,10 @@ public class CPacketSimple implements IMessage {
 							}
 						}
 						catch (Exception e) {}
+					}
+					// GuiTab select hero
+					else if (packet.type == 11 && packetPlayer != null && packetPlayer.world.getMinecraftServer() != null) {
+						packetPlayer.world.getMinecraftServer().commandManager.executeCommand(packetPlayer, packet.string);
 					}
 				}
 			});

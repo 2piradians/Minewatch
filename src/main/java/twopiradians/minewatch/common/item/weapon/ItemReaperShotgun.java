@@ -52,7 +52,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -341,7 +341,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			EntityLivingBase source = ((EntityLivingBase)event.getSource().getEntity());
 			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
-			if (!source.world.isRemote && ItemMWArmor.SetManager.getWornSet(source) == hero) {
+			if (!source.world.isRemote && SetManager.getWornSet(source) == hero) {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());

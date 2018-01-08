@@ -33,7 +33,7 @@ import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -48,7 +48,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			if (this.entity != null && this.entity.isEntityAlive() && this.entityLiving != null && 
-					ItemMWArmor.SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
+					SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
 					!this.entityLiving.canEntityBeSeen(entity) && entity instanceof EntityLivingBase && 
 					((EntityLivingBase)entity).getHealth() > 0 &&
 					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f &&
@@ -82,7 +82,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.ticksLeft == 5 && this.entityLiving != null) {
 				entityLiving.fallDistance = 0;
-				entityLiving.setPositionAndUpdate(this.position.xCoord, this.position.yCoord, this.position.zCoord);
+				entityLiving.attemptTeleport(this.position.xCoord, this.position.yCoord, this.position.zCoord);
 			}
 
 			return super.onServerTick();
@@ -195,7 +195,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// throw new translocator
 				else {
 					translocator = new EntitySombraTranslocator(world, player);
-					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0, -0.5f);
 					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
 					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

@@ -1,6 +1,7 @@
 package twopiradians.minewatch.client.gui.tab;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
@@ -74,12 +75,13 @@ public class GuiTab extends GuiScreen {
 		TabRegistry.updateTabValues(this.guiLeft, this.guiTop, InventoryTab.class);
 		TabRegistry.addTabsToList(this.buttonList);
 
+		// check to add OP buttons
+		Minewatch.network.sendToServer(new CPacketSimple(1, false, mc.player));
+
 		// Screen.MAIN
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-25, 95, 20, "Maps", Screen.MAIN));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+0, 95, 20, "Hero Gallery", Screen.MAIN));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+25, 95, 20, "Options", Screen.MAIN));
-		if (!this.mc.isSingleplayer())
-			Minewatch.network.sendToServer(new CPacketSimple(1, false, mc.player));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+50, 95, 20, "Submit a Skin/Map", Screen.MAIN));
 		// Screen.MAPS
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
@@ -99,7 +101,7 @@ public class GuiTab extends GuiScreen {
 		// Screen.GALLERY_HERO
 		this.buttonList.add(new GuiButtonGalleryHero(1, this.guiLeft+12, this.guiTop+40, 100, 20, "", Screen.GALLERY_HERO)); //Skins
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO)); 
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+6, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO)); 
 		// Screen.GALLERY_HERO_INFO
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_INFO));
 		// Screen.GALLERY_HERO_SKINS
@@ -252,6 +254,8 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY_HERO_INFO;
 			else if (button.id == 1) // skins
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS;
+			else if (button.displayString.equals("SELECT") && galleryHero != null) 
+				Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+galleryHero.name, mc.player));
 			break;
 		case GALLERY_HERO_INFO:
 			if (button.displayString.equals("OK"))
@@ -348,9 +352,18 @@ public class GuiTab extends GuiScreen {
 		GuiInventory.drawEntityOnScreen(x, y, scale, -mouseX+x, -mouseY+y-this.guiPlayer.eyeHeight*scale, this.guiPlayer);
 	}
 
-	public static void addOppedButton() {
-		if (activeTab != null)
-			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+25, 20, 20, "", Screen.MAIN));
+	public static void addOppedButtons() {
+		if (activeTab != null) {
+			if (!Minecraft.getMinecraft().isSingleplayer())
+				activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+25, 20, 20, "", Screen.MAIN));
+			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+X_SIZE/2-58/2, activeTab.guiTop+Y_SIZE-29, 58, 20, "SELECT", 0xFFB43D, Screen.GALLERY_HERO));
+		}
+	}
+
+	/**To make public*/
+	@Override
+	public void drawHoveringText(List<String> textLines, int x, int y) {
+		super.drawHoveringText(textLines, x, y);
 	}
 
 }

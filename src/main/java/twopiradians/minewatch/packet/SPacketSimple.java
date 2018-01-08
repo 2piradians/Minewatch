@@ -43,7 +43,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -408,7 +408,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// add opped button to tab
 					else if (packet.type == 18) {
-						GuiTab.addOppedButton();
+						GuiTab.addOppedButtons();
 					}
 					// Mercy's Angel
 					else if (packet.type == 19 && entity != null) {
@@ -712,7 +712,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 47 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
 								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
-						TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE));
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
 						if (player == entity)
 							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
@@ -734,6 +734,19 @@ public class SPacketSimple implements IMessage {
 						}
 						else
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_ORB_SELECT));
+					}
+					// Select hero voice line
+					else if (packet.type == 50 && packetPlayer == player) {
+						EnumHero hero = SetManager.getWornSet(player);
+						if (hero != null && hero.selectSound != null)
+							hero.selectSound.playFollowingSound(player, 0.5f, 1.0f, false);
+					}
+					// McCree's fan the hammer
+					else if (packet.type == 51 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemMcCreeGun.FAN.setEntity(entity).setTicks(5));
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MCCREE_FAN));
 					}
 				}
 			});

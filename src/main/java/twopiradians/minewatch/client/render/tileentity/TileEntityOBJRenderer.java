@@ -105,6 +105,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			this.postRender(te, i, buffer, x, y, z, partialTicks); 
 
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 			GlStateManager.popMatrix();
 			GlStateManager.disableRescaleNormal();
 			GlStateManager.disableBlend();
@@ -132,7 +133,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 
 		@Override
 		public Optional<TRSRTransformation> apply(Optional<? extends IModelPart> part) {
-			
+
 			if(part.isPresent()) {
 				// This whole thing is subject to change, but should do for now.
 				UnmodifiableIterator<String> parts = Models.getParts(part.get());

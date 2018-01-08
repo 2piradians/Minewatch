@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 
 public class ItemJunkratTrigger extends Item implements IChangingModel {
 
@@ -41,7 +41,7 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 		if (!world.isRemote) {
 			// if not wearing full set, mine is dead, or main is not junkrat's launcher
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
-					(ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||
+					(SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||
 					EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) {

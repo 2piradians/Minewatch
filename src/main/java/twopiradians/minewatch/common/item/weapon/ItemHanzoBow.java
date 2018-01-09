@@ -91,7 +91,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						hero.ability2.keybind.setCooldown(player, 400, false); 
 
-						ModSoundEvents.HANZO_SONIC_ARROW.playSound(player, 1.0f, 1.0f);
+						ModSoundEvents.HANZO_SONIC_VOICE.playSound(player, 1.0f, 1.0f);
 					}
 					// scatter arrow
 					else if (hero.ability1.isSelected(player)) {
@@ -101,7 +101,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						hero.ability1.keybind.setCooldown(player, 200, false); 
 
 						if (worldIn.rand.nextBoolean())
-							ModSoundEvents.HANZO_SCATTER_ARROW.playSound(player, 1.0f, 1.0f);
+							ModSoundEvents.HANZO_SCATTER_VOICE.playSound(player, 1.0f, 1.0f);
 					}
 					// regular arrow
 					else { 

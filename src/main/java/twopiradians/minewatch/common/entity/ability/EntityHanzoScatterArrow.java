@@ -34,7 +34,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 	
 	@Override
 	public void spawnTrailParticles() {
-		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 1, 20, 1);
+		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5EDCE5, 0x007acc, 0.8f, 10, 1);
 	}
 
 	@Override
@@ -43,6 +43,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 		if (!this.world.isRemote && result.typeOfHit == RayTraceResult.Type.BLOCK && this.shootingEntity instanceof EntityLivingBase) 
 			// scatter
 			if (scatter) {
+				EntityHelper.bounce(this, result.sideHit, 0.1d, 1.3d);
 				for (int i=0; i<6; ++i) {
 					EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
 					entityarrow.setDamage(this.getDamage());
@@ -52,13 +53,6 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 					entityarrow.motionY = this.motionY;
 					entityarrow.motionZ = this.motionZ;
 
-					if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-						entityarrow.motionY *= -1.3d;
-					else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-						entityarrow.motionZ *= -1.3d;
-					else 
-						entityarrow.motionX *= -1.3d;
-
 					entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
 					entityarrow.getDataManager().set(VELOCITY, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
 					this.world.spawnEntity(entityarrow);
@@ -67,12 +61,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 			}
 		// bounce if not scatter
 			else {
-				if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-					this.motionY *= -1.3d;
-				else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-					this.motionZ *= -1.3d;
-				else 
-					this.motionX *= -1.3d;
+				EntityHelper.bounce(this, result.sideHit, 0.1d, 1.3d);
 				this.getDataManager().set(VELOCITY, new Rotations((float) this.motionX, (float) this.motionY, (float) this.motionZ));
 			}
 		else

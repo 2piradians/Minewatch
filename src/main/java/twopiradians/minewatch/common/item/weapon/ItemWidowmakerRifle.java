@@ -87,7 +87,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// venom mine
-			if (!world.isRemote && hero.ability1.isSelected(player) && 
+			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);

@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -113,7 +114,7 @@ public class Ability {
 	}
 
 	/**Is this ability selected and able to be used (for abilities with alternate keybinds, like Tracer's Blink)*/
-	public boolean isSelected(EntityLivingBase entity, KeyBind keybind) {
+	public boolean isSelected(EntityLivingBase entity, boolean isPressed, KeyBind keybind) {
 		if (entity.world.isRemote && this.getCooldown(entity) > 0 && keybind.isKeyDown(entity) &&
 				!TickHandler.hasHandler(entity, Identifier.KEYBIND_ABILITY_NOT_READY)/* && 
 				(this.maxUses == 0 || this.getUses(entity) == 0)*/) {
@@ -123,7 +124,7 @@ public class Ability {
 
 		KeyBind prev = this.keybind;
 		this.keybind = keybind;
-		boolean ret = isSelected(entity) && prev.getCooldown(entity) == 0;
+		boolean ret = isSelected(entity, isPressed) && prev.getCooldown(entity) == 0;
 		this.keybind = prev;
 
 		if (this.hero == EnumHero.TRACER && this.keybind == KeyBind.RMB)
@@ -194,7 +195,7 @@ public class Ability {
 		if (entity != null && !entity.world.isRemote && getUses(entity) > 0) {
 			multiAbilityUses.put(entity.getPersistentID(), multiAbilityUses.get(entity.getPersistentID())-1);
 			if (!TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
-				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(useCooldown));
+				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(Math.max(1, (int) (useCooldown*Config.abilityCooldownMultiplier))));
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(
 						new SPacketSyncAbilityUses(entity.getPersistentID(), hero, getNumber(), 

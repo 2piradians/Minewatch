@@ -50,7 +50,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
 		// dash
-		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack && (hero.ability2.isSelected((EntityLivingBase) entity, true) || hero.ability2.isSelected((EntityLivingBase) entity, true, Keys.KeyBind.RMB)) &&
 				!world.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 			entity.setSneaking(false);
 			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, world.rand.nextFloat()/2f+0.75f);

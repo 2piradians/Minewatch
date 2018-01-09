@@ -28,6 +28,7 @@ public class PacketSyncConfig implements IMessage {
 	private double healthPackRespawnMultiplier;
 	private double ammoMultiplier;
 	private boolean tokenDropRequiresPlayer;
+	private double abilityCooldownMultiplier;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -56,6 +57,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healthPackRespawnMultiplier = Config.healthPackRespawnMultiplier;
 		this.ammoMultiplier = Config.ammoMultiplier;
 		this.tokenDropRequiresPlayer = Config.tokenDropRequiresPlayer;
+		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -86,6 +88,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healthPackRespawnMultiplier = buf.readDouble();
 		this.ammoMultiplier = buf.readDouble();
 		this.tokenDropRequiresPlayer = buf.readBoolean();
+		this.abilityCooldownMultiplier = buf.readDouble();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -116,6 +119,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.healthPackRespawnMultiplier);
 		buf.writeDouble(this.ammoMultiplier);
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
+		buf.writeDouble(this.abilityCooldownMultiplier);
 
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -145,6 +149,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.healthPackRespawnMultiplier = this.healthPackRespawnMultiplier;
 		Config.ammoMultiplier = this.ammoMultiplier;
 		Config.tokenDropRequiresPlayer = this.tokenDropRequiresPlayer;
+		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

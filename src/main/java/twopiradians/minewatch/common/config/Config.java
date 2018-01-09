@@ -67,6 +67,7 @@ public class Config {
 	public static double healthPackRespawnMultiplier;
 	public static double ammoMultiplier;
 	public static boolean tokenDropRequiresPlayer;
+	public static double abilityCooldownMultiplier;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -224,6 +225,12 @@ public class Config {
 			prop.set(tokenDropRequiresPlayer);
 		else
 			tokenDropRequiresPlayer = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ability Cooldown Multiplier", 1d, "Multiplied by the default cooldown for abilities. For example with this set to 2, abilities will have twice the normal cooldown.", 0, 10);
+		if (overriding)
+			prop.set(abilityCooldownMultiplier);
+		else
+			abilityCooldownMultiplier = prop.getDouble();
 
 		// Hero Mob options
 

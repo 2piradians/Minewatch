@@ -122,27 +122,7 @@ public class EntityMoiraOrb extends EntityMW {
 				this.bounceSoundCooldown = 4;
 			}
 
-			// bounce
-			switch(result.sideHit) {
-			case DOWN:
-				this.motionY = -Math.max(Math.abs(this.motionY), 0.1d);
-				break;
-			case EAST:
-				this.motionX = Math.max(Math.abs(this.motionX), 0.1d);
-				break;
-			case NORTH:
-				this.motionZ = -Math.max(Math.abs(this.motionZ), 0.1d);
-				break;
-			case SOUTH:
-				this.motionZ = Math.max(Math.abs(this.motionZ), 0.1d);
-				break;
-			case UP:
-				this.motionY = Math.max(Math.abs(this.motionY), 0.1d);
-				break;
-			case WEST:
-				this.motionX = -Math.max(Math.abs(this.motionX), 0.1d);
-				break;
-			}
+			EntityHelper.bounce(this, result.sideHit, 0.1d, 1);
 
 			// update saved momentum
 			prevMotionX = motionX;

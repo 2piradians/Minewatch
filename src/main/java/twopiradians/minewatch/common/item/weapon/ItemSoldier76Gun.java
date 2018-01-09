@@ -51,7 +51,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// helix rockets
-		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
+		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player, true)) {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, hand.ordinal(), i);

@@ -265,7 +265,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-			EntityHelper.getTargetInFieldOfVision(player, 21, 10, false); // TODO
+			
+			EntityHelper.getTargetInFieldOfVision(player, 21, 10, false); // TODO remove when done testing
 
 			// fade
 			if (hero.ability3.isSelected(player, true) && !world.isRemote &&

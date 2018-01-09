@@ -82,7 +82,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.ticksLeft == 5 && this.entityLiving != null) {
 				entityLiving.fallDistance = 0;
-				entityLiving.attemptTeleport(this.position.xCoord, this.position.yCoord, this.position.zCoord);
+				// attempt tp - if it fails, reset cooldown
+				if (!EntityHelper.attemptTeleport(entityLiving, this.position.xCoord, this.position.yCoord, this.position.zCoord))
+					EnumHero.SOMBRA.ability2.keybind.setCooldown(player, 1, false);
 			}
 
 			return super.onServerTick();
@@ -175,27 +177,25 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 
 			// translocator
-			if (!world.isRemote && hero.ability2.isSelected(player, false, hero.ability3) && hero.ability2.keybind.isKeyDown(player) &&
+			if (!world.isRemote && hero.ability2.isSelected(player, true, hero.ability3) && hero.ability2.keybind.isKeyDown(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				// teleport
 				Entity translocator = hero.ability2.entities.get(player);
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
-					if (hero.ability2.keybind.isKeyPressed(player)) {
-						if (player instanceof EntityPlayer)
-							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
-						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
-						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
-								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
-						Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
-								translocator.posX, translocator.posY, translocator.posZ), world.provider.getDimension());
-						translocator.setDead();
-						hero.ability2.keybind.setCooldown(player, 80, false);
-					}
+					if (player instanceof EntityPlayer)
+						ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
+					TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
+							setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
+					Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
+							translocator.posX, translocator.posY, translocator.posZ), world.provider.getDimension());
+					translocator.setDead();
+					hero.ability2.keybind.setCooldown(player, 80, false);
 				}
 				// throw new translocator
 				else {
 					translocator = new EntitySombraTranslocator(world, player);
-					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0, -0.5f);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 30, 0, null, 0, 0, -0.5f);
 					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
 					world.spawnEntity(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

@@ -186,17 +186,17 @@
 			"minewatch:hanzo_draw"
 		]
 	},
-	"hanzo_sonic_arrow": {
+	"hanzo_sonic_voice": {
 		"category": "player",
 		"sounds": [
-			"minewatch:hanzo_sonic_arrow_1",
-			"minewatch:hanzo_sonic_arrow_2"
+			"minewatch:hanzo_sonic_voice_0",
+			"minewatch:hanzo_sonic_voice_1"
 		]
 	},
 	"hanzo_scatter_arrow": {
 		"category": "player",
 		"sounds": [
-			"minewatch:hanzo_scatter_arrow"
+			"minewatch:hanzo_scatter_voice"
 		]
 	},
 	"reinhardt_weapon": {

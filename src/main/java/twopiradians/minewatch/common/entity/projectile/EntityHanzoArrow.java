@@ -53,11 +53,11 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
-		
 		// spawn trail particles
 		if (this.world.isRemote)
 			this.spawnTrailParticles();
+		
+		super.onUpdate();
 	}
 	
 	public void spawnTrailParticles() {}

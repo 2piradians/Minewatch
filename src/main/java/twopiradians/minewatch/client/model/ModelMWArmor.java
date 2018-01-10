@@ -28,7 +28,7 @@ public class ModelMWArmor extends ModelPlayer {
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		GlStateManager.pushMatrix();
-		
+
 		if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
 			GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
 
@@ -36,7 +36,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 		if (!this.renderingEnchantment)
 			GlStateManager.disableBlendProfile(Profile.PLAYER_SKIN);
-		
+
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();
 
@@ -72,11 +72,8 @@ public class ModelMWArmor extends ModelPlayer {
 			EnumHero hero = SetManager.getWornSet(entityIn);
 			// only do more coloring if preRenderArmor returns false or hero is null
 			if (hero == null || !hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this)) {
-				// hurt coloring
-				if (entity.hurtTime > 0 || entity.deathTime > 0)
-					GlStateManager.color(1, 0.7f, 0.7f);
 				// frozen coloring
-				else if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
+				if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
 						(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
 						entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
 					int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
@@ -85,6 +82,9 @@ public class ModelMWArmor extends ModelPlayer {
 							entity.hurtTime = -1;
 							GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
 				}
+				// hurt coloring
+				else if (entity.hurtTime > 0 || entity.deathTime > 0)
+					GlStateManager.color(1, 0.6f, 0.6f);
 			}
 
 		}

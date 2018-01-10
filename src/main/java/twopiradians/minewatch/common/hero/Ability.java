@@ -145,6 +145,9 @@ public class Ability {
 
 	/**Is this ability selected and able to be used*/
 	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
+		if (player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator())
+			return false;
+		
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);

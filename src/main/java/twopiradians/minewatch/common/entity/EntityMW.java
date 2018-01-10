@@ -115,8 +115,8 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 				this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ); 
 		}
 
-		// set dead if needed (why was this only server? - what if on client but not server?)
-		if (/*!this.world.isRemote && */((this.ticksExisted > lifetime) || 
+		// set dead if needed
+		if (((this.ticksExisted > lifetime) || 
 				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
 			this.setDead();
 
@@ -136,12 +136,9 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	/**Should this move to the hit position of the RayTraceResult*/
 	protected void onImpactMoveToHitPosition(RayTraceResult result) {
-		if (result != null) {
-			if (world.isRemote)
-				this.setDead();
-			else
+		if (result != null) 
+			if (!world.isRemote)
 				EntityHelper.moveToHitPosition(this, result);
-		}
 	}
 
 	public void onImpact(RayTraceResult result) {

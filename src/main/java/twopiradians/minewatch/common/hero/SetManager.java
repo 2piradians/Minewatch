@@ -36,10 +36,14 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 public class SetManager {
 
 	/**List of players wearing full sets and the sets that they are wearing*/
-	private static HashMap<UUID, EnumHero> entitiesWearingSets = Maps.newHashMap();	
+	private static HashMap<UUID, EnumHero> entitiesWearingSetsClient = Maps.newHashMap();	
+	/**List of players wearing full sets and the sets that they are wearing*/
+	private static HashMap<UUID, EnumHero> entitiesWearingSetsServer = Maps.newHashMap();	
 
 	/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
-	private static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
+	private static HashMap<UUID, EnumHero> lastWornSetsClient = Maps.newHashMap();
+	/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
+	private static HashMap<UUID, EnumHero> lastWornSetsServer = Maps.newHashMap();
 
 	/**Clear cooldowns of players logging in (for when switching worlds)*/
 	@SubscribeEvent
@@ -62,17 +66,25 @@ public class SetManager {
 	public static void clearHandlers(PlayerLoggedOutEvent event) {
 		TickHandler.unregisterAllHandlers(true);
 	}
+	
+	private static HashMap<UUID, EnumHero> entitiesWearingSets(boolean isRemote) {
+		return isRemote ? entitiesWearingSetsClient : entitiesWearingSetsServer;
+	}
+	
+	private static HashMap<UUID, EnumHero> lastWornSets(boolean isRemote) {
+		return isRemote ? lastWornSetsClient : lastWornSetsServer;
+	}
 
 	@Nullable
 	public static EnumHero getWornSet(Entity entity) {
 		return entity == null ? null : 
 			entity instanceof EntityHero ? ((EntityHero)entity).hero : 
-				getWornSet(entity.getPersistentID());
+				getWornSet(entity.getPersistentID(), entity.world.isRemote);
 	}
 
 	@Nullable
-	public static EnumHero getWornSet(UUID uuid) {
-		return entitiesWearingSets.get(uuid);
+	public static EnumHero getWornSet(UUID uuid, boolean isRemote) {
+		return entitiesWearingSets(isRemote).get(uuid);
 	}
 
 	/**Clear cooldowns of players respawning*/
@@ -89,6 +101,8 @@ public class SetManager {
 	@SubscribeEvent
 	public static void updateSets(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
+			boolean isRemote = event.player.world.isRemote;
+			
 			//detect if player is wearing a set
 			ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
 			EnumHero hero = null;
@@ -114,28 +128,26 @@ public class SetManager {
 			// update entitiesWearingSets
 			if (fullSet) {
 				// set changed
-				if ((!SetManager.entitiesWearingSets.containsKey(event.player.getPersistentID()) ||
-						SetManager.entitiesWearingSets.get(event.player.getPersistentID()) != hero) &&
+				if ((!SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID()) ||
+						SetManager.entitiesWearingSets(isRemote).get(event.player.getPersistentID()) != hero) &&
 						hero.selectSound != null) {
 					// sound plays twice in MP - both on clientside so cooldown should handle
-					if (event.player.world.isRemote && event.player instanceof EntityPlayerMP)
-						Minewatch.network.sendTo(new SPacketSimple(50, true, event.player), (EntityPlayerMP) event.player);
-					else 
-						hero.selectSound.playFollowingSound(event.player, 0.5f, 1.0f, false);
+					if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP)
+						Minewatch.network.sendTo(new SPacketSimple(50, true, event.player, hero.ordinal(), 0, 0), (EntityPlayerMP) event.player);
 				}
 
-				SetManager.entitiesWearingSets.put(event.player.getPersistentID(), hero);
+				SetManager.entitiesWearingSets(isRemote).put(event.player.getPersistentID(), hero);
 
 				// set changed from prev
-				if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
+				if (SetManager.lastWornSets(isRemote).get(event.player.getPersistentID()) != hero) {
 					for (KeyBind key : Keys.KeyBind.values()) 
 						if (key.getCooldown(event.player) > 0)
 							key.setCooldown(event.player, 0, true);
-					SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
+					SetManager.lastWornSets(isRemote).put(event.player.getPersistentID(), hero);
 				}
 			}
 			else
-				SetManager.entitiesWearingSets.remove(event.player.getPersistentID());
+				SetManager.entitiesWearingSets(isRemote).remove(event.player.getPersistentID());
 		}
 	}
 

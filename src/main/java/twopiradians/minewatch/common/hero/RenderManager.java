@@ -530,7 +530,7 @@ public class RenderManager {
 					int percent = (int) (entityDamage.get(event.getEntityLiving()).get(uuid).getFirst()/event.getEntityLiving().getMaxHealth()*100f+1);
 					if (percent >= 10 && entityDamage.get(event.getEntityLiving()).get(uuid).getSecond() > 0) {
 						// reset genji strike cooldown
-						if (SetManager.getWornSet(uuid) == EnumHero.GENJI) {
+						if (SetManager.getWornSet(uuid, player.world.isRemote) == EnumHero.GENJI) {
 							EnumHero.GENJI.ability2.keybind.setCooldown(player, 0, false);
 							Handler handler = TickHandler.getHandler(player, Identifier.GENJI_STRIKE);
 							if (handler != null)

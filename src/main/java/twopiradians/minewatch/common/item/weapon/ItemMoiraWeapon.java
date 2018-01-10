@@ -64,10 +64,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	private static final ResourceLocation DAMAGE_BEAM_MISS = new ResourceLocation(Minewatch.MODID, "textures/entity/moira_damage_beam_miss.png");
 	private static final ResourceLocation DAMAGE_BEAM_HIT = new ResourceLocation(Minewatch.MODID, "textures/entity/moira_damage_beam_hit.png");
 
-	// TODO make 1st person left hand from 1st person right hand in json
-	// TODO there's a little gap in the model - see if you can cover the gap by merging the edges together or something and fixing the uv to look nice
-	// https://gyazo.com/6fe95e2f171bf0f5bccd3079566c6afc ^ (not super noticeable in-game, but would be nice to fix)
-
 	public static Handler ORB_SELECT = new Handler(Identifier.MOIRA_ORB_SELECT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -266,8 +262,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 			
-			EntityHelper.getTargetInFieldOfVision(player, 21, 10, false); // TODO remove when done testing
-
 			// fade
 			if (hero.ability3.isSelected(player, true) && !world.isRemote &&
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
@@ -300,7 +294,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// find new damage target
 		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, false) &&
-				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) { // TODO up close
+				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
 			// start damage
 			if (!TickHandler.hasHandler(player, Identifier.MOIRA_DAMAGE)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 10, false);
@@ -352,7 +346,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			GlStateManager.color(1, 1, 1, (float) (0.4f+Math.abs(Math.sin(handler.entity.ticksExisted/5d))/3d));
 			vertexbuffer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
 
-			Vec3d entityPos = EntityHelper.getEntityPartialPos(handler.entity);
 			Vec3d entityLivingPos = EntityHelper.getEntityPartialPos(handler.entityLiving);
 			Vec2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
 			Vec3d shooting = EntityHelper.getShootingPos((EntityLivingBase) handler.entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f);

@@ -11,7 +11,6 @@ import com.google.common.base.Predicates;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
@@ -51,7 +50,6 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
-import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -182,7 +180,7 @@ public class EntityHelper {
 			z = look.zCoord;
 		}
 
-		entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord);
+		entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord); 
 
 		// send velocity to server/client
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
@@ -267,9 +265,11 @@ public class EntityHelper {
 			target = Minewatch.proxy.getClientPlayer();
 		entity = getThrower(entity);
 		target = getThrower(target);
+
 		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
 		if (entity instanceof EntityHero && target != null && 
 				!(friendly && entity.getTeam() != null && entity.getTeam().isSameTeam(target.getTeam())) &&
+				!(friendly && entity == target) && 
 				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
 						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
 						(!target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetPassives == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
@@ -581,7 +581,7 @@ public class EntityHelper {
 	public static Vec2f getDirectLookAngles(Entity e1, Entity e2) {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
-				getClosestPointOnBoundingBox(e1EyePos, e1.getLookVec(), e2));
+				getClosestPointOnBoundingBox(e1.getPositionEyes(1), e1.getLook(1), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
@@ -597,73 +597,25 @@ public class EntityHelper {
 
 	/**Get closest point on an e2's bounding box to e1's look*/
 	public static Vec3d getClosestPointOnBoundingBox(Vec3d eyePos, Vec3d lookVec, Entity e2) {
-		AxisAlignedBB aabb = e2.getEntityBoundingBox();
-
-		Vec3d q = new Vec3d(aabb.minX, aabb.minY, aabb.minZ);
-		Vec3d p = new Vec3d(aabb.maxX, aabb.minY, aabb.minZ);
-
-		Vec3d r = q.subtract(p);
-		Vec3d h = lookVec.crossProduct(r);
-		Vec3d f = eyePos.subtract(q);
-		double distance = f.dotProduct(h) / h.lengthVector(); // distance between a and r
-
-		Vec3d closest = eyePos.add(lookVec.scale(distance));
-
-		System.out.println(distance);
-		/*Vec3d line1 = eyePos;
-		Vec3d line2 = line1.add(lookVec.scale(30));
-
-		double x = (aabb.maxX - aabb.minX)/2d;
-		double y = (aabb.maxY - aabb.minY)/2d;
-		double z = (aabb.maxZ - aabb.minZ)/2d;
-		Vec3d[] points = new Vec3d[] { 
-				new Vec3d(aabb.minX, aabb.minY, aabb.minZ),
-				new Vec3d(aabb.minX, aabb.maxY, aabb.minZ),
-				new Vec3d(aabb.minX, aabb.minY, aabb.maxZ),
-				new Vec3d(aabb.minX, aabb.maxY, aabb.maxZ),
-				new Vec3d(aabb.maxX, aabb.minY, aabb.minZ),
-				new Vec3d(aabb.maxX, aabb.maxY, aabb.minZ),
-				new Vec3d(aabb.maxX, aabb.minY, aabb.maxZ),
-				new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ),
-				aabb.getCenter(),
-				new Vec3d(aabb.minX+x, aabb.minY+y, aabb.minZ+z),
-				new Vec3d(aabb.minX+x, aabb.maxY, aabb.minZ+z),
-				new Vec3d(aabb.minX+x, aabb.minY+y, aabb.maxZ),
-				new Vec3d(aabb.minX+x, aabb.maxY, aabb.maxZ),
-				new Vec3d(aabb.maxX, aabb.minY+y, aabb.minZ+z),
-				new Vec3d(aabb.maxX, aabb.maxY, aabb.minZ+z),
-				new Vec3d(aabb.maxX, aabb.minY+y, aabb.maxZ),
-				new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ)
-		};
-		Vec3d closest = null;
-		double distance = 0;
-		for (Vec3d point : points) {
-			double newDistance = 0;
-
-			Vec3d v = line2.subtract(line1);
-			Vec3d w = point.subtract(line1);
-
-			double c1 = w.dotProduct(v);
-			if ( c1 <= 0 )
-				newDistance = point.distanceTo(line1);
-
-			double c2 = v.dotProduct(v);
-			if ( c2 <= c1 )
-				newDistance = point.distanceTo(line2);
-
-			double b = c1 / c2;
-			Vec3d Pb = line1.add(v.scale(b));
-			newDistance = point.distanceTo(Pb);
-
-			if (closest == null || newDistance < distance) {
-				closest = point;
-				distance = newDistance;
+		Vec3d closest = e2.getEntityBoundingBox().getCenter();
+		lookVec = eyePos.add(lookVec.scale(50));
+		for (double scale=0; scale<10; scale+= 0.1d) {
+			AxisAlignedBB aabb = e2.getEntityBoundingBox();
+			Vec3d min = new Vec3d(aabb.minX, aabb.minY, aabb.minZ);
+			Vec3d max = new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ);
+			Vec3d center = aabb.getCenter();
+			aabb = new AxisAlignedBB(min.subtract(center).scale(scale+1).add(center), max.subtract(center).scale(scale+1).add(center));
+			RayTraceResult intercept = aabb.calculateIntercept(eyePos, lookVec);
+			if (intercept != null) {
+				//RenderManager.boundingBoxesToRender.add(aabb);
+				//closest = intercept.hitVec;
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
+				closest = intercept.hitVec.subtract(aabb.getCenter()).scale(1/(scale+1)).add(aabb.getCenter());
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
+				break;
 			}
-		}*/
-
-		// TODO clean up
-		//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 10, 1, 1, 0, 0);
-
+		}
+		
 		return closest;
 	}
 
@@ -685,17 +637,11 @@ public class EntityHelper {
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
 	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, @Nullable Predicate<EntityLivingBase> predicate) {
-		RenderManager.boundingBoxesToRender.clear(); // TODO remove when done
-		
 		Vec3d lookVec = shooter.getLookVec().scale(range-1);
-		Vec3d eyePos = EntityHelper.getEntityPartialPos(shooter).addVector(0, shooter.getEyeHeight(), 0);
 		AxisAlignedBB aabb = shooter.getEntityBoundingBox().expandXyz(5).addCoord(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
-		
-		//RenderManager.boundingBoxesToRender.add(aabb); // TODO uncomment this to visualize the bounding box used to find entities
-		
+
 		EntityLivingBase closest = null;
-		//float angle = Float.MAX_VALUE;
-		double closestDistance = 0;
+		float angle = Float.MAX_VALUE;
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
@@ -703,31 +649,18 @@ public class EntityHelper {
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {
-			/*float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, entity);
+			float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, entity);
 			if (closest == null || newAngle < angle) {
 				closest = (EntityLivingBase) entity;
 				angle = newAngle;
-			}*/
-			
-			/////////////////////////////////////////////////////////
-			// TODO LOOK AT THIS STUFF, PUNK (test while holding Moira's weapon - will be called automatically)
-			double distance = shooter.getDistanceToEntity(entity);
-			aabb = entity.getEntityBoundingBox().expandXyz(distance/10f); // this x y z is what we need to change, based on distance
-			/////////////////////////////////////////////////////////
-			RenderManager.boundingBoxesToRender.add(aabb);
-			
-			if ((closest == null || distance < closestDistance) &&
-					 aabb.calculateIntercept(eyePos, lookVec.add(eyePos)) != null) {
-				closest = (EntityLivingBase)entity;
-				closestDistance = distance;
 			}
 		}
 
 		// debug visualize
 		//RenderManager.boundingBoxesToRender.clear(); 
 		//RenderManager.boundingBoxesToRender.add(aabb);
-		
-		return closest;//angle <= maxAngle ? closest : null;
+
+		return angle <= maxAngle ? closest : null;
 	}
 
 	/**Is entity holding the item in either hand*/
@@ -788,8 +721,8 @@ public class EntityHelper {
 			float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 			float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
 			// use yawHead for EntityLivingBase - using prevRotationYawHead is bit buggy (cuz of changing to look where aiming?)
-			if (entity instanceof EntityLivingBase)
-				yaw = ((EntityLivingBase) entity).rotationYawHead;
+			//if (entity instanceof EntityLivingBase)
+			//	yaw = ((EntityLivingBase) entity).rotationYawHead;
 			return new Vec2f(pitch, yaw);
 		}
 		return Vec2f.ZERO;
@@ -818,23 +751,23 @@ public class EntityHelper {
 			break;
 		}
 	}
-	
+
 	/**Attempt to teleport to position - same as EntityLivingBase#attemptTeleport except w/o moving pos to ground*/
 	public static boolean attemptTeleport(Entity entity, double x, double y, double z) {
-        double d0 = entity.posX;
-        double d1 = entity.posY;
-        double d2 = entity.posZ;
-        entity.posX = x;
-        entity.posY = y;
-        entity.posZ = z;
-        boolean flag = false;
-        BlockPos blockpos = new BlockPos(entity);
-        World world = entity.world;
-        Random random = entity.world.rand;
+		double d0 = entity.posX;
+		double d1 = entity.posY;
+		double d2 = entity.posZ;
+		entity.posX = x;
+		entity.posY = y;
+		entity.posZ = z;
+		boolean flag = false;
+		BlockPos blockpos = new BlockPos(entity);
+		World world = entity.world;
+		Random random = entity.world.rand;
 
-        if (world.isBlockLoaded(blockpos))
-        {
-            boolean flag1 = true;/*false;
+		if (world.isBlockLoaded(blockpos))
+		{
+			boolean flag1 = true;/*false;
 
             while (!flag1 && blockpos.getY() > 0)
             {
@@ -852,45 +785,45 @@ public class EntityHelper {
                 }
             }*/
 
-            if (flag1)
-            {
-                entity.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
+			if (flag1)
+			{
+				entity.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
 
-                if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && !world.containsAnyLiquid(entity.getEntityBoundingBox()))
-                {
-                    flag = true;
-                }
-            }
-        }
+				if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && !world.containsAnyLiquid(entity.getEntityBoundingBox()))
+				{
+					flag = true;
+				}
+			}
+		}
 
-        if (!flag)
-        {
-            entity.setPositionAndUpdate(d0, d1, d2);
-            return false;
-        }
-        else
-        {
-            int i = 128;
+		if (!flag)
+		{
+			entity.setPositionAndUpdate(d0, d1, d2);
+			return false;
+		}
+		else
+		{
+			int i = 128;
 
-            for (int j = 0; j < 128; ++j)
-            {
-                double d6 = (double)j / 127.0D;
-                float f = (random.nextFloat() - 0.5F) * 0.2F;
-                float f1 = (random.nextFloat() - 0.5F) * 0.2F;
-                float f2 = (random.nextFloat() - 0.5F) * 0.2F;
-                double d3 = d0 + (entity.posX - d0) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
-                double d4 = d1 + (entity.posY - d1) * d6 + random.nextDouble() * (double)entity.height;
-                double d5 = d2 + (entity.posZ - d2) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
-                world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, (double)f, (double)f1, (double)f2, new int[0]);
-            }
+			for (int j = 0; j < 128; ++j)
+			{
+				double d6 = (double)j / 127.0D;
+				float f = (random.nextFloat() - 0.5F) * 0.2F;
+				float f1 = (random.nextFloat() - 0.5F) * 0.2F;
+				float f2 = (random.nextFloat() - 0.5F) * 0.2F;
+				double d3 = d0 + (entity.posX - d0) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
+				double d4 = d1 + (entity.posY - d1) * d6 + random.nextDouble() * (double)entity.height;
+				double d5 = d2 + (entity.posZ - d2) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
+				world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, (double)f, (double)f1, (double)f2, new int[0]);
+			}
 
-            if (entity instanceof EntityCreature)
-            {
-                ((EntityCreature)entity).getNavigator().clearPathEntity();
-            }
+			if (entity instanceof EntityCreature)
+			{
+				((EntityCreature)entity).getNavigator().clearPathEntity();
+			}
 
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 
 }

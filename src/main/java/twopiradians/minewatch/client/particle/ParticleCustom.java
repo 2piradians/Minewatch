@@ -191,7 +191,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					this.setExpired();
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
-				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, ((EntityLivingBase)followEntity).rotationYawHead, hand, verticalAdjust, horizontalAdjust);
+				Vec2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 				this.prevPosX = this.posX;
 				this.prevPosY = this.posY;

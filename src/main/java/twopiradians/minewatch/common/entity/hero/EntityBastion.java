@@ -29,7 +29,7 @@ public class EntityBastion extends EntityHero {
 			// heal
 			if (((this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null) || 
 					this.getHealth() < this.getMaxHealth()/2f) && 
-					EnumHero.BASTION.weapon.getCurrentCharge(this) > EnumHero.BASTION.weapon.maxCharge/3f) 
+					EnumHero.BASTION.weapon.getCurrentCharge(this) > EnumHero.BASTION.weapon.maxCharge*0.7f) 
 				this.getDataManager().set(KeyBind.RMB.datamanager, true);
 			else if (this.getHealth() >= this.getMaxHealth() || EnumHero.BASTION.weapon.getCurrentCharge(this) <= 0)
 				this.getDataManager().set(KeyBind.RMB.datamanager, false);

@@ -241,7 +241,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (player == null || !player.isEntityAlive() || (hasCooldown(player) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
-				(handler != null && !handler.bool && !ignoreAbility))
+				(handler != null && !handler.bool && !ignoreAbility) ||
+				(player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator()))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -361,7 +362,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!world.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
-				SetManager.getWornSet(entity.getPersistentID()) == hero)
+				SetManager.getWornSet(entity.getPersistentID(), entity.world.isRemote) == hero)
 			stack.setItemDamage(0);
 
 		// health particles
@@ -469,13 +470,13 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// render charge
 		if (this.maxCharge > 0 && event.getType() == ElementType.CROSSHAIRS && 
-				this.getCurrentCharge(player) < this.maxCharge) {
+				this.getCurrentCharge(player) < this.maxCharge && TickHandler.hasHandler(player, Identifier.WEAPON_CHARGE)) {
 			GL11.glEnable(GL11.GL_LINE_SMOOTH);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(width/2d, height/2d, 0);
 			GlStateManager.rotate(180, 1, 0, 0);
 			GlStateManager.rotate(54, 0, 0, 1);
-			float size = 60; // 60
+			float size = 60;
 			GlStateManager.disableLighting();
 			GlStateManager.disableCull();
 			GlStateManager.enableBlend();

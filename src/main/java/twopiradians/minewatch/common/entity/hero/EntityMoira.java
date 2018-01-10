@@ -3,14 +3,11 @@ package twopiradians.minewatch.common.entity.hero;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
-import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHealBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestHealableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.util.TickHandler;
-import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityMoira extends EntityHero {
 

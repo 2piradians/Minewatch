@@ -242,10 +242,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	private static boolean deflect(EntityLivingBase player, Entity entity) {
 		if (canDeflect(player, entity)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
-					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
+					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ); // do not make faster - hitscan doesn't hit properly
 			entity.motionX = player.getLookVec().xCoord*velScale;	
 			entity.motionY = player.getLookVec().yCoord*velScale;	
-			entity.motionZ = player.getLookVec().zCoord*velScale;		
+			entity.motionZ = player.getLookVec().zCoord*velScale;	
 
 			if (entity instanceof EntityArrow && !(entity instanceof EntityHanzoArrow)) { 
 				EntityArrow ent = (EntityArrow) entity;
@@ -265,7 +265,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
 			if (entity instanceof EntityMW)
-				((EntityMW)entity).lifetime *= 2;
+				((EntityMW)entity).lifetime *= 2; 
 			if (entity instanceof EntityJunkratMine) {
 				((EntityJunkratMine)entity).ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
 				((EntityJunkratMine)entity).deflectTimer = 40;
@@ -275,8 +275,9 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
 			else
 				entity.velocityChanged = true;
+			//EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, -1, (float) 0.1d, null, 0, 0);
 			ModSoundEvents.GENJI_DEFLECT_HIT.playSound(player, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
-			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false), player.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false, entity), player.world.provider.getDimension());
 			return true;
 		}
 		return false;

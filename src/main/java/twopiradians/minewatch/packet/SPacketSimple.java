@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -169,6 +170,7 @@ public class SPacketSimple implements IMessage {
 		this.y4 = entity.prevPosY;
 		this.z4 = entity.prevPosZ;
 		this.string = "";
+		this.bool = entity.isDead;
 	}
 
 	@Override
@@ -349,6 +351,8 @@ public class SPacketSimple implements IMessage {
 						entity.world.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, entity.posX + d0, entity.posY + (double)entity.height * 0.8D, entity.posZ + d1, 0, d0, 0.0D, new int[0]);
 						if (entity == player)
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(entity).setTicks(5));
+						if (entity2 instanceof IThrowableEntity)
+							((IThrowableEntity)entity2).setThrower(entity);
 					}
 					// Kill/assist messages
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
@@ -602,6 +606,8 @@ public class SPacketSimple implements IMessage {
 					}
 					// Entity collision raytraceresult onImpact
 					else if (packet.type == 41 && entity instanceof EntityMW) {
+						if (packet.bool)
+							entity.setDead();
 						entity.setPosition(packet.x3, packet.y3, packet.z3);
 						if (entity.ticksExisted == 0) {
 							entity.prevPosX = packet.x4;
@@ -736,8 +742,8 @@ public class SPacketSimple implements IMessage {
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_ORB_SELECT));
 					}
 					// Select hero voice line
-					else if (packet.type == 50 && packetPlayer == player) {
-						EnumHero hero = SetManager.getWornSet(player);
+					else if (packet.type == 50 && packetPlayer == player && packet.x >= 0 && packet.x < EnumHero.values().length) {
+						EnumHero hero = EnumHero.values()[(int) packet.x];
 						if (hero != null && hero.selectSound != null)
 							hero.selectSound.playFollowingSound(player, 0.5f, 1.0f, false);
 					}

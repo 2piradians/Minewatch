@@ -202,8 +202,8 @@ public class Keys {
 
 		/**Toggle ability - toggles and sends packet to toggle on client, toggles on server*/
 		public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
-			if (uuid != null && SetManager.getWornSet(uuid) != null) {
-				EnumHero hero = SetManager.getWornSet(uuid);
+			if (uuid != null && SetManager.getWornSet(uuid, isRemote) != null) {
+				EnumHero hero = SetManager.getWornSet(uuid, isRemote);
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					if (ability.isToggleable && ability.keybind == this && 
 					ability.keybind.getCooldown(uuid, isRemote) == 0) {

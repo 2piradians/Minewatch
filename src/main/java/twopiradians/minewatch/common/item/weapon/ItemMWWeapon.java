@@ -51,6 +51,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -373,7 +374,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
 						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f && 
-						EntityHelper.shouldTarget(entity, entity2, true)) {
+						EntityHelper.shouldTarget(entity, entity2, true) && !(entity2 instanceof EntityLivingBaseMW)) {
 					float size = Math.min(entity2.height, entity2.width)*9f;
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}

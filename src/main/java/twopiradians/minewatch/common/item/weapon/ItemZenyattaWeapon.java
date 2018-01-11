@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
@@ -187,7 +188,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, true, 
 						// ignore if harmony from anyone
-						input -> !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == input, false));
+						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == input, false));
 				if (target != null) {
 					// remove discord by same player
 					Handler discord = TickHandler.getHandler(player, Identifier.ZENYATTA_DISCORD);
@@ -210,7 +211,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, false, 
 						// ignore if discord from anyone
-						input -> !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == input, false));	
+						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == input, false));	
 				if (target != null) {
 					// remove harmony by same player
 					Handler harmony = TickHandler.getHandler(player, Identifier.ZENYATTA_HARMONY);

@@ -125,10 +125,11 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// basic checks
-			if (!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
-					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
-					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
-					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity)) 
+			if (entity == Minecraft.getMinecraft().player && 
+					(!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
+							((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+							((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.MOIRA.weapon ||
+							!KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) 
 				return true;
 			// find new target / clear target
 			else if (entity.ticksExisted % 5 == 0) {

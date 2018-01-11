@@ -1,6 +1,7 @@
 package twopiradians.minewatch.client.particle;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector2f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSimpleAnimated;
@@ -15,7 +16,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -180,7 +180,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityLivingBase) {
 				this.horizontalAdjust = this.verticalAdjust = 1; 
-				Vec2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, this.initialAlpha != 1 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND, 10, 0.65f);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 				this.prevPosX = this.posX;
@@ -191,7 +191,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					this.setExpired();
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
-				Vec2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 				this.prevPosX = this.posX;

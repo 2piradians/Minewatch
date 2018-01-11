@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.item.weapon;
 import java.util.HashMap;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
@@ -30,7 +31,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -348,12 +348,12 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			vertexbuffer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
 
 			Vec3d entityLivingPos = EntityHelper.getEntityPartialPos(handler.entityLiving);
-			Vec2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
+			Vector2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
 			Vec3d shooting = EntityHelper.getShootingPos((EntityLivingBase) handler.entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f);
 			Vec3d vec = shooting.subtract(EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()));
 			if (handler.entityLiving != null) {
 				rotations = EntityHelper.getDirectLookAngles(shooting, entityLivingPos.addVector(0, handler.entityLiving.height/2f, 0));
-				rotations = new Vec2f(rotations.y, rotations.x);
+				rotations = new Vector2f(rotations.y, rotations.x);
 			}
 			double x = vec.xCoord; 
 			double y = vec.yCoord;

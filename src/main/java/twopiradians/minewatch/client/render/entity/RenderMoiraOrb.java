@@ -1,5 +1,7 @@
 package twopiradians.minewatch.client.render.entity;
 
+import javax.vecmath.Vector2f;
+
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -11,7 +13,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -52,8 +53,8 @@ public class RenderMoiraOrb extends RenderSimple<EntityMoiraOrb> {
 			buffer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
 
 			Vec3d tetherVec = EntityHelper.getEntityPartialPos(tether).subtract(EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()));
-			Vec2f rotations = EntityHelper.getDirectLookAngles(tether, entity);
-			rotations = new Vec2f(rotations.y, rotations.x);
+			Vector2f rotations = EntityHelper.getDirectLookAngles(tether, entity);
+			rotations = new Vector2f(rotations.y, rotations.x);
 			double distance = entity.getDistanceToEntity(tether)*0.1f-entity.width/2f;
 			double size = (entity.chargeClient / 80f) * 35d;
 			double deg_to_rad = 0.0174532925d;

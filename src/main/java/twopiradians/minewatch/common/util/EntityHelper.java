@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector2f;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -36,7 +37,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
@@ -583,21 +583,21 @@ public class EntityHelper {
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
-	public static Vec2f getDirectLookAngles(Entity e1, Entity e2) {
+	public static Vector2f getDirectLookAngles(Entity e1, Entity e2) {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
 				getClosestPointOnBoundingBox(e1.getPositionEyes(1), e1.getLook(1), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
-	public static Vec2f getDirectLookAngles(Vec3d e1EyePos, Vec3d e2Vec) {
+	public static Vector2f getDirectLookAngles(Vec3d e1EyePos, Vec3d e2Vec) {
 		double d0 = e2Vec.xCoord - e1EyePos.xCoord;
 		double d1 = e2Vec.yCoord - e1EyePos.yCoord;
 		double d2 = e2Vec.zCoord - e1EyePos.zCoord;
 		double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 		float facingYaw = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 		float facingPitch = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
-		return new Vec2f(facingYaw, facingPitch);
+		return new Vector2f(facingYaw, facingPitch);
 	}
 
 	/**Get closest point on an e2's bounding box to e1's look*/
@@ -609,7 +609,9 @@ public class EntityHelper {
 			Vec3d min = new Vec3d(aabb.minX, aabb.minY, aabb.minZ);
 			Vec3d max = new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ);
 			Vec3d center = getCenter(aabb);
-			aabb = new AxisAlignedBB(min.subtract(center).scale(scale+1).add(center), max.subtract(center).scale(scale+1).add(center));
+			min = min.subtract(center).scale(scale+1).add(center);
+			max = max.subtract(center).scale(scale+1).add(center);
+			aabb = new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
 			RayTraceResult intercept = aabb.calculateIntercept(eyePos, lookVec);
 			if (intercept != null) {
 				//RenderManager.boundingBoxesToRender.add(aabb);
@@ -626,7 +628,7 @@ public class EntityHelper {
 
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
-		Vec2f facing = getDirectLookAngles(e1, e2);
+		Vector2f facing = getDirectLookAngles(e1, e2);
 		// calculate difference between facing and current angles
 		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
 		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
@@ -720,7 +722,7 @@ public class EntityHelper {
 	}
 
 	/**Get exact entity rotations - accounting for partial ticks and lastTickPos*/
-	public static Vec2f getEntityPartialRotations(Entity entity) {
+	public static Vector2f getEntityPartialRotations(Entity entity) {
 		if (entity != null) {
 			float partialTicks = Minewatch.proxy.getRenderPartialTicks();
 			float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
@@ -728,9 +730,9 @@ public class EntityHelper {
 			// use yawHead for EntityLivingBase - using prevRotationYawHead is bit buggy (cuz of changing to look where aiming?)
 			//if (entity instanceof EntityLivingBase)
 			//	yaw = ((EntityLivingBase) entity).rotationYawHead;
-			return new Vec2f(pitch, yaw);
+			return new Vector2f(pitch, yaw);
 		}
-		return Vec2f.ZERO;
+		return new Vector2f(0, 0);
 	}
 
 	/**Change entity's velocity to bounce off the side hit*/

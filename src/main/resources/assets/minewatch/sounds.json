@@ -193,7 +193,7 @@
 			"minewatch:hanzo_sonic_voice_1"
 		]
 	},
-	"hanzo_scatter_arrow": {
+	"hanzo_scatter_voice": {
 		"category": "player",
 		"sounds": [
 			"minewatch:hanzo_scatter_voice"

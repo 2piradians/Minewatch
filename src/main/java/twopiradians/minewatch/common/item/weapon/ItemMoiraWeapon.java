@@ -52,6 +52,7 @@ import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -261,7 +262,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-			
+
 			// fade
 			if (hero.ability3.isSelected(player, true) && !world.isRemote &&
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
@@ -430,24 +431,26 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {
-		boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
-		// damage
-		if (select || (KeyBind.RMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
-			if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) {
-				GlStateManager.rotate(50, 29f, -10f, -1.2f);
-				GlStateManager.translate(0.15f, 0.5f, -0.11f);
+		if (SetManager.getWornSet(entity) == EnumHero.MOIRA) {
+			boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
+			// damage
+			if (select || (KeyBind.RMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
+				if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) {
+					GlStateManager.rotate(50, 29f, -10f, -1.2f);
+					GlStateManager.translate(0.15f, 0.5f, -0.11f);
+				}
+				else if (!select && transform == TransformType.FIRST_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) 
+					ret.getRight().setScale(0);
 			}
-			else if (!select && transform == TransformType.FIRST_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) 
-				ret.getRight().setScale(0);
-		}
-		// heal
-		if (select || (!KeyBind.RMB.isKeyDown(entity) && KeyBind.LMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
-			if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) {
-				GlStateManager.rotate(50, 29f, 10f, 1.2f);
-				GlStateManager.translate(-0.15f, 0.5f, -0.11f);
+			// heal
+			if (select || (!KeyBind.RMB.isKeyDown(entity) && KeyBind.LMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
+				if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) {
+					GlStateManager.rotate(50, 29f, 10f, 1.2f);
+					GlStateManager.translate(-0.15f, 0.5f, -0.11f);
+				}
+				else if (!select && transform == TransformType.FIRST_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) 
+					ret.getRight().setScale(0);
 			}
-			else if (!select && transform == TransformType.FIRST_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) 
-				ret.getRight().setScale(0);
 		}
 
 		// fade

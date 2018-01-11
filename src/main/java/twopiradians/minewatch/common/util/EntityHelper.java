@@ -803,7 +803,7 @@ public class EntityHelper {
 		}
 		else
 		{
-			int i = 128;
+			//int i = 128;
 
 			for (int j = 0; j < 128; ++j)
 			{

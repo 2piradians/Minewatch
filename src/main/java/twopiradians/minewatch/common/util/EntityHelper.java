@@ -571,6 +571,11 @@ public class EntityHelper {
 		}
 		return nearest;
 	}
+	
+	/**Get center of aabb, because clientside*/
+	public static Vec3d getCenter(AxisAlignedBB aabb) {
+        return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
+	}
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
@@ -597,7 +602,7 @@ public class EntityHelper {
 
 	/**Get closest point on an e2's bounding box to e1's look*/
 	public static Vec3d getClosestPointOnBoundingBox(Vec3d eyePos, Vec3d lookVec, Entity e2) {
-		Vec3d closest = e2.getEntityBoundingBox().getCenter();
+		Vec3d closest = getCenter(e2.getEntityBoundingBox());
 		lookVec = eyePos.add(lookVec.scale(50));
 		for (double scale=0; scale<10; scale+= 0.1d) {
 			AxisAlignedBB aabb = e2.getEntityBoundingBox();

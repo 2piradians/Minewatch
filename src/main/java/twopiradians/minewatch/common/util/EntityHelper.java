@@ -608,14 +608,14 @@ public class EntityHelper {
 			AxisAlignedBB aabb = e2.getEntityBoundingBox();
 			Vec3d min = new Vec3d(aabb.minX, aabb.minY, aabb.minZ);
 			Vec3d max = new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ);
-			Vec3d center = aabb.getCenter();
+			Vec3d center = getCenter(aabb);
 			aabb = new AxisAlignedBB(min.subtract(center).scale(scale+1).add(center), max.subtract(center).scale(scale+1).add(center));
 			RayTraceResult intercept = aabb.calculateIntercept(eyePos, lookVec);
 			if (intercept != null) {
 				//RenderManager.boundingBoxesToRender.add(aabb);
 				//closest = intercept.hitVec;
 				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
-				closest = intercept.hitVec.subtract(aabb.getCenter()).scale(1/(scale+1)).add(aabb.getCenter());
+				closest = intercept.hitVec.subtract(getCenter(aabb)).scale(1/(scale+1)).add(getCenter(aabb));
 				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
 				break;
 			}

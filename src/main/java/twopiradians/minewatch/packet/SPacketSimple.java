@@ -512,7 +512,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Sombra's teleport
 					else if (packet.type == 29 && entity != null) {
-						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
+						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(entity).setTicks(10).
 								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
 					}
 					// Junkrat's mine explosion

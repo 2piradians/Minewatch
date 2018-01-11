@@ -67,7 +67,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
+			if (this.entityLiving == Minecraft.getMinecraft().player && 
+					this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
 				if (this.ticksLeft == 8) 
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.world, 
 							this.entityLiving.posX, this.entityLiving.posY+this.entityLiving.height/2d, this.entityLiving.posZ, 0, 0, 0, 0x9F62E5, 0x8E77BC, 1f, 15, 25, 1, 0, 0);

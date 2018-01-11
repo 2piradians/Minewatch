@@ -108,7 +108,7 @@ public class Keys {
 			if (player != null) {
 				if (player instanceof EntityHero)
 					cooldown *= Config.mobAttackCooldown;
-				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(Math.max(1, (int) (cooldown * Config.abilityCooldownMultiplier))));
+				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(Math.max(3, (int) (cooldown * Config.abilityCooldownMultiplier))));
 				if (player.world.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());
 				}

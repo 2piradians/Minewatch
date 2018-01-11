@@ -82,11 +82,13 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 			ModSoundEvents.MEI_CRYSTAL_STOP.playFollowingSound(entity, 1, 1, false);
 			if (entity == Minecraft.getMinecraft().player)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = thirdPersonView;
+			EnumHero.MEI.ability2.toggle(entity, false);
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
 			EnumHero.MEI.ability2.keybind.setCooldown(entityLiving, 240, false); 
+			EnumHero.MEI.ability2.toggle(entity, false);
 			return super.onServerRemove();
 		}
 	};
@@ -131,21 +133,10 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityLivingBase && !TickHandler.hasHandler(entity, Identifier.MEI_ICICLE)) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-
 			Handler handler = TickHandler.getHandler(player, Identifier.MEI_CRYSTAL);
-			if (!world.isRemote && handler != null && 
-					(KeyBind.RMB.isKeyDown(player, true) || KeyBind.LMB.isKeyDown(player, true)) &&
-					hero.ability2.keybind.getCooldown(player) == 0) {
-				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
-						TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),
-						TickHandler.getHandler(player, Identifier.PREVENT_INPUT),
-						TickHandler.getHandler(player, Identifier.PREVENT_ROTATION),
-						TickHandler.getHandler(player, Identifier.ABILITY_USING));
-				Minewatch.network.sendToAll(new SPacketSimple(32, player, false));
-			}
 
 			// cryo-freeze
-			if (!world.isRemote && hero.ability2.isSelected(player) && 
+			if (handler == null && !world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityMeiCrystal crystal = new EntityMeiCrystal(world, player);
 				world.spawnEntity(crystal);
@@ -155,6 +146,17 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 						Handlers.PREVENT_ROTATION.setEntity(player).setTicks(80),
 						Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(hero.ability2));
 				Minewatch.network.sendToAll(new SPacketSimple(32, player, true));
+			}
+			// stop cryo-freeze
+			else if (!world.isRemote && handler != null && 
+					(KeyBind.RMB.isKeyDown(player, true) || KeyBind.LMB.isKeyDown(player, true)) &&
+					hero.ability2.keybind.getCooldown(player) == 0) {
+				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MEI_CRYSTAL),
+						TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT),
+						TickHandler.getHandler(player, Identifier.PREVENT_INPUT),
+						TickHandler.getHandler(player, Identifier.PREVENT_ROTATION),
+						TickHandler.getHandler(player, Identifier.ABILITY_USING));
+				Minewatch.network.sendToAll(new SPacketSimple(32, player, false));
 			}
 
 		}

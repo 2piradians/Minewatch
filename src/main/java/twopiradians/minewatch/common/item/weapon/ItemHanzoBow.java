@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -31,7 +31,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	private ItemStack findAmmo(EntityLivingBase player) {
-		//if (ItemMWArmor.SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero)
+		//if (SetManager.entitiesWearingSets.get(player.getPersistentID()) == hero)
 		return new ItemStack(Items.ARROW);
 		/*else if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND)))
 			return player.getHeldItem(EnumHand.OFF_HAND);
@@ -60,7 +60,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase player, int timeLeft) {
 		boolean flag = (player instanceof EntityPlayer && ((EntityPlayer)player).capabilities.isCreativeMode) || 
-				ItemMWArmor.SetManager.getWornSet(player) == hero;
+				SetManager.getWornSet(player) == hero;
 		ItemStack itemstack = this.findAmmo(player);
 
 		int i = this.getMaxItemUseDuration(stack) - timeLeft;
@@ -91,7 +91,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						EntityHelper.setAim(entityarrow, player, player.rotationPitch, player.rotationYawHead, 100 - (100 - 26) * (1f-f), 0, null, 0, 0);
 						hero.ability2.keybind.setCooldown(player, 400, false); 
 
-						ModSoundEvents.HANZO_SONIC_ARROW.playSound(player, 1.0f, 1.0f);
+						ModSoundEvents.HANZO_SONIC_VOICE.playSound(player, 1.0f, 1.0f);
 					}
 					// scatter arrow
 					else if (hero.ability1.isSelected(player)) {
@@ -101,7 +101,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 						hero.ability1.keybind.setCooldown(player, 200, false); 
 
 						if (worldIn.rand.nextBoolean())
-							ModSoundEvents.HANZO_SCATTER_ARROW.playSound(player, 1.0f, 1.0f);
+							ModSoundEvents.HANZO_SCATTER_VOICE.playSound(player, 1.0f, 1.0f);
 					}
 					// regular arrow
 					else { 

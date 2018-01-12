@@ -1,0 +1,49 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minewatch:moira_weapon.obj"
+  },
+  "variants": {
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson_lefthand": {
+            "rotation": [ { "x": 86 }, { "y": 0 }, { "z": 0 } ],
+            "translation": [ -1.08, -1.06, 1.32 ],
+            "scale": [ 2.05, 1.58, 2.05 ]
+          },
+          "thirdperson_righthand": {
+              "rotation": [ { "x": 86 }, { "y": 180 }, { "z": 0 } ],
+              "translation": [ -1.08, 0.97, 1.165 ],
+              "scale": [ 2.05, 1.58, 2.05 ]
+          },
+          "gui": {
+            "rotation": [ { "x": 0 }, { "y": 282 }, { "z": 0 } ],
+        	"translation": [ -0.69, 1.05, 0.0 ],
+        	"scale": [ 1.9, 1.9, 1.9 ]
+          },
+          "firstperson_righthand": {
+            "rotation": [ { "x": 154 }, { "y": 316 }, { "z": 44 } ],
+            "translation": [ -0.6, -1.5, -0.2 ],
+            "scale": [ 1.92, 1.6, 2 ]
+          },
+          "firstperson_lefthand": {
+            "rotation": [ { "x": -24 }, { "y": 56 }, { "z": 140 } ],
+            "translation": [ 1.0, -1, 0.75 ],
+            "scale": [ 1.92, 1.6, 2 ]
+          },
+          "ground": {
+            "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
+        	"translation": [ 0.8, 1, 0.73 ],
+        	"scale": [ 1.5, 1.5, 1.5 ]
+          },
+          "fixed": {
+            "rotation": [ { "x": 0 }, { "y": 90 }, { "z": 0 } ],
+       		"translation": [ 0.93, 1.125, -1.0625 ],
+       		"scale": [ 1.9, 1.9, 1.9 ]
+          }
+        }
+      }
+    ]
+  }
+}

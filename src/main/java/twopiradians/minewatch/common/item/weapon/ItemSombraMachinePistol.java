@@ -33,7 +33,7 @@ import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -48,7 +48,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			if (this.entity != null && this.entity.isEntityAlive() && this.entityLiving != null && 
-					ItemMWArmor.SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
+					SetManager.getWornSet(this.entityLiving) == EnumHero.SOMBRA &&
 					!this.entityLiving.canEntityBeSeen(entity) && entity instanceof EntityLivingBase && 
 					((EntityLivingBase)entity).getHealth() > 0 &&
 					((EntityLivingBase)entity).getHealth() < ((EntityLivingBase)entity).getMaxHealth()/2f &&
@@ -67,7 +67,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
+			if (this.entityLiving == Minecraft.getMinecraft().thePlayer && 
+					this.entityLiving != null && !TickHandler.hasHandler(this.entityLiving, Identifier.SOMBRA_INVISIBLE)) {
 				if (this.ticksLeft == 8) 
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, this.entityLiving.worldObj, 
 							this.entityLiving.posX, this.entityLiving.posY+this.entityLiving.height/2d, this.entityLiving.posZ, 0, 0, 0, 0x9F62E5, 0x8E77BC, 1f, 15, 25, 1, 0, 0);
@@ -82,7 +83,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.ticksLeft == 5 && this.entityLiving != null) {
 				entityLiving.fallDistance = 0;
-				entityLiving.setPositionAndUpdate(this.position.xCoord, this.position.yCoord, this.position.zCoord);
+				// attempt tp - if it fails, reset cooldown
+				if (!EntityHelper.attemptTeleport(entityLiving, this.position.xCoord, this.position.yCoord, this.position.zCoord))
+					EnumHero.SOMBRA.ability2.keybind.setCooldown(player, 1, false);
 			}
 
 			return super.onServerTick();
@@ -175,27 +178,25 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			}
 
 			// translocator
-			if (!worldObj.isRemote && hero.ability2.isSelected(player, false, hero.ability3) && hero.ability2.keybind.isKeyDown(player) &&
+			if (!worldObj.isRemote && hero.ability2.isSelected(player, true, hero.ability3) && hero.ability2.keybind.isKeyDown(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				// teleport
 				Entity translocator = hero.ability2.entities.get(player);
 				if (translocator instanceof EntitySombraTranslocator &&	translocator.isEntityAlive()) {
-					if (hero.ability2.keybind.isKeyPressed(player)) {
-						if (player instanceof EntityPlayer)
-							ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
-						ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
-						TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
-								setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
-						Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
-								translocator.posX, translocator.posY, translocator.posZ), worldObj.provider.getDimension());
-						translocator.setDead();
-						hero.ability2.keybind.setCooldown(player, 80, false);
-					}
+					if (player instanceof EntityPlayer)
+						ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.stopSound((EntityPlayer) player);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_TELEPORT.playFollowingSound(player, 1, 1, false);
+					TickHandler.register(false, TELEPORT.setEntity(player).setTicks(10).
+							setPosition(new Vec3d(translocator.posX, translocator.posY, translocator.posZ)));
+					Minewatch.network.sendToDimension(new SPacketSimple(29, player, false, 
+							translocator.posX, translocator.posY, translocator.posZ), worldObj.provider.getDimension());
+					translocator.setDead();
+					hero.ability2.keybind.setCooldown(player, 80, false);
 				}
 				// throw new translocator
 				else {
 					translocator = new EntitySombraTranslocator(worldObj, player);
-					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
+					EntityHelper.setAim(translocator, player, player.rotationPitch, player.rotationYawHead, 30, 0, null, 0, 0, -0.5f);
 					ModSoundEvents.SOMBRA_TRANSLOCATOR_THROW.playSound(player, 1, 1);
 					worldObj.spawnEntityInWorld(translocator);
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

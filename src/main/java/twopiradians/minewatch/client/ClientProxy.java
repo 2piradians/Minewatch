@@ -71,6 +71,7 @@ import twopiradians.minewatch.client.render.entity.RenderLucioSonic;
 import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
+import twopiradians.minewatch.client.render.entity.RenderMoiraOrb;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
@@ -89,6 +90,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
@@ -103,6 +105,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
@@ -176,7 +179,7 @@ public class ClientProxy extends CommonProxy {
 			Material material = model.getMatLib().getMaterial(materialName);
 			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
 				// PORT 1.10.2: bigWarning
-				FMLLog.bigWarning("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
+				FMLLog.severe("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
 				builder.put(materialName, missing);
 			}
 			else
@@ -276,6 +279,8 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityReinhardtStrike.class, RenderReinhardtStrike::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityLucioSonic.class, RenderLucioSonic::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraHealEnergy.class, new RenderFactory());
+		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraOrb.class, RenderMoiraOrb::new);
 	}
 
 	private void registerBlockRenders() {
@@ -314,6 +319,7 @@ public class ClientProxy extends CommonProxy {
 		for (int i=0; i<6; ++i)
 			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/lucio_sonic"));
+		RenderMoiraOrb.sprite = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/particle/moira_orb"));
 	}
 
 	@Override

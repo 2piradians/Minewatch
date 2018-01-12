@@ -53,6 +53,12 @@
 			"minewatch:hurt"
 		]
 	},
+	"heal": {
+		"category": "player",
+		"sounds": [
+			"minewatch:heal"
+		]
+	},
 	"ability_recharge": {
 		"category": "player",
 		"sounds": [
@@ -180,17 +186,17 @@
 			"minewatch:hanzo_draw"
 		]
 	},
-	"hanzo_sonic_arrow": {
+	"hanzo_sonic_voice": {
 		"category": "player",
 		"sounds": [
-			"minewatch:hanzo_sonic_arrow_1",
-			"minewatch:hanzo_sonic_arrow_2"
+			"minewatch:hanzo_sonic_voice_0",
+			"minewatch:hanzo_sonic_voice_1"
 		]
 	},
-	"hanzo_scatter_arrow": {
+	"hanzo_scatter_voice": {
 		"category": "player",
 		"sounds": [
-			"minewatch:hanzo_scatter_arrow"
+			"minewatch:hanzo_scatter_voice"
 		]
 	},
 	"reinhardt_weapon": {
@@ -858,6 +864,273 @@
 	"category": "player",
 		"sounds": [
 			"minewatch:health_pack_respawn"
+		]
+	},
+	"moira_damage_during_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_during_hit"
+		]
+	},
+	"moira_damage_during_miss": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_during_miss"
+		]
+	},
+	"moira_damage_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_start"
+		]
+	},
+	"moira_fade": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_fade"
+		]
+	},
+	"moira_heal_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_during"
+		]
+	},
+	"moira_heal_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_start"
+		]
+	},
+	"moira_orb_select": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_select"
+		]
+	},
+	"moira_orb_deselect": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_deselect"
+		]
+	},
+	"moira_orb_heal_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_throw"
+		]
+	},
+	"moira_orb_damage_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_throw"
+		]
+	},
+	"moira_orb_heal_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_bounce"
+		]
+	},
+	"moira_orb_damage_bounce": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_bounce"
+		]
+	},
+	"moira_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_damage_voice_0",
+			"minewatch:moira_damage_voice_1",
+			"minewatch:moira_damage_voice_2",
+			"minewatch:moira_damage_voice_3"
+		]
+	},
+	"moira_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_heal_voice_0",
+			"minewatch:moira_heal_voice_1",
+			"minewatch:moira_heal_voice_2"
+		]
+	},
+	"moira_orb_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_damage_voice_0",
+			"minewatch:moira_orb_damage_voice_1",
+			"minewatch:moira_orb_damage_voice_2"
+		]
+	},
+	"moira_orb_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_orb_heal_voice_0",
+			"minewatch:moira_orb_heal_voice_1",
+			"minewatch:moira_orb_heal_voice_2"
+		]
+	},
+	"doomfist_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_select_voice"
+		]
+	},
+	"genji_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:genji_select_voice"
+		]
+	},
+	"mccree_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mccree_select_voice"
+		]
+	},
+	"pharah_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_select_voice"
+		]
+	},
+	"reaper_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:reaper_select_voice"
+		]
+	},
+	"soldier76_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:soldier76_select_voice"
+		]
+	},
+	"sombra_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_select_voice"
+		]
+	},
+	"tracer_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:tracer_select_voice"
+		]
+	},
+	"bastion_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:bastion_select_voice"
+		]
+	},
+	"hanzo_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:hanzo_select_voice"
+		]
+	},
+	"junkrat_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:junkrat_select_voice"
+		]
+	},
+	"mei_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mei_select_voice"
+		]
+	},
+	"torbjorn_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:torbjorn_select_voice"
+		]
+	},
+	"widowmaker_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_select_voice"
+		]
+	},
+	"dva_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:dva_select_voice"
+		]
+	},
+	"orisa_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:orisa_select_voice"
+		]
+	},
+	"reinhardt_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_select_voice"
+		]
+	},
+	"roadhog_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_select_voice"
+		]
+	},
+	"winston_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:winston_select_voice"
+		]
+	},
+	"zarya_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zarya_select_voice"
+		]
+	},
+	"ana_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_select_voice"
+		]
+	},
+	"lucio_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_select_voice"
+		]
+	},
+	"mercy_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mercy_select_voice"
+		]
+	},
+	"moira_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:moira_select_voice"
+		]
+	},
+	"symmetra_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:symmetra_select_voice"
+		]
+	},
+	"zenyatta_select_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:zenyatta_select_voice"
+		]
+	},
+	"bastion_heal": {
+	"category": "player",
+		"sounds": [
+			"minewatch:bastion_heal"
 		]
 	}
 }

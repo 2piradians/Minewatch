@@ -14,6 +14,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
+import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
@@ -28,6 +29,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
@@ -69,7 +71,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(EntityWidowmakerMine.class, "widowmaker_mine", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(EntityMercyBullet.class, "mercy_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(EntityMercyBeam.class, "mercy_beam", id++, Minewatch.instance, 64, 20, false);
-		EntityRegistry.registerModEntity(EntityJunkratGrenade.class, "junkrat_grenade", id++, Minewatch.instance, 64, 1, true);
+		EntityRegistry.registerModEntity(EntityJunkratGrenade.class, "junkrat_grenade", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(EntityJunkratTrap.class, "junkrat_trap", id++, Minewatch.instance, 64, 20, true);
 		EntityRegistry.registerModEntity(EntityJunkratMine.class, "junkrat_mine", id++, Minewatch.instance, 64, 1, true);
 		EntityRegistry.registerModEntity(EntitySombraBullet.class, "sombra_bullet", id++, Minewatch.instance, 64, 20, false);
@@ -77,13 +79,15 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(EntityReinhardtStrike.class, "reinhardt_strike", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(EntityLucioSonic.class, "lucio_sonic", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(EntityZenyattaOrb.class, "zenyatta_orb", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMoiraHealEnergy.class, "moira_heal_energy", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(EntityMoiraOrb.class, "moira_orb", id++, Minewatch.instance, 64, 1, true);
 	}
 	
     /**Get spawn egg for given entity class*/
 	public static ItemStack getSpawnEgg(ResourceLocation id) {
 		ItemStack stack = new ItemStack(Items.SPAWN_EGG);
 		NBTTagCompound nbt = new NBTTagCompound();    	
-		nbt.setString("id", id.toString().replace(":", "."));
+		nbt.setString("id", id.toString().replace(":", ".")); // PORT 1.10.2 add .replace(":", ".")
 		NBTTagCompound nbt2 = new NBTTagCompound();
 		nbt2.setTag("EntityTag", nbt);
 		stack.setTagCompound(nbt2);

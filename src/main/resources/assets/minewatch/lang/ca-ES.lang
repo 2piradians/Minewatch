@@ -1,0 +1,185 @@
+itemGroup.tabMinewatch=Secció de Minewatch
+itemGroup.tabMinewatchArmorWeapons=Armadures i Armes de Minewatch
+itemGroup.tabMinewatchMapMaking=Eines per el Map-making de Minewatch
+
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Aparençes dels Herois
+config.server-side.hero_mobs=Herois Móbils
+
+effect.frozen=Congel·lat
+
+tile.health_pack_small.name=Paquet de curació petita
+tile.health_pack_large.name=Paquet de curació grossa
+
+item.wild_card_token.name=Fitxa Al·leatória
+item.team_stick.name=Sel·lector d'Equips
+
+item.reaper_token.name=Fitxa d'Reaper
+item.reaper_helmet.name=Casc d'Reaper
+item.reaper_chestplate.name=Cuirassa d'Reaper
+item.reaper_leggings.name=Pantalons d'Reaper
+item.reaper_boots.name=Botes d'Reaper
+item.reaper_weapon.name=Escopetes Infernals d'Reaper
+
+item.hanzo_token.name=Fitxa de Hanzo
+item.hanzo_helmet.name=Casc de Hanzo
+item.hanzo_chestplate.name=Cuirassa de Hanzo
+item.hanzo_leggings.name=Pantalons de Hanzo
+item.hanzo_boots.name=Botes de Hanzo
+item.hanzo_weapon.name=Arc de la tempesta de Hanzo
+
+item.reinhardt_token.name=Fitxa de Reinhardt
+item.reinhardt_helmet.name=Casc de Reinhardt
+item.reinhardt_chestplate.name=Cuirassa de Reinhardt
+item.reinhardt_leggings.name=Pantalons de Reinhardt
+item.reinhardt_boots.name=Botes de Reinhardt
+item.reinhardt_weapon.name=Martell-Coet de Reinhardt
+
+item.ana_token.name=Fitxa de Ana
+item.ana_helmet.name=Casc de Ana
+item.ana_chestplate.name=Cuirassa de Ana
+item.ana_leggings.name=Pantalons de Ana
+item.ana_boots.name=Botes de Ana
+item.ana_weapon.name=Rifle Biótic de Ana
+
+item.genji_token.name=Fitxa de'n Genji
+item.genji_helmet.name=Casc de'n Genji
+item.genji_chestplate.name=Cuirassa de'n Genji
+item.genji_leggings.name=Pantalons de'n Genji
+item.genji_boots.name=Botes de'n Genji
+item.genji_weapon.name=Shurikens de'n Genji
+item.genji_shuriken_single.name=Shuriken de'n Genji
+
+item.tracer_token.name=Fitxa de Tracer
+item.tracer_helmet.name=Casc de Tracer
+item.tracer_chestplate.name=Cuirassa de Tracer
+item.tracer_leggings.name=Pantalons de Tracer
+item.tracer_boots.name=Botes de Tracer
+item.tracer_weapon.name=Pistola de Pols de Tracer
+
+item.mccree_token.name=Fitxa de McCree
+item.mccree_helmet.name=Casc de McCree
+item.mccree_chestplate.name=Cuirassa de McCree
+item.mccree_leggings.name=Pantalons de McCree
+item.mccree_boots.name=Botes de McCree
+item.mccree_weapon.name=Peacekeeper de McCree
+
+item.soldier76_token.name=Fitxa del Soldat: 76
+item.soldier76_helmet.name=Casc del Soldat: 76
+item.soldier76_chestplate.name=Cuirassa del Soldat: 76
+item.soldier76_leggings.name=Pantalons del Soldat: 76
+item.soldier76_boots.name=Botes del Soldat: 76
+item.soldier76_weapon.name=Rifle de Pols del Soldat: 76
+
+item.mei_token.name=Fitxa de Mei
+item.mei_helmet.name=Casc de Mei
+item.mei_chestplate.name=Cuirassa de Mei
+item.mei_leggings.name=Pantalons de Mei
+item.mei_boots.name=Botes de Mei
+item.mei_weapon.name=Bláster Endotèrmic de Mei
+
+item.bastion_token.name=Fitxa de Bastion
+item.bastion_helmet.name=Casc de Bastion
+item.bastion_chestplate.name=Cuirassa de Bastion
+item.bastion_leggings.name=Pantalons de Bastion
+item.bastion_boots.name=Botes de Bastion
+item.bastion_weapon.name=Metralladora de Bastion
+
+item.widowmaker_token.name=Fitxa de Widowmaker
+item.widowmaker_helmet.name=Casc de Widowmaker
+item.widowmaker_chestplate.name=Cuirassa de Widowmaker
+item.widowmaker_leggings.name=Pantalons de Widowmaker
+item.widowmaker_boots.name=Botes de Widowmaker
+item.widowmaker_weapon.name=Petó de la Viuda
+
+item.mercy_token.name=Fitxa de Mercy
+item.mercy_helmet.name=Casc de Mercy
+item.mercy_chestplate.name=Cuirassa de Mercu
+item.mercy_leggings.name=Pantalons de Mercy
+item.mercy_boots.name=Botes de Mercy
+item.mercy_weapon.name=Arma de Mercy
+
+item.junkrat_token.name=Fitxa de Junkrat
+item.junkrat_helmet.name=Casc de Junkrat
+item.junkrat_chestplate.name=Cuirassa de Junkrat
+item.junkrat_leggings.name=Pantalons de Junkrat
+item.junkrat_boots.name=Botes de Junkrat
+item.junkrat_weapon.name=Llançador de Granades d'Fragmentació de Junkrat
+item.junkrat_trigger.name=Mina de comnoció de Junkrat
+
+item.sombra_token.name=Fitxa de Sombra
+item.sombra_helmet.name=Casc de Sombra
+item.sombra_chestplate.name=Cuirassa de Sombra
+item.sombra_leggings.name=Pantalons de Sombra
+item.sombra_boots.name=Botes de Sombra
+item.sombra_weapon.name=Sombra's Machine Pistol
+
+item.lucio_token.name=Fitxa de Lúcio
+item.lucio_helmet.name=Casc de Lúcio
+item.lucio_chestplate.name=Cuirassa de Lúcio
+item.lucio_leggings.name=Pantalons de Lúcio
+item.lucio_boots.name=Botes de Lúcio
+item.lucio_weapon.name=Amplificador de So de Lúcio
+
+item.zenyatta_token.name=Fitxa de Zenyatta
+item.zenyatta_helmet.name=Casc de Zenyatta
+item.zenyatta_chestplate.name=Cuirassa de Zenyatta
+item.zenyatta_leggings.name=Pantalons de Zenyatta
+item.zenyatta_boots.name=Botes de Zenyatta
+item.zenyatta_weapon.name=Orb de la destrucció de Zenyatta
+
+item.moira_token.name=Fitxa de Moira
+item.moira_helmet.name=Casc de Moira
+item.moira_chestplate.name=Cuirassa de Moira
+item.moira_leggings.name=Pantalons de Moira
+item.moira_boots.name=Botes de Moira
+item.moira_weapon.name=Compressor biótic de Moira
+
+entity.minewatch.random_hero.name=Heroi al·leatori
+entity.minewatch.hanzo_hero.name=Hanzo
+entity.minewatch.hanzo_arrow.name=Fletxa de Hanzo
+entity.minewatch.hanzo_sonic_arrow.name=Fletxa sónica de Hanzo
+entity.minewatch.hanzo_scatter_arrow.name=Fletxa fragmentada de Hanzo
+entity.minewatch.reaper_hero.name=Reaper
+entity.minewatch.reaper_bullet.name=Bala de Reaper
+entity.minewatch.ana_hero.name=Ana
+entity.minewatch.ana_bullet.name=Bala de Ana
+entity.minewatch.ana_sleep_dart.name=Dard Anastésic de Ana
+entity.minewatch.genji_hero.name=Genji
+entity.minewatch.genji_shuriken.name=Shurikens de Genji
+entity.minewatch.genji_shuriken_single.name=Shuriken de Genji
+entity.minewatch.tracer_hero.name=Tracer
+entity.minewatch.tracer_bullet.name=Bala de Tracer
+entity.minewatch.mccree_hero.name=McCree
+entity.minewatch.mccree_bullet.name=Bala de McCree
+entity.minewatch.soldier76_hero.name=Soldat: 76
+entity.minewatch.soldier76_bullet.name=Bala de Soldat: 76
+entity.minewatch.soldier76_helix_rocket.name=Coet Helix de Soldat: 76
+entity.minewatch.bastion_hero.name=Bastion
+entity.minewatch.bastion_bullet.name=Bala de Bastion
+entity.minewatch.mei_hero.name=Mei
+entity.minewatch.mei_blast.name=Dispar de Mei
+entity.minewatch.mei_icicle.name=Cárambans de Mei
+entity.minewatch.mei_crystal.name=Crio-congelació deMei
+entity.minewatch.mercy_hero.name=Mercy
+entity.minewatch.mercy_bullet.name=Bala de Mercy
+entity.minewatch.mercy_beam.name=Raig de Mercy
+entity.minewatch.junkrat_hero.name=Junkrat
+entity.minewatch.junkrat_grenade.name=Granada Junkrat
+entity.minewatch.junkrat_trap.name=Trampa de Acer de Junkrat
+entity.minewatch.junkrat_mine.name=Mina de comnoció de Junkrat
+entity.minewatch.widowmaker_hero.name=Widowmaker
+entity.minewatch.widowmaker_bullet.name=Bala de Widowmaker
+entity.minewatch.widowmaker_mine.name=Mina verinosa de Widowmaker
+entity.minewatch.sombra_hero.name=Sombra
+entity.minewatch.sombra_bullet.name=Bala de Sombra
+entity.minewatch.sombra_translocator.name=Translocal·lització de Sombra
+entity.minewatch.reinhardt_hero.name=Reinhardt
+entity.minewatch.reinhardt_strike.name=Reinhardt Fire Strike
+entity.minewatch.lucio_hero.name=Lucio
+entity.minewatch.lucio_sonic.name=Prójectil sónic deLucio
+entity.minewatch.zenyatta_hero.name=Zenyatta
+entity.minewatch.zenyatta_orb.name=Orb de la  Destrucció de Zenyatta
+entity.minewatch.moira_hero.name=Moira
+entity.minewatch.moira_heal_energy.name=Energía curativa de Moira

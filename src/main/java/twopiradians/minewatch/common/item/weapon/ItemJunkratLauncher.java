@@ -48,7 +48,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// give trigger if mine active and offhand is empty
-			if (!worldObj.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand() == null) && 
+			if (!worldObj.isRemote && player.getHeldItemOffhand() == null && 
 					hero.ability2.entities.containsKey(entity) && 
 					hero.ability2.entities.get(entity).isEntityAlive()) 
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
@@ -61,7 +61,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				((EntityJunkratMine)hero.ability2.entities.get(entity)).explode();
 
 			// steel trap
-			if (!worldObj.isRemote && hero.ability1.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability1.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				ModSoundEvents.JUNKRAT_TRAP_TRIGGER.stopSound(worldObj);
 				EntityJunkratTrap trap = new EntityJunkratTrap(worldObj, player);
@@ -81,7 +81,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				ModSoundEvents.JUNKRAT_TRAP_PLACED_VOICE.playFollowingSound(player, 1, 1, false);
 			}
 			// mine
-			else if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
+			else if (!worldObj.isRemote && hero.ability2.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.subtractUse(player); 
 				hero.ability2.keybind.setCooldown(player, 10, true); 

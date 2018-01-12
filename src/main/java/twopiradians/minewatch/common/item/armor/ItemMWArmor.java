@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.item.armor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -18,7 +17,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
@@ -29,18 +27,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
-import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -48,15 +37,12 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
-import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
-import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 public class ItemMWArmor extends ItemArmor {
 
@@ -122,137 +108,14 @@ public class ItemMWArmor extends ItemArmor {
 
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
 			entity instanceof EntityGuiPlayer ? ((EntityGuiPlayer)entity).skin : 
-			hero.getSkin(entity.getPersistentID());
+				hero.getSkin(entity.getPersistentID());
 			if (skin < 0 || skin >= hero.skinInfo.length)
 				skin = 0;
-		return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
-		(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
+			return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
+			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
-	@Mod.EventBusSubscriber
-	public static class SetManager {
-		/**List of players wearing full sets and the sets that they are wearing*/
-		private static HashMap<UUID, EnumHero> entitiesWearingSets = Maps.newHashMap();	
-
-		/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
-		private static HashMap<UUID, EnumHero> lastWornSets = Maps.newHashMap();
-
-		/**Clear cooldowns of players logging in (for when switching worlds)*/
-		@SubscribeEvent
-		public static void resetCooldowns(PlayerLoggedInEvent event) {
-			for (KeyBind key : Keys.KeyBind.values()) 
-				if (key.getCooldown(event.player) > 0)
-					key.setCooldown(event.player, 0, false);
-			for (EnumHero hero : EnumHero.values())
-				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) 
-					if (ability.multiAbilityUses.remove(event.player.getPersistentID()) != null &&
-					event.player instanceof EntityPlayerMP) {
-						Minewatch.network.sendTo(
-								new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
-										ability.maxUses, false), (EntityPlayerMP) event.player);
-					}
-		}
-		
-		@SubscribeEvent
-		public static void clearHandlers(PlayerLoggedOutEvent event) {
-			TickHandler.unregisterAllHandlers(true);
-		}
-
-		@Nullable
-		public static EnumHero getWornSet(Entity entity) {
-			return entity == null ? null : 
-				entity instanceof EntityHero ? ((EntityHero)entity).hero : 
-					getWornSet(entity.getPersistentID());
-		}
-
-		@Nullable
-		public static EnumHero getWornSet(UUID uuid) {
-			return entitiesWearingSets.get(uuid);
-		}
-
-		/**Clear cooldowns of players respawning*/
-		@SubscribeEvent
-		public static void resetCooldowns(PlayerRespawnEvent event) {
-			for (KeyBind key : Keys.KeyBind.values()) 
-				if (key.getCooldown(event.player) > 0)
-					key.setCooldown(event.player, 0, false);
-		}
-
-		/**Update entitiesWearingSets each tick
-		 * This way it's only checked once per tick, no matter what:
-		 * very useful for checking if HUDs should be rendered*/
-		@SubscribeEvent
-		public static void updateSets(TickEvent.PlayerTickEvent event) {			
-			if (event.phase == TickEvent.Phase.START) {
-				//detect if player is wearing a set
-				ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-				EnumHero hero = null;
-				boolean fullSet = helm != null && helm.getItem() instanceof ItemMWArmor;
-				if (fullSet) {
-					hero = ((ItemMWArmor)helm.getItem()).hero;
-					for (EntityEquipmentSlot slot : SLOTS) {
-						ItemStack armor = event.player.getItemStackFromSlot(slot);
-						if (armor == null || !(armor.getItem() instanceof ItemMWArmor)
-								|| ((ItemMWArmor)(armor.getItem())).hero != hero) 
-							fullSet = false;
-					}
-				}
-
-				// clear toggles when switching to set or if not holding weapon
-				if (hero != null && (event.player.getHeldItemMainhand() == null || 
-						event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
-						(fullSet && (SetManager.getWornSet(event.player) == null ||
-								SetManager.getWornSet(event.player) != hero)))
-					for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-						ability.toggle(event.player, false);
-
-				// update entitiesWearingSets
-				if (fullSet) {
-					SetManager.entitiesWearingSets.put(event.player.getPersistentID(), hero);
-					if (SetManager.lastWornSets.get(event.player.getPersistentID()) != hero) {
-						for (KeyBind key : Keys.KeyBind.values()) 
-							if (key.getCooldown(event.player) > 0)
-								key.setCooldown(event.player, 0, true);
-						SetManager.lastWornSets.put(event.player.getPersistentID(), hero);
-					}
-				}
-				else
-					SetManager.entitiesWearingSets.remove(event.player.getPersistentID());
-			}
-		}
-
-		@SubscribeEvent
-		public static void preventFallDamage(LivingFallEvent event) {
-			// prevent fall damage if enabled in config and wearing set
-			if (Config.preventFallDamage && event.getEntity() != null &&
-					SetManager.getWornSet(event.getEntity()) != null)
-				event.setCanceled(true);
-			// genji fall
-			else if (event.getEntity() != null && 
-					SetManager.getWornSet(event.getEntity()) == EnumHero.GENJI) 
-				event.setDistance(event.getDistance()*0.8f);
-		}
-
-		@SubscribeEvent
-		public static void junkratDeath(LivingDeathEvent event) {
-			if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().worldObj.isRemote &&
-					SetManager.getWornSet(event.getEntity()) == EnumHero.JUNKRAT) {
-				ModSoundEvents.JUNKRAT_DEATH.playSound(event.getEntity(), 1, 1);
-				for (int i=0; i<6; ++i) {
-					EntityJunkratGrenade grenade = new EntityJunkratGrenade(event.getEntity().worldObj, 
-							(EntityLivingBase) event.getEntity(), -1);
-					grenade.explodeTimer = 20+i*2;
-					grenade.setPosition(event.getEntity().posX, event.getEntity().posY+event.getEntity().height/2d, event.getEntity().posZ);
-					grenade.motionX = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
-					grenade.motionY = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
-					grenade.motionZ = (event.getEntity().worldObj.rand.nextDouble()-0.5d)*0.1d;
-					event.getEntity().worldObj.spawnEntityInWorld(grenade);
-					grenade.isDeathGrenade = true;
-					Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
-				}
-			}
-		}
-	}
+	
 
 	@Override
 	@SideOnly(Side.CLIENT)

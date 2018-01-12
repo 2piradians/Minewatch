@@ -8,8 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,6 +19,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.SPacketSimple;
@@ -49,7 +50,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
 		// dash
-		if (isSelected && entity instanceof EntityLivingBase && (hero.ability2.isSelected((EntityLivingBase) entity) || hero.ability2.isSelected((EntityLivingBase) entity, Keys.KeyBind.RMB)) &&
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack && (hero.ability2.isSelected((EntityLivingBase) entity, true) || hero.ability2.isSelected((EntityLivingBase) entity, true, Keys.KeyBind.RMB)) &&
 				!worldObj.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 			entity.setSneaking(false);
 			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, worldObj.rand.nextFloat()/2f+0.75f);
@@ -57,29 +58,31 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
 			else if (entity instanceof EntityHero)
 				SPacketSimple.move((EntityLivingBase) entity, 9, false, true);
-			hero.ability2.subtractUse((EntityLivingBase) entity);
 			hero.ability2.keybind.setCooldown((EntityLivingBase) entity, 3, true); 
+			hero.ability2.subtractUse((EntityLivingBase) entity);
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		// tracer's dash
-		GlStateManager.enableBlend();
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+			GlStateManager.enableBlend();
 
-		double scale = 0.8d*Config.guiScale;
-		GlStateManager.scale(scale, scale*4, 1);
-		GlStateManager.translate((int) ((width - 83*scale)/2d / scale), (int) ((height- 80*scale)/8d / scale), 0);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png"));
-		int uses = this.hero.ability2.getUses(player);
-		GuiUtils.drawTexturedModalRect(23, 21, 1, uses > 2 ? 1011 : 1015, 40, 4, 0);
-		GlStateManager.scale(0.75f, 0.75f, 1);
-		GuiUtils.drawTexturedModalRect(37, 25, 1, uses > 1 ? 1011 : 1015, 40, 4, 0);
-		GlStateManager.scale(0.75f, 0.75f, 1);
-		GuiUtils.drawTexturedModalRect(56, 30, 1, uses > 0 ? 1011 : 1015, 40, 4, 0);
+			double scale = 3d*Config.guiScale;
+			GlStateManager.translate(width/2, height/2, 0);
+			GlStateManager.scale(scale, scale, 1);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
+			int uses = this.hero.ability2.getUses(player);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 2 ? 239 : 243, 10, 4, 0);
+			GlStateManager.scale(0.75f, 0.75f, 1);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 1 ? 239 : 243, 10, 4, 0);
+			GlStateManager.scale(0.75f, 0.75f, 1);
+			GuiUtils.drawTexturedModalRect(-5, 8, 1, uses > 0 ? 239 : 243, 10, 4, 0);
 
-		GlStateManager.disableBlend();
+			GlStateManager.disableBlend();
+		}
 	}
 
 }

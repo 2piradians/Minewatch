@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -41,6 +42,8 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -49,6 +52,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
@@ -94,7 +98,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool) {
 		this(type, bool, null, 0, 0, 0, entity, null);
 	}
-	
+
 	public SPacketSimple(int type, Entity entity, String string) {
 		this(type, false, UUID.randomUUID(), 0, 0, 0, entity == null ? -1 : entity.getEntityId(), -1, string);
 	}
@@ -165,6 +169,7 @@ public class SPacketSimple implements IMessage {
 		this.y4 = entity.prevPosY;
 		this.z4 = entity.prevPosZ;
 		this.string = "";
+		this.bool = entity.isDead;
 	}
 
 	@Override
@@ -261,7 +266,7 @@ public class SPacketSimple implements IMessage {
 						if (packet.bool) {
 							TickHandler.register(true, ItemMcCreeGun.ROLL.setEntity(entity).setTicks(10),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(EnumHero.MCCREE.ability2), 
-									EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(11));
+									RenderManager.SNEAKING.setEntity(entity).setTicks(11));
 						}
 						if (entity == player)
 							move((EntityLivingBase) entity, 0.6d, false, false);
@@ -271,7 +276,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(entity).setTicks(8),
 								ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks(8),
 								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
-								EnumHero.RenderManager.SNEAKING.setEntity(entity).setTicks(9));
+								RenderManager.SNEAKING.setEntity(entity).setTicks(9));
 						if (entity == player) 
 							move(player, 1.8d, false, true);
 					}
@@ -345,6 +350,8 @@ public class SPacketSimple implements IMessage {
 						entity.worldObj.spawnParticle(EnumParticleTypes.SWEEP_ATTACK, entity.posX + d0, entity.posY + (double)entity.height * 0.8D, entity.posZ + d1, 0, d0, 0.0D, new int[0]);
 						if (entity == player)
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(entity).setTicks(5));
+						if (entity2 instanceof IThrowableEntity)
+							((IThrowableEntity)entity2).setThrower(entity);
 					}
 					// Kill/assist messages
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
@@ -358,16 +365,16 @@ public class SPacketSimple implements IMessage {
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
-						TickHandler.register(true, EnumHero.RenderManager.MESSAGES.
+						TickHandler.register(true, RenderManager.MESSAGES.
 								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
-							TickHandler.register(true, EnumHero.RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
+							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
 							if (!(entity instanceof EntityLivingBaseMW)) {
 								TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HERO_MULTIKILL);
 								if (handler == null)
-									TickHandler.register(true, EnumHero.RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
+									TickHandler.register(true, RenderManager.MULTIKILL.setEntity(player).setTicks(40).setNumber(1));
 								else if (handler.number < 6) {
 									handler.setTicks(40);
 									handler.setNumber(handler.number+1);
@@ -388,7 +395,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 15 && packetPlayer == player) {
 						TickHandler.Handler handler = TickHandler.getHandler(player, Identifier.HIT_OVERLAY);
 						if (handler == null || handler.ticksLeft < 11)
-							TickHandler.register(true, EnumHero.RenderManager.HIT_OVERLAY.setEntity(player).setTicks(10).setNumber(packet.x));
+							TickHandler.register(true, RenderManager.HIT_OVERLAY.setEntity(player).setTicks(10).setNumber(packet.x));
 						else 
 							handler.setNumber(handler.number + packet.x/3d).setTicks(10);
 						// play damage sound
@@ -404,7 +411,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// add opped button to tab
 					else if (packet.type == 18) {
-						GuiTab.addOppedButton();
+						GuiTab.addOppedButtons();
 					}
 					// Mercy's Angel
 					else if (packet.type == 19 && entity != null) {
@@ -504,7 +511,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Sombra's teleport
 					else if (packet.type == 29 && entity != null) {
-						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(player).setTicks(10).
+						TickHandler.register(true, ItemSombraMachinePistol.TELEPORT.setEntity(entity).setTicks(10).
 								setPosition(new Vec3d(packet.x, packet.y, packet.z)));
 					}
 					// Junkrat's mine explosion
@@ -598,6 +605,8 @@ public class SPacketSimple implements IMessage {
 					}
 					// Entity collision raytraceresult onImpact
 					else if (packet.type == 41 && entity instanceof EntityMW) {
+						if (packet.bool)
+							entity.setDead();
 						entity.setPosition(packet.x3, packet.y3, packet.z3);
 						if (entity.ticksExisted == 0) {
 							entity.prevPosX = packet.x4;
@@ -697,6 +706,52 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 45 && packet.string != null) {
 						ITextComponent component = new TextComponentString(TextFormatting.GREEN+"[Team Stick] "+TextFormatting.RESET+packet.string);
 						Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(component, 92);
+					}
+					// sync weapon charge
+					else if (packet.type == 46) {
+						EnumHero hero = SetManager.getWornSet(player);
+						if (hero != null)
+							hero.weapon.setCurrentCharge(player, (float) packet.x, false);
+					}
+					// Moira's Fade
+					else if (packet.type == 47 && entity != null) {
+						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
+								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
+						if (player == entity)
+							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
+					}
+					// Moira's damage
+					else if (packet.type == 48 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemMoiraWeapon.DAMAGE.setEntity(entity).setEntityLiving(entity2 instanceof EntityLivingBase ? (EntityLivingBase) entity2 : null).setTicks(10));
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
+					}
+					// Moira's orb select
+					else if (packet.type == 49 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemMoiraWeapon.ORB_SELECT.setEntity(entity).setTicks(12000));
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.worldObj, entity, 0xFF50FF, 0xFF50FF, 0.99f, 12000, 2, 2, 0, 0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.worldObj, entity, 0xFBF235, 0xFBF235, 1, 12000, 2, 2, 0, -0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.worldObj, entity, 0x251A60, 0x251A60, 0.99f, 12000, 2, 2, 0, 0.05f);
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.MOIRA_ORB, entity.worldObj, entity, 0xFBF235, 0xFBF235, 1, 12000, 2, 2, 0, -0.05f);
+						}
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_ORB_SELECT));
+					}
+					// Select hero voice line
+					else if (packet.type == 50 && packetPlayer == player && packet.x >= 0 && packet.x < EnumHero.values().length) {
+						EnumHero hero = EnumHero.values()[(int) packet.x];
+						if (hero != null && hero.selectSound != null)
+							hero.selectSound.playFollowingSound(player, 0.5f, 1.0f, false);
+					}
+					// McCree's fan the hammer
+					else if (packet.type == 51 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemMcCreeGun.FAN.setEntity(entity).setTicks(5));
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MCCREE_FAN));
 					}
 				}
 			});

@@ -48,6 +48,33 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemGenjiShuriken extends ItemMWWeapon {
 
+	public static final Handler SHURIKEN = new Handler(Identifier.GENJI_SHURIKEN, true) {
+		@Override
+		public boolean onServerTick() {
+			EnumHand hand = null;
+			if (this.number >= 0 && this.number < EnumHand.values().length)
+				hand = EnumHand.values()[(int) this.number];
+			if (hand != null && this.ticksLeft % 2 == 0 && entityLiving != null && entityLiving.getHeldItem(hand) != null && 
+					entityLiving.getHeldItem(hand).getItem() == EnumHero.GENJI.weapon && 
+					EnumHero.GENJI.weapon.canUse(entityLiving, false, hand, false)) {
+				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(entityLiving.worldObj, entityLiving, hand.ordinal());
+				EntityHelper.setAim(shuriken, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 60, 0.3f, hand, 15, 0.6f);
+				entityLiving.worldObj.spawnEntityInWorld(shuriken);
+				ModSoundEvents.GENJI_SHOOT.playSound(entityLiving, entityLiving.worldObj.rand.nextFloat()+0.5F, entityLiving.worldObj.rand.nextFloat()/2+0.75f);
+				EnumHero.GENJI.weapon.subtractFromCurrentAmmo(entityLiving, 1, hand);
+				if (entityLiving.worldObj.rand.nextInt(24) == 0)
+					entityLiving.getHeldItem(hand).damageItem(1, entityLiving);
+			}
+			return super.onServerTick();
+		}
+
+		@Override
+		public Handler onServerRemove() {
+			EnumHero.GENJI.weapon.setCooldown(entityLiving, 14);
+			return super.onServerRemove();
+		}
+	};
+	
 	public static final Handler DEFLECT = new Handler(Identifier.GENJI_DEFLECT, true) {
 		@Override
 		public boolean onServerTick() {
@@ -156,24 +183,18 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
-		// throw single shuriken TODO make triple w/ delay
-		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false) && player.ticksExisted % 3 == 0) {
-			EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.worldObj, player, hand.ordinal());
-			EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead, 60, 1, hand, 15, 0.6f);
-			player.worldObj.spawnEntityInWorld(shuriken);
-			ModSoundEvents.GENJI_SHOOT.playSound(player, worldObj.rand.nextFloat()+0.5F, player.worldObj.rand.nextFloat()/2+0.75f);
-			this.subtractFromCurrentAmmo(player, 1, hand);
-			if (this.getCurrentAmmo(player) % 3 == 0 &&	this.getCurrentAmmo(player) != this.getMaxAmmo(player))
-				this.setCooldown(player, 15);
-			if (player.worldObj.rand.nextInt(24) == 0)
-				player.getHeldItem(hand).damageItem(1, player);
+		// throw single shuriken
+		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false) &&
+				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN)) {
+			TickHandler.register(false, SHURIKEN.setEntity(player).setTicks(6).setNumber(hand.ordinal()));
 		}
 	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		// throw triple shuriken
-		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false)) {
+		if (!player.worldObj.isRemote && this.canUse(player, true, hand, false) &&
+				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.worldObj, player, hand.ordinal());
 				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead + (1 - i)*8, 60, 1, hand, 15, 0.6f);
@@ -193,7 +214,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, worldObj, entity, slot, isSelected);
 
-		if (entity instanceof EntityLivingBase) {
+		if (entity instanceof EntityLivingBase && !TickHandler.hasHandler(entity, Identifier.GENJI_SHURIKEN)) {
 			EntityLivingBase player = (EntityLivingBase)entity;
 
 			// deflect
@@ -221,10 +242,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	private static boolean deflect(EntityLivingBase player, Entity entity) {
 		if (canDeflect(player, entity)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
-					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ)*1.2d;
+					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ); // do not make faster - hitscan doesn't hit properly
 			entity.motionX = player.getLookVec().xCoord*velScale;	
 			entity.motionY = player.getLookVec().yCoord*velScale;	
-			entity.motionZ = player.getLookVec().zCoord*velScale;		
+			entity.motionZ = player.getLookVec().zCoord*velScale;	
 
 			if (entity instanceof EntityArrow && !(entity instanceof EntityHanzoArrow)) { 
 				EntityArrow ent = (EntityArrow) entity;
@@ -244,7 +265,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
 			if (entity instanceof EntityMW)
-				((EntityMW)entity).lifetime *= 2;
+				((EntityMW)entity).lifetime *= 2; 
 			if (entity instanceof EntityJunkratMine) {
 				((EntityJunkratMine)entity).ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
 				((EntityJunkratMine)entity).deflectTimer = 40;
@@ -254,8 +275,9 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
 			else
 				entity.velocityChanged = true;
+			//EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, -1, (float) 0.1d, null, 0, 0);
 			ModSoundEvents.GENJI_DEFLECT_HIT.playSound(player, 0.6f, player.worldObj.rand.nextFloat()/6f+0.9f);
-			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false), player.worldObj.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false, entity), player.worldObj.provider.getDimension());
 			return true;
 		}
 		return false;

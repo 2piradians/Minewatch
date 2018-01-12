@@ -18,8 +18,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -159,7 +159,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
-				isScoped((EntityLivingBase) entity, stack)) 
+				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack)) 
 			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
@@ -183,8 +183,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
 	public void rotateSleeping(RenderLivingEvent.Pre<EntityLivingBase> event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
 		if (handler != null && event.getEntity().getHealth() > 0) {
@@ -198,8 +198,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
 	public void rotateSleeping(RenderLivingEvent.Post<EntityLivingBase> event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.ANA_SLEEP) && event.getEntity().getHealth() > 0) 
 			GlStateManager.popMatrix();
@@ -219,15 +219,15 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityLivingBase player, ItemStack stack) {
 		return player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() == EnumHero.ANA.weapon &&
-				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 &&
+				(player.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(player)) && 
+				(EnumHero.ANA.weapon.getCurrentAmmo(player) > 0 || EnumHero.ANA.weapon.getMaxAmmo(player) == 0) &&
 				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 
 	//PORT correct scope scale
+	@Override
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -244,8 +244,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			}
 
 			if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-				double height = event.getResolution().getScaledHeight_double();
-				double width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
 
 				Handler handler = TickHandler.getHandler(player, Identifier.ANA_SLEEP);

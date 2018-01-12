@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
@@ -16,6 +17,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -78,16 +80,19 @@ public class ItemBastionGun extends ItemMWWeapon {
 		super(40);
 		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
+		this.maxCharge = 80;
+		this.rechargeRate = 80f/140f;
 	}
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false)) {
+		if (this.canUse(player, true, hand, false) && hero.ability2.getCooldown(player) == 0 && 
+				!KeyBind.RMB.isKeyDown(player)) {
 			boolean turret = isAlternate(stack);
 			if (!worldObj.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(worldObj, player, turret ? 2 : hand.ordinal());
-				if (turret)
+				if (turret) 
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 1.5F, null, 20, 0);
 				else
 					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 12, 0.43f);
@@ -103,6 +108,45 @@ public class ItemBastionGun extends ItemMWWeapon {
 					this.setCooldown(player, 3);
 			}
 		}
+	}
+
+	@Override
+	public int getMaxItemUseDuration(ItemStack stack) {
+		return 90;
+	}
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
+		// start heal
+		if (hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
+				this.getCurrentCharge(player) >= this.maxCharge*0.2f && hero.ability1.isSelected(player)) {
+			player.setActiveHand(hand);
+		}
+
+		return super.onItemRightClick(worldObj, player, hand);
+	}
+
+	@Override
+	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+		// heal
+		if (this.canUse(player, true, EnumHand.MAIN_HAND, true) && this.getCurrentCharge(player) >= 1 &&
+				hero.ability1.isSelected(player) && !this.hasCooldown(player)) {
+			if (count == this.getMaxItemUseDuration(stack) - 10 && !player.worldObj.isRemote)
+				ModSoundEvents.BASTION_HEAL.playFollowingSound(player, 1.0f, 1.0f, false);
+			if (count <= this.getMaxItemUseDuration(stack) - 10) { 
+				this.subtractFromCurrentCharge(player, 1, true);
+				if (!player.worldObj.isRemote) 
+					EntityHelper.attemptDamage(player, player, -3.75f, true);
+			}
+			else if (this.getCurrentCharge(player) <= 0) 
+				player.stopActiveHand();
+		}
+	}
+
+	@Override
+	public void onPlayerStoppedUsing(ItemStack stack, World worldObj, EntityLivingBase entity, int timeLeft) {
+		if (!worldObj.isRemote)
+			ModSoundEvents.BASTION_HEAL.stopSound(worldObj);
 	}
 
 	@Override

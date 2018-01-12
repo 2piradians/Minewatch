@@ -40,6 +40,5 @@ public class MinewatchTab extends CreativeTabs {
 			return ((CreativeTabs)Minewatch.tabArmorWeapons).getTabIndex();
 		else
 			return CreativeTabs.INVENTORY.getTabIndex();
-	}
-
+}
 }

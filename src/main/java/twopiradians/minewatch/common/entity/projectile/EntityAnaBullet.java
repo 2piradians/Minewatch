@@ -35,7 +35,7 @@ public class EntityAnaBullet extends EntityMW {
 		@Override
 		public boolean onServerTick() {
 			// damage
-			if (this.ticksLeft % 4 == 0 && this.entity != null && this.entityLiving != null) 
+			if (this.ticksLeft % 4 == 0 && this.entity != null && this.entityLiving != null)
 				EntityHelper.attemptDamage(this.entityLiving, this.entity, 15, true);
 			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
@@ -97,7 +97,7 @@ public class EntityAnaBullet extends EntityMW {
 		// damage
 		else if (result.entityHit != null) {
 			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
-			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && // TODO change to 70
+			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
 					!TickHandler.hasHandler(result.entityHit, Identifier.REAPER_WRAITH)) {
 				TickHandler.register(this.worldObj.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();

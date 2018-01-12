@@ -41,6 +41,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 		return EntityHelper.shouldHit(entity, entity.getAttackTarget(), false) && entity.getAttackTarget() != null && 
 				entity.isEntityAlive() && entity.getAttackTarget().isEntityAlive() && 
 				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.ANA_SLEEP) && 
+				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.MOIRA_FADE) && 
 				(!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.SOMBRA_INVISIBLE) || 
 						entity.getDistanceToEntity(entity.getAttackTarget()) < 5) && 
 				!TickHandler.hasHandler(entity.getAttackTarget(), Identifier.MEI_CRYSTAL) && 

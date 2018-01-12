@@ -25,6 +25,57 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
 
+	public static final Handler FAN = new Handler(Identifier.MCCREE_FAN, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			// basic checks
+			if (entityLiving == null || !entityLiving.isEntityAlive() ||
+					entityLiving.getHeldItemMainhand() == null || 
+					entityLiving.getHeldItemMainhand().getItem() != EnumHero.MCCREE.weapon ||
+					(EnumHero.MCCREE.weapon.getCurrentAmmo(entityLiving) <= 0 && EnumHero.MCCREE.weapon.getMaxAmmo(entityLiving) != 0)) 
+				return true;
+			else {
+				this.ticksLeft = 5;
+				entityLiving.rotationPitch = Math.max(entityLiving.rotationPitch-1, -90);
+				entityLiving.rotationYaw += entityLiving.worldObj.rand.nextFloat()-0.5f;
+			}				
+			return super.onClientTick();
+		}
+
+		@Override
+		public boolean onServerTick() {
+			// basic checks
+			if (entityLiving == null || !entityLiving.isEntityAlive() ||
+					entityLiving.getHeldItemMainhand() == null || 
+					entityLiving.getHeldItemMainhand().getItem() != EnumHero.MCCREE.weapon ||
+					(EnumHero.MCCREE.weapon.getCurrentAmmo(entityLiving) <= 0 && EnumHero.MCCREE.weapon.getMaxAmmo(entityLiving) != 0)) 
+				return true;
+			else if (entityLiving.ticksExisted % 2 == 0 && EnumHero.MCCREE.weapon.canUse(entityLiving, true, EnumHand.MAIN_HAND, false)) {
+				if (!entityLiving.worldObj.isRemote) {
+					EntityMcCreeBullet bullet = new EntityMcCreeBullet(entityLiving.worldObj, entityLiving, EnumHand.MAIN_HAND.ordinal(), true);
+					EntityHelper.setAim(bullet, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, -1, 8F, EnumHand.MAIN_HAND, 10, 0.5f);
+					entityLiving.worldObj.spawnEntityInWorld(bullet);	
+					ModSoundEvents.MCCREE_SHOOT.playSound(entityLiving, entityLiving.worldObj.rand.nextFloat()+0.5F, entityLiving.worldObj.rand.nextFloat()/20+0.95f);
+					EnumHero.MCCREE.weapon.subtractFromCurrentAmmo(entityLiving, 1);
+					if (entityLiving.worldObj.rand.nextInt(25) == 0)
+						entityLiving.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, entityLiving);
+				} 
+				this.ticksLeft = 5;
+			}
+			entityLiving.rotationPitch = Math.max(entityLiving.rotationPitch-1, -90);
+			entityLiving.rotationYaw += entityLiving.worldObj.rand.nextFloat()-0.5f;
+
+			return super.onServerTick();
+		}
+		
+		@Override
+		public Handler onServerRemove() {
+			Minewatch.network.sendToDimension(new SPacketSimple(51, entityLiving, false), entityLiving.worldObj.provider.getDimension());
+			return super.onServerRemove();
+		}
+	};
+
 	public static final Handler ROLL = new Handler(Identifier.MCCREE_ROLL, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -42,7 +93,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 			}
 			return super.onClientTick();
 		}
-		
+
 		@Override
 		public boolean onServerTick() {
 			if (this.entityLiving instanceof EntityHero) {
@@ -71,7 +122,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { 
 		// shoot
-		if (this.canUse(player, true, hand, false) && !worldObj.isRemote) {
+		if (this.canUse(player, true, hand, false) && !worldObj.isRemote && !TickHandler.hasHandler(player, Identifier.MCCREE_FAN)) {
 			EntityMcCreeBullet bullet = new EntityMcCreeBullet(worldObj, player, hand.ordinal(), false);
 			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 0.6F, hand, 10, 0.5f);
 			worldObj.spawnEntityInWorld(bullet);
@@ -91,34 +142,18 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityLivingBase player, EnumHand hand) {
-		player.setActiveHand(hand);
+	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
+		// fan
+		if (this.canUse(player, true, hand, false) && !worldObj.isRemote && !TickHandler.hasHandler(player, Identifier.MCCREE_FAN)) {
+			TickHandler.register(false, FAN.setEntity(player).setTicks(5));
+			Minewatch.network.sendToDimension(new SPacketSimple(51, player, true), worldObj.provider.getDimension());
+		}
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase entity, int count) {
-		// Fan the Hammer
-		if (entity != null && count % 2 == 0 && this.canUse(entity, true, getHand(entity, stack), false)) {
-			EnumHand hand = null;
-			for (EnumHand hand2 : EnumHand.values())
-				if (entity.getHeldItem(hand2) == stack)
-					hand = hand2;
-			if (!entity.worldObj.isRemote && hand != null) {
-				EntityMcCreeBullet bullet = new EntityMcCreeBullet(entity.worldObj, entity, hand.ordinal(), true);
-				EntityHelper.setAim(bullet, entity, entity.rotationPitch, entity.rotationYawHead, -1, 3F, hand, 10, 0.5f);
-				entity.worldObj.spawnEntityInWorld(bullet);	
-				ModSoundEvents.MCCREE_SHOOT.playSound(entity, entity.worldObj.rand.nextFloat()+0.5F, entity.worldObj.rand.nextFloat()/20+0.95f);
-				if (count == this.getMaxItemUseDuration(stack))
-					this.subtractFromCurrentAmmo(entity, 1, hand);
-				else
-					this.subtractFromCurrentAmmo(entity, 1);
-				if (entity.worldObj.rand.nextInt(25) == 0)
-					entity.getHeldItem(hand).damageItem(1, entity);
-			} 
-			else 
-				entity.rotationPitch--;
-		}
+
 	}
 
 	@Override

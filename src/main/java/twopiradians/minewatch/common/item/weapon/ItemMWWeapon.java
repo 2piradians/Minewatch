@@ -9,12 +9,18 @@ import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -28,25 +34,29 @@ import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.IChangingModel;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor.SetManager;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -64,20 +74,92 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	private static Handler ENTITY_HERO_COOLDOWN = new Handler(Identifier.WEAPON_COOLDOWN, false) {};
 	/**Do not interact with directly - use the getter / setter*/
 	private HashMap<UUID, Integer> currentAmmo = Maps.newHashMap();
+	/**Do not interact with directly - use the getter / setter*/
+	private HashMap<UUID, Float> currentChargeServer = Maps.newHashMap();
+	/**Do not interact with directly - use the getter / setter*/
+	private float currentChargeClient = -1;
+	public int maxCharge;
+	/**Charge regained per tick*/
+	public float rechargeRate;
 	private int reloadTime;
 	protected boolean saveEntityToNBT;
 	public boolean showHealthParticles;
+
+	private Handler CHARGE_RECOVERY = new Handler(Identifier.WEAPON_CHARGE, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (entityLiving != null && currentChargeClient < maxCharge) {
+				if (entityLiving.ticksExisted > this.number+3) 
+					currentChargeClient = Math.min(maxCharge, currentChargeClient+rechargeRate);
+				this.ticksLeft = 2;
+			}
+			else
+				return true;
+
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (entityLiving != null && currentChargeServer.containsKey(entityLiving.getPersistentID()) && 
+					currentChargeServer.get(entityLiving.getPersistentID()) < maxCharge) {
+				if (entityLiving.ticksExisted > this.number+3)
+					currentChargeServer.put(entityLiving.getPersistentID(), Math.min(maxCharge, currentChargeServer.get(entityLiving.getPersistentID())+rechargeRate));
+				this.ticksLeft = 2;
+			}
+			else
+				return true;
+
+			return super.onServerTick();
+		}
+	};
 
 	public ItemMWWeapon(int reloadTime) {
 		this.setMaxDamage(100);
 		this.reloadTime = reloadTime;
 	}
 
+	public float getCurrentCharge(Entity player) {
+		if (player != null)
+			if (!player.worldObj.isRemote && currentChargeServer.containsKey(player.getPersistentID())) 
+				return currentChargeServer.get(player.getPersistentID());
+			else if (player.worldObj.isRemote && this.currentChargeClient >= 0 && player == Minewatch.proxy.getClientPlayer())
+				return currentChargeClient;
+		return this.maxCharge;
+	}
+
+	public void setCurrentCharge(Entity player, float amount, boolean sendPacket) {
+		if (player != null) {
+			amount = MathHelper.clamp_float(amount, 0, this.maxCharge);
+			if (player instanceof EntityPlayerMP && sendPacket) 
+				Minewatch.network.sendTo(new SPacketSimple(46, player, false, amount, 0, 0), (EntityPlayerMP) player);
+			Handler handler = TickHandler.getHandler(player, Identifier.WEAPON_CHARGE);
+			if (handler != null)
+				handler.setNumber(player.ticksExisted);
+			else if (amount < this.maxCharge)
+				TickHandler.register(player.worldObj.isRemote, this.CHARGE_RECOVERY.setEntity(player).setTicks(2));
+			if (player.worldObj.isRemote && player == Minewatch.proxy.getClientPlayer())
+				currentChargeClient = amount;
+			else if (!player.worldObj.isRemote)
+				currentChargeServer.put(player.getPersistentID(), amount);
+		}
+	}
+
+	public void subtractFromCurrentCharge(Entity player, float amount, boolean sendPacket) {
+		float charge = getCurrentCharge(player);
+		if (charge - amount > 0.5f)
+			this.setCurrentCharge(player, charge-amount, sendPacket);
+		else {
+			this.setCooldown(player, 20);
+			this.setCurrentCharge(player, 0, sendPacket);
+		}
+	}
+
 	public int getMaxAmmo(Entity player) {
 		if (player instanceof EntityLivingBase && hero.hasAltWeapon && isAlternate(((EntityLivingBase) player).getHeldItemMainhand()))
-			return hero.altAmmo;
+			return (int) Math.ceil(hero.altAmmo*Config.ammoMultiplier);
 		else
-			return hero.mainAmmo;
+			return (int) Math.ceil(hero.mainAmmo*Config.ammoMultiplier);
 	}
 
 	public int getCurrentAmmo(Entity player) {
@@ -135,7 +217,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void reequipAnimation(ItemStack stack) {
 		this.reequipAnimation(stack, 2);
 	}
-	
+
 	public void reequipAnimation(ItemStack stack, int ticks) {
 		if (stack != null)
 			this.reequipAnimation.put(stack, ticks);
@@ -147,7 +229,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public boolean canUse(EntityLivingBase player, boolean shouldWarn, @Nullable EnumHand hand, boolean ignoreAmmo) {
 		return canUse(player, shouldWarn, hand, ignoreAmmo, new Ability[0]);
 	}
-	
+
 	/**Check that weapon is in correct hand and that offhand weapon is held if hasOffhand.
 	 * Also checks that weapon is not on cooldown.
 	 * Warns player if something is incorrect.*/
@@ -160,7 +242,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (player == null || !player.isEntityAlive() || (hasCooldown(player) && !ignoreAmmo) || 
 				(!ignoreAmmo && this.getMaxAmmo(player) > 0 && this.getCurrentAmmo(player) == 0) ||
 				TickHandler.hasHandler(player, Identifier.PREVENT_INPUT) ||
-				(handler != null && !handler.bool && !ignoreAbility))
+				(handler != null && !handler.bool && !ignoreAbility) ||
+				(player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator()))
 			return false;
 
 		ItemStack main = player.getHeldItemMainhand();
@@ -192,7 +275,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { }
 
-	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
+	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase
+	 * NOTE: this is only called every 4 ticks for some reason*/
 	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
@@ -212,7 +296,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
 		if (entity == null || !entity.isEntityAlive())
 			return;
-		
+
 		//delete dev spawned items if not in dev's inventory
 		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
@@ -250,7 +334,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		if (entity instanceof EntityLivingBase && KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) {
 			EntityLivingBase player = (EntityLivingBase) entity;
 			EnumHand hand = this.getHand(player, stack);	
-			if (hand != null && (!this.hasOffhand || 
+			if (hand != null && (!this.hasOffhand || this.hero == EnumHero.MOIRA || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0 || 
 							this == EnumHero.TRACER.weapon))))
@@ -260,7 +344,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		// right click - for EntityHeroes
 		if (entity instanceof EntityHero)
 			if (KeyBind.RMB.isKeyPressed((EntityLivingBase) entity) || 
-					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()))
+					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()) &&
+					entity.ticksExisted % 4 == 0)
 				this.onItemRightClick(worldObj, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 			else if (KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
 				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityHero) entity).getItemInUseCount());
@@ -278,7 +363,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			stack.setItemDamage(0);
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		else if (!worldObj.isRemote && Config.durabilityOptionWeapons == 1 && stack.getItemDamage() != 0 && 
-				SetManager.getWornSet(entity.getPersistentID()) == hero)
+				SetManager.getWornSet(entity.getPersistentID(), entity.worldObj.isRemote) == hero)
 			stack.setItemDamage(0);
 
 		// health particles
@@ -289,7 +374,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			for (Entity entity2 : list) 
 				if (entity2 instanceof EntityLivingBase && ((EntityLivingBase)entity2).getHealth() > 0 &&
 						((EntityLivingBase)entity2).getHealth() < ((EntityLivingBase)entity2).getMaxHealth()/2f && 
-						EntityHelper.shouldTarget(entity, entity2, true)) {
+						EntityHelper.shouldTarget(entity, entity2, true) && !(entity2 instanceof EntityLivingBaseMW)) {
 					float size = Math.min(entity2.height, entity2.width)*9f;
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, worldObj, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}
@@ -322,7 +407,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		else
 			return false;
 	}
-	
+
 	/**Set item's cooldown - cooldown tracker for players, handler for entity heroes*/
 	public void setCooldown(Entity entity, int cooldown) {
 		this.setCooldown(entity, cooldown, false);
@@ -364,7 +449,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public boolean hasEffect(ItemStack stack) {
-		return super.hasEffect(stack); //XXX will be used with golden weapons
+		return super.hasEffect(stack); 
 	}
 
 	/**Called before armor is rendered - mainly used for coloring / alpha
@@ -374,24 +459,82 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	/**Called before weapon is rendered*/
 	@SideOnly(Side.CLIENT)
-	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {return ret;}
 
-	/**Called before game overlay is rendered if wearing set and holding weapon in mainhand*/
+	/**Called before game overlay is rendered if holding weapon in either hand (only called once per tick regardless of hand(s))*/
 	@SideOnly(Side.CLIENT)
-	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height) {}
-	
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
+		// render charge
+		if (this.maxCharge > 0 && event.getType() == ElementType.CROSSHAIRS && 
+				this.getCurrentCharge(player) < this.maxCharge && TickHandler.hasHandler(player, Identifier.WEAPON_CHARGE)) {
+			GL11.glEnable(GL11.GL_LINE_SMOOTH);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(width/2d, height/2d, 0);
+			GlStateManager.rotate(180, 1, 0, 0);
+			GlStateManager.rotate(54, 0, 0, 1);
+			float size = 60;
+			GlStateManager.disableLighting();
+			GlStateManager.disableCull();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.disableTexture2D();
+			GlStateManager.glLineWidth(10f);
+
+			Tessellator tessellator = Tessellator.getInstance();
+			VertexBuffer vertexbuffer = tessellator.getBuffer();
+
+			// background
+			vertexbuffer.begin(3, DefaultVertexFormats.POSITION_COLOR);
+			double deg_to_rad = 0.0174532925d;
+			double precision = 0.5d;
+			double angle_from = 270;
+			double angle_to = angle_from + 0.2f * 360d;
+			double angle_diff = angle_to-angle_from;
+			double steps = Math.round(angle_diff*precision);
+			double angle = angle_from;
+			for (int i = 1; i<=steps; i++) {
+				angle = angle_from+angle_diff/steps*i;
+				vertexbuffer.pos(size*Math.cos(angle*deg_to_rad), size*Math.sin(angle*deg_to_rad), 0).color(0.7f, 0.7f, 0.7f, 0.5F).endVertex();
+			}
+			tessellator.draw();
+
+			// foreground
+			vertexbuffer.begin(3, DefaultVertexFormats.POSITION_COLOR);
+			angle_to = angle_from + (this.getCurrentCharge(player) / this.maxCharge) * 0.2f * 360d;
+			angle_diff = angle_to-angle_from;
+			steps = Math.round(angle_diff*precision);
+			angle = angle_from;
+			for (int i = 1; i <= steps; i++) {
+				angle = angle_from+angle_diff/steps*i;
+				vertexbuffer.pos(size*Math.cos(angle*deg_to_rad), size*Math.sin(angle*deg_to_rad), 0).color(1, 1, 1, 0.4F).endVertex();
+			}
+			tessellator.draw();
+
+			GlStateManager.glLineWidth(1);
+			GlStateManager.enableTexture2D();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.popMatrix();
+		}
+	}
+
 	/**Called before entity wearing set and holding weapon in mainhand is rendered*/
 	@SideOnly(Side.CLIENT)
 	public void preRenderEntity(RenderLivingEvent.Pre<EntityLivingBase> event) {}
-	
+
 	/**Called after entity wearing set and holding weapon in mainhand is rendered*/
 	@SideOnly(Side.CLIENT)
 	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {}
-	
+
 	/**Called when client player is wearing set and holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void renderWorldLast(RenderWorldLastEvent event, EntityPlayerSP player) {}
-	
+
+	/**Should this quad be recolored by getColorFromItemStack color*/
+	@SideOnly(Side.CLIENT)
+	public boolean shouldRecolor(BakedMWItem model, BakedQuad quad) {
+		return true;
+	}
+
 	/**Set weapon model's color*/
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -476,5 +619,5 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 		return false;
 	}
-	
+
 }

@@ -24,6 +24,14 @@ public class EntityBastion extends EntityHero {
 			else if (this.getAttackTarget() == null && !ItemMWWeapon.isAlternate(this.getHeldItemMainhand()) &&
 					KeyBind.ABILITY_1.isKeyDown(this))
 				this.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+			
+			// heal
+			if (((this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null) || 
+					this.getHealth() < this.getMaxHealth()/2f) && 
+					EnumHero.BASTION.weapon.getCurrentCharge(this) > EnumHero.BASTION.weapon.maxCharge*0.7f) 
+				this.getDataManager().set(KeyBind.RMB.datamanager, true);
+			else if (this.getHealth() >= this.getMaxHealth() || EnumHero.BASTION.weapon.getCurrentCharge(this) <= 0)
+				this.getDataManager().set(KeyBind.RMB.datamanager, false);
 		}
 		
 		super.onUpdate();
@@ -47,7 +55,7 @@ public class EntityBastion extends EntityHero {
 			
 			// stop moving when turret
 			//if (ItemMWWeapon.isAlternate(entity.getHeldItemMainhand()))
-				//entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
+			//	entity.getMoveHelper().action = EntityMoveHelper.Action.WAIT;
 
 			if (canSee && this.isFacingTarget() && distance <= Math.sqrt(this.maxAttackDistance)) {
 				// normal attack

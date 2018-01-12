@@ -34,12 +34,15 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //ItemStack.EMPTY -> null (fixes ~12 errors)
 //(EntityRegistry.registerModEntity\().*?\),\s -> $1 (fixes ~29 errors)
 //\.sendMessage\( -> .addChatMessage (fixes ~17 errors)
+
+//1.12:
+//  .addCoord( -> .expand( (not actually regex)
 @Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.10.2/update.json")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.7";
+    public static final String VERSION = "3.8";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tabMinewatch = new MinewatchTab("tabMinewatch");

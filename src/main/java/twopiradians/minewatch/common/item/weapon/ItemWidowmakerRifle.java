@@ -16,8 +16,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -76,7 +76,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
-				isScoped((EntityLivingBase) entity, stack)) 
+				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack)) 
 			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
 		// unset active hand while reloading
 		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
@@ -87,7 +87,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// venom mine
-			if (!worldObj.isRemote && hero.ability1.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability1.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(worldObj, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
@@ -158,14 +158,14 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	public static boolean isScoped(EntityLivingBase entity, ItemStack stack) {
 		return entity != null && entity.getHeldItemMainhand() != null && 
 				entity.getHeldItemMainhand().getItem() == EnumHero.WIDOWMAKER.weapon && !KeyBind.JUMP.isKeyDown(entity) &&
-				(entity.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(entity)) && EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0;
+				(entity.getActiveItemStack() == stack || KeyBind.RMB.isKeyDown(entity)) && 
+				(EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0 || EnumHero.WIDOWMAKER.weapon.getMaxAmmo(entity) == 0);
 	}
 
 	//PORT correct scope scale
+	@Override
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void renderScope(RenderGameOverlayEvent.Pre event) {
-		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		if (event.getType() == ElementType.ALL && player != null) {
 			boolean scoped = isScoped(player, player.getHeldItemMainhand()) && 
 					Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
@@ -183,8 +183,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 			// render scope
 			if (scoped) {
-				double height = event.getResolution().getScaledHeight_double();
-				double width = event.getResolution().getScaledWidth_double();
+				height = event.getResolution().getScaledHeight_double();
+				width = event.getResolution().getScaledWidth_double();
 				int imageSize = 256;
 
 				// power

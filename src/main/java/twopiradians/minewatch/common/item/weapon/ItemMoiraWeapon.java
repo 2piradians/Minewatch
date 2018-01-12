@@ -544,7 +544,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
 			GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
-			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().getEntityRenderObject(abstractclientplayer);
+			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(abstractclientplayer);
 			GlStateManager.disableCull();
 
 			if (flag)

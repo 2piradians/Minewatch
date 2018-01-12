@@ -162,7 +162,7 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	protected boolean isValidLightLevel() {
-		return this.rand.nextInt(world.isDaytime() ? 700 : 70) <= Config.mobSpawnFreq && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
+		return this.rand.nextInt((world.isDaytime() && !super.isValidLightLevel()) ? 600 : 300) <= Config.mobSpawnFreq*3 && (Config.mobSpawn == 1 ? super.isValidLightLevel() : true);
 	}
 
 	@Override

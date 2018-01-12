@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -31,6 +30,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		this.setSize(0.12f, 0.12f);
 		this.lifetime = 1200;
 		this.explodeTimer = -1;
+		this.impactOnClient = true;
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		if (!this.world.isRemote && this.explodeTimer == -1 && Math.sqrt(motionX*motionX+motionY*motionY+motionZ*motionZ) < 0.005d &&
 				this.posX == this.prevPosX && this.posY == this.prevPosY && this.posZ == this.prevPosZ) {
 			this.bounces = 3;
-			Minewatch.network.sendToAll(new SPacketSimple(20, this, false, 3, 0, 0));
+			Minewatch.network.sendToDimension(new SPacketSimple(20, this, false, 3, 0, 0), world.provider.getDimension());
 		}
 
 		// spin forward in the direction it's moving
@@ -82,9 +82,8 @@ public class EntityJunkratGrenade extends EntityMW {
 	@Override
 	public void spawnTrailParticles() {
 		// initial particle spawn / sound start
-		if (this.firstUpdate) {
+		if (this.firstUpdate) 
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, world, this, 0xFFDF89, 0xFFDF89, 0.5f, Integer.MAX_VALUE, 2.5f, 2.5f, 0, 1);
-		}
 
 		// trail/spark particles
 		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFFD387, 0x423D37, 0.4f, 20, 0.3f);
@@ -116,17 +115,11 @@ public class EntityJunkratGrenade extends EntityMW {
 	@Override
 	public void onImpact(RayTraceResult result) {	
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-			// bounce
-			if (result.sideHit == EnumFacing.DOWN || result.sideHit == EnumFacing.UP) 
-				this.motionY *= -1.1d;
-			else if (result.sideHit == EnumFacing.NORTH || result.sideHit == EnumFacing.SOUTH) 
-				this.motionZ *= -0.7d;
-			else 
-				this.motionX *= -0.7d;
+			EntityHelper.bounce(this, result.sideHit, 0.1d, 0.7d);
 
 			// sync bounces
 			if (!this.world.isRemote && bounces < 3) 
-				Minewatch.network.sendToAll(new SPacketSimple(20, this, false, Math.min(3, ++bounces), 0, 0));
+				Minewatch.network.sendToDimension(new SPacketSimple(20, this, false, Math.min(3, ++bounces), 0, 0), world.provider.getDimension());
 		}
 		// direct hit explosion
 		else if (result.entityHit != null && !this.isDeathGrenade) {

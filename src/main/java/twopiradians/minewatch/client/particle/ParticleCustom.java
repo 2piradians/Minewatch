@@ -1,6 +1,7 @@
 package twopiradians.minewatch.client.particle;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector2f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSimpleAnimated;
@@ -21,7 +22,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -67,6 +70,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setColorFade(colorFade);
 		this.pulseRate = pulseRate;
 		this.facing = facing;
+		if (facing != null)
+			enumParticle.facingParticles.add(this);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
 		this.setParticleTexture(sprite);
@@ -118,7 +123,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			this.particleGreen += pulse;
 			this.particleBlue += pulse;
 		}
-		
+
 		// gravity
 		if (this.enumParticle.gravity != 0)
 			this.motionY += this.enumParticle.gravity;
@@ -173,8 +178,21 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == this.followEntity, true))
 					this.setExpired();
 			}
+			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityLivingBase) {
+				this.horizontalAdjust = this.verticalAdjust = 1; 
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, this.initialAlpha != 1 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND, 10, 0.65f);
+				this.setPosition(vec.x, vec.y, vec.z);
+				this.prevPosX = this.posX;
+				this.prevPosY = this.posY;
+				this.prevPosZ = this.posZ;
+				this.particleAlpha = this.initialAlpha;
+				if (!TickHandler.hasHandler(followEntity, Identifier.MOIRA_ORB_SELECT))
+					this.setExpired();
+			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
-				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, followEntity.rotationPitch, followEntity.rotationYaw, hand, verticalAdjust, horizontalAdjust);
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);
 				this.setPosition(vec.x, vec.y, vec.z);
 				this.prevPosX = this.posX;
 				this.prevPosY = this.posY;
@@ -189,8 +207,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 						((EntityLivingBase)this.followEntity).getActiveItemStack().getItem() == EnumHero.ZENYATTA.weapon))
 					this.setExpired();
 			}
+			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityMoiraOrb) {
+				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
+			}
 
-			if (!this.followEntity.isEntityAlive())
+			if (!this.followEntity.isEntityAlive() || TickHandler.hasHandler(followEntity, Identifier.MOIRA_FADE) || 
+					TickHandler.hasHandler(followEntity, Identifier.SOMBRA_INVISIBLE))
 				this.setExpired();
 		}
 	}
@@ -216,50 +238,33 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		GlStateManager.enableBlend();
-		if (this.particleTexture != null) {
-			// face a direction on an axis TODO have these only render on blocks, like Render#renderShadow
-			if (facing != null) {
-				float pitch = 0, yaw = 0;
-				float rotation = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
-				if (facing == EnumFacing.WEST || facing == EnumFacing.EAST) {
-					pitch = 0;
-					yaw = 90;
-				}
-				else if (facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) {
-					pitch = 0;
-					yaw = 0;
-				}
-				else if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
-					pitch = 90;
-					yaw = 180f * rotation - 90f;
-				}
-				// translated from ActiveRenderInfo#updateRenderInfo
-				rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
-				rotationZ = MathHelper.cos(pitch * 0.017453292F);
-			}
-
+		if (this.particleTexture != null && facing == null) {
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();
 
-			// change frame
-			int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
-			if (enumParticle == EnumParticle.ZENYATTA_DISCORD_ORB || enumParticle == EnumParticle.ZENYATTA_HARMONY_ORB)
-				frame = Minecraft.getMinecraft().player.ticksExisted % 15 / 4 + 1;
-			int framesPerRow = (int) Math.sqrt(enumParticle.frames);
-			int row = (frame-1) / framesPerRow;
-			int col = (frame-1) % framesPerRow;
-			double uSize = (this.particleTexture.getMaxU()-this.particleTexture.getMinU()) / framesPerRow;
-			double vSize = (this.particleTexture.getMaxV()-this.particleTexture.getMinV()) / framesPerRow;
-
-			float f = (float) (this.particleTexture.getMinU()+uSize*col);
-			float f1 = (float) (f+uSize);
-			float f2 = (float) (this.particleTexture.getMinV()+vSize*row);
-			float f3 = (float) (f2+vSize);
+			float f = this.particleTexture.getMinU();
+			float f1 = this.particleTexture.getMaxU();
+			float f2 = this.particleTexture.getMinV();
+			float f3 = this.particleTexture.getMaxV();
 			float f4 = 0.1F * this.particleScale;
+
+			// change frame
+			if (enumParticle.frames > 1) {
+				int frame = MathHelper.clamp(this.particleAge / Math.max(1, this.particleMaxAge / enumParticle.frames) + 1, 1, enumParticle.frames);
+				if (enumParticle == EnumParticle.ZENYATTA_DISCORD_ORB || enumParticle == EnumParticle.ZENYATTA_HARMONY_ORB)
+					frame = Minecraft.getMinecraft().player.ticksExisted % 15 / 4 + 1;
+				int framesPerRow = (int) Math.sqrt(enumParticle.frames);
+				int row = (frame-1) / framesPerRow;
+				int col = (frame-1) % framesPerRow;
+				double uSize = (this.particleTexture.getMaxU()-this.particleTexture.getMinU()) / framesPerRow;
+				double vSize = (this.particleTexture.getMaxV()-this.particleTexture.getMinV()) / framesPerRow;
+
+				f = (float) (this.particleTexture.getMinU()+uSize*col);
+				f1 = (float) (f+uSize);
+				f2 = (float) (this.particleTexture.getMinV()+vSize*row);
+				f3 = (float) (f2+vSize);
+			}
 
 			float f5 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)partialTicks - interpPosX);
 			float f6 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)partialTicks - interpPosY);
@@ -281,7 +286,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				for (int l = 0; l < 4; ++l)
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d)).add(avec3d[l].scale((double)(f9 * f9) - vec3d.dotProduct(vec3d))).add(vec3d.crossProduct(avec3d[l]).scale((double)(2.0F * f9)));
 			}
-			
+
 			// draw normally to clear buffer
 			if (enumParticle.disableDepth) {
 				Tessellator tessellator = Tessellator.getInstance();
@@ -304,16 +309,24 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				GlStateManager.enableDepth();
 				vertexbuffer.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 			}
-
 		}
 	}
-	
+
+	/**Render facing particles*/
+	public void renderOnBlocks(BufferBuilder buffer) {
+		RenderManager.renderOnBlocks(world, buffer, particleRed, particleGreen, particleBlue, particleAlpha, 
+				particleScale/10f, new Vec3d(this.posX, this.posY, this.posZ).subtract(new Vec3d(facing.getDirectionVec())), facing, true);
+	}
+
 	@Override
-    public void setExpired() {
-        super.setExpired();
-        
-        if (this.enumParticle.onePerEntity && this.followEntity != null)
-        	this.enumParticle.particleEntities.remove(this.followEntity.getPersistentID());
-    }
+	public void setExpired() {
+		super.setExpired();
+
+		if (this.facing != null)
+			enumParticle.facingParticles.remove(this);
+
+		if (this.enumParticle.onePerEntity && this.followEntity != null)
+			this.enumParticle.particleEntities.remove(this.followEntity.getPersistentID());
+	}
 
 }

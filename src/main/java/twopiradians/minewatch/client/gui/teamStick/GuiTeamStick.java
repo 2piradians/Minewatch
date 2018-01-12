@@ -140,7 +140,7 @@ public class GuiTeamStick extends GuiScreen {
 		teams.sort(new Comparator<Team>() {
 			@Override
 			public int compare(Team team1, Team team2) {
-				return getTeamName(team1).compareToIgnoreCase(getTeamName(team2));
+				return getDisplayName(team1).compareToIgnoreCase(getDisplayName(team2));
 			}
 		});
 
@@ -174,7 +174,7 @@ public class GuiTeamStick extends GuiScreen {
 				teams.sort(new Comparator<Team>() {
 					@Override
 					public int compare(Team team1, Team team2) {
-						return getTeamName(team1).compareToIgnoreCase(getTeamName(team2));
+						return getDisplayName(team1).compareToIgnoreCase(getDisplayName(team2));
 					}
 				});
 				this.currentScreen = Screen.MAIN;
@@ -203,7 +203,7 @@ public class GuiTeamStick extends GuiScreen {
 				// set team display name
 				else if (button.displayString.equals("Set")) {
 					button.visible = currentScreen == Screen.MAIN && this.getSelectedTeam() != null;
-					button.enabled = button.visible && !this.teamNameField.getText().equals(getTeamName(this.getSelectedTeam()))
+					button.enabled = button.visible && !this.teamNameField.getText().equals(getDisplayName(this.getSelectedTeam()))
 							&& !this.teamNameField.getText().isEmpty();
 				}
 				// filter
@@ -250,7 +250,7 @@ public class GuiTeamStick extends GuiScreen {
 		// draw screen for scrolling lists
 		scrollingTeams.drawScreen(mouseX, mouseY, partialTicks);
 		if (getSelectedTeam() != null) {
-			this.drawCenteredString(mc.fontRenderer, TextFormatting.BOLD+"Selected Team: "+this.getSelectedTeam().getColor()+getTeamName(this.getSelectedTeam()), guiLeft+X_SIZE/2, guiTop-10, 0xFFFFFF);
+			this.drawCenteredString(mc.fontRenderer, TextFormatting.BOLD+"Selected Team: "+this.getSelectedTeam().getColor()+getDisplayName(this.getSelectedTeam()), guiLeft+X_SIZE/2, guiTop-10, 0xFFFFFF);
 
 			if (this.currentScreen == Screen.INFO) {
 				scrollingFindEntities.drawScreen(mouseX, mouseY, partialTicks);
@@ -291,7 +291,7 @@ public class GuiTeamStick extends GuiScreen {
 
 		// draw on top of buttons
 		if (this.getSelectedTeam() != null && this.currentScreen == Screen.INFO) {
-			String title = getSelectedTeam().getColor()+""+TextFormatting.UNDERLINE+getTeamName(getSelectedTeam());
+			String title = getSelectedTeam().getColor()+""+TextFormatting.UNDERLINE+getDisplayName(getSelectedTeam());
 			this.drawCenteredString(mc.fontRenderer, title, guiLeft+X_SIZE+3+50, guiTop+16, 0xFFFFFF);
 			title = TextFormatting.UNDERLINE+filter.name+" in ";
 			this.drawCenteredString(mc.fontRenderer, title, guiLeft+X_SIZE+3+50, guiTop+4, 0xFFFFFF);
@@ -340,7 +340,7 @@ public class GuiTeamStick extends GuiScreen {
 		// delete team
 		else if (button.displayString.contains("Delete Team") && this.getSelectedTeam() != null) {
 			mc.displayGuiScreen(new GuiYesNo(this, "Are you sure you want to", 
-					"delete team "+this.getSelectedTeam().getColor()+getTeamName(this.getSelectedTeam())+TextFormatting.RESET+"?", 906));
+					"delete team "+this.getSelectedTeam().getColor()+getDisplayName(this.getSelectedTeam())+TextFormatting.RESET+"?", 906));
 		}
 		// create new team
 		else if (button.displayString.contains("Create New Team") && this.getSelectedTeam() == null) {
@@ -407,7 +407,7 @@ public class GuiTeamStick extends GuiScreen {
 				this.setSelectedTeam(null);
 			}
 			else if (!result && this.getSelectedTeam() != null)
-				teamNameField.setText(getTeamName(this.getSelectedTeam()));
+				teamNameField.setText(getDisplayName(this.getSelectedTeam()));
 		}
 		
 		super.confirmClicked(result, id);
@@ -442,11 +442,11 @@ public class GuiTeamStick extends GuiScreen {
 		this.updateTextBoxColor();
 		// update team display name when enter is hit
 		if (keyCode == Keyboard.KEY_RETURN && teamNameField.isFocused() && 
-				!teamNameField.getText().isEmpty() && !teamNameField.getText().equals(getTeamName(this.getSelectedTeam())))
+				!teamNameField.getText().isEmpty() && !teamNameField.getText().equals(getDisplayName(this.getSelectedTeam())))
 			Minewatch.network.sendToServer(new CPacketSimple(9, this.getSelectedTeam().getName(), mc.player, this.teamNameField.getText()));
 	}
 
-	public String getTeamName(Team team) {
+	public String getDisplayName(Team team) {
 		if (team instanceof ScorePlayerTeam)
 			return ((ScorePlayerTeam)team).getDisplayName();
 		else if (team != null)
@@ -479,7 +479,7 @@ public class GuiTeamStick extends GuiScreen {
 			}
 			else {
 				this.currentScreen = Screen.INFO;
-				teamNameField.setText(getTeamName(team));
+				teamNameField.setText(getDisplayName(team));
 				teamNameField.setFocused(true);
 				this.updateTextBoxColor();
 				this.updateEntityLists();

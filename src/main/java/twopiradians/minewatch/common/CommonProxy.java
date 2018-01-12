@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
+import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ModEntities;
@@ -67,7 +69,7 @@ public class CommonProxy {
 	}
 	
 	public enum EnumParticle {
-		CIRCLE, SLEEP, SMOKE(4, 1, 0), SPARK(1, 4, 0), HEALTH(true, true),
+		CIRCLE, SLEEP, SMOKE, SPARK(1, 4, 0), HEALTH(true, true),
 		EXPLOSION(16, 1, 0), ANA_HEAL, ANA_DAMAGE(1, 4, 0),
 		JUNKRAT_TRAP(true), JUNKRAT_TRAP_TRIGGERED(true), 
 		JUNKRAT_TRAP_DESTROYED(true),
@@ -76,11 +78,14 @@ public class CommonProxy {
 		SOMBRA_TRANSPOSER(true), REINHARDT_STRIKE,
 		HOLLOW_CIRCLE, ZENYATTA(4, 1, 0), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true),
 		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
-		HEALTH_PLUS(1, 1, -0.005f);
+		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB;
 
 		public HashSet<UUID> particleEntities = new HashSet();
+		/**List of particles with a facing - because they are rendered separately*/
+		public ArrayList<ParticleCustom> facingParticles = new ArrayList<ParticleCustom>();
 		
 		public final ResourceLocation loc;
+		public final ResourceLocation facingLoc;
 		public final int frames;
 		public final int variations;
 		public final float gravity;
@@ -105,6 +110,7 @@ public class CommonProxy {
 
 		private EnumParticle(int frames, int variations, float gravity, boolean disableDepth, boolean onePerEntity) {
 			this.loc = new ResourceLocation(Minewatch.MODID, "entity/particle/"+this.name().toLowerCase());
+			this.facingLoc = new ResourceLocation(Minewatch.MODID, "textures/entity/particle/"+this.name().toLowerCase()+".png");
 			this.frames = frames;
 			this.variations = variations;
 			this.gravity = gravity;
@@ -181,7 +187,7 @@ public class CommonProxy {
 					new NonNullList<Ingredient>() {{add(Ingredient.fromStacks(new ItemStack(hero.token)));}}).setRegistryName(Minewatch.MODID, hero.name.toLowerCase()+"_weapon"));
 
 		}
-}
+	}
 
 	@SubscribeEvent(receiveCanceled=true)
 	public void commandDev(CommandEvent event) {

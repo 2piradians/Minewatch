@@ -4,13 +4,19 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.BakedMWItem;
 
 public interface IChangingModel {
+	
+	/**Should this quad be recolored by getColorFromItemStack color*/
+	@SideOnly(Side.CLIENT)
+	public boolean shouldRecolor(BakedMWItem model, BakedQuad quad);
 	
 	/**Set weapon model's color*/
 	@SideOnly(Side.CLIENT)

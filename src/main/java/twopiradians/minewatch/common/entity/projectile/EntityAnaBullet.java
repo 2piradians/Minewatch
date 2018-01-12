@@ -35,7 +35,7 @@ public class EntityAnaBullet extends EntityMW {
 		@Override
 		public boolean onServerTick() {
 			// damage
-			if (this.ticksLeft % 4 == 0 && this.entity != null && this.entityLiving != null) 
+			if (this.ticksLeft % 4 == 0 && this.entity != null && this.entityLiving != null)
 				EntityHelper.attemptDamage(this.entityLiving, this.entity, 15, true);
 			return --ticksLeft <= 0 || (entity != null && entity.isDead);
 		}
@@ -64,21 +64,19 @@ public class EntityAnaBullet extends EntityMW {
 
 	@Override
 	public void onUpdate() {
+		this.isFriendly = this.getDataManager().get(HEAL);
+
 		super.onUpdate();
 	}
 
 	@Override
 	public void spawnTrailParticles() {
-		this.isFriendly = this.getDataManager().get(HEAL);
-		
 		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
 				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1); 
 	}
 	
 	@Override
 	public void onImpact(RayTraceResult result) {
-		this.isFriendly = this.getDataManager().get(HEAL);
-		
 		super.onImpact(result);
 
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;
@@ -99,7 +97,7 @@ public class EntityAnaBullet extends EntityMW {
 		// damage
 		else if (result.entityHit != null) {
 			EntityHelper.attemptDamage(this, result.entityHit, 0, false);
-			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && // TODO change to 70
+			if (!TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
 					!TickHandler.hasHandler(result.entityHit, Identifier.REAPER_WRAITH)) {
 				TickHandler.register(this.world.isRemote, DAMAGE.setTicks(18).setEntity(result.entityHit).setEntityLiving(this.getThrower()).setNumber(size));
 				this.setDead();

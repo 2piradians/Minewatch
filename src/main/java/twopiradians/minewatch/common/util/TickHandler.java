@@ -32,12 +32,12 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
 	private static CopyOnWriteArrayList<Handler> serverHandlers = new CopyOnWriteArrayList<Handler>();
-
+	
 	/**Register a new handler to be tracked each tick, removes duplicate handlers and resets handlers before registering*/
 	public static void register(boolean isRemote, Handler... handlers) {
 		for (Iterator<Handler> it = Arrays.asList(handlers).iterator(); it.hasNext();) {
@@ -71,7 +71,7 @@ public class TickHandler {
 				}
 			}
 	}
-
+	
 	/**Get a registered handler that matches a predicate*/
 	@Nullable
 	public static Handler getHandler(Predicate<Handler> predicate, boolean isRemote) {
@@ -85,13 +85,13 @@ public class TickHandler {
 		}
 		return null;
 	}
-
+	
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(Entity entity, Identifier identifier) {
 		return entity == null ? null : getHandler(entity.getPersistentID(), identifier, entity.world.isRemote);
 	}
-
+	
 	/**Get a registered handler by its entity and/or identifier*/
 	@Nullable
 	public static Handler getHandler(UUID uuid, Identifier identifier, boolean isRemote) {
@@ -110,15 +110,20 @@ public class TickHandler {
 	public static boolean hasHandler(Entity entity, Identifier identifier) {
 		return getHandler(entity, identifier) != null;
 	}
-
+	
 	public static boolean hasHandler(Predicate<Handler> predicate, boolean isRemote) {
 		return getHandler(predicate, isRemote) != null;
 	}
 
 	/**Get all registered handlers by their entity and/or identifier*/
-	public static ArrayList<Handler> getHandlers(Entity entity, Identifier identifier) {
+	public static ArrayList<Handler> getHandlers(Entity entity, @Nullable Identifier identifier) {
+		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, identifier);
+	}
+	
+	/**Get all registered handlers by their entity and/or identifier*/
+	public static ArrayList<Handler> getHandlers(boolean isRemote, @Nullable Entity entity, @Nullable Identifier identifier) {
 		ArrayList<Handler> handlers = new ArrayList<Handler>();
-		CopyOnWriteArrayList<Handler> handlerList = entity.world.isRemote ? clientHandlers : serverHandlers;
+		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
 			if ((entity == null || handler.entity == entity) &&
@@ -127,7 +132,7 @@ public class TickHandler {
 		}
 		return handlers;
 	}
-
+	
 	/**Unregister all handlers*/
 	public static void unregisterAllHandlers(boolean isRemote) {
 		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
@@ -153,9 +158,6 @@ public class TickHandler {
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused()) {
-			for (KeyBind key : KeyBind.values())
-				key.keyPressedEntitiesClient.clear();
-
 			for (Iterator<Handler> it = clientHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//Minewatch.logger.info(handler); 
@@ -167,15 +169,15 @@ public class TickHandler {
 					e.printStackTrace();
 				}
 			}
+			
+			for (KeyBind key : KeyBind.values())
+				key.keyPressedEntitiesClient.clear(); // TEST moved this after tick
 		}
 	}
 
 	@SubscribeEvent
 	public void serverSide(ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
-			for (KeyBind key : KeyBind.values())
-				key.keyPressedEntitiesServer.clear();
-
 			for (Iterator<Handler> it = serverHandlers.iterator(); it.hasNext();) {
 				Handler handler = it.next();
 				//Minewatch.logger.info(handler);
@@ -187,6 +189,9 @@ public class TickHandler {
 					e.printStackTrace();
 				}
 			}
+			
+			for (KeyBind key : KeyBind.values()) // TEST moved this after tick
+				key.keyPressedEntitiesServer.clear();
 		}
 	}
 
@@ -245,7 +250,7 @@ public class TickHandler {
 		public Handler onClientRemove() {
 			return this;
 		}
-
+		
 		/**Called before the handler is removed*/
 		public Handler onServerRemove() {
 			return this;
@@ -304,7 +309,7 @@ public class TickHandler {
 		}
 
 		// methods that are only sometimes used by handlers are below (for convenience)
-
+		
 		public Handler setEntityLiving(EntityLivingBase entity) {
 			this.entityLiving = (EntityLivingBase) entity;
 			if (entity instanceof EntityPlayer)

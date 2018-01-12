@@ -80,11 +80,10 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
 				player.canEntityBeSeen(entity) && 
 				EntityHelper.attemptDamage(player, entity, 75, false)) {
-			if (entity instanceof EntityLivingBase) {
+			if (entity instanceof EntityLivingBase) 
 				((EntityLivingBase) entity).knockBack(player, 0.4F, 
 						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
 						(double)(-MathHelper.cos(player.rotationYaw * 0.017453292F)));
-			}
 			player.getHeldItemMainhand().damageItem(1, player);
 		}
 	}

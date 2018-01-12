@@ -10,9 +10,9 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.collect.UnmodifiableIterator;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -52,6 +52,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 	protected abstract void postRender(T te, int model, BufferBuilder buffer, double x, double y, double z, float partialTicks);
 	protected int getColor(int i, T entity) {return -1;}
 
+	// PORT 1.12 render
 	@Override
 	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		if (this.bakedModels == null) {
@@ -100,10 +101,11 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			}
 			buffer.setTranslation(0, 0, 0);
 			tessellator.draw();	
-			
+
 			this.postRender(te, i, buffer, x, y, z, partialTicks); 
 
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 			GlStateManager.popMatrix();
 			GlStateManager.disableRescaleNormal();
 			GlStateManager.disableBlend();
@@ -131,7 +133,6 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 
 		@Override
 		public java.util.Optional<TRSRTransformation> apply(java.util.Optional<? extends IModelPart> part) {
-			
 			if(part.isPresent()) {
 				// This whole thing is subject to change, but should do for now.
 				UnmodifiableIterator<String> parts = Models.getParts(part.get());

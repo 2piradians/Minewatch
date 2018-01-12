@@ -1,8 +1,12 @@
 package twopiradians.minewatch.common.item.weapon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,11 +24,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class ItemSoldier76Gun extends ItemMWWeapon {
+
+	/**Map of player uuids and the number of bullets they shot recently*/
+	private static HashMap<UUID, Integer> spreads = Maps.newHashMap();
 
 	public ItemSoldier76Gun() {
 		super(30);
@@ -44,7 +51,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// helix rockets
-		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
+		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player, true)) {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, hand.ordinal(), i);
@@ -64,6 +71,15 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
+		// decrease spread
+		if (!world.isRemote && spreads.containsKey(entity.getPersistentID()) && entity instanceof EntityLivingBase && 
+				(!KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || this.getCurrentAmmo(entity) == 0)) {
+			if (spreads.get(entity.getPersistentID()) > 1)
+				spreads.put(entity.getPersistentID(), spreads.get(entity.getPersistentID())-1);
+			else
+				spreads.remove(entity.getPersistentID());
+		}
+
 		// stop sprinting if right clicking (since onItemRightClick isn't called while blocking)
 		if (isSelected && entity instanceof EntityLivingBase && KeyBind.RMB.isKeyDown((EntityLivingBase) entity)) {
 			if (entity.isSprinting())
@@ -78,7 +94,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 
 		// faster sprint
 		if (isSelected && entity.isSprinting() && entity instanceof EntityLivingBase && 
-				ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) == hero) {
+				SetManager.getWornSet((EntityLivingBase) entity) == hero) {
 			if (!world.isRemote)
 				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.SPEED, 3, entity instanceof EntityPlayer ? 2 : 0, false, false));
 			hero.ability3.toggle(entity, true);
@@ -92,10 +108,12 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (player.isSprinting())
 			player.setSprinting(false);
 
-		// shoot TODO add continual usage spread
+		// shoot
 		if (this.canUse(player, true, hand, false) && !world.isRemote) {
+			spreads.put(player.getPersistentID(), spreads.containsKey(player.getPersistentID()) ? spreads.get(player.getPersistentID())+1 : 1);
 			EntitySoldier76Bullet bullet = new EntitySoldier76Bullet(world, player, hand.ordinal());
-			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 2.4F, hand, 12, 0.45f);
+			int spread = spreads.get(player.getPersistentID());
+			EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, spread < 5 ? 0.8f : 2.4F, hand, 12, 0.45f);
 			world.spawnEntity(bullet);
 			ModSoundEvents.SOLDIER76_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/20+0.95f);
 			this.subtractFromCurrentAmmo(player, 1);

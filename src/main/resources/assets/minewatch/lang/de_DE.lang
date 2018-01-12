@@ -1,10 +1,19 @@
-itemGroup.tabMinewatchArmorWeapons=Minewatch
-itemGroup.tabMinewatchMapMaking=Minewatch
+itemGroup.tabMinewatch=Minewatch
+itemGroup.tabMinewatchArmorWeapons=Minewatch Armor & Weapons
+itemGroup.tabMinewatchMapMaking=Minewatch Map-Making Tools
+
 config.server-side=Serverseitig
 config.client-side=Clientseitig
 config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=KI Helden
+
 effect.frozen=Eingefroren
+
+tile.health_pack_small.name=kleines Heilungspaket
+tile.health_pack_large.name=großes Heilungspaket
+
+item.wild_card_token.name=Wild Card Token
+item.team_stick.name=Team Helfer
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helm
@@ -113,8 +122,21 @@ item.lucio_leggings.name=Lucio Beinschutz
 item.lucio_boots.name=Lucio Stiefel
 item.lucio_weapon.name=Lucio's Schallverstärker
 
-item.wild_card_token.name=Wild Card Token
+item.zenyatta_token.name=Zenyatta Token
+item.zenyatta_helmet.name=Zenyatta Helm
+item.zenyatta_chestplate.name=Zenyatta Brustpanzer
+item.zenyatta_leggings.name=Zenyatta Beinschutz
+item.zenyatta_boots.name=Zenyatta Stiefel
+item.zenyatta_weapon.name=Zenyatta's Sphäre der Zerstörung
 
+item.moira_token.name=Moira Token
+item.moira_helmet.name=Moira Helm
+item.moira_chestplate.name=Moira Brustpanzer
+item.moira_leggings.name=Moira Beinschutz
+item.moira_boots.name=Moira Stiefel
+item.moira_weapon.name=Moira's Biotische Hand
+
+entity.random_hero.name=Zufälliger Held
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Pfeil
 entity.hanzo_sonic_arrow.name=Hanzo Sonarpfeil
@@ -157,3 +179,7 @@ entity.reinhardt_hero.name=Reinhardt
 entity.reinhardt_strike.name=Reinhardt Feuerschlag
 entity.lucio_hero.name=Lucio
 entity.lucio_sonic.name=Lucio Schallprojektil
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Zenyatta Sphäre der Zerstörung
+entity.moira_hero.name=Moira
+entity.moira_heal_energy.name=Moira Heilenergie

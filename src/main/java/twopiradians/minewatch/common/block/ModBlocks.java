@@ -20,6 +20,7 @@ public class ModBlocks {
 	public static Block healthPackSmall;
 	public static Block healthPackLarge;
 
+
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 
@@ -28,7 +29,6 @@ public class ModBlocks {
 			healthPackSmall = registerBlock(event.getRegistry(), new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true, true);
 			healthPackLarge = registerBlock(event.getRegistry(), new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true, true);
 		}
-		
 	}
 
 	public static Block registerBlock(IForgeRegistry<Block> registry, Block block, String unlocalizedName, @Nullable Class tileEntityClass, boolean isItemBlock, boolean addToTab) {
@@ -39,5 +39,4 @@ public class ModBlocks {
 		allBlocks.add(block);
 		return block;
 	}
-
 }

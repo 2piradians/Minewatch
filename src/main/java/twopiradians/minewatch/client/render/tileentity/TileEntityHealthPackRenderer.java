@@ -38,8 +38,16 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			GlStateManager.rotate((Minecraft.getMinecraft().player.ticksExisted+partialTicks)*4f, 0, 1, 0);
 		}
 
+		if (model == 1) {
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
+			GlStateManager.depthMask(false);
+		}
+		else
+			GlStateManager.depthMask(true);
+
 		return (te.getBlockType() == ModBlocks.healthPackLarge && model == 3 && te.getCooldown() <= 0) || 
-				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.getCooldown() <= 0) || model == 0;
+				(te.getBlockType() == ModBlocks.healthPackSmall && model == 2 && te.getCooldown() <= 0) || model == 0 || 
+				(model == 1 && te.getCooldown() <= 0);
 	}
 
 	@Override
@@ -63,12 +71,12 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			GlStateManager.disableLighting();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			
+
 			// outside rings
 			GlStateManager.enableTexture2D();
 			this.bindTexture(new ResourceLocation(Minewatch.MODID, "textures/blocks/health_pack_recharge.png"));
 			Gui.drawModalRectWithCustomSizedTexture((int) -size, (int) -size, 0, 0, (int) size*2, (int) size*2, size*2, size*2);
-			
+
 			size -= 3.15f;
 			GlStateManager.disableTexture2D();
 			Tessellator tessellator = Tessellator.getInstance();
@@ -84,11 +92,11 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			double steps=Math.round(angle_diff*precision);
 			double angle=angle_from;
 			vertexbuffer.pos(0, 0, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
+			vertexbuffer.pos(0, -size, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			for (int i=1; i<=steps; i++) {
 				angle=angle_from+angle_diff/steps*i;
 				vertexbuffer.pos(size*Math.cos(angle*deg_to_rad), size*Math.sin(angle*deg_to_rad), -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			}
-			vertexbuffer.pos(0, 0, -0.001D).color(143/255f, 157/255f, 227/255f, 0.7F).endVertex();
 			tessellator.draw();
 
 			GlStateManager.enableTexture2D();

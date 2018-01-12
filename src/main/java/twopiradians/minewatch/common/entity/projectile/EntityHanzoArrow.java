@@ -28,7 +28,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	public EntityHanzoArrow(World worldIn, EntityLivingBase shooter) {
 		super(worldIn, shooter);
 		/*if (shooter instanceof EntityPlayer 
-				&& (ItemMWArmor.SetManager.entitiesWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
+				&& (SetManager.entitiesWearingSets.get(shooter.getPersistentID()) == EnumHero.HANZO || 
 				((EntityPlayer)shooter).capabilities.isCreativeMode))*/
 			this.pickupStatus = EntityTippedArrow.PickupStatus.DISALLOWED;
 		/*else
@@ -53,11 +53,11 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
-		
 		// spawn trail particles
 		if (this.world.isRemote)
 			this.spawnTrailParticles();
+		
+		super.onUpdate();
 	}
 	
 	public void spawnTrailParticles() {}

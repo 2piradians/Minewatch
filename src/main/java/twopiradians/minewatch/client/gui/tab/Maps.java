@@ -20,7 +20,9 @@ public class Maps {
 		BLACK_FOREST_CAGRIMANOKA(OverwatchMap.BLACK_FOREST, "Cagrimanoka_TR", "https://www.planetminecraft.com/project/world-save-black-forest-overwatch/"),
 		DR_JUNKENSTEINS_DANL(OverwatchMap.DR_JUNKENSTEINS, "danl16boon", "https://www.planetminecraft.com/project/dr-junkensteins-revenge/"),
 		ECOPOINT_MARSHMELLOCAT(OverwatchMap.ECOPOINT, "MarshmelloCAT", "https://www.planetminecraft.com/project/ecopoint-antarctica/"),
-		CASTILLO_ISAK20(OverwatchMap.CASTILLO, "iSAK20", "https://www.planetminecraft.com/project/castillo-overwatch/");
+		CASTILLO_ISAK20(OverwatchMap.CASTILLO, "Isak20", "https://www.planetminecraft.com/project/castillo-overwatch/"),
+		KINGSROW_GALIL(OverwatchMap.KINGS_ROW, "GalilWaifu", "https://www.planetminecraft.com/project/overwatch-king-s-row-wip/"),
+		CHATEAU_ISAK20(OverwatchMap.CHATEAU, "Isak20", "https://www.planetminecraft.com/project/ch-teau-guillard-overwatch/");
 
 		public OverwatchMap map;
 		public String creator;
@@ -67,7 +69,9 @@ public class Maps {
 		ECOPOINT("Ecopoint: Antarctica was an Overwatch-run research facility near the coast of Antarctica. The scientists stationed here - Adams, MacReady, Opara, Torres, Arrhenius, and Mei-Ling Zhou - were investigating climate anomalies and cryostasis technology when a massive storm hit the ecopoint, and they lost connection to the outside world. As their food and energy supplies dwindled, the scientists were forced to freeze themselves in cryostasis until help arrived.\n" + 
 				"A decade later, the scientists were found, but all had died in the storm except for Mei."), 
 		CASTILLO("Castillo is a colonial-era fort overlooking Dorado and its bay. The fort is home to a Los Muertos hideout, as well as Sombra's home and Calaveras. Junkrat and Roadhog went to Calaveras to plan their heist on the Bank of Dorado.\n" + 
-				"In Reflections, Sombra and McCree are both at Calaveras, sitting at opposite sides of the bar.");
+				"In Reflections, Sombra and McCree are both at Calaveras, sitting at opposite sides of the bar."), 
+		CHATEAU("Château Guillard was owned for hundreds of years by the Guillard family. After the French Revolution, the family's influence waned and the château was abandoned. Recently Widowmaker began to use the château as her base of operations."),
+		KINGS_ROW("King's Row is an upscale, cosmopolitan neighborhood of London, but just beneath its peaceful surface, tensions between omnics and humans are running high. While much of modern England was built on the backs of omnic laborers, they have been denied the basic rights that humans have, with most omnics forced to live in the dense, claustrophobic city-beneath-the-city known by some as \"the Underworld.\" Of greater concern is that recent demonstrations by pro-omnic-rights protestors have resulted in violent clashes with the police, and a solution is nowhere in sight.");
 		
 		public String info;
 

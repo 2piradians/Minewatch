@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -14,8 +15,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 
 public class ItemJunkratTrigger extends Item implements IChangingModel {
 
@@ -39,7 +41,7 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 		if (!world.isRemote) {
 			// if not wearing full set, mine is dead, or main is not junkrat's launcher
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
-					(ItemMWArmor.SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||
+					(SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.JUNKRAT ||
 					EnumHero.JUNKRAT.ability2.entities.get(entity) == null || !EnumHero.JUNKRAT.ability2.entities.get(entity).isEntityAlive() ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.JUNKRAT.weapon)) {
@@ -88,6 +90,11 @@ public class ItemJunkratTrigger extends Item implements IChangingModel {
 	@Override
 	public Item getItem() {
 		return this;
+	}
+
+	@Override
+	public boolean shouldRecolor(BakedMWItem model, BakedQuad quad) {
+		return true;
 	}
 
 }

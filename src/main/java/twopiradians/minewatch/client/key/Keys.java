@@ -32,7 +32,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -108,7 +108,7 @@ public class Keys {
 			if (player != null) {
 				if (player instanceof EntityHero)
 					cooldown *= Config.mobAttackCooldown;
-				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(cooldown));
+				TickHandler.register(player.world.isRemote, COOLDOWNS.setEntity(player).setTicks(Math.max(3, (int) (cooldown * Config.abilityCooldownMultiplier))));
 				if (player.world.isRemote && silent) {
 					silentRecharge.add(player.getPersistentID());
 				}
@@ -202,8 +202,8 @@ public class Keys {
 
 		/**Toggle ability - toggles and sends packet to toggle on client, toggles on server*/
 		public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
-			if (uuid != null && ItemMWArmor.SetManager.getWornSet(uuid) != null) {
-				EnumHero hero = ItemMWArmor.SetManager.getWornSet(uuid);
+			if (uuid != null && SetManager.getWornSet(uuid, isRemote) != null) {
+				EnumHero hero = SetManager.getWornSet(uuid, isRemote);
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					if (ability.isToggleable && ability.keybind == this && 
 					ability.keybind.getCooldown(uuid, isRemote) == 0) {
@@ -236,13 +236,13 @@ public class Keys {
 								(event.getButton() == 1 && mc.gameSettings.keyBindAttack.getKeyCode() == -99) ||
 								(event.getButton() == 2 && mc.gameSettings.keyBindAttack.getKeyCode() == -98)) && 
 						((main != null && main.getItem() instanceof ItemMWWeapon) || 
-								(off != null && off.getItem() instanceof ItemMWWeapon)) ? 
+								(off != null && off.getItem() instanceof ItemMWWeapon) || !event.isButtonstate()) ? 
 										(event.isButtonstate() && mc.currentScreen == null) :
 											null;
 										updateKeys(lmbDown);
 
 										// prevent further lmb processing
-										if (lmbDown != null && lmbDown) // TODO remove this stupid logic and just do it in the item
+										if (lmbDown != null && lmbDown) 
 											event.setCanceled(true);
 
 										// switch to alt weapon
@@ -265,7 +265,7 @@ public class Keys {
 			}
 		}
 
-		@SideOnly(Side.CLIENT)
+		@SideOnly(Side.CLIENT) // all of this lmb logic is just to prevent block breaking particles (otherwise can be done with PlayerInteractEvent.LeftClickBlock)
 		private static void updateKeys(@Nullable Boolean lmbDown) {
 			if (Minecraft.getMinecraft().player != null) {
 				Minecraft mc = Minecraft.getMinecraft();

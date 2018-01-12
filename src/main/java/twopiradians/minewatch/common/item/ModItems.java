@@ -66,7 +66,7 @@ public class ModItems {
 
 			// other items
 			team_stick = registerItem(event.getRegistry(), new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);
-			
+
 			// item blocks
 			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackSmall), ModBlocks.healthPackSmall.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackLarge), ModBlocks.healthPackLarge.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
@@ -88,5 +88,4 @@ public class ModItems {
 		registry.register(item);
 		return item;
 	}
-
 }

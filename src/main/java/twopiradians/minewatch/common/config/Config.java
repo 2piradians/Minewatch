@@ -65,6 +65,9 @@ public class Config {
 	public static boolean healMobs;
 	public static double healthPackHealMultiplier;
 	public static double healthPackRespawnMultiplier;
+	public static double ammoMultiplier;
+	public static boolean tokenDropRequiresPlayer;
+	public static double abilityCooldownMultiplier;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -141,7 +144,7 @@ public class Config {
 
 		// SERVER-SIDE (make sure all new options are synced with command)
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", false, "Should fall damage be prevented while wearing a full set of hero armor?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
 		if (overriding)
 			prop.set(preventFallDamage);
 		else
@@ -153,7 +156,7 @@ public class Config {
 		else
 			allowGunWarnings = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", true, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
 		if (overriding)
 			prop.set(projectilesCauseKnockback);
 		else
@@ -210,6 +213,24 @@ public class Config {
 			prop.set(healthPackRespawnMultiplier);
 		else
 			healthPackRespawnMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ammo Multiplier", 1d, "Multiplied by the default max ammo for a weapon. For example with this set to 2, weapons will have twice as much ammo. When this is 0, weapons have unlimited ammo.", 0, 10);
+		if (overriding)
+			prop.set(ammoMultiplier);
+		else
+			ammoMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drops Require Player", false, "Should tokens only drop from mobs killed by a player?");
+		if (overriding)
+			prop.set(tokenDropRequiresPlayer);
+		else
+			tokenDropRequiresPlayer = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ability Cooldown Multiplier", 1d, "Multiplied by the default cooldown for abilities. For example with this set to 2, abilities will have twice the normal cooldown.", 0, 10);
+		if (overriding)
+			prop.set(abilityCooldownMultiplier);
+		else
+			abilityCooldownMultiplier = prop.getDouble();
 
 		// Hero Mob options
 
@@ -237,9 +258,9 @@ public class Config {
 
 		for (EnumHero hero : EnumHero.values()) 
 			if (mobSpawnFreq == 0 || mobSpawn == 2)
-				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
+				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 			else
-				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.CREATURE, OVERWORLD_BIOMES);
+				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)

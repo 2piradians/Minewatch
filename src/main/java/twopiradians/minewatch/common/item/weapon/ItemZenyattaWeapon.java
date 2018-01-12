@@ -31,9 +31,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -56,7 +57,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// send keep-alive packet to client
 			if (this.entityLiving != null && this.entity instanceof EntityLivingBase 
 					&& (this.ticksLeft-1) % 20 == 0 && ((EntityLivingBase)this.entity).canEntityBeSeen(this.entityLiving) &&
-					ItemMWArmor.SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
+					SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
 				this.ticksLeft = 60;
 				Minewatch.network.sendToDimension(new SPacketSimple(42, this.entity, true, this.entityLiving), this.entity.world.provider.getDimension());
 			}
@@ -95,7 +96,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// send keep-alive packet to client
 			if (this.entityLiving != null && this.entity instanceof EntityLivingBase 
 					&& (this.ticksLeft-1) % 20 == 0 && ((EntityLivingBase)this.entity).canEntityBeSeen(this.entityLiving) &&
-					ItemMWArmor.SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
+					SetManager.getWornSet(this.entity) == EnumHero.ZENYATTA) {
 				this.ticksLeft = 60;
 				Minewatch.network.sendToDimension(new SPacketSimple(43, this.entity, true, this.entityLiving), this.entity.world.provider.getDimension());
 			}
@@ -187,7 +188,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, true, 
 						// ignore if harmony from anyone
-						input -> !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == input, false));
+						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == input, false));
 				if (target != null) {
 					// remove discord by same player
 					Handler discord = TickHandler.getHandler(player, Identifier.ZENYATTA_DISCORD);
@@ -210,7 +211,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, false, 
 						// ignore if discord from anyone
-						input -> !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == input, false));	
+						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == input, false));	
 				if (target != null) {
 					// remove harmony by same player
 					Handler harmony = TickHandler.getHandler(player, Identifier.ZENYATTA_HARMONY);

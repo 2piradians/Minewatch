@@ -61,7 +61,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				((EntityJunkratMine)hero.ability2.entities.get(entity)).explode();
 
 			// steel trap
-			if (!world.isRemote && hero.ability1.isSelected(player) && 
+			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				ModSoundEvents.JUNKRAT_TRAP_TRIGGER.stopSound(world);
 				EntityJunkratTrap trap = new EntityJunkratTrap(world, player);
@@ -81,7 +81,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				ModSoundEvents.JUNKRAT_TRAP_PLACED_VOICE.playFollowingSound(player, 1, 1, false);
 			}
 			// mine
-			else if (!world.isRemote && hero.ability2.isSelected(player) && 
+			else if (!world.isRemote && hero.ability2.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				hero.ability2.subtractUse(player); 
 				hero.ability2.keybind.setCooldown(player, 10, true); 

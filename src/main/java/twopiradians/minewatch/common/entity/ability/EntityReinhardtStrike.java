@@ -2,9 +2,9 @@ package twopiradians.minewatch.common.entity.ability;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -35,7 +35,7 @@ public class EntityReinhardtStrike extends EntityMW {
 	}
 
 	@Override
-	public void onUpdate() {
+	public void onUpdate() {		
 		if (world.isRemote) {
 			for (int i=0; i<3; ++i) {
 				world.spawnParticle(EnumParticleTypes.FLAME, 
@@ -72,11 +72,20 @@ public class EntityReinhardtStrike extends EntityMW {
 	@Override
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
+		
 
 		if (result.typeOfHit == RayTraceResult.Type.BLOCK && world.isRemote) {
 			ModSoundEvents.REINHARDT_STRIKE_COLLIDE.playSound(this, 4, 1);
-			Vec3d vec = this.getPositionVector().add(new Vec3d(result.sideHit.getDirectionVec()).scale(0.01d));
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
+			double x = posX; 
+			double y = posY;
+			double z = posZ;
+			if (result.sideHit == EnumFacing.SOUTH)
+				z = Math.ceil(z);
+			else if (result.sideHit == EnumFacing.EAST)
+				x = Math.ceil(x);
+			else if (result.sideHit == EnumFacing.UP)
+				y = Math.ceil(y);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, x, y, z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit);
 		}
 
 		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, false, false);

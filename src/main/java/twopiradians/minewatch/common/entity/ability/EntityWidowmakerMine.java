@@ -26,6 +26,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -47,9 +48,16 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 						entity.posY+(entity.world.rand.nextFloat()-0.5f)*entity.height+entity.height/2f, 
 						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*entity.width, 
 						0, 0.01f, 0, 0xBE8FC5, 0xB589BC, 0.5f, 10, 4, 4, 0, 0);
+				
+				// glow
 				if (this.entityLiving == Minewatch.proxy.getClientPlayer() && 
-						entity.isGlowing() == this.entityLiving.canEntityBeSeen(entity))
-					entity.setGlowing(!entity.isGlowing());
+						entity instanceof EntityLivingBase && !this.entityLiving.canEntityBeSeen(entity)) {
+					Handler handler = TickHandler.getHandler(entity, Identifier.GLOWING);
+					if (handler == null)
+						TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(entity).setTicks(3));
+					else
+						handler.ticksLeft = 3;
+				}
 			}
 			return super.onClientTick();
 		}
@@ -165,7 +173,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 		}
 		super.onUpdate();
 	}
-	
+
 	@Override
 	public void spawnTrailParticles() {
 		if (!this.onGround)

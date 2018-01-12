@@ -40,7 +40,8 @@ public class ItemMWToken extends Item {
 		int tokenRate = event.getEntityLiving() instanceof EntityHero ? Config.mobTokenDropRate : Config.tokenDropRate;
 		int wildCardRate = event.getEntityLiving() instanceof EntityHero ? Config.mobWildCardDropRate : Config.wildCardRate;
 		if (!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityLiving 
-				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < tokenRate * (1 + event.getLootingLevel())) {
+				&& event.getEntityLiving().getEntityWorld().rand.nextInt(100) < tokenRate * (1 + event.getLootingLevel()) &&
+				(!Config.tokenDropRequiresPlayer || event.getEntityLiving().getAttackingEntity() instanceof EntityPlayer)) {
 			int i = event.getEntityLiving().world.rand.nextInt(EnumHero.values().length);
 			ItemStack stack;
 			if (event.getEntityLiving().getEntityWorld().rand.nextInt(100) < wildCardRate)

@@ -29,6 +29,7 @@ import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
+import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
 public class BakedMWItem extends OBJBakedModel {
@@ -58,7 +59,7 @@ public class BakedMWItem extends OBJBakedModel {
 	@Override
 	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {			
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
-
+	
 		Pair<? extends IBakedModel, Matrix4f> ret = super.handlePerspective(cameraTransformType);
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
@@ -72,7 +73,8 @@ public class BakedMWItem extends OBJBakedModel {
 		// set tint index for quads
 		List<BakedQuad> ret = super.getQuads(blockState, side, rand);
 				for (BakedQuad quad : ret)
-					if (!quad.hasTintIndex()) 
+					if (!quad.hasTintIndex() && stack != null && (!(stack.getItem() instanceof IChangingModel) ||
+					((IChangingModel)stack.getItem()).shouldRecolor(this, quad))) 
 						ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
 
 				return ret;

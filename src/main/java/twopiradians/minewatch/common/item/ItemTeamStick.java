@@ -35,25 +35,27 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.util.ColorHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTeamStick extends Item {
-	
+
 	public ItemTeamStick() {
 		super();
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("hasTeam"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity) {
-				return getTeamName(stack, false) != null ? 1 : 0;
+				return getDisplayName(stack, false) != null ? 1 : 0;
 			}
 		});
 	}
 
 	/**Get a team's display name / registry name*/
-	public static String getTeamName(Team team) {
+	public static String getDisplayName(Team team) {
 		if (team instanceof ScorePlayerTeam)
 			return ((ScorePlayerTeam)team).getDisplayName();
 		else if (team != null)
@@ -63,7 +65,7 @@ public class ItemTeamStick extends Item {
 	}
 
 	/**Get the stack's team registry name*/
-	public static String getTeamName(ItemStack stack, boolean displayName) {
+	public static String getDisplayName(ItemStack stack, boolean displayName) {
 		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamRegistryName")) {
 			if (displayName && stack.getTagCompound().hasKey("teamDisplayName"))
 				return getTeamFormat(stack)+stack.getTagCompound().getString("teamDisplayName");
@@ -85,7 +87,7 @@ public class ItemTeamStick extends Item {
 	/**Get the stack's team*/
 	@Nullable
 	public static ScorePlayerTeam getTeam(World world, ItemStack stack) {
-		String name = getTeamName(stack, false);
+		String name = getDisplayName(stack, false);
 		if (name != null) 
 			return world.getScoreboard().getTeam(TextFormatting.getTextWithoutFormattingCodes(name));
 		else
@@ -125,15 +127,15 @@ public class ItemTeamStick extends Item {
 		String format2 = TextFormatting.BLUE+"";
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
 		tooltip.add(format1+"RMB:"+format2+" Open Team Stick GUI");
+		tooltip.add(format1+"RMB+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
-		tooltip.add(format1+"RMB+Entity+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"LMB+Entity:"+format2+" Assign team");
 		tooltip.add(format1+"LMB+Entity+Sneak:"+format2+" Copy team");
 	}
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String name = getTeamName(stack, true);
+		String name = getDisplayName(stack, true);
 		return super.getItemStackDisplayName(stack)+(name == null ? "" : ": "+name);
 	}
 
@@ -171,7 +173,7 @@ public class ItemTeamStick extends Item {
 			if (player.isSneaking()) {
 				if (entity.getTeam() != null) {
 					setTeam(stack, entity.getTeam());
-					sendChatMessage(player, "Copied "+entity.getName()+"'s team: "+getTeamName(stack, true));
+					sendChatMessage(player, "Copied "+entity.getName()+"'s team: "+getDisplayName(stack, true));
 				}
 				else 
 					sendChatMessage(player, entity.getName()+" isn't on a team");
@@ -179,12 +181,12 @@ public class ItemTeamStick extends Item {
 			// add to team
 			else if (team != null && !team.isSameTeam(entity.getTeam())) {
 				player.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), team.getName());
-				sendChatMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
+				sendChatMessage(player, "Set "+entity.getName()+"'s team to: "+getDisplayName(stack, true));
 				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
 			}
 			// add to team already on
 			else if (team != null && team.isSameTeam(entity.getTeam()))
-				sendChatMessage(player, entity.getName()+" is already on team "+getTeamName(stack, true));
+				sendChatMessage(player, entity.getName()+" is already on team "+getDisplayName(stack, true));
 			// no team selected
 			else if (team == null)
 				sendChatMessage(player, "No team selected; select a team by right-click the air first");
@@ -195,7 +197,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
-		if (!player.world.isRemote) {
+		if (!player.world.isRemote && !player.isSneaking()) {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {
@@ -239,10 +241,13 @@ public class ItemTeamStick extends Item {
 			if (stack != null && stack.getItem() == this && event.getEntity().getTeam() != null)
 				glow = true;
 
-		if (glow)
-			event.getEntity().setGlowing(true);
-		else if (!TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_OPPORTUNIST))
-			event.getEntity().setGlowing(false);
+		if (glow) {
+			Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.GLOWING);
+			if (handler == null)
+				TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(event.getEntity()).setTicks(2));
+			else
+				handler.ticksLeft = 2;
+		}
 	}
 
 	@SideOnly(Side.CLIENT)

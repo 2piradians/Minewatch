@@ -8,11 +8,16 @@ import net.minecraft.client.renderer.GlStateManager.Profile;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
+import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
@@ -27,18 +32,42 @@ public class ModelMWArmor extends ModelPlayer {
 
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		GlStateManager.pushMatrix();
+		boolean renderOutline = Config.renderOutlines && 
+				!(entityIn instanceof EntityGuiPlayer) && !(entityIn instanceof EntityArmorStand) && 
+				!this.renderingEnchantment && !entityIn.isGlowing() && 
+				EntityHelper.shouldTarget(entityIn, Minewatch.proxy.getClientPlayer(), false);
 
-		if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
-			GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
+		for (int i= renderOutline ? 0 : 1; i<2; ++i) {
+			GlStateManager.pushMatrix();
+			
+			// render outline
+			if (i==0) {
+				GlStateManager.enableColorMaterial();
+				GlStateManager.enableOutlineMode(0xCD200F);
+				float outlineScale = 1.04f;
+				GlStateManager.scale(outlineScale, outlineScale, outlineScale);
+				scale = 0.0625f/outlineScale;
+				GlStateManager.depthMask(false);
+			}
+			// render normal
+			else {
+				GlStateManager.depthMask(true);
+				scale = 0.0625f; // default
+			}
+			
+			if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
+				GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
 
-		super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+			super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
-		if (!this.renderingEnchantment)
-			GlStateManager.disableBlendProfile(Profile.PLAYER_SKIN);
+			if (!this.renderingEnchantment)
+				GlStateManager.disableBlendProfile(Profile.PLAYER_SKIN);
 
-		GlStateManager.color(1, 1, 1, 1);
-		GlStateManager.popMatrix();
+			if (i == 0)
+				GlStateManager.disableOutlineMode();
+			GlStateManager.color(1, 1, 1, 1);
+			GlStateManager.popMatrix();
+		}
 
 		this.renderingEnchantment = true;
 	}

@@ -754,6 +754,14 @@ public class SPacketSimple implements IMessage {
 						else
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MCCREE_FAN));
 					}
+					// McCree's flashbang
+					else if (packet.type == 52 && entity != null) {
+						float size = Math.min(entity.height, entity.width)*9f;
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.STUN, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 0.9f, 14, size, size, 0, 0);
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(17),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(17),
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(17));
+					}
 				}
 			});
 			return null;

@@ -61,6 +61,7 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleTrail;
+import twopiradians.minewatch.client.render.entity.RenderAnaGrenade;
 import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHero;
@@ -68,6 +69,7 @@ import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
 import twopiradians.minewatch.client.render.entity.RenderJunkratMine;
 import twopiradians.minewatch.client.render.entity.RenderJunkratTrap;
 import twopiradians.minewatch.client.render.entity.RenderLucioSonic;
+import twopiradians.minewatch.client.render.entity.RenderMcCreeStun;
 import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
@@ -82,11 +84,13 @@ import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityMcCreeStun;
 import twopiradians.minewatch.common.entity.ability.EntityMeiCrystal;
 import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
@@ -258,9 +262,11 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityHanzoScatterArrow.class, new RenderFactory("hanzo_arrow"));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAnaBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAnaSleepDart.class, new RenderFactory("soldier76_helix_rocket", 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnaGrenade.class, RenderAnaGrenade::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityGenjiShuriken.class, RenderGenjiShuriken::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTracerBullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeBullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeStun.class, RenderMcCreeStun::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, new RenderFactory("soldier76_helix_rocket", 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
@@ -320,6 +326,8 @@ public class ClientProxy extends CommonProxy {
 			event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/reinhardt_strike_"+i));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/lucio_sonic"));
 		RenderMoiraOrb.sprite = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/particle/moira_orb"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mccree_stun"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/ana_grenade"));
 	}
 
 	@Override

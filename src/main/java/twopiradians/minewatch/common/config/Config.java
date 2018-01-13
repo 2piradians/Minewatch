@@ -68,6 +68,7 @@ public class Config {
 	public static double ammoMultiplier;
 	public static boolean tokenDropRequiresPlayer;
 	public static double abilityCooldownMultiplier;
+	public static boolean renderOutlines;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -141,6 +142,9 @@ public class Config {
 			}
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Render Outlines", true, "Should enemy heroes have a red outline?");
+		renderOutlines = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command)
 

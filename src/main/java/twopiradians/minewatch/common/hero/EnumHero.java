@@ -63,7 +63,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 public enum EnumHero {
 
 	// do not change order - this is the order in ability_overlay.png
-	ANA("Ana", true, true, new Ability(KeyBind.ABILITY_2, false, false), 
+	ANA("Ana", true, true, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, EntityAna.class,
@@ -92,7 +92,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
 			new Skin(TextFormatting.GOLD+"Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/"),
 			new Skin(TextFormatting.GOLD+"Casual", "Casual Hanzo", "gab51299", "https://www.planetminecraft.com/skin/casual-hanzo/")),
-	MCCREE("McCree", false, false, new Ability(KeyBind.ABILITY_2, false, false), 
+	MCCREE("McCree", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, EntityMcCree.class, 

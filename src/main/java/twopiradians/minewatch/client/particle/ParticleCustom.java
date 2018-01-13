@@ -190,6 +190,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				if (!TickHandler.hasHandler(followEntity, Identifier.MOIRA_ORB_SELECT))
 					this.setExpired();
 			}
+			else if (this.enumParticle.equals(EnumParticle.STUN)) {
+				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height+0.6d, this.followEntity.posZ);
+				this.particleAlpha *= 5f;
+			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
 				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);

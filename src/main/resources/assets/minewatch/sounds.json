@@ -302,14 +302,6 @@
 			"minewatch:mccree_roll"
 		]
 	},
-	"mccree_flashbang": {
-		"category": "player",
-		"sounds": [
-			"minewatch:mccree_flashbang_0",
-			"minewatch:mccree_flashbang_1",
-			"minewatch:mccree_flashbang_2"
-		]
-	},
 	"soldier76_shoot": {
 		"category": "player",
 		"sounds": [
@@ -1131,6 +1123,70 @@
 	"category": "player",
 		"sounds": [
 			"minewatch:bastion_heal"
+		]
+	},
+	"mccree_stun_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mccree_stun_throw"
+		]
+	},
+	"mccree_stun_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mccree_stun_hit"
+		]
+	},
+	"mccree_stun_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:mccree_stun_voice_0",
+			"minewatch:mccree_stun_voice_1",
+			"minewatch:mccree_stun_voice_2",
+			"minewatch:mccree_stun_voice_3",
+			"minewatch:mccree_stun_voice_4",
+			"minewatch:mccree_stun_voice_5"
+		]
+	},
+	"ana_grenade_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_throw"
+		]
+	},
+	"ana_grenade_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_hit"
+		]
+	},
+	"ana_grenade_heal": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_heal"
+		]
+	},
+	"ana_grenade_damage": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_damage"
+		]
+	},
+	"ana_grenade_damage_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_damage_voice_0",
+			"minewatch:ana_grenade_damage_voice_1"
+		]
+	},
+	"ana_grenade_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_grenade_heal_voice_0",
+			"minewatch:ana_grenade_heal_voice_1",
+			"minewatch:ana_grenade_heal_voice_2",
+			"minewatch:ana_grenade_heal_voice_3",
+			"minewatch:ana_grenade_heal_voice_4"
 		]
 	}
 }

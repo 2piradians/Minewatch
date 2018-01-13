@@ -1,0 +1,8 @@
+# Blender MTL File: 'mccree_stun.blend'
+# Material Count: 1
+
+newmtl 967E34207D99D1DA
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/mccree_stun

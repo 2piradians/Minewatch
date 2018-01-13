@@ -108,8 +108,8 @@ public class Handlers {
 			entityLiving.rotationPitch = triple.getLeft();
 			entityLiving.rotationYaw = triple.getMiddle();
 			entityLiving.rotationYawHead = triple.getRight();
-			entityLiving.prevRenderYawOffset = triple.getMiddle();
-			entityLiving.renderYawOffset = triple.getMiddle();
+			//entityLiving.prevRenderYawOffset = triple.getMiddle();
+			//entityLiving.renderYawOffset = triple.getMiddle();
 		}
 	}
 

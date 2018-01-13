@@ -30,7 +30,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
+import twopiradians.minewatch.common.entity.ability.EntityMcCreeStun;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -154,6 +156,16 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability2.keybind.setCooldown(player, 240, false); 
+			}
+
+			// grenade
+			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
+					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
+				EntityAnaGrenade projectile = new EntityAnaGrenade(world, player, EnumHand.MAIN_HAND.ordinal());
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 40, 0F, EnumHand.OFF_HAND, 10, 0.5f);
+				world.spawnEntity(projectile);
+				ModSoundEvents.MCCREE_STUN_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				hero.ability1.keybind.setCooldown(player, 20, false); // TODO
 			}
 		}
 

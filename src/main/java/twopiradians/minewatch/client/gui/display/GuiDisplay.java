@@ -46,10 +46,10 @@ public class GuiDisplay extends GuiScreen {
 
 		int perColumn = 4;
 
-		for (int i=0; i<EnumHero.values().length; ++i) {
+		for (int i=10; i<EnumHero.values().length; ++i) {
 			EnumHero hero = EnumHero.values()[i];
-			double x = i/perColumn * 155 - 20;
-			double y = -(i%perColumn)*-80+(i/perColumn)+60;
+			double x = (i-10)/perColumn * 155 - 20;
+			double y = -((i-10)%perColumn)*-80+((i-10)/perColumn)+60;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, 0);
 

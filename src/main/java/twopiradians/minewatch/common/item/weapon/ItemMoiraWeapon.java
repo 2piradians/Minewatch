@@ -135,8 +135,9 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			else if (entity.ticksExisted % 5 == 0) {
 				if (entityLiving == null || !entityLiving.isEntityAlive()) 
 					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 10, false);
-				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21 ||
-						!entityLiving.canEntityBeSeen(entity))
+				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21)
+					entityLiving = null;
+				if (!checkTargetInShootingView((EntityLivingBase) entity, entityLiving))
 					entityLiving = null;
 				Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.MOIRA_DAMAGE, entity.world, (EntityLivingBase) entity, 0xFFFFFF, 0xFFFFFF, 1, 8, 1.1f, 1.1f, entity.world.rand.nextFloat(), 0.1f, EnumHand.MAIN_HAND, 20, 0.6f);
 				if (entityLiving != null)
@@ -165,8 +166,9 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			else if (entity.ticksExisted % 5 == 0) {
 				if (entityLiving == null || !entityLiving.isEntityAlive()) 
 					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 10, false);
-				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21 ||
-						!entityLiving.canEntityBeSeen(entity))
+				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21)
+					entityLiving = null;
+				if (!checkTargetInShootingView((EntityLivingBase) entity, entityLiving))
 					entityLiving = null;
 			}
 			else 
@@ -291,6 +293,12 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			}
 		}
 	}	
+	
+	public static boolean checkTargetInShootingView(EntityLivingBase entity, Entity target) {
+		Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
+		Vec3d shooting = EntityHelper.getShootingPos(entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f);
+		return EntityHelper.canEntityBeSeen(shooting, target);
+	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
@@ -300,6 +308,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			// start damage
 			if (!TickHandler.hasHandler(player, Identifier.MOIRA_DAMAGE)) {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 10, false);
+				if (!checkTargetInShootingView(player, target))
+					target = null;
 				TickHandler.register(false, DAMAGE.setEntity(player).setEntityLiving(target).setTicks(10));
 				Minewatch.network.sendToDimension(new SPacketSimple(48, player, true, target), world.provider.getDimension());
 				ModSoundEvents.MOIRA_DAMAGE_START.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f, false);

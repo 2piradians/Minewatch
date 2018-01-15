@@ -394,7 +394,10 @@ public class EntityHelper {
 
 	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking*/
 	public static void heal(EntityLivingBase entity, float damage) {
-		if (entity != null && entity.getHealth() < entity.getMaxHealth()) {
+		if (entity != null && entity.getHealth() < entity.getMaxHealth() && 
+				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
+			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
+				damage *= 2f;
 			entity.heal(Math.abs(damage*Config.damageScale));
 			spawnHealParticles(entity);
 		}
@@ -571,10 +574,10 @@ public class EntityHelper {
 		}
 		return nearest;
 	}
-	
+
 	/**Get center of aabb, because clientside*/
 	public static Vec3d getCenter(AxisAlignedBB aabb) {
-        return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
+		return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
 	}
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
@@ -622,7 +625,7 @@ public class EntityHelper {
 				break;
 			}
 		}
-		
+
 		return closest;
 	}
 
@@ -831,6 +834,11 @@ public class EntityHelper {
 
 			return true;
 		}
+	}
+
+	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but from a generic lookPos*/
+	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
+		return entity.world.rayTraceBlocks(lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ), false, true, false) == null;
 	}
 
 }

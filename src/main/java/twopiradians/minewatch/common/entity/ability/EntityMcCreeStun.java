@@ -55,7 +55,8 @@ public class EntityMcCreeStun extends EntityMW {
 				boolean hit = false;
 				for (EntityLivingBase entity : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox().expandXyz(2))) {
 					if (entity.isEntityAlive() && 
-							EntityHelper.attemptDamage(getThrower(), entity, 25, true)) { // TODO
+							EntityHelper.attemptDamage(getThrower(), entity, 25, true)) {
+						TickHandler.interrupt(entity);
 						Minewatch.network.sendToDimension(new SPacketSimple(52, entity, false), world.provider.getDimension());
 						TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(17),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(17),

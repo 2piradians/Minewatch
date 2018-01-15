@@ -36,6 +36,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -761,6 +762,21 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(17),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(17),
 								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(17));
+					}
+					// Ana's grenade
+					else if (packet.type == 53 && entity != null) {
+						if (packet.bool) {
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_HEAL, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
+							TickHandler.register(true, EntityAnaGrenade.HEAL.setEntity(entity).setTicks(80));
+							if (entity == player)
+								ModSoundEvents.ANA_GRENADE_HEAL.playFollowingSound(entity, 0.2f, 1, false);
+						}
+						else {
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_DAMAGE, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
+							TickHandler.register(true, EntityAnaGrenade.DAMAGE.setEntity(entity).setTicks(80).setNumber(packet.x));
+							if (entity == player)
+								ModSoundEvents.ANA_GRENADE_DAMAGE.playFollowingSound(entity, 1, 1, false);
+						}
 					}
 				}
 			});

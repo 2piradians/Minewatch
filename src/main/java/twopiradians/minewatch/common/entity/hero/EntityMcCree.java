@@ -46,6 +46,11 @@ public class EntityMcCree extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+				// flashbang
+				if (distance <= 7 && entity.hero.weapon.getCurrentAmmo(entity) > 2 && entity.shouldUseAbility())
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+				else
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
 			}
 			else
 				this.resetKeybinds();

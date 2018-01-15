@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -36,6 +38,7 @@ import twopiradians.minewatch.common.entity.ability.EntityMcCreeStun;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -52,6 +55,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	private boolean prevScoped;
 	private float unscopedSensitivity;
+
+	private boolean resetColor;
 
 	public static final Handler SLEEP = new Handler(Identifier.ANA_SLEEP, true) {
 		@SideOnly(Side.CLIENT)
@@ -164,8 +169,8 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				EntityAnaGrenade projectile = new EntityAnaGrenade(world, player, EnumHand.MAIN_HAND.ordinal());
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 40, 0F, EnumHand.OFF_HAND, 10, 0.5f);
 				world.spawnEntity(projectile);
-				ModSoundEvents.MCCREE_STUN_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
-				hero.ability1.keybind.setCooldown(player, 20, false); // TODO
+				ModSoundEvents.ANA_GRENADE_THROW.playSound(player, 1, 1);
+				hero.ability1.keybind.setCooldown(player, 200, false); 
 			}
 		}
 
@@ -310,5 +315,42 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void renderGrenadeHealth(RenderGameOverlayEvent.Pre event) {
+		if (event.getType() == ElementType.HEALTH) {
+			resetColor = false;
+			int width = event.getResolution().getScaledWidth();
+			int height = event.getResolution().getScaledHeight();
+			int left = width / 2 - 91;
+			int top = height - 39;
+
+			if (TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.ANA_GRENADE_HEAL)) {
+				GlStateManager.enableBlend();
+				Minecraft.getMinecraft().renderEngine.bindTexture(EnumParticle.ANA_GRENADE_HEAL.facingLoc);	
+				Gui.drawModalRectWithCustomSizedTexture(left-18, top-4, 0, 0, 16, 16, 16, 16);
+				Minecraft.getMinecraft().renderEngine.bindTexture(Gui.ICONS);
+
+				GlStateManager.color(255/255f, 255/255f, 0/255f);	
+				resetColor = true;
+			}
+			else if (TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.ANA_GRENADE_DAMAGE)) {
+				GlStateManager.enableBlend();
+				Minecraft.getMinecraft().renderEngine.bindTexture(EnumParticle.ANA_GRENADE_DAMAGE.facingLoc);	
+				Gui.drawModalRectWithCustomSizedTexture(left-18, top-4, 0, 0, 16, 16, 16, 16);
+				Minecraft.getMinecraft().renderEngine.bindTexture(Gui.ICONS);
+				GlStateManager.color(75/255f, 0/255f, 255/255f);
+				resetColor = true;
+			}
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void renderGrenadeHealth(RenderGameOverlayEvent.Post event) {
+		if (resetColor) 
+			GlStateManager.color(1, 1, 1);
+	}
 
 }

@@ -23,7 +23,6 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
@@ -203,9 +202,10 @@ public class ItemMWArmor extends ItemArmor {
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
-			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
+			//BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
+			// TEST removed check because it's not always accurate (in the case of fences)
+			if ((player instanceof EntityPlayer && player.onGround) || /*(world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) ||*/ player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
 			}
 			else if (player.isCollidedHorizontally && 
@@ -258,15 +258,16 @@ public class ItemMWArmor extends ItemArmor {
 		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
 		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
 		if (this.armorType == EntityEquipmentSlot.CHEST &&
-				set == EnumHero.TRACER && world.isRemote && 
-				(x != 0 || y != 0 || z != 0)) {
+				set == EnumHero.TRACER && world.isRemote && !Minewatch.proxy.isPlayerInFirstPerson() && 
+				(x != 0 || y != 0 || z != 0) && 
+				!TickHandler.hasHandler(player, Identifier.TRACER_RECALL)) {
 			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.posX+(x-player.posX)*i/numParticles, 
 						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(z-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 0, 1);
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 3, 0, 1);
 		}
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set

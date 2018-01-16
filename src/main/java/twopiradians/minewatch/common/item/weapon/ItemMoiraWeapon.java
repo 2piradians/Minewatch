@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
@@ -38,7 +39,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -48,6 +48,7 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
@@ -55,6 +56,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -271,7 +273,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(16).setAbility(hero.ability3),
-						FADE.setEntity(player).setTicks(16)); 
+						FADE.setEntity(player).setTicks(16), Handlers.INVULNERABLE.setEntity(player).setTicks(16)); 
 				Minewatch.network.sendToDimension(new SPacketSimple(47, player, false), world.provider.getDimension());
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 16, 16, true, false));
 				player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 16, 0, true, false));
@@ -321,6 +323,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			Handler handler = TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE);
 			if (handler != null && handler.entityLiving != null) {
 				EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true);
+				if (!(handler.entityLiving instanceof EntityLivingBaseMW) && 
+						!(handler.entityLiving instanceof EntityArmorStand))
 				EntityHelper.heal(player, 1.5f*4f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
@@ -334,13 +338,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		return (Minewatch.proxy.getClientPlayer() != null && 
 				TickHandler.hasHandler(Minewatch.proxy.getClientPlayer(), Identifier.MOIRA_FADE)) ? 
 						true : super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
-	}
-
-	@SubscribeEvent
-	public void preventFadeDamage(LivingAttackEvent event) {
-		if (TickHandler.hasHandler(event.getEntity(), Identifier.MOIRA_FADE) &&
-				!event.getSource().canHarmInCreative()) 
-			event.setCanceled(true);
 	}
 
 	@SubscribeEvent

@@ -185,7 +185,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 20, 0F, EnumHand.OFF_HAND, 10, 0.5f);
 				world.spawnEntity(projectile);
 				ModSoundEvents.MCCREE_STUN_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
-				hero.ability1.keybind.setCooldown(player, 20, false); // TODO
+				hero.ability1.keybind.setCooldown(player, 200, false);
 			}
 		}
 	}

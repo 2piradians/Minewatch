@@ -20,6 +20,7 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -48,11 +49,11 @@ public class Handlers {
 			if (this.entity != null && (((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING) == null ||
 					((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING).getDuration() <= 0))
 				this.entity.setGlowing(false);
-			
+
 			return super.onClientRemove();
 		}
 	};
-	
+
 	/**Set mainhand active (for item use action)*/
 	public static final Handler ACTIVE_HAND = new Handler(Identifier.ACTIVE_HAND, true) {
 		@Override
@@ -108,8 +109,8 @@ public class Handlers {
 			entityLiving.rotationPitch = triple.getLeft();
 			entityLiving.rotationYaw = triple.getMiddle();
 			entityLiving.rotationYawHead = triple.getRight();
-			//entityLiving.prevRenderYawOffset = triple.getMiddle();
-			//entityLiving.renderYawOffset = triple.getMiddle();
+			entityLiving.prevRenderYawOffset = triple.getRight();
+			entityLiving.renderYawOffset = triple.getRight();
 		}
 	}
 
@@ -249,7 +250,7 @@ public class Handlers {
 			return super.onServerRemove();
 		}
 	};
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
@@ -279,6 +280,22 @@ public class Handlers {
 	public void preventTeleporting(EnderTeleportEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase &&
 				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT))
+			event.setCanceled(true);
+	}
+
+	public static final Handler INVULNERABLE = new Handler(Identifier.INVULNERABLE, false) {};
+
+	@SubscribeEvent
+	public void preventAttack(LivingAttackEvent event) {
+		if (!event.getSource().canHarmInCreative() && 
+				TickHandler.hasHandler(event.getEntity(), Identifier.INVULNERABLE)) 
+			event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public void preventDamage(LivingHurtEvent event) {
+		if (!event.getSource().canHarmInCreative() && 
+				TickHandler.hasHandler(event.getEntityLiving(), Identifier.INVULNERABLE)) 
 			event.setCanceled(true);
 	}
 

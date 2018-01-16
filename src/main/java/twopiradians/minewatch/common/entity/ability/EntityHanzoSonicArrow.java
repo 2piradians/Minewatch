@@ -29,7 +29,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// glowing
-			if ((this.ticksLeft+1) % 10 == 0) { // TEST glowing only works for teammates
+			if ((this.ticksLeft+1) % 10 == 0) { 
 				AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(10);
 				List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entityLiving, aabb);
 				for (Entity entity2 : list) 
@@ -86,7 +86,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		}
 
 		// glowing
-		if (this.inGround && world.isRemote && this.ticksExisted % 10 == 0) { // TEST glowing only works for teammates
+		if (this.inGround && world.isRemote && this.ticksExisted % 10 == 0) {
 			AxisAlignedBB aabb = this.getEntityBoundingBox().expandXyz(10);
 			List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(getThrower(), aabb);
 			for (Entity entity2 : list) 

@@ -32,6 +32,10 @@ public class ModelMWArmor extends ModelPlayer {
 
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		// don't render when invisible
+		if (entityIn.isInvisible())
+			return;
+		
 		boolean renderOutline = Config.renderOutlines && 
 				!(entityIn instanceof EntityGuiPlayer) && !(entityIn instanceof EntityArmorStand) && 
 				!this.renderingEnchantment && !entityIn.isGlowing() && 

@@ -108,7 +108,6 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.entityLiving != null) {
 				this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, 2, true, false));
-				this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 5, 2, true, false));
 			}
 
 			return super.onServerTick();

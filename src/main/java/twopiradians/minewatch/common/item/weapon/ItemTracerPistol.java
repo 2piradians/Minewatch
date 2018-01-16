@@ -1,13 +1,21 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
@@ -15,16 +23,59 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys;
+import twopiradians.minewatch.client.model.ModelMWArmor;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
+import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTracerPistol extends ItemMWWeapon {
+
+	public static final Handler RECALL = new Handler(Identifier.TRACER_RECALL, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (entityLiving == Minecraft.getMinecraft().player && this.ticksLeft > 25) {
+				SavedState.applyState(entityLiving);
+				Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
+			}
+			if (this.ticksLeft < 25 && this.ticksLeft > 20 && this.ticksLeft % 2 == 0) {
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 10, 0, 20, 0, 0.5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x63B8E8, 1, 7, 15, 5, 0, 0.5f);
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 7, 10, 5, 0, 0.8f);
+			}
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (this.ticksLeft > 25)
+				SavedState.applyState(entityLiving);
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			ModSoundEvents.TRACER_RECALL_VOICE.playFollowingSound(entity, 1, 1, false);
+			return super.onServerRemove();
+		}
+	};
 
 	public ItemTracerPistol() {
 		super(20);
@@ -49,18 +100,60 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		// dash
-		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack && (hero.ability2.isSelected((EntityLivingBase) entity, true) || hero.ability2.isSelected((EntityLivingBase) entity, true, Keys.KeyBind.RMB)) &&
-				!world.isRemote && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
-			entity.setSneaking(false);
-			ModSoundEvents.TRACER_BLINK.playSound(entity, 1, world.rand.nextFloat()/2f+0.75f);
-			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) entity);
-			else if (entity instanceof EntityHero)
-				SPacketSimple.move((EntityLivingBase) entity, 9, false, true);
-			hero.ability2.keybind.setCooldown((EntityLivingBase) entity, 3, true); 
-			hero.ability2.subtractUse((EntityLivingBase) entity);
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
+
+			// dash
+			if ((hero.ability2.isSelected(player, true) || hero.ability2.isSelected(player, true, Keys.KeyBind.RMB)) &&
+					!world.isRemote && this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				player.setSneaking(false);
+				ModSoundEvents.TRACER_BLINK.playSound(player, 1, world.rand.nextFloat()/2f+0.75f);
+				ModSoundEvents.TRACER_BLINK_VOICE.playFollowingSound(player, 1, 1, false);
+				if (player instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) player);
+				else if (player instanceof EntityHero)
+					SPacketSimple.move(player, 9, false, true);
+				hero.ability2.keybind.setCooldown(player, 3, true); 
+				hero.ability2.subtractUse(player);
+			}
+
+			// save recall state
+			if (entity.ticksExisted % SavedState.SAVE_INTERVAL == 0 && 
+					!TickHandler.hasHandler(player, Identifier.TRACER_RECALL))
+				SavedState.create(player);
+
+			// recall
+			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
+				ModSoundEvents.TRACER_RECALL.playFollowingSound(player, 1, 1, false);
+				TickHandler.register(false, ItemTracerPistol.RECALL.setEntity(entity).setTicks(55), 
+						Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
+						Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
+						Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(hero.ability1),
+						Handlers.INVULNERABLE.setEntity(entity).setTicks(30));
+				Minewatch.network.sendToDimension(new SPacketSimple(54, player, false), player.world.provider.getDimension());
+				hero.ability1.keybind.setCooldown(player, 240, false); 
+				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.values());
+			}
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
+		super.preRenderArmor(entity, model);
+
+		// invisibility / teleport
+		float time = 25;
+		Handler handler = TickHandler.getHandler(entity, Identifier.TRACER_RECALL);
+		if (handler != null && handler.ticksLeft < time) {
+			float percent = handler.ticksLeft / time;
+			GlStateManager.color((255f-172f*percent)/255f, (255f-62f*percent)/255f, (255f-38f*percent)/255f, 1);
+			return true;
+		}
+
+		return false; 
 	}
 
 	@Override
@@ -83,6 +176,83 @@ public class ItemTracerPistol extends ItemMWWeapon {
 
 			GlStateManager.disableBlend();
 		}
+	}
+
+	public static class SavedState {
+
+		public static final int SAVE_INTERVAL = 2;
+
+		private static HashMap<EntityLivingBase, LinkedList<SavedState>> statesClient = Maps.newHashMap();
+		private static HashMap<EntityLivingBase, LinkedList<SavedState>> statesServer = Maps.newHashMap();
+
+		public int ticksExisted;
+		public int dimensionId;
+		public float health;
+		public float rotationYaw;
+		public float rotationPitch;
+		public double posX;
+		public double posY;
+		public double posZ;
+
+		private SavedState(EntityLivingBase entity) {
+			// copy data to state
+			this.ticksExisted = entity.ticksExisted;
+			this.dimensionId = entity.world.provider.getDimension();
+			this.health = entity.getHealth();
+			this.rotationYaw = MathHelper.wrapDegrees(entity.rotationYaw);
+			this.rotationPitch = MathHelper.wrapDegrees(entity.rotationPitch);
+			this.posX = entity.posX;
+			this.posY = entity.posY;
+			this.posZ = entity.posZ;
+		}
+
+		public static void create(EntityLivingBase entity) {
+			SavedState state = new SavedState(entity);
+			// add this state to the list of states
+			HashMap<EntityLivingBase, LinkedList<SavedState>> states = getStates(entity.world.isRemote);
+			LinkedList<SavedState> list = states.containsKey(entity) ? states.get(entity) : new LinkedList<SavedState>();
+			list.add(state);
+			if (list.size() > 60 / SAVE_INTERVAL)
+				list.removeFirst();
+			states.put(entity, list);
+		}
+
+		/**Can this state be applied to the entity*/
+		public boolean canApply(EntityLivingBase entity) {
+			return this.dimensionId == entity.world.provider.getDimension() && 
+					entity.ticksExisted - this.ticksExisted < 100 && 
+					entity.getDistance(posX, posY, posZ) < 50;
+		}
+
+		/**Apply this entity's latest save state*/
+		public static void applyState(EntityLivingBase entity) {
+			HashMap<EntityLivingBase, LinkedList<SavedState>> states = getStates(entity.world.isRemote);
+			SavedState state = states.containsKey(entity) ? states.get(entity).pollLast() : null;
+			if (state != null && state.canApply(entity)) {
+				entity.prevPosX = entity.posX;
+				entity.prevPosY = entity.posY;
+				entity.prevPosZ = entity.posZ;
+				entity.prevRotationYaw = entity.rotationYaw;
+				entity.prevRotationPitch = entity.rotationPitch;
+				entity.prevRenderYawOffset = entity.renderYawOffset;
+				entity.prevRotationYawHead = entity.rotationYawHead;
+				entity.rotationYaw = state.rotationYaw;
+				entity.rotationPitch = state.rotationPitch;
+				entity.renderYawOffset = state.rotationYaw;
+				entity.rotationYawHead = state.rotationYaw;
+				entity.fallDistance = 0;
+				if (!entity.world.isRemote)
+					EntityHelper.attemptTeleport(entity, state.posX, state.posY, state.posZ);
+
+				if (state.health > entity.getHealth())
+					entity.setHealth(state.health);
+			}
+		}
+
+		public static HashMap<EntityLivingBase, LinkedList<SavedState>> getStates(boolean isRemote) {
+			return isRemote ? statesClient : statesServer;
+		}
+
 	}
 
 }

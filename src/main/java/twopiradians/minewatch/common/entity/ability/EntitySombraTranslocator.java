@@ -90,7 +90,8 @@ public class EntitySombraTranslocator extends EntityMW {
 			this.onGround = true;
 	}
 
-	protected boolean isValidImpact(RayTraceResult result) {
+	@Override
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
 		return result.typeOfHit == RayTraceResult.Type.BLOCK && result.sideHit == EnumFacing.DOWN;
 	}
 

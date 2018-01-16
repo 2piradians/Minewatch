@@ -1,7 +1,6 @@
 package twopiradians.minewatch.common.entity.ability;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;

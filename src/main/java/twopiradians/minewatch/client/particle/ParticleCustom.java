@@ -49,8 +49,9 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Nullable
 	private EnumFacing facing;
 	private float pulseRate;
+	private boolean renderOnBlocks;
 
-	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, @Nullable EnumFacing facing) {
+	public ParticleCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, @Nullable EnumFacing facing, boolean renderOnBlocks) {
 		super(world, x, y, z, 0, 0, 0);
 		this.enumParticle = enumParticle;
 		this.motionX = motionX;
@@ -70,7 +71,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setColorFade(colorFade);
 		this.pulseRate = pulseRate;
 		this.facing = facing;
-		if (facing != null)
+		this.renderOnBlocks = renderOnBlocks;
+		if (facing != null && renderOnBlocks)
 			enumParticle.facingParticles.add(this);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(
 				enumParticle.loc.toString()+(enumParticle.variations > 1 ? "_"+world.rand.nextInt(enumParticle.variations) : ""));
@@ -78,7 +80,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	}
 
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, null);
+		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, null, false);
 		this.hand = hand;
 		this.verticalAdjust = verticalAdjust;
 		this.horizontalAdjust = horizontalAdjust;
@@ -100,7 +102,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
+		super.onUpdate(); // TODO shrink mine/trap collision boxes
 
 		// color fade (faster than vanilla)
 		this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;
@@ -109,7 +111,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 		this.prevParticleAngle = this.particleAngle;
 		this.particleAngle += rotationSpeed;
-		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.05f);
+		this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / this.particleMaxAge * this.initialAlpha, 0.01f);
 		this.particleScale = ((float)this.particleAge / this.particleMaxAge) * (this.finalScale - this.initialScale) + this.initialScale;
 		if (this.enumParticle.disableDepth && Minecraft.getMinecraft().player != null)
 			this.particleScale = (float) (this.initialScale + Minecraft.getMinecraft().player.getDistance(posX, posY, posZ) / 5f);
@@ -223,6 +225,13 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					TickHandler.hasHandler(followEntity, Identifier.SOMBRA_INVISIBLE))
 				this.setExpired();
 		}
+
+		if (this.enumParticle.equals(EnumParticle.BEAM) || this.enumParticle.equals(EnumParticle.HOLLOW_CIRCLE_2)) {
+			if (this.particleMaxAge - this.particleAge < 10)
+				this.particleAlpha = Math.max((float)(this.particleMaxAge - this.particleAge) / 10f * this.initialAlpha, 0.05f);
+			else
+				this.particleAlpha = this.initialAlpha;
+		}
 	}
 
 	@Override
@@ -246,7 +255,31 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	@Override
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		GlStateManager.enableBlend();
-		if (this.particleTexture != null && facing == null) {
+		if (this.particleTexture != null && !renderOnBlocks) {
+			// face a direction on an axis
+			if (facing != null) {
+				float pitch = 0, yaw = 0;
+				float rotation = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
+				if (facing == EnumFacing.WEST || facing == EnumFacing.EAST) {
+					pitch = 0;
+					yaw = 90;
+				}
+				else if (facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) {
+					pitch = 0;
+					yaw = 0;
+				}
+				else if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
+					pitch = 90;
+					yaw = 180f * rotation - 90f;
+				}
+				// translated from ActiveRenderInfo#updateRenderInfo
+				rotationX = MathHelper.cos(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationYZ = MathHelper.sin(yaw * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
+				rotationZ = MathHelper.cos(pitch * 0.017453292F);
+			}
+
 			// update muzzle every render so it's always rendered accurately
 			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
 				this.followEntity();

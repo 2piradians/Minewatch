@@ -75,6 +75,7 @@ import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderMoiraOrb;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
+import twopiradians.minewatch.client.render.entity.RenderSoldier76Heal;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
@@ -96,6 +97,7 @@ import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntitySoldier76Heal;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
@@ -269,6 +271,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMcCreeStun.class, RenderMcCreeStun::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Bullet.class, new RenderFactory(new Color(0x73B5C5), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76HelixRocket.class, new RenderFactory("soldier76_helix_rocket", 1, 1, 3));
+		RenderingRegistry.registerEntityRenderingHandler(EntitySoldier76Heal.class, RenderSoldier76Heal::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityBastionBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiBlast.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiIcicle.class, RenderMeiIcicle::new);
@@ -328,6 +331,8 @@ public class ClientProxy extends CommonProxy {
 		RenderMoiraOrb.sprite = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/particle/moira_orb"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mccree_stun"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/ana_grenade"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/soldier76_heal_0"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/soldier76_heal_1"));
 	}
 
 	@Override
@@ -399,17 +404,17 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null);
+		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, false);
 	}
 
 	@Override
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) { 
-		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, facing);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing, boolean renderOnBlocks) { 
+		this.spawnParticlesCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, facing, renderOnBlocks);
 	}
 
 	@Override
-	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, pulseRate, facing);
+	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing, boolean renderOnBlocks) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, world, x, y, z, motionX, motionY, motionZ, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, pulseRate, facing, renderOnBlocks);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
@@ -472,5 +477,10 @@ public class ClientProxy extends CommonProxy {
 	public Entity getRenderViewEntity() {
 		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
 		return entity == null ? Minecraft.getMinecraft().player : entity;
+	}
+	
+	@Override
+	public boolean isPlayerInFirstPerson() {
+		return Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
 	}
 }

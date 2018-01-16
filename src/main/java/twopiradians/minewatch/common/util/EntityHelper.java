@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Vector2f;
@@ -31,7 +30,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -80,7 +78,7 @@ public class EntityHelper {
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
-			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
+			if (shouldHit(entityIn, entity, false) && (entity.canBeCollidedWith() || entity instanceof EntityLivingBaseMW)) {
 				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
 				double y2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
 				double z2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
@@ -773,7 +771,7 @@ public class EntityHelper {
 		boolean flag = false;
 		BlockPos blockpos = new BlockPos(entity);
 		World world = entity.world;
-		Random random = entity.world.rand;
+		//Random random = entity.world.rand;
 
 		if (world.isBlockLoaded(blockpos))
 		{
@@ -799,7 +797,7 @@ public class EntityHelper {
 			{
 				entity.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
 
-				if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && !world.containsAnyLiquid(entity.getEntityBoundingBox()))
+				if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty()/* && !world.containsAnyLiquid(entity.getEntityBoundingBox())*/)
 				{
 					flag = true;
 				}
@@ -815,7 +813,7 @@ public class EntityHelper {
 		{
 			//int i = 128;
 
-			for (int j = 0; j < 128; ++j)
+			/*for (int j = 0; j < 128; ++j)
 			{
 				double d6 = (double)j / 127.0D;
 				float f = (random.nextFloat() - 0.5F) * 0.2F;
@@ -825,7 +823,7 @@ public class EntityHelper {
 				double d4 = d1 + (entity.posY - d1) * d6 + random.nextDouble() * (double)entity.height;
 				double d5 = d2 + (entity.posZ - d2) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
 				world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, (double)f, (double)f1, (double)f2, new int[0]);
-			}
+			}*/
 
 			if (entity instanceof EntityCreature)
 			{

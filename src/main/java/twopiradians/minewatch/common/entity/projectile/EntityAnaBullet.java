@@ -78,7 +78,7 @@ public class EntityAnaBullet extends EntityMW {
 	@Override
 	public void onImpact(RayTraceResult result) {
 		this.isFriendly = this.getDataManager().get(HEAL);
-		
+
 		super.onImpact(result);
 
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;

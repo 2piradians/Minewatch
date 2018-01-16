@@ -1188,5 +1188,52 @@
 			"minewatch:ana_grenade_heal_voice_3",
 			"minewatch:ana_grenade_heal_voice_4"
 		]
+	},
+	"soldier76_heal_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:soldier76_heal_throw"
+		]
+	},
+	"soldier76_heal_passive": {
+	"category": "player",
+		"sounds": [
+			"minewatch:soldier76_heal_passive"
+		]
+	},
+	"soldier76_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:soldier76_heal_voice_0",
+			"minewatch:soldier76_heal_voice_1",
+			"minewatch:soldier76_heal_voice_2",
+			"minewatch:soldier76_heal_voice_3",
+			"minewatch:soldier76_heal_voice_4"
+		]
+	},
+	"tracer_blink_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:tracer_blink_voice_0",
+			"minewatch:tracer_blink_voice_1",
+			"minewatch:tracer_blink_voice_2",
+			"minewatch:tracer_blink_voice_3",
+			"minewatch:tracer_blink_voice_4"
+		]
+	},
+	"tracer_recall_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:tracer_recall_voice_0",
+			"minewatch:tracer_recall_voice_1",
+			"minewatch:tracer_recall_voice_2",
+			"minewatch:tracer_recall_voice_3"
+		]
+	},
+	"tracer_recall": {
+	"category": "player",
+		"sounds": [
+			"minewatch:tracer_recall"
+		]
 	}
 }

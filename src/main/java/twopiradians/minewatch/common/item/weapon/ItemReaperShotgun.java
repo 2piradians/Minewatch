@@ -37,7 +37,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -303,7 +302,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			else if (hero.ability2.isSelected(player) && !world.isRemote &&
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2),
-						WRAITH.setEntity(player).setTicks(60));
+						WRAITH.setEntity(player).setTicks(60), Handlers.INVULNERABLE.setEntity(player).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(10, player, false));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
@@ -320,13 +319,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@SubscribeEvent
-	public void preventWraithDamage(LivingAttackEvent event) {
-		if (TickHandler.hasHandler(event.getEntity(), Identifier.REAPER_WRAITH) &&
-				!event.getSource().canHarmInCreative()) 
-			event.setCanceled(true);
-	}
-
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void moveTpCamera(FOVUpdateEvent event) {
 		if (Minecraft.getMinecraft().world != null &&
@@ -339,7 +331,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void damageEntities(LivingHurtEvent event) {
 		if (event.getSource().getEntity() instanceof EntityLivingBase && event.getEntityLiving() != null) {
 			EntityLivingBase source = ((EntityLivingBase)event.getSource().getEntity());
-			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
 			if (!source.world.isRemote && SetManager.getWornSet(source) == hero) {
 				try {
@@ -351,9 +342,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				catch (Exception e) {}
 			}
-			// cancel attack in wraith
-			if (!source.world.isRemote && TickHandler.hasHandler(target, Identifier.REAPER_WRAITH)) 
-				event.setCanceled(true);
 		}
 	}
 

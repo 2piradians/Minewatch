@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumFacing;
@@ -58,6 +59,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
+import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -246,6 +248,9 @@ public class SPacketSimple implements IMessage {
 
 					// Tracer's dash
 					if (packet.type == 0) {
+						player.chasingPosX = player.posX;
+						player.chasingPosY = player.posY;
+						player.chasingPosZ = player.posZ;
 						player.setSneaking(false);
 						move(player, 9, false, true);
 					}
@@ -322,7 +327,7 @@ public class SPacketSimple implements IMessage {
 					// Reaper's wraith
 					else if (packet.type == 10 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(60).setAbility(EnumHero.REAPER.ability2),
-								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60));
+								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60), Handlers.INVULNERABLE.setEntity(entity).setTicks(60));
 						if (player == entity)
 							ItemReaperShotgun.wraithViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
@@ -718,7 +723,7 @@ public class SPacketSimple implements IMessage {
 					// Moira's Fade
 					else if (packet.type == 47 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
-								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
+								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16), Handlers.INVULNERABLE.setEntity(entity).setTicks(16));
 						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
 						if (player == entity)
 							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
@@ -778,6 +783,20 @@ public class SPacketSimple implements IMessage {
 								ModSoundEvents.ANA_GRENADE_DAMAGE.playFollowingSound(entity, 1, 1, false);
 						}
 					}
+					// Tracer's recall
+					else if (packet.type == 54 && entity instanceof EntityLivingBase) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 7, 20, 0, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 7, 20, 0, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x63B8E8, 1, 7, 15, 5, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 7, 10, 5, 0, 0.8f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 15, 0, 10, 0, 0.1f);
+						((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
+						TickHandler.register(true, ItemTracerPistol.RECALL.setEntity(entity).setTicks(55), 
+								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
+								Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(EnumHero.TRACER.ability1),
+								Handlers.INVULNERABLE.setEntity(entity).setTicks(30));		
+						}
 				}
 			});
 			return null;

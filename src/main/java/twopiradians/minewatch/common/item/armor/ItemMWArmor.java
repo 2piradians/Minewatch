@@ -46,7 +46,7 @@ import twopiradians.minewatch.packet.CPacketSimple;
 
 public class ItemMWArmor extends ItemArmor {
 
-	public EnumHero hero;
+	public EnumHero hero; // TODO tracer particles for other players?	
 	@SideOnly(Side.CLIENT)
 	public static ModelMWArmor maleModel;
 	@SideOnly(Side.CLIENT)

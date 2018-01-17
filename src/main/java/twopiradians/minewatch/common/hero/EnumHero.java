@@ -160,7 +160,7 @@ public enum EnumHero {
 			new Skin(TextFormatting.GOLD+"Luna", "Mei v2", "nikita505n", "http://www.minecraftskins.com/skin/11711832/mei-v2/"),
 			new Skin(TextFormatting.GOLD+"Jiangshi", "Mei Jiangshi", "KevinAguirre2", "http://www.minecraftskins.com/skin/11720409/mei-jiangshi/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
 	WIDOWMAKER("Widowmaker", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
-			new Ability(KeyBind.ABILITY_1, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, 0x9A68A3, true, EntityWidowmaker.class, 
 			new Skin("Classic", "Widowmaker - Overwatch: 1.8 Skin, Female", "sir-connor", "https://www.planetminecraft.com/skin/widowmaker---overwatch-18-skin-female/"),

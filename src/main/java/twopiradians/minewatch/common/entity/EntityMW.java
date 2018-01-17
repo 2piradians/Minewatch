@@ -134,7 +134,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly))) && nearest;
 	}
 
-	/**Should this move to the hit position of the RayTraceResult*/
+	/**Called on impact - normally used to move to hit position of the RayTraceResult and kill on server*/
 	protected void onImpactMoveToHitPosition(RayTraceResult result) {
 		if (result != null) 
 			if (!world.isRemote)

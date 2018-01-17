@@ -77,6 +77,7 @@ import twopiradians.minewatch.client.render.entity.RenderMoiraOrb;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Heal;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
+import twopiradians.minewatch.client.render.entity.RenderWidowmakerHook;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
@@ -100,6 +101,7 @@ import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76Heal;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
@@ -278,6 +280,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMeiCrystal.class, RenderMeiCrystal::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerMine.class, RenderWidowmakerMine::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityWidowmakerHook.class, RenderWidowmakerHook::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBullet.class, new RenderFactory(new Color(0xE9D390), 1, 1, 3));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMercyBeam.class, RenderMercyBeam::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityJunkratGrenade.class, RenderJunkratGrenade::new);
@@ -333,6 +336,8 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/ana_grenade"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/soldier76_heal_0"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/soldier76_heal_1"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook_rope"));
 	}
 
 	@Override

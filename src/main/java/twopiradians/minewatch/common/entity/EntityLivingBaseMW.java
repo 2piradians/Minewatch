@@ -63,6 +63,8 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public void onUpdate() {	
+		this.setGlowing(false);
+		
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;

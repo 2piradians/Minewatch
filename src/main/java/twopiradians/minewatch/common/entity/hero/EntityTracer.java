@@ -10,7 +10,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class EntityTracer extends EntityHero {
 
 	public EntityTracer(World worldIn) {
-		super(worldIn, EnumHero.TRACER);
+		super(worldIn, EnumHero.TRACER); // TODO recall ai
 	}
 
 	@Override

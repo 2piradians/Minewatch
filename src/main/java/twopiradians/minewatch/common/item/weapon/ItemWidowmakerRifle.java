@@ -5,16 +5,20 @@ import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
@@ -25,11 +29,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class ItemWidowmakerRifle extends ItemMWWeapon {
 
@@ -83,7 +90,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				!isScoped((EntityLivingBase) entity, stack))
 			((EntityLivingBase)entity).resetActiveHand();
 
-		if (isSelected && entity instanceof EntityLivingBase) {	
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// venom mine
@@ -91,14 +98,25 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				EntityWidowmakerMine mine = new EntityWidowmakerMine(world, player);
 				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 19, 0, null, 0, 0);
-				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
 				world.spawnEntity(mine);
+				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
 				hero.ability1.keybind.setCooldown(player, 300, false); 
 				if (hero.ability1.entities.get(player) instanceof EntityWidowmakerMine && 
 						hero.ability1.entities.get(player).isEntityAlive()) 
 					hero.ability1.entities.get(player).isDead = true;
 				hero.ability1.entities.put(player, mine);
+			}
+
+			// hook
+			if (!world.isRemote && hero.ability2.isSelected(player, true) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				EntityWidowmakerHook projectile = new EntityWidowmakerHook(world, player, EnumHand.OFF_HAND.ordinal());
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 19, 0, EnumHand.OFF_HAND, 23, 0.5f);
+				world.spawnEntity(projectile);
+				ModSoundEvents.WIDOWMAKER_MINE_THROW.playSound(player, 1, 1);
+				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);
+				hero.ability2.keybind.setCooldown(player, 160, false); 
 			}
 		}
 	}
@@ -217,5 +235,54 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void renderArms(RenderSpecificHandEvent event) {
+		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
+		ItemStack stack = Minewatch.proxy.getClientPlayer() == null ? null : Minewatch.proxy.getClientPlayer().getHeldItemMainhand();
+		if (event.getHand() == EnumHand.OFF_HAND && stack != null && stack.getItem() == this) {
+			GlStateManager.pushMatrix();
+			Minecraft mc = Minecraft.getMinecraft();
+			AbstractClientPlayer player = mc.player;
+			float partialTicks = mc.getRenderPartialTicks();
+			float swing = player.getSwingProgress(partialTicks);	
+			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
+			// would move hand to follow item - but equippedProgress is private
+			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
+			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
+			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
+			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
+			boolean flag = side != EnumHandSide.LEFT;
+			float f = flag ? 1.0F : -1.0F;
+			float f1 = MathHelper.sqrt(f7);
+			float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
+			float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
+			float f4 = -0.4F * MathHelper.sin(f3 * (float)Math.PI);
+			GlStateManager.translate(f * (f2 + 0.64000005F), f3 + -0.6F + progress * -0.6F, f4 + -0.71999997F);
+			GlStateManager.rotate(f * 45.0F, 0.0F, 1.0F, 0.0F);
+			float f5 = MathHelper.sin(f3 * f3 * (float)Math.PI);
+			float f6 = MathHelper.sin(f1 * (float)Math.PI);
+			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
+			AbstractClientPlayer abstractclientplayer = mc.player;
+			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
+			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
+			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
+			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().getEntityRenderObject(abstractclientplayer);
+			GlStateManager.disableCull();
+
+			if (flag)
+				renderplayer.renderRightArm(abstractclientplayer);
+			else
+				renderplayer.renderLeftArm(abstractclientplayer);
+
+			GlStateManager.enableCull();
+			GlStateManager.popMatrix();
+		}
+	}
 
 }

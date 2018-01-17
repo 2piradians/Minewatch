@@ -134,8 +134,15 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (world.rand.nextInt(10) == 0)
 					player.getHeldItem(hand).damageItem(1, player);
 			}
-			player.stopActiveHand();
+			player.resetActiveHand();
 		}
+	}
+
+	@Override
+	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase entity, int timeLeft) {
+		if (!world.isRemote)
+			ModSoundEvents.ANA_UNSCOPE.playFollowingSound(entity, 1, 1, false);
+		Minewatch.proxy.updateFOV();
 	}
 
 	@Override
@@ -174,12 +181,15 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 		// scope while right click
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() != stack && 
-				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack)) 
+				((EntityLivingBase)entity).getHeldItemMainhand() == stack && isScoped((EntityLivingBase) entity, stack))  {
 			((EntityLivingBase)entity).setActiveHand(EnumHand.MAIN_HAND);
+			if (!world.isRemote) 
+				ModSoundEvents.ANA_SCOPE.playFollowingSound(entity, 1, 1, false);
+		}
 		// unset active hand while reloading
 		else if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getActiveItemStack() == stack && 
 				!isScoped((EntityLivingBase) entity, stack))
-			((EntityLivingBase)entity).resetActiveHand();
+			((EntityLivingBase)entity).stopActiveHand();
 	}
 
 	@SubscribeEvent

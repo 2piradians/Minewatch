@@ -1235,5 +1235,59 @@
 		"sounds": [
 			"minewatch:tracer_recall"
 		]
+	},
+	"widowmaker_hook_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_hook_throw"
+		]
+	},
+	"widowmaker_hook_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_hook_hit"
+		]
+	},
+	"widowmaker_scope": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_scope"
+		]
+	},
+	"widowmaker_unscope": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_unscope"
+		]
+	},
+	"widowmaker_scope_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_scope_voice_0",
+			"minewatch:widowmaker_scope_voice_1",
+			"minewatch:widowmaker_scope_voice_2",
+			"minewatch:widowmaker_scope_voice_3"
+		]
+	},
+	"ana_scope": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_scope"
+		]
+	},
+	"ana_unscope": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_unscope"
+		]
+	},
+	"ana_heal_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:ana_heal_voice_0",
+			"minewatch:ana_heal_voice_1",
+			"minewatch:ana_heal_voice_2",
+			"minewatch:ana_heal_voice_3"
+		]
 	}
 }

@@ -46,7 +46,7 @@ import twopiradians.minewatch.packet.CPacketSimple;
 
 public class ItemMWArmor extends ItemArmor {
 
-	public EnumHero hero; // TODO tracer particles for other players?	
+	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
 	public static ModelMWArmor maleModel;
 	@SideOnly(Side.CLIENT)
@@ -77,6 +77,7 @@ public class ItemMWArmor extends ItemArmor {
 			femaleModel = new ModelMWArmor(0, true);
 		}
 		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero) ? femaleModel : maleModel;
+		ret.slot = slot;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
 		if (entity instanceof EntityLivingBase && 
 				((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel() instanceof ModelBiped) {
@@ -253,7 +254,7 @@ public class ItemMWArmor extends ItemArmor {
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
-		// tracer chestplate particles
+		/*// tracer chestplate particles
 		double x = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosX : player.prevPosX;
 		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
 		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
@@ -268,7 +269,7 @@ public class ItemMWArmor extends ItemArmor {
 						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(z-player.posZ)*i/numParticles, 
 						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 3, 0, 1);
-		}
+		}*/
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 

@@ -40,6 +40,7 @@ import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
@@ -60,6 +61,7 @@ import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
+import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -796,7 +798,12 @@ public class SPacketSimple implements IMessage {
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
 								Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(EnumHero.TRACER.ability1),
 								Handlers.INVULNERABLE.setEntity(entity).setTicks(30));		
-						}
+					}
+					// Widowmaker's hook
+					else if (packet.type == 55 && entity instanceof EntityLivingBase && entity2 instanceof EntityWidowmakerHook) {
+						TickHandler.register(true, ItemWidowmakerRifle.HOOK.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks(100),
+								Ability.ABILITY_USING.setEntity(entity).setTicks(100).setAbility(EnumHero.WIDOWMAKER.ability2));
+					}
 				}
 			});
 			return null;

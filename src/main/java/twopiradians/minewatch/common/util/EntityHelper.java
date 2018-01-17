@@ -430,12 +430,22 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
-		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
+		spawnTrailParticles(entity, amountPerBlock, random, motionX, motionY, motionZ, color, colorFade, scale, maxAge, alpha, entity.getPositionVector(), getPrevPositionVector(entity));
+	}
+	
+	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
+	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, int color, int colorFade, float scale, int maxAge, float alpha, Vec3d pos, Vec3d prevPos) {
+		spawnTrailParticles(entity, amountPerBlock, random, 0, 0, 0, color, colorFade, scale, maxAge, alpha, pos, prevPos);
+	}
+	
+	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
+	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha, Vec3d pos, Vec3d prevPos) {
+		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(prevPos.xCoord, prevPos.yCoord, prevPos.zCoord)));
 		for (float i=0; i<numParticles; ++i) 
 			Minewatch.proxy.spawnParticlesTrail(entity.world, 
-					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posY+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(entity.prevPosY-entity.posY)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posZ+(entity.prevPosZ-entity.posZ)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.xCoord+(prevPos.xCoord-pos.xCoord)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.yCoord+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(prevPos.yCoord-pos.yCoord)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.zCoord+(prevPos.zCoord-pos.zCoord)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
 					motionX, motionY, motionZ, color, colorFade, scale, maxAge, (i/numParticles), alpha);
 	}
 
@@ -837,6 +847,14 @@ public class EntityHelper {
 	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but from a generic lookPos*/
 	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
 		return entity.world.rayTraceBlocks(lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ), false, true, false) == null;
+	}
+
+	/**Get prev position vector - uses chasing pos for EntityPlayer*/
+	public static Vec3d getPrevPositionVector(Entity entity) {
+		double x = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
+		double y = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
+		double z = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
+		return new Vec3d(x, y, z);
 	}
 
 }

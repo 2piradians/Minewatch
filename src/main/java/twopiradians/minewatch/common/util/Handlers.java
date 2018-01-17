@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -241,6 +242,12 @@ public class Handlers {
 					entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.ticksLeft, 254, true, false));
 			}
 			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			Minewatch.proxy.updateFOV();
+			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {

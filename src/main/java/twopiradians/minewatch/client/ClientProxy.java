@@ -483,9 +483,16 @@ public class ClientProxy extends CommonProxy {
 		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
 		return entity == null ? Minecraft.getMinecraft().player : entity;
 	}
-	
+
 	@Override
 	public boolean isPlayerInFirstPerson() {
 		return Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
+	}
+
+	@Override
+	public void updateFOV() {
+		EntityPlayer player = Minecraft.getMinecraft().player;
+		if (player != null)
+			Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(player.getPosition().add(-100, -100, -100), player.getPosition().add(100, 100, 100));
 	}
 }

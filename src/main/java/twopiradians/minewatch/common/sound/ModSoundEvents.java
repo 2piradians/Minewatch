@@ -210,7 +210,15 @@ public enum ModSoundEvents {
 	SOLDIER76_HEAL_VOICE,
 	TRACER_BLINK_VOICE,
 	TRACER_RECALL,
-	TRACER_RECALL_VOICE;
+	TRACER_RECALL_VOICE,
+	WIDOWMAKER_HOOK_THROW,
+	WIDOWMAKER_HOOK_HIT,
+	WIDOWMAKER_SCOPE,
+	WIDOWMAKER_UNSCOPE,
+	WIDOWMAKER_SCOPE_VOICE,
+	ANA_SCOPE,
+	ANA_UNSCOPE,
+	ANA_HEAL_VOICE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -260,7 +268,7 @@ public enum ModSoundEvents {
 	public boolean shouldPlay(Entity entity) {
 		if (!this.isVoiceLine) 
 			return true;
-		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
+		else if (entity == null || entity.world.rand.nextBoolean() || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
 			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));

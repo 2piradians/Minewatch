@@ -299,4 +299,6 @@ public class CommonProxy {
 	public boolean isPlayerInFirstPerson() {
 		return false;
 	}
+	
+	public void updateFOV() {}
 }

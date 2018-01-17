@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
@@ -30,6 +31,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -41,14 +43,14 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
+	private static int lastRenderedTick;
+	
 	public static final Handler RECALL = new Handler(Identifier.TRACER_RECALL, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (entityLiving == Minecraft.getMinecraft().player && this.ticksLeft > 25) {
+			if (entityLiving == Minecraft.getMinecraft().player && this.ticksLeft > 25) 
 				SavedState.applyState(entityLiving);
-				Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
-			}
 			if (this.ticksLeft < 25 && this.ticksLeft > 20 && this.ticksLeft % 2 == 0) {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
@@ -152,6 +154,13 @@ public class ItemTracerPistol extends ItemMWWeapon {
 			GlStateManager.color((255f-172f*percent)/255f, (255f-62f*percent)/255f, (255f-38f*percent)/255f, 1);
 			return true;
 		}
+
+		// chestplate particles (can spawn varying amounts since this is called every time armor is rendered)
+		if (model.slot == EntityEquipmentSlot.CHEST && 
+				(entity != Minecraft.getMinecraft().player || !Minewatch.proxy.isPlayerInFirstPerson()) && 
+				entity.ticksExisted > 3 && 
+				!TickHandler.hasHandler(entity, Identifier.TRACER_RECALL)) 
+			EntityHelper.spawnTrailParticles(entity, 5, 0, 0x5EDCE5, 0x007acc, 1, 2, 1, EntityHelper.getEntityPartialPos(entity).addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
 
 		return false; 
 	}

@@ -43,7 +43,7 @@ public class RenderWidowmakerHook extends RenderOBJModel<EntityWidowmakerHook> {
 	public void doRender(EntityWidowmakerHook entity, double x, double y, double z, float entityYaw, float partialTicks) {	
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 
-		// rope
+		/*// rope
 		if (entity.getThrower() != null) {
 			Minecraft mc = Minecraft.getMinecraft();
 			GlStateManager.pushMatrix();
@@ -93,6 +93,6 @@ public class RenderWidowmakerHook extends RenderOBJModel<EntityWidowmakerHook> {
 
 			tessellator.draw();
 			GlStateManager.popMatrix();
-		}
+		}*/
 	}
 }

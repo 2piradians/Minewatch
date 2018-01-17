@@ -44,7 +44,7 @@ public class Ability {
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
 					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
-						this.setTicks(ability.useCooldown);
+						this.setTicks(Math.max(1, (int) (ability.useCooldown*Config.abilityCooldownMultiplier)));
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);

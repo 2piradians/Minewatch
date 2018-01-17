@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
@@ -25,6 +26,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 public class ModelMWArmor extends ModelPlayer {
 
 	private boolean renderingEnchantment;
+	public EntityEquipmentSlot slot;
 
 	public ModelMWArmor(float modelSize, boolean smallArmsIn) {
 		super(modelSize, smallArmsIn);

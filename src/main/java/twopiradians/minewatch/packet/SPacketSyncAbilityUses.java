@@ -67,7 +67,8 @@ public class SPacketSyncAbilityUses implements IMessage{
 
 					if (player != null && ability != null) {
 						if (packet.playSound && 
-								SetManager.getWornSet(player) == hero) {
+								SetManager.getWornSet(player) == hero && 
+								ability.useCooldown*Config.abilityCooldownMultiplier >= 20) {
 							if (packet.uses == 1)
 								ModSoundEvents.ABILITY_RECHARGE.playSound(player, 0.5f, 1.0f, true);
 							ModSoundEvents.ABILITY_MULTI_RECHARGE.playSound(player, 0.5f, 1.0f, true);

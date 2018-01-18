@@ -43,7 +43,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
-	private static int lastRenderedTick;
+	private static int lastRenderedTick; // TODO remove and render blue handler
 	
 	public static final Handler RECALL = new Handler(Identifier.TRACER_RECALL, false) {
 		@Override
@@ -156,7 +156,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		}
 
 		// chestplate particles (can spawn varying amounts since this is called every time armor is rendered)
-		if (model.slot == EntityEquipmentSlot.CHEST && 
+		if (model.slot == EntityEquipmentSlot.CHEST && entity.isEntityAlive() && 
 				(entity != Minecraft.getMinecraft().player || !Minewatch.proxy.isPlayerInFirstPerson()) && 
 				entity.ticksExisted > 3 && 
 				!TickHandler.hasHandler(entity, Identifier.TRACER_RECALL)) 

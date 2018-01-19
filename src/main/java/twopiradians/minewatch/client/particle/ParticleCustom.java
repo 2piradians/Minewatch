@@ -102,7 +102,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate(); // TODO shrink mine/trap collision boxes
+		super.onUpdate();
 
 		// color fade (faster than vanilla)
 		this.particleRed += (this.fadeTargetRed - this.particleRed) * 0.4F;

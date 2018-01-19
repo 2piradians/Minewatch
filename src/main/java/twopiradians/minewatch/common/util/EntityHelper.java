@@ -846,7 +846,7 @@ public class EntityHelper {
 
 	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but from a generic lookPos*/
 	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
-		return entity.world.rayTraceBlocks(lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ), false, true, false) == null;
+		return entity != null && lookPos != null && entity.world.rayTraceBlocks(lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ), false, true, false) == null;
 	}
 
 	/**Get prev position vector - uses chasing pos for EntityPlayer*/

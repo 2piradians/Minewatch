@@ -75,7 +75,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
-			// heal
+			// heal 
 			if (!world.isRemote && hero.ability2.isSelected(player, true) && 
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				EntitySoldier76Heal projectile = new EntitySoldier76Heal(world, player);

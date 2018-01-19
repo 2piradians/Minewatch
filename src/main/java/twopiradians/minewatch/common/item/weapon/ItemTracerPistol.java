@@ -43,15 +43,19 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemTracerPistol extends ItemMWWeapon {
 
-	private static int lastRenderedTick; // TODO remove and render blue handler
+	/**Entities with the last tick that their armor was rendered (used to make sure particles only rendered once per tick)*/
+	private static HashMap<EntityLivingBase, Integer> tickRendered = Maps.newHashMap();
 	
+	public static final Handler RECOLOR = new Handler(Identifier.TRACER_RECOLOR, false) {};
 	public static final Handler RECALL = new Handler(Identifier.TRACER_RECALL, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (entityLiving == Minecraft.getMinecraft().player && this.ticksLeft > 25) 
+			if (entityLiving == Minecraft.getMinecraft().player && this.ticksLeft > 20) 
 				SavedState.applyState(entityLiving);
-			if (this.ticksLeft < 25 && this.ticksLeft > 20 && this.ticksLeft % 2 == 0) {
+			if (this.ticksLeft == 5)
+				TickHandler.register(true, RECOLOR.setEntity(entity).setTicks(25));
+			if (this.ticksLeft <= 6 && this.ticksLeft % 2 == 0) {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 10, 0, 20, 0, 0.5f);
@@ -63,7 +67,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		}
 		@Override
 		public boolean onServerTick() {
-			if (this.ticksLeft > 25)
+			if (this.ticksLeft > 5)
 				SavedState.applyState(entityLiving);
 			return super.onServerTick();
 		}
@@ -111,9 +115,8 @@ public class ItemTracerPistol extends ItemMWWeapon {
 				player.setSneaking(false);
 				ModSoundEvents.TRACER_BLINK.playSound(player, 1, world.rand.nextFloat()/2f+0.75f);
 				ModSoundEvents.TRACER_BLINK_VOICE.playFollowingSound(player, 1, 1, false);
-				if (player instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketSimple(0), (EntityPlayerMP) player);
-				else if (player instanceof EntityHero)
+				Minewatch.network.sendToDimension(new SPacketSimple(0, player, false), player.world.provider.getDimension());
+				if (player instanceof EntityHero)
 					SPacketSimple.move(player, 9, false, true);
 				hero.ability2.keybind.setCooldown(player, 3, true); 
 				hero.ability2.subtractUse(player);
@@ -129,7 +132,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
 				ModSoundEvents.TRACER_RECALL.playFollowingSound(player, 1, 1, false);
-				TickHandler.register(false, ItemTracerPistol.RECALL.setEntity(entity).setTicks(55), 
+				TickHandler.register(false, ItemTracerPistol.RECALL.setEntity(entity).setTicks(35), 
 						Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
 						Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
 						Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(hero.ability1),
@@ -146,21 +149,23 @@ public class ItemTracerPistol extends ItemMWWeapon {
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
 		super.preRenderArmor(entity, model);
 
-		// invisibility / teleport
-		float time = 25;
-		Handler handler = TickHandler.getHandler(entity, Identifier.TRACER_RECALL);
-		if (handler != null && handler.ticksLeft < time) {
-			float percent = handler.ticksLeft / time;
+		// chestplate particles
+		if (model.slot == EntityEquipmentSlot.CHEST && entity.isEntityAlive() && !Minecraft.getMinecraft().isGamePaused() && 
+				(entity != Minecraft.getMinecraft().player || !Minewatch.proxy.isPlayerInFirstPerson()) && 
+				entity.ticksExisted > 3 && 
+				(!tickRendered.containsKey(entity) || tickRendered.get(entity) != entity.ticksExisted) &&
+				!TickHandler.hasHandler(entity, Identifier.TRACER_RECALL)) {
+			tickRendered.put(entity, entity.ticksExisted);
+			EntityHelper.spawnTrailParticles(entity, 10, 0, 0x5EDCE5, 0x007acc, 1, 2, 1, entity.getPositionVector().addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
+		}
+		
+		// recolor
+		Handler handler = TickHandler.getHandler(entity, Identifier.TRACER_RECOLOR);
+		if (handler != null) {
+			float percent = ((float) handler.ticksLeft) / handler.initialTicks;
 			GlStateManager.color((255f-172f*percent)/255f, (255f-62f*percent)/255f, (255f-38f*percent)/255f, 1);
 			return true;
 		}
-
-		// chestplate particles (can spawn varying amounts since this is called every time armor is rendered)
-		if (model.slot == EntityEquipmentSlot.CHEST && entity.isEntityAlive() && 
-				(entity != Minecraft.getMinecraft().player || !Minewatch.proxy.isPlayerInFirstPerson()) && 
-				entity.ticksExisted > 3 && 
-				!TickHandler.hasHandler(entity, Identifier.TRACER_RECALL)) 
-			EntityHelper.spawnTrailParticles(entity, 5, 0, 0x5EDCE5, 0x007acc, 1, 2, 1, EntityHelper.getEntityPartialPos(entity).addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
 
 		return false; 
 	}

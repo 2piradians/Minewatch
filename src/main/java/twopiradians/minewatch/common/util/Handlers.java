@@ -84,9 +84,7 @@ public class Handlers {
 		@Override
 		public Handler setEntity(Entity entity) {
 			super.setEntity(entity);
-			if (entityLiving != null)
-				rotations.put(entityLiving, 
-						Triple.of(entity.rotationPitch, entity.rotationYaw, entity.getRotationYawHead()));
+			copyRotations(entityLiving);
 			return this;
 		}
 		@Override
@@ -100,6 +98,12 @@ public class Handlers {
 			return super.onServerRemove();
 		}
 	};
+
+	public static void copyRotations(EntityLivingBase entity) {
+		if (entity != null)
+			rotations.put(entity, 
+					Triple.of(entity.rotationPitch, entity.rotationYaw, entity.getRotationYawHead()));
+	}
 
 	public static void setRotations(EntityLivingBase entityLiving) {
 		if (entityLiving != null && rotations.containsKey(entityLiving)) {
@@ -201,18 +205,24 @@ public class Handlers {
 			event.setCanceled(true); 
 	}
 
-	/**Prevents moving, jumping, flying, and ender teleporting*/
+	/**Prevents moving, jumping, flying, and ender teleporting
+	 * bool is if it should allow x and z motion (used with Reinhardt's Charge)*/
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
+			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
+				return true;
+			
 			// prevent flying
 			entity.onGround = true;
 			if (player != null)
 				player.capabilities.isFlying = false;
-			entity.motionX = 0;
+			if (!bool) {
+				entity.motionX = 0;
+				entity.motionZ = 0;
+			}
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
-			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -223,12 +233,17 @@ public class Handlers {
 		}
 		@Override
 		public boolean onServerTick() {
+			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
+				return true;
+			
 			// prevent jumping
 			if (entity instanceof EntitySlime)
 				entity.onGround = false;
-			entity.motionX = 0;
+			if (!bool) {
+				entity.motionX = 0;
+				entity.motionZ = 0;
+			}
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
-			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -247,13 +262,20 @@ public class Handlers {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			Minewatch.proxy.updateFOV();
+			// remove slowness
+			if (this.entityLiving != null) {
+				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
+				this.ticksLeft = 0;
+			}
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
 			// remove slowness
-			if (this.entityLiving != null)
+			if (this.entityLiving != null) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
+				this.ticksLeft = 0;
+			}
 			return super.onServerRemove();
 		}
 	};
@@ -262,22 +284,28 @@ public class Handlers {
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
+		Handler handler = TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT);
 		if (event.side == Side.CLIENT && event.phase == Phase.START &&
-				TickHandler.hasHandler(player, Identifier.PREVENT_MOVEMENT)) {
-			player.motionX = 0;
+				handler != null) {
+			if (!handler.bool) {
+				player.motionX = 0;
+				player.motionZ = 0;
+			}
 			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
-			player.motionZ = 0;
 			player.motionY = Math.min(0, player.motionY);
 		}
 	}
 
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT);
 		if (event.getEntity() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT))  {
-			event.getEntity().motionX = 0;
+				handler != null) {
+			if (!handler.bool) {
+				event.getEntity().motionX = 0;
+				event.getEntity().motionZ = 0;
+			}
 			event.getEntity().motionY = 0;
-			event.getEntity().motionZ = 0;
 			event.getEntity().isAirBorne = false;
 			event.getEntity().onGround = true;
 		}
@@ -305,5 +333,25 @@ public class Handlers {
 				TickHandler.hasHandler(event.getEntityLiving(), Identifier.INVULNERABLE)) 
 			event.setCanceled(true);
 	}
+
+	public static final Handler FORCE_VIEW = new Handler(Identifier.FORCE_VIEW, false) {
+		@Override
+		public Handler setNumber(double number) {
+			this.number2 = Minecraft.getMinecraft().gameSettings.thirdPersonView;
+			return super.setNumber(number);
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number;
+			return super.onClientTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
+			return super.onClientRemove();
+		}
+	};
 
 }

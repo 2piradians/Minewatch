@@ -249,12 +249,15 @@ public class SPacketSimple implements IMessage {
 					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// Tracer's dash
-					if (packet.type == 0) {
-						player.chasingPosX = player.posX;
-						player.chasingPosY = player.posY;
-						player.chasingPosZ = player.posZ;
-						player.setSneaking(false);
-						move(player, 9, false, true);
+					if (packet.type == 0 && entity != null) {
+						if (entity == player) {
+							player.chasingPosX = player.posX;
+							player.chasingPosY = player.posY;
+							player.chasingPosZ = player.posZ;
+							player.setSneaking(false);
+							move(player, 9, false, true);
+						}
+						TickHandler.register(true, ItemTracerPistol.RECOLOR.setEntity(entity).setTicks(20));
 					}
 					// Reaper's teleport
 					else if (packet.type == 1 && entity instanceof EntityLivingBase) {
@@ -793,7 +796,7 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 7, 10, 5, 0, 0.8f);
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 15, 0, 10, 0, 0.1f);
 						((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
-						TickHandler.register(true, ItemTracerPistol.RECALL.setEntity(entity).setTicks(55), 
+						TickHandler.register(true, ItemTracerPistol.RECALL.setEntity(entity).setTicks(35), 
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
 								Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(EnumHero.TRACER.ability1),
@@ -803,6 +806,35 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 55 && entity instanceof EntityLivingBase && entity2 instanceof EntityWidowmakerHook) {
 						TickHandler.register(true, ItemWidowmakerRifle.HOOK.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks(100),
 								Ability.ABILITY_USING.setEntity(entity).setTicks(100).setAbility(EnumHero.WIDOWMAKER.ability2));
+					}
+					// Reinhardt's charge
+					else if (packet.type == 56 && entity != null) {
+						TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.REINHARDT_CHARGE);
+						// register charge / updated pinned entity
+						if (packet.bool && (entity2 == null || entity2 instanceof EntityLivingBase)) {
+							if (handler == null) {
+								TickHandler.register(true, ItemReinhardtHammer.CHARGE.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(80),
+										Handlers.ACTIVE_HAND.setEntity(entity).setTicks(80),
+										Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(80).setBoolean(true),
+										RenderManager.SNEAKING.setEntity(entity).setTicks(80));
+								if (entity == player)
+									TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(80).setAbility(EnumHero.REINHARDT.ability3),
+											Handlers.FORCE_VIEW.setEntity(entity).setTicks(80).setNumber(3));
+							}
+							else
+								handler.entityLiving = (EntityLivingBase) entity2;
+						}
+						// unregister charge
+						else if (!packet.bool) {
+							TickHandler.unregister(true, handler, TickHandler.getHandler(entity, Identifier.ACTIVE_HAND),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
+									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+							if (entity == player)
+								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
+										TickHandler.getHandler(entity, Identifier.FORCE_VIEW));
+						}
 					}
 				}
 			});

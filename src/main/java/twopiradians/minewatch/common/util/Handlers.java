@@ -60,21 +60,21 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (player != null && player.getHeldItemMainhand() != null && 
-					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					!player.isHandActive()) 
-				player.setActiveHand(EnumHand.MAIN_HAND);
+			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+					entityLiving.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+					!entityLiving.isHandActive()) 
+				entityLiving.setActiveHand(EnumHand.MAIN_HAND);
 			return super.onClientTick();
 		}
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			player.resetActiveHand();
+			entityLiving.resetActiveHand();
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-			player.resetActiveHand();
+			entityLiving.resetActiveHand();
 			return super.onServerRemove();
 		}
 	};

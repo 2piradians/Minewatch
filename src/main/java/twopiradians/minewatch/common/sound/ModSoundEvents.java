@@ -218,7 +218,9 @@ public enum ModSoundEvents {
 	WIDOWMAKER_SCOPE_VOICE,
 	ANA_SCOPE,
 	ANA_UNSCOPE,
-	ANA_HEAL_VOICE;
+	ANA_HEAL_VOICE,
+	REINHARDT_CHARGE,
+	REINHARDT_CHARGE_HIT;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -276,17 +278,23 @@ public enum ModSoundEvents {
 		}
 	}
 
-	/**Stops sound for all players*/
+	/**USE {@link ModSoundEvents#stopFollowingSound(Entity)} INSTEAD*/
 	public void stopSound(World world) {
 		if (world != null)
 			for (EntityPlayer player : world.playerEntities)
 				Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
 	}
 
-	/**Stops sound for a player*/
+	/**USE {@link ModSoundEvents#stopFollowingSound(Entity)} INSTEAD*/
 	public void stopSound(EntityPlayer player) {
 		if (player != null)
 			Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
+	}
+	
+	/**Stops following sound - can be called client or server*/
+	public void stopFollowingSound(Entity followingEntity) {
+		if (followingEntity != null)
+			Minewatch.proxy.stopFollowingSound(followingEntity, event);
 	}
 
 	private void register() {

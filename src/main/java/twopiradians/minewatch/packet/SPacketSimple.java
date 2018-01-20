@@ -813,6 +813,7 @@ public class SPacketSimple implements IMessage {
 						// register charge / updated pinned entity
 						if (packet.bool && (entity2 == null || entity2 instanceof EntityLivingBase)) {
 							if (handler == null) {
+								ModSoundEvents.REINHARDT_CHARGE.playFollowingSound(entity, 1, 1, false);
 								TickHandler.register(true, ItemReinhardtHammer.CHARGE.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(80),
 										Handlers.ACTIVE_HAND.setEntity(entity).setTicks(80),
 										Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80), 
@@ -822,19 +823,62 @@ public class SPacketSimple implements IMessage {
 									TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(80).setAbility(EnumHero.REINHARDT.ability3),
 											Handlers.FORCE_VIEW.setEntity(entity).setTicks(80).setNumber(3));
 							}
-							else
+							else {
+								TickHandler.interrupt(entity2);
 								handler.entityLiving = (EntityLivingBase) entity2;
+								handler.entityLiving.rotationPitch = 0;
+								handler.entityLiving.rotationYaw = entity.rotationYaw+180f;
+								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(handler.ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(handler.ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft));
+							}
 						}
 						// unregister charge
 						else if (!packet.bool) {
+							// stop sound
+							ModSoundEvents.REINHARDT_CHARGE.stopFollowingSound(entity);
+							// spawn particle
+							RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 3, 0, entity.getRotationYawHead());
+							if (result != null) {
+								double x = result.hitVec.xCoord; 
+								double y = result.hitVec.yCoord;
+								double z = result.hitVec.zCoord;
+								if (result.sideHit == EnumFacing.SOUTH)
+									z = Math.ceil(z);
+								else if (result.sideHit == EnumFacing.EAST)
+									x = Math.ceil(x);
+								else if (result.sideHit == EnumFacing.UP)
+									y = Math.ceil(y);
+								Vec3d pos = new Vec3d(x, y, z);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_CHARGE, entity.world, pos.xCoord, pos.yCoord, pos.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 300, 10, 9, entity.world.rand.nextFloat(), 0, result.sideHit, true);
+							}
+							// unregister
 							TickHandler.unregister(true, handler, TickHandler.getHandler(entity, Identifier.ACTIVE_HAND),
 									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
 									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
 									TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+							if (entity2 != null)
+								TickHandler.unregister(true, TickHandler.getHandler(entity2, Identifier.PREVENT_INPUT),
+										TickHandler.getHandler(entity2, Identifier.PREVENT_ROTATION),
+										TickHandler.getHandler(entity2, Identifier.PREVENT_MOVEMENT));
 							if (entity == player)
 								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
 										TickHandler.getHandler(entity, Identifier.FORCE_VIEW));
 						}
+					}
+					// stop following sound
+					else if (packet.type == 57 && entity != null && packet.string != null) {
+						Minewatch.proxy.stopFollowingSound(entity, packet.string);
+					}
+					// Two Reinhardt Charges colliding
+					else if (packet.type == 58 && entity != null && entity2 != null) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(20),
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(20), 
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(20));
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(20),
+								Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(20), 
+								Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(20));
 					}
 				}
 			});

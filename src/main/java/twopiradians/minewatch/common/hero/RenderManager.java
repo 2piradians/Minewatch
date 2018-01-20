@@ -575,6 +575,7 @@ public class RenderManager {
 	@SubscribeEvent
 	public static void renderOnBlocks(RenderWorldLastEvent event) {
 		GlStateManager.pushMatrix();
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		GlStateManager.depthMask(false);
@@ -610,11 +611,13 @@ public class RenderManager {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableBlend();
 		GlStateManager.depthMask(true);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		GlStateManager.popMatrix();
 	}
 
 	/**Render a texture (must be bound before calling this) on blocks
-	 * entityVec should be INSIDE the block that the texture will be rendered on*/
+	 * entityVec should be INSIDE the block that the texture will be rendered on
+	 * Would like to have this use particle rotations, but not sure how to do: Gl.rotate seems to translate as well*/
 	@SideOnly(Side.CLIENT)
 	public static void renderOnBlocks(World world, VertexBuffer buffer, float red, float green, float blue, float alpha, double size, Vec3d entityVec, EnumFacing facing, boolean particle) {
 		Entity player = Minewatch.proxy.getRenderViewEntity();
@@ -630,7 +633,7 @@ public class RenderManager {
 		double maxZ = MathHelper.floor(entityVec.zCoord + (facing.getAxis() == Axis.Z ? 0 : size));
 
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
-			BlockPos[] positions = particle ? new BlockPos[] {blockpos} : new BlockPos[] {blockpos.up(), blockpos, blockpos.down()};
+			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {
 				
 				if (facing == EnumFacing.DOWN || facing == EnumFacing.NORTH || facing == EnumFacing.WEST)

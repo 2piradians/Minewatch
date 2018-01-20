@@ -395,7 +395,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		boolean tping = handler != null && handler.ticksLeft != -1;
 		return tping ? "_1" : "_0";
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {

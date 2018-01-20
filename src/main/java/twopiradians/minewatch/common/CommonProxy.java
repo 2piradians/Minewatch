@@ -48,6 +48,7 @@ import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.recipe.ShapelessMatchingDamageRecipe;
+import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -82,7 +83,8 @@ public class CommonProxy {
 		HOLLOW_CIRCLE, ZENYATTA(4, 1, 0), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true),
 		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
 		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
-		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM;
+		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
+		REINHARDT_CHARGE;
 
 		public HashSet<UUID> particleEntities = new HashSet();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -214,6 +216,16 @@ public class CommonProxy {
 		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity.world.provider.getDimension());
 		return null;
+	}
+	
+	public void stopFollowingSound(Entity followingEntity, SoundEvent event) {
+		if (followingEntity != null && event != null && !followingEntity.world.isRemote) 
+			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event.getSoundName().toString()), followingEntity.world.provider.getDimension());
+	}
+	
+	public void stopFollowingSound(Entity followingEntity, String event) {
+		if (followingEntity != null && event != null && !followingEntity.world.isRemote) 
+			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event), followingEntity.world.provider.getDimension());
 	}
 
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {

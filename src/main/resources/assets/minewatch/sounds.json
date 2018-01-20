@@ -1289,5 +1289,17 @@
 			"minewatch:ana_heal_voice_2",
 			"minewatch:ana_heal_voice_3"
 		]
+	},
+	"reinhardt_charge": {
+	"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_charge"
+		]
+	},
+	"reinhardt_charge_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:reinhardt_charge_hit"
+		]
 	}
 }

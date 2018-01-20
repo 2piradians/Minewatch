@@ -447,6 +447,22 @@ public class ClientProxy extends CommonProxy {
 	public float getRenderPartialTicks() {
 		return Minecraft.getMinecraft().getRenderPartialTicks();
 	}
+	
+	@Override
+	public void stopFollowingSound(Entity followingEntity, SoundEvent event) {
+		if (followingEntity != null && followingEntity.world.isRemote) 
+			FollowingSound.stopPlaying(event, followingEntity);
+		else
+			super.stopFollowingSound(followingEntity, event);
+	}
+	
+	@Override
+	public void stopFollowingSound(Entity followingEntity, String event) {
+		if (followingEntity != null && followingEntity.world.isRemote) 
+			FollowingSound.stopPlaying(event, followingEntity);
+		else
+			super.stopFollowingSound(followingEntity, event);
+	}
 
 	@Override
 	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {

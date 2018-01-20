@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -17,6 +18,7 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -24,7 +26,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
@@ -46,7 +47,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public static final Handler CHARGE = new Handler(Identifier.REINHARDT_CHARGE, true) {
 		private ArrayList<EntityLivingBase> hitEntities = new ArrayList<EntityLivingBase>();
 
-		private void move() {
+		private void move() { // stop if colliding with another charge
 			entity.setSneaking(false);
 			if (entity.world.isRemote) {
 				if (number == 0) // number is used to lock yaw (since PREVENT_ROTATIONS is updated)
@@ -58,11 +59,61 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				Handlers.copyRotations((EntityLivingBase) entity);
 			}
 			if (this.ticksLeft <= this.initialTicks-14) {
-			entity.moveRelative(0, 1, 1);
-			Vec3d motion = new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize().scale(16.66d/20d);
-			entity.motionX = motion.xCoord;
-			entity.motionY = motion.yCoord;
-			entity.motionZ = motion.zCoord;
+				((EntityLivingBase)entity).moveStrafing = 0;
+				((EntityLivingBase)entity).moveForward = 0;
+				entity.moveRelative(0, 1, 1);
+				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d);
+				entity.motionX = motion.xCoord;
+				entity.motionZ = motion.zCoord;
+
+				// check for entities to pin / knockback
+				if (!entity.world.isRemote) {
+					Vec3d look = entity.getLookVec().scale(1d);
+					AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(1d).move(look);
+					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
+						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
+						target instanceof EntityLivingBase && 
+						EntityHelper.attemptDamage(entity, target, 50, true)) {
+							hitEntities.add((EntityLivingBase) target);
+							// TEST if both charging, set time to 20 ticks and stun both
+							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
+								this.ticksLeft = 20;
+								TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(ticksLeft));
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(target).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(target).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(target).setTicks(ticksLeft));
+								TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT).setBoolean(false);
+								Minewatch.network.sendToDimension(new SPacketSimple(58, entity, true, target), entity.world.provider.getDimension());
+							}
+							else if (this.entityLiving == null && target.isEntityAlive()) {
+								TickHandler.interrupt(target);
+								this.entityLiving = (EntityLivingBase) target;
+								Minewatch.network.sendToDimension(new SPacketSimple(56, entity, true, target), entity.world.provider.getDimension());
+								this.entityLiving.rotationPitch = 0;
+								this.entityLiving.rotationYaw = entity.rotationYaw+180f;
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(ticksLeft));
+							}
+							else
+								((EntityLivingBase)target).knockBack(entity, 5, (double)MathHelper.sin(entity.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(entity.rotationYaw * 0.017453292F)));
+						}
+
+					// check for wall impact
+					float pitch = this.entity.rotationPitch;
+					this.entity.rotationPitch = 0;
+					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).move(this.entity.getLookVec().scale(1));
+					this.entity.rotationPitch = pitch;
+					if (this.entity.world.collidesWithAnyBlock(aabb)) {
+						this.ticksLeft = 1;
+						if (this.entityLiving != null)
+							EntityHelper.attemptDamage(entity, entityLiving, 300, true);
+						ModSoundEvents.REINHARDT_CHARGE_HIT.playFollowingSound(entity, 1, 1, false);
+					}
+				}
 			}
 		}
 		@Override
@@ -72,15 +123,27 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				move();
 
 				// move pinned
-				if (this.entityLiving != null) {
+				if (this.entityLiving != null) { 
 					if (!this.entityLiving.isEntityAlive())
 						this.entityLiving = null;
 					else {
-						Vec3d pos = this.entity.getPositionVector().add(this.entity.getLookVec().scale(entity.width/2f+entityLiving.width/2f));
+						Vec3d pos = this.entity.getPositionVector().add(this.entity.getLookVec().scale(entity.width/2f+entityLiving.width/2f)).addVector(0, entity.height/2f-entityLiving.height/2f, 0);
+						this.entityLiving.prevPosX = this.entityLiving.posX;
+						this.entityLiving.prevPosY = this.entityLiving.posY;
+						this.entityLiving.prevPosZ = this.entityLiving.posZ;
 						this.entityLiving.setLocationAndAngles(pos.xCoord, pos.yCoord, pos.zCoord, entity.rotationYaw+180f, 0);
 						this.entityLiving.fallDistance = 0;
 					}
 				}
+
+				// particles
+				EntityHelper.spawnTrailParticles(entity, 3, 0, 0xFFD82F, 0xD75B1C, 2, 4, 0.5f, entity.getPositionVector().addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
+				EntityHelper.spawnTrailParticles(entity, 3, 0, 0xFFFBC3, 0xFFD936, 1, 3, 0.5f, entity.getPositionVector().addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
+				if (entity.world.rand.nextInt(2) == 0)
+					entity.world.spawnParticle(EnumParticleTypes.FLAME, 
+							entity.posX+(entity.world.rand.nextFloat()-0.5f)*0.2f, 
+							entity.posY+entity.height/2f+0.3f+(entity.world.rand.nextFloat()-0.5f)*0.2f, 
+							entity.posZ+(entity.world.rand.nextFloat()-0.5f)*0.2f, 0, 0, 0, new int[0]);
 			}
 			return super.onClientTick();
 		}
@@ -89,44 +152,18 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			if (entity instanceof EntityLivingBase) {
 				move();
 
-				// check for entities to pin / knockback
-				if (this.ticksLeft % 1 == 0) {
-					Vec3d look = entity.getLookVec().scale(1d);
-					AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(1d).move(look);
-					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
-						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
-						target instanceof EntityLivingBase && 
-						EntityHelper.attemptDamage(entity, target, 50, true)) {
-							hitEntities.add((EntityLivingBase) target);
-							if (this.entityLiving == null && target.isEntityAlive()) {
-								this.entityLiving = (EntityLivingBase) target;
-								Minewatch.network.sendToDimension(new SPacketSimple(56, entity, true, target), entity.world.provider.getDimension());
-							}
-							else
-								((EntityLivingBase)target).knockBack(entity, 5, (double)MathHelper.sin(entity.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(entity.rotationYaw * 0.017453292F)));
-						}
-				}
-
 				// move pinned
 				if (this.entityLiving != null) {
 					if (!this.entityLiving.isEntityAlive())
 						this.entityLiving = null;
 					else {
 						Vec3d pos = this.entity.getPositionVector().add(this.entity.getLookVec().scale(entity.width/2f+entityLiving.width/2f));
+						this.entityLiving.prevPosX = this.entityLiving.posX;
+						this.entityLiving.prevPosY = this.entityLiving.posY;
+						this.entityLiving.prevPosZ = this.entityLiving.posZ;
 						this.entityLiving.setLocationAndAngles(pos.xCoord, pos.yCoord, pos.zCoord, entity.rotationYaw+180f, 0);
 						this.entityLiving.fallDistance = 0;
 					}
-				}
-
-				// check for wall impact
-				float pitch = this.entity.rotationPitch;
-				this.entity.rotationPitch = 0;
-				AxisAlignedBB aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).move(this.entity.getLookVec().scale(1));
-				this.entity.rotationPitch = pitch;
-				if (this.entity.world.collidesWithAnyBlock(aabb)) {
-					this.ticksLeft = 1;
-					if (this.entityLiving != null)
-						EntityHelper.attemptDamage(entity, entityLiving, 300, true);
 				}
 			}
 			return super.onServerTick();
@@ -135,8 +172,12 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
 			// move pinned to entity location so it's not in a block
-			if (this.entityLiving != null)
+			if (this.entityLiving != null) {
 				this.entityLiving.setPosition(entity.posX, entity.posY, entity.posZ);
+				TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(20), 
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(20));
+			}
 			this.entity.motionX = 0;
 			this.entity.motionZ = 0;
 			return super.onClientRemove();
@@ -144,12 +185,19 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			this.hitEntities.clear();
+			if (entity instanceof EntityLivingBase)
+				EnumHero.REINHARDT.ability3.keybind.setCooldown((EntityLivingBase) entity, 200, false);
 			// move pinned to entity location so it's not in a block
-			if (this.entityLiving != null)
+			if (this.entityLiving != null) {
 				this.entityLiving.setPosition(entity.posX, entity.posY, entity.posZ);
+				this.entityLiving.knockBack(entity, 2, (double)MathHelper.sin(entity.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(entity.rotationYaw * 0.017453292F)));
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(20), 
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(20));
+			}
 			this.entity.motionX = 0;
 			this.entity.motionZ = 0;
-			Minewatch.network.sendToDimension(new SPacketSimple(56, entity, false), entity.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(56, entity, false, entityLiving), entity.world.provider.getDimension());
 			TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ACTIVE_HAND),
 					TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
 					TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
@@ -226,8 +274,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		this.attack(stack, player, entity);
-		return false;
+		return true;
 	}
 
 	@Override
@@ -282,7 +329,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(hero.ability3),
 						Handlers.ACTIVE_HAND.setEntity(player).setTicks(80),
 						Handlers.PREVENT_ROTATION.setEntity(player).setTicks(80), 
-						Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80),
+						Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80).setBoolean(true),
 						RenderManager.SNEAKING.setEntity(entity).setTicks(80));
 			}
 		}

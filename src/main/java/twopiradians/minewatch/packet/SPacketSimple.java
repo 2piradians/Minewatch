@@ -796,6 +796,8 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 7, 10, 5, 0, 0.8f);
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 15, 0, 10, 0, 0.1f);
 						((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
+						entity.extinguish();
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ANA_GRENADE_DAMAGE));
 						TickHandler.register(true, ItemTracerPistol.RECALL.setEntity(entity).setTicks(35), 
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
@@ -830,7 +832,8 @@ public class SPacketSimple implements IMessage {
 								handler.entityLiving.rotationYaw = entity.rotationYaw+180f;
 								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(handler.ticksLeft),
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(handler.ticksLeft), 
-										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft));
+										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft),
+										Handlers.FORCE_VIEW.setEntity(entity).setTicks(handler.ticksLeft).setNumber(3));
 							}
 						}
 						// unregister charge

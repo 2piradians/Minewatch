@@ -76,7 +76,7 @@ public class ItemMWArmor extends ItemArmor {
 			maleModel = new ModelMWArmor(0, false);
 			femaleModel = new ModelMWArmor(0, true);
 		}
-		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero) ? femaleModel : maleModel;
+		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero || entity instanceof EntityArmorStand) ? femaleModel : maleModel;
 		ret.slot = slot;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
 		if (entity instanceof EntityLivingBase && 

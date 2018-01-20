@@ -28,6 +28,7 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -74,10 +75,14 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
+			entity.extinguish();
+			TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ANA_GRENADE_DAMAGE));
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
+			entity.extinguish();
+			TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ANA_GRENADE_DAMAGE));
 			ModSoundEvents.TRACER_RECALL_VOICE.playFollowingSound(entity, 1, 1, false);
 			return super.onServerRemove();
 		}
@@ -132,6 +137,8 @@ public class ItemTracerPistol extends ItemMWWeapon {
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				player.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
 				ModSoundEvents.TRACER_RECALL.playFollowingSound(player, 1, 1, false);
+				entity.extinguish();
+				TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ANA_GRENADE_DAMAGE));
 				TickHandler.register(false, ItemTracerPistol.RECALL.setEntity(entity).setTicks(35), 
 						Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
 						Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),

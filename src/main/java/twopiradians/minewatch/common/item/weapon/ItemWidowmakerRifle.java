@@ -395,12 +395,17 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				Tessellator tessellator = Tessellator.getInstance();
 				VertexBuffer buffer = tessellator.getBuffer();
 				buffer.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION_TEX);
-
+				// FIXME renders at player
 				double width = 0.04d;
+				Vec3d playerPos = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity());
 				Vec3d throwerPos = EntityHelper.getEntityPartialPos(entity.getThrower());
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(entity.getThrower());
 				Vec3d shooting = EntityHelper.getShootingPos(entity.getThrower(), rotations.x, rotations.y, EnumHand.OFF_HAND, 23, 0.7f).subtract(throwerPos);
 
+				// translate to thrower
+				Vec3d translate = throwerPos.subtract(playerPos);
+				GlStateManager.translate(translate.xCoord, translate.yCoord, translate.zCoord);
+				
 				Vec3d hookLook = entity.getLook(mc.getRenderPartialTicks()).scale(0.17d);
 				Vec3d hookPos = EntityHelper.getEntityPartialPos(entity).addVector(0, entity.height/2f, 0).subtract(hookLook).subtract(throwerPos);
 				double v = hookPos.distanceTo(shooting)*2d;

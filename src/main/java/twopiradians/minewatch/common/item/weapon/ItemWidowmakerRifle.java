@@ -369,8 +369,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
-		// hold left arm out while using hook
-		if (TickHandler.hasHandler(handler -> handler.identifier == Identifier.WIDOWMAKER_HOOK && handler.entityLiving == Minecraft.getMinecraft().player, true)) {
+		// hold left arm out while using hook TEST holds out hand for entity only
+		if (TickHandler.hasHandler(handler -> handler.identifier == Identifier.WIDOWMAKER_HOOK && handler.entityLiving == entity, true)) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
 			model.bipedLeftArmwear.rotateAngleY = -0.2f;
@@ -395,7 +395,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				Tessellator tessellator = Tessellator.getInstance();
 				VertexBuffer buffer = tessellator.getBuffer();
 				buffer.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION_TEX);
-				// FIXME renders at player
+
 				double width = 0.04d;
 				Vec3d playerPos = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity());
 				Vec3d throwerPos = EntityHelper.getEntityPartialPos(entity.getThrower());

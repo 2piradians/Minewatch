@@ -17,6 +17,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -38,7 +39,8 @@ public class ModelMWArmor extends ModelPlayer {
 		// TEST coloring / preRenderArmor
 		if (entityIn instanceof EntityLivingBase) {
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
-			EnumHero hero = SetManager.getWornSet(entityIn);
+			EnumHero hero = entity.getHeldItemMainhand() != null && entity.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? 
+					((ItemMWWeapon)entity.getHeldItemMainhand().getItem()).hero : null;//SetManager.getWornSet(entityIn);
 			preventColoring = hero != null && hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
 			// only do more coloring if preRenderArmor returns false or hero is null
 			if (!preventColoring) {
@@ -59,8 +61,11 @@ public class ModelMWArmor extends ModelPlayer {
 		}
 		
 		// don't render when invisible
-		if (entityIn.isInvisible())
+		if (entityIn.isInvisible()) {
+			if (entityIn instanceof EntityLivingBase)
+				((EntityLivingBase)entityIn).setArrowCountInEntity(0);
 			return;
+		}
 		
 		boolean renderOutline = !preventColoring && Config.renderOutlines && 
 				!(entityIn instanceof EntityGuiPlayer) && !(entityIn instanceof EntityArmorStand) && 

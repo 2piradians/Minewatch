@@ -72,7 +72,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		this.prevRotationYaw = this.rotationYaw;
 
 		// check for impacts
-		ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
+		ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this, this.isFriendly);
 		RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
 		for (RayTraceResult result : results) 
 			if (result != null && isValidImpact(result, result == nearest))

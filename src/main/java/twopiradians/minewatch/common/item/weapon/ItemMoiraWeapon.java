@@ -24,6 +24,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
@@ -53,7 +54,7 @@ import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -242,6 +243,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 	
+		// heal
 		if (hand == EnumHand.OFF_HAND && this.canUse(player, true, hand, false) && this.getCurrentCharge(player) >= 1 && 
 				!KeyBind.RMB.isKeyDown(player) && !TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
 			this.subtractFromCurrentCharge(player, 1, player.ticksExisted % 10 == 0);
@@ -295,7 +297,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			}
 		}
 	}	
-	
+
 	public static boolean checkTargetInShootingView(EntityLivingBase entity, Entity target) {
 		Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
 		Vec3d shooting = EntityHelper.getShootingPos(entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 20, 0.6f);
@@ -321,11 +323,10 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 
 			// do effects
 			Handler handler = TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE);
-			if (handler != null && handler.entityLiving != null) {
-				EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true);
-				if (!(handler.entityLiving instanceof EntityLivingBaseMW) && 
-						!(handler.entityLiving instanceof EntityArmorStand))
-				EntityHelper.heal(player, 1.5f*4f);
+			if (handler != null && handler.entityLiving != null && 
+					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true)) {
+				if (!(handler.entityLiving instanceof EntityLivingBaseMW))
+					EntityHelper.heal(player, 1.5f*4f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
 		}
@@ -349,7 +350,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			VertexBuffer vertexbuffer = tessellator.getBuffer();
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
-			GlStateManager.disableAlpha();
 			GlStateManager.depthMask(false);
 			GlStateManager.color(1, 1, 1, (float) (0.4f+Math.abs(Math.sin(handler.entity.ticksExisted/5d))/3d));
 			vertexbuffer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
@@ -406,19 +406,38 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		}
 	}
 
+	enum Render {
+		NONE, INACTIVE, ACTIVE
+	}
+	
+	public Render shouldRenderHand(EntityLivingBase entity, EnumHand hand) {
+		// select
+		if (TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT))
+			return Render.ACTIVE;
+		// don't render heal if damaging
+		else if (KeyBind.RMB.isKeyDown(entity) && 
+				!this.hasCooldown(entity) && EntityHelper.isHoldingItem(entity, this, EnumHand.MAIN_HAND))
+			return hand == EnumHand.MAIN_HAND ? Render.ACTIVE : Render.NONE;
+		// don't render damage if healing
+		else if (KeyBind.LMB.isKeyDown(entity) && 
+				!this.hasCooldown(entity) && EntityHelper.isHoldingItem(entity, this, EnumHand.OFF_HAND))
+			return hand == EnumHand.OFF_HAND ? Render.ACTIVE : Render.NONE;
+		else
+			return Render.INACTIVE;
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
-		boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
 		// damage
-		if (select || (KeyBind.RMB.isKeyDown(entity) && !this.hasCooldown(entity))) {
+		if (this.shouldRenderHand(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
 			model.bipedRightArmwear.rotateAngleX = 5;
 			model.bipedRightArm.rotateAngleX = 5;
 			model.bipedRightArmwear.rotateAngleY = 0.2f;
 			model.bipedRightArm.rotateAngleY = 0.2f;
 		}
 		// heal
-		if (select || (KeyBind.LMB.isKeyDown(entity) && !KeyBind.RMB.isKeyDown(entity) && !this.hasCooldown(entity))) {
+		if (this.shouldRenderHand(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
 			model.bipedLeftArmwear.rotateAngleY = -0.2f;
@@ -438,11 +457,13 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {
-		if (SetManager.getWornSet(entity) == EnumHero.MOIRA) {
+		//if (SetManager.getWornSet(entity) == EnumHero.MOIRA) {
 			boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
 			// damage
-			if (select || (KeyBind.RMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
-				if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) {
+			if (this.shouldRenderHand(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
+				if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack && 
+						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null && 
+						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemMWArmor) {
 					GlStateManager.rotate(50, 29f, -10f, -1.2f);
 					GlStateManager.translate(0.15f, 0.5f, -0.11f);
 				}
@@ -450,15 +471,17 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 					ret.getRight().setScale(0);
 			}
 			// heal
-			if (select || (!KeyBind.RMB.isKeyDown(entity) && KeyBind.LMB.isKeyDown(entity) && entity != null && !this.hasCooldown(entity))) {
-				if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack) {
+			if (this.shouldRenderHand(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
+				if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack && 
+						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null && 
+						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemMWArmor) {
 					GlStateManager.rotate(50, 29f, 10f, 1.2f);
 					GlStateManager.translate(-0.15f, 0.5f, -0.11f);
 				}
 				else if (!select && transform == TransformType.FIRST_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack) 
 					ret.getRight().setScale(0);
 			}
-		}
+		//}
 
 		// fade
 		if (transform != TransformType.GUI && TickHandler.hasHandler(entity, Identifier.MOIRA_FADE)) 
@@ -514,15 +537,13 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void renderArms(RenderSpecificHandEvent event) {
 		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
+		Minecraft mc = Minecraft.getMinecraft();
+		AbstractClientPlayer player = mc.player;
 		if (event.getItemStack() != null && event.getItemStack().getItem() == this && 
-				!TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.MOIRA_FADE) && 
-				((event.getHand() == EnumHand.MAIN_HAND && KeyBind.RMB.isKeyDown(Minecraft.getMinecraft().player) || 
-				(event.getHand() == EnumHand.OFF_HAND && KeyBind.LMB.isKeyDown(Minecraft.getMinecraft().player) && 
-				!KeyBind.RMB.isKeyDown(Minecraft.getMinecraft().player)) || 
-				(!KeyBind.RMB.isKeyDown(Minecraft.getMinecraft().player) && !KeyBind.LMB.isKeyDown(Minecraft.getMinecraft().player))))) {
+				!TickHandler.hasHandler(player, Identifier.MOIRA_FADE) && 
+				((event.getHand() == EnumHand.MAIN_HAND && this.shouldRenderHand(player, EnumHand.MAIN_HAND) != Render.NONE) || 
+				(event.getHand() == EnumHand.OFF_HAND && this.shouldRenderHand(player, EnumHand.OFF_HAND) != Render.NONE))) {
 			GlStateManager.pushMatrix();
-			Minecraft mc = Minecraft.getMinecraft();
-			AbstractClientPlayer player = mc.player;
 			float partialTicks = mc.getRenderPartialTicks();
 			float swing = player.getSwingProgress(partialTicks);	
 			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;

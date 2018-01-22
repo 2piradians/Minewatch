@@ -92,9 +92,9 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public void onUpdate() {	
 		// check for impacts
 		if (!world.isRemote || this.impactOnClient) { 
-			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this);
+			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this, this.isFriendly);
 			RayTraceResult nearest = EntityHelper.getNearestImpact(this, results);
-			for (RayTraceResult result : results) 
+			for (RayTraceResult result : results)
 				if (result != null && isValidImpact(result, result == nearest))
 					this.onImpact(result);
 		}

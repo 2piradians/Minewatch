@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
@@ -378,6 +379,26 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					float size = Math.min(entity2.height, entity2.width)*9f;
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, world, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}
+		}
+
+		// aim assist
+		if (world.isRemote && entity instanceof EntityPlayer && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+				 (KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
+			float delta = Config.aimAssist;
+			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
+			float pitch = MathHelper.wrapDegrees(entity.rotationPitch);
+			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, entity instanceof EntityHero ? 64 : 512, false, pitch, yaw) == null) {
+				EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, entity instanceof EntityHero ? 64 : 512, 10, false);
+				if (targetEntity != null) {
+					Vector2f angles = EntityHelper.getDirectLookAngles(entity.getPositionVector().addVector(0, entity.getEyeHeight(), 0), targetEntity.getPositionVector().addVector(0, targetEntity.getEyeHeight(), 0));
+					if (Math.abs(yaw-angles.x) > 180) {
+						angles.x = (angles.x + 360f) % 360;
+						yaw = (yaw + 360f) % 360;
+					}
+					entity.rotationYaw = MathHelper.clamp(angles.x, yaw-delta, yaw+delta);
+					entity.rotationPitch = MathHelper.clamp(angles.y, pitch-delta, pitch+delta);
+				} 
+			}
 		}
 	}
 

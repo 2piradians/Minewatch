@@ -93,7 +93,9 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 								this.entityLiving = (EntityLivingBase) target;
 								Minewatch.network.sendToDimension(new SPacketSimple(56, entity, true, target), entity.world.provider.getDimension());
 								this.entityLiving.rotationPitch = 0;
-								this.entityLiving.rotationYaw = entity.rotationYaw+180f;
+								this.entityLiving.rotationYaw = MathHelper.wrapDegrees(entity.rotationYaw+180f);
+								this.entityLiving.prevRotationYaw = this.entityLiving.rotationYaw;
+								this.entityLiving.prevRotationPitch = this.entityLiving.rotationPitch;
 								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(ticksLeft),
 										Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(ticksLeft), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(ticksLeft));
@@ -131,7 +133,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						this.entityLiving.prevPosX = this.entityLiving.posX;
 						this.entityLiving.prevPosY = this.entityLiving.posY;
 						this.entityLiving.prevPosZ = this.entityLiving.posZ;
-						this.entityLiving.setLocationAndAngles(pos.xCoord, pos.yCoord, pos.zCoord, entity.rotationYaw+180f, 0);
+						this.entityLiving.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
 						this.entityLiving.fallDistance = 0;
 					}
 				}
@@ -161,7 +163,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						this.entityLiving.prevPosX = this.entityLiving.posX;
 						this.entityLiving.prevPosY = this.entityLiving.posY;
 						this.entityLiving.prevPosZ = this.entityLiving.posZ;
-						this.entityLiving.setLocationAndAngles(pos.xCoord, pos.yCoord, pos.zCoord, entity.rotationYaw+180f, 0);
+						this.entityLiving.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
 						this.entityLiving.fallDistance = 0;
 					}
 				}
@@ -324,7 +326,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			// charge
 			if (!world.isRemote && hero.ability3.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				Minewatch.network.sendToDimension(new SPacketSimple(56, player, true), world.provider.getDimension());
+				player.renderYawOffset = player.rotationYawHead;
+				Minewatch.network.sendToDimension(new SPacketSimple(56, player, true, player.rotationYawHead, 0, 0), world.provider.getDimension());
 				TickHandler.register(false, CHARGE.setEntity(player).setEntityLiving(null).setTicks(80),
 						Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(hero.ability3),
 						Handlers.ACTIVE_HAND.setEntity(player).setTicks(80),

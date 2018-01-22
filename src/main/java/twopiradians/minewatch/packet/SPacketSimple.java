@@ -810,11 +810,12 @@ public class SPacketSimple implements IMessage {
 								Ability.ABILITY_USING.setEntity(entity).setTicks(100).setAbility(EnumHero.WIDOWMAKER.ability2));
 					}
 					// Reinhardt's charge
-					else if (packet.type == 56 && entity != null) {
+					else if (packet.type == 56 && entity instanceof EntityLivingBase) {
 						TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.REINHARDT_CHARGE);
 						// register charge / updated pinned entity
 						if (packet.bool && (entity2 == null || entity2 instanceof EntityLivingBase)) {
 							if (handler == null) {
+								((EntityLivingBase)entity).rotationYaw = (float) packet.x;
 								ModSoundEvents.REINHARDT_CHARGE.playFollowingSound(entity, 1, 1, false);
 								TickHandler.register(true, ItemReinhardtHammer.CHARGE.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(80),
 										Handlers.ACTIVE_HAND.setEntity(entity).setTicks(80),
@@ -829,11 +830,13 @@ public class SPacketSimple implements IMessage {
 								TickHandler.interrupt(entity2);
 								handler.entityLiving = (EntityLivingBase) entity2;
 								handler.entityLiving.rotationPitch = 0;
-								handler.entityLiving.rotationYaw = entity.rotationYaw+180f;
+								handler.entityLiving.rotationYaw = MathHelper.wrapDegrees(entity.rotationYaw+180f);
+								handler.entityLiving.prevRotationYaw = handler.entityLiving.rotationYaw;
+								handler.entityLiving.prevRotationPitch = handler.entityLiving.rotationPitch;
 								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(handler.ticksLeft),
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(handler.ticksLeft), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft),
-										Handlers.FORCE_VIEW.setEntity(entity).setTicks(handler.ticksLeft).setNumber(3));
+										Handlers.FORCE_VIEW.setEntity(entity2).setTicks(handler.ticksLeft).setNumber(3));
 							}
 						}
 						// unregister charge
@@ -860,10 +863,14 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
 									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
 									TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
-							if (entity2 != null)
+							if (entity2 != null) {
 								TickHandler.unregister(true, TickHandler.getHandler(entity2, Identifier.PREVENT_INPUT),
 										TickHandler.getHandler(entity2, Identifier.PREVENT_ROTATION),
-										TickHandler.getHandler(entity2, Identifier.PREVENT_MOVEMENT));
+										TickHandler.getHandler(entity2, Identifier.PREVENT_MOVEMENT),
+										TickHandler.getHandler(entity2, Identifier.FORCE_VIEW));
+								if (entity2 == player)
+									Minewatch.proxy.updateFOV();
+							}
 							if (entity == player)
 								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
 										TickHandler.getHandler(entity, Identifier.FORCE_VIEW));
@@ -882,6 +889,13 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(20),
 								Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(20), 
 								Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(20));
+					}
+					// Set player's rotations
+					else if (packet.type == 59 && entity == player) {
+						player.prevRotationYaw = player.rotationYaw;
+						player.prevRotationPitch = player.rotationPitch;
+						player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
+						player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
 					}
 				}
 			});

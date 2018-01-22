@@ -213,7 +213,7 @@ public class Handlers {
 		public boolean onClientTick() {
 			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
 				return true;
-			
+
 			// prevent flying
 			entity.onGround = true;
 			if (player != null)
@@ -235,7 +235,7 @@ public class Handlers {
 		public boolean onServerTick() {
 			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
 				return true;
-			
+
 			// prevent jumping
 			if (entity instanceof EntitySlime)
 				entity.onGround = false;
@@ -343,13 +343,15 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number;
+			if (entity == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number;
 			return super.onClientTick();
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
+			if (entity == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
 			return super.onClientRemove();
 		}
 	};

@@ -88,6 +88,9 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 			model.rightArmPose = offPose;
 			model.leftArmPose = mainPose;
 		}
+		
+		if (entity.isSneaking())
+			y -= 0.125D;
 
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 	}

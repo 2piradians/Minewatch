@@ -15,12 +15,13 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
+import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.creativetab.ArmorWeaponsTab;
 import twopiradians.minewatch.creativetab.IMinewatchTab;
 import twopiradians.minewatch.creativetab.MapMakingTab;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-//PORT change json location, search for scala library
+//PORT search for scala library
 // 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
 // 1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
 
@@ -39,7 +40,7 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //.addCoord( -> .expand(
 //.expand( -> .grow(
 //.move( -> .offset(
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.11.2/update.json")
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
@@ -75,6 +76,7 @@ public class Minewatch {
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandMinewatch());
 		event.registerServerCommand(new CommandDev());
+		RankManager.lookUpRanks();
 	}
 
 }

@@ -46,8 +46,10 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -896,6 +898,13 @@ public class SPacketSimple implements IMessage {
 						player.prevRotationPitch = player.rotationPitch;
 						player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
 						player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
+					}
+					// Ranks
+					else if (packet.type == 60) {
+						RankManager.clientRanks.clear();
+						for (Rank rank : Rank.values())
+							if ((((int)packet.x) >> rank.ordinal() & 1) == 1)
+								RankManager.clientRanks.add(rank);
 					}
 				}
 			});

@@ -1,17 +1,27 @@
 package twopiradians.minewatch.client.gui.tab;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiListWorldSelection;
+import net.minecraft.client.gui.GuiListWorldSelectionEntry;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiScreenServerList;
+import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -27,8 +37,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.config.GuiFactory;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.gui.tab.Maps.MinecraftMap;
+import twopiradians.minewatch.client.gui.teamStick.GuiScrollingTeams;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.ServerManager;
+import twopiradians.minewatch.common.hero.ServerManager.Server;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
@@ -38,7 +51,7 @@ import twopiradians.minewatch.packet.PacketSyncConfig;
 public class GuiTab extends GuiScreen {
 
 	public enum Screen {
-		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO, MAPS, MAPS_INFO, SUBMIT;
+		MAIN, GALLERY, GALLERY_HERO, GALLERY_HERO_INFO, GALLERY_HERO_SKINS, GALLERY_HERO_SKINS_INFO, MAPS, MAPS_INFO, SUBMIT, SERVERS;
 	};
 
 	public static GuiTab activeTab;
@@ -54,6 +67,8 @@ public class GuiTab extends GuiScreen {
 	public static Screen currentScreen;
 	public static MinecraftMap currentMap;
 	public static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/inventory_tab.png");
+	public ArrayList<ServerListEntry> serverList = new ArrayList<ServerListEntry>();
+	private GuiScrollingServers scrollingServers;
 
 	public GuiTab() {
 		GuiTab.activeTab = this;
@@ -79,10 +94,18 @@ public class GuiTab extends GuiScreen {
 		Minewatch.network.sendToServer(new CPacketSimple(1, false, mc.player));
 
 		// Screen.MAIN
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20-25, 95, 20, "Maps", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+0, 95, 20, "Hero Gallery", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+25, 95, 20, "Options", Screen.MAIN));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, this.guiTop+GuiTab.Y_SIZE/2-20+50, 95, 20, "Submit a Skin/Map", Screen.MAIN));
+		int y = this.guiTop+GuiTab.Y_SIZE/2-20-40;
+		int spacing = 24;
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, y+spacing*0, 95, 20, "Servers", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, y+spacing*1, 95, 20, "Maps", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, y+spacing*2, 95, 20, "Hero Gallery", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, y+spacing*3, 95, 20, "Options", Screen.MAIN));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+10, y+spacing*4, 95, 20, "Submit a Skin/Map", Screen.MAIN));
+		// Screen.SERVERS
+		scrollingServers = new GuiScrollingServers(this, X_SIZE-6, 0, guiTop+4, guiTop+Y_SIZE-106, guiLeft+3, 36, width, height);
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+8, this.guiTop+Y_SIZE-29, 50, 20, "Join", Screen.SERVERS, gui->gui.scrollingServers.getSelectedIndex() != -1));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-25, this.guiTop+Y_SIZE-29, 50, 20, "Discuss", Screen.SERVERS));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.SERVERS));
 		// Screen.MAPS
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-25, 60, 20, "Info", Screen.MAPS));
@@ -135,6 +158,15 @@ public class GuiTab extends GuiScreen {
 			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
 			break;
+		case SERVERS:
+			try {
+				scrollingServers.drawScreen(mouseX, mouseY, partialTicks);
+			}
+			catch (Exception e) {}
+
+			String text = "These servers feature Minewatch as the primary mod. \n\nIf you have a public server with Minewatch on it, let us know and we will add it to this list.";
+			mc.fontRendererObj.drawSplitString(text, guiLeft+10, guiTop+Y_SIZE/2+18, X_SIZE-20, 0x000000);
+			break;
 		case MAPS:
 			currentMap.drawBackground(this);
 			// bottom part
@@ -183,7 +215,7 @@ public class GuiTab extends GuiScreen {
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		case SUBMIT:
-			String text = "First of all, we would like to thank all of the creators of the skins and maps featured in this mod; without them, we wouldn't be able to offer such a wide variety of amazing skins and maps! \n\n" + 
+			text = "First of all, we would like to thank all of the creators of the skins and maps featured in this mod; without them, we wouldn't be able to offer such a wide variety of amazing skins and maps! \n\n" + 
 					TextFormatting.GOLD+TextFormatting.BOLD+"If you enjoy any of the maps or like any of the skins, please show your appreciation to their creator(s) by giving their post a diamond/upvote or leaving them a nice comment!";
 			this.drawHoveringText(mc.fontRendererObj.listFormattedStringToWidth(text, 235), this.guiLeft, this.guiTop+30);
 			GlStateManager.disableLighting();
@@ -206,7 +238,11 @@ public class GuiTab extends GuiScreen {
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (GuiTab.currentScreen) {
 		case MAIN:
-			if (button.displayString.equals("Maps"))
+			if (button.displayString.equals("Servers")) {
+				GuiTab.currentScreen = Screen.SERVERS;
+				this.loadServers();
+			}
+			else if (button.displayString.equals("Maps"))
 				GuiTab.currentScreen = Screen.MAPS;
 			else if (button.displayString.equals("Hero Gallery"))
 				GuiTab.currentScreen = Screen.GALLERY;
@@ -216,6 +252,15 @@ public class GuiTab extends GuiScreen {
 				Minewatch.network.sendToServer(new PacketSyncConfig());
 			else if (button.displayString.equals("Submit a Skin/Map"))
 				GuiTab.currentScreen = Screen.SUBMIT;
+			break;
+		case SERVERS:
+			if (button.displayString.equals("Back"))
+				GuiTab.currentScreen = Screen.MAIN;
+			else if (button.displayString.equals("Join") && button.enabled)
+				scrollingServers.connectToServer(scrollingServers.getSelectedIndex());
+			else if (button.displayString.equals("Discuss"))
+				this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
+						new ClickEvent(Action.OPEN_URL, "https://discord.gg/4tupvhz"))));
 			break;
 		case MAPS:
 			if (button.displayString.equals("Play"))
@@ -356,7 +401,7 @@ public class GuiTab extends GuiScreen {
 		if (activeTab != null) {
 			if (!Minecraft.getMinecraft().isSingleplayer())
 				activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+25, 20, 20, "", Screen.MAIN));
-			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+X_SIZE/2-58/2, activeTab.guiTop+Y_SIZE-29, 58, 20, "SELECT", 0xFFB43D, Screen.GALLERY_HERO));
+			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+X_SIZE/2-58/2, activeTab.guiTop+Y_SIZE-29, 58, 20, "SELECT", 0xFFB43D, Screen.GALLERY_HERO, null));
 		}
 	}
 
@@ -364,6 +409,26 @@ public class GuiTab extends GuiScreen {
 	@Override
 	public void drawHoveringText(List<String> textLines, int x, int y) {
 		super.drawHoveringText(textLines, x, y);
+	}
+
+	@Override
+	public void handleMouseInput() throws IOException {
+		super.handleMouseInput();
+		int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+		int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+		scrollingServers.handleMouseInput(mouseX, mouseY);
+	}
+
+	private void loadServers() {
+		this.serverList.clear();
+		try {
+			GuiMultiplayer gui = new GuiMultiplayer(new GuiMainMenu());
+			for (Server server : ServerManager.servers)
+				this.serverList.add(new ServerListEntry(gui, new ServerData(server.ip, server.ip, false)));
+		}
+		catch (Exception e) {
+			Minewatch.logger.warn("Unable to load servers: ", e);
+		}
 	}
 
 }

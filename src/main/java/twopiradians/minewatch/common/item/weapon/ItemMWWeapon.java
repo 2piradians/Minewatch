@@ -50,12 +50,13 @@ import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -300,7 +301,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 		//delete dev spawned items if not in dev's inventory
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				stack.getTagCompound().hasKey("devSpawned") && RankManager.getHighestRank(entity) != Rank.DEV &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;

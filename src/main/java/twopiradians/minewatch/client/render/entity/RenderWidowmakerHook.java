@@ -1,23 +1,11 @@
 package twopiradians.minewatch.client.render.entity;
 
-import javax.vecmath.Vector2f;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.Cylinder;
-import org.lwjgl.util.glu.GLU;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
-import twopiradians.minewatch.common.util.EntityHelper;
 
 public class RenderWidowmakerHook extends RenderOBJModel<EntityWidowmakerHook> {
 

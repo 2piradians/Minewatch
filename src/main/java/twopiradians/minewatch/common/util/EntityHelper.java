@@ -22,7 +22,6 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -303,7 +302,7 @@ public class EntityHelper {
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		// prevent healing mobs not on team with config option disabled
-		if (!Config.healMobs && friendly && (target.getTeam() == null || target.getTeam() != entity.getTeam()))
+		if (!Config.healMobs && friendly && target != null && entity != null && (target.getTeam() == null || target.getTeam() != entity.getTeam()))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 
@@ -867,7 +866,12 @@ public class EntityHelper {
 
 	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but from a generic lookPos*/
 	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
-		return entity != null && lookPos != null && entity.world.rayTraceBlocks(lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ), false, true, false) == null;
+		return entity != null && lookPos != null && canBeSeen(entity.world, lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ));
+	}
+	
+	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but to a generic pos*/
+	public static boolean canBeSeen(World world, Vec3d lookPos, Vec3d pos) {
+		return pos != null && lookPos != null && world.rayTraceBlocks(lookPos, pos, false, true, false) == null;
 	}
 
 	/**Get prev position vector - uses chasing pos for EntityPlayer*/

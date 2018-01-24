@@ -121,6 +121,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.ServerManager;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
@@ -137,6 +138,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
+		ServerManager.lookUpServers();
 		OBJLoader.INSTANCE.addDomain(Minewatch.MODID);
 		registerWeaponRenders();
 		registerEntityRenders();

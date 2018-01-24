@@ -11,6 +11,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
+import net.minecraft.block.BlockWall;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -215,34 +216,32 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Nullable
 	private Vec3d getTeleportPos(EntityLivingBase player) {
 		try {
 			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
-				BlockPos pos = new BlockPos(result.hitVec.xCoord, result.getBlockPos().getY(), result.hitVec.zCoord);
-
-				double adjustZ = result.sideHit == EnumFacing.SOUTH ? -0.5d : 0;
-				double adjustX = result.sideHit == EnumFacing.EAST ? -0.5d : 0;
-
-				pos = pos.add(adjustX, 0, adjustZ);
+				BlockPos pos = result.getBlockPos();
+				
 				IBlockState state = player.world.getBlockState(pos);
 				IBlockState state1 = player.world.getBlockState(pos.up());
 				IBlockState state2 = player.world.getBlockState(pos.up(2));
-
-				if ((player.world.isAirBlock(pos.up()) || state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == null ||
-						state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == Block.NULL_AABB) && 
-						(player.world.isAirBlock(pos.up(2)) || state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == null ||
-						state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == Block.NULL_AABB) && 
+				
+				if ((player.world.isAirBlock(pos.up()) || state1.getCollisionBoundingBox(player.world, pos.up()) == null ||
+						state1.getCollisionBoundingBox(player.world, pos.up()) == Block.NULL_AABB) && 
+						(player.world.isAirBlock(pos.up(2)) || state2.getCollisionBoundingBox(player.world, pos.up(2)) == null ||
+						state2.getCollisionBoundingBox(player.world, pos.up(2)) == Block.NULL_AABB) && 
 						!player.world.isAirBlock(pos) && 
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&
-						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35)
-					return new Vec3d(result.hitVec.xCoord + adjustX, 
-							result.getBlockPos().getY()+1+(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
-							result.hitVec.zCoord + adjustZ);
+						state.getCollisionBoundingBox(player.world, pos) != null &&
+						state.getCollisionBoundingBox(player.world, pos) != Block.NULL_AABB &&
+						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35 &&
+						(EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up(2).getX()+0.5d, pos.up(2).getY()+0.5d, pos.up(2).getZ()+0.5d)) ||
+						EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up().getX()+0.5d, pos.up().getY()+0.5d, pos.up().getZ()+0.5d))))
+					return new Vec3d(result.hitVec.xCoord, 
+							result.getBlockPos().getY()+state.getCollisionBoundingBox(player.world, pos).maxY+
+							(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
+							result.hitVec.zCoord);
 			}
 		}
 		catch (Exception e) {}

@@ -13,10 +13,9 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import twopiradians.minewatch.common.Minewatch;
@@ -41,6 +40,10 @@ public class RankManager {
 	public static ArrayList<Rank> clientRanks = new ArrayList<Rank>();
 
 	static {
+		// add devs manually (because paranoid and never changing)
+		serverRanks.put(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647"), Lists.newArrayList(Rank.DEV)); // Furgl
+		serverRanks.put(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd"), Lists.newArrayList(Rank.DEV)); // 2piradians
+		
 		try {
 			url = new URL("https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/ranks.json");
 		} catch (MalformedURLException e) {}
@@ -69,7 +72,7 @@ public class RankManager {
 				Minewatch.logger.info(serverRanks); // TODO
 			}
 			catch (Exception e) {
-				Minewatch.logger.warn("There was an error looking up ranks: ", e);
+				Minewatch.logger.warn("Unable to look up ranks.");
 			}
 		}
 	}
@@ -87,7 +90,7 @@ public class RankManager {
 		}
 	}
 
-	public static Rank getHighestRank(EntityPlayer player) {
+	public static Rank getHighestRank(Entity player) {
 		return player == null ? Rank.NONE : getHighestRank(player.getPersistentID(), player.world.isRemote);
 	}
 
@@ -103,7 +106,7 @@ public class RankManager {
 		return Rank.NONE;
 	}
 
-	public static ArrayList<Rank> getRanks(EntityPlayer player) {
+	public static ArrayList<Rank> getRanks(Entity player) {
 		return player == null ? new ArrayList<Rank>() : getRanks(player.getPersistentID(), player.world.isRemote);
 	}
 

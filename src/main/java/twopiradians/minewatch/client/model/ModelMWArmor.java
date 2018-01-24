@@ -16,7 +16,6 @@ import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.util.EntityHelper;

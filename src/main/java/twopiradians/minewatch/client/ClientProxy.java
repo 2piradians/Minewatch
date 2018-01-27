@@ -340,6 +340,7 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/soldier76_heal_1"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook_rope"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/sombra_hack"));
 	}
 
 	@Override

@@ -1,25 +1,38 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -34,7 +47,9 @@ import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -42,6 +57,135 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemSombraMachinePistol extends ItemMWWeapon {
+
+	public static Handler HACK = new Handler(Identifier.SOMBRA_HACK, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			// basic checks
+			if (entity == Minecraft.getMinecraft().player && 
+					(!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
+							((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+							((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon ||
+							!KeyBind.RMB.isKeyDown((EntityLivingBase) entity) ||
+							!EnumHero.SOMBRA.weapon.canUse((EntityLivingBase) entity, false, EnumHand.MAIN_HAND, false))) 
+				return true;
+			// find new target / clear target
+			else if (entity.ticksExisted % 5 == 0) {
+				// both invalid targets
+				if ((entityLiving == null || !entityLiving.isEntityAlive()) && 
+						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
+					if (entityLiving == null)
+						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, 10);
+				}
+
+				// check entity
+				if (entityLiving != null && (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || 
+						entityLiving.getDistanceToEntity(entity) > 15 || 
+						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
+					entityLiving = null;
+				// check health pack
+				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), 10) || 
+						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
+						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
+					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
+					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack))
+						position = null;
+				}
+			}
+			else 
+				this.ticksLeft = 10;
+
+			// ticks hacking
+			if ((entityLiving != null || position != null))
+				this.number = Math.min(number+1, 16);
+			else
+				this.number = 0;
+
+			// particles
+			ArrayList<Vec3d> targetVecs = getTargetVecs(this, false);
+			for (int i=0; i<targetVecs.size(); ++i) {
+				Vec3d target = targetVecs.get(i);
+
+				if (entityLiving != null)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, target.xCoord, target.yCoord, target.zCoord, 0, 0, 0, 0xB36BF7, 0xB36BF7, 0.7f, 1, 1, 5, 0, 0);
+
+				if ((number-1) % 4 == 0 && i == targetVecs.size()-1) {
+					Vector2f offsets = getOffsets(i);
+					Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 0xF685F8, 0xC985F6, 1f, 5, 1.2f, 0.5f, 0, 0, EnumHand.OFF_HAND, offsets.x, offsets.y);
+					Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.CIRCLE, entity.world, (EntityLivingBase) entity, 0xFFFFFF, 0xFFFFFF, 0.6f, 5, 0.6f, 0.2f, 0, 0, EnumHand.OFF_HAND, offsets.x, offsets.y);
+				}
+			}
+
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			// basic checks
+			if (!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
+					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
+					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon ||
+					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || 
+					EnumHero.SOMBRA.weapon.hasCooldown(entity) ||
+					!EnumHero.SOMBRA.weapon.canUse((EntityLivingBase) entity, false, EnumHand.MAIN_HAND, false)) 
+				return true;
+			// find new target / clear target
+			else if (entity.ticksExisted % 5 == 0) {
+				// both invalid targets
+				if ((entityLiving == null || !entityLiving.isEntityAlive()) && 
+						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
+					if (entityLiving == null)
+						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, 10);
+				}
+
+				// check entity
+				if (entityLiving != null && (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || 
+						entityLiving.getDistanceToEntity(entity) > 15 || 
+						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
+					entityLiving = null;
+				// check health pack
+				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), 10) || 
+						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
+						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
+					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
+					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack))
+						position = null;
+				}
+			}
+			else 
+				this.ticksLeft = 10;
+
+			// ticks hacking
+			if ((entityLiving != null || position != null)) {
+				// hacked
+				if (++number > 16) {
+					if (position != null) {
+						TileEntity te = entity.world.getTileEntity(new BlockPos(position));
+						if (te instanceof TileEntityHealthPack)
+							((TileEntityHealthPack)te).hack(entity.getTeam());
+					}
+					EnumHero.SOMBRA.ability1.keybind.setCooldown((EntityLivingBase) entity, 160, false);
+					Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false),  entity.world.provider.getDimension());
+					return true;
+				}
+			}
+			else
+				this.number = 0;
+
+			return super.onServerTick();
+		}
+		@Override
+		public Handler onServerRemove() {
+			return super.onServerRemove();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			return super.onClientRemove();
+		}
+	};
 
 	public static final Handler OPPORTUNIST = new Handler(Identifier.SOMBRA_OPPORTUNIST, false) {
 		@Override
@@ -158,7 +302,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityLivingBase) {	
+		if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// cancel invisibility
@@ -205,6 +349,19 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				}
 			}
 
+			// give hack if right clicking and offhand is empty
+			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
+					hero.ability1.isSelected(player) && !KeyBind.LMB.isKeyDown(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, false) && 
+					!TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE)) {
+				// start hacking
+				if (!TickHandler.hasHandler(player, Identifier.SOMBRA_HACK)) {
+					TickHandler.register(false, HACK.setEntity(player).setEntityLiving(null).setTicks(10));
+					Minewatch.network.sendToDimension(new SPacketSimple(61, player, true), world.provider.getDimension());
+				}
+				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.sombra_hack));
+			}
+
 			// passive
 			if (player == Minewatch.proxy.getClientPlayer() && isSelected && 
 					this.canUse(player, false, EnumHand.MAIN_HAND, true) &&
@@ -223,6 +380,12 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		}
 	}
 
+	public static boolean checkTargetInShootingView(EntityLivingBase entity, Vec3d target) {
+		Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
+		Vec3d shooting = EntityHelper.getShootingPos(entity, rotations.x, rotations.y, EnumHand.OFF_HAND, 20, 0.6f);
+		return EntityHelper.canBeSeen(entity.world, shooting, target);
+	}
+
 	/**Set Invisibility handler to 14 ticks, if active*/
 	public static void cancelInvisibility(EntityLivingBase entity) {
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
@@ -239,9 +402,145 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			cancelInvisibility(event.getEntityLiving());
 	}
 
+	@SideOnly(Side.CLIENT)
+	public static Vector2f getOffsets(int index) {
+		switch (index) {
+		case 0:
+			return new Vector2f(20, 0.6f); // middle
+		case 1:
+			return new Vector2f(24, 0.45f); // mid-bottom right
+		case 2:
+			return new Vector2f(15, 0.75f); // top left
+		default:
+			return new Vector2f(28, 0.4f); // bottom right
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private static ArrayList<Vec3d> getShootingVecs(Handler handler, boolean offset) {
+		ArrayList<Vec3d> list = new ArrayList<Vec3d>();
+		if (handler != null && handler.identifier == Identifier.SOMBRA_HACK &&
+				(handler.entityLiving != null || handler.position != null)) {
+			Vector2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
+
+
+			for (int i=0; i<Math.min(4, handler.number/4); ++i) {
+				Vector2f offsets = getOffsets(i);
+				Vec3d shooting = EntityHelper.getShootingPos((EntityLivingBase) handler.entity, rotations.x, rotations.y, EnumHand.OFF_HAND, offsets.x, offsets.y);
+				if (offset) {
+					Vec3d viewerPos = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity());
+					shooting = shooting.subtract(viewerPos);
+				}
+				list.add(shooting);
+			}
+		}
+		return list;
+	}
+
+	@SideOnly(Side.CLIENT)
+	private static ArrayList<Vec3d> getTargetVecs(Handler handler, boolean offset) {
+		ArrayList<Vec3d> list = new ArrayList<Vec3d>();
+		if (handler != null && handler.identifier == Identifier.SOMBRA_HACK &&
+				(handler.entityLiving != null || handler.position != null)) {
+			Vec3d targetBase = handler.entityLiving != null ? EntityHelper.getEntityPartialPos(handler.entityLiving).addVector(0, handler.entityLiving.height/2f, 0) : handler.position.addVector(0.5d, 0.06d, 0.5d);
+			if (offset) {
+				Vec3d viewerPos = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity());
+				targetBase = targetBase.subtract(viewerPos);
+			}
+
+			for (int i=0; i<Math.min(4, handler.number/4); ++i) {
+				if (handler.entityLiving != null) {
+					switch (i) {
+					case 0:
+						list.add(targetBase);
+						break;
+					case 1:
+						list.add(targetBase.addVector(-handler.entityLiving.width/4f, handler.entityLiving.height/6f, -handler.entityLiving.width/4f));
+						break;
+					case 2:
+						list.add(targetBase.addVector(handler.entityLiving.width/5f, handler.entityLiving.height/5f, handler.entityLiving.width/4f));
+						break;
+					case 3:
+						list.add(targetBase.addVector(handler.entityLiving.width/6f, -handler.entityLiving.height/4f, handler.entityLiving.width/5f));
+						break;
+					}
+				}
+				else
+					list.add(targetBase);
+			}
+		}
+		return list;
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void renderDamageBeam(RenderWorldLastEvent event) {
+		// hack
+		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.SOMBRA_HACK)) {
+			if (handler.entityLiving != null || handler.position != null) {
+				Tessellator tessellator = Tessellator.getInstance();
+				VertexBuffer vertexbuffer = tessellator.getBuffer();
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.depthMask(false);
+				GlStateManager.color(1, 1, 1, (float) (0.4f+Math.abs(Math.sin(handler.entity.ticksExisted/5d))/3d));
+				vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+
+				double targetWidth = 0.08d;
+				double shootingWidth = 0.01d;
+				ArrayList<Vec3d> shootingVecs = getShootingVecs(handler, true);
+				ArrayList<Vec3d> targetVecs = getTargetVecs(handler, true);
+
+				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/entity/sombra_hack.png"));
+
+				for (int i=0; i<shootingVecs.size(); ++i) {
+					Vec3d shooting = shootingVecs.get(i);
+					Vec3d target = targetVecs.get(i);
+
+					// xz axis
+					// top
+					vertexbuffer.pos(shooting.xCoord-shootingWidth/2f, shooting.yCoord, shooting.zCoord-shootingWidth/2f).tex(0, 0).endVertex();
+					vertexbuffer.pos(shooting.xCoord+shootingWidth/2f, shooting.yCoord, shooting.zCoord+shootingWidth/2f).tex(1, 0).endVertex();
+					vertexbuffer.pos(target.xCoord+targetWidth/2f, target.yCoord, target.zCoord+targetWidth/2f).tex(1, 1).endVertex();
+					vertexbuffer.pos(target.xCoord-targetWidth/2f, target.yCoord, target.zCoord-targetWidth/2f).tex(0, 1).endVertex();
+					// bottom
+					vertexbuffer.pos(target.xCoord-targetWidth/2f, target.yCoord, target.zCoord-targetWidth/2f).tex(0, 1).endVertex();
+					vertexbuffer.pos(target.xCoord+targetWidth/2f, target.yCoord, target.zCoord+targetWidth/2f).tex(1, 1).endVertex();
+					vertexbuffer.pos(shooting.xCoord+shootingWidth/2f, shooting.yCoord, shooting.zCoord+shootingWidth/2f).tex(1, 0).endVertex();
+					vertexbuffer.pos(shooting.xCoord-shootingWidth/2f, shooting.yCoord, shooting.zCoord-shootingWidth/2f).tex(0, 0).endVertex();
+
+					// y axis
+					// left
+					vertexbuffer.pos(shooting.xCoord, shooting.yCoord-shootingWidth/2f, shooting.zCoord).tex(0, 0).endVertex();
+					vertexbuffer.pos(shooting.xCoord, shooting.yCoord+shootingWidth/2f, shooting.zCoord).tex(1, 0).endVertex();
+					vertexbuffer.pos(target.xCoord, target.yCoord+targetWidth/2f, target.zCoord).tex(1, 1).endVertex();
+					vertexbuffer.pos(target.xCoord, target.yCoord-targetWidth/2f, target.zCoord).tex(0, 1).endVertex();
+					// right
+					vertexbuffer.pos(target.xCoord, target.yCoord-targetWidth/2f, target.zCoord).tex(0, 1).endVertex();
+					vertexbuffer.pos(target.xCoord, target.yCoord+targetWidth/2f, target.zCoord).tex(1, 1).endVertex();
+					vertexbuffer.pos(shooting.xCoord, shooting.yCoord+shootingWidth/2f, shooting.zCoord).tex(1, 0).endVertex();
+					vertexbuffer.pos(shooting.xCoord, shooting.yCoord-shootingWidth/2f, shooting.zCoord).tex(0, 0).endVertex();
+				}
+				tessellator.draw();
+
+				GlStateManager.depthMask(true);
+				GlStateManager.disableBlend();
+				GlStateManager.popMatrix();
+			}
+		}
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+		// hack
+		if (entity.getHeldItemOffhand() != null && entity.getHeldItemOffhand().getItem() == ModItems.sombra_hack) {
+			model.bipedLeftArmwear.rotateAngleX = 5;
+			model.bipedLeftArm.rotateAngleX = 5;
+			model.bipedLeftArmwear.rotateAngleY = -0.2f;
+			model.bipedLeftArm.rotateAngleY = -0.2f;
+		}
+
 		// invisibility / teleport
 		float time = 14;
 		Handler handler = TickHandler.getHandler(entity, Identifier.SOMBRA_INVISIBLE);
@@ -261,16 +560,24 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			GlStateManager.color((255f-20f*percent)/255f, (255f-109f*percent)/255f, (255f-3f*percent)/255f, 1f-percent*alpha);
 			return true;
 		}
+
 		return false;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
+	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
+		return hand == EnumHand.OFF_HAND && player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() == ModItems.sombra_hack;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
-		// hide gun if not friendly
+		// hide gun if not friendly and invisible
 		if (TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) && 
 				EntityHelper.shouldTarget(entity, Minecraft.getMinecraft().player, false)) 
 			ret.getRight().setScale(0);
+
 		return ret;
 	}
 

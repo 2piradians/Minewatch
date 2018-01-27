@@ -104,7 +104,7 @@ public class GuiTab extends GuiScreen {
 		// Screen.SERVERS
 		scrollingServers = new GuiScrollingServers(this, X_SIZE-6, 0, guiTop+4, guiTop+Y_SIZE-106, guiLeft+3, 36, width, height);
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+8, this.guiTop+Y_SIZE-29, 50, 20, "Join", Screen.SERVERS, gui->gui.scrollingServers.getSelectedIndex() != -1));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-25, this.guiTop+Y_SIZE-29, 50, 20, "Discuss", Screen.SERVERS));
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-45, this.guiTop+Y_SIZE-29, 90, 20, "Discuss Servers", Screen.SERVERS));
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.SERVERS));
 		// Screen.MAPS
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30-70, this.height-25, 60, 20, "Play", Screen.MAPS));
@@ -258,7 +258,7 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.MAIN;
 			else if (button.displayString.equals("Join") && button.enabled)
 				scrollingServers.connectToServer(scrollingServers.getSelectedIndex());
-			else if (button.displayString.equals("Discuss"))
+			else if (button.displayString.equals("Discuss Servers"))
 				this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
 						new ClickEvent(Action.OPEN_URL, "https://discord.gg/4tupvhz"))));
 			break;

@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBiped;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -37,6 +39,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -47,6 +50,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -63,6 +67,7 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -335,11 +340,12 @@ public class RenderManager {
 					GlStateManager.enableDepth();
 					GlStateManager.enableAlpha();
 
+					Rank rank = RankManager.getHighestRank(Minecraft.getMinecraft().player);
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 65+scale*110, 0);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(rank.iconLoc);
+					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
 
@@ -455,6 +461,55 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public static void renderHands(RenderSpecificHandEvent event) {
+		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
+		Minecraft mc = Minecraft.getMinecraft();
+		AbstractClientPlayer player = mc.player;
+		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).shouldRenderHand(player, event.getHand())) {
+			GlStateManager.pushMatrix();
+			float partialTicks = mc.getRenderPartialTicks();
+			float swing = player.getSwingProgress(partialTicks);	
+			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
+			// would move hand to follow item - but equippedProgress is private
+			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
+			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
+			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
+			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
+			boolean flag = side != EnumHandSide.LEFT;
+			float f = flag ? 1.0F : -1.0F;
+			float f1 = MathHelper.sqrt(f7);
+			float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
+			float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
+			float f4 = -0.4F * MathHelper.sin(f3 * (float)Math.PI);
+			GlStateManager.translate(f * (f2 + 0.64000005F), f3 + -0.6F + progress * -0.6F, f4 + -0.71999997F);
+			GlStateManager.rotate(f * 45.0F, 0.0F, 1.0F, 0.0F);
+			float f5 = MathHelper.sin(f3 * f3 * (float)Math.PI);
+			float f6 = MathHelper.sin(f1 * (float)Math.PI);
+			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
+			AbstractClientPlayer abstractclientplayer = mc.player;
+			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
+			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
+			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
+			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().getEntityRenderObject(abstractclientplayer);
+			GlStateManager.disableCull();
+
+			if (flag)
+				renderplayer.renderRightArm(abstractclientplayer);
+			else
+				renderplayer.renderLeftArm(abstractclientplayer);
+
+			GlStateManager.enableCull();
+			GlStateManager.popMatrix();
 		}
 	}
 

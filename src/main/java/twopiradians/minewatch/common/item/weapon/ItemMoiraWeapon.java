@@ -409,7 +409,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		NONE, INACTIVE, ACTIVE
 	}
 	
-	public Render shouldRenderHand(EntityLivingBase entity, EnumHand hand) {
+	public Render getRenderHandType(EntityLivingBase entity, EnumHand hand) {
 		// select
 		if (TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT))
 			return Render.ACTIVE;
@@ -429,14 +429,14 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
 		// damage
-		if (this.shouldRenderHand(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
+		if (this.getRenderHandType(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
 			model.bipedRightArmwear.rotateAngleX = 5;
 			model.bipedRightArm.rotateAngleX = 5;
 			model.bipedRightArmwear.rotateAngleY = 0.2f;
 			model.bipedRightArm.rotateAngleY = 0.2f;
 		}
 		// heal
-		if (this.shouldRenderHand(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
+		if (this.getRenderHandType(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
 			model.bipedLeftArmwear.rotateAngleY = -0.2f;
@@ -459,7 +459,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		//if (SetManager.getWornSet(entity) == EnumHero.MOIRA) {
 			boolean select = TickHandler.hasHandler(entity, Identifier.MOIRA_ORB_SELECT);
 			// damage
-			if (this.shouldRenderHand(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
+			if (this.getRenderHandType(entity, EnumHand.MAIN_HAND) == Render.ACTIVE) {
 				if (transform == TransformType.THIRD_PERSON_RIGHT_HAND && entity.getHeldItemMainhand() == stack && 
 						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null && 
 						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemMWArmor) {
@@ -470,7 +470,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 					ret.getRight().setScale(0);
 			}
 			// heal
-			if (this.shouldRenderHand(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
+			if (this.getRenderHandType(entity, EnumHand.OFF_HAND) == Render.ACTIVE) {
 				if (transform == TransformType.THIRD_PERSON_LEFT_HAND && entity.getHeldItemOffhand() == stack && 
 						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null && 
 						entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemMWArmor) {
@@ -532,55 +532,12 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		}
 	}
 
-	@SubscribeEvent
+	@Override
 	@SideOnly(Side.CLIENT)
-	public void renderArms(RenderSpecificHandEvent event) {
-		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
-		Minecraft mc = Minecraft.getMinecraft();
-		AbstractClientPlayer player = mc.player;
-		if (event.getItemStack() != null && event.getItemStack().getItem() == this && 
-				!TickHandler.hasHandler(player, Identifier.MOIRA_FADE) && 
-				((event.getHand() == EnumHand.MAIN_HAND && this.shouldRenderHand(player, EnumHand.MAIN_HAND) != Render.NONE) || 
-				(event.getHand() == EnumHand.OFF_HAND && this.shouldRenderHand(player, EnumHand.OFF_HAND) != Render.NONE))) {
-			GlStateManager.pushMatrix();
-			float partialTicks = mc.getRenderPartialTicks();
-			float swing = player.getSwingProgress(partialTicks);	
-			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
-			// would move hand to follow item - but equippedProgress is private
-			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
-			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
-			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
-			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
-			boolean flag = side != EnumHandSide.LEFT;
-			float f = flag ? 1.0F : -1.0F;
-			float f1 = MathHelper.sqrt(f7);
-			float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
-			float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-			float f4 = -0.4F * MathHelper.sin(f3 * (float)Math.PI);
-			GlStateManager.translate(f * (f2 + 0.64000005F), f3 + -0.6F + progress * -0.6F, f4 + -0.71999997F);
-			GlStateManager.rotate(f * 45.0F, 0.0F, 1.0F, 0.0F);
-			float f5 = MathHelper.sin(f3 * f3 * (float)Math.PI);
-			float f6 = MathHelper.sin(f1 * (float)Math.PI);
-			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
-			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
-			AbstractClientPlayer abstractclientplayer = mc.player;
-			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
-			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
-			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
-			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
-			GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
-			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().getEntityRenderObject(abstractclientplayer);
-			GlStateManager.disableCull();
-
-			if (flag)
-				renderplayer.renderRightArm(abstractclientplayer);
-			else
-				renderplayer.renderLeftArm(abstractclientplayer);
-
-			GlStateManager.enableCull();
-			GlStateManager.popMatrix();
-		}
+	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
+		return !TickHandler.hasHandler(player, Identifier.MOIRA_FADE) && 
+				((hand == EnumHand.MAIN_HAND && this.getRenderHandType(player, EnumHand.MAIN_HAND) != Render.NONE) || 
+				(hand == EnumHand.OFF_HAND && this.getRenderHandType(player, EnumHand.OFF_HAND) != Render.NONE));
 	}
 
 }

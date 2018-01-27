@@ -27,6 +27,7 @@ public class ModItems {
 	public static Item wild_card_token;
 	public static Item genji_shuriken_single; // used for projectile
 	public static Item junkrat_trigger; // used with Junkrat's mine
+	public static Item sombra_hack; // used with Sombra's hack
 	public static Item team_stick;
 
 	public static void preInit () {
@@ -54,6 +55,7 @@ public class ModItems {
 		genji_shuriken_single = registerItem(new ItemGenjiShuriken(), "genji_shuriken_single", null, true);
 		((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;
 		junkrat_trigger = registerItem(new ItemJunkratTrigger(), "junkrat_trigger", null, true);
+		sombra_hack = registerItem(new ItemSombraHack(), "sombra_hack", null, true);
 		
 		// other items
 		team_stick = registerItem(new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);

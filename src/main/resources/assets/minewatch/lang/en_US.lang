@@ -114,6 +114,7 @@ item.sombra_chestplate.name=Sombra Chestplate
 item.sombra_leggings.name=Sombra Leggings
 item.sombra_boots.name=Sombra Boots
 item.sombra_weapon.name=Sombra's Machine Pistol
+item.sombra_hack.name=Sombra's Hack
 
 item.lucio_token.name=Lucio Token
 item.lucio_helmet.name=Lucio Helmet

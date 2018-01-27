@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "minewatch:junkrat_trigger.obj"
+    "model": "minewatch:sombra_hack.obj"
   },
   "variants": {
     "inventory": [
@@ -24,7 +24,7 @@
           },
           "firstperson_righthand": {
             "rotation": [ { "x": 10 }, { "y": 180 }, { "z": 20 } ],
-            "translation": [ -0.55, 1.1, -0.0 ],
+            "translation": [ -0.55, 1.1, -0 ],
         	"scale": [ 1, 1, 1 ]
           },
           "firstperson_lefthand": {

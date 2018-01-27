@@ -46,7 +46,7 @@ public abstract class BlockHealthPack extends Block {
 				!(entityIn instanceof EntityArmorStand)) {
 			TileEntityHealthPack te = (TileEntityHealthPack) worldIn.getTileEntity(pos);
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
-			if (te.getCooldown() <= 0 && entity.getHealth() < entity.getMaxHealth() && entity.isEntityAlive()) {
+			if (te.canHeal(entity)) {
 				EntityHelper.heal(entity, te.getHealAmount());
 				te.setResetCooldown();
 			}

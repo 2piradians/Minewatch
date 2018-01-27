@@ -511,8 +511,10 @@ public class SPacketSimple implements IMessage {
 						if (packet.bool) {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3));
-							if (entity == player)
+							if (entity == player) {
+								Minewatch.proxy.updateFOV();
 								ModSoundEvents.SOMBRA_INVISIBLE_START.playFollowingSound(entity, 1, 1, false);
+							}
 						}
 						else if (entity instanceof EntityLivingBase)
 							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
@@ -905,6 +907,13 @@ public class SPacketSimple implements IMessage {
 						for (Rank rank : Rank.values())
 							if ((((int)packet.x) >> rank.ordinal() & 1) == 1)
 								RankManager.clientRanks.add(rank);
+					}
+					// Sombra's hack
+					else if (packet.type == 61 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemSombraMachinePistol.HACK.setEntity(entity).setEntityLiving(null).setTicks(10));
+						else
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.SOMBRA_HACK));
 					}
 				}
 			});

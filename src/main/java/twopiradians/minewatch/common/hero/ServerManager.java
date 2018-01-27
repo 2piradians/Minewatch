@@ -45,15 +45,12 @@ public class ServerManager {
 	public static class Server {
 		
 		public String ip;
-		public String status;
 		public TreeMap<String, String> info = Maps.newTreeMap();
 
 		public Server(LinkedTreeMap<String, String> map) {
 			for (String category : map.keySet())
 				if (category.equalsIgnoreCase("ip"))
 					ip = map.get(category);
-				else if (category.equalsIgnoreCase("status"))
-					status = map.get(category);
 				else
 					info.put(category, map.get(category));
 		}

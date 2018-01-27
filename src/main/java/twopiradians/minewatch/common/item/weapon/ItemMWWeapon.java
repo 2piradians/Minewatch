@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -542,6 +543,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.popMatrix();
 		}
+	}
+	
+	/**Called before player hands are rendered, for player holding weapon in mainhand*/
+	@SideOnly(Side.CLIENT)
+	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
+		return false;
 	}
 
 	/**Called before entity wearing set and holding weapon in mainhand is rendered*/

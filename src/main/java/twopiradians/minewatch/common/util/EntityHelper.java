@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -51,6 +52,7 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
@@ -612,6 +614,11 @@ public class EntityHelper {
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
+	
+	/**Returns if e1 is with maxAngle degrees of looking at pos*/
+	public static boolean isInFieldOfVision(Entity e1, Vec3d pos, float maxAngle){
+		return getMaxFieldOfVisionAngle(e1, pos) <= maxAngle;
+	}
 
 	/**Returns angles if e1 was directly facing e2*/
 	public static Vector2f getDirectLookAngles(Entity e1, Entity e2) {
@@ -665,6 +672,15 @@ public class EntityHelper {
 		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
 		return Math.max(deltaYaw, deltaPitch);
 	}
+	
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Vec3d pos){
+		Vector2f facing = getDirectLookAngles(e1.getPositionEyes(Minewatch.proxy.getRenderPartialTicks()), pos);
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
+		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
+		return Math.max(deltaYaw, deltaPitch);
+	}
 
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
@@ -699,6 +715,40 @@ public class EntityHelper {
 		//RenderManager.boundingBoxesToRender.add(aabb);
 
 		return angle <= maxAngle ? closest : null;
+	}
+
+	/**Get target within maxAngle degrees of being looked at by shooter*/
+	@Nullable
+	public static Vec3d getHealthPackInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle) {
+		Vec3d lookVec = shooter.getLookVec().scale(range-1);
+		AxisAlignedBB aabb = shooter.getEntityBoundingBox().expandXyz(5).addCoord(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
+		
+		RayTraceResult result = EntityHelper.getMouseOverBlock(shooter, range);
+		if (result != null && shooter.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack)
+			return new Vec3d(result.getBlockPos());
+		
+		BlockPos closest = null;
+		float angle = Float.MAX_VALUE;
+		HashSet<BlockPos> posToRemove = new HashSet<BlockPos>();
+		for (BlockPos pos : TileEntityHealthPack.healthPackPositions) {
+			if (pos == null || !(shooter.world.getTileEntity(pos) instanceof TileEntityHealthPack))
+				posToRemove.add(pos);
+			else if (aabb.isVecInside(new Vec3d(pos).addVector(0.5d, 0, 0.5d)) && 
+					Math.sqrt(shooter.getDistanceSqToCenter(pos)) < range) {
+				float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, new Vec3d(pos).addVector(0.5d, 0, 0.5d));
+				if (closest == null || newAngle < angle) {
+					closest = pos;
+					angle = newAngle;
+				}
+			}
+		}
+		TileEntityHealthPack.healthPackPositions.removeAll(posToRemove);
+
+		// debug visualize
+		//RenderManager.boundingBoxesToRender.clear(); 
+		//RenderManager.boundingBoxesToRender.add(aabb);
+
+		return angle <= maxAngle && closest != null ? new Vec3d(closest) : null;
 	}
 
 	/**Is entity holding the item in either hand*/
@@ -868,7 +918,7 @@ public class EntityHelper {
 	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
 		return entity != null && lookPos != null && canBeSeen(entity.world, lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ));
 	}
-	
+
 	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but to a generic pos*/
 	public static boolean canBeSeen(World world, Vec3d lookPos, Vec3d pos) {
 		return pos != null && lookPos != null && world.rayTraceBlocks(lookPos, pos, false, true, false) == null;

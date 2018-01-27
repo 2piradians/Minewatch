@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -25,13 +26,15 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class RankManager {
 
 	public enum Rank {
-		NONE, HELPER("server-owners", "map-makers", "translators", "skin-makers"), PATREON("patreons"), DEV;
+		NONE(0), HELPER(1, "server-owners", "map-makers", "translators", "skin-makers"), PATREON(2, "patreons"), MOD(3, "mods"), DEV(3);
 
 		public ArrayList<String> categories = new ArrayList<String>();
+		public final ResourceLocation iconLoc;
 
-		Rank(String... categories) {
+		private Rank(int icon, String... categories) {
 			if (categories != null)
 				this.categories = Lists.newArrayList(categories);
+			iconLoc = new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background_"+icon+".png");
 		}
 	}
 
@@ -40,10 +43,6 @@ public class RankManager {
 	public static ArrayList<Rank> clientRanks = new ArrayList<Rank>();
 
 	static {
-		// add devs manually (because paranoid and never changing)
-		serverRanks.put(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647"), Lists.newArrayList(Rank.DEV)); // Furgl
-		serverRanks.put(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd"), Lists.newArrayList(Rank.DEV)); // 2piradians
-		
 		try {
 			url = new URL("https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/ranks.json");
 		} catch (MalformedURLException e) {}
@@ -52,6 +51,10 @@ public class RankManager {
 	public static void lookUpRanks() {
 		if (url != null && serverRanks.isEmpty()) {
 			try {
+				// add devs manually (because paranoid and never changing)
+				serverRanks.put(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647"), Lists.newArrayList(Rank.DEV)); // Furgl
+				serverRanks.put(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd"), Lists.newArrayList(Rank.DEV)); // 2piradians
+
 				InputStream con = url.openStream();
 				String data = new String(ByteStreams.toByteArray(con), "UTF-8");
 				con.close();
@@ -69,7 +72,6 @@ public class RankManager {
 									ranks.add(rank);
 								serverRanks.put(uuid, ranks);
 							}
-				Minewatch.logger.info(serverRanks); // TODO
 			}
 			catch (Exception e) {
 				Minewatch.logger.warn("Unable to look up ranks.");

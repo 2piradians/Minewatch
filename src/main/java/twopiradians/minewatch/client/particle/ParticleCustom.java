@@ -232,6 +232,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			else
 				this.particleAlpha = this.initialAlpha;
 		}
+		else if (this.enumParticle.equals(EnumParticle.SOMBRA_HACK_MESH))
+			this.setBaseAirFriction(0.97f);
 	}
 
 	@Override
@@ -278,6 +280,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				rotationXY = -rotationYZ * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
 				rotationXZ = rotationX * MathHelper.sin(pitch * 0.017453292F) * (float)(1 - 0 * 2);
 				rotationZ = MathHelper.cos(pitch * 0.017453292F);
+			}
+
+			if (enumParticle.equals(EnumParticle.SOMBRA_HACK_MESH)) {
+				rotationX *= 1f - (float) this.particleAge / this.particleMaxAge;
+				rotationZ *= MathHelper.cos(entityIn.ticksExisted/50f);
 			}
 
 			// update muzzle every render so it's always rendered accurately

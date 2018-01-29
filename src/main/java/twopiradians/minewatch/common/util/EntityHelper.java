@@ -572,8 +572,8 @@ public class EntityHelper {
 		return net.minecraftforge.client.ForgeHooksClient.getOffsetFOV(player, f);
 	}
 
-	/**Copied from {@link Entity#getPositionEyes(float)} to make public*/
-	public static Vec3d getPositionEyes(EntityLivingBase entity) {
+	/**Copied from {@link Entity#getPositionEyes(float)} for server (clientside in 1.10.2)*/
+	public static Vec3d getPositionEyes(Entity entity) {
 		float partialTicks = Minewatch.proxy.getRenderPartialTicks(); 
 		if (entity == null)
 			return Vec3d.ZERO;
@@ -624,7 +624,7 @@ public class EntityHelper {
 	public static Vector2f getDirectLookAngles(Entity e1, Entity e2) {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
-				getClosestPointOnBoundingBox(e1.getPositionEyes(1), e1.getLook(1), e2));
+				getClosestPointOnBoundingBox(getPositionEyes(e1), e1.getLook(1), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
@@ -675,7 +675,7 @@ public class EntityHelper {
 	
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Vec3d pos){
-		Vector2f facing = getDirectLookAngles(e1.getPositionEyes(Minewatch.proxy.getRenderPartialTicks()), pos);
+		Vector2f facing = getDirectLookAngles(getPositionEyes(e1), pos);
 		// calculate difference between facing and current angles
 		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
 		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);

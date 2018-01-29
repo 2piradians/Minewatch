@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -12,6 +13,8 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -49,9 +52,20 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	}
 
 	@Override
-	public void update() {	
+	public void update() {
 		// hacked
 		if (this.isHacked()) {
+			// particles
+			if (world.isRemote && this.hackedTime % 40 == 0 && this.hackedTime > 80)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK_MESH, world, 
+						pos.getX()+0.5d+(world.rand.nextFloat()-0.5f)*1f, 
+						pos.getY()+0.5d+(world.rand.nextFloat()-0.5f)*1f, 
+						pos.getZ()+0.5d+(world.rand.nextFloat())*1f, 
+						(world.rand.nextFloat()-0.5f)*0.05f, 
+						(world.rand.nextFloat()-0.5f)*0.05f, 
+						(world.rand.nextFloat()-0.5f)*0.05f, 
+						0x8F40F7, 0x8F40F7, 1, 100, 12, 8, 1f+(world.rand.nextFloat()-0.5f)*0.1f, (world.rand.nextFloat()-0.5f)*0.03f);
+			
 			if (--this.hackedTime % 100 == 0 && !world.isRemote)
 				this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), this.getBlockType().getDefaultState(), this.getBlockType().getDefaultState(), 2);
 			if (this.hackedTime <= 0) {

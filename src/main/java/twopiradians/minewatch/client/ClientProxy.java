@@ -318,10 +318,10 @@ public class ClientProxy extends CommonProxy {
 			event.getMap().registerSprite(loc);
 		for (EnumParticle particle : EnumParticle.values()) {
 			if (particle.variations == 1)
-				event.getMap().registerSprite(particle.loc);
+				particle.sprite = event.getMap().registerSprite(particle.loc);
 			else 
 				for (int i=0; i<particle.variations; ++i)
-					event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
+					particle.sprite = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, particle.loc.getResourcePath()+"_"+i));
 		}
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_icicle"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/mei_crystal"));

@@ -220,7 +220,11 @@ public enum ModSoundEvents {
 	ANA_UNSCOPE,
 	ANA_HEAL_VOICE,
 	REINHARDT_CHARGE,
-	REINHARDT_CHARGE_HIT;
+	REINHARDT_CHARGE_HIT,
+	SOMBRA_HACK_START,
+	SOMBRA_HACK_STOP,
+	SOMBRA_HACK_DURING,
+	SOMBRA_HACK_COMPLETE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;

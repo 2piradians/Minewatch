@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -83,7 +84,7 @@ public class CommonProxy {
 		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
 		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
 		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
-		REINHARDT_CHARGE;
+		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0);
 
 		public HashSet<UUID> particleEntities = new HashSet();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -96,6 +97,7 @@ public class CommonProxy {
 		public final float gravity;
 		public final boolean disableDepth;
 		public final boolean onePerEntity;
+		public TextureAtlasSprite sprite;
 
 		private EnumParticle() {
 			this(false);

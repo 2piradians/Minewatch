@@ -1301,5 +1301,29 @@
 		"sounds": [
 			"minewatch:reinhardt_charge_hit"
 		]
+	},
+	"sombra_hack_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_hack_start"
+		]
+	},
+	"sombra_hack_stop": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_hack_stop"
+		]
+	},
+	"sombra_hack_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_hack_during"
+		]
+	},
+	"sombra_hack_complete": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_hack_complete"
+		]
 	}
 }

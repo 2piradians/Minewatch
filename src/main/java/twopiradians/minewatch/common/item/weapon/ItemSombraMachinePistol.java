@@ -67,7 +67,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					(!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
 							((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 							((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon ||
-							!KeyBind.RMB.isKeyDown((EntityLivingBase) entity) ||
+							!EnumHero.SOMBRA.ability1.isSelected((EntityLivingBase) entity) || 
+							KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || 
 							!EnumHero.SOMBRA.weapon.canUse((EntityLivingBase) entity, false, EnumHand.MAIN_HAND, false))) 
 				return true;
 			// find new target / clear target
@@ -126,7 +127,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			if (!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon ||
-					!KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || 
+					!EnumHero.SOMBRA.ability1.isSelected((EntityLivingBase) entity) || 
+					KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || 
 					EnumHero.SOMBRA.weapon.hasCooldown(entity) ||
 					!EnumHero.SOMBRA.weapon.canUse((EntityLivingBase) entity, false, EnumHand.MAIN_HAND, false)) 
 				return true;
@@ -159,6 +161,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 			// ticks hacking
 			if ((entityLiving != null || position != null)) {
+				if (number == 0)
+					ModSoundEvents.SOMBRA_HACK_DURING.playFollowingSound(entity, 1, 1, false);
+
 				// hacked
 				if (++number > 16) {
 					if (position != null) {
@@ -168,16 +173,24 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					}
 					EnumHero.SOMBRA.ability1.keybind.setCooldown((EntityLivingBase) entity, 160, false);
 					Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false),  entity.world.provider.getDimension());
+					if (entityLiving != null)
+						ModSoundEvents.SOMBRA_HACK_COMPLETE.playFollowingSound(entityLiving, 1, 1, false);
+					else if (position != null)
+						ModSoundEvents.SOMBRA_HACK_COMPLETE.playSound(entity.world, position.xCoord, position.yCoord, position.zCoord, 1, 1);
 					return true;
 				}
 			}
-			else
+			else if (this.number > 0) {
 				this.number = 0;
+				ModSoundEvents.SOMBRA_HACK_DURING.stopFollowingSound(entity);
+			}
 
 			return super.onServerTick();
 		}
 		@Override
 		public Handler onServerRemove() {
+			if (this.number > 0)
+				ModSoundEvents.SOMBRA_HACK_DURING.stopFollowingSound(entity);
 			return super.onServerRemove();
 		}
 		@Override
@@ -348,7 +361,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), world.provider.getDimension());
 				}
 			}
-
+			
 			// give hack if right clicking and offhand is empty
 			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
 					hero.ability1.isSelected(player) && !KeyBind.LMB.isKeyDown(player) && 
@@ -356,6 +369,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					!TickHandler.hasHandler(player, Identifier.SOMBRA_INVISIBLE)) {
 				// start hacking
 				if (!TickHandler.hasHandler(player, Identifier.SOMBRA_HACK)) {
+					ModSoundEvents.SOMBRA_HACK_START.playFollowingSound(player, 1, 1, false);
 					TickHandler.register(false, HACK.setEntity(player).setEntityLiving(null).setTicks(10));
 					Minewatch.network.sendToDimension(new SPacketSimple(61, player, true), world.provider.getDimension());
 				}

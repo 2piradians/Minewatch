@@ -19,6 +19,7 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 
 public class ItemSombraHack extends Item implements IChangingModel {
 
@@ -49,12 +50,14 @@ public class ItemSombraHack extends Item implements IChangingModel {
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon)) {
 				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
+				ModSoundEvents.SOMBRA_HACK_STOP.playFollowingSound(entity, 1, 1, false);
 			}
 			// if not in offhand
 			else if (entity instanceof EntityPlayer && 
 					((EntityPlayer)entity).getHeldItemOffhand() != stack &&
 					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+				ModSoundEvents.SOMBRA_HACK_STOP.playFollowingSound(entity, 1, 1, false);
 			}
 		}
 	}

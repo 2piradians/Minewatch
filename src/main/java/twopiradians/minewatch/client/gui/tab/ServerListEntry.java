@@ -19,9 +19,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
@@ -209,7 +207,7 @@ public class ServerListEntry extends ServerListEntryNormal
             Gui.drawRect(x, y, x + 32, y + 32, -1601138544);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             int k1 = mouseX - x;
-            int l1 = mouseY - y;
+            //int l1 = mouseY - y;
 
             if (this.canJoin())
             {

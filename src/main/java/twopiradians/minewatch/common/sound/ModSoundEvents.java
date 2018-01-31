@@ -151,7 +151,7 @@ public enum ModSoundEvents {
 	ZENYATTA_VOLLEY_SHOOT,
 	HEALTH_PACK_USE,
 	HEALTH_PACK_RESPAWN,
-	HEAL, // TODO
+	HEAL, // TODO (eventually?)
 	BASTION_HEAL,
 	MOIRA_DAMAGE_DURING_HIT,
 	MOIRA_DAMAGE_DURING_MISS,
@@ -224,11 +224,13 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_START,
 	SOMBRA_HACK_STOP,
 	SOMBRA_HACK_DURING,
-	SOMBRA_HACK_COMPLETE;
+	SOMBRA_HACK_COMPLETE,
+	SOMBRA_HACK_VOICE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
 	public boolean isVoiceLine;
+	public boolean isSelectVoiceLine;
 	@Nullable
 	public EnumHero hero;
 
@@ -237,6 +239,7 @@ public enum ModSoundEvents {
 		event = new ModSoundEvent(loc, this);
 		// PORT 1.12: event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
+		this.isSelectVoiceLine = this.name().contains("SELECT_VOICE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())
 			if (hero.name().equals(heroName))
@@ -272,7 +275,7 @@ public enum ModSoundEvents {
 
 	/**Handles voice cooldown - only works for same client / server...*/
 	public boolean shouldPlay(Entity entity) {
-		if (!this.isVoiceLine) 
+		if (!this.isVoiceLine || this.isSelectVoiceLine) 
 			return true;
 		else if (entity == null || entity.world.rand.nextBoolean() || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;

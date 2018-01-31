@@ -1,7 +1,5 @@
 package twopiradians.minewatch.client.gui.tab;
 
-import java.util.List;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
@@ -11,7 +9,6 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.resources.ResourcePackListEntry;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
 

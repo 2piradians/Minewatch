@@ -41,8 +41,6 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
 
-	// TODO overlay messages
-
 	public static final Handler CHARGE = new Handler(Identifier.REINHARDT_CHARGE, true) {
 		private ArrayList<EntityLivingBase> hitEntities = new ArrayList<EntityLivingBase>();
 

@@ -80,13 +80,7 @@ public class ModelMWArmor extends ModelPlayer {
 				GlStateManager.enableOutlineMode(0xCD200F);
 				float outlineScale = 1.04f;
 				GlStateManager.scale(outlineScale, outlineScale, outlineScale);
-				scale = 0.0625f/outlineScale;
 				GlStateManager.depthMask(false);
-			}
-			// render normal
-			else {
-				GlStateManager.depthMask(true);
-				scale = 0.0625f; // default
 			}
 			
 			if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
@@ -97,8 +91,12 @@ public class ModelMWArmor extends ModelPlayer {
 			if (!this.renderingEnchantment)
 				GlStateManager.disableBlendProfile(Profile.PLAYER_SKIN);
 
-			if (i == 0)
+			// stop render outline
+			if (i == 0) {
 				GlStateManager.disableOutlineMode();
+				GlStateManager.depthMask(true);
+			}
+			
 			GlStateManager.popMatrix();
 		}
 

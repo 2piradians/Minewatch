@@ -9,15 +9,12 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -38,7 +35,7 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 @Mod.EventBusSubscriber
 public class SetManager {
 
-	// TODO REPLACE EVENT - REMOVE FOR RELEASE
+	// REPLACE EVENT - COMMENT OUT FOR RELEASE
 	/*@SubscribeEvent(priority=EventPriority.LOWEST)
 	public static void replaceSpawns(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote && event.getEntity().ticksExisted == 1 && 

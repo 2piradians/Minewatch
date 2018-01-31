@@ -930,6 +930,7 @@ public class SPacketSimple implements IMessage {
 							// entity2 hacked
 							if (entity2 instanceof EntityLivingBase) {
 								TickHandler.interrupt(entity2);
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"HACKED").setNumber(MessageTypes.TOP.ordinal()));
 								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
 							}
 						}

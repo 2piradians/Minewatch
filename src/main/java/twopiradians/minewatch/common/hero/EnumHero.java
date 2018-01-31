@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
@@ -67,165 +69,169 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, EntityAna.class,
-			new Skin("Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
-			new Skin("Classic", "Until The End - Ana [Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/until-the-end-ana-overwatch/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Ghoul", "Ana Ghoul Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11300611/ana-ghoul-skin/"), 
-			new Skin(TextFormatting.DARK_PURPLE+"Merciful", "Ana Merciful", "QuantumQuark", "http://www.minecraftskins.com/skin/11038160/ana-merciful/"), 
-			new Skin(TextFormatting.GOLD+"Captain Amari", "Captain Amari", "yana2princess", "http://www.minecraftskins.com/skin/11380464/captain-amari/")), 
+			new Skin(Skin.Type.COMMON, "Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
+			new Skin(Skin.Type.COMMON, "Classic", "Until The End - Ana [Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/until-the-end-ana-overwatch/"),
+			new Skin(Skin.Type.EPIC, "Ghoul", "Ana Ghoul Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11300611/ana-ghoul-skin/"), 
+			new Skin(Skin.Type.EPIC, "Merciful", "Ana Merciful", "QuantumQuark", "http://www.minecraftskins.com/skin/11038160/ana-merciful/"), 
+			new Skin(Skin.Type.LEGENDARY, "Captain Amari", "Captain Amari", "yana2princess", "http://www.minecraftskins.com/skin/11380464/captain-amari/")), 
 	GENJI("Genji", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, 0x95EF42, false, EntityGenji.class, 
-			new Skin("Classic", "Overwatch- Genji", "Ringoster", "https://www.planetminecraft.com/skin/genji-3709302/"), 
-			new Skin(TextFormatting.DARK_PURPLE+"Carbon Fiber", "Genji: Carbon Fiber", "EP_Schnellnut", "https://www.planetminecraft.com/skin/genji-carbon-fiber/"), 
-			new Skin(TextFormatting.GOLD+"Young Genji", "Young Genji", "Aegeah", "https://www.planetminecraft.com/skin/young-genji/"), 
-			new Skin(TextFormatting.GOLD+"Blackwatch", "GENJI - BLACKWATCH! [Overwatch]", "Thinkingz", "https://www.planetminecraft.com/skin/genji---blackwatch-overwatch/"), 
-			new Skin(TextFormatting.GOLD+"Sentai", "Sentai Genji", "Blastronaut360", "http://www.minecraftskins.com/skin/11247630/sentai-genji/"),
-			new Skin(TextFormatting.GOLD+"Nomad", "Nomad Genji Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-nomad-genji-overwatch/"),
-			new Skin(TextFormatting.GOLD+"Oni", "Oni Genji Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11298711/oni-genji-skin/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Overwatch- Genji", "Ringoster", "https://www.planetminecraft.com/skin/genji-3709302/"), 
+			new Skin(Skin.Type.RARE, "Carbon Fiber", "Genji: Carbon Fiber", "EP_Schnellnut", "https://www.planetminecraft.com/skin/genji-carbon-fiber/"), 
+			new Skin(Skin.Type.LEGENDARY, "Young Genji", "Young Genji", "Aegeah", "https://www.planetminecraft.com/skin/young-genji/"), 
+			new Skin(Skin.Type.LEGENDARY, "Blackwatch", "GENJI - BLACKWATCH! [Overwatch]", "Thinkingz", "https://www.planetminecraft.com/skin/genji---blackwatch-overwatch/"), 
+			new Skin(Skin.Type.LEGENDARY, "Sentai", "Sentai Genji", "Blastronaut360", "http://www.minecraftskins.com/skin/11247630/sentai-genji/"),
+			new Skin(Skin.Type.LEGENDARY, "Nomad", "Nomad Genji Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-nomad-genji-overwatch/"),
+			new Skin(Skin.Type.LEGENDARY, "Oni", "Oni Genji Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11298711/oni-genji-skin/")),
 	HANZO("Hanzo", false, false, new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
 			0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, 0xB6B589, false, EntityHanzo.class, 
-			new Skin("Classic", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/"), 
-			new Skin(TextFormatting.GOLD+"Cyber Ninja", "Cyber Ninja Hanzo", "Arctrooper7802", "http://www.minecraftskins.com/skin/11071427/cyber-ninja-hanzo/"), 
-			new Skin(TextFormatting.GOLD+"Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
-			new Skin(TextFormatting.GOLD+"Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/"),
-			new Skin(TextFormatting.GOLD+"Casual", "Casual Hanzo", "gab51299", "https://www.planetminecraft.com/skin/casual-hanzo/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/"), 
+			new Skin(Skin.Type.LEGENDARY, "Cyber Ninja", "Cyber Ninja Hanzo", "Arctrooper7802", "http://www.minecraftskins.com/skin/11071427/cyber-ninja-hanzo/"), 
+			new Skin(Skin.Type.LEGENDARY, "Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
+			new Skin(Skin.Type.LEGENDARY, "Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/"),
+			new Skin(Skin.Type.LEGENDARY, "Casual", "Casual Hanzo", "gab51299", "https://www.planetminecraft.com/skin/casual-hanzo/")),
 	MCCREE("McCree", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, EntityMcCree.class, 
-			new Skin("Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),
-			new Skin("Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
-			new Skin(TextFormatting.GOLD+"Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
-			new Skin(TextFormatting.GOLD+"Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/"),
-			new Skin(TextFormatting.GOLD+"Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/")),
+			new Skin(Skin.Type.COMMON, "Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),
+			new Skin(Skin.Type.COMMON, "Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
+			new Skin(Skin.Type.LEGENDARY, "Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
+			new Skin(Skin.Type.LEGENDARY, "Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/"),
+			new Skin(Skin.Type.LEGENDARY, "Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/")),
 	REAPER("Reaper", false, false, new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, EntityReaper.class, 
-			new Skin("Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
-			new Skin("Classic", "Reaper (PlayOfTheGame)", "_Phantom", "https://www.planetminecraft.com/skin/reaper-playofthegame-overwatch/"),
-			new Skin("Classic", "Reaper | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/reaper-overwatch-3652548/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Shiver", "Reaper shiver holiday skin ( Overwatch)", "Hiccup415", "https://www.planetminecraft.com/skin/reaper-shiver-holiday-skin-overwatch/"), 
-			new Skin(TextFormatting.GOLD+"Mariachi", "Mariachi skin Reaper (OverWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
-			new Skin(TextFormatting.GOLD+"Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
-			new Skin(TextFormatting.GOLD+"Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
+			new Skin(Skin.Type.COMMON, "Classic", "Reaper (PlayOfTheGame)", "_Phantom", "https://www.planetminecraft.com/skin/reaper-playofthegame-overwatch/"),
+			new Skin(Skin.Type.COMMON, "Classic", "Reaper | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/reaper-overwatch-3652548/"),
+			new Skin(Skin.Type.EPIC, "Shiver", "Reaper shiver holiday skin ( Overwatch)", "Hiccup415", "https://www.planetminecraft.com/skin/reaper-shiver-holiday-skin-overwatch/"), 
+			new Skin(Skin.Type.LEGENDARY, "Mariachi", "Mariachi skin Reaper (OverWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
+			new Skin(Skin.Type.LEGENDARY, "Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
+			new Skin(Skin.Type.LEGENDARY, "Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/")),
 	REINHARDT("Reinhardt", false, false, new Ability(KeyBind.RMB, false, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, EntityReinhardt.class, 
-			new Skin("Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Coldhardt", "ColdHardt", "jay_zx_jc", "https://www.planetminecraft.com/skin/coldhardt/"),
-			new Skin(TextFormatting.GOLD+"Lionhardt", "LionHardt Reinhardt", "ReinhardtWillhelm", "http://www.minecraftskins.com/skin/8764321/lionhardt-reinhardt/"),
-			new Skin(TextFormatting.GOLD+"Stonehardt", "Reinhardt - Overwatch", "Baccup", "https://www.planetminecraft.com/skin/reinhardt---overwatch/"),
-			new Skin(TextFormatting.GOLD+"Balderich", "Balderich", "TheGuardian755", "http://www.minecraftskins.com/skin/10356345/balderich/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
+			new Skin(Skin.Type.EPIC, "Coldhardt", "ColdHardt", "jay_zx_jc", "https://www.planetminecraft.com/skin/coldhardt/"),
+			new Skin(Skin.Type.LEGENDARY, "Lionhardt", "LionHardt Reinhardt", "ReinhardtWillhelm", "http://www.minecraftskins.com/skin/8764321/lionhardt-reinhardt/"),
+			new Skin(Skin.Type.LEGENDARY, "Stonehardt", "Reinhardt - Overwatch", "Baccup", "https://www.planetminecraft.com/skin/reinhardt---overwatch/"),
+			new Skin(Skin.Type.LEGENDARY, "Balderich", "Balderich", "TheGuardian755", "http://www.minecraftskins.com/skin/10356345/balderich/"),
+			new Skin(Skin.Type.LEGENDARY, "Blackhardt", "Blackhardt Reinhardt", "SpookiOrange", "https://www.planetminecraft.com/skin/blackhardt-reinhardt/")),
 	SOLDIER76("Soldier76", false, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.NONE, true, true), 
 			25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, EntitySoldier76.class, 
-			new Skin("Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
-			new Skin("Classic", "Soldier 76", "Knap", "https://www.planetminecraft.com/skin/soldier-76-3820018/"),
-			new Skin(TextFormatting.DARK_AQUA+"Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Golden", "Golden Soldier 76", "riddler55", "http://www.minecraftskins.com/skin/10930005/golden-soldier-76/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Bone", "Soldier 76 Bone SKin", "BagelSki", "http://www.minecraftskins.com/skin/9737491/soldier-76-bone-skin/"),
-			new Skin(TextFormatting.GOLD+"Strike Commander", "Strike Commander Morrison - Soldier 76 - Overwatch", "Obvial", "https://www.planetminecraft.com/skin/strike-commander-morrison-3938568/"),
-			new Skin(TextFormatting.GOLD+"Grill Master: 76", "Grill Master 76 (Soldier 76 Summer Games 2017)", "InfamousHN", "https://www.planetminecraft.com/skin/grill-master-76-soldier-76-summer-games-2017/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
+			new Skin(Skin.Type.COMMON, "Classic", "Soldier 76", "Knap", "https://www.planetminecraft.com/skin/soldier-76-3820018/"),
+			new Skin(Skin.Type.RARE, "Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
+			new Skin(Skin.Type.EPIC, "Golden", "Golden Soldier 76", "riddler55", "http://www.minecraftskins.com/skin/10930005/golden-soldier-76/"),
+			new Skin(Skin.Type.EPIC, "Bone", "Soldier 76 Bone SKin", "BagelSki", "http://www.minecraftskins.com/skin/9737491/soldier-76-bone-skin/"),
+			new Skin(Skin.Type.LEGENDARY, "Strike Commander", "Strike Commander Morrison - Soldier 76 - Overwatch", "Obvial", "https://www.planetminecraft.com/skin/strike-commander-morrison-3938568/"),
+			new Skin(Skin.Type.LEGENDARY, "Grill Master: 76", "Grill Master 76 (Soldier 76 Summer Games 2017)", "InfamousHN", "https://www.planetminecraft.com/skin/grill-master-76-soldier-76-summer-games-2017/")),
 	TRACER("Tracer", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false, 3, 60), 
 			new Ability(KeyBind.NONE, false, false), 
 			40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, 0xD89441, true, EntityTracer.class, 
-			new Skin("Classic", "Tracer- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/tracer--overwatch-feat-19-transparency/"),
-			new Skin(TextFormatting.GOLD+"Graffiti", "Graffiti Tracer (Overwatch)", "RyutoMatsuki", "https://www.planetminecraft.com/skin/graffiti-tracer-overwatch-better-in-preview-3982890/"),
-			new Skin(TextFormatting.GOLD+"Slipstream", "Overwatch - Slipstream Tracer", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/slipstream-tracer/"),
-			new Skin(TextFormatting.GOLD+"Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
-			new Skin(TextFormatting.GOLD+"Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
-			new Skin(TextFormatting.GOLD+"Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Tracer- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/tracer--overwatch-feat-19-transparency/"),
+			new Skin(Skin.Type.LEGENDARY, "Graffiti", "Graffiti Tracer (Overwatch)", "RyutoMatsuki", "https://www.planetminecraft.com/skin/graffiti-tracer-overwatch-better-in-preview-3982890/"),
+			new Skin(Skin.Type.LEGENDARY, "Slipstream", "Overwatch - Slipstream Tracer", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/slipstream-tracer/"),
+			new Skin(Skin.Type.LEGENDARY, "Ultraviolet", "[Overwatch] Tracer ~Ultraviolet Skin~", "Vamp1re_", "https://www.planetminecraft.com/skin/overwatch-tracer-ultraviolet-skin/"),
+			new Skin(Skin.Type.LEGENDARY, "Cadet Oxton", "Overwatch - Cadet Oxton", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/overwatch-cadet-oxton/"),
+			new Skin(Skin.Type.LEGENDARY, "Jingle", "Tracer Jingle", "salmanalansarii", "http://www.minecraftskins.com/skin/10175651/tracer-jingle/")),
 	BASTION("Bastion", true, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false, EntityBastion.class,
-			new Skin("Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
-			new Skin(TextFormatting.GOLD+"Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
+			new Skin(Skin.Type.COMMON, "Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
+			new Skin(Skin.Type.EPIC, "Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
+			new Skin(Skin.Type.EPIC, "Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
+			new Skin(Skin.Type.EPIC, "Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
+			new Skin(Skin.Type.LEGENDARY, "Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
 	MEI("Mei", false, false, new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
 			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, EntityMei.class, 
-			new Skin("Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
-			new Skin(TextFormatting.GOLD+"Mei-rry", "Mei-Rry", "KevinAguirre2", "http://www.minecraftskins.com/skin/11709782/mei-rry/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
-			new Skin(TextFormatting.GOLD+"Luna", "Mei v2", "nikita505n", "http://www.minecraftskins.com/skin/11711832/mei-v2/"),
-			new Skin(TextFormatting.GOLD+"Jiangshi", "Mei Jiangshi", "KevinAguirre2", "http://www.minecraftskins.com/skin/11720409/mei-jiangshi/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
+			new Skin(Skin.Type.COMMON, "Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
+			new Skin(Skin.Type.LEGENDARY, "Mei-rry", "Mei-Rry", "KevinAguirre2", "http://www.minecraftskins.com/skin/11709782/mei-rry/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
+			new Skin(Skin.Type.LEGENDARY, "Luna", "Mei v2", "nikita505n", "http://www.minecraftskins.com/skin/11711832/mei-v2/"),
+			new Skin(Skin.Type.LEGENDARY, "Jiangshi", "Mei Jiangshi", "KevinAguirre2", "http://www.minecraftskins.com/skin/11720409/mei-jiangshi/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/")),
 	WIDOWMAKER("Widowmaker", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			30, 0, new int[] {2,3,3,2}, new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, 0x9A68A3, true, EntityWidowmaker.class, 
-			new Skin("Classic", "Widowmaker - Overwatch: 1.8 Skin, Female", "sir-connor", "https://www.planetminecraft.com/skin/widowmaker---overwatch-18-skin-female/"),
-			new Skin("Classic", "Widowmaker (Overwatch) ... ONE SHOT, ONE KILL", "KAWAI_Murderer", "https://www.planetminecraft.com/skin/widowmaker-overwatch-one-shot-one-kill/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Winter", "Winter Widowmaker", "Nudle", "https://www.planetminecraft.com/skin/winter-widowmaker/"),
-			new Skin(TextFormatting.GOLD+"Huntress", "Ouh La La", "Katalisa", "https://www.planetminecraft.com/skin/huntress-widowmaker/"),
-			new Skin(TextFormatting.GOLD+"Cote d'Azur", "Widowmaker: Cote d'Azur", "Althestane", "https://www.planetminecraft.com/skin/widowmaker-c-te-d-azur/"),
-			new Skin(TextFormatting.GOLD+"Talon", "Widowmaker Talon Skin - IISavageDreamzII", "StarryDreamz", "https://www.planetminecraft.com/skin/widowmaker-talon-skin-iisavagedreamzii/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Widowmaker - Overwatch: 1.8 Skin, Female", "sir-connor", "https://www.planetminecraft.com/skin/widowmaker---overwatch-18-skin-female/"),
+			new Skin(Skin.Type.COMMON, "Classic", "Widowmaker (Overwatch) ... ONE SHOT, ONE KILL", "KAWAI_Murderer", "https://www.planetminecraft.com/skin/widowmaker-overwatch-one-shot-one-kill/"),
+			new Skin(Skin.Type.EPIC, "Winter", "Winter Widowmaker", "Nudle", "https://www.planetminecraft.com/skin/winter-widowmaker/"),
+			new Skin(Skin.Type.LEGENDARY, "Huntress", "Ouh La La", "Katalisa", "https://www.planetminecraft.com/skin/huntress-widowmaker/"),
+			new Skin(Skin.Type.LEGENDARY, "Cote d'Azur", "Widowmaker: Cote d'Azur", "Althestane", "https://www.planetminecraft.com/skin/widowmaker-c-te-d-azur/"),
+			new Skin(Skin.Type.LEGENDARY, "Talon", "Widowmaker Talon Skin - IISavageDreamzII", "StarryDreamz", "https://www.planetminecraft.com/skin/widowmaker-talon-skin-iisavagedreamzii/")),
 	MERCY("Mercy", true, true, new Ability(KeyBind.NONE, false, false), 
 			new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, EntityMercy.class, 
-			new Skin("Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
-			new Skin("Classic", "Mercy", "FireBoltCreeeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
-			new Skin(TextFormatting.GOLD+"Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
-			new Skin(TextFormatting.GOLD+"Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
-			new Skin(TextFormatting.GOLD+"Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
-			new Skin(TextFormatting.GOLD+"Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
+			new Skin(Skin.Type.COMMON, "Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
+			new Skin(Skin.Type.COMMON, "Classic", "Mercy", "FireBoltCreeeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
+			new Skin(Skin.Type.LEGENDARY, "Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
+			new Skin(Skin.Type.LEGENDARY, "Winged Victory", "Mercy (Winged Victory) - Overwatch", "Benenwren", "https://www.planetminecraft.com/skin/overwatch-mercy-winged-victory/"),
+			new Skin(Skin.Type.LEGENDARY, "Witch", "Witch Mercy [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/witch-mercy-overwatch-mind-the-collar-oops/"),
+			new Skin(Skin.Type.LEGENDARY, "Combat Medic", "Combat Medit Ziegler", "Noire_", "https://www.planetminecraft.com/skin/combat-medic-ziegler-3967530/")),
 	JUNKRAT("Junkrat", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false, 2, 160), 
 			new Ability(KeyBind.NONE, false, false), 
 			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, EntityJunkrat.class, 
-			new Skin("Classic", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
-			new Skin("Classic", "Everything's coming up explodey! Overwatch - Junkrat", "_Phantom", "https://www.planetminecraft.com/skin/everything-s-coming-up-explodey-overwatch-junkrat/"),
-			new Skin(TextFormatting.GOLD+"Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
-			new Skin(TextFormatting.GOLD+"Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/")),
+			new Skin(Skin.Type.COMMON, "Classic" , "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin(Skin.Type.COMMON, "Classic" , "Everything's coming up explodey! Overwatch - Junkrat", "_Phantom", "https://www.planetminecraft.com/skin/everything-s-coming-up-explodey-overwatch-junkrat/"),
+			new Skin(Skin.Type.LEGENDARY, "Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
+			new Skin(Skin.Type.LEGENDARY, "Dr. Junkenstein", "Dr. Jamison Junkenstein [OVERWATCH]", "Nudle", "https://www.planetminecraft.com/skin/dr-jamison-junkenstein-overwatch/"),
+			new Skin(Skin.Type.EPIC, "Caution", "Junkrat Danger", "Athenas123", "http://www.minecraftskins.com/skin/11911251/junkrat-danger/", "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
+			new Skin(Skin.Type.LEGENDARY, "Beachrat", "Beachrat - Overwatch Junkrat Skin", "Beanie", "https://www.planetminecraft.com/skin/beachrat-overwatch-junkrat-skin/"),
+			new Skin(Skin.Type.LEGENDARY, "Jester", "Junkrat Fool", "GEDEE", "http://www.minecraftskins.com/skin/11885436/junkrat-fool/")),
 	SOMBRA("Sombra", false, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			60, 0, new int[] {2,2,2,2}, new ItemSombraMachinePistol(), Crosshair.CIRCLE_SMALL, 0x745ABB, true, EntitySombra.class, 
-			new Skin("Classic", "Boop!", "Nutellah", "https://www.planetminecraft.com/skin/boop-3851181/"),
-			new Skin("Classic", "Virtuality - Sombra [Contest | Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/virtuality-sombra-contest-overwatch/"),
-			new Skin(TextFormatting.DARK_AQUA+"Mar", "Sombra with Mar skin", "XxbalintgamerxX", "http://www.minecraftskins.com/skin/9944115/sombra-with-mar-skin/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Peppermint", "Sombra Peppermint - Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-peppermint-elec/"),
-			new Skin(TextFormatting.GOLD+"Augmented", "Sombra ONLINE - Augmented", "Grinshire", "https://www.planetminecraft.com/skin/sombra-online-augmented/"),
-			new Skin(TextFormatting.GOLD+"Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
-			new Skin(TextFormatting.GOLD+"Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/")),
+			new Skin(Skin.Type.COMMON, "Classic" , "Boop!", "Nutellah", "https://www.planetminecraft.com/skin/boop-3851181/"),
+			new Skin(Skin.Type.COMMON, "Classic" , "Virtuality - Sombra [Contest | Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/virtuality-sombra-contest-overwatch/"),
+			new Skin(Skin.Type.RARE, "Mar", "Sombra with Mar skin", "XxbalintgamerxX", "http://www.minecraftskins.com/skin/9944115/sombra-with-mar-skin/"),
+			new Skin(Skin.Type.EPIC, "Peppermint", "Sombra Peppermint - Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-peppermint-elec/"),
+			new Skin(Skin.Type.LEGENDARY, "Augmented", "Sombra ONLINE - Augmented", "Grinshire", "https://www.planetminecraft.com/skin/sombra-online-augmented/"),
+			new Skin(Skin.Type.LEGENDARY, "Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
+			new Skin(Skin.Type.LEGENDARY, "Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/")),
 	LUCIO("Lucio", true, false, new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			20, 20, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
-			new Skin("Classic", "Lúcio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
-			new Skin(TextFormatting.DARK_AQUA+"Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
-			new Skin(TextFormatting.GOLD+"HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
-			new Skin(TextFormatting.GOLD+"Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
-			new Skin(TextFormatting.GOLD+"Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
-			new Skin(TextFormatting.GOLD+"Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/")),
+			new Skin(Skin.Type.COMMON, "Classic" , "Lúcio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
+			new Skin(Skin.Type.RARE, "Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
+			new Skin(Skin.Type.EPIC, "Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
+			new Skin(Skin.Type.LEGENDARY, "HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
+			new Skin(Skin.Type.LEGENDARY, "Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
+			new Skin(Skin.Type.LEGENDARY, "Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
+			new Skin(Skin.Type.LEGENDARY, "Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/")),
 	ZENYATTA("Zenyatta", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			20, 20, new int[] {2,2,2,2}, new ItemZenyattaWeapon(), Crosshair.CIRCLE_SMALL, 0xEDE582, true, EntityZenyatta.class, 
-			new Skin("Classic", "Zenyatta (OverWatch)", "Kill3rCreeper", "https://www.planetminecraft.com/skin/zenyatta-overwatch/"),
-			new Skin(TextFormatting.DARK_PURPLE+"Ascendant", "Zenyatta Ascendance skin", "brainman", "http://www.minecraftskins.com/skin/10621836/zenyatta-ascendance-skin/"),
-			new Skin(TextFormatting.GOLD+"Djinnyatta", "Djinnyatta", "brainman", "http://www.minecraftskins.com/skin/11033097/djinnyatta/"),
-			new Skin(TextFormatting.GOLD+"Ifrit", "Zenyatta Ifrit Skin", "brainman", "http://www.minecraftskins.com/skin/10626002/zenyatta-ifrit-skin/"),
-			new Skin(TextFormatting.GOLD+"Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
-			new Skin(TextFormatting.GOLD+"Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/")),
+			new Skin(Skin.Type.COMMON, "Classic" , "Zenyatta (OverWatch)", "Kill3rCreeper", "https://www.planetminecraft.com/skin/zenyatta-overwatch/"),
+			new Skin(Skin.Type.EPIC, "Ascendant", "Zenyatta Ascendance skin", "brainman", "http://www.minecraftskins.com/skin/10621836/zenyatta-ascendance-skin/"),
+			new Skin(Skin.Type.LEGENDARY, "Djinnyatta", "Djinnyatta", "brainman", "http://www.minecraftskins.com/skin/11033097/djinnyatta/"),
+			new Skin(Skin.Type.LEGENDARY, "Ifrit", "Zenyatta Ifrit Skin", "brainman", "http://www.minecraftskins.com/skin/10626002/zenyatta-ifrit-skin/"),
+			new Skin(Skin.Type.LEGENDARY, "Nutcracker", "Overwatch - Nutcracker Zenyatta", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---nutcracker-zenyatta/"),
+			new Skin(Skin.Type.LEGENDARY, "Cultist", "Zenyatta Cultist", "XxLucarioTheNinjaxX", "https://www.planetminecraft.com/skin/zenyatta-cultist/")),
 	MOIRA("Moira", false, false, new Ability(KeyBind.NONE, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			0, 0, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
-			new Skin("Classic", "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),
-			new Skin("Classic", "Moira - Overwatch (Healer version)", "Elec", "https://www.planetminecraft.com/skin/moira-overwatch-healer-version/"),
-			new Skin(TextFormatting.GOLD+"Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/"));
+			new Skin(Skin.Type.COMMON, "Classic" , "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),
+			new Skin(Skin.Type.COMMON, "Classic" , "Moira - Overwatch (Healer version)", "Elec", "https://www.planetminecraft.com/skin/moira-overwatch-healer-version/"),
+			new Skin(Skin.Type.LEGENDARY, "Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/"));
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
 
@@ -280,6 +286,18 @@ public enum EnumHero {
 	}
 
 	public static class Skin {
+		public enum Type {
+			COMMON(null), RARE(TextFormatting.DARK_AQUA), EPIC(TextFormatting.DARK_PURPLE), LEGENDARY(TextFormatting.GOLD);
+
+			@Nullable
+			public TextFormatting format;
+
+			private Type(@Nullable TextFormatting format) {
+				this.format = format;
+			}
+		}
+
+		public Type type;
 		public String owName;
 		public String skinName;
 		public String author;
@@ -288,11 +306,12 @@ public enum EnumHero {
 		public String originalAuthor;
 		public String originalAddress;
 
-		private Skin(String owName, String skinName, String author, String address) {
-			this(owName, skinName, author, address, null, null, null);
+		private Skin(Type type, String owName, String skinName, String author, String address) {
+			this(type, owName, skinName, author, address, null, null, null);
 		}
 
-		private Skin(String owName, String skinName, String author, String address, String originalSkinName, String originalAuthor, String originalAddress) {
+		private Skin(Type type, String owName, String skinName, String author, String address, String originalSkinName, String originalAuthor, String originalAddress) {
+			this.type = type;
 			this.owName = owName;
 			this.skinName = skinName;
 			this.author = author;
@@ -300,6 +319,14 @@ public enum EnumHero {
 			this.originalSkinName = originalSkinName;
 			this.originalAuthor = originalAuthor;
 			this.originalAddress = originalAddress;
+		}
+
+		/**type.format + owName.toUpperCase()*/
+		public String getOWName() {
+			if (type != null && type.format != null)
+				return type.format + owName.toUpperCase();
+			else
+				return owName.toUpperCase();
 		}
 
 		/**(skin name) by (author)*/

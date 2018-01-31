@@ -1325,5 +1325,14 @@
 		"sounds": [
 			"minewatch:sombra_hack_complete"
 		]
+	},
+	"sombra_hack_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_hack_voice_0",
+			"minewatch:sombra_hack_voice_1",
+			"minewatch:sombra_hack_voice_2",
+			"minewatch:sombra_hack_voice_3"
+		]
 	}
 }

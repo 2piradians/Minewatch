@@ -43,7 +43,6 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
@@ -102,7 +101,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// basic checks
-			if (entity == Minecraft.getMinecraft().player && 
+			if ((entity == Minecraft.getMinecraft().player /*|| entity instanceof EntityHero*/) && 
 					(!(entity instanceof EntityLivingBase) || !entity.isEntityAlive() ||
 							((EntityLivingBase)entity).getHeldItemMainhand() == null || 
 							((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon ||
@@ -117,7 +116,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
 					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
 					if (entityLiving == null)
-						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, 10);
+						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, entity instanceof EntityHero ? 20 : 10);
 				}
 
 				// check entity
@@ -126,7 +125,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
 					entityLiving = null;
 				// check health pack
-				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), 10) || 
+				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), entity instanceof EntityHero ? 20 : 10) || 
 						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
 						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
 					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
@@ -179,7 +178,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
 					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
 					if (entityLiving == null)
-						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, 10);
+						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, entity instanceof EntityHero ? 20 : 10);
 				}
 
 				// check entity
@@ -188,7 +187,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
 					entityLiving = null;
 				// check health pack
-				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), 10) || 
+				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), entity instanceof EntityHero ? 20 : 10) || 
 						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
 						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
 					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
@@ -202,8 +201,10 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 
 			// ticks hacking
 			if ((entityLiving != null || position != null)) {
-				if (number == 0)
+				if (number == 0) {
 					ModSoundEvents.SOMBRA_HACK_DURING.playFollowingSound(entity, 1, 1, false);
+					ModSoundEvents.SOMBRA_HACK_VOICE.playFollowingSound(entity, 1, 1, false);
+				}
 
 				// hacked
 				if (++number > 16) {
@@ -213,7 +214,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 							((TileEntityHealthPack)te).hack(entity.getTeam());
 					}
 					EnumHero.SOMBRA.ability1.keybind.setCooldown((EntityLivingBase) entity, 160, false);
-					Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, entityLiving),  entity.world.provider.getDimension());
+					//Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, entityLiving),  entity.world.provider.getDimension());
 					if (entityLiving != null) {
 						TickHandler.interrupt(entityLiving);
 						TickHandler.register(false, HACKED.setEntity(entityLiving).setTicks(120)); 
@@ -235,6 +236,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public Handler onServerRemove() {
 			if (this.number > 0)
 				ModSoundEvents.SOMBRA_HACK_DURING.stopFollowingSound(entity);
+			Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, this.number >= 16 ? entityLiving : null), entity.dimension);
 			return super.onServerRemove();
 		}
 		@Override

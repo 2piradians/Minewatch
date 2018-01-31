@@ -48,7 +48,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_scope_background.png");
-	private static final ResourceLocation SLEEP_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_sleep_background.png");
 
 	private boolean prevScoped;
 	private float unscopedSensitivity;

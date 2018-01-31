@@ -11,15 +11,10 @@ import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiListWorldSelection;
-import net.minecraft.client.gui.GuiListWorldSelectionEntry;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiScreenServerList;
-import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
@@ -37,14 +32,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.config.GuiFactory;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.gui.tab.Maps.MinecraftMap;
-import twopiradians.minewatch.client.gui.teamStick.GuiScrollingTeams;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.ServerManager;
 import twopiradians.minewatch.common.hero.ServerManager.Server;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.CPacketSimple;
-import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.PacketSyncConfig;
 
 @SideOnly(Side.CLIENT)
@@ -69,6 +62,7 @@ public class GuiTab extends GuiScreen {
 	public static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/inventory_tab.png");
 	public ArrayList<ServerListEntry> serverList = new ArrayList<ServerListEntry>();
 	private GuiScrollingServers scrollingServers;
+	private GuiScrollingSkins scrollingSkins;
 
 	public GuiTab() {
 		GuiTab.activeTab = this;
@@ -129,11 +123,9 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_INFO));
 		// Screen.GALLERY_HERO_SKINS
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO_SKINS));
-		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
-		for (int i=0; i<=6; ++i) {
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5, this.guiTop+40+i*22, 100, 20, "", Screen.GALLERY_HERO_SKINS)); 
-			this.buttonList.add(new GuiButtonSkin(i, this.guiLeft+5+101, this.guiTop+40+i*22, 20, 20, "?", Screen.GALLERY_HERO_SKINS)); 
-		}
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+X_SIZE/2-58/2, this.guiTop+Y_SIZE-29, 58, 20, "Skin Info", Screen.GALLERY_HERO_SKINS)); 
+		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+6, this.guiTop+Y_SIZE-29, 58, 20, "HERO INFO", Screen.GALLERY_HERO_SKINS)); 
+		scrollingSkins = new GuiScrollingSkins(this, 120, 300, guiTop+55, guiTop+Y_SIZE-35, guiLeft+8, 18, width, height);
 		// Screen.GALLERY_HERO_SKINS_INFO
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-20, this.height-30, 40, 20, "OK", Screen.GALLERY_HERO_SKINS_INFO));
 		// Screen.SUBMIT
@@ -191,25 +183,28 @@ public class GuiTab extends GuiScreen {
 		case GALLERY_HERO:
 			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			// hero name
-			textScale = 1.5d;
+			textScale = 1.9d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_INFO:
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		case GALLERY_HERO_SKINS:
 			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
+			this.drawGradientRect(guiLeft+8, guiTop+55-20, guiLeft+8+120, guiTop+55-2, 0xC0101010, 0xD0101010);
+			this.fontRendererObj.drawStringWithShadow(TextFormatting.BOLD+"SKINS", guiLeft+12, guiTop+55-20+10-this.fontRendererObj.FONT_HEIGHT/2f, 0xFFFFFF);
+			scrollingSkins.drawScreen(mouseX, mouseY, partialTicks);
 			// hero name
-			textScale = 1.5d;
+			textScale = 1.9d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+14)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_SKINS_INFO:
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
@@ -297,8 +292,10 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY;
 			else if (button.displayString.equals("HERO INFO"))
 				GuiTab.currentScreen = Screen.GALLERY_HERO_INFO;
-			else if (button.id == 1) // skins
+			else if (button.id == 1) {// skins
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS;
+				this.scrollingSkins.updateSkins();
+			}
 			else if (button.displayString.equals("SELECT") && galleryHero != null) 
 				Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+galleryHero.name, mc.player));
 			break;
@@ -311,8 +308,8 @@ public class GuiTab extends GuiScreen {
 				GuiTab.currentScreen = Screen.GALLERY_HERO;
 			else if (button.displayString.equals("HERO INFO"))
 				GuiTab.currentScreen = Screen.GALLERY_HERO_SKINS_INFO;
-			else if (button.displayString.equals("?")) {
-				EnumHero.Skin skin = galleryHero.skinInfo[button.id];
+			else if (button.displayString.equals("Skin Info")) {
+				EnumHero.Skin skin = galleryHero.skinInfo[scrollingSkins.getSkinIndex()];
 				ITextComponent component = new TextComponentString(
 						"This skin is ")
 						.appendSibling(new TextComponentString(TextFormatting.BLUE+""+TextFormatting.UNDERLINE+skin.skinName).setStyle(
@@ -325,11 +322,6 @@ public class GuiTab extends GuiScreen {
 					.appendSibling(new TextComponentString(" by "+skin.originalAuthor));
 				Minecraft.getMinecraft().player.sendMessage(component);
 			}
-			else if (button instanceof GuiButtonSkin) 
-				if (galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()) != button.id) {
-					galleryHero.setSkin(Minecraft.getMinecraft().player.getPersistentID(), button.id);
-					Minewatch.network.sendToServer(new CPacketSyncSkins(Minecraft.getMinecraft().player.getPersistentID()));
-				}
 			break;
 		case GALLERY_HERO_SKINS_INFO:
 			if (button.displayString.equals("OK"))
@@ -417,6 +409,7 @@ public class GuiTab extends GuiScreen {
 		int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
 		int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 		scrollingServers.handleMouseInput(mouseX, mouseY);
+		scrollingSkins.handleMouseInput(mouseX, mouseY);
 	}
 
 	private void loadServers() {

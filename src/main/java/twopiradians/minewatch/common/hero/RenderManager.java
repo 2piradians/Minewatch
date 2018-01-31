@@ -283,7 +283,7 @@ public class RenderManager {
 				ArrayList<Handler> handlers = TickHandler.getHandlers(player, handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.MIDDLE.ordinal());
 				for (int i=0; i<Math.min(6, handlers.size()); ++i) {
 					handler = handlers.get(i);
-					if (handler != null && handler.string != null) {
+					if (handler != null && handler.string != null && handler.entity == Minewatch.proxy.getRenderViewEntity()) {
 						float alpha = 0.7f;
 						if (handler.ticksLeft < 15)
 							alpha -= (1f-(handler.ticksLeft-10)/5f)*alpha;
@@ -302,12 +302,17 @@ public class RenderManager {
 
 				// top text overlay
 				handler = TickHandler.getHandler(handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.TOP.ordinal(), true);
-				if (handler != null) {
+				if (handler != null && handler.entity == Minewatch.proxy.getRenderViewEntity()) {
 					double scale = handler.bool ? 1.3f :2.3f;
 					if (handler.initialTicks-handler.ticksLeft <= 6)
 						scale += 1.8d * (1d-((handler.initialTicks-handler.ticksLeft) / 6d));
+					float alpha = 1f;
+					if (handler.initialTicks-handler.ticksLeft < 5)
+						alpha = (handler.initialTicks-handler.ticksLeft)/5f;
+					else if (handler.ticksLeft < 3)
+						alpha = handler.ticksLeft/3f;
 					GlStateManager.scale(scale, scale, 1);
-					mc.fontRendererObj.drawString(handler.string, (float)((width/2/scale) - mc.fontRendererObj.getStringWidth(handler.string)/2), (float) (height/4f/scale+yOffset+(handler.bool ? 4 : 0)), 0xFFFFFF, true);
+					mc.fontRendererObj.drawString(handler.string, (float)((width/2/scale) - mc.fontRendererObj.getStringWidth(handler.string)/2), (float) (height/4f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), true);
 				}
 
 				GlStateManager.disableBlend();

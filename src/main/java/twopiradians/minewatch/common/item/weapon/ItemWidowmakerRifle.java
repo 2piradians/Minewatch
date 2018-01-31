@@ -340,7 +340,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void renderHookRope(RenderWorldLastEvent event) {
-		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.WIDOWMAKER_HOOK)) {
+		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.WIDOWMAKER_HOOK, null)) {
 			// rope
 			if (handler.entity instanceof EntityWidowmakerHook && 
 					((EntityWidowmakerHook) handler.entity).getThrower() != null) {

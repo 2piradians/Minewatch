@@ -34,8 +34,10 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 	protected boolean preRender(TileEntityHealthPack te, int model, VertexBuffer buffer, double x, double y, double z, float partialTicks) {
 		GlStateManager.translate(0.5d, 0, 0.5d);
 
-		// hacked see through walls TODO
-		if (model == 2 || model == 3) {
+		boolean friendly = te.hackedTeam == null || te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam();
+
+		// hacked see through walls
+		if (te.isHacked() && friendly && (model == 2 || model == 3)) {
 			GlStateManager.disableLighting();
 			GlStateManager.disableDepth();
 			GlStateManager.colorMask(true, false, true, true);
@@ -68,7 +70,7 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 		GlStateManager.enableDepth();
 		GlStateManager.enableLighting();
 		GlStateManager.colorMask(true, true, true, true);
-		
+
 		// respawn progress circle (modified from EntityRenderer#drawNameplate)
 		if (model == 0 && (te.getCooldown() > 0 || te.isHacked())) { 
 			boolean isThirdPersonFrontal = Minecraft.getMinecraft().getRenderManager().options.thirdPersonView == 2;
@@ -125,22 +127,26 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 			}
 
 			// hacked icon
-			if (te.isHacked()) {
+			if (te.isHacked() && te.hackedIconTime <= 0) {
 				Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				TextureAtlasSprite sprite = EnumParticle.SOMBRA_HACK.sprite;
-				double yOffset = -25;
-
+				double yOffset = -15;
+				boolean friendly = te.hackedTeam == null || te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam();
+				
 				GlStateManager.pushMatrix();
 				GlStateManager.enableTexture2D();
 				// translate / rotate
-				GlStateManager.translate(0, 2, 0);
+				GlStateManager.translate(0, 1.6f, 0);
 				GlStateManager.rotate(-viewerYaw, 0.0F, 1.0F, 0.0F);
 				GlStateManager.rotate((float)(isThirdPersonFrontal ? -1 : 1) * viewerPitch, 1.0F, 0.0F, 0.0F);
 				GlStateManager.scale(-scale, -scale, scale);
-				scale = 50;
+				scale = 30;
 
 				// background
-				GlStateManager.color(0.7F, 0.5F, 0.8F, 1.0F);
+				if (friendly)
+					GlStateManager.color(0.7F, 0.5F, 0.8F, 1.0F);
+				else
+					GlStateManager.color(0.7F, 0.3F, 0.3F, 0.7F);
 				vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 				vertexbuffer.pos(-scale/2d, yOffset, 0).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
 				vertexbuffer.pos(-scale/2d, yOffset+scale, 0).tex(sprite.getMinU(), sprite.getMaxV()).endVertex();
@@ -150,7 +156,10 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 
 				// progress layer
 				progress = MathHelper.clamp(0.92f -(float) te.hackedTime / TileEntityHealthPack.HACK_TIME, 0, 1);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				if (friendly)
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				else
+					GlStateManager.color(0.9F, 0.6F, 0.5F, 0.6F);
 				vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 				vertexbuffer.pos(-scale/2d, yOffset+scale*progress, -0.1D).tex(sprite.getMinU(), sprite.getMinV()+(sprite.getMaxV()-sprite.getMinV())*progress).endVertex();
 				vertexbuffer.pos(-scale/2d, yOffset+scale, -0.1D).tex(sprite.getMinU(), sprite.getMaxV()).endVertex();

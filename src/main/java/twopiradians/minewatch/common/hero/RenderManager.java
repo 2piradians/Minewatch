@@ -79,20 +79,28 @@ import twopiradians.minewatch.packet.SPacketSimple;
 @Mod.EventBusSubscriber
 public class RenderManager {
 
+	public enum MessageTypes {
+		TOP, MIDDLE
+	}
+
 	public static final ResourceLocation ABILITY_OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png");
-	public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
+	public static final Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
 	public static HashMap<EntityLivingBase, HashMap<UUID, Tuple<Float, Integer>>> entityDamage = Maps.newHashMap();
-	public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
+	/**Text overlay - number is MessageTypes.ordinal(), bool == small text*/
+	public static final Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
+			if (entity != Minewatch.proxy.getRenderViewEntity())
+				return true;
+			
+			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, handler->handler.identifier == Identifier.HERO_MESSAGES && handler.number == MessageTypes.MIDDLE.ordinal());
 			return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 		}
 	};
-	public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
-	public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
-	public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
+	public static final Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
+	public static final Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
+	public static final Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
 	/**Used for debugging*/
 	public static CopyOnWriteArrayList<AxisAlignedBB> boundingBoxesToRender = new CopyOnWriteArrayList<AxisAlignedBB>();
 
@@ -219,6 +227,7 @@ public class RenderManager {
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
 		if (Config.guiScale > 0) {
+			Minecraft mc = Minecraft.getMinecraft();
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
@@ -269,9 +278,9 @@ public class RenderManager {
 					GlStateManager.scale(1/scale, 1/scale, 1);
 				}
 
-				// eliminate/assist text overlay
+				// elimination / assist text overlay
 				double yOffset = 0;
-				ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
+				ArrayList<Handler> handlers = TickHandler.getHandlers(player, handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.MIDDLE.ordinal());
 				for (int i=0; i<Math.min(6, handlers.size()); ++i) {
 					handler = handlers.get(i);
 					if (handler != null && handler.string != null) {
@@ -289,6 +298,16 @@ public class RenderManager {
 						}
 						yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 					}
+				}
+
+				// top text overlay
+				handler = TickHandler.getHandler(handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.TOP.ordinal(), true);
+				if (handler != null) {
+					double scale = handler.bool ? 1.3f :2.3f;
+					if (handler.initialTicks-handler.ticksLeft <= 6)
+						scale += 1.8d * (1d-((handler.initialTicks-handler.ticksLeft) / 6d));
+					GlStateManager.scale(scale, scale, 1);
+					mc.fontRendererObj.drawString(handler.string, (float)((width/2/scale) - mc.fontRendererObj.getStringWidth(handler.string)/2), (float) (height/4f/scale+yOffset+(handler.bool ? 4 : 0)), 0xFFFFFF, true);
 				}
 
 				GlStateManager.disableBlend();
@@ -347,7 +366,7 @@ public class RenderManager {
 					Minecraft.getMinecraft().getTextureManager().bindTexture(rank.iconLoc);
 					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+					GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
 
 					GlStateManager.popMatrix();
 				}
@@ -368,7 +387,7 @@ public class RenderManager {
 					int u = 1+85*(index/14);
 					int v = 1+17*(index%14);
 					GuiUtils.drawTexturedModalRect(0, 0, u, v, 32, 16, 0);
-					
+
 					// infinite ammo
 					if (weapon.getMaxAmmo(player) == 0) 
 						GuiUtils.drawTexturedModalRect(18, -3, 13, 239, 6, 4, 0);
@@ -463,7 +482,7 @@ public class RenderManager {
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderHands(RenderSpecificHandEvent event) {
@@ -690,10 +709,10 @@ public class RenderManager {
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
 			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {
-				
+
 				if (facing == EnumFacing.DOWN || facing == EnumFacing.NORTH || facing == EnumFacing.WEST)
 					pos = pos.add(facing.getDirectionVec());
-				
+
 				IBlockState state = world.getBlockState(pos);
 				if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
 					if (!particle)
@@ -701,7 +720,7 @@ public class RenderManager {
 					if (alpha >= 0.0D) {
 						if (alpha > 1.0f)
 							alpha = 1.0f;
-												
+
 						AxisAlignedBB aabb = state.getBoundingBox(world, pos);
 						minX = (double)pos.getX() + aabb.minX - playerVec.xCoord + offsetVec.xCoord;
 						maxX = (double)pos.getX() + aabb.maxX - playerVec.xCoord + offsetVec.xCoord;

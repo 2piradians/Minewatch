@@ -48,7 +48,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	private static final ResourceLocation SCOPE = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_scope.png");
 	private static final ResourceLocation SCOPE_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_scope_background.png");
-	private static final ResourceLocation SLEEP_OVERLAY = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_sleep.png");
 	private static final ResourceLocation SLEEP_BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/ana_sleep_background.png");
 
 	private boolean prevScoped;
@@ -203,7 +202,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				if (handler != null && handler.ticksLeft > 10)
 					handler.ticksLeft = 10;
 			}
-			Minewatch.network.sendToAll(new SPacketSimple(11, event.getEntity(), false));
+			Minewatch.network.sendToDimension(new SPacketSimple(11, event.getEntity(), false), event.getEntity().world.provider.getDimension());
 			ModSoundEvents.ANA_SLEEP_HIT.stopSound(event.getEntity().world);
 		}
 	}
@@ -270,25 +269,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 			if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 				int imageSize = 256;
-
-				Handler handler = TickHandler.getHandler(player, Identifier.ANA_SLEEP);
-				if (handler != null) {
-					// sleep overlay
-					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-					GlStateManager.color(1, 1, 1, 0.9f);
-					double scale = 0.5f;
-					GlStateManager.scale(scale, scale, 1);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_OVERLAY);
-					GuiUtils.drawTexturedModalRect((int) (width/2/scale-imageSize/2), (int) (height/3/scale-imageSize/2), 0, 0, imageSize, imageSize, 0);
-					// background 
-					GlStateManager.color(1, 1, 1, 1f);
-					scale = Math.max(height/imageSize, width/imageSize)*2;
-					GlStateManager.scale(scale, scale, 1);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(SLEEP_BACKGROUND);
-					GuiUtils.drawTexturedModalRect((int) ((width/scale-imageSize/2)), (int) ((height/scale-imageSize/2)), 0, 0, imageSize, imageSize, 0);
-					GlStateManager.popMatrix();
-				}
 				// scope
 				if (isScoped(player, player.getHeldItemMainhand())) {
 					GlStateManager.pushMatrix();

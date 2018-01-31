@@ -389,7 +389,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			float delta = Config.aimAssist;
 			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
 			float pitch = MathHelper.wrapDegrees(entity.rotationPitch);
-			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, entity instanceof EntityHero ? 64 : 512, false, pitch, yaw) == null) {
+			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 512, false, pitch, yaw) == null) {
 				EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, entity instanceof EntityHero ? 64 : 512, 10, false);
 				if (targetEntity != null) {
 					Vector2f angles = EntityHelper.getDirectLookAngles(entity.getPositionVector().addVector(0, entity.getEyeHeight(), 0), targetEntity.getPositionVector().addVector(0, targetEntity.getEyeHeight(), 0));

@@ -39,7 +39,7 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 public class SetManager {
 
 	// TODO REPLACE EVENT - REMOVE FOR RELEASE
-	@SubscribeEvent(priority=EventPriority.LOWEST)
+	/*@SubscribeEvent(priority=EventPriority.LOWEST)
 	public static void replaceSpawns(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote && event.getEntity().ticksExisted == 1 && 
 				!(event.getEntity() instanceof EntityHero) && 
@@ -55,7 +55,7 @@ public class SetManager {
 				event.getEntity().setDead();
 			}
 		}
-	}
+	}*/
 
 	/**List of players wearing full sets and the sets that they are wearing*/
 	private static HashMap<UUID, EnumHero> entitiesWearingSetsClient = Maps.newHashMap();	

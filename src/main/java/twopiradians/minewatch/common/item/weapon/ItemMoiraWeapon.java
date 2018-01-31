@@ -344,7 +344,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void renderDamageBeam(RenderWorldLastEvent event) {
 		// damage
-		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.MOIRA_DAMAGE)) {
+		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.MOIRA_DAMAGE, null)) {
 			Tessellator tessellator = Tessellator.getInstance();
 			VertexBuffer vertexbuffer = tessellator.getBuffer();
 			GlStateManager.pushMatrix();

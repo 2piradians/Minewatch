@@ -20,8 +20,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
@@ -82,8 +84,8 @@ public class EntityHelper {
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
-			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly))) && 
-					(entity.canBeCollidedWith() || entity instanceof EntityLivingBaseMW)) {
+			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly)))/* && 
+					(entity.canBeCollidedWith() || entity instanceof EntityLivingBaseMW || entity instanceof EntityDragon)*/) {
 				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
 				double y2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
 				double z2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
@@ -275,7 +277,7 @@ public class EntityHelper {
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
 				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-						entityHit instanceof EntityDragonPart) && !entityHit.isEntityInvulnerable(source); 
+						entityHit instanceof EntityDragonPart || entityHit instanceof EntityEnderCrystal) && !entityHit.isEntityInvulnerable(source); 
 	}
 
 	// TEST healing players on same team
@@ -390,7 +392,8 @@ public class EntityHelper {
 			// damage
 			else if (damage >= 0) {
 				boolean damaged = false;
-				int prevHurtResist = entityHit.hurtResistantTime;
+				// save prev hurtResistTime (use EntityDragon's resist if this is EntityDragonPart)
+				int prevHurtResist = entityHit instanceof EntityDragonPart && ((EntityDragonPart)entityHit).entityDragonObj instanceof EntityDragon ? ((EntityDragon) ((EntityDragonPart)entityHit).entityDragonObj).hurtResistantTime : entityHit.hurtResistantTime;
 				if (ignoreHurtResist)
 					entityHit.hurtResistantTime = 0;
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
@@ -403,7 +406,10 @@ public class EntityHelper {
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
 
 				if (damaged && ignoreHurtResist)
-					entityHit.hurtResistantTime = prevHurtResist;
+					if (entityHit instanceof EntityDragonPart && ((EntityDragonPart)entityHit).entityDragonObj instanceof EntityDragon) 
+						((EntityDragon) ((EntityDragonPart)entityHit).entityDragonObj).hurtResistantTime = prevHurtResist;
+					else
+						entityHit.hurtResistantTime = prevHurtResist;
 
 				return damaged;
 			}
@@ -502,7 +508,7 @@ public class EntityHelper {
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
 			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
-					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
+					return entity != null/* && entity.canBeCollidedWith()*/ && shouldTarget(shooter, entity, friendly);
 				}
 			}));
 			double d2 = d1;
@@ -614,7 +620,7 @@ public class EntityHelper {
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
-	
+
 	/**Returns if e1 is with maxAngle degrees of looking at pos*/
 	public static boolean isInFieldOfVision(Entity e1, Vec3d pos, float maxAngle){
 		return getMaxFieldOfVisionAngle(e1, pos) <= maxAngle;
@@ -672,7 +678,7 @@ public class EntityHelper {
 		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
 		return Math.max(deltaYaw, deltaPitch);
 	}
-	
+
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Vec3d pos){
 		Vector2f facing = getDirectLookAngles(getPositionEyes(e1), pos);
@@ -699,7 +705,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && ((EntityLivingBase)input).getHealth() > 0 && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {
@@ -722,11 +728,12 @@ public class EntityHelper {
 	public static Vec3d getHealthPackInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle) {
 		Vec3d lookVec = shooter.getLookVec().scale(range-1);
 		AxisAlignedBB aabb = shooter.getEntityBoundingBox().expandXyz(5).addCoord(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
-		
+
 		RayTraceResult result = EntityHelper.getMouseOverBlock(shooter, range);
-		if (result != null && shooter.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack)
+		if (result != null && shooter.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack && 
+				((TileEntityHealthPack)shooter.world.getTileEntity(result.getBlockPos())).canBeHacked(shooter))
 			return new Vec3d(result.getBlockPos());
-		
+
 		BlockPos closest = null;
 		float angle = Float.MAX_VALUE;
 		HashSet<BlockPos> posToRemove = new HashSet<BlockPos>();
@@ -734,7 +741,8 @@ public class EntityHelper {
 			if (pos == null || !(shooter.world.getTileEntity(pos) instanceof TileEntityHealthPack))
 				posToRemove.add(pos);
 			else if (aabb.isVecInside(new Vec3d(pos).addVector(0.5d, 0, 0.5d)) && 
-					Math.sqrt(shooter.getDistanceSqToCenter(pos)) < range) {
+					Math.sqrt(shooter.getDistanceSqToCenter(pos)) < range && 
+					((TileEntityHealthPack)shooter.world.getTileEntity(pos)).canBeHacked(shooter)) {
 				float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, new Vec3d(pos).addVector(0.5d, 0, 0.5d));
 				if (closest == null || newAngle < angle) {
 					closest = pos;
@@ -930,6 +938,11 @@ public class EntityHelper {
 		double y = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
 		double z = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
 		return new Vec3d(x, y, z);
+	}
+
+	/**Returns entity's name*/
+	public static String getName(Entity entity) {
+		return entity == null ? "" : entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
 	}
 
 }

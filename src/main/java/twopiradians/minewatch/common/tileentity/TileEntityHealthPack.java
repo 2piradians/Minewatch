@@ -4,7 +4,6 @@ import java.util.HashSet;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -13,8 +12,8 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 
@@ -35,6 +34,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	@Nullable
 	public Team hackedTeam;	
 	public int hackedTime;
+	public int hackedIconTime;
 
 	public TileEntityHealthPack(int resetCooldown, int hackedResetCooldown, int healAmount) {
 		super();
@@ -55,12 +55,13 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	public void update() {
 		// hacked
 		if (this.isHacked()) {
+			--this.hackedIconTime;
 			// particles
-			if (world.isRemote && this.hackedTime % 40 == 0 && this.hackedTime > 80)
+			if (world.isRemote && this.hackedTime % 20 == 0 && this.hackedTime > 80)
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK_MESH, world, 
 						pos.getX()+0.5d+(world.rand.nextFloat()-0.5f)*1f, 
 						pos.getY()+0.5d+(world.rand.nextFloat()-0.5f)*1f, 
-						pos.getZ()+0.5d+(world.rand.nextFloat())*1f, 
+						pos.getZ()+0.5d+(world.rand.nextFloat()-0.5f)*1f, 
 						(world.rand.nextFloat()-0.5f)*0.05f, 
 						(world.rand.nextFloat()-0.5f)*0.05f, 
 						(world.rand.nextFloat()-0.5f)*0.05f, 
@@ -104,8 +105,11 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			this.hackedTeam = world.getScoreboard().getTeam(nbt.getString("hackedTeam"));
 		else
 			this.hackedTeam = null;
-		if (nbt.hasKey("hackedTime"))
+		if (nbt.hasKey("hackedTime")) {
+			if (!this.isHacked() && world.isRemote)
+				this.hack(this.hackedTeam);
 			this.hackedTime = nbt.getInteger("hackedTime");
+		}
 		else
 			this.hackedTime = 0;
 	}
@@ -159,6 +163,12 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			this.hackedTime = HACK_TIME;
 			this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), this.getBlockType().getDefaultState(), this.getBlockType().getDefaultState(), 2);
 		}
+		else {
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK, world, 
+					pos.getX()+0.5f, pos.getY()+0.9f, pos.getZ()+0.5f, 0, 0, 0, 
+					0x8F40F7, 0x8F40F7, 0.8f, 20, 8, 12, 0, 0);
+			this.hackedIconTime = 16;
+		}
 	}
 	
 	/**Not on cooldown, not hacked by opposing team, health below max*/
@@ -171,6 +181,10 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 		return this.hackedTime > 0;
 	}
 
+	public boolean canBeHacked(EntityLivingBase entity) {
+		return entity != null && (!this.isHacked() || this.hackedTeam == null || this.hackedTeam == entity.getTeam());
+	}
+	
 	public static class Large extends TileEntityHealthPack {
 		public Large() {
 			super(300, 75, 250);

@@ -18,12 +18,12 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -35,6 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -42,7 +43,9 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -58,6 +61,42 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemSombraMachinePistol extends ItemMWWeapon {
 
+	public static final Handler HACKED = new Handler(Identifier.SOMBRA_HACKED, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			float scale = Math.max(0.8f, Math.min(entity.height, entity.width));
+			if (this.ticksLeft == this.initialTicks)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK, entity.world, entity, 
+						0x8F40F7, 0x8F40F7, 0.8f, 20, 8*scale, 12*scale, 0, 0);
+			if (this.ticksLeft % 5 == 0)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK_NUMBERS, entity.world, 
+						entity.posX+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						entity.posY+entity.height/2f+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						0, -0.02f, 0, 
+						0x8F40F7, 0x8F40F7, 1f, 20, 8*scale, 7*scale, 0, 0);
+			if (this.ticksLeft % 10 == 0 && this.ticksLeft > 20)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_HACK_MESH, entity.world, 
+						entity.posX+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						entity.posY+entity.height/2f+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						entity.posZ+(entity.world.rand.nextFloat()-0.5f)*scale, 
+						(entity.world.rand.nextFloat()-0.5f)*0.05f, 
+						(entity.world.rand.nextFloat()-0.5f)*0.05f, 
+						(entity.world.rand.nextFloat()-0.5f)*0.05f, 
+						0x8F40F7, 0x8F40F7, 1, 100, 12*scale, 8*scale, 1f+(entity.world.rand.nextFloat()-0.5f)*0.1f, (entity.world.rand.nextFloat()-0.5f)*0.03f);
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (entityLiving instanceof EntityLiving && 
+					!(entityLiving instanceof EntityPlayer || entityLiving instanceof EntityHero) &&
+					((EntityLiving)entityLiving).getAttackTarget() != null) 
+				((EntityLiving)entityLiving).setAttackTarget((EntityLivingBase)null);
+			return super.onServerTick();
+		}
+	};
+	
 	public static Handler HACK = new Handler(Identifier.SOMBRA_HACK, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -91,7 +130,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
 						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
 					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
-					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack))
+					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack) ||
+							!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))
 						position = null;
 				}
 			}
@@ -152,7 +192,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 						Math.sqrt(entity.getDistanceSqToCenter(new BlockPos(position))) > 15 ||
 						!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))) {
 					RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 15);
-					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack))
+					if (result == null || !(entity.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack) ||
+							!checkTargetInShootingView((EntityLivingBase) entity, position.addVector(0.5d, 0.5d, 0.5d)))
 						position = null;
 				}
 			}
@@ -172,9 +213,12 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 							((TileEntityHealthPack)te).hack(entity.getTeam());
 					}
 					EnumHero.SOMBRA.ability1.keybind.setCooldown((EntityLivingBase) entity, 160, false);
-					Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false),  entity.world.provider.getDimension());
-					if (entityLiving != null)
-						ModSoundEvents.SOMBRA_HACK_COMPLETE.playFollowingSound(entityLiving, 1, 1, false);
+					Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, entityLiving),  entity.world.provider.getDimension());
+					if (entityLiving != null) {
+						TickHandler.interrupt(entityLiving);
+						TickHandler.register(false, HACKED.setEntity(entityLiving).setTicks(120)); 
+						ModSoundEvents.SOMBRA_HACK_COMPLETE.playFollowingSound(entityLiving, 3, 1, false);
+					}
 					else if (position != null)
 						ModSoundEvents.SOMBRA_HACK_COMPLETE.playSound(entity.world, position.xCoord, position.yCoord, position.zCoord, 1, 1);
 					return true;
@@ -490,7 +534,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void renderDamageBeam(RenderWorldLastEvent event) {
 		// hack
-		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.SOMBRA_HACK)) {
+		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.SOMBRA_HACK, null)) {
 			if (handler.entityLiving != null || handler.position != null) {
 				Tessellator tessellator = Tessellator.getInstance();
 				VertexBuffer vertexbuffer = tessellator.getBuffer();
@@ -601,6 +645,23 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		Entity entity = ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack);
 		return TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) ||
 				TickHandler.hasHandler(entity, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
+	}
+	
+	@SubscribeEvent
+	public void clearAttackTarget(LivingSetAttackTargetEvent event) {
+		if (!event.getEntity().world.isRemote && event.getTarget() != null && 
+				event.getEntity() instanceof EntityLiving && 
+				!(event.getEntity() instanceof EntityPlayer || event.getEntity() instanceof EntityHero) && 
+				TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_HACKED))
+			((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase)null);
+	}
+	
+	@SubscribeEvent
+	public void stopHacking(LivingHurtEvent event) {
+		if (!event.getEntity().world.isRemote && TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_HACK)) {
+			TickHandler.unregister(false, TickHandler.getHandler(event.getEntity(), Identifier.SOMBRA_HACK));
+			Minewatch.network.sendToDimension(new SPacketSimple(61, event.getEntity(), false), event.getEntity().world.provider.getDimension());
+		}
 	}
 
 }

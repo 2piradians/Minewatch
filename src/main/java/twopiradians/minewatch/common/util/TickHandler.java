@@ -32,7 +32,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN, ANA_GRENADE_DAMAGE, ANA_GRENADE_HEAL, TRACER_RECALL, INVULNERABLE, WIDOWMAKER_HOOK, TRACER_RECOLOR, REINHARDT_CHARGE, FORCE_VIEW, SOMBRA_HACK;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN, ANA_GRENADE_DAMAGE, ANA_GRENADE_HEAL, TRACER_RECALL, INVULNERABLE, WIDOWMAKER_HOOK, TRACER_RECOLOR, REINHARDT_CHARGE, FORCE_VIEW, SOMBRA_HACK, SOMBRA_HACKED;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -106,6 +106,10 @@ public class TickHandler {
 		}
 		return null;
 	}
+	
+	public static boolean hasHandler(UUID uuid, Identifier identifier, boolean isRemote) {
+		return getHandler(uuid, identifier, isRemote) != null;
+	}
 
 	public static boolean hasHandler(Entity entity, Identifier identifier) {
 		return getHandler(entity, identifier) != null;
@@ -117,17 +121,23 @@ public class TickHandler {
 
 	/**Get all registered handlers by their entity and/or identifier*/
 	public static ArrayList<Handler> getHandlers(Entity entity, @Nullable Identifier identifier) {
-		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, identifier);
+		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, identifier, null);
+	}
+	
+	/**Get all registered handlers matching a predicate*/
+	public static ArrayList<Handler> getHandlers(Entity entity, Predicate<Handler> predicate) {
+		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, null, predicate);
 	}
 	
 	/**Get all registered handlers by their entity and/or identifier*/
-	public static ArrayList<Handler> getHandlers(boolean isRemote, @Nullable Entity entity, @Nullable Identifier identifier) {
+	public static ArrayList<Handler> getHandlers(boolean isRemote, @Nullable Entity entity, @Nullable Identifier identifier, @Nullable Predicate<Handler> predicate) {
 		ArrayList<Handler> handlers = new ArrayList<Handler>();
 		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
 			if ((entity == null || handler.entity == entity) &&
-					(identifier == null || identifier == handler.identifier))
+					(identifier == null || identifier == handler.identifier) &&
+					(predicate == null || predicate.apply(handler)))
 				handlers.add(handler);
 		}
 		return handlers;
@@ -151,6 +161,8 @@ public class TickHandler {
 			}
 			if (!entity.world.isRemote)
 				Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
+			if (entity instanceof EntityLivingBase)
+				((EntityLivingBase)entity).stopActiveHand();
 		}
 	}
 

@@ -49,6 +49,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
@@ -346,9 +347,11 @@ public class SPacketSimple implements IMessage {
 							if (handler != null)
 								handler.ticksLeft = 10;
 						}
+						TickHandler.unregister(true, TickHandler.getHandler(handler->handler.identifier == Identifier.HERO_MESSAGES && handler.string.contains("SLEEP"), true));
 					}
 					// Ana's sleep dart
 					else if (packet.type == 12 && entity != null) {
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"SLEEP").setNumber(MessageTypes.TOP.ordinal()));
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
@@ -371,7 +374,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
 							(Config.trackKillsOption == 0 || (Config.trackKillsOption == 1 && entity instanceof EntityPlayer))) {
 						String string = null;
-						String name = entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
+						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
 									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
@@ -380,7 +383,7 @@ public class SPacketSimple implements IMessage {
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.
-								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
+								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
@@ -482,6 +485,7 @@ public class SPacketSimple implements IMessage {
 					// Junkrat trap
 					else if (packet.type == 25 && entity instanceof EntityJunkratTrap && entity2 instanceof EntityLivingBase) {
 						if (packet.bool) {
+							TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(70).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"TRAPPED").setNumber(MessageTypes.TOP.ordinal()));
 							((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
 							TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
 									EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
@@ -652,6 +656,7 @@ public class SPacketSimple implements IMessage {
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
 							else {
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(100).setString(TextFormatting.AQUA+""+TextFormatting.BOLD+"HARMONY ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" GAINED FROM "+TextFormatting.AQUA+""+TextFormatting.BOLD+EntityHelper.getName(entity).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()));
 								TickHandler.register(true, ItemZenyattaWeapon.HARMONY.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
 								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.MAIN_HAND)) {
@@ -671,8 +676,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (entity == player && packet.x <= 0)
+								if (entity == player/* && packet.x <= 0*/) {
 									ModSoundEvents.ZENYATTA_HEAL_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+									TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(100).setString(TextFormatting.AQUA+""+TextFormatting.BOLD+"HARMONY ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" RETURNED").setNumber(MessageTypes.MIDDLE.ordinal()));
+								}
 							}
 						}
 					}
@@ -689,6 +696,7 @@ public class SPacketSimple implements IMessage {
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
 							else {
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(100).setString(TextFormatting.DARK_RED+""+TextFormatting.BOLD+"DISCORD ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" GAINED FROM "+TextFormatting.DARK_RED+""+TextFormatting.BOLD+EntityHelper.getName(entity).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()));
 								TickHandler.register(true, ItemZenyattaWeapon.DISCORD.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
 								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.OFF_HAND)) {
@@ -708,8 +716,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (entity == player && packet.x <= 0)
+								if (entity == player/* && packet.x <= 0*/) {
 									ModSoundEvents.ZENYATTA_DAMAGE_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+									TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(100).setString(TextFormatting.DARK_RED+""+TextFormatting.BOLD+"DISCORD ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" RETURNED").setNumber(MessageTypes.MIDDLE.ordinal()));
+								}
 							}
 						}
 					}
@@ -771,6 +781,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// McCree's flashbang
 					else if (packet.type == 52 && entity != null) {
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(17).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"STUNNED").setNumber(MessageTypes.TOP.ordinal()));
 						float size = Math.min(entity.height, entity.width)*9f;
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.STUN, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 0.9f, 14, size, size, 0, 0);
 						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(17),
@@ -840,7 +851,9 @@ public class SPacketSimple implements IMessage {
 								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(handler.ticksLeft),
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(handler.ticksLeft), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft),
-										Handlers.FORCE_VIEW.setEntity(entity2).setTicks(handler.ticksLeft).setNumber(3));
+										Handlers.FORCE_VIEW.setEntity(entity2).setTicks(handler.ticksLeft).setNumber(3),
+										RenderManager.MESSAGES.setEntity(entity2).setTicks(handler.ticksLeft).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"PINNED").setNumber(MessageTypes.TOP.ordinal()));
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(handler.ticksLeft).setString(TextFormatting.AQUA+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"PINNED").setNumber(MessageTypes.TOP.ordinal()));
 							}
 						}
 						// unregister charge
@@ -912,8 +925,14 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 61 && entity != null) {
 						if (packet.bool)
 							TickHandler.register(true, ItemSombraMachinePistol.HACK.setEntity(entity).setEntityLiving(null).setTicks(10));
-						else
+						else {
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.SOMBRA_HACK));
+							// entity2 hacked
+							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.interrupt(entity2);
+								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
+							}
+						}
 					}
 				}
 			});

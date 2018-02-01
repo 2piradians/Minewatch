@@ -18,8 +18,8 @@
         	"scale": [ 1.5, 1.5, 1.5 ]
           },
           "gui": {
-            "rotation": [ { "x": -167 }, { "y": -90 }, { "z": -180 } ],
-        	"translation": [ -1.7, 1.2, 0.0 ],
+            "rotation": [ { "x": 90 }, { "y": 0 }, { "z": 0 } ],
+        	"translation": [ 1.7, -1.7, 0.0 ],
         	"scale": [ 3.5, 3.5, 3.5 ]
           },
           "firstperson_righthand": {
@@ -28,9 +28,9 @@
         	"scale": [ 1, 1, 1 ]
           },
           "firstperson_lefthand": {
-            "rotation": [ { "x": 10 }, { "y": 180 }, { "z": 20 } ],
-            "translation": [ 0.45, 0.75, -0.1 ],
-        	"scale": [ 1, 1, 1 ]
+            "rotation": [ { "x": 90 }, { "y": 0 }, { "z": 0 } ],
+            "translation": [ -0.8, -0.7, 0.6 ],
+        	"scale": [ 2, 2, 2 ]
           },
           "ground": {
             "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],

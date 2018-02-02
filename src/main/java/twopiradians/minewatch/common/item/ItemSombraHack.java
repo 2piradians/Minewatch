@@ -44,14 +44,14 @@ public class ItemSombraHack extends Item implements IChangingModel {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		if (!world.isRemote) {
 			// if not wearing full set or main is not sombra's gun
-			if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack &&
+			if ((entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemOffhand() == stack) &&
 					(SetManager.getWornSet((EntityLivingBase) entity) != EnumHero.SOMBRA ||
 					!EnumHero.SOMBRA.ability1.isSelected((EntityLivingBase) entity) || 
 					KeyBind.LMB.isKeyDown((EntityLivingBase) entity) ||
 					!EnumHero.SOMBRA.weapon.canUse((EntityLivingBase) entity, false, EnumHand.MAIN_HAND, false) ||
 					((EntityLivingBase)entity).getHeldItemMainhand() == null || 
-					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon) || 
-					!TickHandler.hasHandler(entity, Identifier.SOMBRA_HACK)) {
+					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.SOMBRA.weapon || 
+					!TickHandler.hasHandler(entity, Identifier.SOMBRA_HACK))) {
 				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
 				ModSoundEvents.SOMBRA_HACK_STOP.playFollowingSound(entity, 1, 1, false);
 			}

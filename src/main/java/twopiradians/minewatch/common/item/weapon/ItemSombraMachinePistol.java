@@ -466,13 +466,13 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public static Vector2f getOffsets(int index) {
 		switch (index) {
 		case 0:
-			return new Vector2f(20, 0.6f); // middle
+			return new Vector2f(20, 0.61f); // middle
 		case 1:
-			return new Vector2f(24, 0.45f); // mid-bottom right
+			return new Vector2f(18, 0.46f); // mid-bottom right
 		case 2:
-			return new Vector2f(15, 0.75f); // top left
+			return new Vector2f(11, 0.72f); // top left
 		default:
-			return new Vector2f(28, 0.4f); // bottom right
+			return new Vector2f(27, 0.33f); // bottom right
 		}
 	}
 
@@ -482,7 +482,6 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		if (handler != null && handler.identifier == Identifier.SOMBRA_HACK &&
 				(handler.entityLiving != null || handler.position != null)) {
 			Vector2f rotations = EntityHelper.getEntityPartialRotations(handler.entity);
-
 
 			for (int i=0; i<Math.min(4, handler.number/4); ++i) {
 				Vector2f offsets = getOffsets(i);

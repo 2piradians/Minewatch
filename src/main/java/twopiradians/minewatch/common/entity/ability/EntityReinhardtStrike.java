@@ -85,7 +85,7 @@ public class EntityReinhardtStrike extends EntityMW {
 				x = Math.ceil(x);
 			else if (result.sideHit == EnumFacing.UP)
 				y = Math.ceil(y);
-			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, worldObj, x, y, z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, worldObj.rand.nextFloat(), 0, result.sideHit);
+			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, worldObj, x, y, z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, worldObj.rand.nextFloat(), 0, result.sideHit, true);
 		}
 
 		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, false, false);

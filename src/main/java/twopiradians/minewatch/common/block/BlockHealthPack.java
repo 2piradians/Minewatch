@@ -9,6 +9,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -18,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.EntityHelper;
 
@@ -40,10 +42,11 @@ public abstract class BlockHealthPack extends Block {
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		if (!worldIn.isRemote && worldIn.getTileEntity(pos) instanceof TileEntityHealthPack && 
-				entityIn instanceof EntityLivingBase) {
+				entityIn instanceof EntityLivingBase && !(entityIn instanceof EntityLivingBaseMW) && 
+				!(entityIn instanceof EntityArmorStand)) {
 			TileEntityHealthPack te = (TileEntityHealthPack) worldIn.getTileEntity(pos);
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
-			if (te.getCooldown() <= 0 && entity.getHealth() < entity.getMaxHealth() && entity.isEntityAlive()) {
+			if (te.canHeal(entity)) {
 				EntityHelper.heal(entity, te.getHealAmount());
 				te.setResetCooldown();
 			}

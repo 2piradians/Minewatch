@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Predicate;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -17,20 +19,27 @@ public class GuiButtonTab extends GuiButton {
 	protected Screen screen;
 	@Nullable
 	protected Color color;
+	protected Predicate<GuiTab> enabledPredicate;
 
 	public GuiButtonTab(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Screen screen) {
-		this(buttonId, x, y, widthIn, heightIn, buttonText, -1, screen);
+		this(buttonId, x, y, widthIn, heightIn, buttonText, -1, screen, null);
+	}
+	
+	public GuiButtonTab(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Screen screen, Predicate<GuiTab> enabledPredicate) {
+		this(buttonId, x, y, widthIn, heightIn, buttonText, -1, screen, enabledPredicate);
 	}
 
-	public GuiButtonTab(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, int color, Screen screen) {
+	public GuiButtonTab(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, int color, Screen screen, @Nullable Predicate<GuiTab> enabledPredicate) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
 		this.screen = screen;
 		this.color = color == -1 ? null : new Color(color);
+		this.enabledPredicate = enabledPredicate;
 	}
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		this.visible = GuiTab.currentScreen == screen;
+		this.enabled = this.enabledPredicate == null || this.enabledPredicate.apply(GuiTab.activeTab);
 
 		// draw button - copied to modify color
 		if (this.visible)

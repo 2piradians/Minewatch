@@ -4,8 +4,12 @@ import java.util.HashSet;
 
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntitySombra;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHeroAIMoveToHealthPack extends EntityAIBase {
 
@@ -46,7 +50,9 @@ public class EntityHeroAIMoveToHealthPack extends EntityAIBase {
 				if (pos == null || !(entity.worldObj.getTileEntity(pos) instanceof TileEntityHealthPack))
 					posToRemove.add(pos);
 				else if ((this.healthPack == null || entity.getDistanceSq(pos) < 50) && 
-						(((TileEntityHealthPack)entity.worldObj.getTileEntity(pos)).getCooldown() <= 100))
+						((TileEntityHealthPack)entity.worldObj.getTileEntity(pos)).getCooldown() <= 100 &&
+						(((TileEntityHealthPack)entity.worldObj.getTileEntity(pos)).hackedTeam == null ||
+						((TileEntityHealthPack)entity.worldObj.getTileEntity(pos)).hackedTime <= 0))
 					this.healthPack = pos;
 			TileEntityHealthPack.healthPackPositions.removeAll(posToRemove);
 		}
@@ -64,9 +70,13 @@ public class EntityHeroAIMoveToHealthPack extends EntityAIBase {
 			entity.moveStrafing = 0;
 			entity.getNavigator().clearPathEntity();
 			entity.onPack = true;
-			return true;
+			// keep hacking if Sombra
+			if (!(entity instanceof EntitySombra && TickHandler.hasHandler(handler->handler.identifier == Identifier.SOMBRA_HACK && handler.number > 0, false)))
+				return true;
 		}
 		entity.onPack = false;
+		if (entity instanceof EntitySombra)
+			entity.lookAtTarget(new Vec3d(this.healthPack).addVector(0.5d, 0.5d, 0.5d));
 		return healthPack != null && !entity.getNavigator().noPath() && this.shouldExecute() && 
 				entity.worldObj.getTileEntity(this.healthPack) instanceof TileEntityHealthPack;
 	}

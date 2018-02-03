@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
+import twopiradians.minewatch.common.entity.ability.EntitySoldier76Heal;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.hero.SetManager;
@@ -70,6 +71,21 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	@Override
 	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, worldObj, entity, slot, isSelected);
+
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
+
+			// heal 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player, player instanceof EntityPlayer) && 
+					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
+				EntitySoldier76Heal projectile = new EntitySoldier76Heal(worldObj, player);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 0, 0F, EnumHand.OFF_HAND, 40, 0.15f, 0.5f);
+				worldObj.spawnEntityInWorld(projectile);
+				ModSoundEvents.SOLDIER76_HEAL_THROW.playFollowingSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/2+0.75f, false);
+				ModSoundEvents.SOLDIER76_HEAL_VOICE.playFollowingSound(player, 1, 1, false);
+				hero.ability2.keybind.setCooldown(player, 300, false); 
+			}
+		}
 
 		// decrease spread
 		if (!worldObj.isRemote && spreads.containsKey(entity.getPersistentID()) && entity instanceof EntityLivingBase && 

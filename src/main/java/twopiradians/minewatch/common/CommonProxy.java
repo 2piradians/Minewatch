@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,7 +23,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Explosion;
@@ -81,7 +81,9 @@ public class CommonProxy {
 		SOMBRA_TRANSPOSER(true), REINHARDT_STRIKE,
 		HOLLOW_CIRCLE, ZENYATTA(4, 1, 0), ZENYATTA_HARMONY(true, true), ZENYATTA_DISCORD(true, true),
 		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
-		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB;
+		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
+		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
+		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS;
 
 		public HashSet<UUID> particleEntities = new HashSet();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -94,6 +96,7 @@ public class CommonProxy {
 		public final float gravity;
 		public final boolean disableDepth;
 		public final boolean onePerEntity;
+		public TextureAtlasSprite sprite;
 
 		private EnumParticle() {
 			this(false);
@@ -163,8 +166,8 @@ public class CommonProxy {
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
-	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing) {}
-	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing) {}	
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing, boolean renderOnBlocks) {}
+	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, float pulseRate, EnumFacing facing, boolean renderOnBlocks) {}	
 	public void spawnParticlesReaperTeleport(World worldObj, EntityLivingBase entityLiving, boolean spawnAtPlayer, int type) {}
 
 	protected void registerEventListeners() {
@@ -214,8 +217,18 @@ public class CommonProxy {
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity.worldObj.provider.getDimension());
 		return null;
 	}
+	
+	public void stopFollowingSound(Entity followingEntity, ModSoundEvent event) {
+		if (followingEntity != null && event != null && !followingEntity.worldObj.isRemote) 
+			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event.getSoundName().toString()), followingEntity.worldObj.provider.getDimension());
+	}
+	
+	public void stopFollowingSound(Entity followingEntity, String event) {
+		if (followingEntity != null && event != null && !followingEntity.worldObj.isRemote) 
+			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event), followingEntity.worldObj.provider.getDimension());
+	}
 
-	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
+	public void stopSound(EntityPlayer player, ModSoundEvent event, SoundCategory category) {
 		if (player instanceof EntityPlayerMP) {
 			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
 			packetbuffer.writeString(category.getName());
@@ -294,4 +307,10 @@ public class CommonProxy {
 	public Entity getRenderViewEntity() {
 		return null;
 	}
+	
+	public boolean isPlayerInFirstPerson() {
+		return false;
+	}
+	
+	public void updateFOV() {}
 }

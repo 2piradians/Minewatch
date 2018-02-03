@@ -35,5 +35,4 @@ public class ArmorWeaponsTab extends CreativeTabs implements IMinewatchTab {
 	public List<ItemStack> getOrderedStacks() {
 		return orderedStacks;
 	}
-
 }

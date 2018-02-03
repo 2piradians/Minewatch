@@ -17,8 +17,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
@@ -164,7 +165,7 @@ public class CPacketSimple implements IMessage {
 					// check if opped
 					else if (packet.type == 1 && packetPlayer instanceof EntityPlayerMP && packetPlayer.getServer() != null) {
 						if (packetPlayer.getServer().getPlayerList().canSendCommands(packetPlayer.getGameProfile()) ||
-								CommandDev.DEVS.contains(packetPlayer.getPersistentID()))
+								RankManager.getHighestRank(packetPlayer) == Rank.DEV)
 							Minewatch.network.sendTo(new SPacketSimple(18), (EntityPlayerMP) packetPlayer);
 					}
 					// Wild Card Token selection
@@ -173,7 +174,7 @@ public class CPacketSimple implements IMessage {
 						for (ItemStack stack : packetPlayer.getHeldEquipment())
 							if (stack != null && stack.getItem() instanceof ItemMWToken.ItemWildCardToken && 
 							stack.stackSize > 0) {
-								stack.stackSize--;
+								--stack.stackSize;
 								packetPlayer.inventory.addItemStackToInventory(
 										new ItemStack(EnumHero.values()[(int) packet.x].token));
 								break;

@@ -165,7 +165,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 			}
 
 			// reconfigure
-			if (!worldObj.isRemote && hero.ability2.isSelected(player) && 
+			if (!worldObj.isRemote && hero.ability2.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				boolean turret = false;
 				setAlternate(stack, !isAlternate(stack));

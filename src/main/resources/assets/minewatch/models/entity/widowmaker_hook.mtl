@@ -1,0 +1,8 @@
+# Blender MTL File: 'widowmaker_hook.blend'
+# Material Count: 1
+
+newmtl 80727DA4086DBF4B
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/widowmaker_hook

@@ -7,6 +7,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntitySombra;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -112,9 +113,13 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 		// don't move if already moving to health pack
 		if (entity.movingToHealthPack) {
 			if (entity.onPack)
-				this.lookAtTarget(target);
-			else
+				this.entity.lookAtTarget(target, lookYOffset);
+			else {
 				this.resetKeybinds();
+				// attempt to hack pack
+				if (this.entity instanceof EntitySombra)
+					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
+			}
 			this.seeTime = 0;
 			return;
 		}
@@ -146,7 +151,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 				this.entity.getMoveHelper().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
 			}
-			this.lookAtTarget(target);
+			this.entity.lookAtTarget(target, lookYOffset);
 			this.entity.rotationYaw = this.entity.rotationYawHead;
 			break;
 		case MELEE:
@@ -162,15 +167,9 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 				this.entity.getNavigator().clearPathEntity();
 			else
 				this.entity.getNavigator().tryMoveToEntityLiving(target, 1);
-			this.lookAtTarget(target);
+			this.entity.lookAtTarget(target, lookYOffset);
 			break;
 		}
-	}
-
-	protected void lookAtTarget(EntityLivingBase target) {
-		if (!TickHandler.hasHandler(entity, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(entity, Identifier.PREVENT_ROTATION)) 
-			this.entity.getLookHelper().setLookPosition(target.prevPosX, target.prevPosY+target.getEyeHeight()+lookYOffset, target.prevPosZ, 360, 360);
-		this.entity.rotationYaw = this.entity.rotationYawHead;
 	}
 
 }

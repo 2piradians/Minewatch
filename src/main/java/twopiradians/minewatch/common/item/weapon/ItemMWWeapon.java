@@ -7,12 +7,14 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -49,12 +51,13 @@ import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -299,7 +302,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 		//delete dev spawned items if not in dev's inventory
 		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				stack.getTagCompound().hasKey("devSpawned") && RankManager.getHighestRank(entity) != Rank.DEV &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
 			return;
@@ -378,6 +381,26 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					float size = Math.min(entity2.height, entity2.width)*9f;
 					Minewatch.proxy.spawnParticlesCustom(EnumParticle.HEALTH, worldObj, entity2, 0xFFFFFF, 0xFFFFFF, 0.7f, Integer.MAX_VALUE, size, size, 0, 0);
 				}
+		}
+
+		// aim assist
+		if (worldObj.isRemote && entity instanceof EntityPlayer && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+				 (KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
+			float delta = Config.aimAssist;
+			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
+			float pitch = MathHelper.wrapDegrees(entity.rotationPitch);
+			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 512, false, pitch, yaw) == null) {
+				EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, entity instanceof EntityHero ? 64 : 512, 10, false);
+				if (targetEntity != null) {
+					Vector2f angles = EntityHelper.getDirectLookAngles(entity.getPositionVector().addVector(0, entity.getEyeHeight(), 0), targetEntity.getPositionVector().addVector(0, targetEntity.getEyeHeight(), 0));
+					if (Math.abs(yaw-angles.x) > 180) {
+						angles.x = (angles.x + 360f) % 360;
+						yaw = (yaw + 360f) % 360;
+					}
+					entity.rotationYaw = MathHelper.clamp_float(angles.x, yaw-delta, yaw+delta);
+					entity.rotationPitch = MathHelper.clamp_float(angles.y, pitch-delta, pitch+delta);
+				} 
+			}
 		}
 	}
 
@@ -515,6 +538,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.popMatrix();
 		}
+	}
+	
+	/**Called before player hands are rendered, for player holding weapon in mainhand*/
+	@SideOnly(Side.CLIENT)
+	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
+		return false;
 	}
 
 	/**Called before entity wearing set and holding weapon in mainhand is rendered*/

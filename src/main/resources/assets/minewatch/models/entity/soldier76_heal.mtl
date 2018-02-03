@@ -1,0 +1,20 @@
+# Blender MTL File: 'soldier_heal.blend'
+# Material Count: 3
+
+newmtl 1237E60635599D4B
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/soldier76_heal_0
+
+newmtl AE880ED8AB3980EB
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/soldier76_heal_0
+
+newmtl C8EE0D5782F34E71
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/soldier76_heal_1

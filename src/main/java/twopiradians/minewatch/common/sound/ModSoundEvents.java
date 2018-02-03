@@ -47,8 +47,8 @@ public enum ModSoundEvents {
 	REAPER_WRAITH,
 	HANZO_SHOOT,
 	HANZO_DRAW,
-	HANZO_SONIC_VOICE, // PORT (changed)
-	HANZO_SCATTER_VOICE, // PORT (changed)
+	HANZO_SONIC_VOICE, 
+	HANZO_SCATTER_VOICE,
 	REINHARDT_WEAPON,
 	REINHARDT_STRIKE_THROW,
 	REINHARDT_STRIKE_DURING,
@@ -64,7 +64,6 @@ public enum ModSoundEvents {
 	TRACER_BLINK,
 	MCCREE_RELOAD,
 	MCCREE_SHOOT,
-	MCCREE_FLASHBANG,
 	MCCREE_ROLL,
 	SOLDIER76_RELOAD,
 	SOLDIER76_SHOOT,
@@ -152,8 +151,7 @@ public enum ModSoundEvents {
 	ZENYATTA_VOLLEY_SHOOT,
 	HEALTH_PACK_USE,
 	HEALTH_PACK_RESPAWN,
-	
-	HEAL, // TODO
+	HEAL, // TODO (eventually?)
 	BASTION_HEAL,
 	MOIRA_DAMAGE_DURING_HIT,
 	MOIRA_DAMAGE_DURING_MISS,
@@ -196,11 +194,43 @@ public enum ModSoundEvents {
 	MERCY_SELECT_VOICE,
 	MOIRA_SELECT_VOICE,
 	SYMMETRA_SELECT_VOICE,
-	ZENYATTA_SELECT_VOICE;
+	ZENYATTA_SELECT_VOICE,
+	
+	MCCREE_STUN_THROW,
+	MCCREE_STUN_HIT,
+	MCCREE_STUN_VOICE,
+	ANA_GRENADE_THROW,
+	ANA_GRENADE_HIT,
+	ANA_GRENADE_HEAL,
+	ANA_GRENADE_DAMAGE,
+	ANA_GRENADE_HEAL_VOICE,
+	ANA_GRENADE_DAMAGE_VOICE,
+	SOLDIER76_HEAL_THROW,
+	SOLDIER76_HEAL_PASSIVE,
+	SOLDIER76_HEAL_VOICE,
+	TRACER_BLINK_VOICE,
+	TRACER_RECALL,
+	TRACER_RECALL_VOICE,
+	WIDOWMAKER_HOOK_THROW,
+	WIDOWMAKER_HOOK_HIT,
+	WIDOWMAKER_SCOPE,
+	WIDOWMAKER_UNSCOPE,
+	WIDOWMAKER_SCOPE_VOICE,
+	ANA_SCOPE,
+	ANA_UNSCOPE,
+	ANA_HEAL_VOICE,
+	REINHARDT_CHARGE,
+	REINHARDT_CHARGE_HIT,
+	SOMBRA_HACK_START,
+	SOMBRA_HACK_STOP,
+	SOMBRA_HACK_DURING,
+	SOMBRA_HACK_COMPLETE,
+	SOMBRA_HACK_VOICE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
 	public boolean isVoiceLine;
+	public boolean isSelectVoiceLine;
 	@Nullable
 	public EnumHero hero;
 
@@ -209,6 +239,7 @@ public enum ModSoundEvents {
 		event = new ModSoundEvent(loc, this);
 		// PORT 1.12: event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
+		this.isSelectVoiceLine = this.name().contains("SELECT_VOICE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())
 			if (hero.name().equals(heroName))
@@ -244,9 +275,9 @@ public enum ModSoundEvents {
 
 	/**Handles voice cooldown - only works for same client / server...*/
 	public boolean shouldPlay(Entity entity) {
-		if (!this.isVoiceLine) 
+		if (!this.isVoiceLine || this.isSelectVoiceLine) 
 			return true;
-		else if (entity == null || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
+		else if (entity == null || entity.worldObj.rand.nextBoolean() || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
 			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
@@ -254,17 +285,23 @@ public enum ModSoundEvents {
 		}
 	}
 
-	/**Stops sound for all players*/
+	/**USE {@link ModSoundEvents#stopFollowingSound(Entity)} INSTEAD*/
 	public void stopSound(World worldObj) {
 		if (worldObj != null)
 			for (EntityPlayer player : worldObj.playerEntities)
 				Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
 	}
 
-	/**Stops sound for a player*/
+	/**USE {@link ModSoundEvents#stopFollowingSound(Entity)} INSTEAD*/
 	public void stopSound(EntityPlayer player) {
 		if (player != null)
 			Minewatch.proxy.stopSound(player, event, SoundCategory.PLAYERS);
+	}
+	
+	/**Stops following sound - can be called client or server*/
+	public void stopFollowingSound(Entity followingEntity) {
+		if (followingEntity != null)
+			Minewatch.proxy.stopFollowingSound(followingEntity, event);
 	}
 
 	private void register() {
@@ -275,10 +312,18 @@ public enum ModSoundEvents {
 	public static class ModSoundEvent extends SoundEvent {
 
 		public ModSoundEvents event;
+		public ResourceLocation soundName;
 
 		private ModSoundEvent(ResourceLocation soundName, ModSoundEvents event) {
 			super(soundName);
 			this.event = event;
+			this.soundName = soundName;
+		}
+		
+		/**To make non-clientside*/
+		@Override
+		public ResourceLocation getSoundName() {
+			return soundName;
 		}
 
 	}

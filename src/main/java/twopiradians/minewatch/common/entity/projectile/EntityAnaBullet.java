@@ -71,27 +71,34 @@ public class EntityAnaBullet extends EntityMW {
 
 	@Override
 	public void spawnTrailParticles() {
-		EntityHelper.spawnTrailParticles(this, 10, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
+		EntityHelper.spawnTrailParticles(this, 18, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
 				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1); 
 	}
-	
+
 	@Override
 	public void onImpact(RayTraceResult result) {
+		this.isFriendly = this.getDataManager().get(HEAL);
+
 		super.onImpact(result);
 
 		float size = result.entityHit == null ? 0 : Math.min(result.entityHit.height, result.entityHit.width)*8f;
 
 		// heal
-		if (this.isFriendly ) {
+		if (this.isFriendly) {
 			EntityHelper.attemptDamage(this, result.entityHit, -75, true);
 			// particles / sounds
-			if (this.worldObj.isRemote && result.entityHit != null) {
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
-						30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
-						30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
-				ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f, true);
-				ModSoundEvents.ANA_HEAL.playSound(result.entityHit, 0.2f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f);
+			if (result.entityHit != null) {
+				if (this.worldObj.isRemote) {
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.8f, 
+							30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_HEAL, worldObj, result.entityHit, 0xFFFFFF, 0xFFFFFF, 0.7f, 
+							30+worldObj.rand.nextInt(10), size, size/1.5f, worldObj.rand.nextFloat(), (worldObj.rand.nextFloat()-0.5f)/5f);
+					ModSoundEvents.ANA_HEAL.playSound(this.getThrower(), 0.3f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f, true);
+				}
+				else {
+					ModSoundEvents.ANA_HEAL.playFollowingSound(result.entityHit, 0.2f, result.entityHit.worldObj.rand.nextFloat()/2+1.5f, false);
+					ModSoundEvents.ANA_HEAL_VOICE.playFollowingSound(this.getThrower(), 1, 1, false);
+				}
 			}
 		}
 		// damage

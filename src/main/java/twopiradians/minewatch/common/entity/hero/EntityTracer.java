@@ -10,7 +10,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 public class EntityTracer extends EntityHero {
 
 	public EntityTracer(World worldIn) {
-		super(worldIn, EnumHero.TRACER);
+		super(worldIn, EnumHero.TRACER); 
 	}
 
 	@Override
@@ -35,6 +35,12 @@ public class EntityTracer extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 					this.attackCooldown = 100;
+				}
+				// recall
+				else if (this.attackCooldown <= 0 && entity.shouldUseAbility() &&
+						entity.getHealth() < entity.getMaxHealth()) {
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+					this.attackCooldown = 120;
 				}
 				// normal attack
 				else {

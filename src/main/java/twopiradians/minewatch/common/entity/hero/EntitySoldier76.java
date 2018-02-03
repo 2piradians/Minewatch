@@ -14,6 +14,20 @@ public class EntitySoldier76 extends EntityHero {
 	}
 
 	@Override
+	public void onUpdate() {
+		if (!worldObj.isRemote) {
+			// heal
+			if (this.getHealth() < this.getMaxHealth()/2f || 
+					(this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null))
+				this.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+			else
+				this.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+		}
+
+		super.onUpdate();
+	}
+
+	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
 		this.tasks.addTask(2, new EntityHeroAIAttackSoldier76(this, MovementType.STRAFING, 15));

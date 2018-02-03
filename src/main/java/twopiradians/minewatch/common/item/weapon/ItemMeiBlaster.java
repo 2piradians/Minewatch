@@ -46,7 +46,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				EntityMeiIcicle icicle = new EntityMeiIcicle(entityLiving.worldObj, entityLiving, (int) number);
 				EntityHelper.setAim(icicle, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 100, 0.4F, EnumHand.values()[(int) number], 8, 0.35f);
 				entityLiving.worldObj.spawnEntityInWorld(icicle);
-				EnumHero.MEI.weapon.setCooldown(entityLiving, 24);
+				EnumHero.MEI.weapon.setCooldown(entityLiving, 9);
 				if (entityLiving.worldObj.rand.nextInt(8) == 0)
 					entityLiving.getHeldItem(EnumHand.values()[(int) number]).damageItem(1, entityLiving);
 				EnumHero.MEI.weapon.subtractFromCurrentAmmo(entityLiving, 25, EnumHand.values()[(int) number]);
@@ -120,7 +120,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && !worldObj.isRemote && 
 				!TickHandler.hasHandler(player, Identifier.MEI_ICICLE)) {
-			TickHandler.register(false, ICICLE.setEntity(player).setTicks(10).setNumber(hand.ordinal()));
+			TickHandler.register(false, ICICLE.setEntity(player).setTicks(8).setNumber(hand.ordinal()));
 			ModSoundEvents.MEI_SHOOT_1.playFollowingSound(player, worldObj.rand.nextFloat()+0.5F, worldObj.rand.nextFloat()/20+0.95f, false);
 		}
 

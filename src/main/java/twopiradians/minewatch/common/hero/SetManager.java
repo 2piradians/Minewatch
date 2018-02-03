@@ -35,6 +35,25 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 @Mod.EventBusSubscriber
 public class SetManager {
 
+	// REPLACE EVENT - COMMENT OUT FOR RELEASE
+	/*@SubscribeEvent(priority=EventPriority.LOWEST)
+	public static void replaceSpawns(LivingUpdateEvent event) {
+		if (!event.getEntity().worldObj.isRemote && event.getEntity().ticksExisted == 1 && 
+				!(event.getEntity() instanceof EntityHero) && 
+				!event.getEntity().getEntityData().hasKey("Minewatch: Checked") && 
+				event.getEntity().isCreatureType(EnumCreatureType.MONSTER, false)) { //if server side & newly spawned
+			event.getEntity().getEntityData().setBoolean("Minewatch: Checked", true);
+
+			// replace with random hero
+			if (event.getEntity().worldObj.rand.nextInt(event.getEntity().worldObj.isDaytime() ? 150 : 100) <= Config.mobSpawnFreq*3) {
+				EntityHero hero = new EntityHero(event.getEntity().worldObj);
+				hero.copyLocationAndAnglesFrom(event.getEntity());
+				event.getEntity().worldObj.spawnEntityInWorld(hero);
+				event.getEntity().setDead();
+			}
+		}
+	}*/
+
 	/**List of players wearing full sets and the sets that they are wearing*/
 	private static HashMap<UUID, EnumHero> entitiesWearingSetsClient = Maps.newHashMap();	
 	/**List of players wearing full sets and the sets that they are wearing*/
@@ -66,11 +85,11 @@ public class SetManager {
 	public static void clearHandlers(PlayerLoggedOutEvent event) {
 		TickHandler.unregisterAllHandlers(true);
 	}
-	
+
 	private static HashMap<UUID, EnumHero> entitiesWearingSets(boolean isRemote) {
 		return isRemote ? entitiesWearingSetsClient : entitiesWearingSetsServer;
 	}
-	
+
 	private static HashMap<UUID, EnumHero> lastWornSets(boolean isRemote) {
 		return isRemote ? lastWornSetsClient : lastWornSetsServer;
 	}
@@ -102,7 +121,7 @@ public class SetManager {
 	public static void updateSets(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
 			boolean isRemote = event.player.worldObj.isRemote;
-			
+
 			//detect if player is wearing a set
 			ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
 			EnumHero hero = null;

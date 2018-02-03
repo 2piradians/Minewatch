@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.command;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -21,16 +20,13 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class CommandDev implements ICommand {
-
-	public static final ArrayList<UUID> DEVS = new ArrayList<UUID>() {{
-		add(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647")); // Furgl
-		add(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd")); // 2piradians
-	}};
 
 	@Override
 	public int compareTo(ICommand o) {
@@ -96,7 +92,7 @@ public class CommandDev implements ICommand {
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		if (sender instanceof EntityPlayer)
-			return DEVS.contains(((EntityPlayer) sender).getPersistentID());
+			return RankManager.getHighestRank((EntityPlayer) sender) == Rank.DEV;
 		return false;
 	}
 

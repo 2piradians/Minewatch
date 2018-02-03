@@ -58,13 +58,19 @@ public class BakedMWItem extends OBJBakedModel {
 	}
 
 	@Override
-	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {			
+	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType type) {			
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 	
-		Pair<? extends IBakedModel, Matrix4f> ret = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.getState(), cameraTransformType);
+		Pair<? extends IBakedModel, Matrix4f> ret = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.getState(), type);
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
-			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, cameraTransformType, ret);
+			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, type, ret);
+		
+		// don't render when invisible
+		if (entity != null && entity.isInvisible() && (type == TransformType.FIRST_PERSON_LEFT_HAND || 
+				type == TransformType.FIRST_PERSON_RIGHT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND ||
+				type == TransformType.THIRD_PERSON_RIGHT_HAND))
+			ret.getRight().setScale(0);
 		
 		return ret;
 	}

@@ -48,7 +48,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// give trigger if mine active and offhand is empty
-			if (!worldObj.isRemote && player.getHeldItemOffhand() == null && 
+			if (!worldObj.isRemote && player.getHeldItemOffhand() == null  && 
 					hero.ability2.entities.containsKey(entity) && 
 					hero.ability2.entities.get(entity).isEntityAlive()) 
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));

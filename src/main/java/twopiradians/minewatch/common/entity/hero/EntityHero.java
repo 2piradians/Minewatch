@@ -21,6 +21,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -32,6 +33,8 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHero extends EntityMob {
 
@@ -210,6 +213,16 @@ public class EntityHero extends EntityMob {
 
 		if (compound.hasKey("skin") && compound.getInteger("skin") >= 0)
 			this.getDataManager().set(SKIN, compound.getInteger("skin"));
+	}
+	
+	public void lookAtTarget(EntityLivingBase target, float lookYOffset) {
+		lookAtTarget(new Vec3d(target.prevPosX, target.prevPosY+target.getEyeHeight()+lookYOffset, target.prevPosZ));
+	}
+	
+	public void lookAtTarget(Vec3d target) {
+		if (!TickHandler.hasHandler(this, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(this, Identifier.PREVENT_ROTATION)) 
+			this.getLookHelper().setLookPosition(target.x, target.y, target.z, 360, 360);
+		this.rotationYaw = this.rotationYawHead;
 	}
 
 }

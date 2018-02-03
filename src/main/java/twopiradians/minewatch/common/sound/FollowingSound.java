@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.sound;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.audio.ISound;
@@ -14,6 +16,8 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 @SideOnly(Side.CLIENT)
 public class FollowingSound extends MovingSound {
 
+	public static CopyOnWriteArrayList<FollowingSound> sounds = new CopyOnWriteArrayList<FollowingSound>();
+
 	private final Entity entity;
 	private int junkratGrenadeBounces;
 	public boolean lucioSound;
@@ -25,6 +29,7 @@ public class FollowingSound extends MovingSound {
 		this.pitch = pitch;
 		this.repeat = repeat;
 		this.attenuationType = ISound.AttenuationType.LINEAR;
+		sounds.add(this);
 
 		// junkrat grenade tick
 		if (entity instanceof EntityJunkratGrenade)
@@ -45,9 +50,32 @@ public class FollowingSound extends MovingSound {
 			this.donePlaying = true;
 	}
 
+	@Override
+	public boolean isDonePlaying() {
+		boolean ret = super.isDonePlaying();
+		if (ret) // remove from list if it says it's done playing
+			sounds.remove(this);
+		return ret;
+	}
+
+	/**Mark the sound as donePlaying (to make public)*/
 	public static void stopPlaying(@Nullable FollowingSound sound) {
 		if (sound != null)
 			sound.donePlaying = true;
+	}
+
+	/**Stop playing a FollowingSound that's playing event with this followingEntity*/
+	public static void stopPlaying(SoundEvent event, Entity followingEntity) {
+		if (event != null && followingEntity != null)
+			stopPlaying(event.getSoundName().toString(), followingEntity);
+	}
+	
+	/**Stop playing a FollowingSound that's playing event with this followingEntity*/
+	public static void stopPlaying(String event, Entity followingEntity) {
+		if (event != null && followingEntity != null)
+			for (FollowingSound sound : sounds)
+				if (sound.entity == followingEntity && sound.positionedSoundLocation.toString().equals(event))
+					sound.donePlaying = true;
 	}
 
 }

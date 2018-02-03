@@ -32,7 +32,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN, ANA_GRENADE_DAMAGE, ANA_GRENADE_HEAL, TRACER_RECALL, INVULNERABLE, WIDOWMAKER_HOOK, TRACER_RECOLOR, REINHARDT_CHARGE, FORCE_VIEW, SOMBRA_HACK, SOMBRA_HACKED;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -106,6 +106,10 @@ public class TickHandler {
 		}
 		return null;
 	}
+	
+	public static boolean hasHandler(UUID uuid, Identifier identifier, boolean isRemote) {
+		return getHandler(uuid, identifier, isRemote) != null;
+	}
 
 	public static boolean hasHandler(Entity entity, Identifier identifier) {
 		return getHandler(entity, identifier) != null;
@@ -117,17 +121,23 @@ public class TickHandler {
 
 	/**Get all registered handlers by their entity and/or identifier*/
 	public static ArrayList<Handler> getHandlers(Entity entity, @Nullable Identifier identifier) {
-		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, identifier);
+		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, identifier, null);
+	}
+	
+	/**Get all registered handlers matching a predicate*/
+	public static ArrayList<Handler> getHandlers(Entity entity, Predicate<Handler> predicate) {
+		return entity == null ? new ArrayList<Handler>() : getHandlers(entity.world.isRemote, entity, null, predicate);
 	}
 	
 	/**Get all registered handlers by their entity and/or identifier*/
-	public static ArrayList<Handler> getHandlers(boolean isRemote, @Nullable Entity entity, @Nullable Identifier identifier) {
+	public static ArrayList<Handler> getHandlers(boolean isRemote, @Nullable Entity entity, @Nullable Identifier identifier, @Nullable Predicate<Handler> predicate) {
 		ArrayList<Handler> handlers = new ArrayList<Handler>();
 		CopyOnWriteArrayList<Handler> handlerList = isRemote ? clientHandlers : serverHandlers;
 		for (Iterator<Handler> it = handlerList.iterator(); it.hasNext();) {
 			Handler handler = it.next();
 			if ((entity == null || handler.entity == entity) &&
-					(identifier == null || identifier == handler.identifier))
+					(identifier == null || identifier == handler.identifier) &&
+					(predicate == null || predicate.apply(handler)))
 				handlers.add(handler);
 		}
 		return handlers;
@@ -151,6 +161,8 @@ public class TickHandler {
 			}
 			if (!entity.world.isRemote)
 				Minewatch.network.sendToAll(new SPacketSimple(16, entity, false));
+			if (entity instanceof EntityLivingBase)
+				((EntityLivingBase)entity).stopActiveHand();
 		}
 	}
 
@@ -166,12 +178,13 @@ public class TickHandler {
 						unregister(true, handler);
 				}
 				catch (Exception e) {
+					unregister(true, handler);
 					e.printStackTrace();
 				}
 			}
 			
 			for (KeyBind key : KeyBind.values())
-				key.keyPressedEntitiesClient.clear(); // TEST moved this after tick
+				key.keyPressedEntitiesClient.clear();
 		}
 	}
 
@@ -186,17 +199,19 @@ public class TickHandler {
 						unregister(false, handler);
 				}
 				catch (Exception e) {
+					unregister(false, handler);
 					e.printStackTrace();
 				}
 			}
 			
-			for (KeyBind key : KeyBind.values()) // TEST moved this after tick
+			for (KeyBind key : KeyBind.values())
 				key.keyPressedEntitiesServer.clear();
 		}
 	}
 
 	/**Note: reuse instances (i.e. make static instances) so duplicates can be replaced, 
-	 * do not create multiple instances that do the same thing*/
+	 * do not create multiple instances that do the same thing
+	 * Note: onTick can possibly run once after onRemove if the Handler is removed during another Handler's onRemove*/
 	public static abstract class Handler implements Cloneable {
 
 		/**Used in getHandler()*/
@@ -221,6 +236,8 @@ public class TickHandler {
 		public Ability ability;
 		@Nullable
 		public double number;
+		@Nullable
+		public double number2;
 		@Nullable
 		public String string;
 		public Boolean bool = false;
@@ -352,3 +369,30 @@ public class TickHandler {
 	}
 
 }
+
+/*
+public static final Handler NAME = new Handler(Identifier.IDENTIFIER, false) {
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean onClientTick() {
+		
+		return super.onClientTick();
+	}
+	@Override
+	public boolean onServerTick() {
+		
+		return super.onServerTick();
+	}
+	@Override
+	@SideOnly(Side.CLIENT)
+	public Handler onClientRemove() {
+		
+		return super.onClientRemove();
+	}
+	@Override
+	public Handler onServerRemove() {
+		
+		return super.onServerRemove();
+	}
+};
+*/

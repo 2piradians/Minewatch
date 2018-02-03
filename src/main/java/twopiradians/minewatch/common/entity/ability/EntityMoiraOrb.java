@@ -35,7 +35,7 @@ public class EntityMoiraOrb extends EntityMW {
 
 	public EntityMoiraOrb(World worldIn, EntityLivingBase throwerIn, int hand, boolean heal) {
 		super(worldIn, throwerIn, hand); 
-		this.setSize(1f, 1f);
+		this.setSize(0.3f, 0.3f);
 		this.lifetime = 200;
 		this.impactOnClient = true;
 		if (!worldIn.isRemote)

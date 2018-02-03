@@ -10,9 +10,9 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.collect.UnmodifiableIterator;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -101,7 +101,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 			}
 			buffer.setTranslation(0, 0, 0);
 			tessellator.draw();	
-
+			
 			this.postRender(te, i, buffer, x, y, z, partialTicks); 
 
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -133,6 +133,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 
 		@Override
 		public java.util.Optional<TRSRTransformation> apply(java.util.Optional<? extends IModelPart> part) {
+
 			if(part.isPresent()) {
 				// This whole thing is subject to change, but should do for now.
 				UnmodifiableIterator<String> parts = Models.getParts(part.get());
@@ -155,5 +156,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 
 			return Optional.empty();
 		}
+
 	}
+
 }

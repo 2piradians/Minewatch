@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBiped;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -37,6 +39,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -47,6 +50,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -63,6 +67,7 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -74,20 +79,28 @@ import twopiradians.minewatch.packet.SPacketSimple;
 @Mod.EventBusSubscriber
 public class RenderManager {
 
+	public enum MessageTypes {
+		TOP, MIDDLE
+	}
+
 	public static final ResourceLocation ABILITY_OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png");
-	public static Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
+	public static final Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
 	public static HashMap<EntityLivingBase, HashMap<UUID, Tuple<Float, Integer>>> entityDamage = Maps.newHashMap();
-	public static Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
+	/**Text overlay - number is MessageTypes.ordinal(), bool == small text*/
+	public static final Handler MESSAGES = new Handler(Identifier.HERO_MESSAGES, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, Identifier.HERO_MESSAGES);
+			if (entity != Minewatch.proxy.getRenderViewEntity())
+				return true;
+			
+			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, handler->handler.identifier == Identifier.HERO_MESSAGES && handler.number == MessageTypes.MIDDLE.ordinal());
 			return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 		}
 	};
-	public static Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
-	public static Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
-	public static Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
+	public static final Handler HIT_OVERLAY = new Handler(Identifier.HIT_OVERLAY, false) {};
+	public static final Handler KILL_OVERLAY = new Handler(Identifier.KILL_OVERLAY, false) {};
+	public static final Handler MULTIKILL = new Handler(Identifier.HERO_MULTIKILL, false) {};
 	/**Used for debugging*/
 	public static CopyOnWriteArrayList<AxisAlignedBB> boundingBoxesToRender = new CopyOnWriteArrayList<AxisAlignedBB>();
 
@@ -214,6 +227,7 @@ public class RenderManager {
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
 		if (Config.guiScale > 0) {
+			Minecraft mc = Minecraft.getMinecraft();
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
@@ -264,12 +278,12 @@ public class RenderManager {
 					GlStateManager.scale(1/scale, 1/scale, 1);
 				}
 
-				// eliminate/assist text overlay
+				// elimination / assist text overlay
 				double yOffset = 0;
-				ArrayList<Handler> handlers = TickHandler.getHandlers(player, Identifier.HERO_MESSAGES);
+				ArrayList<Handler> handlers = TickHandler.getHandlers(player, handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.MIDDLE.ordinal());
 				for (int i=0; i<Math.min(6, handlers.size()); ++i) {
 					handler = handlers.get(i);
-					if (handler != null && handler.string != null) {
+					if (handler != null && handler.string != null && handler.entity == Minewatch.proxy.getRenderViewEntity()) {
 						float alpha = 0.7f;
 						if (handler.ticksLeft < 15)
 							alpha -= (1f-(handler.ticksLeft-10)/5f)*alpha;
@@ -284,6 +298,21 @@ public class RenderManager {
 						}
 						yOffset += handler.ticksLeft >= 10 ? 11 : handler.ticksLeft/10f*11f;
 					}
+				}
+
+				// top text overlay
+				handler = TickHandler.getHandler(handler2->handler2.identifier == Identifier.HERO_MESSAGES && handler2.number == MessageTypes.TOP.ordinal(), true);
+				if (handler != null && handler.entity == Minewatch.proxy.getRenderViewEntity()) {
+					double scale = handler.bool ? 1.3f :2.3f;
+					if (handler.initialTicks-handler.ticksLeft <= 6)
+						scale += 1.8d * (1d-((handler.initialTicks-handler.ticksLeft) / 6d));
+					float alpha = 1f;
+					if (handler.initialTicks-handler.ticksLeft < 5)
+						alpha = (handler.initialTicks-handler.ticksLeft)/5f;
+					else if (handler.ticksLeft < 3)
+						alpha = handler.ticksLeft/3f;
+					GlStateManager.scale(scale, scale, 1);
+					mc.fontRenderer.drawString(handler.string, (float)((width/2/scale) - mc.fontRenderer.getStringWidth(handler.string)/2), (float) (height/4f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), true);
 				}
 
 				GlStateManager.disableBlend();
@@ -335,13 +364,14 @@ public class RenderManager {
 					GlStateManager.enableDepth();
 					GlStateManager.enableAlpha();
 
+					Rank rank = RankManager.getHighestRank(Minecraft.getMinecraft().player);
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 35+scale*110, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 65+scale*110, 0);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(rank.iconLoc);
+					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
 					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
+					GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
 
 					GlStateManager.popMatrix();
 				}
@@ -362,7 +392,7 @@ public class RenderManager {
 					int u = 1+85*(index/14);
 					int v = 1+17*(index%14);
 					GuiUtils.drawTexturedModalRect(0, 0, u, v, 32, 16, 0);
-					
+
 					// infinite ammo
 					if (weapon.getMaxAmmo(player) == 0) 
 						GuiUtils.drawTexturedModalRect(18, -3, 13, 239, 6, 4, 0);
@@ -455,6 +485,55 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 			}
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public static void renderHands(RenderSpecificHandEvent event) {
+		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
+		Minecraft mc = Minecraft.getMinecraft();
+		AbstractClientPlayer player = mc.player;
+		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).shouldRenderHand(player, event.getHand())) {
+			GlStateManager.pushMatrix();
+			float partialTicks = mc.getRenderPartialTicks();
+			float swing = player.getSwingProgress(partialTicks);	
+			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
+			// would move hand to follow item - but equippedProgress is private
+			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
+			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
+			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
+			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
+			boolean flag = side != EnumHandSide.LEFT;
+			float f = flag ? 1.0F : -1.0F;
+			float f1 = MathHelper.sqrt(f7);
+			float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
+			float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
+			float f4 = -0.4F * MathHelper.sin(f3 * (float)Math.PI);
+			GlStateManager.translate(f * (f2 + 0.64000005F), f3 + -0.6F + progress * -0.6F, f4 + -0.71999997F);
+			GlStateManager.rotate(f * 45.0F, 0.0F, 1.0F, 0.0F);
+			float f5 = MathHelper.sin(f3 * f3 * (float)Math.PI);
+			float f6 = MathHelper.sin(f1 * (float)Math.PI);
+			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
+			AbstractClientPlayer abstractclientplayer = mc.player;
+			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
+			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
+			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
+			RenderPlayer renderplayer = (RenderPlayer)mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(abstractclientplayer);
+			GlStateManager.disableCull();
+
+			if (flag)
+				renderplayer.renderRightArm(abstractclientplayer);
+			else
+				renderplayer.renderLeftArm(abstractclientplayer);
+
+			GlStateManager.enableCull();
+			GlStateManager.popMatrix();
 		}
 	}
 
@@ -575,6 +654,7 @@ public class RenderManager {
 	@SubscribeEvent
 	public static void renderOnBlocks(RenderWorldLastEvent event) {
 		GlStateManager.pushMatrix();
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		GlStateManager.depthMask(false);
@@ -610,11 +690,13 @@ public class RenderManager {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableBlend();
 		GlStateManager.depthMask(true);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		GlStateManager.popMatrix();
 	}
 
 	/**Render a texture (must be bound before calling this) on blocks
-	 * entityVec should be INSIDE the block that the texture will be rendered on*/
+	 * entityVec should be INSIDE the block that the texture will be rendered on
+	 * Would like to have this use particle rotations, but not sure how to do: Gl.rotate seems to translate as well*/
 	@SideOnly(Side.CLIENT)
 	public static void renderOnBlocks(World world, BufferBuilder buffer, float red, float green, float blue, float alpha, double size, Vec3d entityVec, EnumFacing facing, boolean particle) {
 		Entity player = Minewatch.proxy.getRenderViewEntity();
@@ -630,12 +712,12 @@ public class RenderManager {
 		double maxZ = MathHelper.floor(entityVec.z + (facing.getAxis() == Axis.Z ? 0 : size));
 
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
-			BlockPos[] positions = particle ? new BlockPos[] {blockpos} : new BlockPos[] {blockpos.up(), blockpos, blockpos.down()};
+			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {
-				
+
 				if (facing == EnumFacing.DOWN || facing == EnumFacing.NORTH || facing == EnumFacing.WEST)
 					pos = pos.add(facing.getDirectionVec());
-				
+
 				IBlockState state = world.getBlockState(pos);
 				if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
 					if (!particle)
@@ -643,7 +725,7 @@ public class RenderManager {
 					if (alpha >= 0.0D) {
 						if (alpha > 1.0f)
 							alpha = 1.0f;
-												
+
 						AxisAlignedBB aabb = state.getBoundingBox(world, pos);
 						minX = (double)pos.getX() + aabb.minX - playerVec.x + offsetVec.x;
 						maxX = (double)pos.getX() + aabb.maxX - playerVec.x + offsetVec.x;

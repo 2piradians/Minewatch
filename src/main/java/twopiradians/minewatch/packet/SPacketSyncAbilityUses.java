@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
@@ -66,14 +67,15 @@ public class SPacketSyncAbilityUses implements IMessage{
 
 					if (player != null && ability != null) {
 						if (packet.playSound && 
-								SetManager.getWornSet(player) == hero) {
+								SetManager.getWornSet(player) == hero && 
+								ability.useCooldown*Config.abilityCooldownMultiplier >= 20) {
 							if (packet.uses == 1)
 								ModSoundEvents.ABILITY_RECHARGE.playSound(player, 0.5f, 1.0f, true);
 							ModSoundEvents.ABILITY_MULTI_RECHARGE.playSound(player, 0.5f, 1.0f, true);
 						}
 						ability.multiAbilityUses.put(player.getPersistentID(), packet.uses);
 						if (!TickHandler.hasHandler(player, Identifier.ABILITY_MULTI_COOLDOWNS))
-							TickHandler.register(true, Ability.ABILITY_MULTI_COOLDOWNS.setAbility(ability).setEntity(player).setTicks(ability.useCooldown));
+							TickHandler.register(true, Ability.ABILITY_MULTI_COOLDOWNS.setAbility(ability).setEntity(player).setTicks(Math.max(1, (int) (ability.useCooldown*Config.abilityCooldownMultiplier))));
 						TickHandler.register(true, ability.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 					}
 				}

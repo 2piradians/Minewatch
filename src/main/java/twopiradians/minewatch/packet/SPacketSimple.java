@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumFacing;
@@ -36,14 +37,19 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
@@ -57,6 +63,8 @@ import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
+import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
+import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -244,9 +252,15 @@ public class SPacketSimple implements IMessage {
 					Entity entity2 = packet.id2 == -1 ? null : player.world.getEntityByID(packet.id2);
 
 					// Tracer's dash
-					if (packet.type == 0) {
-						player.setSneaking(false);
-						move(player, 9, false, true);
+					if (packet.type == 0 && entity != null) {
+						if (entity == player) {
+							player.chasingPosX = player.posX;
+							player.chasingPosY = player.posY;
+							player.chasingPosZ = player.posZ;
+							player.setSneaking(false);
+							move(player, 9, false, true);
+						}
+						TickHandler.register(true, ItemTracerPistol.RECOLOR.setEntity(entity).setTicks(20));
 					}
 					// Reaper's teleport
 					else if (packet.type == 1 && entity instanceof EntityLivingBase) {
@@ -321,7 +335,7 @@ public class SPacketSimple implements IMessage {
 					// Reaper's wraith
 					else if (packet.type == 10 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(60).setAbility(EnumHero.REAPER.ability2),
-								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60));
+								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60), Handlers.INVULNERABLE.setEntity(entity).setTicks(60));
 						if (player == entity)
 							ItemReaperShotgun.wraithViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
 					}
@@ -333,9 +347,11 @@ public class SPacketSimple implements IMessage {
 							if (handler != null)
 								handler.ticksLeft = 10;
 						}
+						TickHandler.unregister(true, TickHandler.getHandler(handler->handler.identifier == Identifier.HERO_MESSAGES && handler.string.contains("SLEEP"), true));
 					}
 					// Ana's sleep dart
 					else if (packet.type == 12 && entity != null) {
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"SLEEP").setNumber(MessageTypes.TOP.ordinal()));
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
@@ -358,7 +374,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
 							(Config.trackKillsOption == 0 || (Config.trackKillsOption == 1 && entity instanceof EntityPlayer))) {
 						String string = null;
-						String name = entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
+						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
 									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
@@ -367,7 +383,7 @@ public class SPacketSimple implements IMessage {
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.
-								setString(new String(string).toUpperCase()).setBoolean(packet.bool).
+								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).setBoolean(packet.bool).
 								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
@@ -469,6 +485,7 @@ public class SPacketSimple implements IMessage {
 					// Junkrat trap
 					else if (packet.type == 25 && entity instanceof EntityJunkratTrap && entity2 instanceof EntityLivingBase) {
 						if (packet.bool) {
+							TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(70).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"TRAPPED").setNumber(MessageTypes.TOP.ordinal()));
 							((EntityJunkratTrap)entity).trappedEntity = (EntityLivingBase) entity2;
 							TickHandler.register(true, Handlers.PREVENT_MOVEMENT.setTicks(70).setEntity(entity2),
 									EntityJunkratTrap.TRAPPED.setTicks(70).setEntity(entity2));
@@ -498,8 +515,10 @@ public class SPacketSimple implements IMessage {
 						if (packet.bool) {
 							TickHandler.register(true, ItemSombraMachinePistol.INVISIBLE.setEntity(entity).setTicks(130),
 									Ability.ABILITY_USING.setEntity(entity).setTicks(120).setAbility(EnumHero.SOMBRA.ability3));
-							if (entity == player)
+							if (entity == player) {
+								Minewatch.proxy.updateFOV();
 								ModSoundEvents.SOMBRA_INVISIBLE_START.playFollowingSound(entity, 1, 1, false);
+							}
 						}
 						else if (entity instanceof EntityLivingBase)
 							ItemSombraMachinePistol.cancelInvisibility((EntityLivingBase) entity);
@@ -637,6 +656,7 @@ public class SPacketSimple implements IMessage {
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
 							else {
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(100).setString(TextFormatting.AQUA+""+TextFormatting.BOLD+"HARMONY ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" GAINED FROM "+TextFormatting.AQUA+""+TextFormatting.BOLD+EntityHelper.getName(entity).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()));
 								TickHandler.register(true, ItemZenyattaWeapon.HARMONY.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_HARMONY_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
 								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.MAIN_HAND)) {
@@ -656,8 +676,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_HARMONY);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (entity == player && packet.x <= 0)
+								if (entity == player/* && packet.x <= 0*/) {
 									ModSoundEvents.ZENYATTA_HEAL_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+									TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(100).setString(TextFormatting.AQUA+""+TextFormatting.BOLD+"HARMONY ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" RETURNED").setNumber(MessageTypes.MIDDLE.ordinal()));
+								}
 							}
 						}
 					}
@@ -674,6 +696,7 @@ public class SPacketSimple implements IMessage {
 							if (handler != null) 
 								handler.setTicks(60).setEntityLiving((EntityLivingBase) entity2);
 							else {
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(100).setString(TextFormatting.DARK_RED+""+TextFormatting.BOLD+"DISCORD ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" GAINED FROM "+TextFormatting.DARK_RED+""+TextFormatting.BOLD+EntityHelper.getName(entity).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()));
 								TickHandler.register(true, ItemZenyattaWeapon.DISCORD.setTicks(60).setEntity(entity).setEntityLiving((EntityLivingBase) entity2));
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.ZENYATTA_DISCORD_ORB, entity.world, entity2, 0xFFFFFF, 0xFFFFFF, 1.0f, Integer.MAX_VALUE, 3, 3, 0, 0);
 								if (entity == player && EntityHelper.isHoldingItem(player, ItemZenyattaWeapon.class, EnumHand.OFF_HAND)) {
@@ -693,8 +716,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.ZENYATTA_DISCORD);
 							if (handler != null) {
 								TickHandler.unregister(true, handler);
-								if (entity == player && packet.x <= 0)
+								if (entity == player/* && packet.x <= 0*/) {
 									ModSoundEvents.ZENYATTA_DAMAGE_RETURN.playFollowingSound(entity, 1.0f, 1.0f, false);
+									TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(100).setString(TextFormatting.DARK_RED+""+TextFormatting.BOLD+"DISCORD ORB"+TextFormatting.WHITE+""+TextFormatting.BOLD+" RETURNED").setNumber(MessageTypes.MIDDLE.ordinal()));
+								}
 							}
 						}
 					}
@@ -717,7 +742,7 @@ public class SPacketSimple implements IMessage {
 					// Moira's Fade
 					else if (packet.type == 47 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(16).setAbility(EnumHero.MOIRA.ability3),
-								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16));
+								ItemMoiraWeapon.FADE.setEntity(entity).setTicks(16), Handlers.INVULNERABLE.setEntity(entity).setTicks(16));
 						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MOIRA_DAMAGE));
 						if (player == entity)
 							ItemMoiraWeapon.fadeViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
@@ -753,6 +778,162 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, ItemMcCreeGun.FAN.setEntity(entity).setTicks(5));
 						else
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.MCCREE_FAN));
+					}
+					// McCree's flashbang
+					else if (packet.type == 52 && entity != null) {
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(17).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"STUNNED").setNumber(MessageTypes.TOP.ordinal()));
+						float size = Math.min(entity.height, entity.width)*9f;
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.STUN, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 0.9f, 14, size, size, 0, 0);
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(17),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(17),
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(17));
+					}
+					// Ana's grenade
+					else if (packet.type == 53 && entity != null) {
+						if (packet.bool) {
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_HEAL, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
+							TickHandler.register(true, EntityAnaGrenade.HEAL.setEntity(entity).setTicks(80));
+							if (entity == player)
+								ModSoundEvents.ANA_GRENADE_HEAL.playFollowingSound(entity, 0.2f, 1, false);
+						}
+						else {
+							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_DAMAGE, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
+							TickHandler.register(true, EntityAnaGrenade.DAMAGE.setEntity(entity).setTicks(80).setNumber(packet.x));
+							if (entity == player)
+								ModSoundEvents.ANA_GRENADE_DAMAGE.playFollowingSound(entity, 1, 1, false);
+						}
+					}
+					// Tracer's recall
+					else if (packet.type == 54 && entity instanceof EntityLivingBase) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_3, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 7, 20, 0, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.HOLLOW_CIRCLE_2, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x4478AD, 1, 7, 20, 0, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0x63B8E8, 0x63B8E8, 1, 7, 15, 5, 0, 0.5f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 7, 10, 5, 0, 0.8f);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SPARK, entity.world, entity.posX, entity.posY+entity.height/2f, entity.posZ, 0, 0, 0, 0xD2FFFF, 0xEAFFFF, 1, 15, 0, 10, 0, 0.1f);
+						((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 30, 0, false, false));
+						entity.extinguish();
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ANA_GRENADE_DAMAGE));
+						TickHandler.register(true, ItemTracerPistol.RECALL.setEntity(entity).setTicks(35), 
+								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(30),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(30),
+								Ability.ABILITY_USING.setEntity(entity).setTicks(30).setAbility(EnumHero.TRACER.ability1),
+								Handlers.INVULNERABLE.setEntity(entity).setTicks(30));		
+					}
+					// Widowmaker's hook
+					else if (packet.type == 55 && entity instanceof EntityLivingBase && entity2 instanceof EntityWidowmakerHook) {
+						TickHandler.register(true, ItemWidowmakerRifle.HOOK.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks(100),
+								Ability.ABILITY_USING.setEntity(entity).setTicks(100).setAbility(EnumHero.WIDOWMAKER.ability2));
+					}
+					// Reinhardt's charge
+					else if (packet.type == 56 && entity instanceof EntityLivingBase) {
+						TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.REINHARDT_CHARGE);
+						// register charge / updated pinned entity
+						if (packet.bool && (entity2 == null || entity2 instanceof EntityLivingBase)) {
+							if (handler == null) {
+								((EntityLivingBase)entity).rotationYaw = (float) packet.x;
+								ModSoundEvents.REINHARDT_CHARGE.playFollowingSound(entity, 1, 1, false);
+								TickHandler.register(true, ItemReinhardtHammer.CHARGE.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(80),
+										Handlers.ACTIVE_HAND.setEntity(entity).setTicks(80),
+										Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(80), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(80).setBoolean(true),
+										RenderManager.SNEAKING.setEntity(entity).setTicks(80));
+								if (entity == player)
+									TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(80).setAbility(EnumHero.REINHARDT.ability3),
+											Handlers.FORCE_VIEW.setEntity(entity).setTicks(80).setNumber(3));
+							}
+							else {
+								TickHandler.interrupt(entity2);
+								handler.entityLiving = (EntityLivingBase) entity2;
+								handler.entityLiving.rotationPitch = 0;
+								handler.entityLiving.rotationYaw = MathHelper.wrapDegrees(entity.rotationYaw+180f);
+								handler.entityLiving.prevRotationYaw = handler.entityLiving.rotationYaw;
+								handler.entityLiving.prevRotationPitch = handler.entityLiving.rotationPitch;
+								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(handler.ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(handler.ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(handler.ticksLeft),
+										Handlers.FORCE_VIEW.setEntity(entity2).setTicks(handler.ticksLeft).setNumber(3),
+										RenderManager.MESSAGES.setEntity(entity2).setTicks(handler.ticksLeft).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"PINNED").setNumber(MessageTypes.TOP.ordinal()));
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(handler.ticksLeft).setString(TextFormatting.AQUA+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"PINNED").setNumber(MessageTypes.TOP.ordinal()));
+							}
+						}
+						// unregister charge
+						else if (!packet.bool) {
+							// stop sound
+							ModSoundEvents.REINHARDT_CHARGE.stopFollowingSound(entity);
+							// spawn particle
+							RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 3, 0, entity.getRotationYawHead());
+							if (result != null) {
+								double x = result.hitVec.x; 
+								double y = result.hitVec.y;
+								double z = result.hitVec.z;
+								if (result.sideHit == EnumFacing.SOUTH)
+									z = Math.ceil(z);
+								else if (result.sideHit == EnumFacing.EAST)
+									x = Math.ceil(x);
+								else if (result.sideHit == EnumFacing.UP)
+									y = Math.ceil(y);
+								Vec3d pos = new Vec3d(x, y, z);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_CHARGE, entity.world, pos.x, pos.y, pos.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 300, 10, 9, entity.world.rand.nextFloat(), 0, result.sideHit, true);
+							}
+							// unregister
+							TickHandler.unregister(true, handler, TickHandler.getHandler(entity, Identifier.ACTIVE_HAND),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
+									TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+									TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+							if (entity2 != null) {
+								TickHandler.unregister(true, TickHandler.getHandler(entity2, Identifier.PREVENT_INPUT),
+										TickHandler.getHandler(entity2, Identifier.PREVENT_ROTATION),
+										TickHandler.getHandler(entity2, Identifier.PREVENT_MOVEMENT),
+										TickHandler.getHandler(entity2, Identifier.FORCE_VIEW));
+								if (entity2 == player)
+									Minewatch.proxy.updateFOV();
+							}
+							if (entity == player)
+								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
+										TickHandler.getHandler(entity, Identifier.FORCE_VIEW));
+						}
+					}
+					// stop following sound
+					else if (packet.type == 57 && entity != null && packet.string != null) {
+						Minewatch.proxy.stopFollowingSound(entity, packet.string);
+					}
+					// Two Reinhardt Charges colliding
+					else if (packet.type == 58 && entity != null && entity2 != null) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(20),
+								Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(20), 
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(20));
+						TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks(20),
+								Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks(20), 
+								Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks(20));
+					}
+					// Set player's rotations
+					else if (packet.type == 59 && entity == player) {
+						player.prevRotationYaw = player.rotationYaw;
+						player.prevRotationPitch = player.rotationPitch;
+						player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
+						player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
+					}
+					// Ranks
+					else if (packet.type == 60) {
+						RankManager.clientRanks.clear();
+						for (Rank rank : Rank.values())
+							if ((((int)packet.x) >> rank.ordinal() & 1) == 1)
+								RankManager.clientRanks.add(rank);
+					}
+					// Sombra's hack
+					else if (packet.type == 61 && entity != null) {
+						if (packet.bool)
+							TickHandler.register(true, ItemSombraMachinePistol.HACK.setEntity(entity).setEntityLiving(null).setTicks(10));
+						else {
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.SOMBRA_HACK));
+							// entity2 hacked
+							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.interrupt(entity2);
+								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"HACKED").setNumber(MessageTypes.TOP.ordinal()));
+								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
+							}
+						}
 					}
 				}
 			});

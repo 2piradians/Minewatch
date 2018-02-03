@@ -20,7 +20,6 @@ public class ModBlocks {
 	public static Block healthPackSmall;
 	public static Block healthPackLarge;
 
-
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 

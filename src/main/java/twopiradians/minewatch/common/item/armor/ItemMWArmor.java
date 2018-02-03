@@ -24,7 +24,6 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
@@ -36,10 +35,11 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RankManager;
+import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -78,7 +78,8 @@ public class ItemMWArmor extends ItemArmor {
 			maleModel = new ModelMWArmor(0, false);
 			femaleModel = new ModelMWArmor(0, true);
 		}
-		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero) ? femaleModel : maleModel;
+		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero || entity instanceof EntityArmorStand) ? femaleModel : maleModel;
+		ret.slot = slot;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
 		if (entity instanceof EntityLivingBase && 
 				((RenderLivingBase)Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity)).getMainModel() instanceof ModelBiped) {
@@ -131,7 +132,7 @@ public class ItemMWArmor extends ItemArmor {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		// delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
 		if (!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				stack.getTagCompound().hasKey("devSpawned") && RankManager.getHighestRank((EntityPlayer) entity) != Rank.DEV &&
 				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
@@ -169,7 +170,7 @@ public class ItemMWArmor extends ItemArmor {
 		// delete dev spawned items if not worn by dev
 		if (stack.isEmpty() || (!world.isRemote && stack.hasTagCompound() && 
 				stack.getTagCompound().hasKey("devSpawned") && 
-				!CommandDev.DEVS.contains(player.getPersistentID()) && 
+				RankManager.getHighestRank(player) != Rank.DEV && 
 				player.getItemStackFromSlot(this.armorType) == stack)) {
 			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
@@ -204,9 +205,9 @@ public class ItemMWArmor extends ItemArmor {
 		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
-			BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			if ((player instanceof EntityPlayer && player.onGround) || (world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) || player.isInWater() || player.isInLava()) {
+			//BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
+			if ((player instanceof EntityPlayer && player.onGround) || /*(world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
+					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) ||*/ player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
 			}
 			else if (player.isCollidedHorizontally && 
@@ -254,21 +255,22 @@ public class ItemMWArmor extends ItemArmor {
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
 
-		// tracer chestplate particles
+		/*// tracer chestplate particles
 		double x = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosX : player.prevPosX;
 		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
 		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
 		if (this.armorType == EntityEquipmentSlot.CHEST &&
-				set == EnumHero.TRACER && world.isRemote && 
-				(x != 0 || y != 0 || z != 0)) {
+				set == EnumHero.TRACER && world.isRemote && !Minewatch.proxy.isPlayerInFirstPerson() && 
+				(x != 0 || y != 0 || z != 0) && 
+				!TickHandler.hasHandler(player, Identifier.TRACER_RECALL)) {
 			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
 			for (int i=0; i<numParticles; ++i)
 				Minewatch.proxy.spawnParticlesTrail(player.world, 
 						player.posX+(x-player.posX)*i/numParticles, 
 						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
 						player.posZ+(z-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 7, 0, 1);
-		}
+						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 3, 0, 1);
+		}*/
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 

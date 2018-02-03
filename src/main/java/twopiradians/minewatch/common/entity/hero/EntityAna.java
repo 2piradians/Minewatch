@@ -51,6 +51,15 @@ public class EntityAna extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.ABILITY_1.datamanager, false);
+				// grenade
+				if (entity.shouldUseAbility() && entity.hero.ability1.getCooldown(entity) <= 0) {
+					this.lookYOffset = -target.height/2f;
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+				}
+				else {
+					this.lookYOffset = 0;
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+				}
 				// normal attack
 				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
 			}
@@ -79,6 +88,15 @@ public class EntityAna extends EntityHero {
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, true);
 				else
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
+				// grenade
+				if (entity.shouldUseAbility() && entity.hero.ability1.getCooldown(entity) <= 0) {
+					this.lookYOffset = -target.height/2f;
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
+				}
+				else {
+					this.lookYOffset = 0;
+					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
+				}
 				// normal attack
 				this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
 			}

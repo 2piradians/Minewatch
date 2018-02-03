@@ -95,7 +95,7 @@ public class EntityMoiraHealEnergy extends EntityMW {
 		// heal
 		if (!this.world.isRemote && result.entityHit instanceof EntityLivingBase &&
 				((EntityLivingBase)result.entityHit).getHealth() < ((EntityLivingBase)result.entityHit).getMaxHealth() && 
-				!affectedEntities.contains(result.entityHit) && 
+				!affectedEntities.contains(result.entityHit) && result.entityHit != getThrower() && 
 				EntityHelper.attemptDamage(this, result.entityHit, -4f+0.8333f, true)) {
 			ModSoundEvents.MOIRA_HEAL_VOICE.playFollowingSound(getThrower(), 1, 1, false);
 			affectedEntities.add((EntityLivingBase) result.entityHit);

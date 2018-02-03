@@ -20,12 +20,14 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -48,31 +50,31 @@ public class Handlers {
 			if (this.entity != null && (((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING) == null ||
 					((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING).getDuration() <= 0))
 				this.entity.setGlowing(false);
-			
+
 			return super.onClientRemove();
 		}
 	};
-	
+
 	/**Set mainhand active (for item use action)*/
 	public static final Handler ACTIVE_HAND = new Handler(Identifier.ACTIVE_HAND, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (player != null && player.getHeldItemMainhand() != null && 
-					player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-					!player.isHandActive()) 
-				player.setActiveHand(EnumHand.MAIN_HAND);
+			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
+					entityLiving.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
+					!entityLiving.isHandActive()) 
+				entityLiving.setActiveHand(EnumHand.MAIN_HAND);
 			return super.onClientTick();
 		}
 		@SideOnly(Side.CLIENT)
 		@Override
 		public Handler onClientRemove() {
-			player.resetActiveHand();
+			entityLiving.resetActiveHand();
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-			player.resetActiveHand();
+			entityLiving.resetActiveHand();
 			return super.onServerRemove();
 		}
 	};
@@ -82,9 +84,7 @@ public class Handlers {
 		@Override
 		public Handler setEntity(Entity entity) {
 			super.setEntity(entity);
-			if (entityLiving != null)
-				rotations.put(entityLiving, 
-						Triple.of(entity.rotationPitch, entity.rotationYaw, entity.getRotationYawHead()));
+			copyRotations(entityLiving);
 			return this;
 		}
 		@Override
@@ -99,6 +99,12 @@ public class Handlers {
 		}
 	};
 
+	public static void copyRotations(EntityLivingBase entity) {
+		if (entity != null)
+			rotations.put(entity, 
+					Triple.of(entity.rotationPitch, entity.rotationYaw, entity.getRotationYawHead()));
+	}
+
 	public static void setRotations(EntityLivingBase entityLiving) {
 		if (entityLiving != null && rotations.containsKey(entityLiving)) {
 			Triple<Float, Float, Float> triple = rotations.get(entityLiving);
@@ -108,8 +114,8 @@ public class Handlers {
 			entityLiving.rotationPitch = triple.getLeft();
 			entityLiving.rotationYaw = triple.getMiddle();
 			entityLiving.rotationYawHead = triple.getRight();
-			entityLiving.prevRenderYawOffset = triple.getMiddle();
-			entityLiving.renderYawOffset = triple.getMiddle();
+			entityLiving.prevRenderYawOffset = triple.getRight();
+			entityLiving.renderYawOffset = triple.getRight();
 		}
 	}
 
@@ -199,18 +205,24 @@ public class Handlers {
 			event.setCanceled(true); 
 	}
 
-	/**Prevents moving, jumping, flying, and ender teleporting*/
+	/**Prevents moving, jumping, flying, and ender teleporting
+	 * bool is if it should allow x and z motion (used with Reinhardt's Charge)*/
 	public static final Handler PREVENT_MOVEMENT = new Handler(Identifier.PREVENT_MOVEMENT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
+			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
+				return true;
+
 			// prevent flying
 			entity.onGround = true;
 			if (player != null)
 				player.capabilities.isFlying = false;
-			entity.motionX = 0;
+			if (!bool) {
+				entity.motionX = 0;
+				entity.motionZ = 0;
+			}
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
-			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -221,12 +233,17 @@ public class Handlers {
 		}
 		@Override
 		public boolean onServerTick() {
+			if (this.ticksLeft <= 0) // needed for stupid slowness not removing properly
+				return true;
+
 			// prevent jumping
 			if (entity instanceof EntitySlime)
 				entity.onGround = false;
-			entity.motionX = 0;
+			if (!bool) {
+				entity.motionX = 0;
+				entity.motionZ = 0;
+			}
 			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
-			entity.motionZ = 0;
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -242,34 +259,53 @@ public class Handlers {
 			return super.onServerTick();
 		}
 		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			Minewatch.proxy.updateFOV();
+			// remove slowness
+			if (this.entityLiving != null) {
+				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
+				this.ticksLeft = 0;
+			}
+			return super.onClientRemove();
+		}
+		@Override
 		public Handler onServerRemove() {
 			// remove slowness
-			if (this.entityLiving != null)
+			if (this.entityLiving != null) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
+				this.ticksLeft = 0;
+			}
 			return super.onServerRemove();
 		}
 	};
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void clientSide(ClientTickEvent event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
+		Handler handler = TickHandler.getHandler(player, Identifier.PREVENT_MOVEMENT);
 		if (event.side == Side.CLIENT && event.phase == Phase.START &&
-				TickHandler.hasHandler(player, Identifier.PREVENT_MOVEMENT)) {
-			player.motionX = 0;
+				handler != null) {
+			if (!handler.bool) {
+				player.motionX = 0;
+				player.motionZ = 0;
+			}
 			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
-			player.motionZ = 0;
 			player.motionY = Math.min(0, player.motionY);
 		}
 	}
 
 	@SubscribeEvent
 	public void preventJumping(LivingJumpEvent event) {
+		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT);
 		if (event.getEntity() instanceof EntityLivingBase &&
-				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT))  {
-			event.getEntity().motionX = 0;
+				handler != null) {
+			if (!handler.bool) {
+				event.getEntity().motionX = 0;
+				event.getEntity().motionZ = 0;
+			}
 			event.getEntity().motionY = 0;
-			event.getEntity().motionZ = 0;
 			event.getEntity().isAirBorne = false;
 			event.getEntity().onGround = true;
 		}
@@ -281,5 +317,43 @@ public class Handlers {
 				TickHandler.hasHandler(event.getEntity(), Identifier.PREVENT_MOVEMENT))
 			event.setCanceled(true);
 	}
+
+	public static final Handler INVULNERABLE = new Handler(Identifier.INVULNERABLE, false) {};
+
+	@SubscribeEvent
+	public void preventAttack(LivingAttackEvent event) {
+		if (!event.getSource().canHarmInCreative() && 
+				TickHandler.hasHandler(event.getEntity(), Identifier.INVULNERABLE)) 
+			event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public void preventDamage(LivingHurtEvent event) {
+		if (!event.getSource().canHarmInCreative() && 
+				TickHandler.hasHandler(event.getEntityLiving(), Identifier.INVULNERABLE)) 
+			event.setCanceled(true);
+	}
+
+	public static final Handler FORCE_VIEW = new Handler(Identifier.FORCE_VIEW, false) {
+		@Override
+		public Handler setNumber(double number) {
+			this.number2 = Minecraft.getMinecraft().gameSettings.thirdPersonView;
+			return super.setNumber(number);
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (entity == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number;
+			return super.onClientTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			if (entity == Minecraft.getMinecraft().player)
+				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
+			return super.onClientRemove();
+		}
+	};
 
 }

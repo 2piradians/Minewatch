@@ -40,7 +40,7 @@ public class GuiScrollingTeams extends GuiScrollingList {
 	@Override
 	protected void drawSlot(int index, int right, int top, int height, Tessellator tess) {		
 		Team team = gui.teams.toArray(new Team[0])[index];
-		String name = team.getColor()+gui.getDisplayName(team);
+		String name = team.getColor()+gui.getTeamName(team);
 		gui.mc.fontRenderer.drawStringWithShadow(name, left+this.listWidth/2-gui.mc.fontRenderer.getStringWidth(name)/2, top+gui.mc.fontRenderer.FONT_HEIGHT/2, 0xFFFFFF);
 	}
 

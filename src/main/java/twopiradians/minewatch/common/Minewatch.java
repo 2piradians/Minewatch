@@ -15,12 +15,13 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import twopiradians.minewatch.common.command.CommandDev;
 import twopiradians.minewatch.common.command.CommandMinewatch;
+import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.creativetab.ArmorWeaponsTab;
 import twopiradians.minewatch.creativetab.IMinewatchTab;
 import twopiradians.minewatch.creativetab.MapMakingTab;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-//PORT change json location, search for scala library
+//PORT both - search for scala library
 // 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
 // 1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
 
@@ -36,13 +37,15 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //\.sendMessage\( -> .addChatMessage (fixes ~17 errors)
 
 //1.12:
-//  .addCoord( -> .expand( (not actually regex)
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Minewatch/1.12.1/update.json", acceptedMinecraftVersions="[1.12,1.13)")
+//.addCoord( -> .expand(
+//.expand( -> .grow(
+//.move( -> .offset(
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json", acceptedMinecraftVersions="[1.12,1.13)")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.8";
+    public static final String VERSION = "3.9";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tabMinewatch = new MinewatchTab("tabMinewatch");
@@ -73,6 +76,7 @@ public class Minewatch {
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandMinewatch());
 		event.registerServerCommand(new CommandDev());
+		RankManager.lookUpRanks();
 	}
 
 }

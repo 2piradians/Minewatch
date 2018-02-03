@@ -187,7 +187,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
 		// offset by facing
 		if (this.facing == EnumFacing.SOUTH || this.facing == EnumFacing.EAST)
-			pos.move(facing.getOpposite());
+			pos.offset(facing.getOpposite());
 
 		if (this.world.isBlockLoaded(pos)) {
 			pos.setY(MathHelper.floor(this.posY + (double)this.getEyeHeight()));

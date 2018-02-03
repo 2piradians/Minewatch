@@ -49,13 +49,13 @@ public class ItemTeamStick extends Item {
 		this.addPropertyOverride(new ResourceLocation("hasTeam"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity) {
-				return getDisplayName(stack, false) != null ? 1 : 0;
+				return getTeamName(stack, false) != null ? 1 : 0;
 			}
 		});
 	}
 
 	/**Get a team's display name / registry name*/
-	public static String getDisplayName(Team team) {
+	public static String getTeamName(Team team) {
 		if (team instanceof ScorePlayerTeam)
 			return ((ScorePlayerTeam)team).getDisplayName();
 		else if (team != null)
@@ -65,7 +65,7 @@ public class ItemTeamStick extends Item {
 	}
 
 	/**Get the stack's team registry name*/
-	public static String getDisplayName(ItemStack stack, boolean displayName) {
+	public static String getTeamName(ItemStack stack, boolean displayName) {
 		if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("teamRegistryName")) {
 			if (displayName && stack.getTagCompound().hasKey("teamDisplayName"))
 				return getTeamFormat(stack)+stack.getTagCompound().getString("teamDisplayName");
@@ -87,7 +87,7 @@ public class ItemTeamStick extends Item {
 	/**Get the stack's team*/
 	@Nullable
 	public static ScorePlayerTeam getTeam(World world, ItemStack stack) {
-		String name = getDisplayName(stack, false);
+		String name = getTeamName(stack, false);
 		if (name != null) 
 			return world.getScoreboard().getTeam(TextFormatting.getTextWithoutFormattingCodes(name));
 		else
@@ -135,7 +135,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String name = getDisplayName(stack, true);
+		String name = getTeamName(stack, true);
 		return super.getItemStackDisplayName(stack)+(name == null ? "" : ": "+name);
 	}
 
@@ -173,7 +173,7 @@ public class ItemTeamStick extends Item {
 			if (player.isSneaking()) {
 				if (entity.getTeam() != null) {
 					setTeam(stack, entity.getTeam());
-					sendChatMessage(player, "Copied "+entity.getName()+"'s team: "+getDisplayName(stack, true));
+					sendChatMessage(player, "Copied "+entity.getName()+"'s team: "+getTeamName(stack, true));
 				}
 				else 
 					sendChatMessage(player, entity.getName()+" isn't on a team");
@@ -181,12 +181,12 @@ public class ItemTeamStick extends Item {
 			// add to team
 			else if (team != null && !team.isSameTeam(entity.getTeam())) {
 				player.world.getScoreboard().addPlayerToTeam(entity instanceof EntityPlayer ? entity.getName() : entity.getCachedUniqueIdString(), team.getName());
-				sendChatMessage(player, "Set "+entity.getName()+"'s team to: "+getDisplayName(stack, true));
+				sendChatMessage(player, "Set "+entity.getName()+"'s team to: "+getTeamName(stack, true));
 				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
 			}
 			// add to team already on
 			else if (team != null && team.isSameTeam(entity.getTeam()))
-				sendChatMessage(player, entity.getName()+" is already on team "+getDisplayName(stack, true));
+				sendChatMessage(player, entity.getName()+" is already on team "+getTeamName(stack, true));
 			// no team selected
 			else if (team == null)
 				sendChatMessage(player, "No team selected; select a team by right-click the air first");

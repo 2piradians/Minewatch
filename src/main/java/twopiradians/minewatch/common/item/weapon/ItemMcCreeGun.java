@@ -13,6 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.ability.EntityMcCreeStun;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.hero.Ability;
@@ -69,7 +70,7 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 			return super.onServerTick();
 		}
-		
+
 		@Override
 		public Handler onServerRemove() {
 			Minewatch.network.sendToDimension(new SPacketSimple(51, entityLiving, false), entityLiving.world.provider.getDimension());
@@ -161,16 +162,31 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		// roll
-		if (isSelected && entity.onGround && entity instanceof EntityLivingBase && hero.ability2.isSelected((EntityLivingBase) entity) &&
-				!world.isRemote && this.canUse((EntityLivingBase) entity, true, getHand((EntityLivingBase) entity, stack), true)) {
-			ModSoundEvents.MCCREE_ROLL.playFollowingSound(entity, 1.3f, world.rand.nextFloat()/4f+0.8f, false);
-			Minewatch.network.sendToDimension(new SPacketSimple(2, entity, true), world.provider.getDimension());
-			if (entity instanceof EntityHero)
-				SPacketSimple.move((EntityLivingBase) entity, 0.6d, false, false);
-			this.setCurrentAmmo((EntityLivingBase)entity, this.getMaxAmmo((EntityLivingBase) entity));
-			TickHandler.register(false, ROLL.setEntity(entity).setTicks(10));
-			TickHandler.register(false, Ability.ABILITY_USING.setEntity(entity).setTicks(10).setAbility(hero.ability2));
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
+				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
+			EntityLivingBase player = (EntityLivingBase) entity;
+
+			// roll
+			if (player.onGround && hero.ability2.isSelected(player) &&
+					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
+				ModSoundEvents.MCCREE_ROLL.playFollowingSound(player, 1.3f, world.rand.nextFloat()/4f+0.8f, false);
+				Minewatch.network.sendToDimension(new SPacketSimple(2, player, true), world.provider.getDimension());
+				if (player instanceof EntityHero)
+					SPacketSimple.move(player, 0.6d, false, false);
+				this.setCurrentAmmo((EntityLivingBase)entity, this.getMaxAmmo(player));
+				TickHandler.register(false, ROLL.setEntity(player).setTicks(10));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(hero.ability2));
+			}
+			
+			// stun
+			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
+					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
+				EntityMcCreeStun projectile = new EntityMcCreeStun(world, player, EnumHand.MAIN_HAND.ordinal());
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 20, 0F, EnumHand.OFF_HAND, 10, 0.5f);
+				world.spawnEntity(projectile);
+				ModSoundEvents.MCCREE_STUN_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+				hero.ability1.keybind.setCooldown(player, 200, false);
+			}
 		}
 	}
 

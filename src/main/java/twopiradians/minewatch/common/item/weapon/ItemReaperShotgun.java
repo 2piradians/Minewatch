@@ -24,7 +24,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.CombatRules;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
@@ -37,7 +36,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -216,34 +214,32 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Nullable
 	private Vec3d getTeleportPos(EntityLivingBase player) {
 		try {
 			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
-				BlockPos pos = new BlockPos(result.hitVec.x, result.getBlockPos().getY(), result.hitVec.z);
-
-				double adjustZ = result.sideHit == EnumFacing.SOUTH ? -0.5d : 0;
-				double adjustX = result.sideHit == EnumFacing.EAST ? -0.5d : 0;
-
-				pos = pos.add(adjustX, 0, adjustZ);
+				BlockPos pos = result.getBlockPos();
+				
 				IBlockState state = player.world.getBlockState(pos);
 				IBlockState state1 = player.world.getBlockState(pos.up());
 				IBlockState state2 = player.world.getBlockState(pos.up(2));
-
-				if ((player.world.isAirBlock(pos.up()) || state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == null ||
-						state1.getBlock().getCollisionBoundingBox(state1, player.world, pos.up()) == Block.NULL_AABB) && 
-						(player.world.isAirBlock(pos.up(2)) || state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == null ||
-						state2.getBlock().getCollisionBoundingBox(state2, player.world, pos.up(2)) == Block.NULL_AABB) && 
+				
+				if ((player.world.isAirBlock(pos.up()) || state1.getCollisionBoundingBox(player.world, pos.up()) == null ||
+						state1.getCollisionBoundingBox(player.world, pos.up()) == Block.NULL_AABB) && 
+						(player.world.isAirBlock(pos.up(2)) || state2.getCollisionBoundingBox(player.world, pos.up(2)) == null ||
+						state2.getCollisionBoundingBox(player.world, pos.up(2)) == Block.NULL_AABB) && 
 						!player.world.isAirBlock(pos) && 
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != null &&
-						state.getBlock().getCollisionBoundingBox(state, player.world, pos) != Block.NULL_AABB &&
-						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35)
-					return new Vec3d(result.hitVec.x + adjustX, 
-							result.getBlockPos().getY()+1+(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
-							result.hitVec.z + adjustZ);
+						state.getCollisionBoundingBox(player.world, pos) != null &&
+						state.getCollisionBoundingBox(player.world, pos) != Block.NULL_AABB &&
+						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35 &&
+						(EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up(2).getX()+0.5d, pos.up(2).getY()+0.5d, pos.up(2).getZ()+0.5d)) ||
+						EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up().getX()+0.5d, pos.up().getY()+0.5d, pos.up().getZ()+0.5d))))
+					return new Vec3d(result.hitVec.x, 
+							result.getBlockPos().getY()+state.getCollisionBoundingBox(player.world, pos).maxY+
+							(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
+							result.hitVec.z);
 			}
 		}
 		catch (Exception e) {}
@@ -303,7 +299,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			else if (hero.ability2.isSelected(player) && !world.isRemote &&
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(60).setAbility(hero.ability2),
-						WRAITH.setEntity(player).setTicks(60));
+						WRAITH.setEntity(player).setTicks(60), Handlers.INVULNERABLE.setEntity(player).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(10, player, false));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
 				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
@@ -320,13 +316,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@SubscribeEvent
-	public void preventWraithDamage(LivingAttackEvent event) {
-		if (TickHandler.hasHandler(event.getEntity(), Identifier.REAPER_WRAITH) &&
-				!event.getSource().canHarmInCreative()) 
-			event.setCanceled(true);
-	}
-
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void moveTpCamera(FOVUpdateEvent event) {
 		if (Minecraft.getMinecraft().world != null &&
@@ -339,7 +328,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	public void damageEntities(LivingHurtEvent event) {
 		if (event.getSource().getTrueSource() instanceof EntityLivingBase && event.getEntityLiving() != null) {
 			EntityLivingBase source = ((EntityLivingBase)event.getSource().getTrueSource());
-			EntityLivingBase target = event.getEntityLiving();
 			// heal reaper
 			if (!source.world.isRemote && SetManager.getWornSet(source) == hero) {
 				try {
@@ -351,9 +339,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				}
 				catch (Exception e) {}
 			}
-			// cancel attack in wraith
-			if (!source.world.isRemote && TickHandler.hasHandler(target, Identifier.REAPER_WRAITH)) 
-				event.setCanceled(true);
 		}
 	}
 
@@ -407,7 +392,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		boolean tping = handler != null && handler.ticksLeft != -1;
 		return tping ? "_1" : "_0";
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
@@ -432,7 +417,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 					GlStateManager.enableBlend();
-					//PORT scale x event.getResolution().getScaleFactor()
+					//PORT 1.10.2 scale x event.getResolution().getScaleFactor()
 					GlStateManager.scale(width/256d, height/256d, 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;

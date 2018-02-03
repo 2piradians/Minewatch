@@ -25,7 +25,7 @@ public class EntitySombraTranslocator extends EntityMW {
 
 	public EntitySombraTranslocator(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn, -1);
-		this.setSize(0.8f, 0.3f);
+		this.setSize(0.6f, 0.3f);
 		this.lifetime = 1200;
 		this.notDeflectible = true;
 	}
@@ -90,7 +90,8 @@ public class EntitySombraTranslocator extends EntityMW {
 			this.onGround = true;
 	}
 
-	protected boolean isValidImpact(RayTraceResult result) {
+	@Override
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
 		return result.typeOfHit == RayTraceResult.Type.BLOCK && result.sideHit == EnumFacing.DOWN;
 	}
 

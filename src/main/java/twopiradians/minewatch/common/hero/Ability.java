@@ -44,7 +44,7 @@ public class Ability {
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
 					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
-						this.setTicks(ability.useCooldown);
+						this.setTicks(Math.max(1, (int) (ability.useCooldown*Config.abilityCooldownMultiplier)));
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);
@@ -81,7 +81,9 @@ public class Ability {
 
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(Entity entity, boolean toggle) {
-		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isEnabled) {
+		if (TickHandler.getHandler(entity, Identifier.ABILITY_USING) == null && isEnabled && 
+				!TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED) && 
+				!TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT)) {
 			if (toggle) {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(entity.getPersistentID());
@@ -94,7 +96,9 @@ public class Ability {
 
 	/**Toggle this ability - untoggles all other abilities*/
 	public void toggle(UUID uuid, boolean toggle, boolean isRemote) {
-		if (TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null && isEnabled) {
+		if (TickHandler.getHandler(uuid, Identifier.ABILITY_USING, isRemote) == null && isEnabled && 
+				!TickHandler.hasHandler(uuid, Identifier.SOMBRA_HACKED, isRemote) && 
+				!TickHandler.hasHandler(uuid, Identifier.PREVENT_INPUT, isRemote)) {
 			if (toggle) {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggled.remove(uuid);
@@ -147,7 +151,7 @@ public class Ability {
 	public boolean isSelected(EntityLivingBase player, boolean isPressed, Ability...ignoreAbilities) {
 		if (player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator())
 			return false;
-		
+
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);
@@ -160,7 +164,8 @@ public class Ability {
 				SetManager.getWornSet(player) == hero) &&
 				keybind.getCooldown(player) == 0 && ((!isPressed && keybind.isKeyDown(player)) ||
 						(isPressed && keybind.isKeyPressed(player))||
-						toggled.contains(player.getPersistentID()));
+						toggled.contains(player.getPersistentID())) &&
+				!TickHandler.hasHandler(player, Identifier.SOMBRA_HACKED);
 
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 		boolean ignoreAbility = false;

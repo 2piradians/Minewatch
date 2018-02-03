@@ -1,8 +1,8 @@
 package twopiradians.minewatch.common.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Vector2f;
@@ -20,6 +20,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
@@ -30,7 +32,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -45,11 +46,13 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
+import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
@@ -59,7 +62,7 @@ public class EntityHelper {
 	private static final Handler HEALTH_PARTICLES = new Handler(Identifier.HEALTH_PARTICLES, false) {};
 
 	/**Copied from EntityThrowable*/
-	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn) {
+	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn, boolean friendly) {
 		ArrayList<RayTraceResult> results = new ArrayList<RayTraceResult>();
 		Vec3d posVec = EntityHelper.getEntityPartialPos(entityIn).addVector(0, entityIn.height/2f, 0);
 		if (entityIn instanceof EntityReinhardtStrike) // use prevPos so it doesn't clip in ground if shot too close to ground
@@ -79,7 +82,8 @@ public class EntityHelper {
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
-			if (entity.canBeCollidedWith() || (entity instanceof EntityLivingBaseMW && shouldHit(entityIn, entity, false))) {
+			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly)))/* && 
+					(entity.canBeCollidedWith() || entity instanceof EntityLivingBaseMW || entity instanceof EntityDragon)*/) {
 				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
 				double y2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
 				double z2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
@@ -153,8 +157,21 @@ public class EntityHelper {
 			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.x, blockTrace.hitVec.y, blockTrace.hitVec.z));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
-		RayTraceResult entityTrace = target != null ? new RayTraceResult(target, new Vec3d(target.posX, target.posY+target.height/2d, target.posZ)) : 
-			EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
+		RayTraceResult entityTrace = null;
+		if (target != null)
+			entityTrace = new RayTraceResult(target, new Vec3d(target.posX, target.posY+target.height/2d, target.posZ));
+		/*// aim bot (eventually used with Soldier's ult)
+		else if () {
+			EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision(shooter, shooter instanceof EntityHero ? 64 : 512, 15, friendly);
+				if (targetEntity != null) { 
+				Vec3d targetHit = EntityHelper.getClosestPointOnBoundingBox(vec, shooter.getLookVec(), targetEntity);
+				if (targetHit != null)
+					entityTrace = new RayTraceResult(target, targetHit);
+			}
+		}*/
+		else  
+			entityTrace = EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
+
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
 			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.x, entityTrace.hitVec.y, entityTrace.hitVec.z));
 
@@ -251,10 +268,14 @@ public class EntityHelper {
 		// can't hit creative players
 		if (entityHit instanceof EntityPlayer && ((EntityPlayer)entityHit).isCreative())
 			return false;
+		// prevent hitting armor stands
+		if (entityHit instanceof EntityArmorStand)
+			return false;
 		thrower = getThrower(thrower);
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
-				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0)) && !entityHit.isEntityInvulnerable(source); 
+				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
+						entityHit instanceof EntityEnderCrystal) && !entityHit.isEntityInvulnerable(source); 
 	}
 
 	/**Should target be hit by entity / should entity render red*/
@@ -281,8 +302,8 @@ public class EntityHelper {
 		if (friendly && target instanceof EntityLiving && 
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
-		// prevent healing mobs with config option disabled
-		if (!Config.healMobs && friendly && !(target instanceof EntityPlayer || target instanceof EntityHero))
+		// prevent healing mobs not on team with config option disabled
+		if (!Config.healMobs && friendly && target != null && entity != null && (target.getTeam() == null || target.getTeam() != entity.getTeam()))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entity.getTeam() == null || target.getTeam() == null || 
@@ -368,6 +389,7 @@ public class EntityHelper {
 			// damage
 			else if (damage >= 0) {
 				boolean damaged = false;
+				// save prev hurtResistTime (use EntityDragon's resist if this is EntityDragonPart)
 				int prevHurtResist = entityHit.hurtResistantTime;
 				if (ignoreHurtResist)
 					entityHit.hurtResistantTime = 0;
@@ -381,7 +403,7 @@ public class EntityHelper {
 					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
 
 				if (damaged && ignoreHurtResist)
-					entityHit.hurtResistantTime = prevHurtResist;
+						entityHit.hurtResistantTime = prevHurtResist;
 
 				return damaged;
 			}
@@ -392,7 +414,10 @@ public class EntityHelper {
 
 	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking*/
 	public static void heal(EntityLivingBase entity, float damage) {
-		if (entity != null && entity.getHealth() < entity.getMaxHealth()) {
+		if (entity != null && entity.getHealth() < entity.getMaxHealth() && 
+				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
+			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
+				damage *= 2f;
 			entity.heal(Math.abs(damage*Config.damageScale));
 			spawnHealParticles(entity);
 		}
@@ -427,12 +452,22 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha) {
-		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(entity.prevPosX, entity.prevPosY, entity.prevPosZ)));
+		spawnTrailParticles(entity, amountPerBlock, random, motionX, motionY, motionZ, color, colorFade, scale, maxAge, alpha, entity.getPositionVector(), getPrevPositionVector(entity));
+	}
+
+	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
+	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, int color, int colorFade, float scale, int maxAge, float alpha, Vec3d pos, Vec3d prevPos) {
+		spawnTrailParticles(entity, amountPerBlock, random, 0, 0, 0, color, colorFade, scale, maxAge, alpha, pos, prevPos);
+	}
+
+	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
+	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha, Vec3d pos, Vec3d prevPos) {
+		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(prevPos.x, prevPos.y, prevPos.z)));
 		for (float i=0; i<numParticles; ++i) 
 			Minewatch.proxy.spawnParticlesTrail(entity.world, 
-					entity.posX+(entity.prevPosX-entity.posX)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posY+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(entity.prevPosY-entity.posY)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
-					entity.posZ+(entity.prevPosZ-entity.posZ)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.x+(prevPos.x-pos.x)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.y+(entity instanceof EntityHanzoArrow ? 0 : entity.height/2d)+(prevPos.y-pos.y)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
+					pos.z+(prevPos.z-pos.z)*i/numParticles+(entity.world.rand.nextDouble()-0.5d)*random, 
 					motionX, motionY, motionZ, color, colorFade, scale, maxAge, (i/numParticles), alpha);
 	}
 
@@ -465,9 +500,9 @@ public class EntityHelper {
 			double d1 = d0;
 			Vec3d vec3d1 = getLook(pitch, yawHead);
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
-			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
+			List<Entity> list = shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
 				public boolean apply(@Nullable Entity entity) {
-					return entity != null && entity.canBeCollidedWith() && shouldTarget(shooter, entity, friendly);
+					return entity != null/* && entity.canBeCollidedWith()*/ && shouldTarget(shooter, entity, friendly);
 				}
 			}));
 			double d2 = d1;
@@ -537,8 +572,8 @@ public class EntityHelper {
 		return net.minecraftforge.client.ForgeHooksClient.getOffsetFOV(player, f);
 	}
 
-	/**Copied from {@link Entity#getPositionEyes(float)} to make public*/
-	public static Vec3d getPositionEyes(EntityLivingBase entity) {
+	/**Copied from {@link Entity#getPositionEyes(float)} for server (clientside in 1.10.2)*/
+	public static Vec3d getPositionEyes(Entity entity) {
 		float partialTicks = Minewatch.proxy.getRenderPartialTicks(); 
 		if (entity == null)
 			return Vec3d.ZERO;
@@ -569,10 +604,10 @@ public class EntityHelper {
 		}
 		return nearest;
 	}
-	
+
 	/**Get center of aabb, because clientside*/
 	public static Vec3d getCenter(AxisAlignedBB aabb) {
-        return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
+		return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
 	}
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
@@ -580,11 +615,16 @@ public class EntityHelper {
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
 
+	/**Returns if e1 is with maxAngle degrees of looking at pos*/
+	public static boolean isInFieldOfVision(Entity e1, Vec3d pos, float maxAngle){
+		return getMaxFieldOfVisionAngle(e1, pos) <= maxAngle;
+	}
+
 	/**Returns angles if e1 was directly facing e2*/
 	public static Vector2f getDirectLookAngles(Entity e1, Entity e2) {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
-				getClosestPointOnBoundingBox(e1.getPositionEyes(1), e1.getLook(1), e2));
+				getClosestPointOnBoundingBox(getPositionEyes(e1), e1.getLook(1), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
@@ -620,13 +660,22 @@ public class EntityHelper {
 				break;
 			}
 		}
-		
+
 		return closest;
 	}
 
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2){
 		Vector2f facing = getDirectLookAngles(e1, e2);
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
+		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
+		return Math.max(deltaYaw, deltaPitch);
+	}
+
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Vec3d pos){
+		Vector2f facing = getDirectLookAngles(getPositionEyes(e1), pos);
 		// calculate difference between facing and current angles
 		float deltaYaw = Math.abs(MathHelper.wrapDegrees(e1.rotationYaw - facing.x));
 		float deltaPitch = Math.abs(e1.rotationPitch-facing.y);
@@ -650,7 +699,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !(input instanceof EntityLivingBaseMW) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {
@@ -666,6 +715,42 @@ public class EntityHelper {
 		//RenderManager.boundingBoxesToRender.add(aabb);
 
 		return angle <= maxAngle ? closest : null;
+	}
+
+	/**Get target within maxAngle degrees of being looked at by shooter*/
+	@Nullable
+	public static Vec3d getHealthPackInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle) {
+		Vec3d lookVec = shooter.getLookVec().scale(range-1);
+		AxisAlignedBB aabb = shooter.getEntityBoundingBox().grow(5).expand(lookVec.x, lookVec.y, lookVec.z);
+
+		RayTraceResult result = EntityHelper.getMouseOverBlock(shooter, range);
+		if (result != null && shooter.world.getTileEntity(result.getBlockPos()) instanceof TileEntityHealthPack && 
+				((TileEntityHealthPack)shooter.world.getTileEntity(result.getBlockPos())).canBeHacked(shooter))
+			return new Vec3d(result.getBlockPos());
+
+		BlockPos closest = null;
+		float angle = Float.MAX_VALUE;
+		HashSet<BlockPos> posToRemove = new HashSet<BlockPos>();
+		for (BlockPos pos : TileEntityHealthPack.healthPackPositions) {
+			if (pos == null || !(shooter.world.getTileEntity(pos) instanceof TileEntityHealthPack))
+				posToRemove.add(pos);
+			else if (aabb.contains(new Vec3d(pos).addVector(0.5d, 0, 0.5d)) && 
+					Math.sqrt(shooter.getDistanceSqToCenter(pos)) < range && 
+					((TileEntityHealthPack)shooter.world.getTileEntity(pos)).canBeHacked(shooter)) {
+				float newAngle = EntityHelper.getMaxFieldOfVisionAngle(shooter, new Vec3d(pos).addVector(0.5d, 0, 0.5d));
+				if (closest == null || newAngle < angle) {
+					closest = pos;
+					angle = newAngle;
+				}
+			}
+		}
+		TileEntityHealthPack.healthPackPositions.removeAll(posToRemove);
+
+		// debug visualize
+		//RenderManager.boundingBoxesToRender.clear(); 
+		//RenderManager.boundingBoxesToRender.add(aabb);
+
+		return angle <= maxAngle && closest != null ? new Vec3d(closest) : null;
 	}
 
 	/**Is entity holding the item in either hand*/
@@ -768,7 +853,7 @@ public class EntityHelper {
 		boolean flag = false;
 		BlockPos blockpos = new BlockPos(entity);
 		World world = entity.world;
-		Random random = entity.world.rand;
+		//Random random = entity.world.rand;
 
 		if (world.isBlockLoaded(blockpos))
 		{
@@ -794,7 +879,7 @@ public class EntityHelper {
 			{
 				entity.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
 
-				if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && !world.containsAnyLiquid(entity.getEntityBoundingBox()))
+				if (world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty()/* && !world.containsAnyLiquid(entity.getEntityBoundingBox())*/)
 				{
 					flag = true;
 				}
@@ -810,7 +895,7 @@ public class EntityHelper {
 		{
 			//int i = 128;
 
-			for (int j = 0; j < 128; ++j)
+			/*for (int j = 0; j < 128; ++j)
 			{
 				double d6 = (double)j / 127.0D;
 				float f = (random.nextFloat() - 0.5F) * 0.2F;
@@ -820,7 +905,7 @@ public class EntityHelper {
 				double d4 = d1 + (entity.posY - d1) * d6 + random.nextDouble() * (double)entity.height;
 				double d5 = d2 + (entity.posZ - d2) * d6 + (random.nextDouble() - 0.5D) * (double)entity.width * 2.0D;
 				world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, (double)f, (double)f1, (double)f2, new int[0]);
-			}
+			}*/
 
 			if (entity instanceof EntityCreature)
 			{
@@ -829,6 +914,29 @@ public class EntityHelper {
 
 			return true;
 		}
+	}
+
+	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but from a generic lookPos*/
+	public static boolean canEntityBeSeen(Vec3d lookPos, Entity entity) {
+		return entity != null && lookPos != null && canBeSeen(entity.world, lookPos, new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ));
+	}
+
+	/**Similar to {@link EntityLivingBase#canEntityBeSeen(Entity)}, but to a generic pos*/
+	public static boolean canBeSeen(World world, Vec3d lookPos, Vec3d pos) {
+		return pos != null && lookPos != null && world.rayTraceBlocks(lookPos, pos, false, true, false) == null;
+	}
+
+	/**Get prev position vector - uses chasing pos for EntityPlayer*/
+	public static Vec3d getPrevPositionVector(Entity entity) {
+		double x = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
+		double y = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
+		double z = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
+		return new Vec3d(x, y, z);
+	}
+
+	/**Returns entity's name*/
+	public static String getName(Entity entity) {
+		return entity == null ? "" : entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
 	}
 
 }

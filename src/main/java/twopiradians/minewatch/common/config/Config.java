@@ -37,7 +37,7 @@ public class Config {
 	}
 
 	/**Version of this config - if loaded version is less than this, delete the config*/
-	private static final float CONFIG_VERSION = 3.4F;
+	private static final float CONFIG_VERSION = 3.9F;
 
 	public static final String CATEGORY_HERO_MOBS = "config.server-side.hero_mobs";
 	public static final String CATEGORY_SERVER_SIDE = "config.server-side";
@@ -68,6 +68,8 @@ public class Config {
 	public static double ammoMultiplier;
 	public static boolean tokenDropRequiresPlayer;
 	public static double abilityCooldownMultiplier;
+	public static boolean renderOutlines;
+	public static float aimAssist;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -117,16 +119,16 @@ public class Config {
 	/**@param overriding - should config sync from the config fields*/
 	public static void syncConfig(boolean overriding) {		
 		// CLIENT-SIDE
-		Property prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D item models", true, "Should the Minewatch weapons use 3D models?");
+		Property prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models?");
 		useObjModels = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom crosshairs", true, "Should weapons change your crosshair?");
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom Crosshairs", true, "Should weapons change your crosshair?");
 		customCrosshairs = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui Scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
 		guiScale = prop.getDouble();
 
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Track kills and damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Track Kills and Damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
 		for (int i=0; i<TRACK_KILLS_OPTIONS.length; ++i)
 			if (prop.getString().equals(TRACK_KILLS_OPTIONS[i]))
 				trackKillsOption = i;
@@ -141,46 +143,49 @@ public class Config {
 			}
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Render Outlines", true, "Should enemy heroes have a red outline?");
+		renderOutlines = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command)
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent fall damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent Fall Damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
 		if (overriding)
 			prop.set(preventFallDamage);
 		else
 			preventFallDamage = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict weapon usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict Weapon Usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
 		if (overriding)
 			prop.set(allowGunWarnings);
 		else
 			allowGunWarnings = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles cause knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles Cause Knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
 		if (overriding)
 			prop.set(projectilesCauseKnockback);
 		else
 			projectilesCauseKnockback = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token drop percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drop Percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
 		if (overriding)
 			prop.set(tokenDropRate);
 		else
 			tokenDropRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card drop percentage", 10, "Percent of time a dropped token will be a Wild Card token.", 0, 100);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card Drop Percentage", 10, "Percent of time a dropped token will be a Wild Card token.", 0, 100);
 		if (overriding)
 			prop.set(wildCardRate);
 		else
 			wildCardRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
 		if (overriding)
 			prop.set(damageScale * 10f);
 		else
 			damageScale = (float) (0.1d * prop.getDouble());
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors use durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors Use Durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
 		if (overriding)
 			prop.set(DURABILITY_OPTIONS[durabilityOptionArmors]);
 		else
@@ -188,7 +193,7 @@ public class Config {
 				if (prop.getString().equals(DURABILITY_OPTIONS[i]))
 					durabilityOptionArmors = i;
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons use durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons Use Durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
 		if (overriding)
 			prop.set(DURABILITY_OPTIONS[durabilityOptionWeapons]);
 		else
@@ -196,7 +201,7 @@ public class Config {
 				if (prop.getString().equals(DURABILITY_OPTIONS[i]))
 					durabilityOptionWeapons = i;
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow healing mobs", true, "Should healing abilities and attacks affect other mobs? This does not apply to Hero Mobs.");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow Healing Outside Team", true, "Should healing abilities and attacks affect mobs that are not on the same team?"); 
 		if (overriding)
 			prop.set(healMobs);
 		else
@@ -231,10 +236,16 @@ public class Config {
 			prop.set(abilityCooldownMultiplier);
 		else
 			abilityCooldownMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Aim Assist", 0.2d, "0 is no aim assist, 1 is heavy aim assist. This will subtly turn the player towards their target while shooting.", 0, 1);
+		if (overriding)
+			prop.set(aimAssist);
+		else
+			aimAssist = (float) prop.getDouble();
 
 		// Hero Mob options
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random skins", true, "Should Hero Mobs spawn with random skins.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
 		if (overriding)
 			prop.set(mobRandomSkins);
 		else
@@ -248,7 +259,7 @@ public class Config {
 				if (prop.getString().equals(SPAWN_OPTIONS[i]))
 					mobSpawn = i;
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
 		if (overriding)
 			prop.set(SPAWN_FREQ_OPTIONS[mobSpawnFreq]);
 		else
@@ -262,43 +273,43 @@ public class Config {
 			else
 				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)
 			prop.set(mobTargetPlayers);
 		else
 			mobTargetPlayers = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target hostile mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hostile Mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)
 			prop.set(mobTargetHostiles);
 		else
 			mobTargetHostiles = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target passive mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Passive Mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)
 			prop.set(mobTargetPassives);
 		else
 			mobTargetPassives = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target other hero mobs", false, "Should Hero Mobs target other Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hero Mobs", false, "Should Hero Mobs target Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
 		if (overriding)
 			prop.set(mobTargetHeroes);
 		else
 			mobTargetHeroes = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Token drop percentage", 25, "Percent of time a token drops from a Hero Mob upon death.\nNote: Hero Mobs will only drop tokens of their respective hero (or Wild Card tokens).", 0, 100);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Token Drop Percentage", 25, "Percent of time a token drops from a Hero Mob upon death.\nNote: Hero Mobs will only drop tokens of their respective hero (or Wild Card tokens).", 0, 100);
 		if (overriding)
 			prop.set(mobTokenDropRate);
 		else
 			mobTokenDropRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Wild Card drop percentage", 10, "Percent of time a dropped token from a Hero Mob will be a Wild Card token.", 0, 100);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Wild Card Drop Percentage", 10, "Percent of time a dropped token from a Hero Mob will be a Wild Card token.", 0, 100);
 		if (overriding)
 			prop.set(mobWildCardDropRate);
 		else
 			mobWildCardDropRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment drop percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment Drop Percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
 		if (overriding)
 			prop.set((int) (mobEquipmentDropRate*100f));
 		else
@@ -318,7 +329,7 @@ public class Config {
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {
-		return config.get(Config.CATEGORY_HERO_SKINS, hero.name+" skin", hero.skinCredits[0], "Skins for "+hero.name+"'s armor", hero.skinCredits);
+		return config.get(Config.CATEGORY_HERO_SKINS, hero.name+" Skin", hero.skinCredits[0], "Skins for "+hero.name+"'s armor", hero.skinCredits);
 	}
 
 	@SubscribeEvent

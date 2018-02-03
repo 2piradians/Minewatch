@@ -1,5 +1,7 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.state.IBlockState;
@@ -11,11 +13,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -24,14 +30,181 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReinhardtHammer extends ItemMWWeapon {
+
+	public static final Handler CHARGE = new Handler(Identifier.REINHARDT_CHARGE, true) {
+		private ArrayList<EntityLivingBase> hitEntities = new ArrayList<EntityLivingBase>();
+
+		private void move() { // stop if colliding with another charge
+			entity.setSneaking(false);
+			if (entity.world.isRemote) {
+				if (number == 0) // number is used to lock yaw (since PREVENT_ROTATIONS is updated)
+					this.number = entity.rotationYaw;
+				entity.rotationYaw = (float) MathHelper.clamp(number-((EntityLivingBase)entity).moveStrafing, number-1, number+1);
+				entity.rotationPitch = 10;
+				entity.setRotationYawHead(entity.rotationYaw);
+				this.number = entity.rotationYaw;
+				Handlers.copyRotations((EntityLivingBase) entity);
+			}
+			if (this.ticksLeft <= this.initialTicks-14) {
+				((EntityLivingBase)entity).moveStrafing = 0;
+				((EntityLivingBase)entity).moveForward = 0;
+				//TODO check friction
+				entity.moveRelative(0, 1, 1, 0);
+				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d);
+				entity.motionX = motion.x;
+				entity.motionZ = motion.z;
+
+				// check for entities to pin / knockback
+				if (!entity.world.isRemote) {
+					Vec3d look = entity.getLookVec().scale(1d);
+					AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(1d).offset(look);
+					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
+						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
+						target instanceof EntityLivingBase && 
+						EntityHelper.attemptDamage(entity, target, 50, true)) {
+							hitEntities.add((EntityLivingBase) target);
+							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
+								this.ticksLeft = 20;
+								TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(ticksLeft));
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(target).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(target).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(target).setTicks(ticksLeft));
+								TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT).setBoolean(false);
+								Minewatch.network.sendToDimension(new SPacketSimple(58, entity, true, target), entity.world.provider.getDimension());
+							}
+							else if (this.entityLiving == null && target.isEntityAlive()) {
+								TickHandler.interrupt(target);
+								this.entityLiving = (EntityLivingBase) target;
+								Minewatch.network.sendToDimension(new SPacketSimple(56, entity, true, target), entity.world.provider.getDimension());
+								this.entityLiving.rotationPitch = 0;
+								this.entityLiving.rotationYaw = MathHelper.wrapDegrees(entity.rotationYaw+180f);
+								this.entityLiving.prevRotationYaw = this.entityLiving.rotationYaw;
+								this.entityLiving.prevRotationPitch = this.entityLiving.rotationPitch;
+								TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(ticksLeft),
+										Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(ticksLeft), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(ticksLeft));
+							}
+							else
+								((EntityLivingBase)target).knockBack(entity, 5, (double)MathHelper.sin(entity.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(entity.rotationYaw * 0.017453292F)));
+						}
+
+					// check for wall impact
+					float pitch = this.entity.rotationPitch;
+					this.entity.rotationPitch = 0;
+					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).offset(this.entity.getLookVec().scale(1));
+					this.entity.rotationPitch = pitch;
+					if (this.entity.world.collidesWithAnyBlock(aabb)) {
+						this.ticksLeft = 1;
+						if (this.entityLiving != null)
+							EntityHelper.attemptDamage(entity, entityLiving, 300, true);
+						ModSoundEvents.REINHARDT_CHARGE_HIT.playFollowingSound(entity, 1, 1, false);
+					}
+				}
+			}
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			if (entity instanceof EntityLivingBase) {
+				move();
+
+				// move pinned
+				if (this.entityLiving != null) { 
+					if (!this.entityLiving.isEntityAlive())
+						this.entityLiving = null;
+					else {
+						Vec3d pos = this.entity.getPositionVector().add(this.entity.getLookVec().scale(entity.width/2f+entityLiving.width/2f)).addVector(0, entity.height/2f-entityLiving.height/2f, 0);
+						this.entityLiving.prevPosX = this.entityLiving.posX;
+						this.entityLiving.prevPosY = this.entityLiving.posY;
+						this.entityLiving.prevPosZ = this.entityLiving.posZ;
+						this.entityLiving.setPosition(pos.x, pos.y, pos.z);
+						this.entityLiving.fallDistance = 0;
+					}
+				}
+
+				// particles
+				EntityHelper.spawnTrailParticles(entity, 3, 0, 0xFFD82F, 0xD75B1C, 2, 4, 0.5f, entity.getPositionVector().addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
+				EntityHelper.spawnTrailParticles(entity, 3, 0, 0xFFFBC3, 0xFFD936, 1, 3, 0.5f, entity.getPositionVector().addVector(0, 0.3f, 0), EntityHelper.getPrevPositionVector(entity).addVector(0, 0.3f, 0));
+				if (entity.world.rand.nextInt(2) == 0)
+					entity.world.spawnParticle(EnumParticleTypes.FLAME, 
+							entity.posX+(entity.world.rand.nextFloat()-0.5f)*0.2f, 
+							entity.posY+entity.height/2f+0.3f+(entity.world.rand.nextFloat()-0.5f)*0.2f, 
+							entity.posZ+(entity.world.rand.nextFloat()-0.5f)*0.2f, 0, 0, 0, new int[0]);
+			}
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			if (entity instanceof EntityLivingBase) {
+				move();
+
+				// move pinned
+				if (this.entityLiving != null) {
+					if (!this.entityLiving.isEntityAlive())
+						this.entityLiving = null;
+					else {
+						Vec3d pos = this.entity.getPositionVector().add(this.entity.getLookVec().scale(entity.width/2f+entityLiving.width/2f));
+						this.entityLiving.prevPosX = this.entityLiving.posX;
+						this.entityLiving.prevPosY = this.entityLiving.posY;
+						this.entityLiving.prevPosZ = this.entityLiving.posZ;
+						this.entityLiving.setPosition(pos.x, pos.y, pos.z);
+						this.entityLiving.fallDistance = 0;
+					}
+				}
+			}
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			// move pinned to entity location so it's not in a block
+			if (this.entityLiving != null) {
+				this.entityLiving.setPosition(entity.posX, entity.posY, entity.posZ);
+				TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(20), 
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(20));
+			}
+			this.entity.motionX = 0;
+			this.entity.motionZ = 0;
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			this.hitEntities.clear();
+			if (entity instanceof EntityLivingBase)
+				EnumHero.REINHARDT.ability3.keybind.setCooldown((EntityLivingBase) entity, 200, false);
+			// move pinned to entity location so it's not in a block
+			if (this.entityLiving != null) {
+				this.entityLiving.setPosition(entity.posX, entity.posY, entity.posZ);
+				this.entityLiving.knockBack(entity, 2, (double)MathHelper.sin(entity.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(entity.rotationYaw * 0.017453292F)));
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(20), 
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(20));
+			}
+			this.entity.motionX = 0;
+			this.entity.motionZ = 0;
+			Minewatch.network.sendToDimension(new SPacketSimple(56, entity, false, entityLiving), entity.world.provider.getDimension());
+			TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ACTIVE_HAND),
+					TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION),
+					TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT),
+					TickHandler.getHandler(entity, Identifier.HERO_SNEAKING),
+					TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+			return super.onServerRemove();
+		}
+	};
 
 	public static final Handler STRIKE = new Handler(Identifier.REINHARDT_STRIKE, true) {
 		@Override
@@ -55,6 +228,16 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	public ItemReinhardtHammer() {
 		super(0);
+	}
+
+	@Override
+	public EnumAction getItemUseAction(ItemStack stack) {
+		return EnumAction.BLOCK;
+	}
+
+	@Override
+	public int getMaxItemUseDuration(ItemStack stack) {
+		return Integer.MAX_VALUE;
 	}
 
 	@Override
@@ -90,8 +273,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		this.attack(stack, player, entity);
-		return false;
+		return true;
 	}
 
 	@Override
@@ -125,7 +307,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		super.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (isSelected && entity instanceof EntityLivingBase) {	
+		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 			player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 8, 3, true, false));
 
@@ -138,6 +320,18 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 13, 2, true, false));
 			}
 
+			// charge
+			if (!world.isRemote && hero.ability3.isSelected(player) && 
+					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				player.renderYawOffset = player.rotationYawHead;
+				Minewatch.network.sendToDimension(new SPacketSimple(56, player, true, player.rotationYawHead, 0, 0), world.provider.getDimension());
+				TickHandler.register(false, CHARGE.setEntity(player).setEntityLiving(null).setTicks(80),
+						Ability.ABILITY_USING.setEntity(player).setTicks(80).setAbility(hero.ability3),
+						Handlers.ACTIVE_HAND.setEntity(player).setTicks(80),
+						Handlers.PREVENT_ROTATION.setEntity(player).setTicks(80), 
+						Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(80).setBoolean(true),
+						RenderManager.SNEAKING.setEntity(entity).setTicks(80));
+			}
 		}
 	}
 

@@ -95,7 +95,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			return super.onServerTick();
 		}
 	};
-	
+
 	public static Handler HACK = new Handler(Identifier.SOMBRA_HACK, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -122,7 +122,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// check entity
 				if (entityLiving != null && (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || 
 						entityLiving.getDistanceToEntity(entity) > 15 || 
-						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
+						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector().addVector(0, entityLiving.height/2f, 0))))
 					entityLiving = null;
 				// check health pack
 				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), entity instanceof EntityHero ? 20 : 10) || 
@@ -184,7 +184,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// check entity
 				if (entityLiving != null && (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || 
 						entityLiving.getDistanceToEntity(entity) > 15 || 
-						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector())))
+						!checkTargetInShootingView((EntityLivingBase) entity, entityLiving.getPositionVector().addVector(0, entityLiving.height/2f, 0))))
 					entityLiving = null;
 				// check health pack
 				else if (position != null && (!EntityHelper.isInFieldOfVision(entity, position.addVector(0.5d, 0, 0.5d), entity instanceof EntityHero ? 20 : 10) || 
@@ -407,7 +407,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					Minewatch.network.sendToDimension(new SPacketSimple(35, false, null, 0, 0, 0, player, translocator), world.provider.getDimension());
 				}
 			}
-			
+
 			// give hack if right clicking and offhand is empty
 			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
 					hero.ability1.isSelected(player) && !KeyBind.LMB.isKeyDown(player) && 
@@ -443,6 +443,8 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public static boolean checkTargetInShootingView(EntityLivingBase entity, Vec3d target) {
 		Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
 		Vec3d shooting = EntityHelper.getShootingPos(entity, rotations.x, rotations.y, EnumHand.OFF_HAND, 20, 0.6f);
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, shooting.xCoord, shooting.yCoord, shooting.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, target.xCoord, target.yCoord, target.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
 		return EntityHelper.canBeSeen(entity.world, shooting, target);
 	}
 
@@ -647,7 +649,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		return TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) ||
 				TickHandler.hasHandler(entity, Identifier.SOMBRA_TELEPORT) ? 0xFB8AFE : -1;
 	}
-	
+
 	@SubscribeEvent
 	public void clearAttackTarget(LivingSetAttackTargetEvent event) {
 		if (!event.getEntity().world.isRemote && event.getTarget() != null && 
@@ -656,7 +658,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_HACKED))
 			((EntityLiving)event.getEntity()).setAttackTarget((EntityLivingBase)null);
 	}
-	
+
 	@SubscribeEvent
 	public void stopHacking(LivingHurtEvent event) {
 		if (!event.getEntity().world.isRemote && TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_HACK)) {

@@ -23,7 +23,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Explosion;
@@ -219,7 +218,7 @@ public class CommonProxy {
 		return null;
 	}
 	
-	public void stopFollowingSound(Entity followingEntity, SoundEvent event) {
+	public void stopFollowingSound(Entity followingEntity, ModSoundEvent event) {
 		if (followingEntity != null && event != null && !followingEntity.world.isRemote) 
 			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event.getSoundName().toString()), followingEntity.world.provider.getDimension());
 	}
@@ -229,7 +228,7 @@ public class CommonProxy {
 			Minewatch.network.sendToDimension(new SPacketSimple(57, followingEntity, event), followingEntity.world.provider.getDimension());
 	}
 
-	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
+	public void stopSound(EntityPlayer player, ModSoundEvent event, SoundCategory category) {
 		if (player instanceof EntityPlayerMP) {
 			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
 			packetbuffer.writeString(category.getName());

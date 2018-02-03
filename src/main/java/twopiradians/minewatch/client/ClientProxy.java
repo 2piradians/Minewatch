@@ -34,7 +34,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -452,7 +451,7 @@ public class ClientProxy extends CommonProxy {
 	}
 	
 	@Override
-	public void stopFollowingSound(Entity followingEntity, SoundEvent event) {
+	public void stopFollowingSound(Entity followingEntity, ModSoundEvent event) {
 		if (followingEntity != null && followingEntity.world.isRemote) 
 			FollowingSound.stopPlaying(event, followingEntity);
 		else
@@ -468,7 +467,7 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void stopSound(EntityPlayer player, SoundEvent event, SoundCategory category) {
+	public void stopSound(EntityPlayer player, ModSoundEvent event, SoundCategory category) {
 		if (player instanceof EntityPlayerSP) {
 			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
 			packetbuffer.writeString(category.getName());

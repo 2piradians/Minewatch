@@ -312,10 +312,18 @@ public enum ModSoundEvents {
 	public static class ModSoundEvent extends SoundEvent {
 
 		public ModSoundEvents event;
+		public ResourceLocation soundName;
 
 		private ModSoundEvent(ResourceLocation soundName, ModSoundEvents event) {
 			super(soundName);
 			this.event = event;
+			this.soundName = soundName;
+		}
+		
+		/**To make non-clientside*/
+		@Override
+		public ResourceLocation getSoundName() {
+			return soundName;
 		}
 
 	}

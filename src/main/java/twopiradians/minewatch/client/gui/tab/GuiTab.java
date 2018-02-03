@@ -392,7 +392,7 @@ public class GuiTab extends GuiScreen {
 	public static void addOppedButtons() {
 		if (activeTab != null) {
 			if (!Minecraft.getMinecraft().isSingleplayer())
-				activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+25, 20, 20, "", Screen.MAIN));
+				activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+108, activeTab.guiTop+GuiTab.Y_SIZE/2-20+32, 20, 20, "", Screen.MAIN));
 			activeTab.buttonList.add(new GuiButtonTab(0, activeTab.guiLeft+X_SIZE/2-58/2, activeTab.guiTop+Y_SIZE-29, 58, 20, "SELECT", 0xFFB43D, Screen.GALLERY_HERO, null));
 		}
 	}

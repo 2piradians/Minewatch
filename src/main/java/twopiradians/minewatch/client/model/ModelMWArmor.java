@@ -35,7 +35,6 @@ public class ModelMWArmor extends ModelPlayer {
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		boolean preventColoring = true;
-		// TEST coloring / preRenderArmor
 		if (entityIn instanceof EntityLivingBase) {
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
 			EnumHero hero = entity.getHeldItemMainhand() != null && entity.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? 

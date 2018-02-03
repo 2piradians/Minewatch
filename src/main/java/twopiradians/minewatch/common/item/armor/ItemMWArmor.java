@@ -205,7 +205,6 @@ public class ItemMWArmor extends ItemArmor {
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
 			//BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			// TEST removed check because it's not always accurate (in the case of fences)
 			if ((player instanceof EntityPlayer && player.onGround) || /*(world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
 					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) ||*/ player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);

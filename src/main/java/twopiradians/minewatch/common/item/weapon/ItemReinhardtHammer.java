@@ -72,7 +72,6 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						target instanceof EntityLivingBase && 
 						EntityHelper.attemptDamage(entity, target, 50, true)) {
 							hitEntities.add((EntityLivingBase) target);
-							// TEST if both charging, set time to 20 ticks and stun both
 							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
 								this.ticksLeft = 20;
 								TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.HERO_SNEAKING));

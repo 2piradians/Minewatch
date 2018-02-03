@@ -280,7 +280,6 @@ public class EntityHelper {
 						entityHit instanceof EntityDragonPart || entityHit instanceof EntityEnderCrystal) && !entityHit.isEntityInvulnerable(source); 
 	}
 
-	// TEST healing players on same team
 	/**Should target be hit by entity / should entity render red*/
 	public static boolean shouldTarget(Entity entity, @Nullable Entity target, boolean friendly) {
 		if (target == null)
@@ -705,7 +704,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !(input instanceof EntityLivingBaseMW) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {

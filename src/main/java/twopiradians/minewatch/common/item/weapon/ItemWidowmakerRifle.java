@@ -322,7 +322,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
-		// hold left arm out while using hook TEST /kill breaks armor ?, aim assist
+		// hold left arm out while using hook TEST /kill breaks armor ?
 		if (TickHandler.hasHandler(handler -> handler.identifier == Identifier.WIDOWMAKER_HOOK && handler.entityLiving == entity, true)) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;

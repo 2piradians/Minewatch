@@ -1,9 +1,12 @@
 package twopiradians.minewatch.common;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -21,9 +24,9 @@ import twopiradians.minewatch.creativetab.IMinewatchTab;
 import twopiradians.minewatch.creativetab.MapMakingTab;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
-//PORT search for scala library
-// 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
-// 1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
+//PORT both - search for scala library
+//1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
+//1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
 
 //Regex: starting with ~819 errors, File Name Patterns: "!Minewatch.java", do in this order
 //1.10.2: 
@@ -37,9 +40,23 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //\.sendMessage\( -> .addChatMessage (fixes ~17 errors)
 
 //1.12:
-//.addCoord( -> .expand(
 //.expand( -> .grow(
+//.addCoord( -> .expand(
 //.move( -> .offset(
+//fontRendererObj -> fontRenderer
+//drawButton(Minecraft mc, int mouseX, int mouseY) -> drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+//xPosition -> x
+//yPosition -> y
+//xCoord -> x
+//yCoord -> y
+//zCoord -> z
+//VertexBuffer -> BufferBuilder
+//TEAMS getChatFormat -> getColor
+//TEAMS getTooltip(mc.player, false) -> getTooltip(mc.player, TooltipFlags.NORMAL)
+//TEAMS getRegisteredName() -> getName()
+//TEAMS getTeamName() -> getDisplayName()
+//addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) -> addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
+
 @Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json")
 public class Minewatch {
 	

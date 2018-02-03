@@ -51,9 +51,9 @@ public class RankManager {
 	public static void lookUpRanks() {
 		if (url != null && serverRanks.isEmpty()) {
 			try {
-				// add devs manually (because paranoid and never changing)
-				serverRanks.put(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647"), Lists.newArrayList(Rank.DEV)); // Furgl
-				serverRanks.put(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd"), Lists.newArrayList(Rank.DEV)); // 2piradians
+				// add devs manually (because paranoid and never changing) TODO
+				//serverRanks.put(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647"), Lists.newArrayList(Rank.DEV)); // Furgl
+				//serverRanks.put(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd"), Lists.newArrayList(Rank.DEV)); // 2piradians
 
 				InputStream con = url.openStream();
 				String data = new String(ByteStreams.toByteArray(con), "UTF-8");

@@ -443,8 +443,6 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public static boolean checkTargetInShootingView(EntityLivingBase entity, Vec3d target) {
 		Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
 		Vec3d shooting = EntityHelper.getShootingPos(entity, rotations.x, rotations.y, EnumHand.OFF_HAND, 20, 0.6f);
-		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, shooting.xCoord, shooting.yCoord, shooting.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
-		Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, target.xCoord, target.yCoord, target.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
 		return EntityHelper.canBeSeen(entity.world, shooting, target);
 	}
 

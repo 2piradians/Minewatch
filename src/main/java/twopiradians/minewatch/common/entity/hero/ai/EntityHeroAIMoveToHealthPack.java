@@ -75,7 +75,8 @@ public class EntityHeroAIMoveToHealthPack extends EntityAIBase {
 				return true;
 		}
 		entity.onPack = false;
-		entity.lookAtTarget(new Vec3d(this.healthPack).addVector(0.5d, 0.5d, 0.5d));
+		if (entity instanceof EntitySombra)
+			entity.lookAtTarget(new Vec3d(this.healthPack).addVector(0.5d, 0.5d, 0.5d));
 		return healthPack != null && !entity.getNavigator().noPath() && this.shouldExecute() && 
 				entity.world.getTileEntity(this.healthPack) instanceof TileEntityHealthPack;
 	}

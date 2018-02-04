@@ -59,7 +59,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				((EntityLivingBase)entity).moveStrafing = 0;
 				((EntityLivingBase)entity).moveForward = 0;
 				//TODO check friction
-				entity.moveRelative(0, 1, 1, 0);
+				entity.moveRelative(0, 0, 1, 1);
 				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d);
 				entity.motionX = motion.x;
 				entity.motionZ = motion.z;

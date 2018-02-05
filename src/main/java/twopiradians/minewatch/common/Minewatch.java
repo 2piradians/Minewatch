@@ -1,12 +1,9 @@
 package twopiradians.minewatch.common;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -62,7 +59,7 @@ public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.9";
+    public static final String VERSION = "3.9.1";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tabMinewatch = new MinewatchTab("tabMinewatch");

@@ -137,26 +137,26 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand handIn) {
-		ItemStack itemstack = player.getHeldItem(handIn);	
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
+		ItemStack stack = player.getHeldItem(hand);	
 		boolean flag = !this.findAmmo(player).isEmpty();
 
 		if (player instanceof EntityPlayer) {
-			ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(itemstack, world, (EntityPlayer) player, handIn, flag);
+			ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onArrowNock(stack, world, (EntityPlayer) player, hand, flag);
 			if (ret != null) return ret;
 		}
 
 		if (player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode && !flag) {
-			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
+			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, stack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 		}
-		else if (this.canUse(player, true, handIn, false)) {
-			player.setActiveHand(handIn);
+		else if (this.canUse(player, true, hand, false)) {
+			player.setActiveHand(hand);
 			if (!world.isRemote)
 				ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
-			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
 		else
-			return new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
 	}
 
 	@Override

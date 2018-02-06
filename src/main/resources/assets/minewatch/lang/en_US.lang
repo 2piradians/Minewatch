@@ -137,6 +137,13 @@ item.moira_leggings.name=Moira Leggings
 item.moira_boots.name=Moira Boots
 item.moira_weapon.name=Moira's Biotic Grasp
 
+item.doomfist_token.name=Doomfist Token
+item.doomfist_helmet.name=Doomfist Helmet
+item.doomfist_chestplate.name=Doomfist Chestplate
+item.doomfist_leggings.name=Doomfist Leggings
+item.doomfist_boots.name=Doomfist Boots
+item.doomfist_weapon.name=Doomfist's Gauntlet
+
 entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Arrow
@@ -189,3 +196,5 @@ entity.zenyatta_orb.name=Zenyatta Orb of Destruction
 entity.moira_hero.name=Moira
 entity.moira_heal_energy.name=Moira Heal Energy
 entity.moira_orb.name=Moira Biotic Orb
+entity.doomfist_hero.name=Doomfist
+entity.doomfist_bullet.name=Doomfist Bullet

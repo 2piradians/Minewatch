@@ -105,6 +105,7 @@ import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
@@ -294,6 +295,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraHealEnergy.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraOrb.class, RenderMoiraOrb::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityDoomfistBullet.class, new RenderFactory(new Color(0xEFFFF4), 1, 1, 2));
 	}
 
 	private void registerBlockRenders() {

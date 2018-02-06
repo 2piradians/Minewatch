@@ -53,6 +53,7 @@ import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
+import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -933,6 +934,25 @@ public class SPacketSimple implements IMessage {
 								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"HACKED").setNumber(MessageTypes.TOP.ordinal()));
 								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
 							}
+						}
+					}
+					// Doomfist's punch
+					else if (packet.type == 62 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemDoomfistWeapon.PUNCH.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks((int) packet.x),
+									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks((int) packet.x));
+							if (entity == player)
+								TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.DOOMFIST.ability1));
+						}
+						else {
+							// entity2 punched
+							if (entity2 instanceof EntityLivingBase) {
+								
+							}
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
+							if (entity == player)
+								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
 						}
 					}
 				}

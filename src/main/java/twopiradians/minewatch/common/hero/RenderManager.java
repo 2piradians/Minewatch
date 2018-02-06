@@ -46,6 +46,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -472,14 +473,14 @@ public class RenderManager {
 						scale = 0.45d;
 						GlStateManager.scale(scale, scale, 1);
 						int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
-								String.valueOf(weapon.getCurrentAmmo(player)));
+								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)));
 						Minecraft.getMinecraft().fontRendererObj.drawString(
-								String.valueOf(weapon.getCurrentAmmo(player)), 31-width, -10, 0xFFFFFF);
+								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-width, -10, 0xFFFFFF);
 						scale = 0.6d;
 						GlStateManager.scale(scale, scale, 1);
 						Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -10, 0x00D5FF);
 						Minecraft.getMinecraft().fontRendererObj.drawString(
-								String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
+								TextFormatting.ITALIC+String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
 					}
 
 					GlStateManager.popMatrix();

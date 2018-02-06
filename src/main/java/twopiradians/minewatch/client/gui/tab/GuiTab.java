@@ -194,10 +194,11 @@ public class GuiTab extends GuiScreen {
 			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
 			break;
 		case GALLERY_HERO_SKINS:
-			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			this.drawGradientRect(guiLeft+8, guiTop+55-20, guiLeft+8+120, guiTop+55-2, 0xC0101010, 0xD0101010);
 			this.fontRendererObj.drawStringWithShadow(TextFormatting.BOLD+"SKINS", guiLeft+12, guiTop+55-20+10-this.fontRendererObj.FONT_HEIGHT/2f, 0xFFFFFF);
 			scrollingSkins.drawScreen(mouseX, mouseY, partialTicks);
+			GlStateManager.enableDepth();
+			this.drawHero(galleryHero, galleryHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
 			// hero name
 			textScale = 1.9d;
 			GlStateManager.scale(textScale, textScale, 1);
@@ -346,6 +347,9 @@ public class GuiTab extends GuiScreen {
 				return;
 			case MAPS_INFO:
 				GuiTab.currentScreen = Screen.MAPS;
+				return;
+			case SERVERS:
+				GuiTab.currentScreen = Screen.MAIN;
 				return;
 			case GALLERY:
 				GuiTab.currentScreen = Screen.MAIN;

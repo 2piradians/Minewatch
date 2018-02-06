@@ -319,9 +319,9 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			// do effects
 			Handler handler = TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE);
 			if (handler != null && handler.entityLiving != null && 
-					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true)) {
+					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f, true, true)) {
 				if (!(handler.entityLiving instanceof EntityLivingBaseMW))
-					EntityHelper.heal(player, 1.5f*4f);
+					EntityHelper.heal(player, 1.5f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
 		}

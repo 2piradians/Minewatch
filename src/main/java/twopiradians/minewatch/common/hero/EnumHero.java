@@ -23,6 +23,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityAna;
 import twopiradians.minewatch.common.entity.hero.EntityBastion;
+import twopiradians.minewatch.common.entity.hero.EntityDoomfist;
 import twopiradians.minewatch.common.entity.hero.EntityGenji;
 import twopiradians.minewatch.common.entity.hero.EntityHanzo;
 import twopiradians.minewatch.common.entity.hero.EntityJunkrat;
@@ -42,6 +43,7 @@ import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
+import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemHanzoBow;
 import twopiradians.minewatch.common.item.weapon.ItemJunkratLauncher;
@@ -74,7 +76,9 @@ public enum EnumHero {
 			new Skin(Skin.Type.EPIC, "Ghoul", "Ana Ghoul Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11300611/ana-ghoul-skin/"), 
 			new Skin(Skin.Type.EPIC, "Merciful", "Ana Merciful", "QuantumQuark", "http://www.minecraftskins.com/skin/11038160/ana-merciful/"), 
 			new Skin(Skin.Type.LEGENDARY, "Captain Amari", "Captain Amari", "yana2princess", "http://www.minecraftskins.com/skin/11380464/captain-amari/"),
-			new Skin(Skin.Type.EPIC, "Fusion", "Ana [Philadelphia Fusion]", "MeoWero", "https://www.planetminecraft.com/skin/ana-philadelphia-fusion/")), 
+			new Skin(Skin.Type.EPIC, "Fusion", "Ana [Philadelphia Fusion]", "MeoWero", "https://www.planetminecraft.com/skin/ana-philadelphia-fusion/"),
+			new Skin(Skin.Type.LEGENDARY, "Wadjet", "Wadjet Ana", "MrStiv2", "https://www.planetminecraft.com/skin/wadjet-ana/"),
+			new Skin(Skin.Type.LEGENDARY, "Wasteland", "WasteLand Ana", "MrStiv2", "https://www.planetminecraft.com/skin/wasteland-ana/")), 
 	GENJI("Genji", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
@@ -95,7 +99,8 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
 			new Skin(Skin.Type.LEGENDARY, "Okami", "Okami Hanzo (OW)", "SublimePNG", "https://www.planetminecraft.com/skin/okami-hanzo-ow/"),
 			new Skin(Skin.Type.LEGENDARY, "Casual", "Casual Hanzo", "gab51299", "https://www.planetminecraft.com/skin/casual-hanzo/"),
-			new Skin(Skin.Type.EPIC, "Demon", "Demon Hanzo", "Estevaosp", "https://www.planetminecraft.com/skin/demon-hanzo-4069126/", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/")),
+			new Skin(Skin.Type.EPIC, "Demon", "Demon Hanzo", "Estevaosp", "https://www.planetminecraft.com/skin/demon-hanzo-4069126/", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/"),
+			new Skin(Skin.Type.LEGENDARY, "Kabuki", "Kabuki Hanzo", "Spartaculs", "https://www.planetminecraft.com/skin/kabuki-hanzo/")),
 	MCCREE("McCree", false, false, new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
@@ -155,7 +160,8 @@ public enum EnumHero {
 			new Skin(Skin.Type.EPIC, "Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
 			new Skin(Skin.Type.EPIC, "Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
 			new Skin(Skin.Type.EPIC, "Tombstone", "HD tombstone bastion", "LegitNickname", "http://www.minecraftskins.com/skin/10225172/hd-tombstone-bastion/"),
-			new Skin(Skin.Type.LEGENDARY, "Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/")), 
+			new Skin(Skin.Type.LEGENDARY, "Overgrown", "The last Bastion", "MikKurt", "http://www.minecraftskins.com/skin/10601249/the-last-bastion/"),
+			new Skin(Skin.Type.LEGENDARY, "Dune Buggy", "Dunebuggy Bastion", "SpookiOrange", "https://www.planetminecraft.com/skin/dunebuggy-bastion/")), 
 	MEI("Mei", false, false, new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
@@ -234,7 +240,14 @@ public enum EnumHero {
 			0, 0, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Moira - Overwatch (Healer version)", "Elec", "https://www.planetminecraft.com/skin/moira-overwatch-healer-version/"),
-			new Skin(Skin.Type.LEGENDARY, "Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/"));
+			new Skin(Skin.Type.LEGENDARY, "Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/")),
+	DOOMFIST("Doomfist", false, false, new Ability(KeyBind.RMB, true, false), 
+			new Ability(KeyBind.ABILITY_2, true, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			4, 4, new int[] {2,2,2,2}, new ItemDoomfistWeapon(), Crosshair.CIRCLE_SMALL, 0x83524B, false, EntityDoomfist.class, 
+			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "gab51299", "https://www.planetminecraft.com/skin/doomfist/"),
+			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "HazelOrb", "https://www.planetminecraft.com/skin/doomfist-3979249/"),
+			new Skin(Skin.Type.LEGENDARY, "Spirit", "Doomfist Spirit", "CorduroyCorn", "http://www.minecraftskins.com/skin/11239728/doomfist-spirit/"));
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
 

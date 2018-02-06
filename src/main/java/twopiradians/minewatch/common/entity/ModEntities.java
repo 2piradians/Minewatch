@@ -26,6 +26,7 @@ import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
@@ -89,6 +90,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "zenyatta_orb"), EntityZenyattaOrb.class, "zenyatta_orb", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_heal_energy"), EntityMoiraHealEnergy.class, "moira_heal_energy", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_orb"), EntityMoiraOrb.class, "moira_orb", id++, Minewatch.instance, 64, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "doomfist_bullet"), EntityDoomfistBullet.class, "doomfist_bullet", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

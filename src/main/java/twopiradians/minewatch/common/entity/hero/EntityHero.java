@@ -56,8 +56,8 @@ public class EntityHero extends EntityMob {
 			if (Config.mobRandomSkins && !worldIn.isRemote)
 				this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
 		}
-		Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
-		Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
+		Arrays.fill(this.inventoryArmorDropChances, (float) Config.mobEquipmentDropRate);
+		Arrays.fill(this.inventoryHandsDropChances, (float) Config.mobEquipmentDropRate);
 	}
 
 	@Override
@@ -107,8 +107,8 @@ public class EntityHero extends EntityMob {
 
 		// set drop chances
 		if (this.inventoryArmorDropChances[0] != Config.mobEquipmentDropRate) {
-			Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
-			Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
+			Arrays.fill(this.inventoryArmorDropChances, (float) Config.mobEquipmentDropRate);
+			Arrays.fill(this.inventoryHandsDropChances, (float) Config.mobEquipmentDropRate);
 		}
 
 		// stop doing things when dead

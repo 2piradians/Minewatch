@@ -404,11 +404,11 @@ public class EntityHelper {
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				}
 				else
-					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
 
 				if (damaged && ignoreHurtResist)
 					if (entityHit instanceof EntityDragonPart && ((EntityDragonPart)entityHit).entityDragonObj instanceof EntityDragon) 
@@ -429,7 +429,7 @@ public class EntityHelper {
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
 				damage *= 2f;
-			entity.heal(Math.abs(damage*Config.damageScale));
+			entity.heal((float) Math.abs(damage*Config.damageScale));
 			spawnHealParticles(entity);
 		}
 	}

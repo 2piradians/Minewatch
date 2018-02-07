@@ -1334,5 +1334,80 @@
 			"minewatch:sombra_hack_voice_2",
 			"minewatch:sombra_hack_voice_3"
 		]
+	},
+	"doomfist_punch_charge": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_charge"
+		]
+	},
+	"doomfist_punch_charge_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_charge_voice_0",
+			"minewatch:doomfist_punch_charge_voice_1"
+		]
+	},
+	"doomfist_punch_during": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_during"
+		]
+	},
+	"doomfist_punch_during_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_during_voice_0",
+			"minewatch:doomfist_punch_during_voice_1"
+		]
+	},
+	"doomfist_punch_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_hit"
+		]
+	},
+	"doomfist_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_reload"
+		]
+	},
+	"doomfist_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_shoot"
+		]
+	},
+	"doomfist_slam_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_slam_start"
+		]
+	},
+	"doomfist_slam_stop": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_slam_stop"
+		]
+	},
+	"doomfist_uppercut_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_uppercut_start"
+		]
+	},
+	"doomfist_uppercut_stop": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_uppercut_stop"
+		]
+	},
+	"doomfist_uppercut_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_uppercut_voice_0",
+			"minewatch:doomfist_uppercut_voice_1"
+		]
 	}
 }

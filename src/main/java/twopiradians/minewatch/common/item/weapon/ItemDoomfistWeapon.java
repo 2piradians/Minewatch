@@ -30,6 +30,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
@@ -60,22 +61,155 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
-					entityLiving.getHeldItemMainhand().getItem() == EnumHero.DOOMFIST.weapon)
+					entityLiving.getHeldItemMainhand().getItem() == EnumHero.DOOMFIST.weapon) {
 				EnumHero.DOOMFIST.weapon.setCurrentAmmo(entityLiving, EnumHero.DOOMFIST.weapon.getCurrentAmmo(entityLiving)+1, EnumHand.MAIN_HAND);
+				ModSoundEvents.DOOMFIST_RELOAD.playFollowingSound(entityLiving, 0.7f, player.world.rand.nextFloat()/2+0.75f, false);
+			}
 			return super.onServerRemove();
 		}
 	};
+	public static final Handler SLAM = new Handler(Identifier.DOOMFIST_SLAM, true) {
+		public void move() {
+			if (this.ticksLeft == this.initialTicks) { // moving up+forward
+				entity.onGround = false;
+				entity.setSneaking(false);
+				entity.motionY += 1.2d;
+				entity.moveRelative(0, 0.8f, 1);
+			}
+			else if (this.ticksLeft > this.initialTicks-2) // moving forward
+				entity.moveRelative(0, 0.8f, 1);
+			else if (!entity.onGround && number < 40) { // moving down
+				entity.motionY = Math.max(entity.motionY-0.3d, -1.2d);
+				this.ticksLeft = 2;
+			}
+			else  // on ground
+				this.ticksLeft = 1;
+			++number;
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			move();
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			move();
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			if (entity instanceof EntityLivingBase) {
+				if (entity.onGround)
+					ModSoundEvents.DOOMFIST_SLAM_STOP.playFollowingSound(entity, 1, 1, false);
+				EnumHero.DOOMFIST.ability2.keybind.setCooldown((EntityLivingBase) entity, 140, false);	
+				TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+			}	
+			return super.onServerRemove();
+		}
+	};
+	public static final Handler UPPERCUT = new Handler(Identifier.DOOMFIST_UPPERCUT, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			moveUppercut(this);
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			moveUppercut(this);
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+
+			return super.onServerRemove();
+		}
+	};
+	public static final Handler UPPERCUTTING = new Handler(Identifier.DOOMFIST_UPPERCUTTING, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			moveUppercut(this);
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			moveUppercut(this);
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			return super.onServerRemove();
+		}
+	};
+	private static void moveUppercut(Handler handler) {
+		if (handler.ticksLeft > 1) { // moving up
+			handler.entity.setSneaking(false);
+			handler.entity.onGround = false;
+			handler.entity.motionY = Math.max(handler.entity.motionY, 1);
+			if (handler.ticksLeft == handler.initialTicks)
+				handler.entity.moveRelative(0, 0.3f, 1);
+		}
+		else if (!handler.entity.onGround && handler.number < 40) { // done moving up, slowly fall down
+			if (handler.entity.motionY < 0)
+				handler.entity.motionY = Math.min(handler.entity.motionY+0.03d, 0);
+			handler.ticksLeft = 2;
+		}
+		else // on ground, stop handler
+			handler.ticksLeft = 1;
+		handler.entity.fallDistance = 0;
+		if (++handler.number == 4 && !handler.entity.world.isRemote &&
+				handler.entity instanceof EntityLivingBase)
+			EnumHero.DOOMFIST.ability3.keybind.setCooldown((EntityLivingBase) handler.entity, 140, false);
+
+		// check for entities to knockback
+		if (!handler.entity.world.isRemote && handler.identifier == Identifier.DOOMFIST_UPPERCUTTING &&
+				handler.ticksLeft > 2) {
+			Vec3d look = handler.entity.getLookVec().scale(1d);
+			AxisAlignedBB aabb = handler.entity.getEntityBoundingBox().expandXyz(1d).move(look);
+			for (Entity target : handler.entity.world.getEntitiesWithinAABBExcludingEntity(handler.entity, aabb)) 
+				if (target != handler.entityLiving && target != handler.entity && 
+				target instanceof EntityLivingBase && 
+				EntityHelper.shouldHit(handler.entity, target, false)) {
+					if (target.isEntityAlive() && !TickHandler.hasHandler(target, Identifier.DOOMFIST_UPPERCUT) && 
+							EntityHelper.attemptDamage(handler.entity, target, 50, false)) {
+						TickHandler.interrupt(target);
+						Minewatch.network.sendToDimension(new SPacketSimple(63, handler.entity, true, target, handler.ticksLeft+1, 0, 0), handler.entity.world.provider.getDimension());
+						TickHandler.register(false, UPPERCUT.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks(handler.ticksLeft+1));
+					}
+				}
+		}
+	}
 	/**number = punch power 0-1, number2 = yaw of punch, entity = getting punched, entityLiving = doomfist*/
 	public static final Handler PUNCHED = new Handler(Identifier.DOOMFIST_PUNCHED, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			move(this);
+			movePunch(this);
 			return super.onClientTick();
 		}
 		@Override
 		public boolean onServerTick() {
-			move(this);
+			movePunch(this);
 			return super.onServerTick();
 		}
 		@Override
@@ -125,12 +259,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			move(this);
+			movePunch(this);
 			return super.onClientTick();
 		}
 		@Override
 		public boolean onServerTick() {
-			move(this);
+			movePunch(this);
 			return super.onServerTick();
 		}
 		@Override
@@ -170,10 +304,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			EnumHero.DOOMFIST.ability1.keybind.setCooldown(entityLiving, 80, false);
+			ModSoundEvents.DOOMFIST_PUNCH_DURING.stopFollowingSound(entity);
 			return super.onServerRemove();
 		}
 	};
-	private static void move(Handler handler) {
+	private static void movePunch(Handler handler) {
 		handler.entity.setSneaking(false);
 		float prev = handler.entity.rotationYaw;
 		if (handler.identifier == Identifier.DOOMFIST_PUNCHED)
@@ -236,7 +371,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			handler.entity.velocityChanged = true;
 			if (handler.entity.world.isRemote && handler.identifier == Identifier.DOOMFIST_PUNCH) {
 				handler.bool = true;
-				ModSoundEvents.REINHARDT_CHARGE_HIT.playFollowingSound(handler.entity, 1, 1, false);
+				ModSoundEvents.DOOMFIST_PUNCH_HIT.playFollowingSound(handler.entity, 1, 1, false);
 				punchAnimations.put(handler.entity.getPersistentID(), 10);
 			}
 			else if (!handler.entity.world.isRemote && handler.identifier == Identifier.DOOMFIST_PUNCHED && 
@@ -278,8 +413,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// stop charging punch
-		if (this.getCharge(player) != -1)
+		if (this.getCharge(player) != -1) {
 			player.resetActiveHand();
+			ModSoundEvents.DOOMFIST_PUNCH_CHARGE.stopFollowingSound(player);
+			ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.stopFollowingSound(player);
+		}
 		// shoot
 		else if (this.canUse(player, true, hand, false) && !world.isRemote) {
 			for (int i=0; i<6; ++i) {
@@ -287,7 +425,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 80, 4F, EnumHand.OFF_HAND, 18, 0.6f);
 				world.spawnEntity(projectile);
 			}
-			ModSoundEvents.MCCREE_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
+			ModSoundEvents.DOOMFIST_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			this.setCooldown(player, 7);
 			if (world.rand.nextInt(6) == 0)
@@ -300,6 +438,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		// release punch
 		float charge = getCharge(player);
 		if (!world.isRemote && charge > 0) {
+			if (!world.isRemote) {
+				ModSoundEvents.DOOMFIST_PUNCH_CHARGE.stopFollowingSound(player);
+				ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.stopFollowingSound(player);
+				ModSoundEvents.DOOMFIST_PUNCH_DURING.playFollowingSound(player, 1, 1, false);
+				ModSoundEvents.DOOMFIST_PUNCH_DURING_VOICE.playFollowingSound(player, 1, 1, false);
+			}
 			player.renderYawOffset = player.rotationYawHead;
 			int ticks = 8;
 			Minewatch.network.sendToDimension(new SPacketSimple(62, player, true, ticks, 0, 0), world.provider.getDimension());
@@ -316,6 +460,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		// charge punch
 		if (hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
 				hero.ability1.isSelected(player, true)) {
+			if (!world.isRemote) {
+				ModSoundEvents.DOOMFIST_PUNCH_CHARGE.playFollowingSound(player, 1, 1, false);
+				if (world.rand.nextBoolean())
+					ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.playFollowingSound(player, 1, 1, false);
+			}
 			player.setActiveHand(hand);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
@@ -341,27 +490,26 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			// reload automatically
 			if (!world.isRemote && this.getCurrentAmmo(player) < this.getMaxAmmo(player) && !TickHandler.hasHandler(player, Identifier.DOOMFIST_RELOAD))
 				TickHandler.register(false, RELOAD.setEntity(player).setTicks(this.reloadTime));
-			/*// roll
-			if (player.onGround && hero.ability2.isSelected(player) &&
+
+			// seismic slam
+			if (hero.ability2.isSelected(player) &&
 					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
-				ModSoundEvents.MCCREE_ROLL.playFollowingSound(player, 1.3f, world.rand.nextFloat()/4f+0.8f, false);
-				Minewatch.network.sendToDimension(new SPacketSimple(2, player, true), world.provider.getDimension());
-				if (player instanceof EntityHero)
-					SPacketSimple.move(player, 0.6d, false, false);
-				this.setCurrentAmmo((EntityLivingBase)entity, this.getMaxAmmo(player));
-				TickHandler.register(false, ROLL.setEntity(player).setTicks(10));
-				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(10).setAbility(hero.ability2));
+				ModSoundEvents.DOOMFIST_SLAM_START.playFollowingSound(player, 1, 1, false);				
+				Minewatch.network.sendToDimension(new SPacketSimple(64, player, true), world.provider.getDimension());
+				TickHandler.register(false, SLAM.setEntity(player).setTicks(5),
+						Ability.ABILITY_USING.setEntity(player).setTicks(50).setAbility(hero.ability2));
 			}
 
-			// stun
-			if (!world.isRemote && hero.ability1.isSelected(player, true) && 
-					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
-				EntityMcCreeStun projectile = new EntityMcCreeStun(world, player, EnumHand.MAIN_HAND.ordinal());
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 20, 0F, EnumHand.OFF_HAND, 10, 0.5f);
-				world.spawnEntity(projectile);
-				ModSoundEvents.MCCREE_STUN_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
-				hero.ability1.keybind.setCooldown(player, 200, false);
-			}*/
+			// uppercut
+			if (hero.ability3.isSelected(player) &&
+					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
+				ModSoundEvents.DOOMFIST_UPPERCUT_START.playFollowingSound(player, 1, 1, false);		
+				ModSoundEvents.DOOMFIST_UPPERCUT_VOICE.playFollowingSound(player, 1, 1, false);	
+				int ticks = 4;
+				Minewatch.network.sendToDimension(new SPacketSimple(63, player, true, ticks, 0, 0), world.provider.getDimension());
+				TickHandler.register(false, UPPERCUTTING.setEntity(player).setTicks(ticks),
+						Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ability3));
+			}
 		}
 	}
 
@@ -391,37 +539,42 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		super.preRenderGameOverlay(event, player, width, height, hand);
+		
+		Minecraft mc = Minecraft.getMinecraft();
 
-		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && mc.gameSettings.thirdPersonView == 0) {
 			GlStateManager.enableBlend();
 
 			float charge = getCharge(player);
 
 			if (charge != -1) { // charging punch
+				GlStateManager.pushMatrix();
 				GlStateManager.translate(width/2, height/2, 0);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(PUNCH_OVERLAY);
+				mc.getTextureManager().bindTexture(PUNCH_OVERLAY);
 				GlStateManager.color(1, 1, 1, 1);
 				GuiUtils.drawTexturedModalRect(-128, -128, 0, 0, 256, 256, 0);
 
 				double scale = 3d*Config.guiScale;
 				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
+				mc.getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
 				GlStateManager.color(0.5f, 0.8f, 0.8f, 0.5f);
 				GuiUtils.drawTexturedModalRect(-9, 8, 19, 239, 20, 8, 0);
 				GlStateManager.color(1, 1, 1, 1);
 				GuiUtils.drawTexturedModalRect(-9, 8+(int) (8d*(1d-charge)), 19, (int) (239d+(8d*(1d-charge))), 20, (int) (8d*charge), 0);
+				GlStateManager.popMatrix();
 			}
 			else { // normal ammo overlay
+				GlStateManager.pushMatrix();
 				double scale = 0.65d*Config.guiScale;
 				GlStateManager.translate(width/2, height/2, 0);
 				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
+				mc.getTextureManager().bindTexture(OVERLAY);
 				GlStateManager.color(1, 1, 1, 1);
 				GuiUtils.drawTexturedModalRect(-128, -128, 0, 0, 256, 256, 0);
 
 				scale = 4.1d*Config.guiScale;
 				GlStateManager.scale(scale, scale, 1);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
+				mc.getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
 				int ammo = this.getCurrentAmmo(player);
 				for (int i=0; i<4; ++i) {
 					if (ammo > i)
@@ -444,16 +597,32 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						break;
 					}
 				}
+				GlStateManager.popMatrix();
+				
+				Handler handler = TickHandler.getHandler(player, Identifier.DOOMFIST_SLAM);
+				/*if (handler != null)*/ {
+					GlStateManager.pushMatrix();
+					scale = 0.8d*Config.guiScale;
+					GlStateManager.translate(width/2, height/2, 0);
+					GlStateManager.scale(scale, scale*1.3d, 1);
+					int number = 100;
+					String brackets = TextFormatting.GRAY+""+TextFormatting.ITALIC+""+TextFormatting.BOLD;
+					String text = brackets+"[ "+TextFormatting.WHITE+String.valueOf(number)+brackets+" ]";
+					mc.fontRendererObj.drawString(text, -mc.fontRendererObj.getStringWidth(text)/2, 10, 0xFFFFFF);
+					GlStateManager.popMatrix();
+				}
 			}
 
 			GlStateManager.disableBlend();
 		}
 	}
-	
+
 	/**Returns the current model
 	 * 0 = normal
 	 * 1 = charging punch
-	 * 2 = punching*/
+	 * 2 = punching
+	 * 3 = uppercutting
+	 * 4 = slam*/
 	public int getModel(EntityLivingBase entity) {
 		if (entity == null) // normal
 			return 0;
@@ -462,6 +631,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_PUNCH) || // punching
 				(entity != null && punchAnimations.containsKey(entity.getPersistentID())))
 			return 2;
+		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_UPPERCUTTING) && // uppercut
+				TickHandler.getHandler(entity, Identifier.DOOMFIST_UPPERCUTTING).number < 8)
+			return 3;
+		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_SLAM)) // slam
+			return 4;
 		else // normal
 			return 0;
 	}
@@ -478,7 +652,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
-		for (int i=0; i<3; ++i)
+		for (int i=0; i<5; ++i)
 			locs.add("_"+i);
 		return locs;
 	}

@@ -391,7 +391,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		// aim assist
 		if (world.isRemote && entity instanceof EntityPlayer && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
 				(KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
-			float delta = Config.aimAssist;
+			float delta = (float) Config.aimAssist;
 			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
 			float pitch = MathHelper.wrapDegrees(entity.rotationPitch);
 			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 512, false, pitch, yaw) == null) {

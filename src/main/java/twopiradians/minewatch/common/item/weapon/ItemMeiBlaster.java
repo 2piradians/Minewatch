@@ -70,7 +70,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (this.entityLiving != null) {
 				if (this.ticksLeft % 2 == 0)
-					this.entityLiving.heal(3.75f*Config.damageScale);
+					this.entityLiving.heal((float) (3.75d*Config.damageScale));
 				this.entityLiving.extinguish();
 			}
 			return super.onServerTick();

@@ -20,7 +20,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean projectilesCauseKnockback;
 	private int tokenDropRate;
 	private int wildCardRate;
-	private float damageScale;
+	private double damageScale;
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
 	private boolean healMobs;
@@ -29,7 +29,7 @@ public class PacketSyncConfig implements IMessage {
 	private double ammoMultiplier;
 	private boolean tokenDropRequiresPlayer;
 	private double abilityCooldownMultiplier;
-	private float aimAssist;
+	private double aimAssist;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -40,7 +40,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean mobTargetHeroes;
 	private int mobTokenDropRate;
 	private int mobWildCardDropRate;
-	private float mobEquipmentDropRate;
+	private double mobEquipmentDropRate;
 	private double mobAttackCooldown;
 	private double mobInaccuracy;
 
@@ -82,7 +82,7 @@ public class PacketSyncConfig implements IMessage {
 		this.projectilesCauseKnockback = buf.readBoolean();
 		this.tokenDropRate = buf.readInt();
 		this.wildCardRate = buf.readInt();
-		this.damageScale = buf.readFloat();
+		this.damageScale = buf.readDouble();
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
 		this.healMobs = buf.readBoolean();
@@ -91,7 +91,7 @@ public class PacketSyncConfig implements IMessage {
 		this.ammoMultiplier = buf.readDouble();
 		this.tokenDropRequiresPlayer = buf.readBoolean();
 		this.abilityCooldownMultiplier = buf.readDouble();
-		this.aimAssist = buf.readFloat();
+		this.aimAssist = buf.readDouble();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -102,7 +102,7 @@ public class PacketSyncConfig implements IMessage {
 		this.mobTargetHeroes = buf.readBoolean();
 		this.mobTokenDropRate = buf.readInt();
 		this.mobWildCardDropRate = buf.readInt();
-		this.mobEquipmentDropRate = buf.readFloat();
+		this.mobEquipmentDropRate = buf.readDouble();
 		this.mobAttackCooldown = buf.readDouble();
 		this.mobInaccuracy = buf.readDouble();
 	}
@@ -114,7 +114,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.projectilesCauseKnockback);
 		buf.writeInt(this.tokenDropRate);
 		buf.writeInt(this.wildCardRate);
-		buf.writeFloat(this.damageScale);
+		buf.writeDouble(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
 		buf.writeBoolean(this.healMobs);
@@ -123,7 +123,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.ammoMultiplier);
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
 		buf.writeDouble(this.abilityCooldownMultiplier);
-		buf.writeFloat(this.aimAssist);
+		buf.writeDouble(this.aimAssist);
 
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -134,7 +134,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.mobTargetHeroes);
 		buf.writeInt(this.mobTokenDropRate);
 		buf.writeInt(this.mobWildCardDropRate);
-		buf.writeFloat(this.mobEquipmentDropRate);
+		buf.writeDouble(this.mobEquipmentDropRate);
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
 	}

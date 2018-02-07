@@ -51,7 +51,7 @@ public class Config {
 
 	public static Configuration config;
 	public static boolean useObjModels;
-	public static float damageScale;
+	public static double damageScale;
 	public static int tokenDropRate;
 	public static int wildCardRate;
 	public static boolean allowGunWarnings;
@@ -69,7 +69,7 @@ public class Config {
 	public static boolean tokenDropRequiresPlayer;
 	public static double abilityCooldownMultiplier;
 	public static boolean renderOutlines;
-	public static float aimAssist;
+	public static double aimAssist;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -80,7 +80,7 @@ public class Config {
 	public static boolean mobTargetHeroes;
 	public static int mobTokenDropRate;
 	public static int mobWildCardDropRate;
-	public static float mobEquipmentDropRate;
+	public static double mobEquipmentDropRate;
 	public static double mobAttackCooldown;
 	public static double mobInaccuracy;
 
@@ -181,9 +181,9 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
 		if (overriding)
-			prop.set(damageScale * 10f);
+			prop.set(damageScale * 10d);
 		else
-			damageScale = (float) (0.1d * prop.getDouble());
+			damageScale = 0.1d * prop.getDouble();
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors Use Durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
 		if (overriding)
@@ -241,7 +241,7 @@ public class Config {
 		if (overriding)
 			prop.set(aimAssist);
 		else
-			aimAssist = (float) prop.getDouble();
+			aimAssist = prop.getDouble();
 
 		// Hero Mob options
 
@@ -311,9 +311,9 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment Drop Percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
 		if (overriding)
-			prop.set((int) (mobEquipmentDropRate*100f));
+			prop.set((int) (mobEquipmentDropRate*100d));
 		else
-			mobEquipmentDropRate = prop.getInt()/100f;
+			mobEquipmentDropRate = prop.getInt()/100d;
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Attack Cooldown Multiplier", 2d, "Multiplied by the normal attack cooldown for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will have twice the normal cooldown.", 0, 10);
 		if (overriding)

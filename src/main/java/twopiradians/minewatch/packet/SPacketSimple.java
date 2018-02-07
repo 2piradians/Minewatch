@@ -124,7 +124,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, null);
 	}
-	
+
 	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, entity2);
 	}
@@ -960,6 +960,30 @@ public class SPacketSimple implements IMessage {
 									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
 							if (entity == player)
 								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+						}
+					}
+					// Doomfist's uppercut
+					else if (packet.type == 63 && entity != null) {
+						if (packet.bool) {
+							// entity2 hit by uppercut
+							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUT.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+							}
+							else
+								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUTTING.setEntity(player).setTicks((int) packet.x),
+										Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.DOOMFIST.ability3));
+						}
+					}
+					// Doomfist's slam
+					else if (packet.type == 64 && entity != null) {
+						if (packet.bool) {
+							// entity2 hit by slam
+							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.register(true, ItemDoomfistWeapon.SLAM.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+							}
+							else
+								TickHandler.register(true, ItemDoomfistWeapon.SLAM.setEntity(player).setTicks(5),
+										Ability.ABILITY_USING.setEntity(player).setTicks(50).setAbility(EnumHero.DOOMFIST.ability2));
 						}
 					}
 				}

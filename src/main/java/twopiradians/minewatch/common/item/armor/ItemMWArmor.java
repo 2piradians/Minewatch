@@ -117,8 +117,6 @@ public class ItemMWArmor extends ItemArmor {
 			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
 
-	
-
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {

@@ -94,7 +94,7 @@ public class RenderManager {
 		public boolean onClientTick() {
 			if (entity != Minewatch.proxy.getRenderViewEntity())
 				return true;
-			
+
 			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, handler->handler.identifier == Identifier.HERO_MESSAGES && handler.number == MessageTypes.MIDDLE.ordinal());
 			return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 		}
@@ -249,6 +249,30 @@ public class RenderManager {
 				GlStateManager.popMatrix();
 			}
 
+			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+				GlStateManager.color(1, 1, 1, 1f);
+
+				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+
+					// render crosshair
+					double scale = 0.2d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 1);
+					GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+					if (Config.customCrosshairs) {
+						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
+						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
+					}
+
+					GlStateManager.disableBlend();
+					GlStateManager.popMatrix();
+				}
+
+				if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
+					event.setCanceled(true);
+			}
+
 			if (event.getType() == ElementType.CROSSHAIRS && hero != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1, 1, 1, 1);
@@ -318,30 +342,6 @@ public class RenderManager {
 
 				GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
-			}
-
-			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-				GlStateManager.color(1, 1, 1, 1f);
-
-				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-
-					// render crosshair
-					double scale = 0.2d*Config.guiScale;
-					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-					if (Config.customCrosshairs) {
-						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
-						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
-					}
-
-					GlStateManager.disableBlend();
-					GlStateManager.popMatrix();
-				}
-
-				if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-					event.setCanceled(true);
 			}
 		}
 	}
@@ -495,16 +495,21 @@ public class RenderManager {
 		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
 		Minecraft mc = Minecraft.getMinecraft();
 		AbstractClientPlayer player = mc.player;
-		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).shouldRenderHand(player, event.getHand())) {
+		ItemStack chest = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+		ItemStack held = player.getHeldItem(event.getHand());
+		ItemStack main = player.getHeldItemMainhand();
+		ItemStack off = player.getHeldItemOffhand();
+		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null || off.isEmpty() ? main : held;
+
+		if (player != null && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
+				((ItemMWWeapon)stack.getItem()).shouldRenderHand(player, event.getHand()))) || 
+				(chest != null && chest.getItem() instanceof ItemMWArmor && event.getHand() == EnumHand.MAIN_HAND && 
+				(held == null || held.isEmpty()))) {
 			GlStateManager.pushMatrix();
 			float partialTicks = mc.getRenderPartialTicks();
 			float swing = player.getSwingProgress(partialTicks);	
 			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
-			// would move hand to follow item - but equippedProgress is private
-			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
-			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
-			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
+			float progress = event.getEquipProgress();
 			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
 			boolean flag = side != EnumHandSide.LEFT;
 			float f = flag ? 1.0F : -1.0F;
@@ -519,7 +524,14 @@ public class RenderManager {
 			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
 			AbstractClientPlayer abstractclientplayer = mc.player;
-			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
+			if (chest != null && chest.getItem() instanceof ItemMWArmor) {
+				mc.getTextureManager().bindTexture(new ResourceLocation(((ItemMWArmor)chest.getItem()).getArmorTexture(chest, player, EntityEquipmentSlot.CHEST, null)));
+				// cancel normal hand render
+				if (held == null || held.isEmpty())
+					event.setCanceled(true);
+			}
+			else
+				mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
 			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
 			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
 			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);

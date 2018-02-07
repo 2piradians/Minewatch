@@ -550,7 +550,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 	}
 
-	/**Called before player hands are rendered, for player holding weapon in mainhand*/
+	/**Called before player hands are rendered, for each hand*/
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
 		return false;

@@ -417,8 +417,10 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		else if (KeyBind.LMB.isKeyDown(entity) && 
 				!this.hasCooldown(entity) && EntityHelper.isHoldingItem(entity, this, EnumHand.OFF_HAND))
 			return hand == EnumHand.OFF_HAND ? Render.ACTIVE : Render.NONE;
-		else
+		else if (EntityHelper.isHoldingItem(entity, this, hand))
 			return Render.INACTIVE;
+		else
+			return Render.NONE;
 	}
 
 	@Override

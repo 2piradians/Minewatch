@@ -124,6 +124,10 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, null);
 	}
+	
+	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2, double x, double y, double z) {
+		this(type, bool, null, x, y, z, entity, entity2);
+	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
 		this(type, bool, player, 0, 0, 0, null, null);
@@ -947,7 +951,10 @@ public class SPacketSimple implements IMessage {
 						else {
 							// entity2 punched
 							if (entity2 instanceof EntityLivingBase) {
-								
+								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks((int) packet.x),
+										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),
+										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z));
 							}
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
 									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));

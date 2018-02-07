@@ -275,12 +275,12 @@ public enum ModSoundEvents {
 
 	/**Handles voice cooldown - only works for same client / server...*/
 	public boolean shouldPlay(Entity entity) {
-		if (!this.isVoiceLine || this.isSelectVoiceLine) 
+		if (!this.isVoiceLine) 
 			return true;
-		else if (entity == null || entity.world.rand.nextBoolean() || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
+		else if (entity == null || (entity.world.rand.nextBoolean() && !this.isSelectVoiceLine) || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
+			TickHandler.register(entity.world.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(this.isSelectVoiceLine ? 60 : 200));
 			return true;
 		}
 	}

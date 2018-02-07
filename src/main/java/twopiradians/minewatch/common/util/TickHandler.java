@@ -355,6 +355,11 @@ public class TickHandler {
 			this.number = number;
 			return this;
 		}
+		
+		public Handler setNumber2(double number) {
+			this.number2 = number;
+			return this;
+		}
 
 		public Handler setString(String string) {
 			this.string = string;

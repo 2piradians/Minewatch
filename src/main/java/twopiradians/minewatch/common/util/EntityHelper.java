@@ -365,16 +365,22 @@ public class EntityHelper {
 		}
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
 		Entity actualThrower = getThrower(thrower);
 		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
 		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true, source);
 	}

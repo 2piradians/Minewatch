@@ -693,10 +693,11 @@ public class RenderManager {
 		// custom particles with facing
 		for (EnumParticle enumParticle : EnumParticle.values())
 			if (!enumParticle.facingParticles.isEmpty()) {
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 				Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(enumParticle.facingLoc);
-				for (ParticleCustom particle : enumParticle.facingParticles)
+				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+				for (ParticleCustom particle : enumParticle.facingParticles) {
 					particle.renderOnBlocks(buffer);
+				}
 				tessellator.draw();
 			}
 
@@ -709,7 +710,7 @@ public class RenderManager {
 
 	/**Render a texture (must be bound before calling this) on blocks
 	 * entityVec should be INSIDE the block that the texture will be rendered on
-	 * Would like to have this use particle rotations, but not sure how to do: Gl.rotate seems to translate as well*/
+	 * Would like to have this use particle rotations, but rendering only on blocks would be very complicated*/
 	@SideOnly(Side.CLIENT)
 	public static void renderOnBlocks(World world, VertexBuffer buffer, float red, float green, float blue, float alpha, double size, Vec3d entityVec, EnumFacing facing, boolean particle) {
 		Entity player = Minewatch.proxy.getRenderViewEntity();
@@ -723,7 +724,7 @@ public class RenderManager {
 		double maxY = MathHelper.floor(entityVec.yCoord + (facing.getAxis() == Axis.Y ? 0 : size));
 		double minZ = MathHelper.floor(entityVec.zCoord - (facing.getAxis() == Axis.Z ? 0 : size));
 		double maxZ = MathHelper.floor(entityVec.zCoord + (facing.getAxis() == Axis.Z ? 0 : size));
-
+		
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
 			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {

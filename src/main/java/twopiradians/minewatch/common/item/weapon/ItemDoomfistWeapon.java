@@ -6,11 +6,13 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -23,10 +25,12 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -68,22 +72,60 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
+	/**number = ticks running, number2 = initial posY, position = targetPosition, bool = used while onGround*/
 	public static final Handler SLAM = new Handler(Identifier.DOOMFIST_SLAM, true) {
 		public void move() {
-			if (this.ticksLeft == this.initialTicks) { // moving up+forward
+			entity.fallDistance = 0;
+			if (this.ticksLeft == this.initialTicks) { // moving up for first tick
+				if (entity.world.isRemote)
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, position.xCoord, position.yCoord+0.05d, position.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 300, 10, 10, 0, 0, EnumFacing.UP, false);// TODO
+				bool = entity.onGround;
 				entity.onGround = false;
 				entity.setSneaking(false);
-				entity.motionY += 1.2d;
-				entity.moveRelative(0, 0.8f, 1);
+				entity.motionY += 3d;
 			}
-			else if (this.ticksLeft > this.initialTicks-2) // moving forward
-				entity.moveRelative(0, 0.8f, 1);
-			else if (!entity.onGround && number < 40) { // moving down
-				entity.motionY = Math.max(entity.motionY-0.3d, -1.2d);
+			else if (!entity.onGround && number < 40) { // moving forward+down 
+				if (this.ticksLeft == this.initialTicks-1) {
+					number2 = entity.posY;
+					TickHandler.register(entity.world.isRemote,	Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(50).setBoolean(true));
+				}
+				Vector2f angles = EntityHelper.getDirectLookAngles(EntityHelper.getPositionEyes(entity), position);
+				float prev = entity.rotationYaw;
+				entity.rotationYaw = angles.x;
+				entity.moveRelative(0, 1, 1);
+				entity.rotationYaw = prev;
+				if (entityLiving != null) {
+					entityLiving.moveForward = 0;
+					entityLiving.moveStrafing = 0;
+				}
+				double horizontalDistance = entity.getDistance(position.xCoord, entity.posY, position.zCoord);
+				double verticalDistance = Math.abs(entity.posY-position.yCoord);
+				double verticalPercent = MathHelper.clamp((verticalDistance / Math.max(0.1d, Math.abs(number2-position.yCoord))), 0, 1d); 
+				double scale = MathHelper.clamp(horizontalDistance, 0, 2.5d); // scale speed by horizontal distance
+				if (entity.posY < position.yCoord)
+					scale = 0;
+				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(scale);
+				entity.motionX = motion.xCoord;
+				entity.motionZ = motion.zCoord;
+				entity.motionY = Math.max(-Math.abs(entity.posY-position.yCoord)-0.02d, bool ? -Math.min(number/10f, 1d) : -1.5d); // scale by vertical distance
+				if (horizontalDistance > 5 && verticalDistance < 5)
+					entity.motionY *= Math.max(verticalPercent, 0.5d);
 				this.ticksLeft = 2;
 			}
-			else  // on ground
+			else { // on ground or time's up
 				this.ticksLeft = 1;
+				if (entity.world.isRemote && entity.onGround) {
+					double yOffset = 0.05d;
+					IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector()));
+					if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) 
+						yOffset += state.getBoundingBox(entity.world, entity.getPosition()).maxY;
+					Vec3d vec = new Vec3d(player.posX, Math.floor(player.posY)+yOffset, player.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+					Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+				}
+				entity.motionX = 0;
+				entity.motionZ = 0;
+			}
 			++number;
 		}
 		@Override
@@ -100,7 +142,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+			TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
+					TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT));
 			return super.onClientRemove();
 		}
 		@Override
@@ -109,7 +152,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				if (entity.onGround)
 					ModSoundEvents.DOOMFIST_SLAM_STOP.playFollowingSound(entity, 1, 1, false);
 				EnumHero.DOOMFIST.ability2.keybind.setCooldown((EntityLivingBase) entity, 140, false);	
-				TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+				TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
+						TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT));
 			}	
 			return super.onServerRemove();
 		}
@@ -479,6 +523,10 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
+			// slam particle
+			if (world.isRemote && player.ticksExisted % 5 == 0 && !player.onGround)
+				Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_0, world, player, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 60, 60, 0, 0);
+
 			// animation
 			if (world.isRemote && punchAnimations.containsKey(entity.getPersistentID())) {
 				if (punchAnimations.get(entity.getPersistentID()) > 1)
@@ -494,10 +542,15 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			// seismic slam
 			if (hero.ability2.isSelected(player) &&
 					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
-				ModSoundEvents.DOOMFIST_SLAM_START.playFollowingSound(player, 1, 1, false);				
-				Minewatch.network.sendToDimension(new SPacketSimple(64, player, true), world.provider.getDimension());
-				TickHandler.register(false, SLAM.setEntity(player).setTicks(5),
-						Ability.ABILITY_USING.setEntity(player).setTicks(50).setAbility(hero.ability2));
+				RayTraceResult result = EntityHelper.getMouseOverBlock(player, 30);
+				if ((result != null && result.hitVec.yCoord <= player.posY) || player.onGround) {
+					TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.DOOMFIST_UPPERCUTTING));
+					Vec3d targetPos = player.onGround ? player.getPositionVector().add(EntityHelper.getLook(0, player.rotationYaw).scale(7)) : result.hitVec;
+					ModSoundEvents.DOOMFIST_SLAM_START.playFollowingSound(player, 1, 1, false);				
+					Minewatch.network.sendToDimension(new SPacketSimple(64, player, true, targetPos.xCoord, targetPos.yCoord, targetPos.zCoord), world.provider.getDimension());
+					TickHandler.register(false, SLAM.setEntity(player).setTicks(10).setPosition(targetPos).setNumber2(player.posY),
+							Ability.ABILITY_USING.setEntity(player).setTicks(50).setAbility(hero.ability2));
+				}
 			}
 
 			// uppercut
@@ -531,7 +584,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
-		return player != null && hand == EnumHand.OFF_HAND && 
+		return player != null && hand == EnumHand.OFF_HAND && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) &&
 				((getModel(player) == 0 && this.getCurrentAmmo(player) < this.getMaxAmmo(player)) || getModel(player) == 1);
 	}
 
@@ -539,7 +592,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
 		super.preRenderGameOverlay(event, player, width, height, hand);
-		
+
 		Minecraft mc = Minecraft.getMinecraft();
 
 		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && mc.gameSettings.thirdPersonView == 0) {
@@ -571,8 +624,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				mc.getTextureManager().bindTexture(OVERLAY);
 				GlStateManager.color(1, 1, 1, 1);
 				GuiUtils.drawTexturedModalRect(-128, -128, 0, 0, 256, 256, 0);
+				GlStateManager.popMatrix();
 
-				scale = 4.1d*Config.guiScale;
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(width/2, height/2, 0);
+				scale = 2.65d*Config.guiScale;
 				GlStateManager.scale(scale, scale, 1);
 				mc.getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
 				int ammo = this.getCurrentAmmo(player);
@@ -598,17 +654,18 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 					}
 				}
 				GlStateManager.popMatrix();
-				
+
 				Handler handler = TickHandler.getHandler(player, Identifier.DOOMFIST_SLAM);
-				/*if (handler != null)*/ {
+				if (handler != null) {
 					GlStateManager.pushMatrix();
-					scale = 0.8d*Config.guiScale;
+					scale = 0.9d*Config.guiScale;
 					GlStateManager.translate(width/2, height/2, 0);
 					GlStateManager.scale(scale, scale*1.3d, 1);
-					int number = 100;
-					String brackets = TextFormatting.GRAY+""+TextFormatting.ITALIC+""+TextFormatting.BOLD;
-					String text = brackets+"[ "+TextFormatting.WHITE+String.valueOf(number)+brackets+" ]";
-					mc.fontRendererObj.drawString(text, -mc.fontRendererObj.getStringWidth(text)/2, 10, 0xFFFFFF);
+					int number = (int) (handler.number*4.9d+Minewatch.proxy.getRenderPartialTicks());
+					String brackets = TextFormatting.GRAY+""+TextFormatting.ITALIC;
+					String num = TextFormatting.WHITE+""+TextFormatting.ITALIC+""+TextFormatting.BOLD;
+					String text = brackets+"[ "+num+number+brackets+" ]";
+					mc.fontRendererObj.drawString(text, -mc.fontRendererObj.getStringWidth(text)/2, 17, 0xFFFFFF);
 					GlStateManager.popMatrix();
 				}
 			}

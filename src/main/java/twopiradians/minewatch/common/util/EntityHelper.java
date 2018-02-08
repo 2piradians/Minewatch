@@ -815,7 +815,8 @@ public class EntityHelper {
 		return Vec3d.ZERO;
 	}
 
-	/**Get exact entity rotations - accounting for partial ticks and lastTickPos*/
+	/**Get exact entity rotations - accounting for partial ticks and lastTickPos
+	 * new Vector2f(pitch, yaw)*/
 	public static Vector2f getEntityPartialRotations(Entity entity) {
 		if (entity != null) {
 			float partialTicks = Minewatch.proxy.getRenderPartialTicks();

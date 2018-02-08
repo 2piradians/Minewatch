@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,6 +26,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -136,6 +138,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	public void followEntity() {
 		if (this.followEntity != null) {
+			// update ticksExisted for keeping onePerEntity particle alive
+			if (this.enumParticle.onePerEntity)
+				this.enumParticle.particleEntities.put(this.followEntity.getPersistentID(), this.followEntity.ticksExisted);
+
 			EntityPlayer player = Minecraft.getMinecraft().player;
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
@@ -208,6 +214,24 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				this.prevPosY = this.posY;
 				this.prevPosZ = this.posZ;
 			}
+			else if (this.enumParticle == EnumParticle.DOOMFIST_SLAM_0 && followEntity instanceof EntityLivingBase) {
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				this.facing = EnumFacing.UP;
+				this.particleAngle = (rotations.y + 90f) / 180f;
+				this.prevParticleAngle = this.particleAngle;
+				int model = ((ItemDoomfistWeapon)EnumHero.DOOMFIST.weapon).getModel((EntityLivingBase) followEntity);
+				RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) followEntity, 30, rotations.x, rotations.y);
+				if (result != null && result.sideHit == EnumFacing.UP && !followEntity.onGround && 
+						(model == 0 || model == 3)) {
+					Vec3d vec = result.hitVec.add(EntityHelper.getLook(0, rotations.y).scale(4d));
+					this.setPosition(vec.xCoord, vec.yCoord+0.05d, vec.zCoord);
+					this.prevPosX = this.posX;
+					this.prevPosY = this.posY;
+					this.prevPosZ = this.posZ;
+				}
+				else
+					this.setExpired();
+			}
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
 
@@ -258,6 +282,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	public void renderParticle(VertexBuffer buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		GlStateManager.enableBlend();
 		if (this.particleTexture != null && !renderOnBlocks) {
+			// update muzzle every render so it's always rendered accurately
+			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0 || this.enumParticle == EnumParticle.DOOMFIST_SLAM_0) && 
+					followEntity instanceof EntityLivingBase)
+				this.followEntity();
+
 			// face a direction on an axis
 			if (facing != null) {
 				float pitch = 0, yaw = 0;
@@ -286,10 +315,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				rotationX *= 1f - (float) this.particleAge / this.particleMaxAge;
 				rotationZ *= MathHelper.cos(entityIn.ticksExisted/50f);
 			}
-
-			// update muzzle every render so it's always rendered accurately
-			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
-				this.followEntity();
 
 			float f = this.particleTexture.getMinU();
 			float f1 = this.particleTexture.getMaxU();
@@ -323,7 +348,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			int k = i & 65535;
 			Vec3d[] avec3d = new Vec3d[] {new Vec3d((double)(-rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(-rotationYZ * f4 - rotationXZ * f4)), new Vec3d((double)(-rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(-rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(rotationYZ * f4 - rotationXZ * f4))};
 
-			if (this.particleAngle != 0.0F) {
+			if (this.particleAngle != 0.0F && facing == null) {
 				float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
 				float f9 = MathHelper.cos(f8 * 0.5F);
 				float f10 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.xCoord : 0);

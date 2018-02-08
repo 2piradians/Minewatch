@@ -403,11 +403,14 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		if (!enumParticle.onePerEntity || !enumParticle.particleEntities.contains(followEntity.getPersistentID())) {
+		// if not onePerEntity or entity doesn't have particle, OR the particle's tickExisted is outdated (particle might have been killed)
+		if ((enumParticle.onePerEntity && enumParticle.particleEntities.containsKey(followEntity.getPersistentID()) &&
+				Math.abs(enumParticle.particleEntities.get(followEntity.getPersistentID())-followEntity.ticksExisted) > 5) ||
+				(!enumParticle.onePerEntity || !enumParticle.particleEntities.containsKey(followEntity.getPersistentID()))) {
 			ParticleCustom particle = new ParticleCustom(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 			if (enumParticle.onePerEntity)
-				enumParticle.particleEntities.add(followEntity.getPersistentID());
+				enumParticle.particleEntities.put(followEntity.getPersistentID(), followEntity.ticksExisted);
 		}
 	}
 

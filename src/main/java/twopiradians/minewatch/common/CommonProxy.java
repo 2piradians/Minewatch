@@ -1,11 +1,13 @@
 package twopiradians.minewatch.common;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -84,9 +86,9 @@ public class CommonProxy {
 		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
 		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
 		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS,
-		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_SLAM_0, DOOMFIST_SLAM_1;
+		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2;
 
-		public HashSet<UUID> particleEntities = new HashSet();
+		public HashMap<UUID, Integer> particleEntities = Maps.newHashMap();
 		/**List of particles with a facing - because they are rendered separately*/
 		public ArrayList<ParticleCustom> facingParticles = new ArrayList<ParticleCustom>();
 		

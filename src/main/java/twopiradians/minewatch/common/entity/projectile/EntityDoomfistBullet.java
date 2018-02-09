@@ -37,6 +37,6 @@ public class EntityDoomfistBullet extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		EntityHelper.attemptDamage(getThrower(), result.entityHit, 11, false);
+		EntityHelper.attemptDamage(getThrower(), result.entityHit, 6, false);
 	}
 }

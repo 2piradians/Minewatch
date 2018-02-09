@@ -345,7 +345,7 @@ public class Config {
 
 	@SubscribeEvent
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(Minewatch.MODID)) {
+		if (event.getModID().equals(Minewatch.MODID)) { // TODO don't sync in mp until sync command / packet sent
 			syncConfig();
 			config.save();
 		}

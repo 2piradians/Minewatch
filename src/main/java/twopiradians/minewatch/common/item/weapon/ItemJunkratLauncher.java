@@ -3,6 +3,7 @@ package twopiradians.minewatch.common.item.weapon;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys;
@@ -76,6 +77,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 							TickHandler.getHandler(((EntityJunkratTrap)hero.ability1.entities.get(player)).trappedEntity, Identifier.JUNKRAT_TRAP));
 					Minewatch.network.sendToDimension(new SPacketSimple(26, hero.ability1.entities.get(player), false), world.provider.getDimension());
 					hero.ability1.entities.get(player).isDead = true;
+					//hero.ability1.entities.get(player).setDead();
 				}
 				hero.ability1.entities.put(player, trap);
 				ModSoundEvents.JUNKRAT_TRAP_PLACED_VOICE.playFollowingSound(player, 1, 1, false);

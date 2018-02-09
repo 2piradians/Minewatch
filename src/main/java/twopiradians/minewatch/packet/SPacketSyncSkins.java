@@ -26,12 +26,17 @@ public class SPacketSyncSkins implements IMessage {
 
 	@Override
 	public void toBytes(ByteBuf buf) {
+		try {
 		for (int i=0; i<EnumHero.values().length; ++i) {
 			buf.writeInt(EnumHero.values()[i].skins.size());
 			for (String uuid : EnumHero.values()[i].skins.keySet()) {
 				ByteBufUtils.writeUTF8String(buf, uuid);
-				buf.writeInt(EnumHero.values()[i].skins.get(uuid));
+				buf.writeInt(EnumHero.values()[i].skins.get(uuid)); // FIXME
 			}
+		}
+		}
+		catch (Exception e) {
+			System.out.println(e);
 		}
 	}
 

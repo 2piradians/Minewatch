@@ -21,8 +21,10 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumBlockRenderType;
@@ -77,8 +79,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		public void move() {
 			entity.fallDistance = 0;
 			if (this.ticksLeft == this.initialTicks) { // moving up for first tick
-				if (entity.world.isRemote)
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, position.xCoord, position.yCoord+0.05d, position.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 300, 10, 10, 0, 0, EnumFacing.UP, false);// TODO
+				//if (entity.world.isRemote) // debug particle
+				//	Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, position.xCoord, position.yCoord+0.05d, position.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 300, 10, 10, 0, 0, EnumFacing.UP, false);
 				bool = entity.onGround;
 				entity.onGround = false;
 				entity.setSneaking(false);
@@ -114,14 +116,42 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			}
 			else { // on ground or time's up
 				this.ticksLeft = 1;
-				if (entity.world.isRemote && entity.onGround) {
-					double yOffset = 0.05d;
-					IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector()));
-					if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) 
-						yOffset += state.getBoundingBox(entity.world, entity.getPosition()).maxY;
-					Vec3d vec = new Vec3d(player.posX, Math.floor(player.posY)+yOffset, player.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
-					Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+				if (entity.onGround) {
+					if (entity.world.isRemote) { // particles
+						double yOffset = 0.05d;
+						IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector()));
+						if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) 
+							yOffset += state.getBoundingBox(entity.world, entity.getPosition()).maxY;
+						Vec3d vec = new Vec3d(player.posX, Math.floor(player.posY)+yOffset, player.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+					}
+					else { // damage
+						double yOffset = 0;
+						for (int i=0; i<3; ++i) {
+							IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector().addVector(0, -i, 0)));
+							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
+								yOffset = -i;
+								break;
+							}
+						}
+						int damage = MathHelper.clamp(getSlamCharge((EntityLivingBase) entity), 11, 125);
+						Vec3d look = EntityHelper.getLook(0, entity.rotationYaw).scale(4d);
+						AxisAlignedBB aabb = entity.getEntityBoundingBox().expand(4.5d, 0, 4.5d).offset(look.xCoord, yOffset, look.zCoord);
+						for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
+							if (target != entityLiving && target != entity && 
+							target instanceof EntityLivingBase && 
+							EntityHelper.shouldHit(entity, target, false)) {
+								if (target.isEntityAlive() && EntityHelper.isInFieldOfVision(entity, target, 45, entity.rotationYaw, 0) && 
+										EntityHelper.attemptDamage(entity, target, damage, true)) {
+									target.onGround = false;
+									Vec3d motion = new Vec3d(entity.posX-target.posX, 0, entity.posZ-target.posZ).normalize().scale(0.3d);
+									target.motionX = motion.xCoord;
+									target.motionZ = motion.zCoord;
+									target.motionY = 0.4d;
+								}
+							}
+					}
 				}
 				entity.motionX = 0;
 				entity.motionZ = 0;
@@ -142,6 +172,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
+			if (entity.onGround)
+				ModSoundEvents.DOOMFIST_SLAM_STOP.playFollowingSound(entity, 1, 1, false);
 			TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
 					TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT));
 			return super.onClientRemove();
@@ -149,8 +181,6 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			if (entity instanceof EntityLivingBase) {
-				if (entity.onGround)
-					ModSoundEvents.DOOMFIST_SLAM_STOP.playFollowingSound(entity, 1, 1, false);
 				EnumHero.DOOMFIST.ability2.keybind.setCooldown((EntityLivingBase) entity, 140, false);	
 				TickHandler.unregister(false, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
 						TickHandler.getHandler(entity, Identifier.PREVENT_MOVEMENT));
@@ -298,7 +328,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
-	/**number = punch power 0-1*/
+	/**number = punch power 0-1, bool = hit wall / entity*/
 	public static final Handler PUNCH = new Handler(Identifier.DOOMFIST_PUNCH, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -348,7 +378,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		@Override
 		public Handler onServerRemove() {
 			EnumHero.DOOMFIST.ability1.keybind.setCooldown(entityLiving, 80, false);
-			ModSoundEvents.DOOMFIST_PUNCH_DURING.stopFollowingSound(entity);
+			if (bool)
+				ModSoundEvents.DOOMFIST_PUNCH_DURING.stopFollowingSound(entity);
 			return super.onServerRemove();
 		}
 	};
@@ -362,6 +393,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d);
 		handler.entity.motionX = motion.xCoord;
 		handler.entity.motionZ = motion.zCoord;
+		if (handler.entity.motionY < 0)
+			handler.entity.motionY *= 0.5d;
 
 		// check for entities to pin / knockback
 		if (handler.identifier == Identifier.DOOMFIST_PUNCH) {
@@ -370,7 +403,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			for (Entity target : handler.entity.world.getEntitiesWithinAABBExcludingEntity(handler.entity, aabb)) 
 				if (target != handler.entityLiving && target != handler.entity && 
 				target instanceof EntityLivingBase && 
-				EntityHelper.shouldHit(handler.entity, target, false)) {
+				EntityHelper.shouldHit(handler.entity, target, false) && target.isEntityAlive()) {
 					/*if (target.isEntityAlive() && (TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE) ||
 							TickHandler.hasHandler(target, Identifier.DOOMFIST_PUNCH))) {
 						handler.ticksLeft = 20; // TODO
@@ -384,7 +417,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						TickHandler.getHandler(handler.entity, Identifier.PREVENT_MOVEMENT).setBoolean(false);
 						Minewatch.network.sendToDimension(new SPacketSimple(58, handler.entity, true, target), handler.entity.world.provider.getDimension());
 					}
-					else */if (target.isEntityAlive() && EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true)) {
+					else */if (EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true)) {
 						TickHandler.interrupt(target);
 						Minewatch.network.sendToDimension(new SPacketSimple(62, handler.entity, false, target, handler.initialTicks, handler.number, handler.entity.rotationYaw), handler.entity.world.provider.getDimension());
 						TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(target).setTicks(handler.initialTicks),
@@ -392,6 +425,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 								Handlers.PREVENT_MOVEMENT.setEntity(target).setTicks(handler.initialTicks).setBoolean(true),
 								PUNCHED.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks(handler.initialTicks).setNumber(handler.number).setNumber2(handler.entity.rotationYaw));
 					}
+					handler.bool = true;
 					handler.ticksLeft = 1;
 					handler.entity.motionX = 0;
 					handler.entity.motionZ = 0;
@@ -464,7 +498,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		}
 		// shoot
 		else if (this.canUse(player, true, hand, false) && !world.isRemote) {
-			for (int i=0; i<6; ++i) {
+			for (int i=0; i<11; ++i) {
 				EntityDoomfistBullet projectile = new EntityDoomfistBullet(world, player, EnumHand.OFF_HAND.ordinal());
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 80, 4F, EnumHand.OFF_HAND, 18, 0.6f);
 				world.spawnEntity(projectile);
@@ -655,13 +689,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				}
 				GlStateManager.popMatrix();
 
-				Handler handler = TickHandler.getHandler(player, Identifier.DOOMFIST_SLAM);
-				if (handler != null) {
+				int number = getSlamCharge(player);
+				if (number > 0) {
 					GlStateManager.pushMatrix();
 					scale = 0.9d*Config.guiScale;
 					GlStateManager.translate(width/2, height/2, 0);
 					GlStateManager.scale(scale, scale*1.3d, 1);
-					int number = (int) (handler.number*4.9d+Minewatch.proxy.getRenderPartialTicks());
 					String brackets = TextFormatting.GRAY+""+TextFormatting.ITALIC;
 					String num = TextFormatting.WHITE+""+TextFormatting.ITALIC+""+TextFormatting.BOLD;
 					String text = brackets+"[ "+num+number+brackets+" ]";
@@ -694,6 +727,16 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_SLAM)) // slam
 			return 4;
 		else // normal
+			return 0;
+	}
+
+	public static int getSlamCharge(EntityLivingBase entity) {
+		Handler handler = TickHandler.getHandler(entity, Identifier.DOOMFIST_SLAM);
+		if (handler != null) {
+			int number = (int) (handler.number*4.9d+Minewatch.proxy.getRenderPartialTicks());
+			return Math.min(number, 125);
+		}
+		else
 			return 0;
 	}
 

@@ -222,7 +222,7 @@ public class Handlers {
 				entity.motionX = 0;
 				entity.motionZ = 0;
 			}
-			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionY = player != null && !bool && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -243,7 +243,7 @@ public class Handlers {
 				entity.motionX = 0;
 				entity.motionZ = 0;
 			}
-			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionY = player != null && !bool && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -291,7 +291,7 @@ public class Handlers {
 				player.motionX = 0;
 				player.motionZ = 0;
 			}
-			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
+			player.motionY = player != null && !handler.bool && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
 			player.motionY = Math.min(0, player.motionY);
 		}
 	}

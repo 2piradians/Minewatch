@@ -198,7 +198,8 @@ public class EntityHelper {
 			z = look.zCoord;
 		}
 
-		entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord); 
+		// TEST DO NOT USE SETPOSITIONANDUPDATE BEFORE ENTITY IS SPAWNED OR IT WILL BE ADDED TWICE
+		entity.setPosition(vec.xCoord, vec.yCoord, vec.zCoord); 
 
 		// send velocity to server/client
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
@@ -620,6 +621,11 @@ public class EntityHelper {
 	public static Vec3d getCenter(AxisAlignedBB aabb) {
 		return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
 	}
+	
+	/**Returns if e1 is with maxAngle degrees of looking at e2*/
+	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle, float yaw, float pitch){
+		return getMaxFieldOfVisionAngle(e1, e2, yaw, pitch) <= maxAngle;
+	}
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
@@ -636,6 +642,13 @@ public class EntityHelper {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
 				getClosestPointOnBoundingBox(getPositionEyes(e1), e1.getLook(1), e2));
+	}
+	
+	/**Returns angles if e1 was directly facing e2*/
+	public static Vector2f getDirectLookAngles(Entity e1, Entity e2, float yaw, float pitch) {
+		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
+		return getDirectLookAngles(e1EyePos,  
+				getClosestPointOnBoundingBox(getPositionEyes(e1), EntityHelper.getLook(pitch, yaw), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
@@ -665,14 +678,23 @@ public class EntityHelper {
 			if (intercept != null) {
 				//RenderManager.boundingBoxesToRender.add(aabb);
 				//closest = intercept.hitVec;
-				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 100, 1, 1, 0, 0);
 				closest = intercept.hitVec.subtract(getCenter(aabb)).scale(1/(scale+1)).add(getCenter(aabb));
-				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.xCoord, closest.yCoord, closest.zCoord, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 100, 1, 1, 0, 0);
 				break;
 			}
 		}
 
 		return closest;
+	}
+	
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2, float yaw, float pitch){
+		Vector2f facing = getDirectLookAngles(e1, e2, yaw, pitch);
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(yaw - facing.x));
+		float deltaPitch = Math.abs(pitch-facing.y);
+		return Math.max(deltaYaw, deltaPitch);
 	}
 
 	/**Returns maxAngle degrees between e1's look and e2*/

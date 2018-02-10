@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.BlockTeamSpawn;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
@@ -27,6 +28,8 @@ import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class CPacketSimple implements IMessage {
 
@@ -262,6 +265,13 @@ public class CPacketSimple implements IMessage {
 					// GuiTab select hero
 					else if (packet.type == 11 && packetPlayer != null && packetPlayer.world.getMinecraftServer() != null) {
 						packetPlayer.world.getMinecraftServer().commandManager.executeCommand(packetPlayer, packet.string);
+					}
+					// player death screen
+					else if (packet.type == 12 && packetPlayer != null) {
+						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && packetPlayer.getHealth() <= 0.0F) {
+							Minewatch.logger.info("registering DEAD");
+							TickHandler.register(false, BlockTeamSpawn.DEAD.setEntity(packetPlayer).setTicks(20));
+						}
 					}
 				}
 			});

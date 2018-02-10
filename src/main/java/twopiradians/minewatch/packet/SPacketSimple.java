@@ -916,8 +916,10 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 59 && entity == player) {
 						player.prevRotationYaw = player.rotationYaw;
 						player.prevRotationPitch = player.rotationPitch;
-						player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
-						player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
+						player.rotationYaw = (float) packet.x;
+						player.rotationPitch = (float) packet.y;
+						//player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
+						//player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
 					}
 					// Ranks
 					else if (packet.type == 60) {

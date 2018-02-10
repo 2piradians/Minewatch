@@ -1,0 +1,9 @@
+{
+	"parent": "block/orientable",
+	"textures": {
+		"top": "minewatch:blocks/team_spawn_top",
+		"front": "minewatch:blocks/team_spawn_side",
+		"side": "minewatch:blocks/team_spawn_side",
+		"down": "minewatch:blocks/team_spawn_side"
+	}
+}

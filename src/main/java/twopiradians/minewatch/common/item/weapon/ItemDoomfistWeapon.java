@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -18,13 +19,12 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.MobEffects;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumBlockRenderType;
@@ -40,6 +40,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -328,7 +329,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
-	/**number = punch power 0-1, bool = hit wall / entity*/
+	/**number = punch power 0-1, bool = hit wall / entity, position = starting position*/
 	public static final Handler PUNCH = new Handler(Identifier.DOOMFIST_PUNCH, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -384,6 +385,9 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		}
 	};
 	private static void movePunch(Handler handler) {
+		if (handler.identifier == Identifier.DOOMFIST_PUNCH &&
+				handler.ticksLeft == handler.initialTicks)
+			handler.position = handler.entity.getPositionVector();
 		handler.entity.setSneaking(false);
 		float prev = handler.entity.rotationYaw;
 		if (handler.identifier == Identifier.DOOMFIST_PUNCHED)
@@ -612,6 +616,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+		EntityLivingBase entity = getEntity(Minecraft.getMinecraft().world, stack);
+		int model = getModel(entity);
+		if (model > 0) {
+			float percent = MathHelper.clamp(model == 1 ? this.getCharge(entity) : 1, 0, 1);
+			return new Color((255f-203f*percent)/255f, (255f-140f*percent)/255f, (255f-1f*percent)/255f).getRGB();
+		}
 		return -1;
 	}
 
@@ -761,6 +771,16 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
 		return "_"+getModel(entity);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {
+		/*Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.DOOMFIST_PUNCH);
+		if (handler != null && handler.position != null) {
+			TextureAtlasSprite sprite = EnumParticle.DOOMFIST_PUNCH_2.sprite;
+			
+		}*/
 	}
 
 }

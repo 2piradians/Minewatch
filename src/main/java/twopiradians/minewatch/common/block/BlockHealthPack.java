@@ -28,8 +28,9 @@ public abstract class BlockHealthPack extends Block {
 	protected static final AxisAlignedBB AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.1D, 1.0D);
 
 	public BlockHealthPack() {
-		super(Material.STRUCTURE_VOID);
+		super(Material.BARRIER);
 		this.setBlockUnbreakable();
+		this.setResistance(6000001.0F);
 		this.setCreativeTab((CreativeTabs) Minewatch.tabMapMaking);
 	}
 	
@@ -91,7 +92,6 @@ public abstract class BlockHealthPack extends Block {
 	}
 
 	@Override
-	@Deprecated
 	public int getLightValue(IBlockState state) {
 		return 8;
 	}

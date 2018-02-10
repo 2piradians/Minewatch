@@ -199,7 +199,8 @@ public class EntityHelper {
 		}
 
 		// TEST DO NOT USE SETPOSITIONANDUPDATE BEFORE ENTITY IS SPAWNED OR IT WILL BE ADDED TWICE
-		entity.setPosition(vec.xCoord, vec.yCoord, vec.zCoord); 
+		//entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord); 
+		entity.setLocationAndAngles(vec.xCoord, vec.yCoord, vec.zCoord, entity.rotationYaw, entity.rotationPitch);
 
 		// send velocity to server/client
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
@@ -971,6 +972,17 @@ public class EntityHelper {
 	/**Returns entity's name*/
 	public static String getName(Entity entity) {
 		return entity == null ? "" : entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
+	}
+	
+	/**Checks if there is 2 blocks of non-collidable blocks above pos*/
+	public static boolean isValidTeleportLocation(BlockPos pos, World world) {
+		IBlockState down = world.getBlockState(pos.down());
+		IBlockState equal = world.getBlockState(pos);
+		IBlockState up = world.getBlockState(pos.up());
+		// valid spot found
+		return down.getMaterial().blocksMovement() && 
+				(world.isAirBlock(pos) || equal.getCollisionBoundingBox(world, pos) == null) &&
+				(world.isAirBlock(pos.up()) || up.getCollisionBoundingBox(world, pos.up()) == null);
 	}
 
 }

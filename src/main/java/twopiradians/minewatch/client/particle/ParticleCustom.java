@@ -26,6 +26,7 @@ import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -222,7 +223,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				int model = ((ItemDoomfistWeapon)EnumHero.DOOMFIST.weapon).getModel((EntityLivingBase) followEntity);
 				RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) followEntity, 30, rotations.x, rotations.y);
 				if (result != null && result.sideHit == EnumFacing.UP && !followEntity.onGround && 
-						(model == 0 || model == 3)) {
+						(model == 0 || model == 3) && EntityHelper.isHoldingItem((EntityLivingBase) followEntity, EnumHero.DOOMFIST.weapon, EnumHand.MAIN_HAND) &&
+						SetManager.getWornSet(followEntity) == EnumHero.DOOMFIST) {
 					Vec3d vec = result.hitVec.add(EntityHelper.getLook(0, rotations.y).scale(4d));
 					this.setPosition(vec.xCoord, vec.yCoord+0.05d, vec.zCoord);
 					this.prevPosX = this.posX;

@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "minewatch:team_spawn" },
+        "facing=south": { "model": "minewatch:team_spawn", "y": 180 },
+        "facing=west":  { "model": "minewatch:team_spawn", "y": 270 },
+        "facing=east":  { "model": "minewatch:team_spawn", "y": 90 }
+    }
+}

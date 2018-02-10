@@ -11,6 +11,7 @@ effect.frozen=Frozen
 
 tile.health_pack_small.name=Small Health Pack
 tile.health_pack_large.name=Large Health Pack
+tile.team_spawn.name=Team Spawn
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick

@@ -81,6 +81,7 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
 import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
+import twopiradians.minewatch.client.render.tileentity.TileEntityTeamSpawnRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
@@ -129,6 +130,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -303,6 +305,7 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
 					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeamSpawn.class, new TileEntityTeamSpawnRenderer());
 	}
 
 	@Override

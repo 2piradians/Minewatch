@@ -1,9 +1,27 @@
-{
-	"parent": "block/orientable",
+{   
+	"parent": "block/block",
 	"textures": {
-		"top": "minewatch:blocks/team_spawn_top",
-		"front": "minewatch:blocks/team_spawn_side",
-		"side": "minewatch:blocks/team_spawn_side",
-		"down": "minewatch:blocks/team_spawn_side"
-	}
+		"spawner": "blocks/mob_spawner",
+		"particle": "blocks/mob_spawner",
+		"arrow": "minewatch:blocks/team_spawn_arrow"
+	},
+    "elements": [
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "down" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "up" },
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "north" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "south" },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "west" },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "east" }
+            }
+        },
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#arrow", "cullface": "up" }
+            }
+        }
+    ]
 }

@@ -1,0 +1,37 @@
+{   
+	"parent": "minewatch:block/team_spawn",
+	"textures": {
+		"arrow_overlay": "minewatch:blocks/team_spawn_arrow_overlay"
+	},
+    "elements": [
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "down" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "up" },
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "north" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "south" },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "west" },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#spawner", "cullface": "east" }
+            }
+        },
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+           	 	"up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "up" },
+           	 	"down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "down" },
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "north" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "south" },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "west" },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay", "tintindex": 0, "cullface": "east" }
+            }
+        },
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+           	 	"up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#arrow_overlay", "tintindex": 0, "cullface": "up" }
+            }
+        }
+        
+    ]
+}

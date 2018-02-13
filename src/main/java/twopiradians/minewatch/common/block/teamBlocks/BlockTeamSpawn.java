@@ -1,4 +1,4 @@
-package twopiradians.minewatch.common.block;
+package twopiradians.minewatch.common.block.teamBlocks;
 
 
 import java.util.ArrayList;
@@ -6,29 +6,22 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiGameOver;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.CPacketClientStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,7 +34,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -50,7 +42,9 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 
-public class BlockTeamSpawn extends BlockHorizontal {
+public class BlockTeamSpawn extends TeamBlock {
+	
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 	
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
@@ -141,32 +135,9 @@ public class BlockTeamSpawn extends BlockHorizontal {
 	};
 
 	public BlockTeamSpawn() {
-		super(Material.BARRIER);
-		this.setBlockUnbreakable();
-		this.setResistance(6000001.0F);
-		this.setCreativeTab((CreativeTabs) Minewatch.tabMapMaking);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+		super();
+		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(HAS_TEAM, false).withProperty(ACTIVATED, false));
 		MinecraftForge.EVENT_BUS.register(this);
-	}
-
-	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state) {
-		return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
-	}
-
-	@Override
-	public boolean hasTileEntity(IBlockState state) {
-		return true;
-	}
-
-	@Override
-	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return 8;
-	}
-
-	@Override
-	public int getLightValue(IBlockState state) {
-		return 8;
 	}
 
 	@Override
@@ -192,17 +163,22 @@ public class BlockTeamSpawn extends BlockHorizontal {
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta));
+        return super.getStateFromMeta(meta & 3).
+        		withProperty(FACING, EnumFacing.getHorizontal(meta >> 2 & 3));
     }
 
+    /**00 (FACING) 0 (HAS_TEAM) 0 (ACTIVATED)*/
     @Override
     public int getMetaFromState(IBlockState state) {
-        return ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
+        int meta = super.getMetaFromState(state);
+        meta <<= 2;
+        meta += state.getValue(FACING).getHorizontalIndex();
+        return meta;
     }
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, new IProperty[] {FACING});
+        return new BlockStateContainer(this, new IProperty[] {FACING, HAS_TEAM, ACTIVATED});
     }
 
 	/**Gets the position of an active team spawn that this entity can spawn at*/

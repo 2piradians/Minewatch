@@ -11,49 +11,36 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
-public class TileEntityTeamSpawn extends TileEntity implements ITickable {
+public class TileEntityTeamSpawn extends TileEntityTeam implements ITickable {
 
 	public static HashSet<BlockPos> teamSpawnPositions = new HashSet<BlockPos>();
 
 	public TileEntityTeamSpawn() {
 		super();
 	}
-
-	@Override
-	public void setPos(BlockPos posIn) {
-		super.setPos(posIn);
-
-		if (!teamSpawnPositions.contains(getPos())) 
-			teamSpawnPositions.add(getPos());
-	}
-
+	
 	@Override
 	public void update() {
 		
 	}
 
-	@Nullable
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket() {
-		return new SPacketUpdateTileEntity(this.pos, 6, this.getUpdateTag());
-	}
-
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		super.onDataPacket(net, pkt);
 		NBTTagCompound nbt = pkt.getNbtCompound();
 		
 	}
 
 	@Override
-	public NBTTagCompound getUpdateTag() {
-		return this.writeToNBT(new NBTTagCompound());
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		
+		return compound;
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		NBTTagCompound nbt = super.writeToNBT(compound);
-		
-		return nbt;
+	public HashSet<BlockPos> getPositions() {
+		return teamSpawnPositions;
 	}
 
 }

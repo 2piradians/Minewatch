@@ -1,0 +1,191 @@
+itemGroup.tabMinewatch=Вкладка Minewatch
+itemGroup.tabMinewatchArmorWeapons=Броня и оружие Minewatch
+itemGroup.tabMinewatchMapMaking=Инструменты для создания карт Minewatch
+
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Скины Героев
+config.server-side.hero_mobs=Мобы-Герои
+
+effect.frozen=Замораживание
+
+tile.health_pack_small.name=Маленькая аптечка
+tile.health_pack_large.name=Большая аптечка
+
+item.wild_card_token.name=Маркер на выбор
+item.team_stick.name=Командная палка
+
+item.reaper_token.name=Маркер Жнеца
+item.reaper_helmet.name=Шлем Жнеца
+item.reaper_chestplate.name=Нагрудник Жнеца
+item.reaper_leggings.name=Поножи Жнеца
+item.reaper_boots.name=Ботинки Жнеца
+item.reaper_weapon.name=Адский дробовик Жнеца
+
+item.hanzo_token.name=Маркер Хандзо
+item.hanzo_helmet.name=Шлем Хандзо
+item.hanzo_chestplate.name=Нагрудник Хандзо
+item.hanzo_leggings.name=Поножи Хандзо
+item.hanzo_boots.name=Ботинки Хандзо
+item.hanzo_weapon.name=Лук бури Хандзо
+
+item.reinhardt_token.name=Маркер Райнхардта
+item.reinhardt_helmet.name=Шлем Райнхардта
+item.reinhardt_chestplate.name=Нагрудник Райнхардта
+item.reinhardt_leggings.name=Поножи Райнхардта
+item.reinhardt_boots.name=Ботинки Райнхардта
+item.reinhardt_weapon.name=Ракетный молот Райнхардта
+
+item.ana_token.name=Маркер Аны
+item.ana_helmet.name=Шлем Аны
+item.ana_chestplate.name=Нагрудник Аны
+item.ana_leggings.name=Поножи Аны
+item.ana_boots.name=Ботинки Аны
+item.ana_weapon.name=Биотическое ружье Аны
+
+item.genji_token.name=Маркер Гэндзи
+item.genji_helmet.name=Шлем Гэндзи
+item.genji_chestplate.name=Нагрудник Гэндзи
+item.genji_leggings.name=Поножи Гэндзи
+item.genji_boots.name=Ботинки Гэндзи
+item.genji_weapon.name=Сюрикены Гэндзи
+item.genji_shuriken_single.name=Сюрикены Гэндзи
+
+item.tracer_token.name=Маркер Трейсер
+item.tracer_helmet.name=Шлем Трейсер
+item.tracer_chestplate.name=Нагрудник Трейсер
+item.tracer_leggings.name=Поножи Трейсер
+item.tracer_boots.name=Ботинки Трейсер
+item.tracer_weapon.name=Импульсный пистолет Трейсер
+
+item.mccree_token.name=Маркер Маккри
+item.mccree_helmet.name=Шлем Маккри
+item.mccree_chestplate.name=Нагрудник Маккри
+item.mccree_leggings.name=Поножи Маккри
+item.mccree_boots.name=Ботинки Маккри
+item.mccree_weapon.name=Миротворец Маккри
+
+item.soldier76_token.name=Маркер Солдата-76
+item.soldier76_helmet.name=Шлем Солдата-76
+item.soldier76_chestplate.name=Нагрудник Солдата-76
+item.soldier76_leggings.name=Поножи Солдата-76
+item.soldier76_boots.name=Ботинки Солдата-76
+item.soldier76_weapon.name=Импульсная винтовка Солдата-76
+
+item.mei_token.name=Маркер Мэй
+item.mei_helmet.name=Шлем Мэй
+item.mei_chestplate.name=Нагрудник Мэй
+item.mei_leggings.name=Поножи Мэй
+item.mei_boots.name=Ботинки Мэй
+item.mei_weapon.name=Эндотермический бластер Мэй
+
+item.bastion_token.name=Маркер Бастиона
+item.bastion_helmet.name=Шлем Бастиона
+item.bastion_chestplate.name=Нагрудник Бастиона
+item.bastion_leggings.name=Поножи Бастиона
+item.bastion_boots.name=Ботинки Бастиона
+item.bastion_weapon.name=Пистолет-пулемёт Бастиона
+
+item.widowmaker_token.name=Маркер Роковой вдовы
+item.widowmaker_helmet.name=Шлем Роковой вдовы
+item.widowmaker_chestplate.name=Нагрудник Роковой вдовы
+item.widowmaker_leggings.name=Поножи Роковой вдовы
+item.widowmaker_boots.name=Ботинки Роковой вдовы
+item.widowmaker_weapon.name=Поцелуй вдовы
+
+item.mercy_token.name=Маркер Ангела
+item.mercy_helmet.name=Шлем Ангела
+item.mercy_chestplate.name=Нагрудник Ангела
+item.mercy_leggings.name=Поножи Ангела
+item.mercy_boots.name=Ботинки Ангела
+item.mercy_weapon.name=Оружие Ангела
+
+item.junkrat_token.name=Маркер Крысавчика
+item.junkrat_helmet.name=Шлем Крысавчика
+item.junkrat_chestplate.name=Нагрудник Крысавчика
+item.junkrat_leggings.name=Поножи Крысавчика
+item.junkrat_boots.name=Ботинки Крысавчика
+item.junkrat_weapon.name=Гранатомет Крысавчика
+item.junkrat_trigger.name=Фугасная мина Крысавчика
+
+item.sombra_token.name=Маркер Сомбры
+item.sombra_helmet.name=Шлем Сомбры
+item.sombra_chestplate.name=Нагрудник Сомбры
+item.sombra_leggings.name=Поножи Сомбры
+item.sombra_boots.name=Ботинки Сомбры
+item.sombra_weapon.name=Пистолет-Пулемёт Сомбры
+item.sombra_hack.name=Взлом Сомбры
+
+item.lucio_token.name=Маркер Лусио
+item.lucio_helmet.name=Шлем Лусио
+item.lucio_chestplate.name=Нагрудник Лусио
+item.lucio_leggings.name=Поножи Лусио
+item.lucio_boots.name=Ботинки Лусио
+item.lucio_weapon.name=Усилитель звука Лусио
+
+item.zenyatta_token.name=Маркер Дзенъятты
+item.zenyatta_helmet.name=Шлем Дзенъятты
+item.zenyatta_chestplate.name=Нагрудник Дзенъятты
+item.zenyatta_leggings.name=Поножи Дзенъятты
+item.zenyatta_boots.name=Ботинки Дзенъятты
+item.zenyatta_weapon.name=Сфера Дзенъятты
+
+item.moira_token.name=Маркер Мойры
+item.moira_helmet.name=Шлем Мойры
+item.moira_chestplate.name=Нагрудник Мойры
+item.moira_leggings.name=Поножи Мойры
+item.moira_boots.name=Ботинки Мойры
+item.moira_weapon.name=Биотическая хватка Мойры
+
+entity.random_hero.name=Случайный герой
+entity.hanzo_hero.name=Хандзо
+entity.hanzo_arrow.name=Стрела Хандзо
+entity.hanzo_sonic_arrow.name=Звуковая стрела Хандзо
+entity.hanzo_scatter_arrow.name=Кластерная стрела Хандзо
+entity.reaper_hero.name=Жнец
+entity.reaper_bullet.name=Снаряд Жнеца
+entity.ana_hero.name=Ана
+entity.ana_bullet.name=Снаряд Аны
+entity.ana_sleep_dart.name=Усыпляющий дротик Аны
+entity.ana_grenade.name=Биотическая граната
+entity.genji_hero.name=Гэндзи
+entity.genji_shuriken.name=Сюрикены Гэндзи
+entity.genji_shuriken_single.name=Сюрикен Гэндзи
+entity.tracer_hero.name=Трейсер
+entity.tracer_bullet.name=Снаряд Трейсер
+entity.mccree_hero.name=Маккри
+entity.mccree_bullet.name=Снаряд Маккри
+entity.mccree_stun.name=Светошумовая граната Маккри
+entity.soldier76_hero.name=Солдат-76
+entity.soldier76_bullet.name=Снаряд Солдата-76
+entity.soldier76_helix_rocket.name=Ракета Солдата-76
+entity.soldier76_heal.name=Биотичесское поле Солдата-76
+entity.bastion_hero.name=Бастион
+entity.bastion_bullet.name=Снаряд Бастиона
+entity.mei_hero.name=Мэй
+entity.mei_blast.name=Выстрел Мэй
+entity.mei_icicle.name=Сосулька Мэй
+entity.mei_crystal.name=Криостазис Мэй
+entity.mercy_hero.name=Ангел
+entity.mercy_bullet.name=Снаряд Ангела
+entity.mercy_beam.name=Луч Ангела
+entity.junkrat_hero.name=Крысавчик
+entity.junkrat_grenade.name=Граната Крысавчика
+entity.junkrat_trap.name=Стальная ловушка Крысавчика
+entity.junkrat_mine.name=Фугасная мина Крысавчика
+entity.widowmaker_hero.name=Роковая вдова
+entity.widowmaker_bullet.name=Снаряд Роковой вдовы
+entity.widowmaker_mine.name=Ядовитая мина Роковой вдовы
+entity.widowmaker_hook.name=Крюк Роковой вдовы
+entity.sombra_hero.name=Сомбра
+entity.sombra_bullet.name=Снаряд Сомбры
+entity.sombra_translocator.name=Транслокатор Сомбры
+entity.reinhardt_hero.name=Райнхардт
+entity.reinhardt_strike.name=Огенный удар Райнхардта
+entity.lucio_hero.name=Лусио
+entity.lucio_sonic.name=Звуковой снаряд Лусио
+entity.zenyatta_hero.name=Дзенъятта
+entity.zenyatta_orb.name=Сфера Дзенъятты
+entity.moira_hero.name=Мойра
+entity.moira_heal_energy.name=Биотичесская энергия Мойры
+entity.moira_orb.name=Биотическая сфера Мойры

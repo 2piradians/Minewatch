@@ -1,8 +1,42 @@
 {
-    "variants": {
-        "facing=north": { "model": "minewatch:team_spawn" },
-        "facing=south": { "model": "minewatch:team_spawn", "y": 180 },
-        "facing=west":  { "model": "minewatch:team_spawn", "y": 270 },
-        "facing=east":  { "model": "minewatch:team_spawn", "y": 90 }
-    }
+    "multipart": [
+        {   "when": { "facing": "east", "has_team": "false" }, 
+            "apply": { "model": "minewatch:team_spawn" }
+        },
+        {   "when": { "facing": "south", "has_team": "false" },
+            "apply": { "model": "minewatch:team_spawn", "y": 90 }
+        },
+        {   "when": { "facing": "west", "has_team": "false" },
+            "apply": { "model": "minewatch:team_spawn", "y": 180 }
+        },
+        {   "when": { "facing": "north", "has_team": "false" },
+            "apply": { "model": "minewatch:team_spawn", "y": 270 }
+        },
+        
+        {   "when": { "facing": "east", "has_team": "true", "activated": "false" }, 
+            "apply": { "model": "minewatch:team_spawn_overlay_0" }
+        },
+        {   "when": { "facing": "south", "has_team": "true", "activated": "false" },
+            "apply": { "model": "minewatch:team_spawn_overlay_0", "y": 90 }
+        },
+        {   "when": { "facing": "west", "has_team": "true", "activated": "false" },
+            "apply": { "model": "minewatch:team_spawn_overlay_0", "y": 180 }
+        },
+        {   "when": { "facing": "north", "has_team": "true", "activated": "false" },
+            "apply": { "model": "minewatch:team_spawn_overlay_0", "y": 270 }
+        },
+        
+        {   "when": { "facing": "east", "has_team": "true", "activated": "true" }, 
+            "apply": { "model": "minewatch:team_spawn_overlay_1" }
+        },
+        {   "when": { "facing": "south", "has_team": "true", "activated": "true" },
+            "apply": { "model": "minewatch:team_spawn_overlay_1", "y": 90 }
+        },
+        {   "when": { "facing": "west", "has_team": "true", "activated": "true" },
+            "apply": { "model": "minewatch:team_spawn_overlay_1", "y": 180 }
+        },
+        {   "when": { "facing": "north", "has_team": "true", "activated": "true" },
+            "apply": { "model": "minewatch:team_spawn_overlay_1", "y": 270 }
+        }
+    ]
 }

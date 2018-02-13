@@ -85,6 +85,7 @@ import twopiradians.minewatch.client.render.tileentity.TileEntityTeamSpawnRender
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.block.teamBlocks.TeamBlock;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
@@ -301,9 +302,12 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void registerBlockRenders() {
-		for (Block block : ModBlocks.allBlocks)
+		for (Block block : ModBlocks.allBlocks) {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
 					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
+			if (block instanceof TeamBlock)
+				Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler((TeamBlock) block, block);
+		}
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeamSpawn.class, new TileEntityTeamSpawnRenderer());
 	}

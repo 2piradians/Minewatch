@@ -24,6 +24,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -33,7 +34,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.ColorHelper;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -124,7 +128,7 @@ public class ItemTeamStick extends Item {
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		String format1 = TextFormatting.GRAY+""+TextFormatting.UNDERLINE;
 		String format2 = TextFormatting.BLUE+"";
-		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy");
+		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+"Teams made easy - works with entities and Team blocks");
 		tooltip.add(format1+"RMB:"+format2+" Open Team Stick GUI");
 		tooltip.add(format1+"RMB+Sneak:"+format2+" Clear selected team");
 		tooltip.add(format1+"RMB+Entity:"+format2+" Remove team");
@@ -223,13 +227,39 @@ public class ItemTeamStick extends Item {
 	}
 
 	@Override
-	public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
+	public boolean onBlockStartBreak(ItemStack stack, BlockPos pos, EntityPlayer player) {
+		if (!player.world.isRemote && player.world.getTileEntity(pos) instanceof TileEntityTeam) {
+			TileEntityTeam te = (TileEntityTeam) player.world.getTileEntity(pos);
+			String name = te.getBlockType().getLocalizedName();
+			Team team = getTeam(player.world, stack);
+			// copy team
+			if (player.isSneaking()) {
+				if (te.getTeam() != null) {
+					setTeam(stack, te.getTeam());
+					sendChatMessage(player, "Copied "+name+"'s team: "+getTeamName(stack, true));
+				}
+				else 
+					sendChatMessage(player, name+" doesn't have a team");
+			}
+			// add to team
+			else if (team != null && !team.isSameTeam(te.getTeam())) {
+				te.setTeam(team);
+				sendChatMessage(player, "Set "+name+"'s team to: "+getTeamName(stack, true));
+				player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.5f, 1.8f);
+			}
+			// add to team already on
+			else if (team != null && team.isSameTeam(te.getTeam()))
+				sendChatMessage(player, name+" is already assigned to team "+getTeamName(stack, true));
+			// no team selected
+			else if (team == null)
+				sendChatMessage(player, "No team selected; select a team by right-click the air first");
+		}
 		return true;
 	}
 
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
-		return false;
+		return world.getBlockState(pos).getBlock() == ModBlocks.teamSpawn;
 	}
 
 	@SideOnly(Side.CLIENT)

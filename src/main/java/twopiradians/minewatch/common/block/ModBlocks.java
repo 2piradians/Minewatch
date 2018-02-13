@@ -10,6 +10,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.teamBlocks.BlockTeamSpawn;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 

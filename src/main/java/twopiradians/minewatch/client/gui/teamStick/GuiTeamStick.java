@@ -257,7 +257,7 @@ public class GuiTeamStick extends GuiScreen {
 
 				String text = TextFormatting.DARK_GRAY.toString()+TextFormatting.ITALIC+
 						"Add or remove nearby "+filter.name.toLowerCase()+" using the left and right sidebars, respectively.\n\n"
-						+ "Or click on entities with the Team Stick to assign or remove teams.";
+						+ "Or click on entities/Team blocks with the Team Stick to assign or remove teams.";
 				int y = guiTop+8;
 				for (String s : mc.fontRendererObj.listFormattedStringToWidth(text, X_SIZE-16)) {
 					mc.fontRendererObj.drawString(s, guiLeft+8, y, 0xFFFFFF);
@@ -265,7 +265,7 @@ public class GuiTeamStick extends GuiScreen {
 				}
 
 				RenderHelper.enableGUIStandardItemLighting();
-				this.itemRender.renderItemIntoGUI(getStack(), stackX, stackY);
+				this.itemRender.renderItemIntoGUI(getStack(), stackX, stackY+3);
 				GlStateManager.disableLighting();
 
 			}

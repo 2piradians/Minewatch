@@ -70,7 +70,7 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 public class CommonProxy {
 
 	public enum EnumGui {
-		WILDCARD, TEAM_STICK
+		WILDCARD, TEAM_STICK, TEAM_SPAWN
 	}
 	
 	public enum EnumParticle {
@@ -302,6 +302,8 @@ public class CommonProxy {
 	}
 
 	public void openGui(EnumGui gui) {}
+	
+	public void openGui(EnumGui gui, Object... obj) {}
 
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return handler.onServerRemove();

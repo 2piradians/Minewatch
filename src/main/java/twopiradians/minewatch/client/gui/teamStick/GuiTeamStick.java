@@ -31,6 +31,7 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSelector;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -39,7 +40,7 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
-public class GuiTeamStick extends GuiScreen {
+public class GuiTeamStick extends GuiTeamSelector {
 
 	public enum Screen {
 		MAIN, INFO, EDIT_TEAM, CREATE_TEAM, QUESTION_MARK;
@@ -75,13 +76,11 @@ public class GuiTeamStick extends GuiScreen {
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/team_stick.png");
 
 	public Screen currentScreen;
-	private Team selectedTeam;
 	public GuiScrollingTeams scrollingTeams;
 	public GuiScrollingTeamEntities scrollingTeamEntities;
 	public GuiScrollingFindEntities scrollingFindEntities;
 	public ArrayList<EntityLivingBase> entitiesTeam = new ArrayList<EntityLivingBase>();
 	public ArrayList<EntityLivingBase> entitiesFind = new ArrayList<EntityLivingBase>();
-	public ArrayList<Team> teams = new ArrayList<Team>();
 	public TextFormatting selectedColor;
 	public GuiTextField teamNameField;
 	private String teamWaitingFor;
@@ -95,12 +94,7 @@ public class GuiTeamStick extends GuiScreen {
 		selectedColor = TextFormatting.WHITE;
 		filter = Filter.ENTITIES;
 	}
-
-	@Override
-	public boolean doesGuiPauseGame() {
-		return false;
-	}
-
+	
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -445,20 +439,7 @@ public class GuiTeamStick extends GuiScreen {
 			Minewatch.network.sendToServer(new CPacketSimple(9, this.getSelectedTeam().getRegisteredName(), mc.player, this.teamNameField.getText()));
 	}
 
-	public String getTeamName(Team team) {
-		if (team instanceof ScorePlayerTeam)
-			return ((ScorePlayerTeam)team).getTeamName();
-		else if (team != null)
-			return team.getRegisteredName();
-		else
-			return "";
-	}
-
-	@Nullable
-	public Team getSelectedTeam() {
-		return selectedTeam;
-	}
-
+	@Override
 	public void setSelectedTeam(@Nullable Team team) {
 		setSelectedTeam(team, true);
 	}

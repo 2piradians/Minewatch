@@ -28,11 +28,15 @@ import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.ColorHelper;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public abstract class TeamBlock extends Block implements IBlockColor {
 
     public static final PropertyBool HAS_TEAM = PropertyBool.create("has_team");
     public static final PropertyBool ACTIVATED = PropertyBool.create("activated");
+    
+	public static final Handler WARNING_COOLDOWN = new Handler(Identifier.TEAM_BLOCK_WARNING_COOLDOWN, false) {};
 	
 	public TeamBlock() {
 		super(Material.BARRIER);
@@ -100,7 +104,6 @@ public abstract class TeamBlock extends Block implements IBlockColor {
 		if (world.getTileEntity(pos) instanceof TileEntityTeam) {
 			TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
 			Team team = te.getTeam();
-			Minewatch.logger.info("team: "+team); // TODO
 			if (team != null && team.getChatFormat() != null && team.getChatFormat().isColor()) {
 				Color color = new Color(ColorHelper.getForegroundColor(team.getChatFormat()));
 				return color.getRGB();
@@ -110,13 +113,9 @@ public abstract class TeamBlock extends Block implements IBlockColor {
 	}
 	
 	@Override
-    public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
-		// TODO remove
-    }
-	
-	@Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!player.world.isRemote && !player.isSneaking() && world.getTileEntity(pos) instanceof TileEntityTeam) {
+		if (!player.world.isRemote && !player.isSneaking() && world.getTileEntity(pos) instanceof TileEntityTeam &&
+				player.getHeldItem(hand) != null && player.getHeldItem(hand).getItem() == ModItems.team_stick) {
 			TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
 			String name = te.getBlockType().getLocalizedName();
 			// remove from team

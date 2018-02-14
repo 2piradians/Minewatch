@@ -30,6 +30,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -52,6 +53,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
+import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSpawn;
 import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -131,6 +133,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -461,7 +464,7 @@ public class ClientProxy extends CommonProxy {
 	public float getRenderPartialTicks() {
 		return Minecraft.getMinecraft().getRenderPartialTicks();
 	}
-	
+
 	@Override
 	public void stopFollowingSound(Entity followingEntity, ModSoundEvent event) {
 		if (followingEntity != null && followingEntity.world.isRemote) 
@@ -469,7 +472,7 @@ public class ClientProxy extends CommonProxy {
 		else
 			super.stopFollowingSound(followingEntity, event);
 	}
-	
+
 	@Override
 	public void stopFollowingSound(Entity followingEntity, String event) {
 		if (followingEntity != null && followingEntity.world.isRemote) 
@@ -492,6 +495,11 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void openGui(EnumGui gui) {
+		this.openGui(gui, new Object[0]);
+	}
+
+	@Override
+	public void openGui(EnumGui gui, @Nullable Object... objs) {
 		switch (gui) {
 		case WILDCARD:
 			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
@@ -499,6 +507,10 @@ public class ClientProxy extends CommonProxy {
 		case TEAM_STICK:
 			if (Minecraft.getMinecraft().objectMouseOver.entityHit == null)
 				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamStick());
+			break;
+		case TEAM_SPAWN:
+			if (objs.length == 1 && objs[0] instanceof TileEntityTeam)
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSpawn((TileEntityTeam) objs[0]));
 			break;
 		}
 	}

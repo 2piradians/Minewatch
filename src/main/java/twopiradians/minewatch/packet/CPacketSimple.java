@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -27,6 +28,7 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -272,6 +274,26 @@ public class CPacketSimple implements IMessage {
 							Minewatch.logger.info("registering DEAD");
 							TickHandler.register(false, BlockTeamSpawn.DEAD.setEntity(packetPlayer).setTicks(20));
 						}
+					}
+					// GuiTeamBlock set team
+					else if (packet.type == 13 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setTeam(team);
+					}
+					// GuiTeamBlock set team
+					else if (packet.type == 14 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						if (te.isValidName(packet.string))
+							te.setName(packet.string);
+					}
+					// GuiTeamBlock activate/deactivate
+					else if (packet.type == 15 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setActivated(packet.bool);
 					}
 				}
 			});

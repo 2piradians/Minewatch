@@ -26,12 +26,8 @@ import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.IGuiScreen;
-import twopiradians.minewatch.client.gui.IGuiScreen.Screen;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase.Render;
-import twopiradians.minewatch.client.gui.teamStick.GuiButtonColored;
-import twopiradians.minewatch.client.gui.teamStick.GuiButtonResized;
-import twopiradians.minewatch.client.gui.teamStick.GuiButtonURL;
 import twopiradians.minewatch.client.gui.teamStick.GuiScrollingTeams;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
@@ -41,11 +37,11 @@ import twopiradians.minewatch.packet.CPacketSimple;
 public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 
 	/** The X size of the inventory window in pixels. */
-	private static final int X_SIZE = 322/2;
+	protected static final int X_SIZE = 322/2;
 	/** The Y size of the inventory window in pixels. */
-	private static final int Y_SIZE = 444/2;
-	private int guiLeft;
-	private int guiTop;
+	protected static final int Y_SIZE = 444/2;
+	protected int guiLeft;
+	protected int guiTop;
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/team_block.png");
 
 	public Screen currentScreen;
@@ -53,9 +49,12 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 	public GuiTextField nameField;
 	public TileEntityTeam te;
 	public List<String> hoverText;
+	protected String format = TextFormatting.WHITE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD;
+	protected int offsetY;
 
-	public GuiTeamBlock(TileEntityTeam te) {
+	public GuiTeamBlock(TileEntityTeam te, int offsetY) {
 		currentScreen = Screen.MAIN;
+		this.offsetY = offsetY;
 		this.te = te;
 		this.selectedTeam = te.getTeam();
 	}
@@ -69,19 +68,18 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 
 		// buttons
 		// Screen.MAIN
-		String format = TextFormatting.WHITE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD;
-		this.buttonList.add(new GuiButtonBase(3, guiLeft+X_SIZE-15, guiTop+5, 10, 10, "?", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN));
-		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-50/2, guiTop+25, 50, 20, format+"Name", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList("This name is used by commands"))); // TODO translate names
-		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-110/2, guiTop+58, 110, 20, format+"Activate / Deactivate", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList("Players and Hero Mobs will spawn at their team's active Team Spawn"))); 
-		this.buttonList.add(new GuiButtonBase(1, guiLeft+X_SIZE/2-60/2, guiTop+77, 60, 20, "Activate", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && !te.isActivated()).setColor(new Color(50, 255, 50)).setHoverText(Lists.newArrayList("Only one Team Spawn block can be active at a time")));
-		this.buttonList.add(new GuiButtonBase(2, guiLeft+X_SIZE/2-60/2, guiTop+77, 60, 20, "Deactivate", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && te.isActivated()).setColor(new Color(255, 50, 50)).setHoverText(Lists.newArrayList("Only one Team Spawn block can be active at a time")));
-		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-70/2, guiTop+96, 70, 20, format+"Selected Team", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList("Choose the team that will respawn here"))); 
+		this.buttonList.add(new GuiButtonBase(3, guiLeft+X_SIZE-15, guiTop+5, 10, 10, "?", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setHoverTextPredicate(gui->((GuiTeamBlock)gui).getStatusText()));
+		this.buttonList.add(new GuiButtonBase(-1, guiLeft+X_SIZE/2-50/2, offsetY+guiTop+25, 50, 20, format+Minewatch.translate("gui.team_block.button.name"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_block.button.name.desc")))); 
+		this.buttonList.add(new GuiButtonBase(-2, guiLeft+X_SIZE/2-120/2, offsetY+guiTop+58, 120, 20, format+Minewatch.translate("gui.team_block.button.activate_deactivate"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT)); 
+		this.buttonList.add(new GuiButtonBase(1, guiLeft+X_SIZE/2-60/2, offsetY+guiTop+77, 60, 20, Minewatch.translate("gui.team_block.button.activate"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && !te.isActivated()).setColor(new Color(50, 255, 50)));
+		this.buttonList.add(new GuiButtonBase(2, guiLeft+X_SIZE/2-60/2, offsetY+guiTop+77, 60, 20, Minewatch.translate("gui.team_block.button.deactivate"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && te.isActivated()).setColor(new Color(255, 50, 50)));
+		this.buttonList.add(new GuiButtonBase(-3, guiLeft+X_SIZE/2-80/2, offsetY+guiTop+96, 80, 20, format+Minewatch.translate("gui.team_block.button.selected_team"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT)); 
 		// Screen.QUESTION_MARK
-		this.buttonList.add(new GuiButtonBase(4, guiLeft+X_SIZE/2-30/2, guiTop+Y_SIZE-35, 30, 20, "OK", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK));
-		this.buttonList.add(new GuiButtonBase(5, guiLeft+X_SIZE/2-80/2, guiTop+Y_SIZE-85, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD+"Video Demonstration", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK).setNoSound().setCustomRender(Render.TEXT));
+		this.buttonList.add(new GuiButtonBase(4, guiLeft+X_SIZE/2-30/2, guiTop+Y_SIZE-35, 30, 20, Minewatch.translate("gui.team_block.button.ok"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK));
+		this.buttonList.add(new GuiButtonBase(5, guiLeft+X_SIZE/2-80/2, guiTop+Y_SIZE-85, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD+Minewatch.translate("gui.team_block.button.video_demonstration"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK).setNoSound().setCustomRender(Render.TEXT));
 
 		// set up scrolling lists
-		scrollingTeams = new GuiScrollingTeams(this, X_SIZE-6, 0, guiTop+Y_SIZE-3-104, guiTop+Y_SIZE-3, guiLeft+3, 20, width, height);
+		scrollingTeams = new GuiScrollingTeams(this, X_SIZE-6, 0, offsetY+guiTop+Y_SIZE-3-104, guiTop+Y_SIZE-3, guiLeft+3, 20, width, height);
 
 		// create and sort all teams
 		teams = new ArrayList<Team>(mc.world.getScoreboard().getTeams());
@@ -93,7 +91,7 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 		});
 
 		// set up team name text field
-		nameField = new GuiTextField(0, mc.fontRendererObj, guiLeft+X_SIZE/2-104/2, guiTop+44, 104, 14);
+		nameField = new GuiTextField(0, mc.fontRendererObj, guiLeft+X_SIZE/2-104/2, offsetY+guiTop+44, 104, 14);
 		nameField.setFocused(false);
 		nameField.setCanLoseFocus(true);
 		nameField.setMaxStringLength(16);
@@ -103,9 +101,24 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 		setSelectedTeam(this.selectedTeam, false);
 	}
 
+	protected List<String> getStatusText() {
+		return null;
+	}
+
 	@Override
 	public void updateScreen() {
 		nameField.updateCursorCounter();
+	}
+	
+	public void drawMainScreen(int mouseX, int mouseY, float partialTicks) {
+		switch (this.currentScreen) {
+		case MAIN:
+			nameField.drawTextBox();
+			scrollingTeams.drawScreen(mouseX, mouseY, partialTicks);
+			break;
+		case QUESTION_MARK:
+			break;
+		}
 	}
 
 	@Override
@@ -123,26 +136,10 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, GuiTeamBlock.X_SIZE, GuiTeamBlock.Y_SIZE);
 
 		if (getSelectedTeam() != null) {
-			this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD+"Selected Team: "+this.getSelectedTeam().getChatFormat()+getTeamName(this.getSelectedTeam()), guiLeft+X_SIZE/2, guiTop-10, 0xFFFFFF);
+			this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD+Minewatch.translate("gui.team_block.button.selected_team")+": "+this.getSelectedTeam().getChatFormat()+getTeamName(this.getSelectedTeam()), guiLeft+X_SIZE/2, guiTop-10, 0xFFFFFF);
 		}
-
-		switch (this.currentScreen) {
-		case MAIN:
-			nameField.drawTextBox();
-			scrollingTeams.drawScreen(mouseX, mouseY, partialTicks);
-			break;
-		case QUESTION_MARK:
-			String text = TextFormatting.WHITE.toString()+
-			"Players and hero mobs will spawn at their team's active Team Spawn.\n\n"
-			+ "Team Spawn blocks can be activated/deactivated with a command, as well:\n\n"
-			+ TextFormatting.GREEN+TextFormatting.ITALIC+"/mw teamSpawn <activate/deactivate> <name>";
-			int y = guiTop+15;
-			for (String s : mc.fontRendererObj.listFormattedStringToWidth(text, X_SIZE-16)) {
-				mc.fontRendererObj.drawString(s, guiLeft+8, y, 0xFFFFFF, true);
-				y += mc.fontRendererObj.FONT_HEIGHT;
-			}
-			break;
-		}
+		
+		this.drawMainScreen(mouseX, mouseY, partialTicks);
 
 		// buttons
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -239,6 +236,13 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 	@Override
 	public Screen getCurrentScreen() {
 		return this.currentScreen;
+	}
+	
+	public void drawWrappedString(String text, int x, int y, boolean dropShadow, int wrapWidth) {
+		for (String s : mc.fontRendererObj.listFormattedStringToWidth(text, wrapWidth)) {
+			mc.fontRendererObj.drawString(s, x, y, 0xFFFFFF, dropShadow);
+			y += mc.fontRendererObj.FONT_HEIGHT;
+		}
 	}
 
 }

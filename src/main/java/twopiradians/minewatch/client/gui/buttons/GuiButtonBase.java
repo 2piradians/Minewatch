@@ -3,6 +3,7 @@ package twopiradians.minewatch.client.gui.buttons;
 import java.awt.Color;
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import net.minecraft.client.Minecraft;
@@ -25,6 +26,7 @@ public class GuiButtonBase extends GuiButton {
 	public Color color = new Color(0xFFFFFF);
 	public List<String> hoverText;
 	public boolean noSound;
+	public Function<IGuiScreen, List<String>> hoverTextFuction;
 
 	public GuiButtonBase(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, IGuiScreen gui) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
@@ -56,14 +58,23 @@ public class GuiButtonBase extends GuiButton {
 		this.noSound = true;
 		return this;
 	}
+	
+	public GuiButtonBase setHoverTextPredicate(Function<IGuiScreen, List<String>> hoverTextFuction) {
+		this.hoverTextFuction = hoverTextFuction;
+		return this;
+	}
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		this.visible = shouldBeVisible == null || shouldBeVisible.apply(gui);
 		this.hovered = this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
-		if (this.hovered && gui instanceof GuiTeamBlock && this.hoverText != null)
+		if (this.hovered && gui instanceof GuiTeamBlock) {
+			if (this.hoverTextFuction != null)
+				this.hoverText = this.hoverTextFuction.apply(gui);
+			if (this.hoverText != null)
 			((GuiTeamBlock)this.gui).hoverText = hoverText;
+		}
 
 		GlStateManager.pushMatrix();
 		int actualHeight = this.height;

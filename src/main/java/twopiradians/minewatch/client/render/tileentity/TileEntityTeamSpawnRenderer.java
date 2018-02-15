@@ -1,13 +1,6 @@
 package twopiradians.minewatch.client.render.tileentity;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.MathHelper;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 
 public class TileEntityTeamSpawnRenderer extends TileEntitySpecialRenderer<TileEntityTeamSpawn> {

@@ -1,6 +1,5 @@
 package twopiradians.minewatch.common.tileentity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -15,7 +14,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.block.teamBlocks.TeamBlock;
 
 public abstract class TileEntityTeam extends TileEntity implements ITickable {
@@ -25,8 +23,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	private boolean activated;
 	
 	// have to delay a tick to prevent infinite loops while first adding tile
-	public boolean needsToBeUpdated;
-	public boolean updatePositions;
+	protected boolean needsToBeUpdated;
 
 	public TileEntityTeam() {
 		super();
@@ -45,9 +42,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 				// set values for new tile, because setBlockState will recreate tile
 				TileEntity te = this.world.getTileEntity(pos);
 				if (te instanceof TileEntityTeam) {
-					((TileEntityTeam)te).team = team;
-					((TileEntityTeam)te).activated = activated;
-					((TileEntityTeam)te).name = name;
+					this.copyToNewTile((TileEntityTeam) te);
 				}
 				this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), oldState, newState, 3);
 			}
@@ -56,25 +51,17 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 			this.markDirty();
 			this.needsToBeUpdated = false;
 		}
-
-		// goes through positions and makes sure they are still valid
-		if (this.updatePositions) {
-			ArrayList<BlockPos> positionsToRemove = new ArrayList<BlockPos>();
-			for (BlockPos pos : getPositions(false).keySet()) 
-				if (!pos.equals(this.pos) && (world.getTileEntity(pos) == null || world.getTileEntity(pos).getClass() != this.getClass()))
-					positionsToRemove.add(pos);
-			for (BlockPos pos : positionsToRemove)
-				getPositions(false).remove(pos);
-			this.updatePositions = false;
-		}
-	}
-
-	public HashMap<BlockPos, String> getPositions() {
-		return getPositions(true);
 	}
 	
-	public abstract HashMap<BlockPos, String> getPositions(boolean validatePositions);
+	@Override
+    public void invalidate() {
+        super.invalidate();
+        
+        this.getPositions().remove(pos);
+    }
 
+	public abstract HashMap<BlockPos, String> getPositions();
+	
 	/**Checks that this name is unique and valid*/
 	public boolean isValidName(String name) {
 		return name != null && !name.contains(" ") && (!this.getPositions().values().contains(name) || name.equals(this.getPositions().get(this.pos)));
@@ -107,6 +94,8 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	public void setTeam(@Nullable Team team) {
 		if (!world.isRemote) {
 			this.team = team;
+			if (activated)
+				this.deactivateOtherActive();
 			this.needsToBeUpdated = true;
 		}
 	}
@@ -118,19 +107,22 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	public void setActivated(boolean activated) {
 		if (!world.isRemote) {
 			this.activated = activated;
-			// deactivate other active tiles with same team
-			if (activated) {
-			for (BlockPos pos : this.getPositions().keySet())
-				if (!pos.equals(this.pos) && world.getTileEntity(pos) instanceof TileEntityTeam) {
-					TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
-					if (te.activated && te.getTeam() == this.getTeam()) {
-						te.activated = false;
-						te.needsToBeUpdated = true;
-					}
-				}
-			}
+			if (activated) 
+				this.deactivateOtherActive();
 			this.needsToBeUpdated = true;
 		}
+	}
+	
+	/**Deactivate other active tiles with same team*/
+	public void deactivateOtherActive() {
+		for (BlockPos pos : this.getPositions().keySet())
+			if (!pos.equals(this.pos) && world.getTileEntity(pos) instanceof TileEntityTeam) {
+				TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
+				if (te.activated && te.getTeam() == this.getTeam()) {
+					te.activated = false;
+					te.needsToBeUpdated = true;
+				}
+			}
 	}
 
 	@Override
@@ -194,6 +186,13 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 
 		if (this.world == null) 
 			this.world = world;
+	}
+	
+	/**Copy this tile's variables to the new one when this is invalidated*/
+	public void copyToNewTile(TileEntityTeam te) {
+		te.team = team;
+		te.activated = activated;
+		te.name = name;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -54,6 +55,7 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //TEAMS getTeamName() -> getDisplayName()
 //addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) -> addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
 
+@SuppressWarnings("deprecation")
 @Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json")
 public class Minewatch {
 	
@@ -91,6 +93,10 @@ public class Minewatch {
 		event.registerServerCommand(new CommandMinewatch());
 		event.registerServerCommand(new CommandDev());
 		RankManager.lookUpRanks();
+	}
+	
+	public static String translate(String str) {
+		return I18n.translateToLocal(str);
 	}
 
 }

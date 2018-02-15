@@ -18,10 +18,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.block.teamBlocks.BlockTeamSpawn;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
+import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
@@ -29,6 +29,7 @@ import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -270,9 +271,10 @@ public class CPacketSimple implements IMessage {
 					}
 					// player death screen
 					else if (packet.type == 12 && packetPlayer != null) {
-						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && packetPlayer.getHealth() <= 0.0F) {
-							Minewatch.logger.info("registering DEAD");
-							TickHandler.register(false, BlockTeamSpawn.DEAD.setEntity(packetPlayer).setTicks(20));
+						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive() && 
+								RespawnManager.isRespawnablePlayer(packetPlayer)) {
+							Minewatch.logger.info("registering DEAD"); // TODO
+							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(20).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getRegisteredName() : null));
 						}
 					}
 					// GuiTeamBlock set team
@@ -294,6 +296,12 @@ public class CPacketSimple implements IMessage {
 							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
 						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
 						te.setActivated(packet.bool);
+					}
+					// GuiTeamSpawn increase/decrease spawnRadius
+					else if (packet.type == 16 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
+						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setSpawnRadius(packet.bool ? te.getSpawnRadius()+1 : te.getSpawnRadius()-1);
 					}
 				}
 			});

@@ -3,6 +3,8 @@ package twopiradians.minewatch.common.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -21,9 +23,15 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class CommandMinewatch implements ICommand {
@@ -46,7 +54,11 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/mw hero <Hero> [target] or /mw syncConfigToServer";
+		return "\n"
+				+ "/mw hero <hero> [target] \n"
+				+ "/mw teamSpawn <name> <activate/deactivate> \n"
+				+ "/mw reset \n"
+				+ "/mw syncConfigToServer";
 	}
 
 	@Override
@@ -63,7 +75,7 @@ public class CommandMinewatch implements ICommand {
 			else
 				Minewatch.network.sendTo(new SPacketSimple(17), (EntityPlayerMP) sender);
 		}
-		// hero [target]
+		// hero <hero> [target]
 		else if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("hero")) {
 			EnumHero hero = null;
 			for (EnumHero hero2 : EnumHero.values())
@@ -94,6 +106,46 @@ public class CommandMinewatch implements ICommand {
 			else
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 		}
+		// teamSpawn <name> <activate/deactivate>
+		else if (args.length == 3 && args[0].equalsIgnoreCase("teamSpawn") && (args[2].equalsIgnoreCase("activate") || args[2].equalsIgnoreCase("deactivate"))) {
+			BlockPos pos = null;
+			for (BlockPos pos2 : TileEntityTeamSpawn.teamSpawnPositions.keySet())
+				if (TileEntityTeamSpawn.teamSpawnPositions.get(pos2).equals(args[1])) {
+					pos = pos2;
+					break;
+				}
+			if (pos == null || !(sender.getEntityWorld().getTileEntity(pos) instanceof TileEntityTeamSpawn))
+				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid Team Spawn name or is not in this dimension"));
+			else {
+				TileEntityTeamSpawn te = (TileEntityTeamSpawn) sender.getEntityWorld().getTileEntity(pos);
+				boolean activate = args[2].equalsIgnoreCase("activate");
+				te.setActivated(activate);
+				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+args[1]+" is now: "+(activate ? TextFormatting.DARK_GREEN+"Activated" : TextFormatting.DARK_RED+"Deactivated")));
+			}
+		}
+		// reset
+		else if (args.length == 1 && args[0].equalsIgnoreCase("reset")) {
+			// kill and respawn
+			List<Entity> entities = Lists.newArrayList(sender.getEntityWorld().loadedEntityList); // copy to prevent concurrentModification
+			for (Entity entity : entities) {
+				if (RespawnManager.isRespawnableHero(entity) || RespawnManager.isRespawnablePlayer(entity)) {
+					Handler handler = TickHandler.getHandler(entity, Identifier.DEAD);
+					// not dead, register DEAD and kill
+					if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console
+						TickHandler.register(false, RespawnManager.DEAD.setEntity(entity).setTicks(entity instanceof EntityPlayerMP ? 2 : 0).setString(entity.getTeam() != null ? entity.getTeam().getRegisteredName() : null));
+						entity.onKillCommand();
+					}
+					// already dead, respawn
+					else {
+						TickHandler.unregister(false, handler);
+					}
+				}
+			}
+			
+			// notify all players of reset
+			for (EntityPlayer player : sender.getEntityWorld().playerEntities)
+				player.sendMessage(new TextComponentString(TextFormatting.YELLOW+"Minewatch game reset by a moderator."));
+		}
 		else
 			throw new WrongUsageException(this.getUsage(sender), new Object[0]);
 	}
@@ -107,15 +159,22 @@ public class CommandMinewatch implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
+			ArrayList<String> list = Lists.newArrayList("hero", "teamSpawn", "reset");
 			if (!server.isSinglePlayer())
-				return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"hero", "syncConfigToServer"});
-			else
-				return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"hero"});
+				list.add("syncConfigToServer");
+			return CommandBase.getListOfStringsMatchingLastWord(args, list);
 		}
+		// hero
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, ALL_HERO_NAMES);
 		else if (args.length == 3 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+		// teamSpawn
+		else if (args.length == 2 && args[0].equalsIgnoreCase("teamSpawn"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, TileEntityTeamSpawn.teamSpawnPositions.values());
+		else if (args.length == 3 && args[0].equalsIgnoreCase("teamSpawn"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"activate", "deactivate"});
+
 		else
 			return new ArrayList<String>();
 	}

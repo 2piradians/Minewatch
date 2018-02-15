@@ -30,7 +30,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -133,7 +132,6 @@ import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
-import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -509,8 +507,8 @@ public class ClientProxy extends CommonProxy {
 				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamStick());
 			break;
 		case TEAM_SPAWN:
-			if (objs.length == 1 && objs[0] instanceof TileEntityTeam)
-				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSpawn((TileEntityTeam) objs[0]));
+			if (objs.length == 1 && objs[0] instanceof TileEntityTeamSpawn)
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSpawn((TileEntityTeamSpawn) objs[0]));
 			break;
 		}
 	}

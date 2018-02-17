@@ -27,10 +27,13 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemMcCreeGun extends ItemMWWeapon {
 
+	/**number = pitch changed*/
 	public static final Handler FAN = new Handler(Identifier.MCCREE_FAN, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
+			if (this.ticksLeft == this.initialTicks)
+				this.number = 0;
 			// basic checks
 			if (entityLiving == null || !entityLiving.isEntityAlive() ||
 					entityLiving.getHeldItemMainhand() == null || 
@@ -39,7 +42,9 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				return true;
 			else {
 				this.ticksLeft = 5;
+				entityLiving.prevRotationPitch = entityLiving.prevRotationPitch;
 				entityLiving.rotationPitch = Math.max(entityLiving.rotationPitch-1, -90);
+				this.number += Math.abs(entityLiving.rotationPitch-entityLiving.prevRotationPitch);
 				entityLiving.rotationYaw += entityLiving.world.rand.nextFloat()-0.5f;
 			}				
 			return super.onClientTick();
@@ -47,6 +52,8 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 
 		@Override
 		public boolean onServerTick() {
+			if (this.ticksLeft == this.initialTicks)
+				this.number = 0;
 			// basic checks
 			if (entityLiving == null || !entityLiving.isEntityAlive() ||
 					entityLiving.getHeldItemMainhand() == null || 
@@ -65,14 +72,22 @@ public class ItemMcCreeGun extends ItemMWWeapon {
 				} 
 				this.ticksLeft = 5;
 			}
+			entityLiving.prevRotationPitch = entityLiving.prevRotationPitch;
 			entityLiving.rotationPitch = Math.max(entityLiving.rotationPitch-1, -90);
+			this.number += Math.abs(entityLiving.rotationPitch-entityLiving.prevRotationPitch);
 			entityLiving.rotationYaw += entityLiving.world.rand.nextFloat()-0.5f;
 
 			return super.onServerTick();
 		}
-
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			//entityLiving.rotationPitch = (float) Math.min(entityLiving.rotationPitch+number*0.7f, 90);
+			return super.onClientRemove();
+		}
 		@Override
 		public Handler onServerRemove() {
+			//entityLiving.rotationPitch = (float) Math.min(entityLiving.rotationPitch+number*0.7f, 90);
 			Minewatch.network.sendToDimension(new SPacketSimple(51, entityLiving, false), entityLiving.world.provider.getDimension());
 			return super.onServerRemove();
 		}

@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 /**Sends all skins to all clients*/
@@ -25,7 +26,7 @@ public class SPacketSyncSkins implements IMessage {
 			}
 		}
 		catch (Exception e) {
-			System.out.println(e);
+			Minewatch.logger.warn("Exception thrown while syncing skins: ", e);
 		}
 	}
 
@@ -41,7 +42,7 @@ public class SPacketSyncSkins implements IMessage {
 			}
 		}
 		catch (Exception e) {
-			System.out.println(e);
+			Minewatch.logger.warn("Exception thrown while syncing skins: ", e);
 		}
 	}
 

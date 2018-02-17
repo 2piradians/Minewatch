@@ -70,6 +70,7 @@ public class Config {
 	public static double abilityCooldownMultiplier;
 	public static boolean renderOutlines;
 	public static double aimAssist;
+	public static boolean customDeathScreen;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -242,6 +243,12 @@ public class Config {
 			prop.set(aimAssist);
 		else
 			aimAssist = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
+		if (overriding)
+			prop.set(customDeathScreen);
+		else
+			customDeathScreen = prop.getBoolean();
 
 		// Hero Mob options
 

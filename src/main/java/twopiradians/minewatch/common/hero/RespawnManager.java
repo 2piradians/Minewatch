@@ -8,7 +8,11 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.monster.EntityShulker;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.CPacketClientStatus;
@@ -22,11 +26,13 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.teamBlocks.BlockTeamSpawn;
-import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -38,6 +44,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 @Mod.EventBusSubscriber
 public class RespawnManager {
 
+	/**entity = dead respawning entity, @Nullable string = entity's team*/
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -55,16 +62,16 @@ public class RespawnManager {
 		}
 		@Override
 		public Handler onServerRemove() {
-			respawnHero(entityLiving, entityLiving.world.getScoreboard().getTeam(string));
+			respawnEntity(entityLiving, entityLiving.world.getScoreboard().getTeam(string), false);
 			return super.onServerRemove();
 		}
 	};
 	
-	/**Respawn a player / hero mob*/
-	public static void respawnHero(EntityLivingBase entity, @Nullable Team team) {
-		if (entity == null || entity.isEntityAlive())
+	/**Respawn a player / mob*/
+	public static void respawnEntity(EntityLivingBase entity, @Nullable Team team, boolean allowAlive) {
+		if (entity == null || (entity.isEntityAlive() && !allowAlive))
 			return;
-		
+		Minewatch.logger.info("respawn: "+entity.ticksExisted); // TODO
 		BlockPos teamSpawn = getTeamSpawn(entity, team);
 		
 		if (entity instanceof EntityPlayerMP) {
@@ -98,34 +105,37 @@ public class RespawnManager {
 				catch (Exception e) {}
 			}
 		}
-		else if (entity instanceof EntityHero && teamSpawn != null && team != null) {
+		else if (entity instanceof EntityLivingBase && teamSpawn != null && team != null) {
 			try {
+				entity.world.removeEntity(entity);
 				EnumFacing facing = entity.world.getBlockState(teamSpawn).getValue(BlockTeamSpawn.FACING);
 				teamSpawn = spawnFuzz(teamSpawn, entity.world);
-				NBTTagCompound nbt = new NBTTagCompound();
-				entity.writeToNBT(nbt);
+				NBTTagCompound nbt = entity.serializeNBT();
 				nbt.removeTag("UUID");
-				EntityHero heroMob = (EntityHero) ((EntityHero)entity).hero.heroClass.getConstructor(World.class).newInstance(entity.world);
-				heroMob.readEntityFromNBT(nbt);
-				heroMob.setHealth(heroMob.getMaxHealth());
-				heroMob.setPositionAndRotation(teamSpawn.getX(), teamSpawn.getY(), teamSpawn.getZ(), facing.getHorizontalAngle(), 0);
-				heroMob.rotationYawHead = facing.getHorizontalAngle();
-				heroMob.prevRotationYawHead = facing.getHorizontalAngle();
-				heroMob.rotationYaw = facing.getHorizontalAngle();
-				heroMob.prevRotationYaw = facing.getHorizontalAngle();
-				heroMob.setRenderYawOffset(facing.getHorizontalAngle());
-				heroMob.prevRenderYawOffset = facing.getHorizontalAngle();
-				entity.world.getScoreboard().addPlayerToTeam(heroMob.getCachedUniqueIdString(), team.getRegisteredName());
+				nbt.removeTag("UUIDMost");
+				nbt.removeTag("UUIDLeast");
+				EntityLivingBase respawnEntity = (EntityLivingBase) EntityList.createEntityFromNBT(nbt, entity.world);
+				respawnEntity.setHealth(respawnEntity.getMaxHealth());
+				respawnEntity.setPositionAndRotation(teamSpawn.getX()+0.5d, teamSpawn.getY(), teamSpawn.getZ()+0.5d, facing.getHorizontalAngle(), 0);
+				respawnEntity.rotationYawHead = facing.getHorizontalAngle();
+				respawnEntity.prevRotationYawHead = facing.getHorizontalAngle();
+				respawnEntity.rotationYaw = facing.getHorizontalAngle();
+				respawnEntity.prevRotationYaw = facing.getHorizontalAngle();
+				respawnEntity.setRenderYawOffset(facing.getHorizontalAngle());
+				respawnEntity.prevRenderYawOffset = facing.getHorizontalAngle();
+				entity.world.getScoreboard().addPlayerToTeam(respawnEntity.getCachedUniqueIdString(), team.getRegisteredName());
 				if (entity.hasCustomName()) {
-					heroMob.setCustomNameTag(entity.getCustomNameTag());
-					heroMob.setAlwaysRenderNameTag(entity.getAlwaysRenderNameTag());
+					respawnEntity.setCustomNameTag(entity.getCustomNameTag());
+					respawnEntity.setAlwaysRenderNameTag(entity.getAlwaysRenderNameTag());
 				}
-				entity.world.spawnEntity(heroMob);
-				entity.world.removeEntity(entity);
+				respawnEntity.clearActivePotions();
+				respawnEntity.extinguish();
+				if (respawnEntity instanceof EntityShulker)
+					((EntityShulker)respawnEntity).setAttachmentPos(teamSpawn);
+				entity.world.spawnEntity(respawnEntity);
 			}
 			catch (Exception e) {
-				Minewatch.logger.warn("Unable to respawn hero ("+entity+") at Team Spawn ("+teamSpawn+")");
-				entity.world.removeEntity(entity);
+				Minewatch.logger.warn("Unable to respawn entity ("+entity+") at Team Spawn ("+teamSpawn+")", e);
 			}
 		}
 	}
@@ -175,19 +185,31 @@ public class RespawnManager {
 	}
 	
 	@SubscribeEvent
-	public static void registerHeroMobs(LivingDeathEvent event) {
-		// register dead heroes directly
-		if (isRespawnableHero(event.getEntityLiving()) &&
+	public static void respawnPlayers(PlayerRespawnEvent event) {
+		// respawn with method if custom death screen disabled
+		if (!event.player.world.isRemote && !Config.customDeathScreen && 
+				!TickHandler.hasHandler(event.player, Identifier.DEAD)) {
+			event.player.addTag(Minewatch.MODID+": respawned");
+			event.player.setHealth(0);Minewatch.logger.info("respawnevent: "+event.player.ticksExisted); // TODO
+			TickHandler.register(false, RespawnManager.DEAD.setEntity(event.player).setTicks(0).setString(event.player.getTeam() != null ? event.player.getTeam().getRegisteredName() : null).setBoolean(true));
+			TickHandler.unregister(false, TickHandler.getHandler(event.player, Identifier.DEAD));
+		}
+	}
+	
+	@SubscribeEvent
+	public static void registerMobs(LivingDeathEvent event) {
+		// register dead mobs directly
+		if (isRespawnableEntity(event.getEntityLiving()) &&
 				!event.getEntityLiving().world.isRemote && !TickHandler.hasHandler(event.getEntityLiving(), Identifier.DEAD)) {
-			TickHandler.register(false, DEAD.setEntity(event.getEntityLiving()).setTicks(20).setString(event.getEntityLiving().getTeam().getRegisteredName()));
+			TickHandler.register(false, DEAD.setEntity(event.getEntityLiving()).setTicks(0).setString(event.getEntityLiving().getTeam().getRegisteredName()));
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent(priority = EventPriority.HIGH)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void registerPlayers(GuiOpenEvent event) {
 		// register dead players when they try to open GuiGameOver (in case they cancel respawn after death)
-		if (event.getGui() instanceof GuiGameOver) {
+		if (event.getGui() instanceof GuiGameOver && Config.customDeathScreen) {
 			event.setCanceled(true);
 			if (Minecraft.getMinecraft().player.isDead) {
 				Minewatch.network.sendToServer(new CPacketSimple(12, false, Minecraft.getMinecraft().player));
@@ -195,9 +217,12 @@ public class RespawnManager {
 		}
 	}
 
-	/**Can this hero respawn with Team Spawn*/
-	public static boolean isRespawnableHero(Entity entity) {
-		return entity instanceof EntityHero && entity.getTeam() != null;
+	/**Can this non-player entity respawn with Team Spawn*/
+	public static boolean isRespawnableEntity(Entity entity) {
+		return entity instanceof EntityLivingBase && !(entity instanceof EntityLivingBaseMW) && 
+				!(entity instanceof EntityArmorStand) && entity.getTeam() != null && 
+				!(entity instanceof EntitySlime && !((EntitySlime)entity).isSmallSlime()) &&  // only allow small slimes to respawn
+				entity.isNonBoss();
 	}
 
 	/**Can this player respawn with Team Spawn*/

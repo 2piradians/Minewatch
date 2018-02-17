@@ -46,6 +46,7 @@ public class ItemTeamStick extends Item {
 
 	public ItemTeamStick() {
 		super();
+		this.setMaxStackSize(1);
 		MinecraftForge.EVENT_BUS.register(this);
 		this.addPropertyOverride(new ResourceLocation("hasTeam"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)

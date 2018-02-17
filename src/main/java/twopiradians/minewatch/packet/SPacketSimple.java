@@ -381,10 +381,10 @@ public class SPacketSimple implements IMessage {
 						String string = null;
 						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
-							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+
 									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
-							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.

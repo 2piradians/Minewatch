@@ -40,6 +40,7 @@ public class CommandMinewatch implements ICommand {
 	static {
 		for (EnumHero hero : EnumHero.values())
 			ALL_HERO_NAMES.add(hero.name);
+		ALL_HERO_NAMES.add("Random");
 	}
 
 	@Override
@@ -81,6 +82,8 @@ public class CommandMinewatch implements ICommand {
 			for (EnumHero hero2 : EnumHero.values())
 				if (hero2.name.equalsIgnoreCase(args[1]))
 					hero = hero2;
+			if (hero == null && args[1].equalsIgnoreCase("random"))
+				hero = EnumHero.values()[sender.getEntityWorld().rand.nextInt(EnumHero.values().length)];
 
 			if (hero != null) {
 				EntityLivingBase entity = args.length == 3 ? 
@@ -128,7 +131,7 @@ public class CommandMinewatch implements ICommand {
 			// kill and respawn
 			List<Entity> entities = Lists.newArrayList(sender.getEntityWorld().loadedEntityList); // copy to prevent concurrentModification
 			for (Entity entity : entities) {
-				if (RespawnManager.isRespawnableHero(entity) || RespawnManager.isRespawnablePlayer(entity)) {
+				if (RespawnManager.isRespawnableEntity(entity) || RespawnManager.isRespawnablePlayer(entity)) {
 					Handler handler = TickHandler.getHandler(entity, Identifier.DEAD);
 					// not dead, register DEAD and kill
 					if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console

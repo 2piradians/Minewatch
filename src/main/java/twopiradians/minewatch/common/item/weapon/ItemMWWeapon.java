@@ -89,6 +89,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public boolean showHealthParticles;
 	/**Saved result from onRightClick (since ours is called every tick, but theirs is called every 4 ticks)*/
 	public HashMap<UUID, ActionResult<ItemStack>> savedRightClickResult = Maps.newHashMap();
+	protected boolean noVerticalAimAssist;
 
 	private Handler CHARGE_RECOVERY = new Handler(Identifier.WEAPON_CHARGE, false) {
 		@Override
@@ -301,7 +302,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		if (entity == null || !entity.isEntityAlive())
 			return;
-		
+
 		EnumHand hand = entity instanceof EntityLivingBase ? this.getHand((EntityLivingBase) entity, stack) : null;
 
 		//delete dev spawned items if not in dev's inventory
@@ -403,7 +404,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 						yaw = (yaw + 360f) % 360;
 					}
 					entity.rotationYaw = MathHelper.clamp(angles.x, yaw-delta, yaw+delta);
-					entity.rotationPitch = MathHelper.clamp(angles.y, pitch-delta, pitch+delta);
+					if (!this.noVerticalAimAssist)
+						entity.rotationPitch = MathHelper.clamp(angles.y, pitch-delta, pitch+delta);
 				} 
 			}
 		}

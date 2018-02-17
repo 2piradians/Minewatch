@@ -855,6 +855,9 @@ public class EntityHelper {
 
 	/**Change entity's velocity to bounce off the side hit*/
 	public static void bounce(Entity entity, EnumFacing sideHit, double min, double scalar) {
+		if (sideHit == null) 
+			return; 
+		
 		switch(sideHit) {
 		case DOWN:
 			entity.motionY = -Math.max(Math.abs(entity.motionY * scalar), min);

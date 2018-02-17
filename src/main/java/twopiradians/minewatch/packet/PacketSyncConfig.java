@@ -30,6 +30,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean tokenDropRequiresPlayer;
 	private double abilityCooldownMultiplier;
 	private double aimAssist;
+	private boolean customDeathScreen;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -60,6 +61,7 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = Config.tokenDropRequiresPlayer;
 		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 		this.aimAssist = Config.aimAssist;
+		this.customDeathScreen = Config.customDeathScreen;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -92,6 +94,7 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = buf.readBoolean();
 		this.abilityCooldownMultiplier = buf.readDouble();
 		this.aimAssist = buf.readDouble();
+		this.customDeathScreen = buf.readBoolean();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -124,6 +127,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
 		buf.writeDouble(this.abilityCooldownMultiplier);
 		buf.writeDouble(this.aimAssist);
+		buf.writeBoolean(this.customDeathScreen);
 
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -155,6 +159,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.tokenDropRequiresPlayer = this.tokenDropRequiresPlayer;
 		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 		Config.aimAssist = this.aimAssist;
+		Config.customDeathScreen = this.customDeathScreen;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

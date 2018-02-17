@@ -21,6 +21,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 
 	public ItemJunkratLauncher() {
 		super(30);
+		this.noVerticalAimAssist = true;
 	}
 
 	@Override

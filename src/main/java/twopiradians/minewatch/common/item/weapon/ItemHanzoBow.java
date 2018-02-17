@@ -28,6 +28,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	public ItemHanzoBow() {
 		super(0);
 		this.saveEntityToNBT = true;
+		this.noVerticalAimAssist = true;
 	}
 
 	private ItemStack findAmmo(EntityLivingBase player) {

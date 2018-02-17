@@ -200,6 +200,10 @@ entity.moira_orb.name=Moira Biotic Orb
 entity.doomfist_hero.name=Doomfist
 entity.doomfist_bullet.name=Doomfist Bullet
 
+overlay.eliminated_by=you were eliminated by
+overlay.assist=assist
+overlay.eliminated=eliminated
+
 gui.team_block.button.name=Name
 gui.team_block.button.name.desc=This name is used by commands
 gui.team_block.button.activate_deactivate=Activate / Deactivate
@@ -209,13 +213,13 @@ gui.team_block.button.selected_team=Selected Team
 gui.team_block.button.video_demonstration=Video Demonstration
 gui.team_block.button.ok=OK
 
-gui.team_spawn.button.activate_deactivate.desc=Players and hero mobs will spawn at their team's active Team Spawn
+gui.team_spawn.button.activate_deactivate.desc=Players and mobs will spawn at their team's active Team Spawn
 gui.team_spawn.button.activate.desc=Only one Team Spawn can be active at a time, per team
 gui.team_spawn.button.deactivate.desc=Only one Team Spawn can be active at a time, per team
 gui.team_spawn.button.selected_team.desc=Choose the team that will respawn here
-gui.team_spawn.question_mark_description_0=Players and hero mobs will spawn at their team's active Team Spawn. They spawn facing the direction of the arrow.
+gui.team_spawn.question_mark_description_0=Players and mobs will spawn at their team's active Team Spawn. They spawn facing the direction of the arrow.
 gui.team_spawn.question_mark_description_1=Team Spawn blocks can be activated/deactivated with a command, as well:
-gui.team_spawn.status.players_heroes_team=Players and hero mobs in
-gui.team_spawn.status.players_heroes_all=All players and hero mobs (that are on a team)
+gui.team_spawn.status.players_heroes_team=Players and mobs in
+gui.team_spawn.status.players_heroes_all=All players and mobs (that are on a team)
 gui.team_spawn.status.players_heroes_none=Nothing
 gui.team_spawn.status.will_spawn=will spawn here

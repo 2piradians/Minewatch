@@ -531,8 +531,8 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void updateFOV() {
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		if (player != null)
-			Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(player.getPosition().add(-100, -100, -100), player.getPosition().add(100, 100, 100));
+		Entity entity = this.getRenderViewEntity();
+		if (entity != null)
+			Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
 	}
 }

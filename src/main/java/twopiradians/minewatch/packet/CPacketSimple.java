@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
@@ -273,8 +274,8 @@ public class CPacketSimple implements IMessage {
 					else if (packet.type == 12 && packetPlayer != null) {
 						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive() && 
 								RespawnManager.isRespawnablePlayer(packetPlayer)) {
-							Minewatch.logger.info("registering DEAD"); // TODO
-							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(20).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getRegisteredName() : null));
+							Minewatch.logger.info("registering DEAD server"); // TODO
+							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getRegisteredName() : null));
 						}
 					}
 					// GuiTeamBlock set team
@@ -302,6 +303,10 @@ public class CPacketSimple implements IMessage {
 							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
 						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
 						te.setSpawnRadius(packet.bool ? te.getSpawnRadius()+1 : te.getSpawnRadius()-1);
+					}
+					// Set death spectating entity
+					else if (packet.type == 17 && packetPlayer instanceof EntityPlayerMP && entity != null) {
+						((EntityPlayerMP)packetPlayer).setSpectatingEntity(entity);
 					}
 				}
 			});

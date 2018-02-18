@@ -435,7 +435,7 @@ public class RenderManager {
 							// background
 							if (ability.showKeybind(player)) {
 								if (ability.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 6, 0);
+									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 5, 0);
 								else if (ability.keybind == KeyBind.RMB)		
 									GuiUtils.drawTexturedModalRect(-i*9-2, 9, 11, 247, 5, 5, 0);
 							}

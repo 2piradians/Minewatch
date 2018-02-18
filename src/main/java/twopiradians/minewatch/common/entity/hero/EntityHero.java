@@ -193,6 +193,11 @@ public class EntityHero extends EntityMob {
 		else
 			return super.attackEntityFrom(source, amount);
 	}
+	
+	@Override
+    protected boolean canDespawn() {
+        return Config.heroMobsDespawn || this.getTeam() == null;
+    }
 
 	/**Overridden to make public for ItemMWArmor genji double jump*/
 	@Override

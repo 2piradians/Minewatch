@@ -6,6 +6,7 @@ config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=Hero Mobs
+config.server-side.team_blocks=Team Blocks
 
 effect.frozen=Frozen
 
@@ -200,9 +201,14 @@ entity.moira_orb.name=Moira Biotic Orb
 entity.doomfist_hero.name=Doomfist
 entity.doomfist_bullet.name=Doomfist Bullet
 
+command.reset.success=Minewatch game reset by a moderator.
+command.reset.unrecognized_flags=Unrecognized flag(s)
+
 overlay.eliminated_by=you were eliminated by
 overlay.assist=assist
 overlay.eliminated=eliminated
+overlay.death_spectating=you are now death spectating
+overlay.respawn_in=respawn in
 
 gui.team_block.button.name=Name
 gui.team_block.button.name.desc=This name is used by commands

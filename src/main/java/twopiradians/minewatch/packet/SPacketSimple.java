@@ -49,6 +49,7 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -988,6 +989,9 @@ public class SPacketSimple implements IMessage {
 									Ability.ABILITY_USING.setEntity(entity).setTicks(50).setAbility(EnumHero.DOOMFIST.ability2));
 						}
 					}
+					// cancel dead handler
+					else if (packet.type == 65 && entity != null)
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DEAD));
 				}
 			});
 			return null;

@@ -34,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -169,7 +170,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote) {
+		if (!player.world.isRemote && entity instanceof EntityLivingBase && !(entity instanceof EntityLivingBaseMW)) {
 			Team team = getTeam(player.world, stack);
 			// copy team
 			if (player.isSneaking()) {

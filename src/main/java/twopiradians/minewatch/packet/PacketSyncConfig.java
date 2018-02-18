@@ -30,7 +30,13 @@ public class PacketSyncConfig implements IMessage {
 	private boolean tokenDropRequiresPlayer;
 	private double abilityCooldownMultiplier;
 	private double aimAssist;
+	private boolean heroMobsDespawn;
+	
 	private boolean customDeathScreen;
+	private int respawnTime;
+	private boolean allowHeroRespawn;
+	private boolean allowMobRespawn;
+	private boolean allowPlayerRespawn;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -61,7 +67,13 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = Config.tokenDropRequiresPlayer;
 		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 		this.aimAssist = Config.aimAssist;
+		this.heroMobsDespawn = Config.heroMobsDespawn;
+		
 		this.customDeathScreen = Config.customDeathScreen;
+		this.respawnTime = Config.respawnTime;
+		this.allowHeroRespawn = Config.allowHeroRespawn;
+		this.allowMobRespawn = Config.allowMobRespawn;
+		this.allowPlayerRespawn = Config.allowPlayerRespawn;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -94,7 +106,13 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = buf.readBoolean();
 		this.abilityCooldownMultiplier = buf.readDouble();
 		this.aimAssist = buf.readDouble();
+		this.heroMobsDespawn = buf.readBoolean();
+		
 		this.customDeathScreen = buf.readBoolean();
+		this.respawnTime = buf.readInt();
+		this.allowHeroRespawn = buf.readBoolean();
+		this.allowMobRespawn = buf.readBoolean();
+		this.allowPlayerRespawn = buf.readBoolean();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -127,7 +145,13 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
 		buf.writeDouble(this.abilityCooldownMultiplier);
 		buf.writeDouble(this.aimAssist);
+		buf.writeBoolean(this.heroMobsDespawn);
+		
 		buf.writeBoolean(this.customDeathScreen);
+		buf.writeInt(this.respawnTime);
+		buf.writeBoolean(this.allowHeroRespawn);
+		buf.writeBoolean(this.allowMobRespawn);
+		buf.writeBoolean(this.allowPlayerRespawn);
 
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -159,7 +183,13 @@ public class PacketSyncConfig implements IMessage {
 		Config.tokenDropRequiresPlayer = this.tokenDropRequiresPlayer;
 		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 		Config.aimAssist = this.aimAssist;
+		Config.heroMobsDespawn = this.heroMobsDespawn;
+		
 		Config.customDeathScreen = this.customDeathScreen;
+		Config.respawnTime = this.respawnTime;
+		Config.allowHeroRespawn = this.allowHeroRespawn;
+		Config.allowMobRespawn = this.allowMobRespawn;
+		Config.allowPlayerRespawn = this.allowPlayerRespawn;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

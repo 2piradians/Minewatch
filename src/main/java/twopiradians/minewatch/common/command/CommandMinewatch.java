@@ -2,8 +2,10 @@ package twopiradians.minewatch.common.command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -12,6 +14,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -21,9 +24,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import scala.actors.threadpool.Arrays;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
-import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -36,11 +39,53 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class CommandMinewatch implements ICommand {
 
+	private enum EnumFlag {
+		KILL_ITEMS("k", "killItems"), CLEAR_PLAYER_INVENTORIES("c", "clearPlayerInventories");
+
+		public String shortName;
+		public String longName;
+
+		EnumFlag(String shortName, String longName) {
+			this.shortName = "-"+shortName;
+			this.longName = "-"+longName;
+		}
+
+		/**Does this list contain the flag - removes matching string from list if it does*/
+		public boolean hasFlag(ArrayList<String> list) {
+			if (list != null)
+				for (String str : list)
+					if (this.matches(str)) {
+						list.remove(str);
+						return true;
+					}
+			return false;
+		}
+
+		/**Does this string match the flag*/
+		public boolean matches(String string) {
+			return string != null && (string.equalsIgnoreCase(shortName) || string.equalsIgnoreCase(longName));
+		}
+
+		/**Returns valid flags in the list*/
+		public static Set<EnumFlag> getFlags(ArrayList<String> list) {
+			Set<EnumFlag> flags = Sets.newHashSet();
+			for (EnumFlag flag : EnumFlag.values())
+				if (flag.hasFlag(list)) 
+					flags.add(flag);
+			return flags;
+		}
+	}
+
+
 	public static final ArrayList<String> ALL_HERO_NAMES = new ArrayList<String>();
+	public static final ArrayList<String> ALL_FLAG_NAMES = new ArrayList<String>();
 	static {
 		for (EnumHero hero : EnumHero.values())
 			ALL_HERO_NAMES.add(hero.name);
 		ALL_HERO_NAMES.add("Random");
+
+		for (EnumFlag flag : EnumFlag.values())
+			ALL_FLAG_NAMES.add(flag.longName);
 	}
 
 	@Override
@@ -55,11 +100,14 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
+		String flagUsage = "";
+		for (EnumFlag flag : EnumFlag.values())
+			flagUsage += " ["+flag.shortName+"|"+flag.longName+"]";
 		return "\n"
-				+ "/mw hero <hero> [target] \n"
-				+ "/mw teamSpawn <name> <activate/deactivate> \n"
-				+ "/mw reset \n"
-				+ "/mw syncConfigToServer";
+		+ "/mw hero <hero> [target] \n"
+		+ "/mw teamSpawn <name> <activate|deactivate> \n"
+		+ "/mw reset"+flagUsage+"\n"
+		+ "/mw syncConfigToServer";
 	}
 
 	@Override
@@ -109,7 +157,7 @@ public class CommandMinewatch implements ICommand {
 			else
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 		}
-		// teamSpawn <name> <activate/deactivate>
+		// teamSpawn <name> <activate|deactivate>
 		else if (args.length == 3 && args[0].equalsIgnoreCase("teamSpawn") && (args[2].equalsIgnoreCase("activate") || args[2].equalsIgnoreCase("deactivate"))) {
 			BlockPos pos = null;
 			for (BlockPos pos2 : TileEntityTeamSpawn.teamSpawnPositions.keySet())
@@ -127,12 +175,39 @@ public class CommandMinewatch implements ICommand {
 			}
 		}
 		// reset
-		else if (args.length == 1 && args[0].equalsIgnoreCase("reset")) {
+		else if (args.length >= 1 && args[0].equalsIgnoreCase("reset")) {
+			ArrayList<String> flagStrings = new ArrayList(Arrays.asList(args));
+			flagStrings.remove(args[0]);
+			Set<EnumFlag> flags = EnumFlag.getFlags(flagStrings);
+
+			// unregister dead handler for players that are already dead (don't appear in loadedEntities)
+			List<EntityPlayer> players = Lists.newArrayList(sender.getEntityWorld().playerEntities);
+			for (EntityPlayer player : players) {
+				Handler handler = TickHandler.getHandler(player, Identifier.DEAD);
+
+				// already dead, respawn
+				if (handler != null) {
+					TickHandler.unregister(false, handler);
+					if (player instanceof EntityPlayerMP) {
+						Minewatch.network.sendTo(new SPacketSimple(65, player, false), (EntityPlayerMP) player);
+						Minewatch.logger.info("reset sending packet"); // TODO
+					}
+				}
+			}
+			
 			// kill and respawn
 			List<Entity> entities = Lists.newArrayList(sender.getEntityWorld().loadedEntityList); // copy to prevent concurrentModification
 			for (Entity entity : entities) {
+				// kill respawnable entities
 				if (RespawnManager.isRespawnableEntity(entity) || RespawnManager.isRespawnablePlayer(entity)) {
 					Handler handler = TickHandler.getHandler(entity, Identifier.DEAD);
+
+					// clear player inventories
+					if (entity instanceof EntityPlayer && flags.contains(EnumFlag.CLEAR_PLAYER_INVENTORIES)) {
+						((EntityPlayer)entity).inventory.clear();
+						((EntityPlayer)entity).inventoryContainer.detectAndSendChanges();
+					}
+
 					// not dead, register DEAD and kill
 					if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console
 						TickHandler.register(false, RespawnManager.DEAD.setEntity(entity).setTicks(entity instanceof EntityPlayerMP ? 2 : 0).setString(entity.getTeam() != null ? entity.getTeam().getRegisteredName() : null));
@@ -144,10 +219,22 @@ public class CommandMinewatch implements ICommand {
 					}
 				}
 			}
-			
+
+			// kill items
+			if (flags.contains(EnumFlag.KILL_ITEMS)) {
+				entities = Lists.newArrayList(sender.getEntityWorld().loadedEntityList);
+				for (Entity entity : entities) 
+					if (entity instanceof EntityItem)
+						entity.onKillCommand();
+			}
+
+			// warn about invalid flags
+			if (!flagStrings.isEmpty())
+				sender.sendMessage(new TextComponentString(TextFormatting.RED+Minewatch.translate("command.reset.unrecognized_flags")+": "+flagStrings));
+
 			// notify all players of reset
 			for (EntityPlayer player : sender.getEntityWorld().playerEntities)
-				player.sendMessage(new TextComponentString(TextFormatting.YELLOW+"Minewatch game reset by a moderator."));
+				player.sendMessage(new TextComponentString(TextFormatting.YELLOW+Minewatch.translate("command.reset.success")));
 		}
 		else
 			throw new WrongUsageException(this.getUsage(sender), new Object[0]);
@@ -172,6 +259,9 @@ public class CommandMinewatch implements ICommand {
 			return CommandBase.getListOfStringsMatchingLastWord(args, ALL_HERO_NAMES);
 		else if (args.length == 3 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+		// reset
+		else if (args.length > 1 && args[0].equalsIgnoreCase("reset"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, ALL_FLAG_NAMES);
 		// teamSpawn
 		else if (args.length == 2 && args[0].equalsIgnoreCase("teamSpawn"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, TileEntityTeamSpawn.teamSpawnPositions.values());

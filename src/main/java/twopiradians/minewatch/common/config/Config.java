@@ -39,6 +39,7 @@ public class Config {
 	/**Version of this config - if loaded version is less than this, delete the config*/
 	private static final float CONFIG_VERSION = 3.9F;
 
+	public static final String CATEGORY_TEAM_BLOCKS = "config.server-side.team_blocks";
 	public static final String CATEGORY_HERO_MOBS = "config.server-side.hero_mobs";
 	public static final String CATEGORY_SERVER_SIDE = "config.server-side";
 	public static final String CATEGORY_CLIENT_SIDE = "config.client-side";
@@ -70,8 +71,14 @@ public class Config {
 	public static double abilityCooldownMultiplier;
 	public static boolean renderOutlines;
 	public static double aimAssist;
-	public static boolean customDeathScreen;
+	public static boolean heroMobsDespawn;
 
+	public static boolean customDeathScreen;
+	public static int respawnTime; // in ticks
+	public static boolean allowHeroRespawn;
+	public static boolean allowMobRespawn;
+	public static boolean allowPlayerRespawn;
+	
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
 	public static int mobSpawnFreq;
@@ -109,6 +116,7 @@ public class Config {
 		config.setCategoryComment(Config.CATEGORY_SERVER_SIDE, "Options that only take effect if changed in the server's config (or in Single-Player)");
 		config.setCategoryComment(Config.CATEGORY_HERO_SKINS, "Choose skins for each hero's armor. If you'd like to submit your own skin to be used in the mod, please message us!");
 		config.setCategoryComment(Config.CATEGORY_HERO_MOBS, "Choose options for Hero Mobs.");
+		config.setCategoryComment(Config.CATEGORY_TEAM_BLOCKS, "Choose options for Team Blocks (i.e. Team Spawn).");
 		syncConfig();
 		config.save();
 	}
@@ -244,11 +252,43 @@ public class Config {
 		else
 			aimAssist = prop.getDouble();
 		
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
+		if (overriding)
+			prop.set(heroMobsDespawn);
+		else
+			heroMobsDespawn = prop.getBoolean();
+		
+		// Team Block options
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
 		if (overriding)
 			prop.set(customDeathScreen);
 		else
 			customDeathScreen = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Respawn Time", 10, "Amount of time (in seconds) that entities have to wait to respawn. Only applies when Custom Death Screen is enabled.", 0, 100);
+		if (overriding)
+			prop.set(respawnTime/20);
+		else
+			respawnTime = prop.getInt()*20;
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Hero Mobs to Respawn", true, "Should hero mobs respawn at their team's active Team Spawn?");
+		if (overriding)
+			prop.set(allowHeroRespawn);
+		else
+			allowHeroRespawn = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Mobs to Respawn", true, "Should mobs (not hero mobs) respawn at their team's active Team Spawn?");
+		if (overriding)
+			prop.set(allowMobRespawn);
+		else
+			allowMobRespawn = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Players to Respawn", true, "Should players respawn at their team's active Team Spawn?");
+		if (overriding)
+			prop.set(allowPlayerRespawn);
+		else
+			allowPlayerRespawn = prop.getBoolean();
 
 		// Hero Mob options
 

@@ -31,14 +31,14 @@ import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
-public abstract class TeamBlock extends Block implements IBlockColor {
+public abstract class BlockTeam extends Block{
 
     public static final PropertyBool HAS_TEAM = PropertyBool.create("has_team");
     public static final PropertyBool ACTIVATED = PropertyBool.create("activated");
     
 	public static final Handler WARNING_COOLDOWN = new Handler(Identifier.TEAM_BLOCK_WARNING_COOLDOWN, false) {};
 	
-	public TeamBlock() {
+	public BlockTeam() {
 		super(Material.BARRIER);
 		this.setBlockUnbreakable();
 		this.setResistance(6000001.0F);
@@ -99,7 +99,6 @@ public abstract class TeamBlock extends Block implements IBlockColor {
         return new BlockStateContainer(this, new IProperty[] {HAS_TEAM, ACTIVATED});
     }
 
-	@Override
 	public int colorMultiplier(IBlockState state, IBlockAccess world, BlockPos pos, int tintIndex) {
 		if (world.getTileEntity(pos) instanceof TileEntityTeam) {
 			TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);

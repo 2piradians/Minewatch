@@ -14,7 +14,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import twopiradians.minewatch.common.block.teamBlocks.TeamBlock;
+import twopiradians.minewatch.common.block.teamBlocks.BlockTeam;
 
 public abstract class TileEntityTeam extends TileEntity implements ITickable {
 
@@ -36,8 +36,8 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 			if (!world.isRemote) {
 				IBlockState oldState = world.getBlockState(pos);
 				IBlockState newState = oldState
-						.withProperty(TeamBlock.HAS_TEAM, team != null)
-						.withProperty(TeamBlock.ACTIVATED, activated);
+						.withProperty(BlockTeam.HAS_TEAM, team != null)
+						.withProperty(BlockTeam.ACTIVATED, activated);
 				this.world.setBlockState(pos, newState);
 				// set values for new tile, because setBlockState will recreate tile
 				TileEntity te = this.world.getTileEntity(pos);

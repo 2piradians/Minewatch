@@ -1,4 +1,4 @@
-itemGroup.tabMinewatch=Вкладка Minewatch
+﻿itemGroup.tabMinewatch=Вкладка Minewatch
 itemGroup.tabMinewatchArmorWeapons=Броня и оружие Minewatch
 itemGroup.tabMinewatchMapMaking=Инструменты для создания карт Minewatch
 
@@ -6,11 +6,13 @@ config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Скины Героев
 config.server-side.hero_mobs=Мобы-Герои
+config.server-side.team_blocks=Team Blocks
 
 effect.frozen=Замораживание
 
 tile.health_pack_small.name=Маленькая аптечка
 tile.health_pack_large.name=Большая аптечка
+tile.team_spawn.name=Командный спавнер
 
 item.wild_card_token.name=Маркер на выбор
 item.team_stick.name=Командная палка
@@ -137,6 +139,13 @@ item.moira_leggings.name=Поножи Мойры
 item.moira_boots.name=Ботинки Мойры
 item.moira_weapon.name=Биотическая хватка Мойры
 
+item.doomfist_token.name=Маркер Кулака смерти
+item.doomfist_helmet.name=Шлем Кулака смерти
+item.doomfist_chestplate.name=Нагрудник Кулака смерти
+item.doomfist_leggings.name=Поножи Кулака смерти
+item.doomfist_boots.name=Ботинки Кулака смерти
+item.doomfist_weapon.name=Бомбарда Кулака смерти
+
 entity.random_hero.name=Случайный герой
 entity.hanzo_hero.name=Хандзо
 entity.hanzo_arrow.name=Стрела Хандзо
@@ -189,3 +198,34 @@ entity.zenyatta_orb.name=Сфера Дзенъятты
 entity.moira_hero.name=Мойра
 entity.moira_heal_energy.name=Биотичесская энергия Мойры
 entity.moira_orb.name=Биотическая сфера Мойры
+entity.doomfist_hero.name=Кулак смерти
+entity.doomfist_bullet.name=Снаряд Кулака смерти
+
+command.reset.success=Minewatch игра сброшенна модератором.
+command.reset.unrecognized_flags=Нераспознанный флаг(и)
+
+overlay.eliminated_by=Вы были устранены 
+overlay.assist=помощь
+overlay.eliminated=устранён
+overlay.death_spectating=Вы теперь наблюдатель
+overlay.respawn_in=Возрождение через
+
+gui.team_block.button.name=Имя
+gui.team_block.button.name.desc=Это имя используется командами
+gui.team_block.button.activate_deactivate=Активировать/Деактивировать
+gui.team_block.button.activate=Активировать
+gui.team_block.button.deactivate=Деактивировать
+gui.team_block.button.selected_team=Выбор команды
+gui.team_block.button.video_demonstration=Видео демонстрация
+gui.team_block.button.ok=ОК
+
+gui.team_spawn.button.activate_deactivate.desc=Игроки и мобы будут появлятся на активном командном спавнере их команды
+gui.team_spawn.button.activate.desc=Только один командный спавнер может быть активным за один раз, в команде
+gui.team_spawn.button.deactivate.desc=Только один командный спавнер может быть активным за один раз, в команде
+gui.team_spawn.button.selected_team.desc=Выберите команды, которые будут возрождаться здесь
+gui.team_spawn.question_mark_description_0=Игроки и мобы будут появляться на активном командном спавнере. Они возрождаются в направлении стрелки.
+gui.team_spawn.question_mark_description_1=Блоки командного спавнера можно активировать/деактивировать с помощью команды, а также:
+gui.team_spawn.status.players_heroes_team=Игроки и мобы в
+gui.team_spawn.status.players_heroes_all=Все игроки и мобы (которые находятся в команде)
+gui.team_spawn.status.players_heroes_none=Ничего
+gui.team_spawn.status.will_spawn=будут возрождатся здесь

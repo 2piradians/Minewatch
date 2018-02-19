@@ -2,6 +2,8 @@ package twopiradians.minewatch.packet;
 
 import java.util.UUID;
 
+import javax.vecmath.Vector2f;
+
 import org.apache.commons.lang3.tuple.Triple;
 
 import io.netty.buffer.ByteBuf;
@@ -383,7 +385,7 @@ public class SPacketSimple implements IMessage {
 						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+
-									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
+							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
@@ -958,6 +960,11 @@ public class SPacketSimple implements IMessage {
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),
 										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z));
+								ItemDoomfistWeapon.punchAnimations.put(entity.getPersistentID(), 5);
+								Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
+								Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 0, 0.5f, 1);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFD9B2, 0xE8C4A2, 1f, 4, 10, 15, 0, 0);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_PUNCH_3, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.7f, 4, 10, 15, 0, 0);
 							}
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
 									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
@@ -970,6 +977,8 @@ public class SPacketSimple implements IMessage {
 						if (packet.bool) {
 							// entity2 hit by uppercut
 							if (entity2 instanceof EntityLivingBase) {
+								entity2.motionX += entity.motionX*2f;
+								entity2.motionZ += entity.motionZ*2f;
 								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUT.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
 							}
 							else

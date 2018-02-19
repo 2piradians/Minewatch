@@ -69,7 +69,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(1d).move(look);
 					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
 						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
-						target instanceof EntityLivingBase && 
+						target instanceof EntityLivingBase && ((EntityLivingBase)entity).canEntityBeSeen(target) &&
 						EntityHelper.attemptDamage(entity, target, 50, true)) {
 							hitEntities.add((EntityLivingBase) target);
 							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {

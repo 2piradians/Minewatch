@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -39,7 +40,7 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (this.entity != null && !this.entity.isGlowing())
+			if (this.entity != null && !this.entity.isGlowing() && !(entity instanceof EntityLivingBaseMW))
 				this.entity.setGlowing(true);
 
 			return super.onClientTick();

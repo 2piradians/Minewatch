@@ -17,7 +17,7 @@ public class EntityDoomfist extends EntityHero {
 
 	@Override
 	public void onUpdate() {
-		if (!this.world.isRemote) {
+		if (!this.world.isRemote) { // TODO AI
 			// change to sentry when no attack target
 			if (this.getAttackTarget() == null && ItemMWWeapon.isAlternate(this.getHeldItemMainhand()))
 				this.getDataManager().set(KeyBind.ABILITY_1.datamanager, true);

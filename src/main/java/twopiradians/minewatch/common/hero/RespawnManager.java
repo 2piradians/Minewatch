@@ -101,7 +101,7 @@ public class RespawnManager {
 			else 
 				this.bool = false;
 			
-			return --ticksLeft <= 0 || entity == null || entity.isEntityAlive();
+			return --ticksLeft <= 0 || entity == null || entity.isEntityAlive() || entity != Minewatch.proxy.getClientPlayer();
 		}
 		@Override
 		public boolean onServerTick() {
@@ -328,12 +328,21 @@ public class RespawnManager {
 
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
+				Minecraft.getMinecraft().getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
+
+				// top
 				double scale = Config.guiScale*1d;
 				GlStateManager.scale(scale, scale, 0);
-
-				//top
 				GuiUtils.drawGradientRect(0, 0, 0, (int) width, 40, 0x6F000000, 0x6F000000);
 				GuiUtils.drawGradientRect(0, 0, 40, (int) width, 42, 0xAAAAAAAA, 0xAAAAAAAA);
+				GlStateManager.scale(1d/scale, 1d/scale, 0);
+				scale = Config.guiScale*3.8d;
+				GlStateManager.scale(scale, scale, 0);
+				GlStateManager.enableBlend();
+				GlStateManager.color(1, 1, 1, 1f);
+				GuiUtils.drawTexturedModalRect((int) (width/scale-50), 3, 38, 1008, 21, 5, 0);
+				GlStateManager.scale(1d/scale, 1d/scale, 0);
+				scale = Config.guiScale*1d;
 
 				// text
 				String format = TextFormatting.BOLD+""+TextFormatting.GOLD+""+TextFormatting.ITALIC;

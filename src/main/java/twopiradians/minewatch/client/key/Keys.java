@@ -242,7 +242,7 @@ public class Keys {
 										updateKeys(lmbDown);
 
 										// prevent further lmb processing
-										if (lmbDown != null && lmbDown) 
+										if (lmbDown != null && lmbDown && player.isEntityAlive()) 
 											event.setCanceled(true);
 
 										// switch to alt weapon

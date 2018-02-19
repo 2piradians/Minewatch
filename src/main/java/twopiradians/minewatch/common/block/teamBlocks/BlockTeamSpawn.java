@@ -25,7 +25,7 @@ import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
-public class BlockTeamSpawn extends TeamBlock {
+public class BlockTeamSpawn extends BlockTeam {
 
 	public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 

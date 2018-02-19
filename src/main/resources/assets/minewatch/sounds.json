@@ -1367,6 +1367,12 @@
 			"minewatch:doomfist_punch_hit"
 		]
 	},
+	"doomfist_punch_hit_wall": {
+	"category": "player",
+		"sounds": [
+			"minewatch:doomfist_punch_hit_wall"
+		]
+	},
 	"doomfist_reload": {
 	"category": "player",
 		"sounds": [

@@ -86,7 +86,7 @@ public class CommonProxy {
 		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
 		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
 		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS,
-		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_PUNCH_2, DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2;
+		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_PUNCH_2, DOOMFIST_PUNCH_3, DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2;
 
 		public HashMap<UUID, Integer> particleEntities = Maps.newHashMap();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -167,6 +167,7 @@ public class CommonProxy {
 	public void spawnParticlesHanzoSonic(World world, Entity trackEntity, boolean isBig) {}
 	public void spawnParticlesTrail(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {}
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World world, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
 	public void spawnParticlesCustom(EnumParticle enumParticle, World world, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing, boolean renderOnBlocks) {}

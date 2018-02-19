@@ -21,6 +21,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
@@ -48,6 +49,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	private EnumParticle enumParticle;
 	private float verticalAdjust;
 	private float horizontalAdjust;
+	private float distance;
 	private EnumHand hand;
 	@Nullable
 	private EnumFacing facing;
@@ -82,11 +84,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setParticleTexture(sprite);
 	}
 
-	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
 		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, null, false);
 		this.hand = hand;
 		this.verticalAdjust = verticalAdjust;
 		this.horizontalAdjust = horizontalAdjust;
+		this.distance = distance;
 		this.followEntity = followEntity;
 		this.followEntity();
 		this.prevPosX = this.posX;
@@ -94,8 +97,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.prevPosZ = this.posZ;
 	}
 
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust, 1);
+	}
+
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
-		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0);
+		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0, 0);
 	}
 
 	@Override
@@ -209,7 +216,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
-				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust, distance);
 				this.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 				this.prevPosX = this.posX;
 				this.prevPosY = this.posY;
@@ -245,6 +252,26 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityMoiraOrb) {
 				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
+			}
+			else if (this.enumParticle == EnumParticle.DOOMFIST_PUNCH_3) {
+				boolean first = followEntity == Minewatch.proxy.getClientPlayer() && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
+				float charge = ItemDoomfistWeapon.getCharge((EntityLivingBase) followEntity);
+				if (charge >= 0) {
+					this.particleAlpha = first ? charge : charge/2f;
+					this.verticalAdjust = first ? 5 : 20;
+					this.horizontalAdjust = first ? 1 : 0.35f;
+					this.distance = first ? 1 : 0.8f;
+					this.finalScale = 6;
+				}
+				else if (TickHandler.hasHandler(followEntity, Identifier.DOOMFIST_PUNCH)) {
+					this.particleAlpha = first ? 1 : 0.8f;
+					this.verticalAdjust = first ? 0 : 20;
+					this.horizontalAdjust = first ? 0.5f : 0.4f;
+					this.distance = first ? 1 : 1f;
+					this.finalScale = 3;
+				}
+				else 
+					this.particleAlpha = 0;
 			}
 
 			if (!this.followEntity.isEntityAlive() || TickHandler.hasHandler(followEntity, Identifier.MOIRA_FADE) || 

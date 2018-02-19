@@ -1,18 +1,18 @@
-itemGroup.tabMinewatch=Secció de Minewatch
+itemGroup.tabMinewatch=Seccio de Minewatch
 itemGroup.tabMinewatchArmorWeapons=Armadures i Armes de Minewatch
 itemGroup.tabMinewatchMapMaking=Eines per el Map-making de Minewatch
 
 config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Aparençes dels Herois
-config.server-side.hero_mobs=Herois Móbils
+config.server-side.hero_mobs=Herois Mobils
 
 effect.frozen=Congel·lat
 
-tile.health_pack_small.name=Paquet de curació petita
-tile.health_pack_large.name=Paquet de curació grossa
+tile.health_pack_small.name=Paquet de curacio petita
+tile.health_pack_large.name=Paquet de curacio grossa
 
-item.wild_card_token.name=Fitxa Al·leatória
+item.wild_card_token.name=Fitxa Al·leatoria
 item.team_stick.name=Sel·lector d'Equips
 
 item.reaper_token.name=Fitxa d'Reaper
@@ -77,7 +77,7 @@ item.mei_helmet.name=Casc de Mei
 item.mei_chestplate.name=Cuirassa de Mei
 item.mei_leggings.name=Pantalons de Mei
 item.mei_boots.name=Botes de Mei
-item.mei_weapon.name=Bláster Endotèrmic de Mei
+item.mei_weapon.name=Bláster Endotermic de Mei
 
 item.bastion_token.name=Fitxa de Bastion
 item.bastion_helmet.name=Casc de Bastion
@@ -91,7 +91,7 @@ item.widowmaker_helmet.name=Casc de Widowmaker
 item.widowmaker_chestplate.name=Cuirassa de Widowmaker
 item.widowmaker_leggings.name=Pantalons de Widowmaker
 item.widowmaker_boots.name=Botes de Widowmaker
-item.widowmaker_weapon.name=Petó de la Viuda
+item.widowmaker_weapon.name=Peto de la Viuda
 
 item.mercy_token.name=Fitxa de Mercy
 item.mercy_helmet.name=Casc de Mercy
@@ -105,8 +105,8 @@ item.junkrat_helmet.name=Casc de Junkrat
 item.junkrat_chestplate.name=Cuirassa de Junkrat
 item.junkrat_leggings.name=Pantalons de Junkrat
 item.junkrat_boots.name=Botes de Junkrat
-item.junkrat_weapon.name=Llançador de Granades d'Fragmentació de Junkrat
-item.junkrat_trigger.name=Mina de comnoció de Junkrat
+item.junkrat_weapon.name=Llançador de Granades d'Fragmentacio de Junkrat
+item.junkrat_trigger.name=Mina de comnocio de Junkrat
 
 item.sombra_token.name=Fitxa de Sombra
 item.sombra_helmet.name=Casc de Sombra
@@ -114,6 +114,7 @@ item.sombra_chestplate.name=Cuirassa de Sombra
 item.sombra_leggings.name=Pantalons de Sombra
 item.sombra_boots.name=Botes de Sombra
 item.sombra_weapon.name=Pistola de Sombra
+item.sombra_hack.name=Hackeig de Sombra
 
 item.lucio_token.name=Fitxa de Lúcio
 item.lucio_helmet.name=Casc de Lúcio
@@ -134,18 +135,25 @@ item.moira_helmet.name=Casc de Moira
 item.moira_chestplate.name=Cuirassa de Moira
 item.moira_leggings.name=Pantalons de Moira
 item.moira_boots.name=Botes de Moira
-item.moira_weapon.name=Compressor biótic de Moira
+item.moira_weapon.name=Compressor biotic de Moira
+
+item.doomfist_token.name=Fitxa de Doomfist
+item.doomfist_helmet.name=Casc de Doomfist
+item.doomfist_chestplate.name=Cuirassa de Doomfist
+item.doomfist_leggings.name=Pantalons de Doomfist
+item.doomfist_boots.name=Botes de Doomfist
+item.doomfist_weapon.name=Guant de Doomfist
 
 entity.random_hero.name=Heroi al·leatori
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Fletxa de Hanzo
-entity.hanzo_sonic_arrow.name=Fletxa sónica de Hanzo
+entity.hanzo_sonic_arrow.name=Fletxa sonica de Hanzo
 entity.hanzo_scatter_arrow.name=Fletxa fragmentada de Hanzo
 entity.reaper_hero.name=Reaper
 entity.reaper_bullet.name=Bala de Reaper
 entity.ana_hero.name=Ana
 entity.ana_bullet.name=Bala de Ana
-entity.ana_sleep_dart.name=Dard Anastésic de Ana
+entity.ana_sleep_dart.name=Dard Anastesic de Ana
 entity.genji_hero.name=Genji
 entity.genji_shuriken.name=Shurikens de Genji
 entity.genji_shuriken_single.name=Shuriken de Genji
@@ -157,7 +165,7 @@ entity.mccree_stun.name=Granada encegadora de McCree
 entity.soldier76_hero.name=Soldat: 76
 entity.soldier76_bullet.name=Bala de Soldat: 76
 entity.soldier76_helix_rocket.name=Coet Helix de Soldat: 76
-entity.soldier76_heal.name=Camp biótic de Soldat: 76
+entity.soldier76_heal.name=Camp biotic de Soldat: 76
 entity.bastion_hero.name=Bastion
 entity.bastion_bullet.name=Bala de Bastion
 entity.mei_hero.name=Mei
@@ -170,7 +178,7 @@ entity.mercy_beam.name=Raig de Mercy
 entity.junkrat_hero.name=Junkrat
 entity.junkrat_grenade.name=Granada Junkrat
 entity.junkrat_trap.name=Trampa de Acer de Junkrat
-entity.junkrat_mine.name=Mina de comnoció de Junkrat
+entity.junkrat_mine.name=Mina de comnocio de Junkrat
 entity.widowmaker_hero.name=Widowmaker
 entity.widowmaker_bullet.name=Bala de Widowmaker
 entity.widowmaker_mine.name=Mina verinosa de Widowmaker
@@ -181,8 +189,40 @@ entity.sombra_translocator.name=Translocal·litzador de Sombra
 entity.reinhardt_hero.name=Reinhardt
 entity.reinhardt_strike.name=Atac de foc de Reinhardt
 entity.lucio_hero.name=Lucio
-entity.lucio_sonic.name=Prójectil sónic de Lucio
+entity.lucio_sonic.name=Projectil sonic de Lucio
 entity.zenyatta_hero.name=Zenyatta
-entity.zenyatta_orb.name=Orb de la  Destrucció de Zenyatta
+entity.zenyatta_orb.name=Orb de la  Destruccio de Zenyatta
 entity.moira_hero.name=Moira
-entity.moira_heal_energy.name=Energía curativa de Moira
+entity.moira_heal_energy.name=Energia curativa de Moira
+entity.moira_orb.name=Orb biotic de Moira
+entity.doomfist_hero.name=Doomfist
+entity.doomfist_bullet.name=Bala de Doomfist
+
+command.reset.success=Aquesta partida de Minewatch ha sigut reiniciat per un moderador.
+command.reset.unrecognized_flags=No reconegut.
+
+overlay.eliminated_by=tu has sigut eliminat per
+overlay.assist=assistencia
+overlay.eliminated=eliminat
+overlay.death_spectating=tu ara estas espectant.
+overlay.respawn_in=regeneracio en...
+
+gui.team_block.button.name=Nom
+gui.team_block.button.name.desc=Aquest nom es utilitzat amb commandaments
+gui.team_block.button.activate_deactivate=Activar / Desactivar...
+gui.team_block.button.activate=Activat
+gui.team_block.button.deactivate=Desactivat
+gui.team_block.button.selected_team=Equip sel·leccionat.
+gui.team_block.button.video_demonstration=Demostracio
+gui.team_block.button.ok=D'Acord
+
+gui.team_spawn.button.activate_deactivate.desc=Jugadors i mobs es genererán en el seu generador d'equip
+gui.team_spawn.button.activate.desc=Nomes un generador d'equip pot ser activat a la vegada, per equip
+gui.team_spawn.button.deactivate.desc=Nomes un generador d'equip pot ser desactivat a la vegada, per equip
+gui.team_spawn.button.selected_team.desc=Selecciona el equip que reapareixera aqui.
+gui.team_spawn.question_mark_description_0=Els Jugadors i mobs apareixerán en el seu generador d'equips. Apareixeran mirant on apuntin la fletxa.
+gui.team_spawn.question_mark_description_1=Els generadors de equips poden ser activats o desactivats amb un commandament, tant mateix:
+gui.team_spawn.status.players_heroes_team=Jugadors i mobs dins
+gui.team_spawn.status.players_heroes_all=Tots el jugadors i mobs (els que estiguin en un equip)
+gui.team_spawn.status.players_heroes_none=Ningu
+gui.team_spawn.status.will_spawn=es generera aqui.

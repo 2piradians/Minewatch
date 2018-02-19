@@ -622,7 +622,7 @@ public class EntityHelper {
 	public static Vec3d getCenter(AxisAlignedBB aabb) {
 		return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
 	}
-	
+
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle, float yaw, float pitch){
 		return getMaxFieldOfVisionAngle(e1, e2, yaw, pitch) <= maxAngle;
@@ -644,7 +644,7 @@ public class EntityHelper {
 		return getDirectLookAngles(e1EyePos,  
 				getClosestPointOnBoundingBox(getPositionEyes(e1), e1.getLook(1), e2));
 	}
-	
+
 	/**Returns angles if e1 was directly facing e2*/
 	public static Vector2f getDirectLookAngles(Entity e1, Entity e2, float yaw, float pitch) {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
@@ -688,7 +688,7 @@ public class EntityHelper {
 
 		return closest;
 	}
-	
+
 	/**Returns maxAngle degrees between e1's look and e2*/
 	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2, float yaw, float pitch){
 		Vector2f facing = getDirectLookAngles(e1, e2, yaw, pitch);
@@ -857,7 +857,7 @@ public class EntityHelper {
 	public static void bounce(Entity entity, EnumFacing sideHit, double min, double scalar) {
 		if (sideHit == null) 
 			return; 
-		
+
 		switch(sideHit) {
 		case DOWN:
 			entity.motionY = -Math.max(Math.abs(entity.motionY * scalar), min);
@@ -976,7 +976,7 @@ public class EntityHelper {
 	public static String getName(Entity entity) {
 		return entity == null ? "" : entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
 	}
-	
+
 	/**Checks if there is 2 blocks of non-collidable blocks above pos*/
 	public static boolean isValidTeleportLocation(BlockPos pos, World world) {
 		IBlockState down = world.getBlockState(pos.down());

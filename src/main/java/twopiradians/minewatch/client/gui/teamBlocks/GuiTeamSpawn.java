@@ -31,7 +31,7 @@ public class GuiTeamSpawn extends GuiTeamBlock {
 		super.initGui();
 
 		// buttons
-		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-80/2, offsetY+guiTop+0, 80, 20, format+"Spawn Radius", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList("The radius around this block that players and hero mobs can spawn"))); 
+		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-80/2, offsetY+guiTop+0, 80, 20, format+Minewatch.translate("gui.team_spawn.button.spawn_radius"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.spawn_radius.desc")))); 
 		this.buttonList.add(new GuiButtonBase(6, guiLeft+X_SIZE/2-18/2+25, offsetY+guiTop+19, 18, 18, "+", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
 		this.buttonList.add(new GuiButtonBase(7, guiLeft+X_SIZE/2-18/2-25, offsetY+guiTop+19, 18, 18, "-", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
 

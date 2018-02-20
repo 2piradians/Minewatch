@@ -212,6 +212,7 @@ public class RespawnManager {
 				}
 				respawnEntity.clearActivePotions();
 				respawnEntity.extinguish();
+				respawnEntity.deathTime = 0;
 				if (respawnEntity instanceof EntityShulker)
 					((EntityShulker)respawnEntity).setAttachmentPos(teamSpawn);
 				entity.world.spawnEntity(respawnEntity);
@@ -307,12 +308,14 @@ public class RespawnManager {
 				!(entity instanceof EntitySlime && !((EntitySlime)entity).isSmallSlime()) &&  // only allow small slimes to respawn
 				entity.isNonBoss() && 
 				!(entity instanceof EntityHero && !Config.allowHeroRespawn) && 
-				!(!(entity instanceof EntityHero) && !Config.allowMobRespawn);
+				!(!(entity instanceof EntityHero) && !Config.allowMobRespawn) && 
+				getTeamSpawn((EntityLivingBase) entity, entity.getTeam()) != null;
 	}
 
 	/**Can this player respawn with Team Spawn*/
 	public static boolean isRespawnablePlayer(Entity entity) {
-		return entity instanceof EntityPlayerMP && Config.allowPlayerRespawn && !(entity instanceof FakePlayer);
+		return entity instanceof EntityPlayerMP && Config.allowPlayerRespawn && !(entity instanceof FakePlayer) && 
+				getTeamSpawn((EntityLivingBase) entity, entity.getTeam()) != null;
 	}
 
 	@SubscribeEvent

@@ -198,8 +198,6 @@ public class EntityHelper {
 			z = look.zCoord;
 		}
 
-		// TEST DO NOT USE SETPOSITIONANDUPDATE BEFORE ENTITY IS SPAWNED OR IT WILL BE ADDED TWICE
-		//entity.setPositionAndUpdate(vec.xCoord, vec.yCoord, vec.zCoord); 
 		entity.setLocationAndAngles(vec.xCoord, vec.yCoord, vec.zCoord, entity.rotationYaw, entity.rotationPitch);
 
 		// send velocity to server/client

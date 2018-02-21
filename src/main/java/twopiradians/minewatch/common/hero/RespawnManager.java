@@ -216,6 +216,8 @@ public class RespawnManager {
 				if (respawnEntity instanceof EntityShulker)
 					((EntityShulker)respawnEntity).setAttachmentPos(teamSpawn);
 				entity.world.spawnEntity(respawnEntity);
+				if (Config.mobRespawnRandomHero && respawnEntity instanceof EntityHero) 
+					((EntityHero)respawnEntity).spawnRandomHero();
 			}
 			catch (Exception e) {
 				Minewatch.logger.warn("Unable to respawn entity ("+entity+") at Team Spawn ("+teamSpawn+")", e);
@@ -269,7 +271,7 @@ public class RespawnManager {
 
 	@SubscribeEvent
 	public static void respawnPlayers(PlayerRespawnEvent event) {
-		// respawn with method if custom death screen disabled TODO
+		// respawn with method if custom death screen disabled 
 		if (!event.player.world.isRemote && !Config.customDeathScreen) {
 			respawnEntity(event.player, event.player.getTeam(), true);
 		}

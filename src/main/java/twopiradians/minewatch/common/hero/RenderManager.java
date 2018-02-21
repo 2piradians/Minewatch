@@ -63,6 +63,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -227,7 +228,9 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
-		if (Config.guiScale > 0) {
+		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
+			event.setCanceled(true);
+		else if (Config.guiScale > 0) {
 			Minecraft mc = Minecraft.getMinecraft();
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
@@ -349,31 +352,42 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
-			EntityPlayer player = Minecraft.getMinecraft().player;
+		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {	
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayer player = mc.player;
 			EnumHero hero = SetManager.getWornSet(player);
 			ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
-
+			double width = event.getResolution().getScaledWidth_double();
+			double height = event.getResolution().getScaledHeight_double();
+			
 			// hero information screen
 			if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
 				hero.displayInfoScreen(event.getResolution());
 			else {
-				if (hero != null) {
-					// display icon
+				// team spawn hero selection
+				if (TickHandler.hasHandler(player, Identifier.TEAM_SPAWN_IN_RANGE)) {
 					GlStateManager.pushMatrix();
-					GlStateManager.color(1, 1, 1, 1);
+					GlStateManager.color(1, 1, 1, 0.5f);
 					GlStateManager.enableDepth();
-					GlStateManager.enableAlpha();
+					double scale = 0.8d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 0);
 
-					Rank rank = RankManager.getHighestRank(Minecraft.getMinecraft().player);
+					String text = TextFormatting.BLACK+""+TextFormatting.BOLD+String.format(Minewatch.translate("overlay.change_hero"), KeyBind.CHANGE_HERO.keyBind.getDisplayName()).toUpperCase();
+					int textWidth = mc.fontRendererObj.getStringWidth(text);
+					int x = (int) (width/scale/2d-textWidth/2d);
+					int y = (int) (height/scale*0.65d);
+					GuiUtils.drawGradientRect(0, x-10, y, x+textWidth+10, y+mc.fontRendererObj.FONT_HEIGHT+10, 0xCAFFDA56, 0xCAFFDA56);
+					mc.fontRendererObj.drawString(text, x, y+6, 0xFFFFFF);
+					
+					GlStateManager.enableBlend();
+					GlStateManager.popMatrix();
+				}
+				
+				if (hero != null) {
+					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 65+scale*110, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(rank.iconLoc);
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-					GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
-
+					EnumHero.displayPortrait(hero, 40-scale*120, (int) ((height - 256*scale) / scale) - 65+scale*110, false);
 					GlStateManager.popMatrix();
 				}
 
@@ -385,8 +399,8 @@ public class RenderManager {
 
 					double scale = 2.7d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-35, ((int)event.getResolution().getScaledHeight()/scale)-25+scale*2, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(ABILITY_OVERLAY);
+					GlStateManager.translate((int) (width/scale)-35, ((int)height/scale)-25+scale*2, 0);
+					mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 					int index = ItemMWWeapon.isAlternate(player.getHeldItemMainhand()) && 
 							weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 					// weapon
@@ -400,7 +414,7 @@ public class RenderManager {
 
 					if (hero != null && weapon.hero == hero && SetManager.getWornSet(player) != null) {
 						for (int i=1; i<=3; ++i) {
-							Minecraft.getMinecraft().getTextureManager().bindTexture(ABILITY_OVERLAY);
+							mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 							Ability ability = hero.getAbility(i);
 
 							// weapon / ability icons
@@ -447,22 +461,22 @@ public class RenderManager {
 									ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 26, 247, 5, 5, 0);
 							// text
-							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(ability.keybind.getKeyName());
+							int textWidth = mc.fontRendererObj.getStringWidth(ability.keybind.getKeyName());
 							GlStateManager.scale(0.25d, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// keybind text
 							if (ability.showKeybind(player)) 
-								Minecraft.getMinecraft().fontRendererObj.drawString(ability.keybind.getKeyName(), 3-i*36-width/2, 43+i*3, 0);
+								mc.fontRendererObj.drawString(ability.keybind.getKeyName(), 3-i*36-textWidth/2, 43+i*3, 0);
 							// multi-use number
 							if (ability.maxUses > 0)
-								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);
+								mc.fontRendererObj.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);
 							// cooldown
 							scale = 2d;
 							GlStateManager.scale(scale, scale, 1);
 							if (ability.getCooldown(player) > 0) { 
 								String num = String.valueOf((int)Math.ceil(ability.getCooldown(player)/20d));
-								width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-								Minecraft.getMinecraft().fontRendererObj.drawString(num, 6-i*18-width/2, 8+i, 0xFFFFFF);
+								textWidth = mc.fontRendererObj.getStringWidth(num);
+								mc.fontRendererObj.drawString(num, 6-i*18-textWidth/2, 8+i, 0xFFFFFF);
 							}
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.popMatrix();
@@ -472,14 +486,14 @@ public class RenderManager {
 					if (weapon.getMaxAmmo(player) > 0) {
 						scale = 0.45d;
 						GlStateManager.scale(scale, scale, 1);
-						int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
+						int textWidth = mc.fontRendererObj.getStringWidth(
 								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)));
-						Minecraft.getMinecraft().fontRendererObj.drawString(
-								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-width, -10, 0xFFFFFF);
+						mc.fontRendererObj.drawString(
+								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-textWidth, -10, 0xFFFFFF);
 						scale = 0.6d;
 						GlStateManager.scale(scale, scale, 1);
-						Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -10, 0x00D5FF);
-						Minecraft.getMinecraft().fontRendererObj.drawString(
+						mc.fontRendererObj.drawString("/", 53, -10, 0x00D5FF);
+						mc.fontRendererObj.drawString(
 								TextFormatting.ITALIC+String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
 					}
 

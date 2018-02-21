@@ -145,6 +145,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 							target instanceof EntityLivingBase && 
 							EntityHelper.shouldHit(entity, target, false)) {
 								if (target.isEntityAlive() && EntityHelper.isInFieldOfVision(entity, target, 45, entity.rotationYaw, 0) && 
+										((EntityLivingBase)entity).canEntityBeSeen(target) && 
 										EntityHelper.attemptDamage(entity, target, damage, true)) {
 									target.onGround = false;
 									Vec3d motion = new Vec3d(entity.posX-target.posX, 0, entity.posZ-target.posZ).normalize().scale(0.3d);
@@ -414,7 +415,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				((EntityLivingBase)handler.entity).canEntityBeSeen(target)) {
 					/*if (target.isEntityAlive() && (TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE) ||
 							TickHandler.hasHandler(target, Identifier.DOOMFIST_PUNCH))) {
-						handler.ticksLeft = 20; // TODO
+						handler.ticksLeft = 20; // TODO punch + punch, charge + charge
 						TickHandler.unregister(false, TickHandler.getHandler(handler.entity, Identifier.HERO_SNEAKING));
 						TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(handler.entity).setTicks(handler.ticksLeft),
 								Handlers.PREVENT_ROTATION.setEntity(handler.entity).setTicks(handler.ticksLeft), 

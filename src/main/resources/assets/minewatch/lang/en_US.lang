@@ -209,6 +209,7 @@ overlay.assist=assist
 overlay.eliminated=eliminated
 overlay.death_spectating=you are now death spectating
 overlay.respawn_in=respawn in
+overlay.change_hero=Press %s to change hero
 
 gui.team_block.button.name=Name
 gui.team_block.button.name.desc=This name is used by commands
@@ -231,3 +232,6 @@ gui.team_spawn.status.players_heroes_team=Players and mobs in
 gui.team_spawn.status.players_heroes_all=All players and mobs (that are on a team)
 gui.team_spawn.status.players_heroes_none=Nothing
 gui.team_spawn.status.will_spawn=will spawn here
+
+gui.hero_select.select=Select
+gui.hero_select.select_hero=Select a hero

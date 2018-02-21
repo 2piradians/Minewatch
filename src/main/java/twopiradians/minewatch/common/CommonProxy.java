@@ -70,7 +70,7 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 public class CommonProxy {
 
 	public enum EnumGui {
-		WILDCARD, TEAM_STICK, TEAM_SPAWN
+		WILDCARD, HERO_SELECT, TEAM_STICK, TEAM_SPAWN
 	}
 	
 	public enum EnumParticle {

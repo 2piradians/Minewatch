@@ -103,7 +103,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					// check for wall impact
 					float pitch = this.entity.rotationPitch;
 					this.entity.rotationPitch = 0;
-					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).move(this.entity.getLookVec().scale(1));
+					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).move(this.entity.getLookVec().scale(1)).offset(0, 0.1d, 0);
 					this.entity.rotationPitch = pitch;
 					if (this.entity.world.collidesWithAnyBlock(aabb)) {
 						this.ticksLeft = 1;

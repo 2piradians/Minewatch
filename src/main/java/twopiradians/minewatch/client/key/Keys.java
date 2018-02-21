@@ -48,7 +48,7 @@ public class Keys {
 		ABILITY_2(Identifier.KEYBIND_ABILITY_2, false), RMB(Identifier.KEYBIND_RMB, false),
 		LMB(Identifier.KEYBIND_LMB, false), HERO_INFORMATION(Identifier.KEYBIND_HERO_INFO, true), 
 		RELOAD(Identifier.KEYBIND_RELOAD, false), ULTIMATE(Identifier.KEYBIND_ULTIMATE, false), 
-		JUMP(Identifier.KEYBIND_JUMP, true), FOV(Identifier.KEYBIND_FOV, false); 
+		JUMP(Identifier.KEYBIND_JUMP, true), FOV(Identifier.KEYBIND_FOV, false), CHANGE_HERO; 
 
 		public final Handler COOLDOWNS = new Handler(null, false) {
 			@SideOnly(Side.CLIENT)

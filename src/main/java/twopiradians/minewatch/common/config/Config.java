@@ -13,6 +13,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -78,7 +79,8 @@ public class Config {
 	public static boolean allowHeroRespawn;
 	public static boolean allowMobRespawn;
 	public static boolean allowPlayerRespawn;
-	
+	public static boolean mobRespawnRandomHero;
+
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
 	public static int mobSpawnFreq;
@@ -152,7 +154,7 @@ public class Config {
 			}
 			Minewatch.network.sendToServer(new CPacketSyncSkins(uuid));
 		}
-		
+
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Render Outlines", true, "Should enemy heroes have a red outline?");
 		renderOutlines = prop.getBoolean();
 
@@ -227,68 +229,74 @@ public class Config {
 			prop.set(healthPackRespawnMultiplier);
 		else
 			healthPackRespawnMultiplier = prop.getDouble();
-		
+
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ammo Multiplier", 1d, "Multiplied by the default max ammo for a weapon. For example with this set to 2, weapons will have twice as much ammo. When this is 0, weapons have unlimited ammo.", 0, 10);
 		if (overriding)
 			prop.set(ammoMultiplier);
 		else
 			ammoMultiplier = prop.getDouble();
-		
+
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drops Require Player", false, "Should tokens only drop from mobs killed by a player?");
 		if (overriding)
 			prop.set(tokenDropRequiresPlayer);
 		else
 			tokenDropRequiresPlayer = prop.getBoolean();
-		
+
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ability Cooldown Multiplier", 1d, "Multiplied by the default cooldown for abilities. For example with this set to 2, abilities will have twice the normal cooldown.", 0, 10);
 		if (overriding)
 			prop.set(abilityCooldownMultiplier);
 		else
 			abilityCooldownMultiplier = prop.getDouble();
-		
+
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Aim Assist", 0.2d, "0 is no aim assist, 1 is heavy aim assist. This will subtly turn the player towards their target while shooting.", 0, 1);
 		if (overriding)
 			prop.set(aimAssist);
 		else
 			aimAssist = prop.getDouble();
-		
+
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
 		if (overriding)
 			prop.set(heroMobsDespawn);
 		else
 			heroMobsDespawn = prop.getBoolean();
-		
+
 		// Team Block options
-		
+
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
 		if (overriding)
 			prop.set(customDeathScreen);
 		else
 			customDeathScreen = prop.getBoolean();
-		
+
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Respawn Time", 10, "Amount of time (in seconds) that entities have to wait to respawn. Only applies when Custom Death Screen is enabled.", 0, 100);
 		if (overriding)
 			prop.set(respawnTime/20);
 		else
 			respawnTime = prop.getInt()*20;
-		
+
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Hero Mobs to Respawn", true, "Should hero mobs respawn at their team's active Team Spawn?");
 		if (overriding)
 			prop.set(allowHeroRespawn);
 		else
 			allowHeroRespawn = prop.getBoolean();
-		
+
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Mobs to Respawn", true, "Should mobs (not hero mobs) respawn at their team's active Team Spawn?");
 		if (overriding)
 			prop.set(allowMobRespawn);
 		else
 			allowMobRespawn = prop.getBoolean();
-		
+
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Players to Respawn", true, "Should players respawn at their team's active Team Spawn?");
 		if (overriding)
 			prop.set(allowPlayerRespawn);
 		else
 			allowPlayerRespawn = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Mobs Respawn with Random Hero", false, "Should Hero Mobs respawn as random heroes?");
+		if (overriding)
+			prop.set(mobRespawnRandomHero);
+		else
+			mobRespawnRandomHero = prop.getBoolean();
 
 		// Hero Mob options
 
@@ -392,7 +400,9 @@ public class Config {
 
 	@SubscribeEvent
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(Minewatch.MODID)) { // TODO don't sync in mp until sync command / packet sent
+		 // if not in mp server (only update when sync packet sent on mp server)
+		if (event.getModID().equals(Minewatch.MODID) && 
+				FMLCommonHandler.instance().getMinecraftServerInstance() != null) {
 			syncConfig();
 			config.save();
 		}

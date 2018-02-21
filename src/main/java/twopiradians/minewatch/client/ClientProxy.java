@@ -14,7 +14,6 @@ import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -40,7 +39,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeColorHelper;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -57,6 +55,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSpawn;
 import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
@@ -214,7 +213,8 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
+		KeyBind.CHANGE_HERO.keyBind = new KeyBinding("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME);
 	}
 
 	private void registerColoredItems() {
@@ -524,6 +524,9 @@ public class ClientProxy extends CommonProxy {
 		case TEAM_SPAWN:
 			if (objs.length == 1 && objs[0] instanceof TileEntityTeamSpawn)
 				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSpawn((TileEntityTeamSpawn) objs[0]));
+			break;
+		case HERO_SELECT:
+			Minecraft.getMinecraft().displayGuiScreen(new GuiHeroSelect());
 			break;
 		}
 	}

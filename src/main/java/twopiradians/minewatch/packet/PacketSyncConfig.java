@@ -37,6 +37,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean allowHeroRespawn;
 	private boolean allowMobRespawn;
 	private boolean allowPlayerRespawn;
+	private boolean mobRespawnRandomHero;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -52,6 +53,10 @@ public class PacketSyncConfig implements IMessage {
 	private double mobInaccuracy;
 
 	public PacketSyncConfig() {
+		// read values from config now that it's about to be sent to server
+		Config.syncConfig();
+		Config.config.save();
+		
 		this.preventFallDamage = Config.preventFallDamage;
 		this.allowGunWarnings = Config.allowGunWarnings;
 		this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
@@ -74,6 +79,7 @@ public class PacketSyncConfig implements IMessage {
 		this.allowHeroRespawn = Config.allowHeroRespawn;
 		this.allowMobRespawn = Config.allowMobRespawn;
 		this.allowPlayerRespawn = Config.allowPlayerRespawn;
+		this.mobRespawnRandomHero = Config.mobRespawnRandomHero;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -113,6 +119,7 @@ public class PacketSyncConfig implements IMessage {
 		this.allowHeroRespawn = buf.readBoolean();
 		this.allowMobRespawn = buf.readBoolean();
 		this.allowPlayerRespawn = buf.readBoolean();
+		this.mobRespawnRandomHero = buf.readBoolean();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -152,7 +159,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.allowHeroRespawn);
 		buf.writeBoolean(this.allowMobRespawn);
 		buf.writeBoolean(this.allowPlayerRespawn);
-
+		buf.writeBoolean(this.mobRespawnRandomHero);
+		
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
 		buf.writeInt(this.mobSpawnFreq);
@@ -190,6 +198,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.allowHeroRespawn = this.allowHeroRespawn;
 		Config.allowMobRespawn = this.allowMobRespawn;
 		Config.allowPlayerRespawn = this.allowPlayerRespawn;
+		Config.mobRespawnRandomHero = this.mobRespawnRandomHero;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

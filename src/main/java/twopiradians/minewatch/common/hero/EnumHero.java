@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.opengl.GL11;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -224,10 +226,10 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			20, 20, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
-			new Skin(Skin.Type.COMMON, "Classic" , "Lúcio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
+			new Skin(Skin.Type.COMMON, "Classic" , "Lï¿½cio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
 			new Skin(Skin.Type.RARE, "Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
 			new Skin(Skin.Type.EPIC, "Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
-			new Skin(Skin.Type.LEGENDARY, "HippityHop", "Overwatch - Lúcio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
+			new Skin(Skin.Type.LEGENDARY, "HippityHop", "Overwatch - Lï¿½cio", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---lcio-3766449/"),
 			new Skin(Skin.Type.LEGENDARY, "Ribbit", "Lucio Overwatch Ribbit", "DoctorMacaroni", "http://www.minecraftskins.com/skin/8719310/lucio-overwatch-ribbit/"),
 			new Skin(Skin.Type.LEGENDARY, "Slapshot", "Lucio Slapshot", "BoyBow", "http://www.minecraftskins.com/skin/10709362/lucio-slapshot/"),
 			new Skin(Skin.Type.LEGENDARY, "Jazzy", "Jazzy Lucio", "Noire_", "https://www.planetminecraft.com/skin/jazzy-lucio/"),
@@ -264,6 +266,8 @@ public enum EnumHero {
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
 	public static final ArrayList<EnumHero> ORDERED_HEROES = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, null, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, null, WIDOWMAKER, null, null, REINHARDT, null, null, null, ANA, LUCIO, MERCY, MOIRA, null, ZENYATTA);;
+	public static final ResourceLocation PORTRAIT_OVERLAY_0 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_0.png");
+	public static final ResourceLocation PORTRAIT_OVERLAY_1 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_1.png");
 
 	public Ability ability1;
 	public Ability ability2;
@@ -473,13 +477,13 @@ public enum EnumHero {
 		GlStateManager.popMatrix();
 	}
 	
-	/**Get formatted name - like Lúcio and Soldier: 76*/
+	/**Get formatted name - like Lï¿½cio and Soldier: 76*/
 	public String getFormattedName(boolean allCaps) {
 		String name = this.name;
 		if (this == EnumHero.SOLDIER76)
 			name = "Soldier: 76";
 		else if (this == EnumHero.LUCIO)
-			name = allCaps ? "LÚCIO": "Lúcio";
+			name = allCaps ? "LÃšCIO": "LÃºcio";
 		
 		if (allCaps)
 			name = name.toUpperCase();
@@ -493,16 +497,47 @@ public enum EnumHero {
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.enableDepth();
 		GlStateManager.enableAlpha();
+		GlStateManager.alphaFunc(GL11.GL_GREATER, 0.0F);
 
 		Rank rank = RankManager.getHighestRank(mc.player);
 		GlStateManager.translate(x, y, 0);
 		mc.getTextureManager().bindTexture(rank.iconLoc);
 		GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
-		if (useAlpha)
-			GlStateManager.color(0.9f, 0.9f, 1, 0.75f);
+		
+		if (useAlpha) {
+			// draw stencil
+			GlStateManager.alphaFunc(GL11.GL_GREATER, hero == JUNKRAT ? 0.4f : 0.25F);
+			GL11.glEnable(GL11.GL_STENCIL_TEST);
+			GL11.glStencilMask(0xFF); // writing on
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // flush old data
+			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF); // always add to buffer
+			GL11.glStencilOp(GL11.GL_REPLACE, GL11.GL_KEEP, GL11.GL_REPLACE); // replace on success
+			GlStateManager.colorMask(false, false, false, false); // don't draw this
+			mc.getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
+			GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
+			GlStateManager.colorMask(true, true, true, true);
+			GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF); // anything written to buffer will be drawn
+			GL11.glStencilMask(0x00); // writing off
+			GlStateManager.color(1f, 1f, 1, 0.8f);
+			GlStateManager.alphaFunc(GL11.GL_GREATER, 0.0F);
+		}
+		
 		mc.getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
 		GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
+		
+		if (useAlpha) {
+			GlStateManager.color(1f, 1f, 1, 0.2f);
+			mc.getTextureManager().bindTexture(PORTRAIT_OVERLAY_1);
+			GuiUtils.drawTexturedModalRect(-7, -20, 0, (int) (-mc.player.ticksExisted*0.5d), 240, 230, 0);
+			
+			GlStateManager.color(1f, 1f, 1, 0.5f);
+			mc.getTextureManager().bindTexture(PORTRAIT_OVERLAY_0);
+			GuiUtils.drawTexturedModalRect(-7, -20, 0, -mc.player.ticksExisted*3, 240, 230, 0);
+			
+			GL11.glDisable(GL11.GL_STENCIL_TEST);
+		}
 
+		GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
 		GlStateManager.popMatrix();
 	}
 

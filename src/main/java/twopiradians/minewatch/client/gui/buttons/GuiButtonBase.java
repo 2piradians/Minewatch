@@ -172,7 +172,7 @@ public class GuiButtonBase extends GuiButton {
 				float scaleX = this.width/56f;
 				float scaleY = this.height/56f;
 				GlStateManager.scale(scaleX, scaleY, 0);
-				GlStateManager.alphaFunc(516, 0.0F);
+				GlStateManager.alphaFunc(GL11.GL_GREATER, 0.0F);
 				float x = this.xPosition / scaleX;
 				float y = this.yPosition / scaleY;
 
@@ -193,22 +193,23 @@ public class GuiButtonBase extends GuiButton {
 				drawRect((int) (x), (int) (y), (int) (x+this.width/scaleX), (int) (y+this.height/scaleY), selected ? 0xF0FFB43D : enabled ? 0xCA000000 : 0x40000000);
 				GlStateManager.enableBlend();
 				GlStateManager.color(1, 1, 1, enabled ? 1 : 0.3f);
+				GlStateManager.enableDepth();
 
 				// icon
 				mc.getTextureManager().bindTexture(id >= 20 ? HERO_SELECT_ICONS_1 : HERO_SELECT_ICONS_0);
 				this.drawTexturedModalRect(x, y, (int) ((col*56+col+1)), (int) (row*50+row-3), (int) (this.width/scaleX), (int) (this.height/scaleY));
 				GL11.glDisable(GL11.GL_STENCIL_TEST);
+				GlStateManager.enableDepth();
 
 				// draw outline on top
 				mc.getTextureManager().bindTexture(HERO_SELECT_ICONS_1);
 				this.drawTexturedModalRect(x-3, y-2, -2+61*(selected ? 3 : hovered ? 2 : 1), 196-2, (int) (this.width/scaleX)+5, (int) (this.height/scaleY)+5);
-
-				GlStateManager.alphaFunc(516, 0.1F);
+				GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
 
 				// text
 				if (this.displayString != null && (selected || hovered)) {
 					String text = TextFormatting.ITALIC+displayString;
-					RenderHelper.drawHoveringText(null, new ArrayList<String>(Lists.newArrayList(text)), (int) (this.xPosition+this.width*0.2f-mc.fontRendererObj.getStringWidth(text)/2*scaleX), (int) (this.yPosition+this.height+mc.fontRendererObj.FONT_HEIGHT*0.7f), scaleX, scaleY, -1);
+					RenderHelper.drawHoveringText(null, new ArrayList<String>(Lists.newArrayList(text)), (int) (this.xPosition+this.width*0.18f-mc.fontRendererObj.getStringWidth(text)/2*scaleX), (int) (this.yPosition+this.height+mc.fontRendererObj.FONT_HEIGHT*0.7f), scaleX, scaleY, -1);
 					GlStateManager.disableLighting();
 				}
 

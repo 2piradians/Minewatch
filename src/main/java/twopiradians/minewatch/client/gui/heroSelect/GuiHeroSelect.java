@@ -168,7 +168,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 			this.setSelectedHero(EnumHero.ORDERED_HEROES.get(button.id));
 		switch (button.id) {
 		case 100: 
-			Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+this.getSelectedHero().name, mc.player)); // TODO clear other items
+			Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+this.getSelectedHero().name, mc.player)); // TODO do without perms and clear other items
 			Minecraft.getMinecraft().displayGuiScreen(null);
 			break;
 		case 101:

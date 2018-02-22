@@ -78,7 +78,7 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam())))
 						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
 
-			// hero selection overlay
+			// hero selection overlay TODO config
 			if (this.world.isRemote && this.ticksExisted % 10 == 0) 
 				for (EntityPlayer player : world.playerEntities)
 					if (player == Minewatch.proxy.getClientPlayer() && player.isEntityAlive() && !player.isSpectator() &&

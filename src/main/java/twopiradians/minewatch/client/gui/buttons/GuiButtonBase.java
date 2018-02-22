@@ -1,10 +1,14 @@
 package twopiradians.minewatch.client.gui.buttons;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
@@ -12,18 +16,20 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.client.gui.IGuiScreen;
 import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamBlock;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.util.RenderHelper;
 
 public class GuiButtonBase extends GuiButton {
 
 	public enum Render {
-		NORMAL, NONE, COLORED, TEXT, HERO_SELECT
+		NORMAL, NONE, COLORED, TEXT, HERO_SELECT, HERO_TYPE
 	}
-	
+
 	public static final ResourceLocation HERO_SELECT_ICONS_0 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_icons_0.png");
 	public static final ResourceLocation HERO_SELECT_ICONS_1 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_icons_1.png");
 
@@ -91,12 +97,18 @@ public class GuiButtonBase extends GuiButton {
 		}
 
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1, 1, 1, 1);
 		int actualHeight = this.height;
-		float yScale = actualHeight/20f;
-		float xScale = this.height == this.width ? yScale : 1;
-		this.height = 20;
-		GlStateManager.translate(0, this.yPosition-this.yPosition*(yScale), 0);
-		GlStateManager.scale(1, yScale, 1);
+		float yScale = 1;
+		float xScale = 1;
+
+		if (render == Render.NORMAL || render == Render.TEXT) {
+			yScale = actualHeight/20f;
+			xScale = this.height == this.width ? yScale : 1;
+			this.height = 20;
+			GlStateManager.translate(0, this.yPosition-this.yPosition*(yScale), 0);
+			GlStateManager.scale(1, yScale, 1);
+		}
 
 		switch (render) {
 		case NORMAL:
@@ -146,18 +158,79 @@ public class GuiButtonBase extends GuiButton {
 				int num = id >= 20 ? id-20 : id;
 				int row = num / 4;
 				int col = num % 4;
-				this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + actualHeight;
+				this.enabled = hero != null;
+				this.hovered = enabled && mouseX >= (this.xPosition+2) && mouseY >= (this.yPosition-2) && mouseX < (this.xPosition + this.width-2) && mouseY < (this.yPosition + this.height+0);
 				boolean selected = ((GuiHeroSelect)gui).getSelectedHero() == hero;
-				
-				float scaleX = this.width/55f;
-				float scaleY = this.height/50f;
+				int sizeIncrease = selected ? 6 : hovered ? 4 : 0;
+
+				// resize / move
+				this.xPosition -= sizeIncrease/2;
+				this.yPosition -= sizeIncrease/2;
+				this.width += sizeIncrease;
+				this.height += sizeIncrease;
+
+				float scaleX = this.width/56f;
+				float scaleY = this.height/56f;
 				GlStateManager.scale(scaleX, scaleY, 0);
-				GlStateManager.color(1, 1, 1);
+				GlStateManager.alphaFunc(516, 0.0F);
+				float x = this.xPosition / scaleX;
+				float y = this.yPosition / scaleY;
+
+				// draw stencil
+				GL11.glEnable(GL11.GL_STENCIL_TEST);
+				GL11.glStencilMask(0xFF); // writing on
+				GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // flush old data
+				GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF); // always add to buffer
+				GL11.glStencilOp(GL11.GL_REPLACE, GL11.GL_KEEP, GL11.GL_REPLACE); // replace on success
+				GlStateManager.colorMask(false, false, false, false); // don't draw this
+				mc.getTextureManager().bindTexture(HERO_SELECT_ICONS_1);
+				this.drawTexturedModalRect(x, y, 1, 196, (int) (this.width/scaleX), (int) (this.height/scaleY));
+				GlStateManager.colorMask(true, true, true, true);
+				GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF); // anything written to buffer will be drawn
+				GL11.glStencilMask(0x00); // writing off
+
+				// background
+				drawRect((int) (x), (int) (y), (int) (x+this.width/scaleX), (int) (y+this.height/scaleY), selected ? 0xF0FFB43D : enabled ? 0xCA000000 : 0x40000000);
+				GlStateManager.enableBlend();
+				GlStateManager.color(1, 1, 1, enabled ? 1 : 0.3f);
+
+				// icon
 				mc.getTextureManager().bindTexture(id >= 20 ? HERO_SELECT_ICONS_1 : HERO_SELECT_ICONS_0);
-				this.drawTexturedModalRect(this.xPosition/scaleX, this.yPosition/scaleY, (int) ((col*56+col+1)), (int) (row*50+row+1), (int) (this.width/scaleX), (int) (this.height/scaleY));
-				
+				this.drawTexturedModalRect(x, y, (int) ((col*56+col+1)), (int) (row*50+row-3), (int) (this.width/scaleX), (int) (this.height/scaleY));
+				GL11.glDisable(GL11.GL_STENCIL_TEST);
+
+				// draw outline on top
+				mc.getTextureManager().bindTexture(HERO_SELECT_ICONS_1);
+				this.drawTexturedModalRect(x-3, y-2, -2+61*(selected ? 3 : hovered ? 2 : 1), 196-2, (int) (this.width/scaleX)+5, (int) (this.height/scaleY)+5);
+
+				GlStateManager.alphaFunc(516, 0.1F);
+
+				// text
+				if (this.displayString != null && (selected || hovered)) {
+					String text = TextFormatting.ITALIC+displayString;
+					RenderHelper.drawHoveringText(null, new ArrayList<String>(Lists.newArrayList(text)), (int) (this.xPosition+this.width*0.2f-mc.fontRendererObj.getStringWidth(text)/2*scaleX), (int) (this.yPosition+this.height+mc.fontRendererObj.FONT_HEIGHT*0.7f), scaleX, scaleY, -1);
+					GlStateManager.disableLighting();
+				}
+
+				// undo resize / move
+				this.xPosition += sizeIncrease/2;
+				this.yPosition += sizeIncrease/2;
+				this.width -= sizeIncrease;
+				this.height -= sizeIncrease;
+			}
+			break;
+		case HERO_TYPE:
+			if (visible) {
+				double scale = this.width/23d;
+				GlStateManager.scale(scale, scale, 0);
+				mc.getTextureManager().bindTexture(HERO_SELECT_ICONS_1);
+				GlStateManager.enableBlend();
+				this.drawTexturedModalRect((int)(this.xPosition/scale), (int)(this.yPosition/scale), 234, this.id*19, this.width, actualHeight);
+
+				// text
+				this.hovered = mouseX >= (this.xPosition+0) && mouseY >= (this.yPosition+0) && mouseX < (this.xPosition + this.width-3) && mouseY < (this.yPosition + actualHeight-2);
 				if (this.hovered && this.displayString != null)
-					mc.fontRendererObj.drawString(displayString, (this.xPosition/scaleX+this.width/2/scaleX-mc.fontRendererObj.getStringWidth(displayString)/2), (this.yPosition+(this.height-8)/2)/scaleY, 14737632, true);
+					mc.fontRendererObj.drawString(displayString, (float) ((this.xPosition/scale+this.width/2/scale-mc.fontRendererObj.getStringWidth(displayString)/2)), (float) ((this.yPosition-actualHeight*0.8f)/scale), 14737632, true);
 			}
 			break;
 		}

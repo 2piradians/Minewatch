@@ -2,7 +2,6 @@ package twopiradians.minewatch.common.hero;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -12,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
@@ -21,7 +19,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import scala.actors.threadpool.Arrays;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -462,11 +459,11 @@ public enum EnumHero {
 		return null;
 	}
 
-	public void displayInfoScreen(ScaledResolution resolution) {
+	public void displayInfoScreen(double width, double height) {
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
 
-		GlStateManager.scale(resolution.getScaledWidth_double()/256d, resolution.getScaledHeight_double()/256d, 1);
+		GlStateManager.scale(width/256d, height/256d, 1);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/info_background.png"));
 		GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 1920, 1080, 0);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+this.name.toLowerCase()+"_info.png"));
@@ -474,6 +471,19 @@ public enum EnumHero {
 
 		GlStateManager.enableDepth();
 		GlStateManager.popMatrix();
+	}
+	
+	/**Get formatted name - like Lúcio and Soldier: 76*/
+	public String getFormattedName(boolean allCaps) {
+		String name = this.name;
+		if (this == EnumHero.SOLDIER76)
+			name = "Soldier: 76";
+		else if (this == EnumHero.LUCIO)
+			name = allCaps ? "LÚCIO": "Lúcio";
+		
+		if (allCaps)
+			name = name.toUpperCase();
+		return name;
 	}
 
 	public static void displayPortrait(EnumHero hero, double x, double y, boolean useAlpha) {

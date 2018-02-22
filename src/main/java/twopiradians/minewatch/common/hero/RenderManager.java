@@ -69,7 +69,6 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -362,7 +361,7 @@ public class RenderManager {
 			
 			// hero information screen
 			if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-				hero.displayInfoScreen(event.getResolution());
+				hero.displayInfoScreen(width, height);
 			else {
 				// team spawn hero selection
 				if (TickHandler.hasHandler(player, Identifier.TEAM_SPAWN_IN_RANGE)) {

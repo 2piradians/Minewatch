@@ -241,6 +241,7 @@ public class TickHandler {
 		@Nullable
 		public String string;
 		public Boolean bool = false;
+		public boolean allowDead = false;
 
 		public Handler(boolean interruptible) {
 			this(Identifier.NONE, interruptible);
@@ -254,12 +255,12 @@ public class TickHandler {
 		/**Called every tick on client, returns whether the handler should be removed afterwards*/
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
+			return --ticksLeft <= 0 || (!allowDead && entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called every tick on server, returns whether the handler should be removed afterwards*/
 		public boolean onServerTick() {
-			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
+			return --ticksLeft <= 0 || (!allowDead && entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called before the handler is removed*/
@@ -310,9 +311,11 @@ public class TickHandler {
 					(number == 0 ? "" : ", "+number);
 		}
 
-		/**Assumed that this is always called and is called before .setBool, to properly reset it*/
+		/**Assumed that this is always called and is called before other .set methods, to properly reset them*/
 		public Handler setEntity(Entity entity) {
+			this.allowDead = false;
 			this.bool = false;
+			
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
 				this.entityLiving = (EntityLivingBase) entity;
@@ -368,6 +371,11 @@ public class TickHandler {
 
 		public Handler setBoolean(Boolean bool) {
 			this.bool = bool;
+			return this;
+		}
+		
+		public Handler setAllowDead(boolean allowDead) {
+			this.allowDead = allowDead;
 			return this;
 		}
 

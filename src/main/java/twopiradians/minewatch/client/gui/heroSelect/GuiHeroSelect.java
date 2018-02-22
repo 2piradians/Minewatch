@@ -2,6 +2,7 @@ package twopiradians.minewatch.client.gui.heroSelect;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -11,20 +12,22 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.IGuiScreen;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase;
+import twopiradians.minewatch.client.gui.buttons.GuiButtonBase.Render;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
-import twopiradians.minewatch.client.gui.tab.GuiTab;
-import twopiradians.minewatch.client.gui.tab.GuiTab.Screen;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.EnumHero.Type;
@@ -58,22 +61,24 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 		// hero buttons
 		Type prevType = null;
-		int betweenX = 2;
-		int bigBetweenX = betweenX*4;
+		int betweenX = -4;
+		int bigBetweenX = 20;
 		int fullWidth = this.width-bigBetweenX*5-betweenX*(EnumHero.ORDERED_HEROES.size()+1);
 		int width = fullWidth / (EnumHero.ORDERED_HEROES.size()+1);
 		int height = width;
-		int x = bigBetweenX;
+		int x = width/2;
 		int y = (int) (this.height * 0.8f);
 		for (int i=0; i<EnumHero.ORDERED_HEROES.size(); ++i) {
 			EnumHero hero = EnumHero.ORDERED_HEROES.get(i);
-			if ((hero != null && hero.type != prevType) || i == 14) 
-				x += bigBetweenX;
-			if (hero != null || i == 14)
-				prevType = i == 14 ? Type.TANK : hero.type;
 			if (i > 0) 
 				x += width+betweenX;
-			this.buttonList.add(new GuiButtonBase(i, x, y, width, height, hero == null ? null : hero.name, this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setHero(hero).setNoSound());
+			// moving to new type
+			if ((hero != null && hero.type != prevType) || i == 14) {
+				x += bigBetweenX;
+				prevType = i == 14 ? Type.TANK : hero.type;
+				this.buttonList.add(new GuiButtonBase(prevType.ordinal(), (int) (x-bigBetweenX*0.7f), y+2, 19, 19, prevType.name(), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.HERO_TYPE));
+			}
+			this.buttonList.add(new GuiButtonBase(i, x, y, width, height, hero == null ? null : hero.getFormattedName(true), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setHero(hero).setNoSound());
 		}
 
 		// other buttons
@@ -91,7 +96,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 		// background
 		GlStateManager.pushMatrix();
-		this.drawDefaultBackground();
+		this.drawGradientRect(0, 0, this.width, this.height, 0x50FFFFFF, 0x10FFFFFF);
 		GlStateManager.popMatrix();
 
 		// main
@@ -110,7 +115,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 			GlStateManager.pushMatrix();
 			scale = 1.7d;
 			GlStateManager.scale(scale, scale, 1);
-			text = TextFormatting.WHITE+""+TextFormatting.ITALIC+this.getSelectedHero().name.toUpperCase();
+			text = TextFormatting.WHITE+""+TextFormatting.ITALIC+this.getSelectedHero().getFormattedName(true);
 			mc.fontRendererObj.drawString(text, (int) (this.width/scale-mc.fontRendererObj.getStringWidth(text)-25), 8, 0xFFFFFF, true);
 			GlStateManager.popMatrix();
 
@@ -140,7 +145,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 			break;
 		case HERO_INFO:
-			this.getSelectedHero().displayInfoScreen(new ScaledResolution(mc));
+			this.getSelectedHero().displayInfoScreen(this.width, this.height);
 			break;
 		}
 		GlStateManager.popMatrix();
@@ -158,11 +163,12 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
-		if (button.id >= 0 && button.id < EnumHero.ORDERED_HEROES.size() && EnumHero.ORDERED_HEROES.get(button.id) != null) 
+		if (button.id >= 0 && button.id < EnumHero.ORDERED_HEROES.size() && EnumHero.ORDERED_HEROES.get(button.id) != null &&
+				button.isMouseOver()) 
 			this.setSelectedHero(EnumHero.ORDERED_HEROES.get(button.id));
 		switch (button.id) {
 		case 100: 
-			Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+this.getSelectedHero().name, mc.player));
+			Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+this.getSelectedHero().name, mc.player)); // TODO clear other items
 			Minecraft.getMinecraft().displayGuiScreen(null);
 			break;
 		case 101:

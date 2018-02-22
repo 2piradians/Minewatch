@@ -55,7 +55,7 @@ public class GuiDisplay extends GuiScreen {
 
 			// hero name
 			ArrayList<String> list = new ArrayList<String>();
-			list.add(hero.name);
+			list.add(hero.getFormattedName(false));
 			while (Minecraft.getMinecraft().fontRendererObj.getStringWidth(list.get(0)) < 140)
 				list.set(0, " "+list.get(0)+" ");
 			GlStateManager.translate(-(Minecraft.getMinecraft().fontRendererObj.getStringWidth(list.get(0))-120)/2, 0, 0);

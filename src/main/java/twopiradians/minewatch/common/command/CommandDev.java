@@ -76,7 +76,7 @@ public class CommandDev implements ICommand {
 					else if (hero.getEquipment(slot) != null)
 						player.inventory.addItemStackToInventory(newStack);
 				}
-				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name));
+				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.getFormattedName(false)));
 			}
 			else
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));

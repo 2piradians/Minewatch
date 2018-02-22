@@ -35,6 +35,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
@@ -469,7 +470,7 @@ public class GuiTeamStick extends GuiTeamSelector {
 		entitiesFind = new ArrayList<EntityLivingBase>(mc.world.getEntities(filter.filter, new Predicate<EntityLivingBase>() {
 			@Override
 			public boolean apply(EntityLivingBase entity) {
-				return entity.getTeam() == null || !entity.getTeam().isSameTeam(selectedTeam) && !(entity instanceof EntityLivingBaseMW);
+				return (entity.getTeam() == null || !entity.getTeam().isSameTeam(selectedTeam)) && !EntityHelper.shouldIgnoreEntity(entity);
 			}}));
 		entitiesFind.sort(new Comparator<EntityLivingBase>() {
 			@Override
@@ -480,7 +481,7 @@ public class GuiTeamStick extends GuiTeamSelector {
 		entitiesTeam = new ArrayList<EntityLivingBase>(mc.world.getEntities(filter.filter, new Predicate<EntityLivingBase>() {
 			@Override
 			public boolean apply(EntityLivingBase entity) {
-				return entity.getTeam() != null && entity.getTeam().isSameTeam(selectedTeam) && !(entity instanceof EntityLivingBaseMW);
+				return entity.getTeam() != null && entity.getTeam().isSameTeam(selectedTeam) && !EntityHelper.shouldIgnoreEntity(entity);
 			}}));
 		entitiesTeam.sort(new Comparator<EntityLivingBase>() {
 			@Override

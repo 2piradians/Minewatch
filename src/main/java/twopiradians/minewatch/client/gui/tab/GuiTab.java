@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
@@ -148,7 +147,7 @@ public class GuiTab extends GuiScreen {
 		case MAIN:
 			this.drawTexturedModalRect(this.guiLeft, this.guiTop+2, 0, 230, 130, 24);
 			this.drawHero(mainScreenHero, mainScreenHero.getSkin(Minecraft.getMinecraft().player.getPersistentID()), mouseX, mouseY);
-			this.drawCenteredString(fontRendererObj, mainScreenHero.name, this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
+			this.drawCenteredString(fontRendererObj, mainScreenHero.getFormattedName(false), this.guiLeft + 190, this.guiTop + 180, 0x7F7F7F);
 			break;
 		case SERVERS:
 			try {
@@ -185,13 +184,13 @@ public class GuiTab extends GuiScreen {
 			// hero name
 			textScale = 1.9d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+galleryHero.getFormattedName(true), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+galleryHero.getFormattedName(true), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_INFO:
-			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
+			galleryHero.displayInfoScreen(this.width, this.height);
 			break;
 		case GALLERY_HERO_SKINS:
 			this.drawGradientRect(guiLeft+8, guiTop+55-20, guiLeft+8+120, guiTop+55-2, 0xC0101010, 0xD0101010);
@@ -202,13 +201,13 @@ public class GuiTab extends GuiScreen {
 			// hero name
 			textScale = 1.9d;
 			GlStateManager.scale(textScale, textScale, 1);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+galleryHero.getFormattedName(true), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0, false);
 			GlStateManager.scale(1.004d, 1.004d, 1);
 			GlStateManager.translate(-1.3F, 0, 0);
-			this.fontRendererObj.drawString(TextFormatting.ITALIC+(galleryHero == EnumHero.SOLDIER76 ? "Soldier: 76" : galleryHero.name).toUpperCase(), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
+			this.fontRendererObj.drawString(TextFormatting.ITALIC+galleryHero.getFormattedName(true), (int) ((this.guiLeft+11)/textScale), (int) ((this.guiTop+16)/textScale), 0x7F7F7F, false);
 			break;
 		case GALLERY_HERO_SKINS_INFO:
-			galleryHero.displayInfoScreen(new ScaledResolution(Minecraft.getMinecraft()));
+			galleryHero.displayInfoScreen(this.width, this.height);
 			break;
 		case SUBMIT:
 			text = "First of all, we would like to thank all of the creators of the skins and maps featured in this mod; without them, we wouldn't be able to offer such a wide variety of amazing skins and maps! \n\n" + 

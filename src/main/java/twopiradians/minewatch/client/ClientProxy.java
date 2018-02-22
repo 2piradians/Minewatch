@@ -152,6 +152,8 @@ public class ClientProxy extends CommonProxy {
 		registerWeaponRenders();
 		registerEntityRenders();
 		createKeybinds();
+		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
+			Minecraft.getMinecraft().getFramebuffer().enableStencil();
 	}
 
 	@Override

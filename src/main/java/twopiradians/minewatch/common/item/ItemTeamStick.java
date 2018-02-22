@@ -37,6 +37,7 @@ import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.ColorHelper;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -170,7 +171,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote && entity instanceof EntityLivingBase && !(entity instanceof EntityLivingBaseMW)) {
+		if (!player.world.isRemote && entity instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(entity)) {
 			Team team = getTeam(player.world, stack);
 			// copy team
 			if (player.isSneaking()) {
@@ -200,7 +201,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
-		if (!player.world.isRemote && !player.isSneaking()) {
+		if (!player.world.isRemote && !player.isSneaking() && !EntityHelper.shouldIgnoreEntity(entity)) {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {
@@ -275,7 +276,7 @@ public class ItemTeamStick extends Item {
 			if (handler == null)
 				TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(event.getEntity()).setTicks(2));
 			else
-				handler.ticksLeft = 2;
+				handler.ticksLeft = 5;
 		}
 	}
 

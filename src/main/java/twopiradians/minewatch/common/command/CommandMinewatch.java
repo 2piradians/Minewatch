@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +25,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import scala.actors.threadpool.Arrays;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -147,7 +147,7 @@ public class CommandMinewatch implements ICommand {
 								else if (hero.getEquipment(slot) != null && entity instanceof EntityPlayer)
 									((EntityPlayer)entity).inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
 							}
-							sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.name+
+							sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.getFormattedName(false)+
 									(args.length == 3 ? " on "+entity.getName() : "")));
 							// sync inventory - needed for when called from GuiTab
 							if (sender instanceof EntityPlayerMP)

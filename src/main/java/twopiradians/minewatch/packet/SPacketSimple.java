@@ -51,7 +51,6 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
-import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
@@ -391,8 +390,8 @@ public class SPacketSimple implements IMessage {
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.
-								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).setBoolean(packet.bool).
-								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
+								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).
+								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);

@@ -39,7 +39,7 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			if (this.ticksLeft <= 0 && Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
+			if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
 				Minecraft.getMinecraft().displayGuiScreen(null);
 			return super.onServerRemove();
 		}
@@ -83,8 +83,13 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 				for (EntityPlayer player : world.playerEntities)
 					if (player == Minewatch.proxy.getClientPlayer() && player.isEntityAlive() && !player.isSpectator() &&
 					(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
-					player.getDistance(pos.getX(), pos.getY(), pos.getZ()) <= spawnRadius)
-						TickHandler.register(true, IN_RANGE.setEntity(player).setTicks(12));
+					player.getDistance(pos.getX(), pos.getY(), pos.getZ()) <= spawnRadius) {
+						Handler handler = TickHandler.getHandler(player, Identifier.TEAM_SPAWN_IN_RANGE);
+						if (handler == null)
+							TickHandler.register(true, IN_RANGE.setEntity(player).setTicks(12));
+						else
+							handler.ticksLeft = 12;
+					}
 		}
 
 		++this.ticksExisted;

@@ -986,4 +986,9 @@ public class EntityHelper {
 				(world.isAirBlock(pos.up()) || up.getCollisionBoundingBox(world, pos.up()) == null);
 	}
 
+	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
+	public static boolean shouldIgnoreEntity(Entity entity) {
+		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand;
+	}
+
 }

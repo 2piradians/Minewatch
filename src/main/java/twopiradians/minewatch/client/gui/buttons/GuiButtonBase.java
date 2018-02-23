@@ -197,7 +197,7 @@ public class GuiButtonBase extends GuiButton {
 
 				// icon
 				mc.getTextureManager().bindTexture(id >= 20 ? HERO_SELECT_ICONS_1 : HERO_SELECT_ICONS_0);
-				this.drawTexturedModalRect(x, y, (int) ((col*56+col+1)), (int) (row*50+row-3), (int) (this.width/scaleX), (int) (this.height/scaleY));
+				this.drawTexturedModalRect(x, y, (int) ((col*56+col+1))+(hero == EnumHero.DOOMFIST ? 1 : hero == EnumHero.MOIRA ? -2 : 0), (int) (row*50+row-3), (int) (this.width/scaleX), (int) (this.height/scaleY));
 				GL11.glDisable(GL11.GL_STENCIL_TEST);
 				GlStateManager.enableDepth();
 

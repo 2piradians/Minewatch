@@ -274,9 +274,7 @@ public class CPacketSimple implements IMessage {
 					}
 					// player death screen
 					else if (packet.type == 12 && packetPlayer != null) {
-						Minewatch.logger.info("received packet: bool = "+packet.bool+", hasHandler = "+TickHandler.hasHandler(packetPlayer, Identifier.DEAD)+", alive = "+packetPlayer.isEntityAlive()+", health = "+packetPlayer.getHealth()+", respawnable = "+RespawnManager.isRespawnablePlayer(packetPlayer));
-						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive() && 
-								RespawnManager.isRespawnablePlayer(packetPlayer)) {
+						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive()) {
 							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getRegisteredName() : null));
 						}
 					}

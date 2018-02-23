@@ -118,7 +118,6 @@ public class RespawnManager {
 		public Handler onClientRemove() {
 			// if still alive, send another packet to server and wait
 			if (entity == Minewatch.proxy.getClientPlayer()) {
-				Minewatch.logger.info("entity still dead, sending another packet"); // TODO
 				Minewatch.network.sendToServer(new CPacketSimple(12, true, player));
 				this.ticksLeft = 10;
 				return null;

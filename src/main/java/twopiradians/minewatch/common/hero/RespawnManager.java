@@ -277,6 +277,10 @@ public class RespawnManager {
 
 	@SubscribeEvent
 	public static void registerMobs(LivingDeathEvent event) {
+		// put team in customEntityData because entity removed from team on death
+		if (event.getEntityLiving() != null && event.getEntityLiving().getTeam() != null)
+			event.getEntityLiving().getEntityData().setString("minewatch:team", event.getEntityLiving().getTeam().getRegisteredName());
+		
 		// register dead mobs directly
 		if (isRespawnableEntity(event.getEntityLiving()) &&
 				!event.getEntityLiving().world.isRemote && !TickHandler.hasHandler(event.getEntityLiving(), Identifier.DEAD)) {

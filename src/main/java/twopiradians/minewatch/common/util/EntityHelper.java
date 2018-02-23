@@ -30,6 +30,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
@@ -51,6 +52,7 @@ import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.entity.hero.EntityJunkrat;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -286,10 +288,12 @@ public class EntityHelper {
 			target = Minewatch.proxy.getClientPlayer();
 		entity = getThrower(entity);
 		target = getThrower(target);
+		Team entityTeam = getTeam(entity);
+		Team targetTeam = getTeam(target);
 
 		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
 		if (entity instanceof EntityHero && target != null && 
-				!(friendly && entity.getTeam() != null && entity.getTeam().isSameTeam(target.getTeam())) &&
+				!(friendly && entityTeam != null && entityTeam == targetTeam) &&
 				!(friendly && entity == target) && 
 				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
 						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
@@ -305,11 +309,24 @@ public class EntityHelper {
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		// prevent healing mobs not on team with config option disabled
-		if (!Config.healMobs && friendly && target != null && entity != null && (target.getTeam() == null || target.getTeam() != entity.getTeam()))
+		if (!Config.healMobs && friendly && target != null && entity != null && (targetTeam == null || targetTeam != entityTeam))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
-				(entity.getTeam() == null || target.getTeam() == null || 
-				entity.isOnSameTeam(target) == friendly);
+				(entityTeam == null || targetTeam == null || 
+				(entityTeam == targetTeam) == friendly);
+	}
+	
+	/**Get an entity's team - namely for getting a dead entity's team (since they are technically removed from team on death)*/
+	@Nullable
+	public static Team getTeam(Entity entity) {
+		if (entity == null)
+			return null;
+		else if (entity.isEntityAlive() || entity.getTeam() != null)
+			return entity.getTeam();
+		else if (entity.getEntityData().hasKey("minewatch:team"))
+			return entity.world.getScoreboard().getTeam(entity.getEntityData().getString("minewatch:team"));
+		else
+			return null;
 	}
 
 	/**Attempts do damage with falloff returns true if successful on server*/

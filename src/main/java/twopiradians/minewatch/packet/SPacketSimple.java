@@ -295,20 +295,21 @@ public class SPacketSimple implements IMessage {
 					}
 					// Genji's strike
 					else if (packet.type == 3 && entity != null) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.GENJI_DEFLECT));
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(entity).setTicks(8),
 								ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks(8),
-								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
+								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2).setBoolean(true), 
 								RenderManager.SNEAKING.setEntity(entity).setTicks(9));
 						if (entity == player) 
 							move(player, 1.8d, false, true);
 					}
-					// Genji's use sword
+					// Genji's deflect
 					else if (packet.type == 4 && entity != null) {
 						if (packet.bool)
 							TickHandler.register(true, ItemGenjiShuriken.DEFLECT.setEntity(entity).setTicks((int) packet.x));
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks((int) packet.x));
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).
-								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null));
+								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null).setBoolean(true));
 					}
 					// Reinhardt's hammer swing
 					else if (packet.type == 5) {
@@ -955,6 +956,7 @@ public class SPacketSimple implements IMessage {
 						else {
 							// entity2 punched
 							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.interrupt(entity2);
 								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks((int) packet.x),
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),

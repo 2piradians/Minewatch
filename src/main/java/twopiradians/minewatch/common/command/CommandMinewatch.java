@@ -40,7 +40,8 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class CommandMinewatch implements ICommand {
 
 	private enum EnumFlag {
-		KILL_ITEMS("k", "killItems"), CLEAR_PLAYER_INVENTORIES("c", "clearPlayerInventories");
+		KILL_ITEMS("k", "killItems"), CLEAR_PLAYER_INVENTORIES("c", "clearPlayerInventories"),
+		IGNORE_CREATIVE("ic", "ignoreCreativePlayers"), IGNORE_SPECTATOR("is", "ignoreSpectatorPlayers");
 
 		public String shortName;
 		public String longName;
@@ -103,11 +104,13 @@ public class CommandMinewatch implements ICommand {
 		String flagUsage = "";
 		for (EnumFlag flag : EnumFlag.values())
 			flagUsage += " ["+flag.shortName+"|"+flag.longName+"]";
+		String f1 = TextFormatting.ITALIC+"";
+		String f2 = TextFormatting.RESET+""+TextFormatting.RED;
 		return "\n"
-		+ "/mw hero <hero> [target] \n"
-		+ "/mw teamSpawn <name> <activate|deactivate> \n"
-		+ "/mw reset"+flagUsage+"\n"
-		+ "/mw syncConfigToServer";
+		+ f1 + "/mw hero <hero|random> [target] "+ f2 + Minewatch.translate("command.hero.desc")+"\n"
+		+ f1 + "/mw syncConfigToServer "+ f2 + Minewatch.translate("command.sync.desc")+"\n"
+		+ f1 + "/mw teamSpawn <name> <activate|deactivate> "+ f2 + Minewatch.translate("command.team_spawn.desc")+"\n"
+		+ f1 + "/mw reset"+flagUsage+" "+ f2 + Minewatch.translate("command.reset.desc");
 	}
 
 	@Override
@@ -137,22 +140,7 @@ public class CommandMinewatch implements ICommand {
 				EntityLivingBase entity = args.length == 3 ? 
 						(EntityLivingBase)CommandBase.getEntity(server, sender, args[2], EntityLivingBase.class) :
 							CommandBase.getCommandSenderAsPlayer(sender);
-						if (!(entity instanceof EntityLivingBaseMW)) {
-							for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-								ItemStack stack = entity.getItemStackFromSlot(slot);
-								if (stack == null || stack.isEmpty() || stack.getItem() instanceof ItemMWArmor ||
-										stack.getItem() instanceof ItemMWWeapon)
-									entity.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
-											ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
-								else if (hero.getEquipment(slot) != null && entity instanceof EntityPlayer)
-									((EntityPlayer)entity).inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
-							}
-							sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.getFormattedName(false)+
-									(args.length == 3 ? " on "+entity.getName() : "")));
-							// sync inventory - needed for when called from GuiTab
-							if (sender instanceof EntityPlayerMP)
-								((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
-						}
+						equipWithHeroArmor(hero, entity, sender);
 			}
 			else
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
@@ -190,17 +178,24 @@ public class CommandMinewatch implements ICommand {
 					TickHandler.unregister(false, handler);
 					if (player instanceof EntityPlayerMP) {
 						Minewatch.network.sendTo(new SPacketSimple(65, player, false), (EntityPlayerMP) player);
-						Minewatch.logger.info("reset sending packet"); // TODO
 					}
 				}
 			}
-			
+
 			// kill and respawn
 			List<Entity> entities = Lists.newArrayList(sender.getEntityWorld().loadedEntityList); // copy to prevent concurrentModification
 			for (Entity entity : entities) {
 				// kill respawnable entities
 				if (RespawnManager.isRespawnableEntity(entity) || RespawnManager.isRespawnablePlayer(entity)) {
 					Handler handler = TickHandler.getHandler(entity, Identifier.DEAD);
+
+					// ignore creative
+					if (flags.contains(EnumFlag.IGNORE_CREATIVE) && entity instanceof EntityPlayer && ((EntityPlayer)entity).isCreative())
+						break;
+
+					// ignore spectator
+					if (flags.contains(EnumFlag.IGNORE_SPECTATOR) && entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator())
+						break;
 
 					// clear player inventories
 					if (entity instanceof EntityPlayer && flags.contains(EnumFlag.CLEAR_PLAYER_INVENTORIES)) {
@@ -238,6 +233,25 @@ public class CommandMinewatch implements ICommand {
 		}
 		else
 			throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+	}
+
+	public static void equipWithHeroArmor(EnumHero hero, EntityLivingBase entity, ICommandSender sender) {
+		if (!(entity instanceof EntityLivingBaseMW)) {
+			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack == null || stack.isEmpty() || stack.getItem() instanceof ItemMWArmor ||
+						stack.getItem() instanceof ItemMWWeapon)
+					entity.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? 
+							ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
+				else if (hero.getEquipment(slot) != null && entity instanceof EntityPlayer)
+					((EntityPlayer)entity).inventory.addItemStackToInventory(new ItemStack(hero.getEquipment(slot)));
+			}
+			sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+hero.getFormattedName(false)+
+					(sender != entity ? " on "+entity.getName() : "")));
+			// sync inventory - needed for when called from GuiTab
+			if (sender instanceof EntityPlayerMP)
+				((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
+		}		
 	}
 
 	@Override

@@ -5,6 +5,30 @@
 			"minewatch:gui_hover"
 		]
 	},
+	"gui_choose_hero": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_choose_hero"
+		]
+	},
+	"gui_select_hero": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_select_hero"
+		]
+	},
+	"gui_open": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_open"
+		]
+	},
+	"gui_close": {
+		"category": "player",
+		"sounds": [
+			"minewatch:gui_close"
+		]
+	},
 	"multikill_2": {
 		"category": "player",
 		"sounds": [

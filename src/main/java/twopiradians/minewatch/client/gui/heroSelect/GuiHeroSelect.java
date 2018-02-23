@@ -2,7 +2,6 @@ package twopiradians.minewatch.client.gui.heroSelect;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -14,14 +13,10 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.gui.IGuiScreen;
@@ -32,6 +27,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.EnumHero.Type;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
@@ -39,14 +35,12 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select.png");
 
-	public Screen currentScreen;
+	public Screen currentScreen = Screen.MAIN;
 	public List<String> hoverText;
 	private EnumHero selectedHero;
 	private EntityGuiPlayer guiPlayer;
 
 	public GuiHeroSelect() {
-		currentScreen = Screen.MAIN;
-		this.setSelectedHero(null);
 		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().world, Minecraft.getMinecraft().player.getGameProfile(), Minecraft.getMinecraft().player);
 	}
 
@@ -78,12 +72,12 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 				prevType = i == 14 ? Type.TANK : hero.type;
 				this.buttonList.add(new GuiButtonBase(prevType.ordinal(), (int) (x-bigBetweenX*0.7f), y+2, 19, 19, prevType.name(), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.HERO_TYPE));
 			}
-			this.buttonList.add(new GuiButtonBase(i, x, y, width, height, hero == null ? null : hero.getFormattedName(true), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setHero(hero).setNoSound());
+			this.buttonList.add(new GuiButtonBase(i, x, y, width, height, hero == null ? null : hero.getFormattedName(true), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setHero(hero).setNoSound().setUseHoverSound());
 		}
 
 		// other buttons
-		this.buttonList.add(new GuiButtonBase(100, this.width/2-50, y+(this.height-y+height)/2-10, 80, 20, Minewatch.translate("gui.hero_select.select"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setColor(new Color(0xFFB43D)));
-		this.buttonList.add(new GuiButtonBase(101, this.width-30, 10, 20, 20, "!", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setColor(new Color(0x9AE6FD)));
+		this.buttonList.add(new GuiButtonBase(100, this.width/2-50, y+(this.height-y+height)/2-10, 80, 20, Minewatch.translate("gui.hero_select.select"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setColor(new Color(0xFFB43D)).setNoSound().setUseHoverSound());
+		this.buttonList.add(new GuiButtonBase(101, this.width-30, 10, 20, 20, "!", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setColor(new Color(0x9AE6FD)).setUseHoverSound());
 		this.buttonList.add(new GuiButtonBase(102, this.width/2-50, y+(this.height-y+height)/2-10, 80, 20, Minewatch.translate("gui.team_block.button.ok"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.HERO_INFO).setColor(new Color(0x9AE6FD)));
 	}
 
@@ -168,8 +162,9 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 			this.setSelectedHero(EnumHero.ORDERED_HEROES.get(button.id));
 		switch (button.id) {
 		case 100: 
-			Minewatch.network.sendToServer(new CPacketSimple(11, "/mw hero "+this.getSelectedHero().name, mc.player)); // TODO do without perms and clear other items, sounds?
+			Minewatch.network.sendToServer(new CPacketSimple(18, mc.player, this.getSelectedHero().ordinal(), 0, 0));
 			Minecraft.getMinecraft().displayGuiScreen(null);
+			ModSoundEvents.GUI_CHOOSE_HERO.playFollowingSound(mc.player, 1, 1, false);
 			break;
 		case 101:
 			this.currentScreen = Screen.HERO_INFO;
@@ -210,6 +205,8 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
 					guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
 				guiPlayer.skin = hero.getSkin(Minecraft.getMinecraft().player.getPersistentID());
+				if (this.selectedHero != null)
+					ModSoundEvents.GUI_SELECT_HERO.playFollowingSound(mc.player, 1, 1, false);
 			}
 
 			this.selectedHero = hero;
@@ -219,6 +216,11 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 	@Override
 	public Screen getCurrentScreen() {
 		return currentScreen;
+	}
+
+	@Override
+	public void onGuiClosed() {
+		ModSoundEvents.GUI_CLOSE.playFollowingSound(mc.player, 1, 1, false);
 	}
 
 }

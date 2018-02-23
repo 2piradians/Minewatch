@@ -70,7 +70,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			if (entityLiving != null && entityLiving.getHeldItemMainhand() != null && 
 					entityLiving.getHeldItemMainhand().getItem() == EnumHero.DOOMFIST.weapon) {
 				EnumHero.DOOMFIST.weapon.setCurrentAmmo(entityLiving, EnumHero.DOOMFIST.weapon.getCurrentAmmo(entityLiving)+1, EnumHand.MAIN_HAND);
-				ModSoundEvents.DOOMFIST_RELOAD.playFollowingSound(entityLiving, 0.7f, player.world.rand.nextFloat()/2+0.75f, false);
+				ModSoundEvents.DOOMFIST_RELOAD.playFollowingSound(entityLiving, 0.7f, entityLiving.world.rand.nextFloat()/2+0.75f, false);
 			}
 			return super.onServerRemove();
 		}
@@ -120,12 +120,19 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				if (entity.onGround) {
 					if (entity.world.isRemote) { // particles
 						double yOffset = 0.05d;
-						IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector()));
-						if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) 
-							yOffset += state.getBoundingBox(entity.world, entity.getPosition()).maxY;
-						Vec3d vec = new Vec3d(player.posX, Math.floor(player.posY)+yOffset, player.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+						BlockPos pos = new BlockPos(entity.getPositionVector());
+						for (int i=0; i<5; ++i) {
+							IBlockState state = entity.world.getBlockState(pos);
+							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
+								yOffset += state.getBoundingBox(entity.world, pos).maxY;
+								Vec3d vec = new Vec3d(entity.posX, pos.getY()+yOffset, entity.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+								break;
+							}
+							else
+								pos = pos.down();
+						}
 					}
 					else { // damage
 						double yOffset = 0;
@@ -565,7 +572,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			EntityLivingBase player = (EntityLivingBase) entity;
 
 			// slam particle
-			if (world.isRemote && player.ticksExisted % 5 == 0 && !player.onGround)
+			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
+					player.ticksExisted % 5 == 0 && !player.onGround)
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_0, world, player, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 60, 60, 0, 0);
 
 			// animation
@@ -791,7 +799,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			//entity.limbSwingAmount = 0;
 			break;
 		case 1:
-			
+
 			break;
 		case 2:
 			model.bipedRightArmwear.rotateAngleX = -1.5f;

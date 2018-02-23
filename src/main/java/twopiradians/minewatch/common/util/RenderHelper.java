@@ -161,9 +161,6 @@ public class RenderHelper {
         GlStateManager.enableDepth();
         net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting();
         GlStateManager.enableRescaleNormal();
-        
-        // TODO
-       // System.out.println("y: "+y+", tooltipY: "+tooltipY);
 	}
 	
 }

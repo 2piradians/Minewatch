@@ -38,6 +38,8 @@ public class PacketSyncConfig implements IMessage {
 	private boolean allowMobRespawn;
 	private boolean allowPlayerRespawn;
 	private boolean mobRespawnRandomHero;
+	private int healChangeHero;
+	private boolean heroSelectClearMWItems;
 
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -80,6 +82,8 @@ public class PacketSyncConfig implements IMessage {
 		this.allowMobRespawn = Config.allowMobRespawn;
 		this.allowPlayerRespawn = Config.allowPlayerRespawn;
 		this.mobRespawnRandomHero = Config.mobRespawnRandomHero;
+		this.healChangeHero = Config.healChangeHero;
+		this.heroSelectClearMWItems = Config.heroSelectClearMWItems;
 
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
@@ -120,6 +124,8 @@ public class PacketSyncConfig implements IMessage {
 		this.allowMobRespawn = buf.readBoolean();
 		this.allowPlayerRespawn = buf.readBoolean();
 		this.mobRespawnRandomHero = buf.readBoolean();
+		this.healChangeHero = buf.readInt();
+		this.heroSelectClearMWItems = buf.readBoolean();
 
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
@@ -160,6 +166,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.allowMobRespawn);
 		buf.writeBoolean(this.allowPlayerRespawn);
 		buf.writeBoolean(this.mobRespawnRandomHero);
+		buf.writeInt(this.healChangeHero);
+		buf.writeBoolean(this.heroSelectClearMWItems);
 		
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
@@ -199,6 +207,8 @@ public class PacketSyncConfig implements IMessage {
 		Config.allowMobRespawn = this.allowMobRespawn;
 		Config.allowPlayerRespawn = this.allowPlayerRespawn;
 		Config.mobRespawnRandomHero = this.mobRespawnRandomHero;
+		Config.healChangeHero = this.healChangeHero;
+		Config.heroSelectClearMWItems = this.heroSelectClearMWItems;
 
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;

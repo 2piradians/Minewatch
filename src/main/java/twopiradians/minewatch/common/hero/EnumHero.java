@@ -21,6 +21,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -84,7 +86,7 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Wadjet", "Wadjet Ana", "MrStiv2", "https://www.planetminecraft.com/skin/wadjet-ana/"),
 			new Skin(Skin.Type.LEGENDARY, "Wasteland", "WasteLand Ana", "MrStiv2", "https://www.planetminecraft.com/skin/wasteland-ana/"),
 			new Skin(Skin.Type.LEGENDARY, "Corsair", "Ana [Corsair]", "MeoWero", "https://www.planetminecraft.com/skin/ana-corsair-4088406/")), 
-	GENJI("Genji", Type.OFFENSE, false, false, new Ability(KeyBind.ABILITY_2, true, false), 
+	GENJI("Genji", Type.OFFENSE, false, false, new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
 			24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, 0x95EF42, false, EntityGenji.class, 
@@ -463,6 +465,7 @@ public enum EnumHero {
 		return null;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public void displayInfoScreen(double width, double height) {
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
@@ -490,6 +493,7 @@ public enum EnumHero {
 		return name;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public static void displayPortrait(EnumHero hero, double x, double y, boolean useAlpha) {
 		Minecraft mc = Minecraft.getMinecraft();
 

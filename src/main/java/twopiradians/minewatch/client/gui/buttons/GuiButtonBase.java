@@ -22,6 +22,7 @@ import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamBlock;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.RenderHelper;
 
 public class GuiButtonBase extends GuiButton {
@@ -41,6 +42,8 @@ public class GuiButtonBase extends GuiButton {
 	public boolean noSound;
 	public Function<IGuiScreen, List<String>> hoverTextFuction;
 	public EnumHero hero;
+	public boolean prevHovered;
+	public boolean useHoverSound;
 
 	public GuiButtonBase(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, IGuiScreen gui) {
 		super(buttonId, x, y, widthIn, heightIn, buttonText);
@@ -79,6 +82,11 @@ public class GuiButtonBase extends GuiButton {
 		return this;
 	}
 
+	public GuiButtonBase setUseHoverSound() {
+		this.useHoverSound = true;
+		return this;
+	}
+
 	public GuiButtonBase setHoverTextPredicate(Function<IGuiScreen, List<String>> hoverTextFuction) {
 		this.hoverTextFuction = hoverTextFuction;
 		return this;
@@ -86,8 +94,8 @@ public class GuiButtonBase extends GuiButton {
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+		this.prevHovered = this.hovered;
 		this.visible = shouldBeVisible == null || shouldBeVisible.apply(gui);
-		this.hovered = this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
 		if (this.hovered && gui instanceof GuiTeamBlock) {
 			if (this.hoverTextFuction != null)
@@ -237,6 +245,9 @@ public class GuiButtonBase extends GuiButton {
 		}
 		this.height = actualHeight;
 		GlStateManager.popMatrix();
+
+		if (this.useHoverSound && this.hovered && !this.prevHovered)
+			ModSoundEvents.GUI_HOVER.playFollowingSound(mc.player, 0.5f, 1, false);
 	}
 
 	@Override

@@ -226,6 +226,10 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_COMPLETE,
 	SOMBRA_HACK_VOICE,
 	
+	GUI_CHOOSE_HERO,
+	GUI_SELECT_HERO,
+	GUI_OPEN,
+	GUI_CLOSE,
 	DOOMFIST_PUNCH_CHARGE_VOICE,
 	DOOMFIST_PUNCH_CHARGE,
 	DOOMFIST_PUNCH_DURING_VOICE,
@@ -283,6 +287,8 @@ public enum ModSoundEvents {
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
+		// debug
+		// Minewatch.logger.info(this.name());
 		return entity != null && this.shouldPlay(entity) ? Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat) : null;
 	}
 

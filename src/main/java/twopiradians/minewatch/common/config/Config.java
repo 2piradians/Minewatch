@@ -50,6 +50,7 @@ public class Config {
 	private static final String[] TRACK_KILLS_OPTIONS = new String[] {"For everything", "For players", "Never"};
 	private static final String[] SPAWN_OPTIONS = new String[] {"Always", "In darkness", "Never"};
 	private static final String[] SPAWN_FREQ_OPTIONS = new String[] {"Never", "Rarely", "Uncommonly", "Commonly"};
+	private static final String[] HEAL_CHANGE_HERO_OPTIONS = new String[] {"When active", "When active and with a team selected", "Always", "With a team selected", "Never"};
 
 	public static Configuration config;
 	public static boolean useObjModels;
@@ -80,6 +81,8 @@ public class Config {
 	public static boolean allowMobRespawn;
 	public static boolean allowPlayerRespawn;
 	public static boolean mobRespawnRandomHero;
+	public static int healChangeHero;
+	public static boolean heroSelectClearMWItems;
 
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
@@ -129,7 +132,8 @@ public class Config {
 
 	/**@param overriding - should config sync from the config fields*/
 	public static void syncConfig(boolean overriding) {		
-		// CLIENT-SIDE
+		// CLIENT-SIDE ======================================================================================
+		
 		Property prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models?");
 		useObjModels = prop.getBoolean();
 
@@ -158,7 +162,7 @@ public class Config {
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Render Outlines", true, "Should enemy heroes have a red outline?");
 		renderOutlines = prop.getBoolean();
 
-		// SERVER-SIDE (make sure all new options are synced with command)
+		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 
 		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent Fall Damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
 		if (overriding)
@@ -260,7 +264,7 @@ public class Config {
 		else
 			heroMobsDespawn = prop.getBoolean();
 
-		// Team Block options
+		// Team Block options ======================================================================================
 
 		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
 		if (overriding)
@@ -297,8 +301,22 @@ public class Config {
 			prop.set(mobRespawnRandomHero);
 		else
 			mobRespawnRandomHero = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Heal and Change Hero at Team Spawns", HEAL_CHANGE_HERO_OPTIONS[0], "Choose when Team Spawns should provide healing and allow players to change heroes within their radius.", HEAL_CHANGE_HERO_OPTIONS);
+		if (overriding)
+			prop.set(HEAL_CHANGE_HERO_OPTIONS[healChangeHero]);
+		else
+			for (int i=0; i<HEAL_CHANGE_HERO_OPTIONS.length; ++i)
+				if (prop.getString().equals(HEAL_CHANGE_HERO_OPTIONS[i]))
+					healChangeHero = i;
+		
+		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Selection Removes Minewatch Equipment", false, "Should selecting a hero in hero selection remove other Minewatch equipment from the player's inventory?");
+		if (overriding)
+			prop.set(heroSelectClearMWItems);
+		else
+			heroSelectClearMWItems = prop.getBoolean();
 
-		// Hero Mob options
+		// Hero Mob options ======================================================================================
 
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
 		if (overriding)
@@ -412,7 +430,7 @@ public class Config {
 	@SubscribeEvent
 	public void onJoinWorld(PlayerLoggedInEvent event) {
 		if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP &&
-				event.player.world.getMinecraftServer() != null && // TEST
+				event.player.world.getMinecraftServer() != null && 
 				!event.player.world.getMinecraftServer().isSinglePlayer()) {
 			Minewatch.logger.info("Sending config sync packet to: "+event.player.getName());
 			Minewatch.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);

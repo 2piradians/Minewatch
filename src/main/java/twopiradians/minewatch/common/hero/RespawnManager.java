@@ -60,7 +60,9 @@ public class RespawnManager {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			player.deathTime = -1;
+			// prevent screen shake / stutter
+			player.deathTime = 0;
+			player.setHealth(0.000001f);
 			// update fov once in a while bc it doesn't do it properly while spectating
 			if (this.ticksLeft % 20 == 0)
 				Minewatch.proxy.updateFOV();
@@ -116,7 +118,7 @@ public class RespawnManager {
 		public Handler onClientRemove() {
 			// if still alive, send another packet to server and wait
 			if (entity == Minewatch.proxy.getClientPlayer()) {
-				Minewatch.logger.info("entity still dead, sending another packet");
+				Minewatch.logger.info("entity still dead, sending another packet"); // TODO
 				Minewatch.network.sendToServer(new CPacketSimple(12, true, player));
 				this.ticksLeft = 10;
 				return null;
@@ -168,7 +170,6 @@ public class RespawnManager {
 				// move spawn to team spawn if possible
 				if (teamSpawn != null) 
 					player.setSpawnPoint(spawnFuzz(teamSpawn, player.world), true);
-				Minewatch.logger.info("respawn sending packet"); // TODO
 				player.connection.processClientStatus(new CPacketClientStatus(CPacketClientStatus.State.PERFORM_RESPAWN));
 				// move spawn back
 				if (teamSpawn != null) 
@@ -296,9 +297,7 @@ public class RespawnManager {
 			event.setGui(null);
 			EntityPlayer player = Minewatch.proxy.getClientPlayer();
 			if (player != null && player.isDead && !TickHandler.hasHandler(player, Identifier.DEAD)) {
-				Minewatch.logger.info("registering DEAD client");
 				Minewatch.network.sendToServer(new CPacketSimple(12, false, player));
-				Minewatch.logger.info("guiopenevent sending packet"); // TODO
 				TickHandler.register(true, RespawnManager.DEAD.setEntity(player).setTicks(Config.respawnTime+3).setString(player.getTeam() != null ? player.getTeam().getRegisteredName() : null));
 			}
 		}

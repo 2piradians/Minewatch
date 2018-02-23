@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.command.CommandMinewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
@@ -26,6 +27,7 @@ import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -272,9 +274,9 @@ public class CPacketSimple implements IMessage {
 					}
 					// player death screen
 					else if (packet.type == 12 && packetPlayer != null) {
+						Minewatch.logger.info("received packet: bool = "+packet.bool+", hasHandler = "+TickHandler.hasHandler(packetPlayer, Identifier.DEAD)+", alive = "+packetPlayer.isEntityAlive()+", health = "+packetPlayer.getHealth()+", respawnable = "+RespawnManager.isRespawnablePlayer(packetPlayer));
 						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive() && 
 								RespawnManager.isRespawnablePlayer(packetPlayer)) {
-							Minewatch.logger.info("registering DEAD server"); // TODO
 							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getRegisteredName() : null));
 						}
 					}
@@ -307,6 +309,17 @@ public class CPacketSimple implements IMessage {
 					// Set death spectating entity
 					else if (packet.type == 17 && packetPlayer instanceof EntityPlayerMP && entity != null) {
 						((EntityPlayerMP)packetPlayer).setSpectatingEntity(entity);
+					}
+					// change hero from Hero Select gui
+					else if (packet.type == 18 && TickHandler.hasHandler(packetPlayer, Identifier.TEAM_SPAWN_IN_RANGE) &&
+							packet.x >= 0 && packet.x < EnumHero.values().length) {
+						if (Config.heroSelectClearMWItems)
+							for (int i = 0; i < packetPlayer.inventory.getSizeInventory(); ++i) {
+								ItemStack stack = packetPlayer.inventory.getStackInSlot(i);
+								if (stack != null && (stack.getItem() instanceof ItemMWArmor || stack.getItem() instanceof ItemMWWeapon))
+									packetPlayer.inventory.removeStackFromSlot(i);
+							}
+						CommandMinewatch.equipWithHeroArmor(EnumHero.values()[(int) packet.x], packetPlayer, packetPlayer);
 					}
 				}
 			});

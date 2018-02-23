@@ -20,6 +20,7 @@ import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -68,6 +69,13 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 				this.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d3, d4, d5, 0.0D, 0.0D, 0.0D, new int[0]);
 				this.world.spawnParticle(EnumParticleTypes.FLAME, d3, d4, d5, 0.0D, 0.0D, 0.0D, new int[0]);
 			}
+		}
+
+		// effects
+		if ((Config.healChangeHero == 0 && this.isActivated()) ||
+				(Config.healChangeHero == 1 && this.isActivated() && this.getTeam() != null) ||
+				(Config.healChangeHero == 2) ||
+				(Config.healChangeHero == 3 && this.getTeam() != null)) {
 
 			// regeneration
 			if (!this.world.isRemote && this.ticksExisted % 10 == 0) 
@@ -78,15 +86,16 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam())))
 						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
 
-			// hero selection overlay TODO config
-			if (this.world.isRemote && this.ticksExisted % 10 == 0) 
+			// hero selection overlay
+			if (this.ticksExisted % 10 == 0) 
 				for (EntityPlayer player : world.playerEntities)
-					if (player == Minewatch.proxy.getClientPlayer() && player.isEntityAlive() && !player.isSpectator() &&
+					if ((!world.isRemote || player == Minewatch.proxy.getClientPlayer()) && player.isEntityAlive() && 
+							!player.isSpectator() &&
 					(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
 					player.getDistance(pos.getX(), pos.getY(), pos.getZ()) <= spawnRadius) {
 						Handler handler = TickHandler.getHandler(player, Identifier.TEAM_SPAWN_IN_RANGE);
 						if (handler == null)
-							TickHandler.register(true, IN_RANGE.setEntity(player).setTicks(12));
+							TickHandler.register(world.isRemote, IN_RANGE.setEntity(player).setTicks(12));
 						else
 							handler.ticksLeft = 12;
 					}

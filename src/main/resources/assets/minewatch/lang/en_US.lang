@@ -8,6 +8,11 @@ config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=Hero Mobs
 config.server-side.team_blocks=Team Blocks
 
+command.hero.desc=equips you/target with armor and weapon(s) for hero
+command.sync.desc=syncs your config to the server (in multiplayer)
+command.team_spawn.desc=activates/deactivates a Team Spawn
+command.reset.desc=the master command to “reset” Minewatch games, currently kills and respawns entities that can respawn at Team Spawns
+
 effect.frozen=Frozen
 
 tile.health_pack_small.name=Small Health Pack

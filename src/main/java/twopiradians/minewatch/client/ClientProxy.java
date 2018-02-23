@@ -87,7 +87,6 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
 import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
-import twopiradians.minewatch.client.render.tileentity.TileEntityTeamSpawnRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
@@ -135,6 +134,7 @@ import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
@@ -322,7 +322,6 @@ public class ClientProxy extends CommonProxy {
 		        }, block);
 		}
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeamSpawn.class, new TileEntityTeamSpawnRenderer());
 	}
 
 	@Override
@@ -529,6 +528,7 @@ public class ClientProxy extends CommonProxy {
 			break;
 		case HERO_SELECT:
 			Minecraft.getMinecraft().displayGuiScreen(new GuiHeroSelect());
+			ModSoundEvents.GUI_OPEN.playFollowingSound(getClientPlayer(), 1, 1, false);
 			break;
 		}
 	}

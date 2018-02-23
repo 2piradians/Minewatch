@@ -172,7 +172,7 @@ public class Ability {
 		for (Ability ability : ignoreAbilities)
 			if (handler != null && handler.ability == ability)
 				ignoreAbility = true;
-		if (handler != null && handler.ability != null && !handler.bool && !ignoreAbility)
+		if (handler != null && handler.ability != null && !handler.bool && !ignoreAbility) 
 			return this == handler.ability;
 
 		if (ret && player.world.isRemote)

@@ -6,11 +6,18 @@ config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=Hero Mobs
+config.server-side.team_blocks=Team Blocks
+
+command.hero.desc=equips you/target with armor and weapon(s) for hero
+command.sync.desc=syncs your config to the server (in multiplayer)
+command.team_spawn.desc=activates/deactivates a Team Spawn
+command.reset.desc=the master command to “reset” Minewatch games, currently kills and respawns entities that can respawn at Team Spawns
 
 effect.frozen=Frozen
 
 tile.health_pack_small.name=Small Health Pack
 tile.health_pack_large.name=Large Health Pack
+tile.team_spawn.name=Team Spawn
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick
@@ -65,12 +72,12 @@ item.mccree_leggings.name=McCree Leggings
 item.mccree_boots.name=McCree Boots
 item.mccree_weapon.name=McCree's Peacekeeper
 
-item.soldier76_token.name=Soldier 76 Token
-item.soldier76_helmet.name=Soldier 76 Helmet
-item.soldier76_chestplate.name=Soldier 76 Chestplate
-item.soldier76_leggings.name=Soldier 76 Leggings
-item.soldier76_boots.name=Soldier 76 Boots
-item.soldier76_weapon.name=Soldier 76's Pulse Rifle
+item.soldier76_token.name=Soldier: 76 Token
+item.soldier76_helmet.name=Soldier: 76 Helmet
+item.soldier76_chestplate.name=Soldier: 76 Chestplate
+item.soldier76_leggings.name=Soldier: 76 Leggings
+item.soldier76_boots.name=Soldier: 76 Boots
+item.soldier76_weapon.name=Soldier: 76's Pulse Rifle
 
 item.mei_token.name=Mei Token
 item.mei_helmet.name=Mei Helmet
@@ -116,12 +123,12 @@ item.sombra_boots.name=Sombra Boots
 item.sombra_weapon.name=Sombra's Machine Pistol
 item.sombra_hack.name=Sombra's Hack
 
-item.lucio_token.name=Lucio Token
-item.lucio_helmet.name=Lucio Helmet
-item.lucio_chestplate.name=Lucio Chestplate
-item.lucio_leggings.name=Lucio Leggings
-item.lucio_boots.name=Lucio Boots
-item.lucio_weapon.name=Lucio's Sound Amplifier
+item.lucio_token.name=Lúcio Token
+item.lucio_helmet.name=Lúcio Helmet
+item.lucio_chestplate.name=Lúcio Chestplate
+item.lucio_leggings.name=Lúcio Leggings
+item.lucio_boots.name=Lúcio Boots
+item.lucio_weapon.name=Lúcio's Sound Amplifier
 
 item.zenyatta_token.name=Zenyatta Token
 item.zenyatta_helmet.name=Zenyatta Helmet
@@ -136,6 +143,13 @@ item.moira_chestplate.name=Moira Chestplate
 item.moira_leggings.name=Moira Leggings
 item.moira_boots.name=Moira Boots
 item.moira_weapon.name=Moira's Biotic Grasp
+
+item.doomfist_token.name=Doomfist Token
+item.doomfist_helmet.name=Doomfist Helmet
+item.doomfist_chestplate.name=Doomfist Chestplate
+item.doomfist_leggings.name=Doomfist Leggings
+item.doomfist_boots.name=Doomfist Boots
+item.doomfist_weapon.name=Doomfist's Gauntlet
 
 entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
@@ -182,10 +196,47 @@ entity.sombra_bullet.name=Sombra Bullet
 entity.sombra_translocator.name=Sombra Translocator
 entity.reinhardt_hero.name=Reinhardt
 entity.reinhardt_strike.name=Reinhardt Fire Strike
-entity.lucio_hero.name=Lucio
-entity.lucio_sonic.name=Lucio Sonic Projectile
+entity.lucio_hero.name=Lúcio
+entity.lucio_sonic.name=Lúcio Sonic Projectile
 entity.zenyatta_hero.name=Zenyatta
 entity.zenyatta_orb.name=Zenyatta Orb of Destruction
 entity.moira_hero.name=Moira
 entity.moira_heal_energy.name=Moira Heal Energy
 entity.moira_orb.name=Moira Biotic Orb
+entity.doomfist_hero.name=Doomfist
+entity.doomfist_bullet.name=Doomfist Bullet
+
+command.reset.success=Minewatch game reset by a moderator.
+command.reset.unrecognized_flags=Unrecognized flag(s)
+
+overlay.eliminated_by=you were eliminated by
+overlay.assist=assist
+overlay.eliminated=eliminated
+overlay.death_spectating=you are now death spectating
+overlay.respawn_in=respawn in
+overlay.change_hero=Press %s to change hero
+
+gui.team_block.button.name=Name
+gui.team_block.button.name.desc=This name is used by commands
+gui.team_block.button.activate_deactivate=Activate / Deactivate
+gui.team_block.button.activate=Activate
+gui.team_block.button.deactivate=Deactivate
+gui.team_block.button.selected_team=Selected Team
+gui.team_block.button.video_demonstration=Video Demonstration
+gui.team_block.button.ok=OK
+
+gui.team_spawn.button.spawn_radius=Radius
+gui.team_spawn.button.spawn_radius.desc=The radius around this block that players and mobs can spawn, be healed, and access hero selection
+gui.team_spawn.button.activate_deactivate.desc=Players and mobs will spawn at their team's active Team Spawn
+gui.team_spawn.button.activate.desc=Only one Team Spawn can be active at a time, per team, per world
+gui.team_spawn.button.deactivate.desc=Only one Team Spawn can be active at a time, per team, per world
+gui.team_spawn.button.selected_team.desc=Choose the team that will respawn here
+gui.team_spawn.question_mark_description_0=Players and mobs will spawn at their team's active Team Spawn. They spawn facing the direction of the arrow.
+gui.team_spawn.question_mark_description_1=Team Spawn blocks can be activated/deactivated with a command, as well:
+gui.team_spawn.status.players_heroes_team=Players and mobs in
+gui.team_spawn.status.players_heroes_all=All players and mobs (that are on a team)
+gui.team_spawn.status.players_heroes_none=Nothing
+gui.team_spawn.status.will_spawn=will spawn here
+
+gui.hero_select.select=Select
+gui.hero_select.select_hero=Select a hero

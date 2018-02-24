@@ -8,7 +8,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -68,10 +66,6 @@ public class ModItems {
 
 			// other items
 			team_stick = registerItem(event.getRegistry(), new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);
-
-			// item blocks
-			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackSmall), ModBlocks.healthPackSmall.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
-			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackLarge), ModBlocks.healthPackLarge.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 		}
 	}
 

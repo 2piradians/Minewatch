@@ -72,8 +72,7 @@ public class GuiWildCard extends GuiScreen {
 		// hover text
 		for (GuiButton button : this.buttonList) 
 			if (button.isMouseOver() && button instanceof GuiButtonWildCard) {
-				String name = ((GuiButtonWildCard)button).hero.equals(EnumHero.SOLDIER76) ? "Soldier: 76" :
-					((GuiButtonWildCard)button).hero.name;
+				String name = ((GuiButtonWildCard)button).hero.getFormattedName(false);
 				this.drawHoveringText(new ArrayList<String>() {{add(name);}}, 
 						button.x-mc.fontRenderer.getStringWidth(name)/2+4, button.y+51);
 				break;

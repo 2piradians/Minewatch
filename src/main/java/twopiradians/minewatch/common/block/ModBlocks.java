@@ -10,7 +10,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
+import twopiradians.minewatch.common.block.teamBlocks.BlockTeamSpawn;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 
 
 public class ModBlocks {
@@ -19,6 +21,7 @@ public class ModBlocks {
 
 	public static Block healthPackSmall;
 	public static Block healthPackLarge;
+	public static Block teamSpawn;
 
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
@@ -27,6 +30,7 @@ public class ModBlocks {
 		public static void registerBlocks(RegistryEvent.Register<Block> event) {
 			healthPackSmall = registerBlock(event.getRegistry(), new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true, true);
 			healthPackLarge = registerBlock(event.getRegistry(), new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true, true);
+			teamSpawn = registerBlock(event.getRegistry(), new BlockTeamSpawn(), "team_spawn", TileEntityTeamSpawn.class, true, true);
 		}
 	}
 
@@ -38,4 +42,5 @@ public class ModBlocks {
 		allBlocks.add(block);
 		return block;
 	}
+
 }

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -36,6 +36,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 		if (i == 2) {
 			HashMap<String, String> map = Maps.newHashMap();
 			map.put("#material", new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red").toString());
+			//1.12 return model.retexture(ImmutableMap.copyOf(map));
 			return model.retexture(ImmutableMap.copyOf(map));
 		}
 		else

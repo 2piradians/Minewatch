@@ -32,7 +32,7 @@ public class TickHandler {
 
 	/**Identifiers used in getHandler()*/
 	public enum Identifier {
-		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN, ANA_GRENADE_DAMAGE, ANA_GRENADE_HEAL, TRACER_RECALL, INVULNERABLE, WIDOWMAKER_HOOK, TRACER_RECOLOR, REINHARDT_CHARGE, FORCE_VIEW, SOMBRA_HACK, SOMBRA_HACKED;
+		NONE, REAPER_TELEPORT, GENJI_DEFLECT, GENJI_STRIKE, GENJI_SWORD, MCCREE_ROLL, MERCY_NOT_REGENING, WEAPON_WARNING, HANZO_SONIC, POTION_FROZEN, POTION_DELAY, ABILITY_USING, PREVENT_ROTATION, PREVENT_MOVEMENT, PREVENT_INPUT, ABILITY_MULTI_COOLDOWNS, REAPER_WRAITH, ANA_SLEEP, ACTIVE_HAND, KEYBIND_ABILITY_NOT_READY, KEYBIND_ABILITY_1, KEYBIND_ABILITY_2, KEYBIND_RMB, HERO_SNEAKING, HERO_MESSAGES, HIT_OVERLAY, KILL_OVERLAY, HERO_MULTIKILL, MERCY_ANGEL, HERO_DAMAGE_TIMER, ANA_DAMAGE, JUNKRAT_TRAP, SOMBRA_INVISIBLE, WIDOWMAKER_POISON, SOMBRA_TELEPORT, BASTION_TURRET, MEI_CRYSTAL, REINHARDT_STRIKE, SOMBRA_OPPORTUNIST, WEAPON_COOLDOWN, LUCIO_SONIC, KEYBIND_LMB, KEYBIND_HERO_INFO, KEYBIND_ULTIMATE, KEYBIND_JUMP, KEYBIND_RELOAD, KEYBIND_FOV, LUCIO_AMP, VOICE_COOLDOWN, ZENYATTA_VOLLEY, ZENYATTA_HARMONY, ZENYATTA_DISCORD, HEALTH_PARTICLES, MEI_ICICLE, GENJI_SHURIKEN, WEAPON_CHARGE, MOIRA_HEAL, MOIRA_ORB, MOIRA_FADE, MOIRA_DAMAGE, GLOWING, MOIRA_ORB_SELECT, MCCREE_FAN, ANA_GRENADE_DAMAGE, ANA_GRENADE_HEAL, TRACER_RECALL, INVULNERABLE, WIDOWMAKER_HOOK, TRACER_RECOLOR, REINHARDT_CHARGE, FORCE_VIEW, SOMBRA_HACK, SOMBRA_HACKED, DOOMFIST_RELOAD, DOOMFIST_PUNCH, DOOMFIST_PUNCHED, DOOMFIST_UPPERCUTTING, DOOMFIST_UPPERCUT, DOOMFIST_SLAM, DEAD, TEAM_BLOCK_WARNING_COOLDOWN, TEAM_SPAWN_IN_RANGE, DOOMFIST_PUNCH_ANIMATIONS;
 	}
 
 	private static CopyOnWriteArrayList<Handler> clientHandlers = new CopyOnWriteArrayList<Handler>();
@@ -241,6 +241,7 @@ public class TickHandler {
 		@Nullable
 		public String string;
 		public Boolean bool = false;
+		public boolean allowDead = false;
 
 		public Handler(boolean interruptible) {
 			this(Identifier.NONE, interruptible);
@@ -254,12 +255,12 @@ public class TickHandler {
 		/**Called every tick on client, returns whether the handler should be removed afterwards*/
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
+			return --ticksLeft <= 0 || (!allowDead && entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called every tick on server, returns whether the handler should be removed afterwards*/
 		public boolean onServerTick() {
-			return --ticksLeft <= 0 || (entity != null && !entity.isEntityAlive());
+			return --ticksLeft <= 0 || (!allowDead && entity != null && !entity.isEntityAlive());
 		}
 
 		/**Called before the handler is removed*/
@@ -310,9 +311,11 @@ public class TickHandler {
 					(number == 0 ? "" : ", "+number);
 		}
 
-		/**Assumed that this is always called and is called before .setBool, to properly reset it*/
+		/**Assumed that this is always called and is called before other .set methods, to properly reset them*/
 		public Handler setEntity(Entity entity) {
+			this.allowDead = false;
 			this.bool = false;
+			
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
 				this.entityLiving = (EntityLivingBase) entity;
@@ -355,6 +358,11 @@ public class TickHandler {
 			this.number = number;
 			return this;
 		}
+		
+		public Handler setNumber2(double number) {
+			this.number2 = number;
+			return this;
+		}
 
 		public Handler setString(String string) {
 			this.string = string;
@@ -363,6 +371,11 @@ public class TickHandler {
 
 		public Handler setBoolean(Boolean bool) {
 			this.bool = bool;
+			return this;
+		}
+		
+		public Handler setAllowDead(boolean allowDead) {
+			this.allowDead = allowDead;
 			return this;
 		}
 

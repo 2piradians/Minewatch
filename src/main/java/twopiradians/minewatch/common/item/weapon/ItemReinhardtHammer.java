@@ -58,7 +58,6 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			if (this.ticksLeft <= this.initialTicks-14) {
 				((EntityLivingBase)entity).moveStrafing = 0;
 				((EntityLivingBase)entity).moveForward = 0;
-				//TODO check friction
 				entity.moveRelative(0, 0, 1, 1);
 				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d);
 				entity.motionX = motion.x;
@@ -70,7 +69,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(1d).offset(look);
 					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
 						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
-						target instanceof EntityLivingBase && 
+						target instanceof EntityLivingBase && ((EntityLivingBase)entity).canEntityBeSeen(target) &&
 						EntityHelper.attemptDamage(entity, target, 50, true)) {
 							hitEntities.add((EntityLivingBase) target);
 							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
@@ -104,7 +103,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					// check for wall impact
 					float pitch = this.entity.rotationPitch;
 					this.entity.rotationPitch = 0;
-					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).offset(this.entity.getLookVec().scale(1));
+					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).offset(this.entity.getLookVec().scale(1)).offset(0, 0.1d, 0);
 					this.entity.rotationPitch = pitch;
 					if (this.entity.world.collidesWithAnyBlock(aabb)) {
 						this.ticksLeft = 1;

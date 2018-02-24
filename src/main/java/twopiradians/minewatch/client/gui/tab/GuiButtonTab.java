@@ -78,7 +78,7 @@ public class GuiButtonTab extends GuiButton {
 		
 			// select button hover text
 			if (this.hovered && this.displayString.equalsIgnoreCase("SELECT") && GuiTab.galleryHero != null) {
-				GuiTab.activeTab.drawHoveringText(new ArrayList<String>() {{add("Equips you with the armor and weapon(s) for "+GuiTab.galleryHero.name);}}, mouseX, mouseY);
+				GuiTab.activeTab.drawHoveringText(new ArrayList<String>() {{add("Equips you with the armor and weapon(s) for "+GuiTab.galleryHero.getFormattedName(false));}}, mouseX, mouseY);
 			}
 		}
 

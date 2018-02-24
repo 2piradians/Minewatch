@@ -16,15 +16,19 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -45,6 +49,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	private EnumParticle enumParticle;
 	private float verticalAdjust;
 	private float horizontalAdjust;
+	private float distance;
 	private EnumHand hand;
 	@Nullable
 	private EnumFacing facing;
@@ -79,11 +84,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.setParticleTexture(sprite);
 	}
 
-	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
 		this(enumParticle, world, 0, 0, 0, 0, 0, 0, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, 0, null, false);
 		this.hand = hand;
 		this.verticalAdjust = verticalAdjust;
 		this.horizontalAdjust = horizontalAdjust;
+		this.distance = distance;
 		this.followEntity = followEntity;
 		this.followEntity();
 		this.prevPosX = this.posX;
@@ -91,8 +97,12 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		this.prevPosZ = this.posZ;
 	}
 
+	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust, 1);
+	}
+
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
-		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0);
+		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0, 0);
 	}
 
 	@Override
@@ -136,6 +146,10 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 
 	public void followEntity() {
 		if (this.followEntity != null) {
+			// update ticksExisted for keeping onePerEntity particle alive
+			if (this.enumParticle.onePerEntity)
+				this.enumParticle.particleEntities.put(this.followEntity.getPersistentID(), this.followEntity.ticksExisted);
+
 			EntityPlayer player = Minecraft.getMinecraft().player;
 			if (this.enumParticle.equals(EnumParticle.HEALTH) && followEntity instanceof EntityLivingBase) {
 				if (followEntity.isDead || ((EntityLivingBase) followEntity).getHealth() >= ((EntityLivingBase) followEntity).getMaxHealth()/2f ||
@@ -202,11 +216,30 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
-				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust);
+				Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) followEntity, rotations.x, rotations.y, hand, verticalAdjust, horizontalAdjust, distance);
 				this.setPosition(vec.x, vec.y, vec.z);
 				this.prevPosX = this.posX;
 				this.prevPosY = this.posY;
 				this.prevPosZ = this.posZ;
+			}
+			else if (this.enumParticle == EnumParticle.DOOMFIST_SLAM_0 && followEntity instanceof EntityLivingBase) {
+				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);
+				this.facing = EnumFacing.UP;
+				this.particleAngle = (rotations.y + 90f) / 180f;
+				this.prevParticleAngle = this.particleAngle;
+				int model = ((ItemDoomfistWeapon)EnumHero.DOOMFIST.weapon).getModel((EntityLivingBase) followEntity);
+				RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) followEntity, 30, rotations.x, rotations.y);
+				if (EnumHero.DOOMFIST.ability2.keybind.getCooldown((EntityLivingBase) followEntity) <= 0 && result != null && result.sideHit == EnumFacing.UP && !followEntity.onGround && 
+						(model == 0 || model == 3) && EntityHelper.isHoldingItem((EntityLivingBase) followEntity, EnumHero.DOOMFIST.weapon, EnumHand.MAIN_HAND) &&
+						SetManager.getWornSet(followEntity) == EnumHero.DOOMFIST) {
+					Vec3d vec = result.hitVec.add(EntityHelper.getLook(0, rotations.y).scale(4d));
+					this.setPosition(vec.x, vec.y+0.05d, vec.z);
+					this.prevPosX = this.posX;
+					this.prevPosY = this.posY;
+					this.prevPosZ = this.posZ;
+				}
+				else
+					this.setExpired();
 			}
 			else
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height/2d, this.followEntity.posZ);
@@ -219,6 +252,26 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			}
 			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityMoiraOrb) {
 				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
+			}
+			else if (this.enumParticle == EnumParticle.DOOMFIST_PUNCH_3) {
+				boolean first = followEntity == Minewatch.proxy.getClientPlayer() && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;
+				float charge = ItemDoomfistWeapon.getCharge((EntityLivingBase) followEntity);
+				if (charge >= 0) {
+					this.particleAlpha = first ? charge : charge/2f;
+					this.verticalAdjust = first ? 5 : 20;
+					this.horizontalAdjust = first ? 1 : 0.35f;
+					this.distance = first ? 1 : 0.8f;
+					this.finalScale = 6;
+				}
+				else if (TickHandler.hasHandler(followEntity, Identifier.DOOMFIST_PUNCH)) {
+					this.particleAlpha = first ? 1 : 0.8f;
+					this.verticalAdjust = first ? 0 : 20;
+					this.horizontalAdjust = first ? 0.5f : 0.4f;
+					this.distance = first ? 1 : 1f;
+					this.finalScale = 3;
+				}
+				else 
+					this.particleAlpha = 0;
 			}
 
 			if (!this.followEntity.isEntityAlive() || TickHandler.hasHandler(followEntity, Identifier.MOIRA_FADE) || 
@@ -258,6 +311,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		GlStateManager.enableBlend();
 		if (this.particleTexture != null && !renderOnBlocks) {
+			// update muzzle every render so it's always rendered accurately
+			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0 || this.enumParticle == EnumParticle.DOOMFIST_SLAM_0) && 
+					followEntity instanceof EntityLivingBase)
+				this.followEntity();
+
 			// face a direction on an axis
 			if (facing != null) {
 				float pitch = 0, yaw = 0;
@@ -286,10 +344,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				rotationX *= 1f - (float) this.particleAge / this.particleMaxAge;
 				rotationZ *= MathHelper.cos(entityIn.ticksExisted/50f);
 			}
-
-			// update muzzle every render so it's always rendered accurately
-			if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase)
-				this.followEntity();
 
 			float f = this.particleTexture.getMinU();
 			float f1 = this.particleTexture.getMaxU();
@@ -323,7 +377,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			int k = i & 65535;
 			Vec3d[] avec3d = new Vec3d[] {new Vec3d((double)(-rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(-rotationYZ * f4 - rotationXZ * f4)), new Vec3d((double)(-rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(-rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 + rotationXY * f4), (double)(rotationZ * f4), (double)(rotationYZ * f4 + rotationXZ * f4)), new Vec3d((double)(rotationX * f4 - rotationXY * f4), (double)(-rotationZ * f4), (double)(rotationYZ * f4 - rotationXZ * f4))};
 
-			if (this.particleAngle != 0.0F) {
+			if (this.particleAngle != 0.0F && facing == null) {
 				float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
 				float f9 = MathHelper.cos(f8 * 0.5F);
 				float f10 = MathHelper.sin(f8 * 0.5F) * (facing == null ? (float)cameraViewDir.x : 0);

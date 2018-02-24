@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -17,16 +18,24 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.command.CommandMinewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
+import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.ItemMWToken;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tileentity.TileEntityTeam;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class CPacketSimple implements IMessage {
 
@@ -262,6 +271,53 @@ public class CPacketSimple implements IMessage {
 					// GuiTab select hero
 					else if (packet.type == 11 && packetPlayer != null && packetPlayer.world.getMinecraftServer() != null) {
 						packetPlayer.world.getMinecraftServer().commandManager.executeCommand(packetPlayer, packet.string);
+					}
+					// player death screen
+					else if (packet.type == 12 && packetPlayer != null) {
+						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive()) {
+							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getName() : null));
+						}
+					}
+					// GuiTeamBlock set team
+					else if (packet.type == 13 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						Team team = packetPlayer.world.getScoreboard().getTeam(packet.string);
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setTeam(team);
+					}
+					// GuiTeamBlock set team
+					else if (packet.type == 14 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						if (te.isValidName(packet.string))
+							te.setName(packet.string);
+					}
+					// GuiTeamBlock activate/deactivate
+					else if (packet.type == 15 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeam) {
+						TileEntityTeam te = (TileEntityTeam) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setActivated(packet.bool);
+					}
+					// GuiTeamSpawn increase/decrease spawnRadius
+					else if (packet.type == 16 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
+						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setSpawnRadius(packet.bool ? te.getSpawnRadius()+1 : te.getSpawnRadius()-1);
+					}
+					// Set death spectating entity
+					else if (packet.type == 17 && packetPlayer instanceof EntityPlayerMP && entity != null) {
+						((EntityPlayerMP)packetPlayer).setSpectatingEntity(entity);
+					}
+					// change hero from Hero Select gui
+					else if (packet.type == 18 && TickHandler.hasHandler(packetPlayer, Identifier.TEAM_SPAWN_IN_RANGE) &&
+							packet.x >= 0 && packet.x < EnumHero.values().length) {
+						if (Config.heroSelectClearMWItems)
+							for (int i = 0; i < packetPlayer.inventory.getSizeInventory(); ++i) {
+								ItemStack stack = packetPlayer.inventory.getStackInSlot(i);
+								if (stack != null && (stack.getItem() instanceof ItemMWArmor || stack.getItem() instanceof ItemMWWeapon))
+									packetPlayer.inventory.removeStackFromSlot(i);
+							}
+						CommandMinewatch.equipWithHeroArmor(EnumHero.values()[(int) packet.x], packetPlayer, packetPlayer);
 					}
 				}
 			});

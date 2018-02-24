@@ -13,7 +13,6 @@ import org.lwjgl.input.Mouse;
 import com.google.common.base.Predicate;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,7 +21,6 @@ import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
@@ -32,15 +30,16 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSelector;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 @SideOnly(Side.CLIENT)
-public class GuiTeamStick extends GuiScreen {
+public class GuiTeamStick extends GuiTeamSelector {
 
 	public enum Screen {
 		MAIN, INFO, EDIT_TEAM, CREATE_TEAM, QUESTION_MARK;
@@ -76,13 +75,11 @@ public class GuiTeamStick extends GuiScreen {
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/team_stick.png");
 
 	public Screen currentScreen;
-	private Team selectedTeam;
 	public GuiScrollingTeams scrollingTeams;
 	public GuiScrollingTeamEntities scrollingTeamEntities;
 	public GuiScrollingFindEntities scrollingFindEntities;
 	public ArrayList<EntityLivingBase> entitiesTeam = new ArrayList<EntityLivingBase>();
 	public ArrayList<EntityLivingBase> entitiesFind = new ArrayList<EntityLivingBase>();
-	public ArrayList<Team> teams = new ArrayList<Team>();
 	public TextFormatting selectedColor;
 	public GuiTextField teamNameField;
 	private String teamWaitingFor;
@@ -96,12 +93,7 @@ public class GuiTeamStick extends GuiScreen {
 		selectedColor = TextFormatting.WHITE;
 		filter = Filter.ENTITIES;
 	}
-
-	@Override
-	public boolean doesGuiPauseGame() {
-		return false;
-	}
-
+	
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -258,7 +250,7 @@ public class GuiTeamStick extends GuiScreen {
 
 				String text = TextFormatting.DARK_GRAY.toString()+TextFormatting.ITALIC+
 						"Add or remove nearby "+filter.name.toLowerCase()+" using the left and right sidebars, respectively.\n\n"
-						+ "Or click on entities with the Team Stick to assign or remove teams.";
+						+ "Or click on entities/Team blocks with the Team Stick to assign or remove teams.";
 				int y = guiTop+8;
 				for (String s : mc.fontRenderer.listFormattedStringToWidth(text, X_SIZE-16)) {
 					mc.fontRenderer.drawString(s, guiLeft+8, y, 0xFFFFFF);
@@ -266,7 +258,7 @@ public class GuiTeamStick extends GuiScreen {
 				}
 
 				RenderHelper.enableGUIStandardItemLighting();
-				this.itemRender.renderItemIntoGUI(getStack(), stackX, stackY);
+				this.itemRender.renderItemIntoGUI(getStack(), stackX, stackY+3);
 				GlStateManager.disableLighting();
 
 			}
@@ -446,20 +438,7 @@ public class GuiTeamStick extends GuiScreen {
 			Minewatch.network.sendToServer(new CPacketSimple(9, this.getSelectedTeam().getName(), mc.player, this.teamNameField.getText()));
 	}
 
-	public String getTeamName(Team team) {
-		if (team instanceof ScorePlayerTeam)
-			return ((ScorePlayerTeam)team).getDisplayName();
-		else if (team != null)
-			return team.getName();
-		else
-			return "";
-	}
-
-	@Nullable
-	public Team getSelectedTeam() {
-		return selectedTeam;
-	}
-
+	@Override
 	public void setSelectedTeam(@Nullable Team team) {
 		setSelectedTeam(team, true);
 	}
@@ -491,7 +470,7 @@ public class GuiTeamStick extends GuiScreen {
 		entitiesFind = new ArrayList<EntityLivingBase>(mc.world.getEntities(filter.filter, new Predicate<EntityLivingBase>() {
 			@Override
 			public boolean apply(EntityLivingBase entity) {
-				return entity.getTeam() == null || !entity.getTeam().isSameTeam(selectedTeam) && !(entity instanceof EntityLivingBaseMW);
+				return (entity.getTeam() == null || !entity.getTeam().isSameTeam(selectedTeam)) && !EntityHelper.shouldIgnoreEntity(entity);
 			}}));
 		entitiesFind.sort(new Comparator<EntityLivingBase>() {
 			@Override
@@ -502,7 +481,7 @@ public class GuiTeamStick extends GuiScreen {
 		entitiesTeam = new ArrayList<EntityLivingBase>(mc.world.getEntities(filter.filter, new Predicate<EntityLivingBase>() {
 			@Override
 			public boolean apply(EntityLivingBase entity) {
-				return entity.getTeam() != null && entity.getTeam().isSameTeam(selectedTeam) && !(entity instanceof EntityLivingBaseMW);
+				return entity.getTeam() != null && entity.getTeam().isSameTeam(selectedTeam) && !EntityHelper.shouldIgnoreEntity(entity);
 			}}));
 		entitiesTeam.sort(new Comparator<EntityLivingBase>() {
 			@Override

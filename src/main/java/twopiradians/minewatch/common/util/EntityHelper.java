@@ -28,6 +28,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
@@ -196,7 +197,7 @@ public class EntityHelper {
 			z = look.z;
 		}
 
-		entity.setPositionAndUpdate(vec.x, vec.y, vec.z); 
+		entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
 
 		// send velocity to server/client
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
@@ -284,10 +285,12 @@ public class EntityHelper {
 			target = Minewatch.proxy.getClientPlayer();
 		entity = getThrower(entity);
 		target = getThrower(target);
+		Team entityTeam = getTeam(entity);
+		Team targetTeam = getTeam(target);
 
 		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
 		if (entity instanceof EntityHero && target != null && 
-				!(friendly && entity.getTeam() != null && entity.getTeam().isSameTeam(target.getTeam())) &&
+				!(friendly && entityTeam != null && entityTeam == targetTeam) &&
 				!(friendly && entity == target) && 
 				((target instanceof EntityPlayer && Config.mobTargetPlayers == friendly) ||
 						(target.isCreatureType(EnumCreatureType.MONSTER, false) && Config.mobTargetHostiles == friendly && !(target instanceof EntityPlayer) && !(target instanceof EntityHero)) ||
@@ -303,11 +306,24 @@ public class EntityHelper {
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		// prevent healing mobs not on team with config option disabled
-		if (!Config.healMobs && friendly && target != null && entity != null && (target.getTeam() == null || target.getTeam() != entity.getTeam()))
+		if (!Config.healMobs && friendly && target != null && entity != null && (targetTeam == null || targetTeam != entityTeam))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
-				(entity.getTeam() == null || target.getTeam() == null || 
-				entity.isOnSameTeam(target) == friendly);
+				(entityTeam == null || targetTeam == null || 
+				(entityTeam == targetTeam) == friendly);
+	}
+	
+	/**Get an entity's team - namely for getting a dead entity's team (since they are technically removed from team on death)*/
+	@Nullable
+	public static Team getTeam(Entity entity) {
+		if (entity == null)
+			return null;
+		else if (entity.isEntityAlive() || entity.getTeam() != null)
+			return entity.getTeam();
+		else if (entity.getEntityData().hasKey("minewatch:team"))
+			return entity.world.getScoreboard().getTeam(entity.getEntityData().getString("minewatch:team"));
+		else
+			return null;
 	}
 
 	/**Attempts do damage with falloff returns true if successful on server*/
@@ -363,16 +379,22 @@ public class EntityHelper {
 		}
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
 		Entity actualThrower = getThrower(thrower);
 		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
 		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
 	}
 
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true, source);
 	}
@@ -396,11 +418,11 @@ public class EntityHelper {
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				}
 				else
-					damaged = entityHit.attackEntityFrom(source, damage*Config.damageScale);
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
 
 				if (damaged && ignoreHurtResist)
 						entityHit.hurtResistantTime = prevHurtResist;
@@ -418,7 +440,7 @@ public class EntityHelper {
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
 				damage *= 2f;
-			entity.heal(Math.abs(damage*Config.damageScale));
+			entity.heal((float) Math.abs(damage*Config.damageScale));
 			spawnHealParticles(entity);
 		}
 	}
@@ -611,6 +633,11 @@ public class EntityHelper {
 	}
 
 	/**Returns if e1 is with maxAngle degrees of looking at e2*/
+	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle, float yaw, float pitch){
+		return getMaxFieldOfVisionAngle(e1, e2, yaw, pitch) <= maxAngle;
+	}
+
+	/**Returns if e1 is with maxAngle degrees of looking at e2*/
 	public static boolean isInFieldOfVision(Entity e1, Entity e2, float maxAngle){
 		return getMaxFieldOfVisionAngle(e1, e2) <= maxAngle;
 	}
@@ -625,6 +652,13 @@ public class EntityHelper {
 		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
 		return getDirectLookAngles(e1EyePos,  
 				getClosestPointOnBoundingBox(getPositionEyes(e1), e1.getLook(1), e2));
+	}
+
+	/**Returns angles if e1 was directly facing e2*/
+	public static Vector2f getDirectLookAngles(Entity e1, Entity e2, float yaw, float pitch) {
+		Vec3d e1EyePos = EntityHelper.getEntityPartialPos(e1).addVector(0, e1.getEyeHeight(), 0);
+		return getDirectLookAngles(e1EyePos,  
+				getClosestPointOnBoundingBox(getPositionEyes(e1), EntityHelper.getLook(pitch, yaw), e2));
 	}
 
 	/**Returns angles if e1 was directly facing e2*/
@@ -654,14 +688,23 @@ public class EntityHelper {
 			if (intercept != null) {
 				//RenderManager.boundingBoxesToRender.add(aabb);
 				//closest = intercept.hitVec;
-				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.x, closest.y, closest.z, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 1, 1, 1, 0, 0);
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.x, closest.y, closest.z, 0, 0, 0, 0xFF0000, 0xFF0000, 1, 100, 1, 1, 0, 0);
 				closest = intercept.hitVec.subtract(getCenter(aabb)).scale(1/(scale+1)).add(getCenter(aabb));
-				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.x, closest.y, closest.z, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 1, 1, 1, 0, 0);
+				//Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, e2.world, closest.x, closest.y, closest.z, 0, 0, 0, 0x00FF00, 0x00FF00, 1, 100, 1, 1, 0, 0);
 				break;
 			}
 		}
 
 		return closest;
+	}
+
+	/**Returns maxAngle degrees between e1's look and e2*/
+	public static float getMaxFieldOfVisionAngle(Entity e1, Entity e2, float yaw, float pitch){
+		Vector2f facing = getDirectLookAngles(e1, e2, yaw, pitch);
+		// calculate difference between facing and current angles
+		float deltaYaw = Math.abs(MathHelper.wrapDegrees(yaw - facing.x));
+		float deltaPitch = Math.abs(pitch-facing.y);
+		return Math.max(deltaYaw, deltaPitch);
 	}
 
 	/**Returns maxAngle degrees between e1's look and e2*/
@@ -804,7 +847,8 @@ public class EntityHelper {
 		return Vec3d.ZERO;
 	}
 
-	/**Get exact entity rotations - accounting for partial ticks and lastTickPos*/
+	/**Get exact entity rotations - accounting for partial ticks and lastTickPos
+	 * new Vector2f(pitch, yaw)*/
 	public static Vector2f getEntityPartialRotations(Entity entity) {
 		if (entity != null) {
 			float partialTicks = Minewatch.proxy.getRenderPartialTicks();
@@ -820,6 +864,9 @@ public class EntityHelper {
 
 	/**Change entity's velocity to bounce off the side hit*/
 	public static void bounce(Entity entity, EnumFacing sideHit, double min, double scalar) {
+		if (sideHit == null) 
+			return; 
+
 		switch(sideHit) {
 		case DOWN:
 			entity.motionY = -Math.max(Math.abs(entity.motionY * scalar), min);
@@ -937,6 +984,22 @@ public class EntityHelper {
 	/**Returns entity's name*/
 	public static String getName(Entity entity) {
 		return entity == null ? "" : entity.getName().equalsIgnoreCase("entity.zombie.name") ? "Zombie Villager" : entity.getName();
+	}
+
+	/**Checks if there is 2 blocks of non-collidable blocks above pos*/
+	public static boolean isValidTeleportLocation(BlockPos pos, World world) {
+		IBlockState down = world.getBlockState(pos.down());
+		IBlockState equal = world.getBlockState(pos);
+		IBlockState up = world.getBlockState(pos.up());
+		// valid spot found
+		return down.getMaterial().blocksMovement() && 
+				(world.isAirBlock(pos) || equal.getCollisionBoundingBox(world, pos) == null) &&
+				(world.isAirBlock(pos.up()) || up.getCollisionBoundingBox(world, pos.up()) == null);
+	}
+
+	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
+	public static boolean shouldIgnoreEntity(Entity entity) {
+		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand;
 	}
 
 }

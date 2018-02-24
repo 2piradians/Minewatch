@@ -20,7 +20,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean projectilesCauseKnockback;
 	private int tokenDropRate;
 	private int wildCardRate;
-	private float damageScale;
+	private double damageScale;
 	private int durabilityOptionsArmor;
 	private int durabilityOptionsWeapons;
 	private boolean healMobs;
@@ -29,8 +29,19 @@ public class PacketSyncConfig implements IMessage {
 	private double ammoMultiplier;
 	private boolean tokenDropRequiresPlayer;
 	private double abilityCooldownMultiplier;
-	private float aimAssist;
+	private double aimAssist;
+	private boolean deleteItemsOnGround;
 
+	private boolean customDeathScreen;
+	private int respawnTime;
+	private boolean allowHeroRespawn;
+	private boolean allowMobRespawn;
+	private boolean allowPlayerRespawn;
+	private boolean mobRespawnRandomHero;
+	private int healChangeHero;
+	private boolean heroSelectClearMWItems;
+
+	private boolean heroMobsDespawn;
 	private boolean mobRandomSkins;
 	private int mobSpawn;
 	private int mobSpawnFreq;
@@ -40,11 +51,15 @@ public class PacketSyncConfig implements IMessage {
 	private boolean mobTargetHeroes;
 	private int mobTokenDropRate;
 	private int mobWildCardDropRate;
-	private float mobEquipmentDropRate;
+	private double mobEquipmentDropRate;
 	private double mobAttackCooldown;
 	private double mobInaccuracy;
 
 	public PacketSyncConfig() {
+		// read values from config now that it's about to be sent to server
+		Config.syncConfig();
+		Config.config.save();
+
 		this.preventFallDamage = Config.preventFallDamage;
 		this.allowGunWarnings = Config.allowGunWarnings;
 		this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
@@ -60,7 +75,18 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = Config.tokenDropRequiresPlayer;
 		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 		this.aimAssist = Config.aimAssist;
+		this.deleteItemsOnGround = Config.deleteItemsOnGround;
 
+		this.customDeathScreen = Config.customDeathScreen;
+		this.respawnTime = Config.respawnTime;
+		this.allowHeroRespawn = Config.allowHeroRespawn;
+		this.allowMobRespawn = Config.allowMobRespawn;
+		this.allowPlayerRespawn = Config.allowPlayerRespawn;
+		this.mobRespawnRandomHero = Config.mobRespawnRandomHero;
+		this.healChangeHero = Config.healChangeHero;
+		this.heroSelectClearMWItems = Config.heroSelectClearMWItems;
+
+		this.heroMobsDespawn = Config.heroMobsDespawn;
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
 		this.mobSpawnFreq = Config.mobSpawnFreq;
@@ -82,7 +108,7 @@ public class PacketSyncConfig implements IMessage {
 		this.projectilesCauseKnockback = buf.readBoolean();
 		this.tokenDropRate = buf.readInt();
 		this.wildCardRate = buf.readInt();
-		this.damageScale = buf.readFloat();
+		this.damageScale = buf.readDouble();
 		this.durabilityOptionsArmor = buf.readInt();
 		this.durabilityOptionsWeapons = buf.readInt();
 		this.healMobs = buf.readBoolean();
@@ -91,8 +117,19 @@ public class PacketSyncConfig implements IMessage {
 		this.ammoMultiplier = buf.readDouble();
 		this.tokenDropRequiresPlayer = buf.readBoolean();
 		this.abilityCooldownMultiplier = buf.readDouble();
-		this.aimAssist = buf.readFloat();
+		this.aimAssist = buf.readDouble();
+		this.deleteItemsOnGround = buf.readBoolean();
 
+		this.customDeathScreen = buf.readBoolean();
+		this.respawnTime = buf.readInt();
+		this.allowHeroRespawn = buf.readBoolean();
+		this.allowMobRespawn = buf.readBoolean();
+		this.allowPlayerRespawn = buf.readBoolean();
+		this.mobRespawnRandomHero = buf.readBoolean();
+		this.healChangeHero = buf.readInt();
+		this.heroSelectClearMWItems = buf.readBoolean();
+
+		this.heroMobsDespawn = buf.readBoolean();
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
 		this.mobSpawnFreq = buf.readInt();
@@ -102,7 +139,7 @@ public class PacketSyncConfig implements IMessage {
 		this.mobTargetHeroes = buf.readBoolean();
 		this.mobTokenDropRate = buf.readInt();
 		this.mobWildCardDropRate = buf.readInt();
-		this.mobEquipmentDropRate = buf.readFloat();
+		this.mobEquipmentDropRate = buf.readDouble();
 		this.mobAttackCooldown = buf.readDouble();
 		this.mobInaccuracy = buf.readDouble();
 	}
@@ -114,7 +151,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.projectilesCauseKnockback);
 		buf.writeInt(this.tokenDropRate);
 		buf.writeInt(this.wildCardRate);
-		buf.writeFloat(this.damageScale);
+		buf.writeDouble(this.damageScale);
 		buf.writeInt(this.durabilityOptionsArmor);
 		buf.writeInt(this.durabilityOptionsWeapons);
 		buf.writeBoolean(this.healMobs);
@@ -123,8 +160,19 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.ammoMultiplier);
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
 		buf.writeDouble(this.abilityCooldownMultiplier);
-		buf.writeFloat(this.aimAssist);
+		buf.writeDouble(this.aimAssist);
+		buf.writeBoolean(this.deleteItemsOnGround);
 
+		buf.writeBoolean(this.customDeathScreen);
+		buf.writeInt(this.respawnTime);
+		buf.writeBoolean(this.allowHeroRespawn);
+		buf.writeBoolean(this.allowMobRespawn);
+		buf.writeBoolean(this.allowPlayerRespawn);
+		buf.writeBoolean(this.mobRespawnRandomHero);
+		buf.writeInt(this.healChangeHero);
+		buf.writeBoolean(this.heroSelectClearMWItems);
+
+		buf.writeBoolean(this.heroMobsDespawn);
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
 		buf.writeInt(this.mobSpawnFreq);
@@ -134,7 +182,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.mobTargetHeroes);
 		buf.writeInt(this.mobTokenDropRate);
 		buf.writeInt(this.mobWildCardDropRate);
-		buf.writeFloat(this.mobEquipmentDropRate);
+		buf.writeDouble(this.mobEquipmentDropRate);
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
 	}
@@ -155,7 +203,18 @@ public class PacketSyncConfig implements IMessage {
 		Config.tokenDropRequiresPlayer = this.tokenDropRequiresPlayer;
 		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 		Config.aimAssist = this.aimAssist;
+		Config.deleteItemsOnGround = this.deleteItemsOnGround;
 
+		Config.customDeathScreen = this.customDeathScreen;
+		Config.respawnTime = this.respawnTime;
+		Config.allowHeroRespawn = this.allowHeroRespawn;
+		Config.allowMobRespawn = this.allowMobRespawn;
+		Config.allowPlayerRespawn = this.allowPlayerRespawn;
+		Config.mobRespawnRandomHero = this.mobRespawnRandomHero;
+		Config.healChangeHero = this.healChangeHero;
+		Config.heroSelectClearMWItems = this.heroSelectClearMWItems;
+
+		Config.heroMobsDespawn = this.heroMobsDespawn;
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;
 		Config.mobSpawnFreq = this.mobSpawnFreq;
@@ -169,7 +228,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.mobAttackCooldown = this.mobAttackCooldown;
 		Config.mobInaccuracy = this.mobInaccuracy;
 
-		Config.syncConfig(true);
+		Config.syncConfig(true, false);
 		Config.config.save();
 	}
 

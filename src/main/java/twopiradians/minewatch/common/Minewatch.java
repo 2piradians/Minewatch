@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -22,8 +23,8 @@ import twopiradians.minewatch.creativetab.MapMakingTab;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
 //PORT both - search for scala library
-// 1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
-// 1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
+//1.10.2: en_US.lang - change entity.blah.name -> entity.minewatch.blah.name
+//1.12.1: add ", acceptedMinecraftVersions="[1.12,1.13)" to @Mod
 
 //Regex: starting with ~819 errors, File Name Patterns: "!Minewatch.java", do in this order
 //1.10.2: 
@@ -37,15 +38,30 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //\.sendMessage\( -> .addChatMessage (fixes ~17 errors)
 
 //1.12:
-//.addCoord( -> .expand(
 //.expand( -> .grow(
+//.addCoord( -> .expand(
 //.move( -> .offset(
+//fontRendererObj -> fontRenderer
+//drawButton(Minecraft mc, int mouseX, int mouseY) -> drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+//xPosition -> x
+//yPosition -> y
+//xCoord -> x
+//yCoord -> y
+//zCoord -> z
+//VertexBuffer -> BufferBuilder
+//TEAMS getChatFormat -> getColor
+//TEAMS getTooltip(mc.player, false) -> getTooltip(mc.player, TooltipFlags.NORMAL)
+//TEAMS getRegisteredName() -> getName()
+//TEAMS getTeamName() -> getDisplayName()
+//addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) -> addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag)
+
+@SuppressWarnings("deprecation")
 @Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json", acceptedMinecraftVersions="[1.12,1.13)")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.9.2";
+    public static final String VERSION = "3.10";
     @Mod.Instance(MODID)
     public static Minewatch instance;
     public static MinewatchTab tabMinewatch = new MinewatchTab("tabMinewatch");
@@ -77,6 +93,10 @@ public class Minewatch {
 		event.registerServerCommand(new CommandMinewatch());
 		event.registerServerCommand(new CommandDev());
 		RankManager.lookUpRanks();
+	}
+	
+	public static String translate(String str) {
+		return I18n.translateToLocal(str);
 	}
 
 }

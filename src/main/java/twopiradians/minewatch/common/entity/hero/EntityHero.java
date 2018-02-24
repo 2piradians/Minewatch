@@ -56,8 +56,8 @@ public class EntityHero extends EntityMob {
 			if (Config.mobRandomSkins && !worldIn.isRemote)
 				this.getDataManager().set(SKIN, this.rand.nextInt(this.hero.skinInfo.length));
 		}
-		Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
-		Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
+		Arrays.fill(this.inventoryArmorDropChances, (float) Config.mobEquipmentDropRate);
+		Arrays.fill(this.inventoryHandsDropChances, (float) Config.mobEquipmentDropRate);
 	}
 
 	@Override
@@ -107,8 +107,8 @@ public class EntityHero extends EntityMob {
 
 		// set drop chances
 		if (this.inventoryArmorDropChances[0] != Config.mobEquipmentDropRate) {
-			Arrays.fill(this.inventoryArmorDropChances, Config.mobEquipmentDropRate);
-			Arrays.fill(this.inventoryHandsDropChances, Config.mobEquipmentDropRate);
+			Arrays.fill(this.inventoryArmorDropChances, (float) Config.mobEquipmentDropRate);
+			Arrays.fill(this.inventoryHandsDropChances, (float) Config.mobEquipmentDropRate);
 		}
 
 		// stop doing things when dead
@@ -148,6 +148,16 @@ public class EntityHero extends EntityMob {
 		try {
 			EnumHero hero = EnumHero.values()[this.rand.nextInt(EnumHero.values().length)];
 			EntityHero heroMob = (EntityHero) hero.heroClass.getConstructor(World.class).newInstance(this.world);
+			NBTTagCompound nbt = this.serializeNBT();
+			nbt.removeTag("UUID");
+			nbt.removeTag("UUIDMost");
+			nbt.removeTag("UUIDLeast");
+			nbt.removeTag("skin");
+			heroMob.readFromNBT(nbt);
+			if (this.getTeam() != null)
+				world.getScoreboard().addPlayerToTeam(heroMob.getCachedUniqueIdString(), this.getTeam().getName());
+			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) 
+				heroMob.setItemStackToSlot(slot, ItemStack.EMPTY);
 			heroMob.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
 			heroMob.setNoAI(this.isAIDisabled());
 			if (this.hasCustomName()) {
@@ -194,6 +204,11 @@ public class EntityHero extends EntityMob {
 			return super.attackEntityFrom(source, amount);
 	}
 
+	@Override
+	protected boolean canDespawn() {
+		return Config.heroMobsDespawn || this.getTeam() == null;
+	}
+
 	/**Overridden to make public for ItemMWArmor genji double jump*/
 	@Override
 	public void jump() {
@@ -214,11 +229,11 @@ public class EntityHero extends EntityMob {
 		if (compound.hasKey("skin") && compound.getInteger("skin") >= 0)
 			this.getDataManager().set(SKIN, compound.getInteger("skin"));
 	}
-	
+
 	public void lookAtTarget(EntityLivingBase target, float lookYOffset) {
 		lookAtTarget(new Vec3d(target.prevPosX, target.prevPosY+target.getEyeHeight()+lookYOffset, target.prevPosZ));
 	}
-	
+
 	public void lookAtTarget(Vec3d target) {
 		if (!TickHandler.hasHandler(this, Identifier.GENJI_STRIKE) && !TickHandler.hasHandler(this, Identifier.PREVENT_ROTATION)) 
 			this.getLookHelper().setLookPosition(target.x, target.y, target.z, 360, 360);

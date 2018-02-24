@@ -2,6 +2,8 @@ package twopiradians.minewatch.packet;
 
 import java.util.UUID;
 
+import javax.vecmath.Vector2f;
+
 import org.apache.commons.lang3.tuple.Triple;
 
 import io.netty.buffer.ByteBuf;
@@ -53,6 +55,7 @@ import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
+import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -122,6 +125,10 @@ public class SPacketSimple implements IMessage {
 
 	public SPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, null);
+	}
+
+	public SPacketSimple(int type, Entity entity, boolean bool, Entity entity2, double x, double y, double z) {
+		this(type, bool, null, x, y, z, entity, entity2);
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player) {
@@ -288,20 +295,21 @@ public class SPacketSimple implements IMessage {
 					}
 					// Genji's strike
 					else if (packet.type == 3 && entity != null) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.GENJI_DEFLECT));
 						TickHandler.register(true, ItemGenjiShuriken.STRIKE.setEntity(entity).setTicks(8),
 								ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks(8),
-								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2), 
+								Ability.ABILITY_USING.setEntity(entity).setTicks(8).setAbility(EnumHero.GENJI.ability2).setBoolean(true), 
 								RenderManager.SNEAKING.setEntity(entity).setTicks(9));
 						if (entity == player) 
 							move(player, 1.8d, false, true);
 					}
-					// Genji's use sword
+					// Genji's deflect
 					else if (packet.type == 4 && entity != null) {
 						if (packet.bool)
 							TickHandler.register(true, ItemGenjiShuriken.DEFLECT.setEntity(entity).setTicks((int) packet.x));
 						TickHandler.register(true, ItemGenjiShuriken.SWORD_CLIENT.setEntity(entity).setTicks((int) packet.x));
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).
-								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null));
+								setAbility(packet.bool ? EnumHero.GENJI.ability1 : null).setBoolean(true));
 					}
 					// Reinhardt's hammer swing
 					else if (packet.type == 5) {
@@ -376,15 +384,15 @@ public class SPacketSimple implements IMessage {
 						String string = null;
 						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
-							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+"YOU WERE ELIMINATED BY "+
-									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+
+							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
-							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? "ASSIST " : "ELIMINATED ") +
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.
-								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).setBoolean(packet.bool).
-								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1));
+								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).
+								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
@@ -911,8 +919,10 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 59 && entity == player) {
 						player.prevRotationYaw = player.rotationYaw;
 						player.prevRotationPitch = player.rotationPitch;
-						player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
-						player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
+						player.rotationYaw = (float) packet.x;
+						player.rotationPitch = (float) packet.y;
+						//player.rotationYaw = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.x), MathHelper.wrapDegrees(player.rotationYaw-1), MathHelper.wrapDegrees(player.rotationYaw+1)));
+						//player.rotationPitch = (float) MathHelper.wrapDegrees(MathHelper.clamp(MathHelper.wrapDegrees(packet.y), MathHelper.wrapDegrees(player.rotationPitch-1), MathHelper.wrapDegrees(player.rotationPitch+1)));
 					}
 					// Ranks
 					else if (packet.type == 60) {
@@ -934,6 +944,73 @@ public class SPacketSimple implements IMessage {
 								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
 							}
 						}
+					}
+					// Doomfist's punch
+					else if (packet.type == 62 && entity != null) {
+						if (packet.bool) {
+							TickHandler.register(true, ItemDoomfistWeapon.PUNCH.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks((int) packet.x),
+									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks((int) packet.x));
+							if (entity == player)
+								TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.DOOMFIST.ability1));
+						}
+						else {
+							// entity2 punched
+							if (entity2 instanceof EntityLivingBase) {
+								TickHandler.interrupt(entity2);
+								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks((int) packet.x),
+										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
+										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),
+										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z));
+								TickHandler.register(true, ItemDoomfistWeapon.PUNCH_ANIMATIONS.setEntity(entity).setTicks(5));
+								Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
+								Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 0, 0.5f, 1);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFD9B2, 0xE8C4A2, 1f, 4, 10, 15, 0, 0);
+								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_PUNCH_3, entity.world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.7f, 4, 10, 15, 0, 0);
+							}
+							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
+									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
+							if (entity == player)
+								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
+						}
+					}
+					// Doomfist's uppercut
+					else if (packet.type == 63 && entity != null) {
+						if (packet.bool) {
+							// entity2 hit by uppercut
+							if (entity2 instanceof EntityLivingBase) {
+								entity2.motionX += entity.motionX*2f;
+								entity2.motionZ += entity.motionZ*2f;
+								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUT.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+							}
+							else
+								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUTTING.setEntity(entity).setTicks((int) packet.x),
+										Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.DOOMFIST.ability3));
+						}
+					}
+					// Doomfist's slam
+					else if (packet.type == 64 && entity != null) {
+						// entity2 hit by slam
+						if (entity2 instanceof EntityLivingBase) {
+							//TickHandler.register(true, ItemDoomfistWeapon.SLAM.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+						}
+						else {
+							TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.DOOMFIST_UPPERCUTTING));
+							TickHandler.register(true, ItemDoomfistWeapon.SLAM.setEntity(entity).setTicks(10).setPosition(new Vec3d(packet.x, packet.y, packet.z)).setNumber2(entity.posY),
+									Ability.ABILITY_USING.setEntity(entity).setTicks(50).setAbility(EnumHero.DOOMFIST.ability2));
+						}
+					}
+					// cancel dead handler
+					else if (packet.type == 65 && entity != null)
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DEAD));
+					// doomfist charge punch
+					else if (packet.type == 66 && entity instanceof EntityLivingBase) {
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.DOOMFIST_PUNCH_3, entity.world, (EntityLivingBase) entity, 0xFFFFFF, 0xDDDDFF, 1, EnumHero.DOOMFIST.weapon.getMaxItemUseDuration(((EntityLivingBase)entity).getHeldItemMainhand())+8, 4, 6, entity.world.rand.nextFloat()*2f, 0.01f, EnumHand.MAIN_HAND, 5, 1);
+						((EntityLivingBase) entity).setActiveHand(EnumHand.MAIN_HAND);
+					}
+					// doomfist slam
+					else if (packet.type == 67 && entity != null) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
 					}
 				}
 			});

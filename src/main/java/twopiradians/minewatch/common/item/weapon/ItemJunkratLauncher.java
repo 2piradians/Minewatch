@@ -21,6 +21,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 
 	public ItemJunkratLauncher() {
 		super(30);
+		this.noVerticalAimAssist = true;
 	}
 
 	@Override
@@ -76,6 +77,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 							TickHandler.getHandler(((EntityJunkratTrap)hero.ability1.entities.get(player)).trappedEntity, Identifier.JUNKRAT_TRAP));
 					Minewatch.network.sendToDimension(new SPacketSimple(26, hero.ability1.entities.get(player), false), world.provider.getDimension());
 					hero.ability1.entities.get(player).isDead = true;
+					//hero.ability1.entities.get(player).setDead();
 				}
 				hero.ability1.entities.put(player, trap);
 				ModSoundEvents.JUNKRAT_TRAP_PLACED_VOICE.playFollowingSound(player, 1, 1, false);

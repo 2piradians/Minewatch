@@ -50,9 +50,9 @@ public class ItemMWArmor extends ItemArmor {
 
 	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
-	public static ModelMWArmor maleModel;
+	private static ModelMWArmor maleModel;
 	@SideOnly(Side.CLIENT)
-	public static ModelMWArmor femaleModel;
+	private static ModelMWArmor femaleModel;
 	private ArrayList<EntityLivingBase> playersJumped = new ArrayList<EntityLivingBase>(); // Genji double jump
 	private ArrayList<EntityLivingBase> playersHovering = new ArrayList<EntityLivingBase>(); // Mercy hover
 	private HashMap<EntityLivingBase, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
@@ -65,6 +65,17 @@ public class ItemMWArmor extends ItemArmor {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		this.hero = hero;
 	}
+	
+	/**Gets the model for an entity (either male or female model) - creates the models if null*/
+	@SideOnly(Side.CLIENT)
+	public ModelMWArmor getModel(Entity entity) {
+		// create models if null
+		if (maleModel == null || femaleModel == null) {
+			maleModel = new ModelMWArmor(0, false);
+			femaleModel = new ModelMWArmor(0, true);
+		}
+		return hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero || entity instanceof EntityArmorStand) ? femaleModel : maleModel;
+	}
 
 	@Override
 	@Nullable
@@ -73,12 +84,7 @@ public class ItemMWArmor extends ItemArmor {
 		// keep track of classes with armor
 		if (entity != null && !classesWithArmor.contains(entity.getClass()))
 			classesWithArmor.add(entity.getClass());
-		// create models if null
-		if (maleModel == null || femaleModel == null) {
-			maleModel = new ModelMWArmor(0, false);
-			femaleModel = new ModelMWArmor(0, true);
-		}
-		ModelMWArmor ret = hero.smallArms && (entity instanceof AbstractClientPlayer || entity instanceof EntityHero || entity instanceof EntityArmorStand) ? femaleModel : maleModel;
+		ModelMWArmor ret = getModel(entity);
 		ret.slot = slot;
 		// set arms to be visible after rendering (so held items are rendered in the correct places)
 		if (entity instanceof EntityLivingBase && 
@@ -98,15 +104,16 @@ public class ItemMWArmor extends ItemArmor {
 	@Nullable
 	@SideOnly(Side.CLIENT)
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
+		ModelMWArmor model = getModel(entity);
 		// show layers
 		if (slot == EntityEquipmentSlot.CHEST) {
-			(hero.smallArms ? femaleModel : maleModel).bipedBodyWear.showModel = true;
-			(hero.smallArms ? femaleModel : maleModel).bipedLeftArmwear.showModel = true;
-			(hero.smallArms ? femaleModel : maleModel).bipedRightArmwear.showModel = true;
+			model.bipedBodyWear.showModel = true;
+			model.bipedLeftArmwear.showModel = true;
+			model.bipedRightArmwear.showModel = true;
 		}
 		else if (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET) {
-			(hero.smallArms ? femaleModel : maleModel).bipedLeftLegwear.showModel = true;
-			(hero.smallArms ? femaleModel : maleModel).bipedRightLegwear.showModel = true;
+			model.bipedLeftLegwear.showModel = true;
+			model.bipedRightLegwear.showModel = true;
 		}
 
 		int skin = entity instanceof EntityHero ? entity.getDataManager().get(EntityHero.SKIN) : 
@@ -117,8 +124,6 @@ public class ItemMWArmor extends ItemArmor {
 			return Minewatch.MODID+":textures/models/armor/"+hero.name.toLowerCase()+"_"+skin+"_layer_"+
 			(slot == EntityEquipmentSlot.LEGS ? 2 : 1)+".png";
 	}
-
-	
 
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -145,13 +150,12 @@ public class ItemMWArmor extends ItemArmor {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
 
-	/**Delete dev spawned dropped items*/
+	/**Delete dev spawned dropped items and if config option enabled*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		// delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
 		if (!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null && 
-				entityItem.getItem().hasTagCompound() && 
-				entityItem.getItem().getTagCompound().hasKey("devSpawned")) {
+				(Config.deleteItemsOnGround || (entityItem.getItem().hasTagCompound() && 
+						entityItem.getItem().getTagCompound().hasKey("devSpawned")))) {
 			entityItem.setDead();
 			return true;
 		}

@@ -219,18 +219,20 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 
 			// deflect
 			if (isSelected && !world.isRemote && hero.ability1.isSelected(player) && 
-					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+					this.canUse(player, true, EnumHand.MAIN_HAND, true) && 
+					!TickHandler.hasHandler(player, Identifier.GENJI_DEFLECT)) {
 				if (player instanceof EntityHero)
 					SPacketSimple.move(player, 1.8d, false, true);
 				Minewatch.network.sendToDimension(new SPacketSimple(4, player, true, 40, 0, 0), world.provider.getDimension());
 				TickHandler.register(false, DEFLECT.setEntity(player).setTicks(40));
-				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1));
+				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(40).setAbility(hero.ability1).setBoolean(true));
 				ModSoundEvents.GENJI_DEFLECT.playFollowingSound(entity, 1, 1, false);
 			}
 
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
+				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.GENJI_DEFLECT));
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
 				Minewatch.network.sendToDimension(new SPacketSimple(3, (EntityLivingBase) entity, true), world.provider.getDimension());

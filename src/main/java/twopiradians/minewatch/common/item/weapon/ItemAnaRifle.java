@@ -247,7 +247,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 
-	//PORT 1.10.2 correct scope scale
+	//PORT correct scope scale
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {

@@ -132,7 +132,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 		}
 
 		@Override
-		public java.util.Optional<TRSRTransformation> apply(java.util.Optional<? extends IModelPart> part) {
+		public Optional<TRSRTransformation> apply(Optional<? extends IModelPart> part) {
 
 			if(part.isPresent()) {
 				// This whole thing is subject to change, but should do for now.

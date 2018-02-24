@@ -30,7 +30,7 @@ public class EntitySoldier76Bullet extends EntityMW {
 	
 	@Override
 	public void spawnTrailParticles() {
-		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 1, 1, 1);
+		EntityHelper.spawnTrailParticles(this, 5, 0.05d, 0x5EDCE5, 0x007acc, 0.6f, 1, 1);
 	}
 
 	@Override

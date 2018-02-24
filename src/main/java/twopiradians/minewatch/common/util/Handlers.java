@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -39,7 +40,7 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (this.entity != null && !this.entity.isGlowing())
+			if (this.entity != null && !this.entity.isGlowing() && !(entity instanceof EntityLivingBaseMW))
 				this.entity.setGlowing(true);
 
 			return super.onClientTick();
@@ -222,7 +223,7 @@ public class Handlers {
 				entity.motionX = 0;
 				entity.motionZ = 0;
 			}
-			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionY = player != null && !bool && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -243,7 +244,7 @@ public class Handlers {
 				entity.motionX = 0;
 				entity.motionZ = 0;
 			}
-			entity.motionY = player != null && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
+			entity.motionY = player != null && !bool && (entity.isInWater() || entity.isInLava()) ? 0.05d : Math.min(0, entity.motionY);
 			entity.motionY = Math.min(0, entity.motionY);
 			if (entityLiving != null) {
 				this.entityLiving.moveForward = 0;
@@ -291,7 +292,7 @@ public class Handlers {
 				player.motionX = 0;
 				player.motionZ = 0;
 			}
-			player.motionY = player != null && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
+			player.motionY = player != null && !handler.bool && (player.isInWater() || player.isInLava()) ? 0.05d : Math.min(0, player.motionY);
 			player.motionY = Math.min(0, player.motionY);
 		}
 	}

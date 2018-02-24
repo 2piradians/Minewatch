@@ -81,7 +81,7 @@ public class BakedMWItem extends OBJBakedModel {
 				for (BakedQuad quad : ret)
 					if (!quad.hasTintIndex() && stack != null && (!(stack.getItem() instanceof IChangingModel) ||
 					((IChangingModel)stack.getItem()).shouldRecolor(this, quad))) 
-						ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT both - double check the index
+						ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
 
 				return ret;
 	}

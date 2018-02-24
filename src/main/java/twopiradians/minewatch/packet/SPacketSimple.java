@@ -961,7 +961,7 @@ public class SPacketSimple implements IMessage {
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),
 										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z));
-								ItemDoomfistWeapon.punchAnimations.put(entity.getPersistentID(), 5);
+								TickHandler.register(true, ItemDoomfistWeapon.PUNCH_ANIMATIONS.setEntity(entity).setTicks(5));
 								Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
 								Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 0, 0.5f, 1);
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFD9B2, 0xE8C4A2, 1f, 4, 10, 15, 0, 0);

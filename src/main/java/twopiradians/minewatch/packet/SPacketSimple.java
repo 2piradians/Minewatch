@@ -1002,6 +1002,11 @@ public class SPacketSimple implements IMessage {
 					// cancel dead handler
 					else if (packet.type == 65 && entity != null)
 						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DEAD));
+					// doomfist charge punch
+					else if (packet.type == 66 && entity instanceof EntityLivingBase) {
+						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.DOOMFIST_PUNCH_3, entity.world, (EntityLivingBase) entity, 0xFFFFFF, 0xDDDDFF, 1, EnumHero.DOOMFIST.weapon.getMaxItemUseDuration(((EntityLivingBase)entity).getHeldItemMainhand())+8, 4, 6, entity.world.rand.nextFloat()*2f, 0.01f, EnumHand.MAIN_HAND, 5, 1);
+						((EntityPlayerSP) entity).setActiveHand(EnumHand.MAIN_HAND);
+					}
 				}
 			});
 			return null;

@@ -520,7 +520,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				player.getHeldItem(hand).damageItem(1, player);
 			Handler handler = TickHandler.getHandler(player, Identifier.DOOMFIST_RELOAD);
 			if (handler != null)
-				handler.ticksLeft = handler.initialTicks;
+				handler.ticksLeft = this.reloadTime+1;
 		}
 	}
 
@@ -547,15 +547,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		ItemStack stack = player.getHeldItem(hand);	
 
 		// charge punch
-		if (hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
+		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
 				hero.ability1.isSelected(player, true)) {
-			if (!world.isRemote) {
-				ModSoundEvents.DOOMFIST_PUNCH_CHARGE.playFollowingSound(player, 1, 1, false);
-				if (world.rand.nextBoolean())
-					ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.playFollowingSound(player, 1, 1, false);
-			}
-			else
-				Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.DOOMFIST_PUNCH_3, world, player, 0xFFFFFF, 0xDDDDFF, 1, this.getMaxItemUseDuration(stack)+8, 4, 6, world.rand.nextFloat()*2f, 0.01f, EnumHand.MAIN_HAND, 5, 1);
+			ModSoundEvents.DOOMFIST_PUNCH_CHARGE.playFollowingSound(player, 1, 1, false);
+			if (world.rand.nextBoolean())
+				ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.playFollowingSound(player, 1, 1, false);
+			Minewatch.network.sendToDimension(new SPacketSimple(66, player, false), world.provider.getDimension());
 			player.setActiveHand(hand);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
@@ -570,6 +567,10 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
+			// TODO remove
+			if (TickHandler.hasHandler(player, Identifier.DOOMFIST_RELOAD))
+				System.out.println(TickHandler.getHandler(player, Identifier.DOOMFIST_RELOAD));
+			
 			// slam particle
 			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
 					player.ticksExisted % 5 == 0 && !player.onGround)

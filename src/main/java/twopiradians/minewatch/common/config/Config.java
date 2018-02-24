@@ -427,9 +427,9 @@ public class Config {
 
 	@SubscribeEvent
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-		// if not in mp server (only update when sync packet sent on mp server)
+		// if not in mp server (only update server when sync packet sent on mp server)
 		if (event.getModID().equals(Minewatch.MODID)) {
-			syncConfig(false, FMLCommonHandler.instance().getMinecraftServerInstance() != null);
+			syncConfig(false, FMLCommonHandler.instance().getMinecraftServerInstance() == null);
 			config.save();
 		}
 	}

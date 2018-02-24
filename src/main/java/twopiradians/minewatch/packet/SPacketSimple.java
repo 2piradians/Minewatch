@@ -1005,7 +1005,12 @@ public class SPacketSimple implements IMessage {
 					// doomfist charge punch
 					else if (packet.type == 66 && entity instanceof EntityLivingBase) {
 						Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.DOOMFIST_PUNCH_3, entity.world, (EntityLivingBase) entity, 0xFFFFFF, 0xDDDDFF, 1, EnumHero.DOOMFIST.weapon.getMaxItemUseDuration(((EntityLivingBase)entity).getHeldItemMainhand())+8, 4, 6, entity.world.rand.nextFloat()*2f, 0.01f, EnumHand.MAIN_HAND, 5, 1);
-						((EntityPlayerSP) entity).setActiveHand(EnumHand.MAIN_HAND);
+						((EntityLivingBase) entity).setActiveHand(EnumHand.MAIN_HAND);
+					}
+					// doomfist slam
+					else if (packet.type == 67 && entity != null) {
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
 					}
 				}
 			});

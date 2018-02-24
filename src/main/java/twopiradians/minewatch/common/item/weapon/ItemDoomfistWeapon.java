@@ -114,7 +114,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			else { // on ground or time's up
 				this.ticksLeft = 1;
 				if (entity.onGround) {
-					if (entity.world.isRemote) { // particles
+					if (!entity.world.isRemote) { // particles
 						double yOffset = 0.05d;
 						BlockPos pos = new BlockPos(entity.getPositionVector());
 						for (int i=0; i<5; ++i) {
@@ -122,16 +122,14 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
 								yOffset += state.getBoundingBox(entity.world, pos).maxY;
 								Vec3d vec = new Vec3d(entity.posX, pos.getY()+yOffset, entity.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
-								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
-								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, vec.xCoord, vec.yCoord, vec.zCoord, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+								Minewatch.network.sendToDimension(new SPacketSimple(67, entity, false, vec.xCoord, vec.yCoord, vec.zCoord), entity.world.provider.getDimension());
 								break;
 							}
 							else
 								pos = pos.down();
 						}
-					}
-					else { // damage
-						double yOffset = 0;
+						// damage
+						yOffset = 0;
 						for (int i=0; i<3; ++i) {
 							IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector().addVector(0, -i, 0)));
 							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
@@ -567,10 +565,6 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
 
-			// TODO remove
-			if (TickHandler.hasHandler(player, Identifier.DOOMFIST_RELOAD))
-				System.out.println(TickHandler.getHandler(player, Identifier.DOOMFIST_RELOAD));
-			
 			// slam particle
 			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
 					player.ticksExisted % 5 == 0 && !player.onGround)
@@ -847,7 +841,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		/*Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.DOOMFIST_PUNCH);
 		if (handler != null && handler.position != null) {
 			TextureAtlasSprite sprite = EnumParticle.DOOMFIST_PUNCH_2.sprite;
-
+ TODO
 		}*/
 	}
 

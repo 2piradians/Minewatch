@@ -83,7 +83,7 @@ public class CommandMinewatch implements ICommand {
 	static {
 		for (EnumHero hero : EnumHero.values())
 			ALL_HERO_NAMES.add(hero.name);
-		ALL_HERO_NAMES.add("Random");
+		ALL_HERO_NAMES.add("random");
 
 		for (EnumFlag flag : EnumFlag.values())
 			ALL_FLAG_NAMES.add(flag.longName);

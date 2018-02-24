@@ -1,0 +1,28 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "minewatch:items/doomfist_weapon"
+    },
+	"display": {
+		 "thirdperson_righthand": {
+            "rotation": [ 90, 90, 180 ],
+        "translation": [ 0.5, -2.00, 3.00 ],
+        "scale": [ 1.00, 1.00, 5 ]
+        },
+        "thirdperson_lefthand": {
+			"rotation": [ 90, 90, 180 ],
+        "translation": [ 0.5, -2.00, 3.00 ],
+        "scale": [ 1.00, 1.00, 5 ]
+        },
+		 "firstperson_righthand": {
+            "rotation": [ -40, -40, 0 ],
+      		  "translation": [ 9.00, 0.70, -5.25 ],
+      		  "scale": [ 1.00, 1.00, 1.00 ]
+        },
+        "firstperson_lefthand": {
+            "rotation": [ 140, 40, 180 ],
+       		 "translation": [ 4.50, 0.20, -5.25 ],
+       		 "scale": [ 1.00, 1.00, 1.00 ]
+        }
+	}
+}

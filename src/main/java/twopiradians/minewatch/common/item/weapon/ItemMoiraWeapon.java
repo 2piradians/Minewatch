@@ -319,9 +319,9 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			// do effects
 			Handler handler = TickHandler.getHandler(player, Identifier.MOIRA_DAMAGE);
 			if (handler != null && handler.entityLiving != null && 
-					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f*4f, true, true)) {
+					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f, true, true)) {
 				if (!(handler.entityLiving instanceof EntityLivingBaseMW))
-					EntityHelper.heal(player, 1.5f*4f);
+					EntityHelper.heal(player, 1.5f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
 		}
@@ -417,8 +417,10 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 		else if (KeyBind.LMB.isKeyDown(entity) && 
 				!this.hasCooldown(entity) && EntityHelper.isHoldingItem(entity, this, EnumHand.OFF_HAND))
 			return hand == EnumHand.OFF_HAND ? Render.ACTIVE : Render.NONE;
-		else
+		else if (EntityHelper.isHoldingItem(entity, this, hand))
 			return Render.INACTIVE;
+		else
+			return Render.NONE;
 	}
 
 	@Override
@@ -511,8 +513,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 			GlStateManager.enableBlend();
 			//PORT scale x event.getResolution().getScaleFactor()
-			GlStateManager.scale(width/256d*event.getResolution().getScaleFactor(), height/256d*event.getResolution().getScaleFactor(), 1);
-			int firstImage = (int) (ticks / 10);
+			GlStateManager.scale(width/256d*event.getResolution().getScaleFactor(), height/256d*event.getResolution().getScaleFactor(), 1);			int firstImage = (int) (ticks / 10);
 			int secondImage = firstImage + 1;
 			if (firstImage < 6) {
 				GlStateManager.color(1, 1, 1, 1.1f-((ticks) % 10)/10f);

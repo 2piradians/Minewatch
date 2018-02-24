@@ -313,7 +313,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
@@ -324,7 +324,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
-		// hold left arm out while using hook TEST /kill breaks armor ?
+		// hold left arm out while using hook
 		if (TickHandler.hasHandler(handler -> handler.identifier == Identifier.WIDOWMAKER_HOOK && handler.entityLiving == entity, true)) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
@@ -360,7 +360,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				// translate to thrower
 				Vec3d translate = throwerPos.subtract(playerPos);
 				GlStateManager.translate(translate.xCoord, translate.yCoord, translate.zCoord);
-				
+
 				Vec3d hookLook = entity.getLook(mc.getRenderPartialTicks()).scale(0.17d);
 				Vec3d hookPos = EntityHelper.getEntityPartialPos(entity).addVector(0, entity.height/2f, 0).subtract(hookLook).subtract(throwerPos);
 				double v = hookPos.distanceTo(shooting)*2d;

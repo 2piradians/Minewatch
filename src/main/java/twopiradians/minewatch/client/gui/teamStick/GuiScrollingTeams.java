@@ -1,16 +1,20 @@
 package twopiradians.minewatch.client.gui.teamStick;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.scoreboard.Team;
 import net.minecraftforge.fml.client.GuiScrollingList;
+import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSelector;
 
 public class GuiScrollingTeams extends GuiScrollingList {
 
-	private GuiTeamStick gui;
+	private GuiTeamSelector gui;
+	private Minecraft mc;
 
-	public GuiScrollingTeams(GuiTeamStick gui, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
-		super(gui.mc, width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
+	public GuiScrollingTeams(GuiTeamSelector gui, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
+		super(Minecraft.getMinecraft(), width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
 		this.gui = gui;
+		this.mc = Minecraft.getMinecraft();
 	}
 
 	@Override
@@ -41,7 +45,7 @@ public class GuiScrollingTeams extends GuiScrollingList {
 	protected void drawSlot(int index, int right, int top, int height, Tessellator tess) {		
 		Team team = gui.teams.toArray(new Team[0])[index];
 		String name = team.getChatFormat()+gui.getTeamName(team);
-		gui.mc.fontRendererObj.drawStringWithShadow(name, left+this.listWidth/2-gui.mc.fontRendererObj.getStringWidth(name)/2, top+gui.mc.fontRendererObj.FONT_HEIGHT/2, 0xFFFFFF);
+		mc.fontRendererObj.drawStringWithShadow(name, left+this.listWidth/2-mc.fontRendererObj.getStringWidth(name)/2, top+mc.fontRendererObj.FONT_HEIGHT/2, 0xFFFFFF);
 	}
 
 }

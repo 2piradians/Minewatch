@@ -1,0 +1,6 @@
+{   
+	"parent": "minewatch:block/team_spawn_overlay",
+	"textures": {
+		"overlay": "minewatch:blocks/team_spawn_overlay_0"
+	}
+}

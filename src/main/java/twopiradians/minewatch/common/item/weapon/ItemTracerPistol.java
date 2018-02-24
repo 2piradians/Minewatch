@@ -22,6 +22,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -154,7 +155,7 @@ public class ItemTracerPistol extends ItemMWWeapon {
 		super.preRenderArmor(entity, model);
 
 		// chestplate particles
-		if (model.slot == EntityEquipmentSlot.CHEST && entity.isEntityAlive() && !Minecraft.getMinecraft().isGamePaused() && 
+		if (!(entity instanceof EntityGuiPlayer) && model.slot == EntityEquipmentSlot.CHEST && entity.isEntityAlive() && !Minecraft.getMinecraft().isGamePaused() && 
 				(entity != Minecraft.getMinecraft().thePlayer || !Minewatch.proxy.isPlayerInFirstPerson()) && 
 				entity.ticksExisted > 3 && 
 				(!tickRendered.containsKey(entity) || tickRendered.get(entity) != entity.ticksExisted) &&

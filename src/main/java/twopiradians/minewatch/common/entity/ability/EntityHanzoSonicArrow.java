@@ -22,7 +22,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	public static final Handler SONIC = new Handler(Identifier.HANZO_SONIC, false) {
 		@Override
 		public boolean onServerTick() {
-			return entity == null || entity.isDead || doEffect(entity.worldObj, entityLiving, entity, entity.posX, 
+			return entity == null || doEffect(entity.worldObj, entityLiving, entity, entity.posX, 
 					entity.posY, entity.posZ, this.ticksLeft++);
 		}
 		@Override
@@ -43,7 +43,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 					}
 			}
 
-			return onServerTick();
+			return onServerTick(); // calls onServerTick to handle effect
 		}
 	};
 
@@ -109,10 +109,10 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		super.onHit(result);	
-
 		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) 
-			TickHandler.register(result.entityHit.worldObj.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0));
+			TickHandler.register(result.entityHit.worldObj.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0).setAllowDead(true));
+
+		super.onHit(result);	
 	}
 
 }

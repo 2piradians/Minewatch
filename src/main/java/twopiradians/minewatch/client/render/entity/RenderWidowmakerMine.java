@@ -37,6 +37,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 		if (i == 2) {
 			HashMap<String, String> map = Maps.newHashMap();
 			map.put("#material", new ResourceLocation(Minewatch.MODID, "entity/widowmaker_mine_red").toString());
+			//1.12 return model.retexture(ImmutableMap.copyOf(map));
 			return ModelProcessingHelper.retexture(model, ImmutableMap.copyOf(map));
 		}
 		else

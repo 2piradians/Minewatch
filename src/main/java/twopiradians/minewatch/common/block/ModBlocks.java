@@ -10,7 +10,9 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.block.teamBlocks.BlockTeamSpawn;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 
 
 public class ModBlocks {
@@ -19,12 +21,14 @@ public class ModBlocks {
 
 	public static Block healthPackSmall;
 	public static Block healthPackLarge;
+	public static Block teamSpawn;
 
 	public static void preInit() {
 		allBlocks = new ArrayList<Block>();
 
 		healthPackSmall = registerBlock(new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true, true);
 		healthPackLarge = registerBlock(new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true, true);
+		teamSpawn = registerBlock(new BlockTeamSpawn(), "team_spawn", TileEntityTeamSpawn.class, true, true);
 	}
 
 	public static Block registerBlock(Block block, String unlocalizedName, @Nullable Class tileEntityClass, boolean isItemBlock, boolean addToTab) {

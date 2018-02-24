@@ -180,6 +180,8 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	}
 
 	@Override
+    public boolean doesEntityNotTriggerPressurePlate() {return true;}
+	@Override
 	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
 	@Override
 	public boolean writeToNBTAtomically(NBTTagCompound compound) {return false;}

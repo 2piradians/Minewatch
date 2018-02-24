@@ -69,7 +69,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					AxisAlignedBB aabb = entity.getEntityBoundingBox().expandXyz(1d).addCoord(look.xCoord, look.yCoord, look.zCoord);
 					for (Entity target : entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
 						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
-						target instanceof EntityLivingBase && 
+						target instanceof EntityLivingBase && ((EntityLivingBase)entity).canEntityBeSeen(target) &&
 						EntityHelper.attemptDamage(entity, target, 50, true)) {
 							hitEntities.add((EntityLivingBase) target);
 							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
@@ -103,7 +103,8 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					// check for wall impact
 					float pitch = this.entity.rotationPitch;
 					this.entity.rotationPitch = 0;
-					aabb = this.entity.getEntityBoundingBox().expand(0, -0.1d, 0).addCoord(this.entity.getLookVec().scale(1).xCoord, this.entity.getLookVec().scale(1).yCoord, this.entity.getLookVec().scale(1).zCoord);
+					aabb = this.entity.getEntityBoundingBox().expand(0, -0.1d, 0).
+							addCoord(this.entity.getLookVec().scale(1).xCoord, this.entity.getLookVec().scale(1).yCoord, this.entity.getLookVec().scale(1).zCoord);
 					this.entity.rotationPitch = pitch;
 					if (this.entity.worldObj.collidesWithAnyBlock(aabb)) {
 						this.ticksLeft = 1;

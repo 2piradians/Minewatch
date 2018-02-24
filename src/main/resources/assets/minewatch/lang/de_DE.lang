@@ -1,16 +1,24 @@
 itemGroup.tabMinewatch=Minewatch
-itemGroup.tabMinewatchArmorWeapons=Minewatch Armor & Weapons
-itemGroup.tabMinewatchMapMaking=Minewatch Map-Making Tools
+itemGroup.tabMinewatchArmorWeapons=Minewatch Rüstung & Waffen
+itemGroup.tabMinewatchMapMaking=Minewatch Karten-Erstellungs Werkzeuge
 
 config.server-side=Serverseitig
 config.client-side=Clientseitig
 config.client-side.hero_skins=Hero Skins
 config.server-side.hero_mobs=KI Helden
+config.server-side.team_blocks=Team Blöcke
+
+command.hero.desc=rüstet dich/das Ziel mit der Rüstung und der/den Waffe/n für den Helden aus
+command.sync.desc=synchronisiert deine Konfiguration mit dem Server (im Mehrspieler Modus)
+command.team_spawn.desc=aktiviert/deaktiviert einen Teamspawn
+command.reset.desc=der HauptBefehl um Minewatch Spiele "zurückzusetzen", aktuell tötet und widerbelebt er Dinge/Spieler, die an Teamspawns wiederbelebt werden können
+
 
 effect.frozen=Eingefroren
 
 tile.health_pack_small.name=kleines Heilungspaket
 tile.health_pack_large.name=großes Heilungspaket
+tile.team_spawn.name=Teamspawn
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Helfer
@@ -136,6 +144,15 @@ item.moira_leggings.name=Moira Beinschutz
 item.moira_boots.name=Moira Stiefel
 item.moira_weapon.name=Moira's Biotische Hand
 
+
+item.doomfist_token.name=Doomfist Token
+item.doomfist_helmet.name=Doomfist Helm
+item.doomfist_chestplate.name=Doomfist Brustpanzer
+item.doomfist_leggings.name=Doomfist Beinschutz
+item.doomfist_boots.name=Doomfist Stiefel
+item.doomfist_weapon.name=Doomfist's Handschuh
+
+
 entity.minewatch.random_hero.name=Zufälliger Held
 entity.minewatch.hanzo_hero.name=Hanzo
 entity.minewatch.hanzo_arrow.name=Hanzo Pfeil
@@ -146,6 +163,7 @@ entity.minewatch.reaper_bullet.name=Reaper Geschoss
 entity.minewatch.ana_hero.name=Ana
 entity.minewatch.ana_bullet.name=Ana Geschoss
 entity.minewatch.ana_sleep_dart.name=Ana Betäubungspfeil
+entity.minewatch.ana_grenade.name=Ana Biotische Granate
 entity.minewatch.genji_hero.name=Genji
 entity.minewatch.genji_shuriken.name=Genji Shuriken
 entity.minewatch.genji_shuriken_single.name=Genji Shuriken
@@ -153,9 +171,11 @@ entity.minewatch.tracer_hero.name=Tracer
 entity.minewatch.tracer_bullet.name=Tracer Geschoss
 entity.minewatch.mccree_hero.name=McCree
 entity.minewatch.mccree_bullet.name=McCree Geschoss
+entity.minewatch.mccree_stun.name=McCree Blendgranate
 entity.minewatch.soldier76_hero.name=Soldier: 76
 entity.minewatch.soldier76_bullet.name=Soldier 76 Geschoss
 entity.minewatch.soldier76_helix_rocket.name=Soldier 76 Helix-Rakete
+entity.minewatch.soldier76_heal.name=Soldier: 76 Biotisches Feld
 entity.minewatch.bastion_hero.name=Bastion
 entity.minewatch.bastion_bullet.name=Bastion Geschoss
 entity.minewatch.mei_hero.name=Mei
@@ -172,6 +192,7 @@ entity.minewatch.junkrat_mine.name=Junkrat Ferngezündete Mine
 entity.minewatch.widowmaker_hero.name=Widowmaker
 entity.minewatch.widowmaker_bullet.name=Widowmaker Geschoss
 entity.minewatch.widowmaker_mine.name=Widowmaker Giftmine
+entity.minewatch.widowmaker_hook.name=Widowmaker Spinnenfaden
 entity.minewatch.sombra_hero.name=Sombra
 entity.minewatch.sombra_bullet.name=Sombra Geschoss
 entity.minewatch.sombra_translocator.name=Sombra Teleporter
@@ -183,3 +204,44 @@ entity.minewatch.zenyatta_hero.name=Zenyatta
 entity.minewatch.zenyatta_orb.name=Zenyatta Sphäre der Zerstörung
 entity.minewatch.moira_hero.name=Moira
 entity.minewatch.moira_heal_energy.name=Moira Heilenergie
+entity.minewatch.moira_orb.name=Moira Biotische Sphäre
+entity.minewatch.doomfist_hero.name=Doomfist
+entity.minewatch.doomfist_bullet.name=Doomfist Geschoss
+
+
+command.reset.success=Minewatch Spiel wurde von einem Moderator zurückgesetzt.
+command.reset.unrecognized_flags=Unerkannte Flagge(n)
+
+
+overlay.eliminated_by=Du wurdest eliminiert von
+overlay.assist=assist
+overlay.eliminated=eliminiert
+overlay.death_spectating=du bist tot und schaust zu bei
+overlay.respawn_in=wiederbelebung in
+overlay.change_hero=Drücke %s um den Helden zu ändern
+
+gui.team_block.button.name=Name
+gui.team_block.button.name.desc=Dieser Name ist von Befehlen benutzt.
+gui.team_block.button.activate_deactivate=Aktivieren / Deaktivieren
+gui.team_block.button.activate=Aktivieren
+gui.team_block.button.deactivate=Deaktivieren
+gui.team_block.button.selected_team=Ausgewähltes Team
+gui.team_block.button.video_demonstration=Video Demonstration
+gui.team_block.button.ok=OK
+
+
+gui.team_spawn.button.spawn_radius=Radius
+gui.team_spawn.button.spawn_radius.desc=Der Radius um diesen Block, in dem Spieler und Mobs wiederbelebt werden können, geheilt werden, und auf die Heldenselektion zugreifen können
+gui.team_spawn.button.activate_deactivate.desc=Spieler und KI Helden werden an dem aktiven Teamspawn ihres Teams erscheinen
+gui.team_spawn.button.activate.desc=Nur ein Teamspawn kann auf einmal pro Team und Welt aktiv sein
+gui.team_spawn.button.deactivate.desc=Nur ein Teamspawn kann auf einmal pro Team und Welt aktiv sein
+gui.team_spawn.button.selected_team.desc=Wähle das Team, das hier wiederbelebt wird
+gui.team_spawn.question_mark_description_0=Spieler und KI Helden werden an dem aktiven Spawn ihres Teams erscheinen. Sie erscheinen in die Richtung des Pfeils schauend
+gui.team_spawn.question_mark_description_1=Teamspawn Blöcke können ebenfalls mit einem Befehl aktiviert/deaktiviert werden: 
+gui.team_spawn.status.players_heroes_team=Spieler und KI Helden in
+gui.team_spawn.status.players_heroes_all=Alle Spieler und KI Helden (die in einem Team sind)
+gui.team_spawn.status.players_heroes_none=Nichts
+gui.team_spawn.status.will_spawn=wird/werden hier erscheinen
+
+gui.hero_select.select=Auswählen
+gui.hero_select.select_hero=Wähle einen Helden

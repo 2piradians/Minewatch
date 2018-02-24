@@ -62,7 +62,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public void onUpdate() {	
-		this.setGlowing(false);
+		this.setGlowing(false); 
 		
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
@@ -167,6 +167,8 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		return EnumHandSide.RIGHT;
 	}
 	
+	@Override
+    public boolean doesEntityNotTriggerPressurePlate() {return true;}
 	@Override
     public boolean canBeCollidedWith() {return true;}
     @Override

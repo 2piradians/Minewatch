@@ -195,7 +195,6 @@ public enum ModSoundEvents {
 	MOIRA_SELECT_VOICE,
 	SYMMETRA_SELECT_VOICE,
 	ZENYATTA_SELECT_VOICE,
-	
 	MCCREE_STUN_THROW,
 	MCCREE_STUN_HIT,
 	MCCREE_STUN_VOICE,
@@ -225,7 +224,25 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_STOP,
 	SOMBRA_HACK_DURING,
 	SOMBRA_HACK_COMPLETE,
-	SOMBRA_HACK_VOICE;
+	SOMBRA_HACK_VOICE,
+	
+	GUI_CHOOSE_HERO,
+	GUI_SELECT_HERO,
+	GUI_OPEN,
+	GUI_CLOSE,
+	DOOMFIST_PUNCH_CHARGE_VOICE,
+	DOOMFIST_PUNCH_CHARGE,
+	DOOMFIST_PUNCH_DURING_VOICE,
+	DOOMFIST_PUNCH_DURING,
+	DOOMFIST_PUNCH_HIT,
+	DOOMFIST_PUNCH_HIT_WALL,
+	DOOMFIST_RELOAD,
+	DOOMFIST_SLAM_START,
+	DOOMFIST_SLAM_STOP,
+	DOOMFIST_UPPERCUT_START,
+	DOOMFIST_UPPERCUT_STOP,
+	DOOMFIST_UPPERCUT_VOICE,
+	DOOMFIST_SHOOT;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -270,17 +287,19 @@ public enum ModSoundEvents {
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
+		// debug
+		// Minewatch.logger.info(this.name());
 		return entity != null && this.shouldPlay(entity) ? Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat) : null;
 	}
 
 	/**Handles voice cooldown - only works for same client / server...*/
 	public boolean shouldPlay(Entity entity) {
-		if (!this.isVoiceLine || this.isSelectVoiceLine) 
+		if (!this.isVoiceLine) 
 			return true;
-		else if (entity == null || entity.worldObj.rand.nextBoolean() || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
+		else if (entity == null || (entity.worldObj.rand.nextBoolean() && !this.isSelectVoiceLine) || TickHandler.hasHandler(entity, Identifier.VOICE_COOLDOWN))
 			return false;
 		else {
-			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(200));
+			TickHandler.register(entity.worldObj.isRemote, EnumHero.VOICE_COOLDOWN.setEntity(entity).setTicks(this.isSelectVoiceLine ? 60 : 200));
 			return true;
 		}
 	}

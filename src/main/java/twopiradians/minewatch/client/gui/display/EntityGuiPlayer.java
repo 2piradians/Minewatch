@@ -31,6 +31,11 @@ public class EntityGuiPlayer extends AbstractClientPlayer
 	}
 
 	@Override
+    public boolean isSpectator() {
+    	return false;
+    }
+	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public Team getTeam() {
 		return team;

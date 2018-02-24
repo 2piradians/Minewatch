@@ -7,31 +7,42 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 /**Sends all skins to all clients*/
 public class SPacketSyncSkins implements IMessage {
-	
+
 	public SPacketSyncSkins() {}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		for (int i=0; i<EnumHero.values().length; ++i) {
-			EnumHero.values()[i].skins.clear();
-			int numSkins = buf.readInt();
-			for (int j=0; j<numSkins; ++j) 
-				EnumHero.values()[i].skins.put(ByteBufUtils.readUTF8String(buf), buf.readInt());
+		try {
+			for (int i=0; i<EnumHero.values().length; ++i) {
+				EnumHero.values()[i].skins.clear();
+				int numSkins = buf.readInt();
+				for (int j=0; j<numSkins; ++j) 
+					EnumHero.values()[i].skins.put(ByteBufUtils.readUTF8String(buf), buf.readInt());
+			}
+		}
+		catch (Exception e) {
+			Minewatch.logger.warn("Exception thrown while syncing skins: ", e);
 		}
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		for (int i=0; i<EnumHero.values().length; ++i) {
-			buf.writeInt(EnumHero.values()[i].skins.size());
-			for (String uuid : EnumHero.values()[i].skins.keySet()) {
-				ByteBufUtils.writeUTF8String(buf, uuid);
-				buf.writeInt(EnumHero.values()[i].skins.get(uuid));
+		try {
+			for (int i=0; i<EnumHero.values().length; ++i) {
+				buf.writeInt(EnumHero.values()[i].skins.size());
+				for (String uuid : EnumHero.values()[i].skins.keySet()) {
+					ByteBufUtils.writeUTF8String(buf, uuid);
+					buf.writeInt(EnumHero.values()[i].skins.get(uuid)); 
+				}
 			}
+		}
+		catch (Exception e) {
+			Minewatch.logger.warn("Exception thrown while syncing skins: ", e);
 		}
 	}
 

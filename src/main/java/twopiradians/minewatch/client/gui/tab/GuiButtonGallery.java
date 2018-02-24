@@ -57,7 +57,7 @@ public class GuiButtonGallery extends GuiButtonTab {
 				GlStateManager.translate(18, 26, 0);
 			GlStateManager.scale(1/bothScale, 1/bothScale, 1);
 			GlStateManager.scale(textScale, textScale, 1);
-			String text = TextFormatting.ITALIC+""+TextFormatting.BOLD+(hero == EnumHero.SOLDIER76 ? "Soldier: 76" : hero.name).toUpperCase();
+			String text = TextFormatting.ITALIC+""+TextFormatting.BOLD+hero.getFormattedName(true);
 			mc.fontRendererObj.drawString(text, (int) ((this.xPosition+15)/textScale)-mc.fontRendererObj.getStringWidth(text)/2, (int) ((this.yPosition+37)/textScale), 0x293440);
 			text = TextFormatting.BOLD+""+hero.skinInfo.length+"/"+hero.skinInfo.length;
 			mc.fontRendererObj.drawString(text, (int) ((this.xPosition+14)/textScale)-mc.fontRendererObj.getStringWidth(text)/2, (int) ((this.yPosition+(this.hovered ? 47 : 45))/textScale), 0xFFFFFF, true);

@@ -29,7 +29,7 @@ public class ItemSombraHack extends Item implements IChangingModel {
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
 	}
-
+	
 	@Override
 	public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
 		return false;

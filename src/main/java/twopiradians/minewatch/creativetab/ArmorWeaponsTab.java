@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ArmorWeaponsTab extends CreativeTabs implements IMinewatchTab {
-
+		
 	public List<ItemStack> orderedStacks = Lists.<ItemStack>newArrayList();
 
 	public ArmorWeaponsTab(String label) {
@@ -34,5 +34,6 @@ public class ArmorWeaponsTab extends CreativeTabs implements IMinewatchTab {
 	@Override
 	public List<ItemStack> getOrderedStacks() {
 		return orderedStacks;
-	}
+}
+	
 }

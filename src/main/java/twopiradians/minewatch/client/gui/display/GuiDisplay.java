@@ -55,7 +55,7 @@ public class GuiDisplay extends GuiScreen {
 
 			// hero name
 			ArrayList<String> list = new ArrayList<String>();
-			list.add(hero.name);
+			list.add(hero.getFormattedName(false));
 			while (Minecraft.getMinecraft().fontRendererObj.getStringWidth(list.get(0)) < 140)
 				list.set(0, " "+list.get(0)+" ");
 			GlStateManager.translate(-(Minecraft.getMinecraft().fontRendererObj.getStringWidth(list.get(0))-120)/2, 0, 0);
@@ -101,15 +101,10 @@ public class GuiDisplay extends GuiScreen {
 
 			// render icon
 			if (mode == 0 || mode == 2) {
-				GlStateManager.enableBlend();
 				scale = 0.22f;
 				GlStateManager.scale(scale, scale, 1);
 				GlStateManager.translate(-180, 80, 0);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
-				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-				Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_icon.png"));
-				GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 230, 0);
-				GlStateManager.disableBlend();
+				hero.displayPortrait(hero, 0, 0, false, true);
 			}
 
 			GlStateManager.popMatrix();

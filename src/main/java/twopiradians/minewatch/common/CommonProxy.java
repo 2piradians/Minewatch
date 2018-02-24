@@ -1,11 +1,13 @@
 package twopiradians.minewatch.common;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -68,7 +70,7 @@ import twopiradians.minewatch.packet.SPacketSyncSkins;
 public class CommonProxy {
 
 	public enum EnumGui {
-		WILDCARD, TEAM_STICK
+		WILDCARD, HERO_SELECT, TEAM_STICK, TEAM_SPAWN
 	}
 	
 	public enum EnumParticle {
@@ -83,9 +85,10 @@ public class CommonProxy {
 		ZENYATTA_DISCORD_ORB(4, 1, 0, false, true), ZENYATTA_HARMONY_ORB(4, 1, 0, false, true),
 		HEALTH_PLUS(1, 1, -0.005f), REAPER_TELEPORT_BASE_0, MOIRA_DAMAGE(4, 1, 0), MOIRA_ORB, STUN,
 		ANA_GRENADE_HEAL, ANA_GRENADE_DAMAGE, HOLLOW_CIRCLE_2, HOLLOW_CIRCLE_3, BEAM,
-		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS;
+		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS,
+		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_PUNCH_2, DOOMFIST_PUNCH_3, DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2;
 
-		public HashSet<UUID> particleEntities = new HashSet();
+		public HashMap<UUID, Integer> particleEntities = Maps.newHashMap();
 		/**List of particles with a facing - because they are rendered separately*/
 		public ArrayList<ParticleCustom> facingParticles = new ArrayList<ParticleCustom>();
 		
@@ -164,6 +167,7 @@ public class CommonProxy {
 	public void spawnParticlesHanzoSonic(World worldObj, Entity trackEntity, boolean isBig) {}
 	public void spawnParticlesTrail(World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float initialAge, float alpha) {}
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {}
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {}	
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, double x, double y, double z, double motionX, double motionY, double motionZ, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, EnumFacing facing, boolean renderOnBlocks) {}
@@ -299,6 +303,8 @@ public class CommonProxy {
 	}
 
 	public void openGui(EnumGui gui) {}
+	
+	public void openGui(EnumGui gui, Object... obj) {}
 
 	public Handler onHandlerRemove(boolean isRemote, Handler handler) {
 		return handler.onServerRemove();

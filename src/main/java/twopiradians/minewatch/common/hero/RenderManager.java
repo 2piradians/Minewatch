@@ -46,6 +46,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -62,12 +63,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
-import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -93,7 +94,7 @@ public class RenderManager {
 		public boolean onClientTick() {
 			if (entity != Minewatch.proxy.getRenderViewEntity())
 				return true;
-			
+
 			ArrayList<Handler> handlers = TickHandler.getHandlers(entity, handler->handler.identifier == Identifier.HERO_MESSAGES && handler.number == MessageTypes.MIDDLE.ordinal());
 			return handlers.indexOf(this) <= 6 ? --this.ticksLeft <= 0 : false;
 		}
@@ -226,7 +227,9 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
-		if (Config.guiScale > 0) {
+		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
+			event.setCanceled(true);
+		else if (Config.guiScale > 0) {
 			Minecraft mc = Minecraft.getMinecraft();
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
@@ -246,6 +249,30 @@ public class RenderManager {
 				GlStateManager.pushMatrix();
 				weapon.preRenderGameOverlay(event, player, width, height, hand);
 				GlStateManager.popMatrix();
+			}
+
+			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+				GlStateManager.color(1, 1, 1, 1f);
+
+				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+					GlStateManager.pushMatrix();
+					GlStateManager.enableBlend();
+
+					// render crosshair
+					double scale = 0.2d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 1);
+					GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+					if (Config.customCrosshairs) {
+						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
+						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
+					}
+
+					GlStateManager.disableBlend();
+					GlStateManager.popMatrix();
+				}
+
+				if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
+					event.setCanceled(true);
 			}
 
 			if (event.getType() == ElementType.CROSSHAIRS && hero != null) {
@@ -318,61 +345,48 @@ public class RenderManager {
 				GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
 			}
-
-			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-				GlStateManager.color(1, 1, 1, 1f);
-
-				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-
-					// render crosshair
-					double scale = 0.2d*Config.guiScale;
-					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-					if (Config.customCrosshairs) {
-						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
-						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
-					}
-
-					GlStateManager.disableBlend();
-					GlStateManager.popMatrix();
-				}
-
-				if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-					event.setCanceled(true);
-			}
 		}
 	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {			
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {	
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayer player = mc.thePlayer;
 			EnumHero hero = SetManager.getWornSet(player);
 			ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
-
+			double width = event.getResolution().getScaledWidth_double();
+			double height = event.getResolution().getScaledHeight_double();
+			
 			// hero information screen
 			if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-				hero.displayInfoScreen(event.getResolution());
+				hero.displayInfoScreen(width, height);
 			else {
-				if (hero != null) {
-					// display icon
+				// team spawn hero selection
+				if (TickHandler.hasHandler(player, Identifier.TEAM_SPAWN_IN_RANGE)) {
 					GlStateManager.pushMatrix();
-					GlStateManager.color(1, 1, 1, 1);
+					GlStateManager.color(1, 1, 1, 0.5f);
 					GlStateManager.enableDepth();
-					GlStateManager.enableAlpha();
+					double scale = 0.8d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 0);
 
-					Rank rank = RankManager.getHighestRank(Minecraft.getMinecraft().thePlayer);
+					String text = TextFormatting.BLACK+""+TextFormatting.BOLD+String.format(Minewatch.translate("overlay.change_hero"), KeyBind.CHANGE_HERO.keyBind.getDisplayName()).toUpperCase();
+					int textWidth = mc.fontRendererObj.getStringWidth(text);
+					int x = (int) (width/scale/2d-textWidth/2d);
+					int y = (int) (height/scale*0.65d);
+					GuiUtils.drawGradientRect(0, x-10, y, x+textWidth+10, y+mc.fontRendererObj.FONT_HEIGHT+10, 0xCAFFDA56, 0xCAFFDA56);
+					mc.fontRendererObj.drawString(text, x, y+6, 0xFFFFFF);
+					
+					GlStateManager.enableBlend();
+					GlStateManager.popMatrix();
+				}
+				
+				if (hero != null) {
+					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(40-scale*120, (int) ((event.getResolution().getScaledHeight() - 256*scale) / scale) - 65+scale*110, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(rank.iconLoc);
-					GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
-					GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
-
+					EnumHero.displayPortrait(hero, 40-scale*120, (int) ((height - 256*scale) / scale) - 65+scale*110, false, false);
 					GlStateManager.popMatrix();
 				}
 
@@ -384,8 +398,8 @@ public class RenderManager {
 
 					double scale = 2.7d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate((int) (event.getResolution().getScaledWidth()/scale)-35, ((int)event.getResolution().getScaledHeight()/scale)-25+scale*2, 0);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(ABILITY_OVERLAY);
+					GlStateManager.translate((int) (width/scale)-35, ((int)height/scale)-25+scale*2, 0);
+					mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 					int index = ItemMWWeapon.isAlternate(player.getHeldItemMainhand()) && 
 							weapon.hero.hasAltWeapon ? weapon.hero.altWeaponIndex : weapon.hero.overlayIndex;
 					// weapon
@@ -399,7 +413,7 @@ public class RenderManager {
 
 					if (hero != null && weapon.hero == hero && SetManager.getWornSet(player) != null) {
 						for (int i=1; i<=3; ++i) {
-							Minecraft.getMinecraft().getTextureManager().bindTexture(ABILITY_OVERLAY);
+							mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 							Ability ability = hero.getAbility(i);
 
 							// weapon / ability icons
@@ -434,7 +448,7 @@ public class RenderManager {
 							// background
 							if (ability.showKeybind(player)) {
 								if (ability.keybind.getKeyName() != "")
-									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 6, 0);
+									GuiUtils.drawTexturedModalRect(-i*9-6, 9, 0, 247, 11, 5, 0);
 								else if (ability.keybind == KeyBind.RMB)		
 									GuiUtils.drawTexturedModalRect(-i*9-2, 9, 11, 247, 5, 5, 0);
 							}
@@ -446,22 +460,22 @@ public class RenderManager {
 									ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 26, 247, 5, 5, 0);
 							// text
-							int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(ability.keybind.getKeyName());
+							int textWidth = mc.fontRendererObj.getStringWidth(ability.keybind.getKeyName());
 							GlStateManager.scale(0.25d, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// keybind text
 							if (ability.showKeybind(player)) 
-								Minecraft.getMinecraft().fontRendererObj.drawString(ability.keybind.getKeyName(), 3-i*36-width/2, 43+i*3, 0);
+								mc.fontRendererObj.drawString(ability.keybind.getKeyName(), 3-i*36-textWidth/2, 43+i*3, 0);
 							// multi-use number
 							if (ability.maxUses > 0)
-								Minecraft.getMinecraft().fontRendererObj.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);
+								mc.fontRendererObj.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);
 							// cooldown
 							scale = 2d;
 							GlStateManager.scale(scale, scale, 1);
 							if (ability.getCooldown(player) > 0) { 
 								String num = String.valueOf((int)Math.ceil(ability.getCooldown(player)/20d));
-								width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(num);
-								Minecraft.getMinecraft().fontRendererObj.drawString(num, 6-i*18-width/2, 8+i, 0xFFFFFF);
+								textWidth = mc.fontRendererObj.getStringWidth(num);
+								mc.fontRendererObj.drawString(num, 6-i*18-textWidth/2, 8+i, 0xFFFFFF);
 							}
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.popMatrix();
@@ -471,15 +485,15 @@ public class RenderManager {
 					if (weapon.getMaxAmmo(player) > 0) {
 						scale = 0.45d;
 						GlStateManager.scale(scale, scale, 1);
-						int width = Minecraft.getMinecraft().fontRendererObj.getStringWidth(
-								String.valueOf(weapon.getCurrentAmmo(player)));
-						Minecraft.getMinecraft().fontRendererObj.drawString(
-								String.valueOf(weapon.getCurrentAmmo(player)), 31-width, -10, 0xFFFFFF);
+						int textWidth = mc.fontRendererObj.getStringWidth(
+								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)));
+						mc.fontRendererObj.drawString(
+								TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-textWidth, -10, 0xFFFFFF);
 						scale = 0.6d;
 						GlStateManager.scale(scale, scale, 1);
-						Minecraft.getMinecraft().fontRendererObj.drawString("/", 53, -10, 0x00D5FF);
-						Minecraft.getMinecraft().fontRendererObj.drawString(
-								String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
+						mc.fontRendererObj.drawString("/", 53, -10, 0x00D5FF);
+						mc.fontRendererObj.drawString(
+								TextFormatting.ITALIC+String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
 					}
 
 					GlStateManager.popMatrix();
@@ -494,16 +508,21 @@ public class RenderManager {
 		// render arms while holding weapons - modified from ItemRenderer#renderArmFirstPerson
 		Minecraft mc = Minecraft.getMinecraft();
 		AbstractClientPlayer player = mc.thePlayer;
-		if (player != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).shouldRenderHand(player, event.getHand())) {
+		ItemStack chest = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+		ItemStack held = player.getHeldItem(event.getHand());
+		ItemStack main = player.getHeldItemMainhand();
+		ItemStack off = player.getHeldItemOffhand();
+		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null ? main : held;
+
+		if (player != null && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
+				((ItemMWWeapon)stack.getItem()).shouldRenderHand(player, event.getHand()))) || 
+				(chest != null && chest.getItem() instanceof ItemMWArmor && event.getHand() == EnumHand.MAIN_HAND && 
+				(held == null))) {
 			GlStateManager.pushMatrix();
 			float partialTicks = mc.getRenderPartialTicks();
 			float swing = player.getSwingProgress(partialTicks);	
 			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
-			// would move hand to follow item - but equippedProgress is private
-			float mainProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
-			float offProgress = 0.0F;// - (mc.getItemRenderer().prevEquippedProgressOffHand + (this.equippedProgressOffHand - this.prevEquippedProgressOffHand) * partialTicks);
-			float progress = event.getHand() == EnumHand.MAIN_HAND ? mainProgress : offProgress;
+			float progress = event.getEquipProgress();
 			EnumHandSide side = event.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
 			boolean flag = side != EnumHandSide.LEFT;
 			float f = flag ? 1.0F : -1.0F;
@@ -518,7 +537,14 @@ public class RenderManager {
 			GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
 			AbstractClientPlayer abstractclientplayer = mc.thePlayer;
-			mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
+			if (chest != null && chest.getItem() instanceof ItemMWArmor) {
+				mc.getTextureManager().bindTexture(new ResourceLocation(((ItemMWArmor)chest.getItem()).getArmorTexture(chest, player, EntityEquipmentSlot.CHEST, null)));
+				// cancel normal hand render
+				if (held == null)
+					event.setCanceled(true);
+			}
+			else
+				mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
 			GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
 			GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
 			GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
@@ -680,10 +706,11 @@ public class RenderManager {
 		// custom particles with facing
 		for (EnumParticle enumParticle : EnumParticle.values())
 			if (!enumParticle.facingParticles.isEmpty()) {
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 				Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(enumParticle.facingLoc);
-				for (ParticleCustom particle : enumParticle.facingParticles)
+				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+				for (ParticleCustom particle : enumParticle.facingParticles) {
 					particle.renderOnBlocks(buffer);
+				}
 				tessellator.draw();
 			}
 
@@ -696,7 +723,7 @@ public class RenderManager {
 
 	/**Render a texture (must be bound before calling this) on blocks
 	 * entityVec should be INSIDE the block that the texture will be rendered on
-	 * Would like to have this use particle rotations, but not sure how to do: Gl.rotate seems to translate as well*/
+	 * Would like to have this use particle rotations, but rendering only on blocks would be very complicated*/
 	@SideOnly(Side.CLIENT)
 	public static void renderOnBlocks(World worldObj, VertexBuffer buffer, float red, float green, float blue, float alpha, double size, Vec3d entityVec, EnumFacing facing, boolean particle) {
 		Entity player = Minewatch.proxy.getRenderViewEntity();
@@ -710,7 +737,7 @@ public class RenderManager {
 		double maxY = MathHelper.floor_double(entityVec.yCoord + (facing.getAxis() == Axis.Y ? 0 : size));
 		double minZ = MathHelper.floor_double(entityVec.zCoord - (facing.getAxis() == Axis.Z ? 0 : size));
 		double maxZ = MathHelper.floor_double(entityVec.zCoord + (facing.getAxis() == Axis.Z ? 0 : size));
-
+		
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
 			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {

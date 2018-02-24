@@ -14,11 +14,13 @@ import io.netty.buffer.Unpooled;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -34,6 +36,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -51,7 +55,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
+import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSpawn;
 import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -84,6 +90,7 @@ import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.block.teamBlocks.BlockTeam;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
@@ -105,6 +112,7 @@ import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityAnaBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
@@ -126,8 +134,10 @@ import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.sound.ModSoundEvents.ModSoundEvent;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
+import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -142,6 +152,8 @@ public class ClientProxy extends CommonProxy {
 		registerWeaponRenders();
 		registerEntityRenders();
 		createKeybinds();
+		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
+			Minecraft.getMinecraft().getFramebuffer().enableStencil();
 	}
 
 	@Override
@@ -203,7 +215,8 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);		
+		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
+		KeyBind.CHANGE_HERO.keyBind = new KeyBinding("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME);
 	}
 
 	private void registerColoredItems() {
@@ -294,12 +307,20 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityZenyattaOrb.class, RenderZenyattaOrb::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraHealEnergy.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraOrb.class, RenderMoiraOrb::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityDoomfistBullet.class, new RenderFactory(new Color(0xEFFFF4), 1, 1, 2));
 	}
 
 	private void registerBlockRenders() {
-		for (Block block : ModBlocks.allBlocks)
+		for (Block block : ModBlocks.allBlocks) {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, 
 					new ModelResourceLocation(Minewatch.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
+			if (block instanceof BlockTeam)
+				Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(new IBlockColor() {
+		            public int colorMultiplier(IBlockState state, @Nullable IBlockAccess worldObj, @Nullable BlockPos pos, int tintIndex) {
+		            	return ((BlockTeam)block).colorMultiplier(state, worldObj, pos, tintIndex);
+		            }
+		        }, block);
+		}
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityHealthPack.class, new TileEntityHealthPackRenderer());
 	}
 
@@ -392,20 +413,28 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 		}
 	}
-
+	
 	@Override
 	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) { 
-		ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust);
+		spawnParticlesMuzzle(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust, 1);
+	}
+
+	@Override
+	public void spawnParticlesMuzzle(EnumParticle enumParticle, World worldObj, EntityLivingBase followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) { 
+		ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, hand, verticalAdjust, horizontalAdjust, distance);
 		Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 	}
 
 	@Override
 	public void spawnParticlesCustom(EnumParticle enumParticle, World worldObj, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) { 
-		if (!enumParticle.onePerEntity || !enumParticle.particleEntities.contains(followEntity.getPersistentID())) {
+		// if not onePerEntity or entity doesn't have particle, OR the particle's tickExisted is outdated (particle might have been killed)
+		if ((enumParticle.onePerEntity && enumParticle.particleEntities.containsKey(followEntity.getPersistentID()) &&
+				Math.abs(enumParticle.particleEntities.get(followEntity.getPersistentID())-followEntity.ticksExisted) > 5) ||
+				(!enumParticle.onePerEntity || !enumParticle.particleEntities.containsKey(followEntity.getPersistentID()))) {
 			ParticleCustom particle = new ParticleCustom(enumParticle, worldObj, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed);
 			Minecraft.getMinecraft().effectRenderer.addEffect(particle);
 			if (enumParticle.onePerEntity)
-				enumParticle.particleEntities.add(followEntity.getPersistentID());
+				enumParticle.particleEntities.put(followEntity.getPersistentID(), followEntity.ticksExisted);
 		}
 	}
 
@@ -449,7 +478,7 @@ public class ClientProxy extends CommonProxy {
 	public float getRenderPartialTicks() {
 		return Minecraft.getMinecraft().getRenderPartialTicks();
 	}
-	
+
 	@Override
 	public void stopFollowingSound(Entity followingEntity, ModSoundEvent event) {
 		if (followingEntity != null && followingEntity.worldObj.isRemote) 
@@ -457,7 +486,7 @@ public class ClientProxy extends CommonProxy {
 		else
 			super.stopFollowingSound(followingEntity, event);
 	}
-	
+
 	@Override
 	public void stopFollowingSound(Entity followingEntity, String event) {
 		if (followingEntity != null && followingEntity.worldObj.isRemote) 
@@ -480,6 +509,11 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void openGui(EnumGui gui) {
+		this.openGui(gui, new Object[0]);
+	}
+
+	@Override
+	public void openGui(EnumGui gui, @Nullable Object... objs) {
 		switch (gui) {
 		case WILDCARD:
 			Minecraft.getMinecraft().displayGuiScreen(new GuiWildCard());
@@ -487,6 +521,14 @@ public class ClientProxy extends CommonProxy {
 		case TEAM_STICK:
 			if (Minecraft.getMinecraft().objectMouseOver.entityHit == null)
 				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamStick());
+			break;
+		case TEAM_SPAWN:
+			if (objs.length == 1 && objs[0] instanceof TileEntityTeamSpawn)
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTeamSpawn((TileEntityTeamSpawn) objs[0]));
+			break;
+		case HERO_SELECT:
+			Minecraft.getMinecraft().displayGuiScreen(new GuiHeroSelect());
+			ModSoundEvents.GUI_OPEN.playFollowingSound(getClientPlayer(), 1, 1, false);
 			break;
 		}
 	}
@@ -509,8 +551,8 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void updateFOV() {
-		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-		if (player != null)
-			Minecraft.getMinecraft().theWorld.markBlockRangeForRenderUpdate(player.getPosition().add(-100, -100, -100), player.getPosition().add(100, 100, 100));
+		Entity entity = this.getRenderViewEntity();
+		if (entity != null)
+			Minecraft.getMinecraft().theWorld.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
 	}
 }

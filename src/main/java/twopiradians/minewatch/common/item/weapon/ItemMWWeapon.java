@@ -84,9 +84,12 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public int maxCharge;
 	/**Charge regained per tick*/
 	public float rechargeRate;
-	private int reloadTime;
+	protected int reloadTime;
 	protected boolean saveEntityToNBT;
 	public boolean showHealthParticles;
+	/**Saved result from onRightClick (since ours is called every tick, but theirs is called every 4 ticks)*/
+	public HashMap<UUID, ActionResult<ItemStack>> savedRightClickResult = Maps.newHashMap();
+	protected boolean noVerticalAimAssist;
 
 	private Handler CHARGE_RECOVERY = new Handler(Identifier.WEAPON_CHARGE, false) {
 		@Override
@@ -278,15 +281,15 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	public void onItemLeftClick(ItemStack stack, World worldObj, EntityLivingBase player, EnumHand hand) { }
 
-	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase
-	 * NOTE: this is only called every 4 ticks for some reason*/
+	/**Use instead of {@link Item#onItemRightClick(World, EntityPlayer, EnumHand)} to allow EntityLivingBase*/
 	public ActionResult<ItemStack> onItemRightClick(World worldObj, EntityLivingBase player, EnumHand hand) {
 		return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldObj, EntityPlayer player, EnumHand hand) {
-		return this.onItemRightClick(worldObj, (EntityLivingBase) player, hand);
+		return this.savedRightClickResult.containsKey(player.getPersistentID()) ? 
+				this.savedRightClickResult.get(player.getPersistentID()) : new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	/**Cancel swing animation when left clicking*/
@@ -299,6 +302,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void onUpdate(ItemStack stack, World worldObj, Entity entity, int slot, boolean isSelected) {	
 		if (entity == null || !entity.isEntityAlive())
 			return;
+
+		EnumHand hand = entity instanceof EntityLivingBase ? this.getHand((EntityLivingBase) entity, stack) : null;
 
 		//delete dev spawned items if not in dev's inventory
 		if (!worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
@@ -321,7 +326,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 
 		// reloading
-		if (!worldObj.isRemote && entity instanceof EntityLivingBase && (((EntityLivingBase)entity).getHeldItemMainhand() == stack ||
+		if (this.hero != EnumHero.DOOMFIST && !worldObj.isRemote && entity instanceof EntityLivingBase && (((EntityLivingBase)entity).getHeldItemMainhand() == stack ||
 				((EntityLivingBase)entity).getHeldItemOffhand() == stack) && !TickHandler.hasHandler(entity, Identifier.PREVENT_INPUT))
 			// automatic reload
 			if (this.getCurrentAmmo((EntityLivingBase) entity) == 0 && this.getMaxAmmo((EntityLivingBase) entity) > 0 &&
@@ -336,7 +341,6 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		// so make sure weapons with hasOffhand use an odd numbered cooldown
 		if (entity instanceof EntityLivingBase && KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) {
 			EntityLivingBase player = (EntityLivingBase) entity;
-			EnumHand hand = this.getHand(player, stack);	
 			if (hand != null && (!this.hasOffhand || this.hero == EnumHero.MOIRA || 
 					((hand == EnumHand.MAIN_HAND && player.ticksExisted % 2 == 0) ||
 							(hand == EnumHand.OFF_HAND && player.ticksExisted % 2 != 0 || 
@@ -344,16 +348,18 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 				onItemLeftClick(stack, worldObj, (EntityLivingBase) entity, hand);
 		}
 
-		// right click - for EntityHeroes
-		if (entity instanceof EntityHero)
+		// right click
+		if (entity instanceof EntityLivingBase && hand != null)
 			if (KeyBind.RMB.isKeyPressed((EntityLivingBase) entity) || 
-					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive()) &&
-					entity.ticksExisted % 4 == 0)
-				this.onItemRightClick(worldObj, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
-			else if (KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
-				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityHero) entity).getItemInUseCount());
-			else if (((EntityHero) entity).isHandActive())
-				((EntityHero) entity).stopActiveHand();
+					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive())) {
+				ActionResult<ItemStack> action = this.onItemRightClick(worldObj, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
+				if (entity instanceof EntityPlayer)
+					this.savedRightClickResult.put(entity.getPersistentID(), action);
+			}
+			else if (entity instanceof EntityHero && KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
+				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityLivingBase) entity).getItemInUseCount());
+			else if (entity instanceof EntityHero && ((EntityLivingBase) entity).isHandActive())
+				((EntityLivingBase) entity).stopActiveHand();
 
 		// deselect ability if it has cooldown
 		if (entity instanceof EntityPlayer)
@@ -385,8 +391,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 		// aim assist
 		if (worldObj.isRemote && entity instanceof EntityPlayer && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
-				 (KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
-			float delta = Config.aimAssist;
+				(KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
+			float delta = (float) Config.aimAssist;
 			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
 			float pitch = MathHelper.wrapDegrees(entity.rotationPitch);
 			if (EntityHelper.getMouseOverEntity((EntityLivingBase) entity, 512, false, pitch, yaw) == null) {
@@ -398,7 +404,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 						yaw = (yaw + 360f) % 360;
 					}
 					entity.rotationYaw = MathHelper.clamp_float(angles.x, yaw-delta, yaw+delta);
-					entity.rotationPitch = MathHelper.clamp_float(angles.y, pitch-delta, pitch+delta);
+					if (!this.noVerticalAimAssist)
+						entity.rotationPitch = MathHelper.clamp_float(angles.y, pitch-delta, pitch+delta);
 				} 
 			}
 		}
@@ -539,8 +546,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			GlStateManager.popMatrix();
 		}
 	}
-	
-	/**Called before player hands are rendered, for player holding weapon in mainhand*/
+
+	/**Called before player hands are rendered, for each hand*/
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
 		return false;
@@ -636,13 +643,13 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		super.addInformation(stack, player, tooltip, advanced);
 	}
 
-	/**Delete dev spawned dropped items*/
+	/**Delete dev spawned dropped items and if config option enabled*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		//delete dev spawned items if not worn by dev
 		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && 
-				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+				(Config.deleteItemsOnGround || (entityItem.getEntityItem().hasTagCompound() && 
+				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")))) {
 			entityItem.setDead();
 			return true;
 		}

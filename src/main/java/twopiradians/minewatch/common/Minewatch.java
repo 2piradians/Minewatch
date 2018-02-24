@@ -35,7 +35,7 @@ import twopiradians.minewatch.creativetab.MinewatchTab;
 //spawnEntity -> spawnEntityInWorld (fixes ~34 errors)
 //ItemStack.EMPTY -> null (fixes ~12 errors)
 //(EntityRegistry.registerModEntity\().*?\),\s -> $1 (fixes ~29 errors)
-//\.sendMessage\( -> .addChatMessage (fixes ~17 errors)
+//\.sendMessage\( -> .addChatMessage( (fixes ~17 errors)
 
 //1.12:
 //.expand( -> .grow(

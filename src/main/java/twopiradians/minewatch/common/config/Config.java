@@ -74,6 +74,7 @@ public class Config {
 	public static boolean renderOutlines;
 	public static double aimAssist;
 	public static boolean heroMobsDespawn;
+	public static boolean deleteItemsOnGround;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -257,12 +258,12 @@ public class Config {
 			prop.set(aimAssist);
 		else
 			aimAssist = prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
+		
+		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Delete Minewatch Items on Ground", false, "Should Minewatch armor and weapons be destroyed on the ground?");
 		if (overriding)
-			prop.set(heroMobsDespawn);
+			prop.set(deleteItemsOnGround);
 		else
-			heroMobsDespawn = prop.getBoolean();
+			deleteItemsOnGround = prop.getBoolean();
 
 		// Team Block options ======================================================================================
 
@@ -318,6 +319,12 @@ public class Config {
 
 		// Hero Mob options ======================================================================================
 
+		prop = config.get(Config.CATEGORY_HERO_MOBS, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
+		if (overriding)
+			prop.set(heroMobsDespawn);
+		else
+			heroMobsDespawn = prop.getBoolean();
+		
 		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
 		if (overriding)
 			prop.set(mobRandomSkins);

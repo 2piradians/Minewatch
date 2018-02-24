@@ -30,8 +30,8 @@ public class PacketSyncConfig implements IMessage {
 	private boolean tokenDropRequiresPlayer;
 	private double abilityCooldownMultiplier;
 	private double aimAssist;
-	private boolean heroMobsDespawn;
-	
+	private boolean deleteItemsOnGround;
+
 	private boolean customDeathScreen;
 	private int respawnTime;
 	private boolean allowHeroRespawn;
@@ -41,6 +41,7 @@ public class PacketSyncConfig implements IMessage {
 	private int healChangeHero;
 	private boolean heroSelectClearMWItems;
 
+	private boolean heroMobsDespawn;
 	private boolean mobRandomSkins;
 	private int mobSpawn;
 	private int mobSpawnFreq;
@@ -58,7 +59,7 @@ public class PacketSyncConfig implements IMessage {
 		// read values from config now that it's about to be sent to server
 		Config.syncConfig();
 		Config.config.save();
-		
+
 		this.preventFallDamage = Config.preventFallDamage;
 		this.allowGunWarnings = Config.allowGunWarnings;
 		this.projectilesCauseKnockback = Config.projectilesCauseKnockback;
@@ -74,8 +75,8 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = Config.tokenDropRequiresPlayer;
 		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 		this.aimAssist = Config.aimAssist;
-		this.heroMobsDespawn = Config.heroMobsDespawn;
-		
+		this.deleteItemsOnGround = Config.deleteItemsOnGround;
+
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
 		this.allowHeroRespawn = Config.allowHeroRespawn;
@@ -85,6 +86,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healChangeHero = Config.healChangeHero;
 		this.heroSelectClearMWItems = Config.heroSelectClearMWItems;
 
+		this.heroMobsDespawn = Config.heroMobsDespawn;
 		this.mobRandomSkins = Config.mobRandomSkins;
 		this.mobSpawn = Config.mobSpawn;
 		this.mobSpawnFreq = Config.mobSpawnFreq;
@@ -116,8 +118,8 @@ public class PacketSyncConfig implements IMessage {
 		this.tokenDropRequiresPlayer = buf.readBoolean();
 		this.abilityCooldownMultiplier = buf.readDouble();
 		this.aimAssist = buf.readDouble();
-		this.heroMobsDespawn = buf.readBoolean();
-		
+		this.deleteItemsOnGround = buf.readBoolean();
+
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
 		this.allowHeroRespawn = buf.readBoolean();
@@ -127,6 +129,7 @@ public class PacketSyncConfig implements IMessage {
 		this.healChangeHero = buf.readInt();
 		this.heroSelectClearMWItems = buf.readBoolean();
 
+		this.heroMobsDespawn = buf.readBoolean();
 		this.mobRandomSkins = buf.readBoolean();
 		this.mobSpawn = buf.readInt();
 		this.mobSpawnFreq = buf.readInt();
@@ -158,8 +161,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.tokenDropRequiresPlayer);
 		buf.writeDouble(this.abilityCooldownMultiplier);
 		buf.writeDouble(this.aimAssist);
-		buf.writeBoolean(this.heroMobsDespawn);
-		
+		buf.writeBoolean(this.deleteItemsOnGround);
+
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
 		buf.writeBoolean(this.allowHeroRespawn);
@@ -168,7 +171,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.mobRespawnRandomHero);
 		buf.writeInt(this.healChangeHero);
 		buf.writeBoolean(this.heroSelectClearMWItems);
-		
+
+		buf.writeBoolean(this.heroMobsDespawn);
 		buf.writeBoolean(this.mobRandomSkins);
 		buf.writeInt(this.mobSpawn);
 		buf.writeInt(this.mobSpawnFreq);
@@ -199,8 +203,8 @@ public class PacketSyncConfig implements IMessage {
 		Config.tokenDropRequiresPlayer = this.tokenDropRequiresPlayer;
 		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 		Config.aimAssist = this.aimAssist;
-		Config.heroMobsDespawn = this.heroMobsDespawn;
-		
+		Config.deleteItemsOnGround = this.deleteItemsOnGround;
+
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;
 		Config.allowHeroRespawn = this.allowHeroRespawn;
@@ -210,6 +214,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.healChangeHero = this.healChangeHero;
 		Config.heroSelectClearMWItems = this.heroSelectClearMWItems;
 
+		Config.heroMobsDespawn = this.heroMobsDespawn;
 		Config.mobRandomSkins = this.mobRandomSkins;
 		Config.mobSpawn = this.mobSpawn;
 		Config.mobSpawnFreq = this.mobSpawnFreq;

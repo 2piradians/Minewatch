@@ -149,13 +149,12 @@ public class ItemMWArmor extends ItemArmor {
 		super.onUpdate(stack, world, entity, slot, isSelected);
 	}
 
-	/**Delete dev spawned dropped items*/
+	/**Delete dev spawned dropped items and if config option enabled*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		// delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
 		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && 
-				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+				(Config.deleteItemsOnGround || (entityItem.getEntityItem().hasTagCompound() && 
+						entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")))) {
 			entityItem.setDead();
 			return true;
 		}

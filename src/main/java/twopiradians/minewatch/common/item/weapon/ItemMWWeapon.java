@@ -648,13 +648,13 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		super.addInformation(stack, player, tooltip, advanced);
 	}
 
-	/**Delete dev spawned dropped items*/
+	/**Delete dev spawned dropped items and if config option enabled*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		//delete dev spawned items if not worn by dev
 		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && 
-				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+				(Config.deleteItemsOnGround || (entityItem.getEntityItem().hasTagCompound() && 
+				entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")))) {
 			entityItem.setDead();
 			return true;
 		}

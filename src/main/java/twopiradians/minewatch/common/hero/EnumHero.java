@@ -479,7 +479,7 @@ public enum EnumHero {
 		GlStateManager.enableDepth();
 		GlStateManager.popMatrix();
 	}
-	
+
 	/**Get formatted name - like L�cio and Soldier: 76*/
 	public String getFormattedName(boolean allCaps) {
 		String name = this.name;
@@ -487,14 +487,14 @@ public enum EnumHero {
 			name = "Soldier: 76";
 		else if (this == EnumHero.LUCIO)
 			name = allCaps ? "LÚCIO": "Lúcio";
-		
+
 		if (allCaps)
 			name = name.toUpperCase();
 		return name;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void displayPortrait(EnumHero hero, double x, double y, boolean useAlpha) {
+	public static void displayPortrait(EnumHero hero, double x, double y, boolean useAlpha, boolean oldPortrait) {
 		Minecraft mc = Minecraft.getMinecraft();
 
 		GlStateManager.pushMatrix();
@@ -505,9 +505,12 @@ public enum EnumHero {
 
 		Rank rank = RankManager.getHighestRank(mc.player);
 		GlStateManager.translate(x, y, 0);
-		mc.getTextureManager().bindTexture(rank.iconLoc);
+		if (oldPortrait)
+			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/icon_background.png"));
+		else
+			mc.getTextureManager().bindTexture(rank.iconLoc);
 		GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 240, 240, 0);
-		
+
 		if (useAlpha) {
 			// draw stencil
 			GlStateManager.alphaFunc(GL11.GL_GREATER, hero == JUNKRAT ? 0.4f : 0.25F);
@@ -525,19 +528,19 @@ public enum EnumHero {
 			GlStateManager.color(1f, 1f, 1, 0.8f);
 			GlStateManager.alphaFunc(GL11.GL_GREATER, 0.0F);
 		}
-		
+
 		mc.getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name.toLowerCase()+"_icon.png"));
 		GuiUtils.drawTexturedModalRect(-7, -20, 0, 0, 240, 230, 0);
-		
+
 		if (useAlpha) {
 			GlStateManager.color(1f, 1f, 1, 0.2f);
 			mc.getTextureManager().bindTexture(PORTRAIT_OVERLAY_1);
 			GuiUtils.drawTexturedModalRect(-7, -20, 0, (int) (-mc.player.ticksExisted*0.5d), 240, 230, 0);
-			
+
 			GlStateManager.color(1f, 1f, 1, 0.5f);
 			mc.getTextureManager().bindTexture(PORTRAIT_OVERLAY_0);
 			GuiUtils.drawTexturedModalRect(-7, -20, 0, -mc.player.ticksExisted*3, 240, 230, 0);
-			
+
 			GL11.glDisable(GL11.GL_STENCIL_TEST);
 		}
 

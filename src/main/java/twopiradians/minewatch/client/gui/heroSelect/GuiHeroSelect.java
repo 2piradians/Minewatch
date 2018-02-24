@@ -133,7 +133,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 			// portrait
 			scale = Math.min(width, height) / 1500d;
 			GlStateManager.scale(scale, scale, 1);
-			EnumHero.displayPortrait(this.getSelectedHero(), this.width/2/scale-128, this.height/2/scale, this.getSelectedHero() != SetManager.getWornSet(mc.player));
+			EnumHero.displayPortrait(this.getSelectedHero(), this.width/2/scale-128, this.height/2/scale, this.getSelectedHero() != SetManager.getWornSet(mc.player), false);
 			GlStateManager.scale(1/scale, 1/scale, 1);
 			this.drawCenteredString(mc.fontRendererObj, TextFormatting.AQUA+""+TextFormatting.ITALIC+mc.player.getName().toUpperCase(), (int) (this.width/2), (int) (this.height*0.67f), 0xFFFFFF);
 

@@ -386,7 +386,7 @@ public class RenderManager {
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					EnumHero.displayPortrait(hero, 40-scale*120, (int) ((height - 256*scale) / scale) - 65+scale*110, false);
+					EnumHero.displayPortrait(hero, 40-scale*120, (int) ((height - 256*scale) / scale) - 65+scale*110, false, false);
 					GlStateManager.popMatrix();
 				}
 

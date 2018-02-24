@@ -128,13 +128,13 @@ public class Config {
 	}
 
 	public static void syncConfig() {	
-		syncConfig(false);
+		syncConfig(false, false);
 	}
 
 	/**@param overriding - should config sync from the config fields*/
-	public static void syncConfig(boolean overriding) {		
+	public static void syncConfig(boolean overriding, boolean clientSideOnly) {		
 		// CLIENT-SIDE ======================================================================================
-		
+
 		Property prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Use 3D Item Models", true, "Should the Minewatch weapons use 3D models?");
 		useObjModels = prop.getBoolean();
 
@@ -165,247 +165,249 @@ public class Config {
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent Fall Damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
-		if (overriding)
-			prop.set(preventFallDamage);
-		else
-			preventFallDamage = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict Weapon Usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
-		if (overriding)
-			prop.set(allowGunWarnings);
-		else
-			allowGunWarnings = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles Cause Knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
-		if (overriding)
-			prop.set(projectilesCauseKnockback);
-		else
-			projectilesCauseKnockback = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drop Percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
-		if (overriding)
-			prop.set(tokenDropRate);
-		else
-			tokenDropRate = prop.getInt();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card Drop Percentage", 10, "Percent of time a dropped token will be a Wild Card token.", 0, 100);
-		if (overriding)
-			prop.set(wildCardRate);
-		else
-			wildCardRate = prop.getInt();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
-		if (overriding)
-			prop.set(damageScale * 10d);
-		else
-			damageScale = 0.1d * prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors Use Durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
-		if (overriding)
-			prop.set(DURABILITY_OPTIONS[durabilityOptionArmors]);
-		else
-			for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
-				if (prop.getString().equals(DURABILITY_OPTIONS[i]))
-					durabilityOptionArmors = i;
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons Use Durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
-		if (overriding)
-			prop.set(DURABILITY_OPTIONS[durabilityOptionWeapons]);
-		else
-			for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
-				if (prop.getString().equals(DURABILITY_OPTIONS[i]))
-					durabilityOptionWeapons = i;
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow Healing Outside Team", true, "Should healing abilities and attacks affect mobs that are not on the same team?"); 
-		if (overriding)
-			prop.set(healMobs);
-		else
-			healMobs = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Heal Multiplier", 1d, "Multiplied by the healing amount for health packs (which is scaled by the Damage Scale). For example with this set to 2, Health Packs will heal twice as much as normal.", 0, 10);
-		if (overriding)
-			prop.set(healthPackHealMultiplier);
-		else
-			healthPackHealMultiplier = prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Respawn Multiplier", 1d, "Multiplied by the respawn timer for health packs. For example with this set to 2, Health Packs will take twice as long to respawn.", 0, 10);
-		if (overriding)
-			prop.set(healthPackRespawnMultiplier);
-		else
-			healthPackRespawnMultiplier = prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ammo Multiplier", 1d, "Multiplied by the default max ammo for a weapon. For example with this set to 2, weapons will have twice as much ammo. When this is 0, weapons have unlimited ammo.", 0, 10);
-		if (overriding)
-			prop.set(ammoMultiplier);
-		else
-			ammoMultiplier = prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drops Require Player", false, "Should tokens only drop from mobs killed by a player?");
-		if (overriding)
-			prop.set(tokenDropRequiresPlayer);
-		else
-			tokenDropRequiresPlayer = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ability Cooldown Multiplier", 1d, "Multiplied by the default cooldown for abilities. For example with this set to 2, abilities will have twice the normal cooldown.", 0, 10);
-		if (overriding)
-			prop.set(abilityCooldownMultiplier);
-		else
-			abilityCooldownMultiplier = prop.getDouble();
-
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Aim Assist", 0.2d, "0 is no aim assist, 1 is heavy aim assist. This will subtly turn the player towards their target while shooting.", 0, 1);
-		if (overriding)
-			prop.set(aimAssist);
-		else
-			aimAssist = prop.getDouble();
-		
-		prop = config.get(Config.CATEGORY_SERVER_SIDE, "Delete Minewatch Items on Ground", false, "Should Minewatch armor and weapons be destroyed on the ground?");
-		if (overriding)
-			prop.set(deleteItemsOnGround);
-		else
-			deleteItemsOnGround = prop.getBoolean();
-
-		// Team Block options ======================================================================================
-
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
-		if (overriding)
-			prop.set(customDeathScreen);
-		else
-			customDeathScreen = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Respawn Time", 10, "Amount of time (in seconds) that entities have to wait to respawn. Only applies when Custom Death Screen is enabled.", 0, 100);
-		if (overriding)
-			prop.set(respawnTime/20);
-		else
-			respawnTime = prop.getInt()*20;
-
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Hero Mobs to Respawn", true, "Should hero mobs respawn at their team's active Team Spawn?");
-		if (overriding)
-			prop.set(allowHeroRespawn);
-		else
-			allowHeroRespawn = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Mobs to Respawn", true, "Should mobs (not hero mobs) respawn at their team's active Team Spawn?");
-		if (overriding)
-			prop.set(allowMobRespawn);
-		else
-			allowMobRespawn = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Players to Respawn", true, "Should players respawn at their team's active Team Spawn?");
-		if (overriding)
-			prop.set(allowPlayerRespawn);
-		else
-			allowPlayerRespawn = prop.getBoolean();
-		
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Mobs Respawn with Random Hero", false, "Should Hero Mobs respawn as random heroes?");
-		if (overriding)
-			prop.set(mobRespawnRandomHero);
-		else
-			mobRespawnRandomHero = prop.getBoolean();
-		
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Heal and Change Hero at Team Spawns", HEAL_CHANGE_HERO_OPTIONS[0], "Choose when Team Spawns should provide healing and allow players to change heroes within their radius.", HEAL_CHANGE_HERO_OPTIONS);
-		if (overriding)
-			prop.set(HEAL_CHANGE_HERO_OPTIONS[healChangeHero]);
-		else
-			for (int i=0; i<HEAL_CHANGE_HERO_OPTIONS.length; ++i)
-				if (prop.getString().equals(HEAL_CHANGE_HERO_OPTIONS[i]))
-					healChangeHero = i;
-		
-		prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Selection Removes Minewatch Equipment", false, "Should selecting a hero in hero selection remove other Minewatch equipment from the player's inventory?");
-		if (overriding)
-			prop.set(heroSelectClearMWItems);
-		else
-			heroSelectClearMWItems = prop.getBoolean();
-
-		// Hero Mob options ======================================================================================
-
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
-		if (overriding)
-			prop.set(heroMobsDespawn);
-		else
-			heroMobsDespawn = prop.getBoolean();
-		
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
-		if (overriding)
-			prop.set(mobRandomSkins);
-		else
-			mobRandomSkins = prop.getBoolean();
-
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning", SPAWN_OPTIONS[0], "Choose when Hero Mobs should spawn.", SPAWN_OPTIONS);
-		if (overriding)
-			prop.set(SPAWN_OPTIONS[mobSpawn]);
-		else
-			for (int i=0; i<SPAWN_OPTIONS.length; ++i)
-				if (prop.getString().equals(SPAWN_OPTIONS[i]))
-					mobSpawn = i;
-
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
-		if (overriding)
-			prop.set(SPAWN_FREQ_OPTIONS[mobSpawnFreq]);
-		else
-			for (int i=0; i<SPAWN_FREQ_OPTIONS.length; ++i)
-				if (prop.getString().equals(SPAWN_FREQ_OPTIONS[i]))
-					mobSpawnFreq = i;
-
-		for (EnumHero hero : EnumHero.values()) 
-			if (mobSpawnFreq == 0 || mobSpawn == 2)
-				EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+		if (!clientSideOnly) {
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Prevent Fall Damage", true, "Should fall damage be prevented while wearing a full set of hero armor?");
+			if (overriding)
+				prop.set(preventFallDamage);
 			else
-				EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+				preventFallDamage = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
-		if (overriding)
-			prop.set(mobTargetPlayers);
-		else
-			mobTargetPlayers = prop.getBoolean();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Restrict Weapon Usage", false, "Should weapons only work like in Overwatch: only in the mainhand (with offhand weapons in the offhand)? This also prevents weapons from different heroes from being mixed and matched.");
+			if (overriding)
+				prop.set(allowGunWarnings);
+			else
+				allowGunWarnings = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hostile Mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
-		if (overriding)
-			prop.set(mobTargetHostiles);
-		else
-			mobTargetHostiles = prop.getBoolean();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Projectiles Cause Knockback", false, "Should projectiles (i.e. bullets/weapons) knock back enemies?");
+			if (overriding)
+				prop.set(projectilesCauseKnockback);
+			else
+				projectilesCauseKnockback = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Passive Mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
-		if (overriding)
-			prop.set(mobTargetPassives);
-		else
-			mobTargetPassives = prop.getBoolean();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drop Percentage", 1, "Percent of time a token drops from a mob upon death.", 0, 100);
+			if (overriding)
+				prop.set(tokenDropRate);
+			else
+				tokenDropRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hero Mobs", false, "Should Hero Mobs target Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
-		if (overriding)
-			prop.set(mobTargetHeroes);
-		else
-			mobTargetHeroes = prop.getBoolean();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Wild Card Drop Percentage", 10, "Percent of time a dropped token will be a Wild Card token.", 0, 100);
+			if (overriding)
+				prop.set(wildCardRate);
+			else
+				wildCardRate = prop.getInt();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Token Drop Percentage", 25, "Percent of time a token drops from a Hero Mob upon death.\nNote: Hero Mobs will only drop tokens of their respective hero (or Wild Card tokens).", 0, 100);
-		if (overriding)
-			prop.set(mobTokenDropRate);
-		else
-			mobTokenDropRate = prop.getInt();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means weapons do more damage and a lower scale means they do less.", 0, 100);
+			if (overriding)
+				prop.set(damageScale * 10d);
+			else
+				damageScale = 0.1d * prop.getDouble();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Wild Card Drop Percentage", 10, "Percent of time a dropped token from a Hero Mob will be a Wild Card token.", 0, 100);
-		if (overriding)
-			prop.set(mobWildCardDropRate);
-		else
-			mobWildCardDropRate = prop.getInt();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armors Use Durability", DURABILITY_OPTIONS[0], "Choose when armors should use durability.", DURABILITY_OPTIONS);
+			if (overriding)
+				prop.set(DURABILITY_OPTIONS[durabilityOptionArmors]);
+			else
+				for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
+					if (prop.getString().equals(DURABILITY_OPTIONS[i]))
+						durabilityOptionArmors = i;
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment Drop Percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
-		if (overriding)
-			prop.set((int) (mobEquipmentDropRate*100d));
-		else
-			mobEquipmentDropRate = prop.getInt()/100d;
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Weapons Use Durability", DURABILITY_OPTIONS[1], "Choose when weapons should use durability.", DURABILITY_OPTIONS);
+			if (overriding)
+				prop.set(DURABILITY_OPTIONS[durabilityOptionWeapons]);
+			else
+				for (int i=0; i<DURABILITY_OPTIONS.length; ++i)
+					if (prop.getString().equals(DURABILITY_OPTIONS[i]))
+						durabilityOptionWeapons = i;
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Attack Cooldown Multiplier", 2d, "Multiplied by the normal attack cooldown for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will have twice the normal cooldown.", 0, 10);
-		if (overriding)
-			prop.set(mobAttackCooldown);
-		else
-			mobAttackCooldown = prop.getDouble();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Allow Healing Outside Team", true, "Should healing abilities and attacks affect mobs that are not on the same team?"); 
+			if (overriding)
+				prop.set(healMobs);
+			else
+				healMobs = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_HERO_MOBS, "Inaccuracy Multiplier", 7d, "Multiplied by the normal inaccuracy for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will be twice as inaccurate.", 0, 20);
-		if (overriding)
-			prop.set(mobInaccuracy);
-		else
-			mobInaccuracy = prop.getDouble();
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Heal Multiplier", 1d, "Multiplied by the healing amount for health packs (which is scaled by the Damage Scale). For example with this set to 2, Health Packs will heal twice as much as normal.", 0, 10);
+			if (overriding)
+				prop.set(healthPackHealMultiplier);
+			else
+				healthPackHealMultiplier = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Pack Respawn Multiplier", 1d, "Multiplied by the respawn timer for health packs. For example with this set to 2, Health Packs will take twice as long to respawn.", 0, 10);
+			if (overriding)
+				prop.set(healthPackRespawnMultiplier);
+			else
+				healthPackRespawnMultiplier = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ammo Multiplier", 1d, "Multiplied by the default max ammo for a weapon. For example with this set to 2, weapons will have twice as much ammo. When this is 0, weapons have unlimited ammo.", 0, 10);
+			if (overriding)
+				prop.set(ammoMultiplier);
+			else
+				ammoMultiplier = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Token Drops Require Player", false, "Should tokens only drop from mobs killed by a player?");
+			if (overriding)
+				prop.set(tokenDropRequiresPlayer);
+			else
+				tokenDropRequiresPlayer = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ability Cooldown Multiplier", 1d, "Multiplied by the default cooldown for abilities. For example with this set to 2, abilities will have twice the normal cooldown.", 0, 10);
+			if (overriding)
+				prop.set(abilityCooldownMultiplier);
+			else
+				abilityCooldownMultiplier = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Aim Assist", 0.2d, "0 is no aim assist, 1 is heavy aim assist. This will subtly turn the player towards their target while shooting.", 0, 1);
+			if (overriding)
+				prop.set(aimAssist);
+			else
+				aimAssist = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Delete Minewatch Items on Ground", false, "Should Minewatch armor and weapons be destroyed on the ground?");
+			if (overriding)
+				prop.set(deleteItemsOnGround);
+			else
+				deleteItemsOnGround = prop.getBoolean();
+
+			// Team Block options ======================================================================================
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Custom Death Screen", true, "Should the normal death screen be replaced with the Minewatch death screen?");
+			if (overriding)
+				prop.set(customDeathScreen);
+			else
+				customDeathScreen = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Respawn Time", 10, "Amount of time (in seconds) that entities have to wait to respawn. Only applies when Custom Death Screen is enabled.", 0, 100);
+			if (overriding)
+				prop.set(respawnTime/20);
+			else
+				respawnTime = prop.getInt()*20;
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Hero Mobs to Respawn", true, "Should hero mobs respawn at their team's active Team Spawn?");
+			if (overriding)
+				prop.set(allowHeroRespawn);
+			else
+				allowHeroRespawn = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Mobs to Respawn", true, "Should mobs (not hero mobs) respawn at their team's active Team Spawn?");
+			if (overriding)
+				prop.set(allowMobRespawn);
+			else
+				allowMobRespawn = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Allow Players to Respawn", true, "Should players respawn at their team's active Team Spawn?");
+			if (overriding)
+				prop.set(allowPlayerRespawn);
+			else
+				allowPlayerRespawn = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Mobs Respawn with Random Hero", false, "Should Hero Mobs respawn as random heroes?");
+			if (overriding)
+				prop.set(mobRespawnRandomHero);
+			else
+				mobRespawnRandomHero = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Heal and Change Hero at Team Spawns", HEAL_CHANGE_HERO_OPTIONS[0], "Choose when Team Spawns should provide healing and allow players to change heroes within their radius.", HEAL_CHANGE_HERO_OPTIONS);
+			if (overriding)
+				prop.set(HEAL_CHANGE_HERO_OPTIONS[healChangeHero]);
+			else
+				for (int i=0; i<HEAL_CHANGE_HERO_OPTIONS.length; ++i)
+					if (prop.getString().equals(HEAL_CHANGE_HERO_OPTIONS[i]))
+						healChangeHero = i;
+
+			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Selection Removes Minewatch Equipment", false, "Should selecting a hero in hero selection remove other Minewatch equipment from the player's inventory?");
+			if (overriding)
+				prop.set(heroSelectClearMWItems);
+			else
+				heroSelectClearMWItems = prop.getBoolean();
+
+			// Hero Mob options ======================================================================================
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Hero Mobs on Teams Despawn", false, "Should Hero Mobs on teams be allowed to despawn?");
+			if (overriding)
+				prop.set(heroMobsDespawn);
+			else
+				heroMobsDespawn = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Random Skins", true, "Should Hero Mobs spawn with random skins.");
+			if (overriding)
+				prop.set(mobRandomSkins);
+			else
+				mobRandomSkins = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning", SPAWN_OPTIONS[0], "Choose when Hero Mobs should spawn.", SPAWN_OPTIONS);
+			if (overriding)
+				prop.set(SPAWN_OPTIONS[mobSpawn]);
+			else
+				for (int i=0; i<SPAWN_OPTIONS.length; ++i)
+					if (prop.getString().equals(SPAWN_OPTIONS[i]))
+						mobSpawn = i;
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Spawning Frequency", SPAWN_FREQ_OPTIONS[2], "Choose how frequently Hero Mobs should spawn.", SPAWN_FREQ_OPTIONS);
+			if (overriding)
+				prop.set(SPAWN_FREQ_OPTIONS[mobSpawnFreq]);
+			else
+				for (int i=0; i<SPAWN_FREQ_OPTIONS.length; ++i)
+					if (prop.getString().equals(SPAWN_FREQ_OPTIONS[i]))
+						mobSpawnFreq = i;
+
+			for (EnumHero hero : EnumHero.values()) 
+				if (mobSpawnFreq == 0 || mobSpawn == 2)
+					EntityRegistry.removeSpawn(hero.heroClass, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+				else
+					EntityRegistry.addSpawn(hero.heroClass, (int) Math.pow(Config.mobSpawnFreq, 3), 1, 1, EnumCreatureType.MONSTER, OVERWORLD_BIOMES);
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Players", true, "Should Hero Mobs target players.\nNote: Hero Mobs never target entities on the same team as them.");
+			if (overriding)
+				prop.set(mobTargetPlayers);
+			else
+				mobTargetPlayers = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hostile Mobs", true, "Should Hero Mobs target hostile mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+			if (overriding)
+				prop.set(mobTargetHostiles);
+			else
+				mobTargetHostiles = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Passive Mobs", false, "Should Hero Mobs target passive mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+			if (overriding)
+				prop.set(mobTargetPassives);
+			else
+				mobTargetPassives = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Target Hero Mobs", false, "Should Hero Mobs target Hero Mobs.\nNote: Hero Mobs never target entities on the same team as them.");
+			if (overriding)
+				prop.set(mobTargetHeroes);
+			else
+				mobTargetHeroes = prop.getBoolean();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Token Drop Percentage", 25, "Percent of time a token drops from a Hero Mob upon death.\nNote: Hero Mobs will only drop tokens of their respective hero (or Wild Card tokens).", 0, 100);
+			if (overriding)
+				prop.set(mobTokenDropRate);
+			else
+				mobTokenDropRate = prop.getInt();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Wild Card Drop Percentage", 10, "Percent of time a dropped token from a Hero Mob will be a Wild Card token.", 0, 100);
+			if (overriding)
+				prop.set(mobWildCardDropRate);
+			else
+				mobWildCardDropRate = prop.getInt();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Equipment Drop Percentage", 10, "Percent chance that a Hero Mob will drop each piece of its equipment.", 0, 100);
+			if (overriding)
+				prop.set((int) (mobEquipmentDropRate*100d));
+			else
+				mobEquipmentDropRate = prop.getInt()/100d;
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Attack Cooldown Multiplier", 2d, "Multiplied by the normal attack cooldown for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will have twice the normal cooldown.", 0, 10);
+			if (overriding)
+				prop.set(mobAttackCooldown);
+			else
+				mobAttackCooldown = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Inaccuracy Multiplier", 7d, "Multiplied by the normal inaccuracy for attacks / abilities. For example with this set to 2, Hero Mob attacks / abilities will be twice as inaccurate.", 0, 20);
+			if (overriding)
+				prop.set(mobInaccuracy);
+			else
+				mobInaccuracy = prop.getDouble();
+		}
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {
@@ -425,10 +427,9 @@ public class Config {
 
 	@SubscribeEvent
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-		 // if not in mp server (only update when sync packet sent on mp server)
-		if (event.getModID().equals(Minewatch.MODID) && 
-				FMLCommonHandler.instance().getMinecraftServerInstance() != null) {
-			syncConfig();
+		// if not in mp server (only update when sync packet sent on mp server)
+		if (event.getModID().equals(Minewatch.MODID)) {
+			syncConfig(false, FMLCommonHandler.instance().getMinecraftServerInstance() != null);
 			config.save();
 		}
 	}

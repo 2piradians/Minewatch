@@ -2,16 +2,12 @@ package twopiradians.minewatch.common.item.weapon;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector2f;
 
 import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -61,7 +57,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemDoomfistWeapon extends ItemMWWeapon {
 
-	public static HashMap<UUID, Integer> punchAnimations = Maps.newHashMap();
+	public static final Handler PUNCH_ANIMATIONS = new Handler(Identifier.DOOMFIST_PUNCH_ANIMATIONS, true) {};
 	public static final ResourceLocation OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/doomfist_overlay.png");
 	public static final ResourceLocation PUNCH_OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/doomfist_punch.png");
 	public static final Handler RELOAD = new Handler(Identifier.DOOMFIST_RELOAD, false) {
@@ -368,7 +364,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 					entity.motionZ = 0;
 					if (!bool) {
 						ModSoundEvents.REINHARDT_CHARGE_HIT.playFollowingSound(entity, 1, 1, false);
-						punchAnimations.put(entity.getPersistentID(), 5);
+						TickHandler.register(true, PUNCH_ANIMATIONS.setEntity(entity).setTicks(5));
 					}
 					double x = result.hitVec.xCoord; 
 					double y = result.hitVec.yCoord;
@@ -464,7 +460,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			if (handler.entity.world.isRemote && handler.identifier == Identifier.DOOMFIST_PUNCH) {
 				handler.bool = true;
 				ModSoundEvents.DOOMFIST_PUNCH_HIT_WALL.playFollowingSound(handler.entity, 1, 1, false);
-				punchAnimations.put(handler.entity.getPersistentID(), 5);
+				TickHandler.register(true, PUNCH_ANIMATIONS.setEntity(handler.entity).setTicks(5));
 			}
 			else if (!handler.entity.world.isRemote && handler.identifier == Identifier.DOOMFIST_PUNCHED && 
 					handler.entity instanceof EntityLivingBase && handler.entityLiving != null) {
@@ -522,6 +518,9 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			this.setCooldown(player, 7);
 			if (world.rand.nextInt(6) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
+			Handler handler = TickHandler.getHandler(player, Identifier.DOOMFIST_RELOAD);
+			if (handler != null)
+				handler.ticksLeft = handler.initialTicks;
 		}
 	}
 
@@ -575,14 +574,6 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
 					player.ticksExisted % 5 == 0 && !player.onGround)
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_0, world, player, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 60, 60, 0, 0);
-
-			// animation
-			if (world.isRemote && punchAnimations.containsKey(entity.getPersistentID())) {
-				if (punchAnimations.get(entity.getPersistentID()) > 1)
-					punchAnimations.put(entity.getPersistentID(), punchAnimations.get(entity.getPersistentID())-1);
-				else
-					punchAnimations.remove(entity.getPersistentID());
-			}
 
 			// reload automatically
 			if (!world.isRemote && this.getCurrentAmmo(player) < this.getMaxAmmo(player) && !TickHandler.hasHandler(player, Identifier.DOOMFIST_RELOAD)) 
@@ -739,8 +730,9 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		else if (getCharge(entity) > 0) // charging punch
 			return 1;
 		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_PUNCH) || // punching
-				(entity != null && punchAnimations.containsKey(entity.getPersistentID())))
+				TickHandler.hasHandler(entity, Identifier.DOOMFIST_PUNCH_ANIMATIONS)) {
 			return 2;
+		}
 		else if (TickHandler.hasHandler(entity, Identifier.DOOMFIST_UPPERCUTTING) && // uppercut
 				TickHandler.getHandler(entity, Identifier.DOOMFIST_UPPERCUTTING).number < 8)
 			return 3;
@@ -769,13 +761,14 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType transform, Pair<? extends IBakedModel, Matrix4f> ret) {
 		float charge = getCharge(entity);
+		Handler handler = TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH_ANIMATIONS);
 		// charging punch
 		if (charge > 0 && transform == TransformType.THIRD_PERSON_RIGHT_HAND) {
 			GlStateManager.translate(0, 0, charge*0.2f);
 		}
 		// punch animation
-		else if (entity != null && punchAnimations.containsKey(entity.getPersistentID()) && transform == TransformType.FIRST_PERSON_RIGHT_HAND) {
-			float percent = (5f-(punchAnimations.get(entity.getPersistentID()) - Minewatch.proxy.getRenderPartialTicks())) / 5f;
+		else if (entity != null && handler != null && transform == TransformType.FIRST_PERSON_RIGHT_HAND) {
+			float percent = (5f-(handler.ticksLeft - Minewatch.proxy.getRenderPartialTicks())) / 5f;
 			GlStateManager.rotate(percent*80f, -1, 20, 0.5f);
 			GlStateManager.translate(-percent*1.0f, -percent*0.8f, percent*0.1f);
 		}

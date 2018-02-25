@@ -11,6 +11,7 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -81,6 +82,13 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 		this.buttonList.add(new GuiButtonBase(102, this.width/2-50, y+(this.height-y+height)/2-10, 80, 20, Minewatch.translate("gui.team_block.button.ok"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.HERO_INFO).setColor(new Color(0x9AE6FD)));
 	}
 
+	public void setGuiSize(int w, int h)
+	{
+		ScaledResolution resolution = new ScaledResolution(mc);
+		this.width = w*resolution.getScaleFactor();
+		this.height = h*resolution.getScaleFactor();
+	}
+
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.guiPlayer.ticksExisted = Minecraft.getMinecraft().thePlayer.ticksExisted;
@@ -88,10 +96,44 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1, 1, 1, 1);
 
+		// PORT 1.10.2:
+		ScaledResolution resolution = new ScaledResolution(mc);
+		mouseX *= resolution.getScaleFactor();
+		mouseY *= resolution.getScaleFactor();
+
 		// background
 		GlStateManager.pushMatrix();
-		this.drawGradientRect(0, 0, this.width, this.height, 0x50FFFFFF, 0x10FFFFFF);
+		this.drawGradientRect(0, 0, this.width*resolution.getScaleFactor(), this.height*resolution.getScaleFactor(), 0x50FFFFFF, 0x10FFFFFF);
 		GlStateManager.popMatrix();
+
+		if (this.currentScreen == Screen.MAIN) {
+			// draw guiPlayer
+			GlStateManager.pushMatrix();
+
+			// PORT 1.10.2:
+			//GlStateManager.scale((float)1/resolution.getScaleFactor(), (float)1/resolution.getScaleFactor(), 0);
+			GlStateManager.enableDepth();
+			GlStateManager.translate(0, 0, -500);
+			double scale = Math.min(width, height) / 2;
+			int x = this.width/2;
+			int y = (int) (guiPlayer.height*scale+this.height*0.2f);
+
+			// PORT 1.10.2:
+			x *= resolution.getScaleFactor();
+			y *= resolution.getScaleFactor();
+			scale *= resolution.getScaleFactor();
+			System.out.println(x);
+
+			GuiInventory.drawEntityOnScreen(x, y, (int) scale, -mouseX+x, (float) (-mouseY-this.guiPlayer.eyeHeight*scale)+y, this.guiPlayer);
+			GlStateManager.translate(0, 0, 500);
+
+			// PORT 1.10.2:
+			//GlStateManager.scale(resolution.getScaleFactor(), resolution.getScaleFactor(), 0);
+			GlStateManager.popMatrix();
+		}
+
+		// PORT 1.10.2:
+		GlStateManager.scale(resolution.getScaleFactor(), resolution.getScaleFactor(), 0);
 
 		// main
 		GlStateManager.pushMatrix();
@@ -112,15 +154,6 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 			text = TextFormatting.WHITE+""+TextFormatting.ITALIC+this.getSelectedHero().getFormattedName(true);
 			mc.fontRendererObj.drawString(text, (int) (this.width/scale-mc.fontRendererObj.getStringWidth(text)-25), 8, 0xFFFFFF, true);
 			GlStateManager.popMatrix();
-
-			// draw guiPlayer
-			GlStateManager.enableDepth();
-			GlStateManager.translate(0, 0, -500);
-			scale = Math.min(width, height) / 2;
-			int x = this.width/2;
-			int y = (int) (guiPlayer.height*scale+this.height*0.2f);
-			GuiInventory.drawEntityOnScreen(x, y, (int) scale, -mouseX+x, (float) (-mouseY-this.guiPlayer.eyeHeight*scale)+y, this.guiPlayer);
-			GlStateManager.translate(0, 0, 500);
 
 			// background 
 			GlStateManager.pushMatrix();

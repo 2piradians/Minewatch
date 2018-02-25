@@ -158,8 +158,10 @@ public class GuiButtonBase extends GuiButton {
 		case NONE:
 			break;
 		case TEXT:
-			if (visible)
+			if (visible) {
+				this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + actualHeight;
 				mc.fontRendererObj.drawString(displayString, this.xPosition + this.width / 2 - mc.fontRendererObj.getStringWidth(displayString)/2, this.yPosition + (this.height - 8) / 2, 14737632, true);
+			}
 			break;
 		case HERO_SELECT:
 			if (visible) {

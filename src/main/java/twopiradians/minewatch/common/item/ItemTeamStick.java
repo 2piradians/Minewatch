@@ -33,7 +33,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.EntityHelper;

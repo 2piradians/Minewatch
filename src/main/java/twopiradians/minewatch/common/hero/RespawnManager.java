@@ -156,7 +156,7 @@ public class RespawnManager {
 				MinecraftServer mcServer = player.mcServer;
 				World worldObj = mcServer.worldServerForDimension(dimension);
 				if (worldObj == null)
-					dimension = 0; //TODO do we want overworld here?
+					dimension = 0;
 				else if (!worldObj.provider.canRespawnHere())
 					dimension = worldObj.provider.getRespawnDimension((EntityPlayerMP) player);
 				if (mcServer.worldServerForDimension(dimension) == null) 
@@ -194,28 +194,31 @@ public class RespawnManager {
 				nbt.removeTag("UUID");
 				nbt.removeTag("UUIDMost");
 				nbt.removeTag("UUIDLeast");
-				EntityLivingBase respawnEntityInWorld = (EntityLivingBase) EntityList.createEntityFromNBT(nbt, entity.worldObj);
-				respawnEntityInWorld.setHealth(respawnEntityInWorld.getMaxHealth());
-				respawnEntityInWorld.setPositionAndRotation(teamSpawn.getX()+0.5d, teamSpawn.getY(), teamSpawn.getZ()+0.5d, facing.getHorizontalAngle(), 0);
-				respawnEntityInWorld.rotationYawHead = facing.getHorizontalAngle();
-				respawnEntityInWorld.prevRotationYawHead = facing.getHorizontalAngle();
-				respawnEntityInWorld.rotationYaw = facing.getHorizontalAngle();
-				respawnEntityInWorld.prevRotationYaw = facing.getHorizontalAngle();
-				respawnEntityInWorld.setRenderYawOffset(facing.getHorizontalAngle());
-				respawnEntityInWorld.prevRenderYawOffset = facing.getHorizontalAngle();
-				entity.worldObj.getScoreboard().addPlayerToTeam(respawnEntityInWorld.getCachedUniqueIdString(), team.getRegisteredName());
+				EntityLivingBase respawnEntity = (EntityLivingBase) EntityList.createEntityFromNBT(nbt, entity.worldObj);
+				respawnEntity.setHealth(respawnEntity.getMaxHealth());
+				respawnEntity.setPositionAndRotation(teamSpawn.getX()+0.5d, teamSpawn.getY(), teamSpawn.getZ()+0.5d, facing.getHorizontalAngle(), 0);
+				respawnEntity.rotationYawHead = facing.getHorizontalAngle();
+				respawnEntity.prevRotationYawHead = facing.getHorizontalAngle();
+				respawnEntity.rotationYaw = facing.getHorizontalAngle();
+				respawnEntity.prevRotationYaw = facing.getHorizontalAngle();
+				respawnEntity.setRenderYawOffset(facing.getHorizontalAngle());
+				respawnEntity.prevRenderYawOffset = facing.getHorizontalAngle();
+				respawnEntity.motionX = 0;
+				respawnEntity.motionY = 0;
+				respawnEntity.motionZ = 0;
+				entity.worldObj.getScoreboard().addPlayerToTeam(respawnEntity.getCachedUniqueIdString(), team.getRegisteredName());
 				if (entity.hasCustomName()) {
-					respawnEntityInWorld.setCustomNameTag(entity.getCustomNameTag());
-					respawnEntityInWorld.setAlwaysRenderNameTag(entity.getAlwaysRenderNameTag());
+					respawnEntity.setCustomNameTag(entity.getCustomNameTag());
+					respawnEntity.setAlwaysRenderNameTag(entity.getAlwaysRenderNameTag());
 				}
-				respawnEntityInWorld.clearActivePotions();
-				respawnEntityInWorld.extinguish();
-				respawnEntityInWorld.deathTime = 0;
-				if (respawnEntityInWorld instanceof EntityShulker)
-					((EntityShulker)respawnEntityInWorld).setAttachmentPos(teamSpawn);
-				entity.worldObj.spawnEntityInWorld(respawnEntityInWorld);
-				if (Config.mobRespawnRandomHero && respawnEntityInWorld instanceof EntityHero) 
-					((EntityHero)respawnEntityInWorld).spawnRandomHero();
+				respawnEntity.clearActivePotions();
+				respawnEntity.extinguish();
+				respawnEntity.deathTime = 0;
+				if (respawnEntity instanceof EntityShulker)
+					((EntityShulker)respawnEntity).setAttachmentPos(teamSpawn);
+				entity.worldObj.spawnEntityInWorld(respawnEntity);
+				if (Config.mobRespawnRandomHero && respawnEntity instanceof EntityHero) 
+					((EntityHero)respawnEntity).spawnRandomHero();
 			}
 			catch (Exception e) {
 				Minewatch.logger.warn("Unable to respawn entity ("+entity+") at Team Spawn ("+teamSpawn+")", e);

@@ -11,7 +11,7 @@ config.server-side.team_blocks=组队选项
 command.hero.desc=设置玩家/实体所穿戴的武器以及护甲
 command.sync.desc=将你已更改的配置同步至服务器
 command.team_spawn.desc=启用/禁用团队生成器
-command.reset.desc=通过命令可'重置'当前Minewatch竞速游戏，且实体均可于团队生成器重新生成。
+command.reset.desc=通过命令可'重置'当前Minewatch的团队竞技，且实体均可从团队生成器重新生成。
 
 effect.frozen=急冻
 
@@ -236,9 +236,9 @@ gui.team_spawn.button.selected_team.desc=将此设置为团队重生点。
 gui.team_spawn.question_mark_description_0=团队生成器会生成玩家所选的实体进行生成（箭头朝向即生成方向），且其还赋予了玩家与实体死后重生，医疗包半径，以及英雄选择的权利。
 gui.team_spawn.question_mark_description_1=团队生成器也可通过命令启用/禁用：
 gui.team_spawn.status.players_heroes_team=玩家与实体
-gui.team_spawn.status.players_heroes_all=全部玩家与实体（仅限一个团队中）
+gui.team_spawn.status.players_heroes_all=全部玩家与实体（仅限同一团队）
 gui.team_spawn.status.players_heroes_none=无
 gui.team_spawn.status.will_spawn=将此设置为生成点。
 
 gui.hero_select.select=选择
-gui.hero_select.select_hero=选择一个英雄
+gui.hero_select.select_hero=选择一个英

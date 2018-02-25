@@ -121,12 +121,12 @@ public class GuiButtonBase extends GuiButton {
 		switch (render) {
 		case NORMAL:
 			// copied - added color
+			this.hovered = visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + actualHeight;
 			if (this.visible)
 			{
 				FontRenderer fontrenderer = mc.fontRenderer;
 				mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 				GlStateManager.color(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f);
-				this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + actualHeight;
 				int i = this.getHoverState(this.hovered);
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -158,16 +158,18 @@ public class GuiButtonBase extends GuiButton {
 		case NONE:
 			break;
 		case TEXT:
-			if (visible)
+			this.hovered = visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + actualHeight;
+			if (visible) {
 				mc.fontRenderer.drawString(displayString, this.x + this.width / 2 - mc.fontRenderer.getStringWidth(displayString)/2, this.y + (this.height - 8) / 2, 14737632, true);
+			}
 			break;
 		case HERO_SELECT:
+			this.hovered = visible && enabled && mouseX >= (this.x+2) && mouseY >= (this.y-2) && mouseX < (this.x + this.width-2) && mouseY < (this.y + this.height+0);
 			if (visible) {
 				int num = id >= 20 ? id-20 : id;
 				int row = num / 4;
 				int col = num % 4;
 				this.enabled = hero != null;
-				this.hovered = enabled && mouseX >= (this.x+2) && mouseY >= (this.y-2) && mouseX < (this.x + this.width-2) && mouseY < (this.y + this.height+0);
 				boolean selected = ((GuiHeroSelect)gui).getSelectedHero() == hero;
 				int sizeIncrease = selected ? 6 : hovered ? 4 : 0;
 
@@ -229,6 +231,7 @@ public class GuiButtonBase extends GuiButton {
 			}
 			break;
 		case HERO_TYPE:
+			this.hovered = visible && mouseX >= (this.x+0) && mouseY >= (this.y+0) && mouseX < (this.x + this.width-3) && mouseY < (this.y + actualHeight-2);
 			if (visible) {
 				double scale = this.width/23d;
 				GlStateManager.scale(scale, scale, 0);
@@ -237,7 +240,6 @@ public class GuiButtonBase extends GuiButton {
 				this.drawTexturedModalRect((int)(this.x/scale), (int)(this.y/scale), 234, this.id*19, this.width, actualHeight);
 
 				// text
-				this.hovered = mouseX >= (this.x+0) && mouseY >= (this.y+0) && mouseX < (this.x + this.width-3) && mouseY < (this.y + actualHeight-2);
 				if (this.hovered && this.displayString != null)
 					mc.fontRenderer.drawString(displayString, (float) ((this.x/scale+this.width/2/scale-mc.fontRenderer.getStringWidth(displayString)/2)), (float) ((this.y-actualHeight*0.8f)/scale), 14737632, true);
 			}

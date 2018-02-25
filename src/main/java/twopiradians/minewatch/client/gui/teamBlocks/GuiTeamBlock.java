@@ -122,7 +122,7 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {		
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1, 1, 1, 1);
 
@@ -169,7 +169,7 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 			break;
 		case 5: // Video Demonstration
 			this.handleComponentClick(new TextComponentString("").setStyle(new Style().setClickEvent(
-					new ClickEvent(Action.OPEN_URL, "https://minecraft.curseforge.com/projects/minewatch")))); // TODO video url
+					new ClickEvent(Action.OPEN_URL, Minewatch.MAP_TOOLS_VIDEO_URL)))); 
 			break;
 		}
 	}

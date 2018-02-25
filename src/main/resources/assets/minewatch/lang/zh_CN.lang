@@ -6,14 +6,22 @@ config.server-side=服务端设置
 config.client-side=客户端设置
 config.client-side.hero_skins=英雄皮肤
 config.server-side.hero_mobs=英雄生物
+config.server-side.team_blocks=组队选项
+
+command.hero.desc=设置玩家/实体所穿戴的武器以及护甲
+command.sync.desc=将你已更改的配置同步至服务器
+command.team_spawn.desc=启用/禁用团队生成器
+command.reset.desc=通过命令可'重置'当前Minewatch竞速游戏，且实体均可于团队生成器重新生成。
 
 effect.frozen=急冻
 
 tile.health_pack_small.name=小型医疗包
 tile.health_pack_large.name=大型医疗包
-tile.team_spawn.name=Team Spawn
+tile.health_pack.desc=玩家经过医疗包会恢复生命，之后会进入冷却以重新生成。
+tile.team_spawn.name=团队生成器
+tile.team_spawn.desc=设置玩家与实体重生区域
 
-item.wild_card_token.name=Wild Card Token
+item.wild_card_token.name=万能纹章
 item.team_stick.name=组队之杖
 
 item.reaper_token.name=死神纹章
@@ -99,7 +107,7 @@ item.mercy_helmet.name=天使头盔
 item.mercy_chestplate.name=天空胸甲
 item.mercy_leggings.name=天空护腿
 item.mercy_boots.name=天空靴子
-item.mercy_weapon.name=天使的武器
+item.mercy_weapon.name=天使之杖（天使）
 
 item.junkrat_token.name=狂鼠纹章
 item.junkrat_helmet.name=狂鼠头盔
@@ -199,3 +207,38 @@ entity.moira_heal_energy.name=治愈能量（莫伊拉）
 entity.moira_orb.name=Biotic Orb（莫伊拉）
 entity.doomfist_hero.name=毁灭之拳
 entity.doomfist_bullet.name=子弹（毁灭之拳）
+
+command.reset.success=Minewatch game reset by a moderator.
+command.reset.unrecognized_flags=Unrecognized flag(s)
+
+overlay.eliminated_by=你已经出局了
+overlay.assist=assist
+overlay.eliminated=eliminated
+overlay.death_spectating=当前为死亡旁观状态
+overlay.respawn_in=重生时间
+overlay.change_hero=按住 %s 键切换英雄
+
+gui.team_block.button.name=名称
+gui.team_block.button.name.desc=这个名称已经存在
+gui.team_block.button.activate_deactivate=启用 / 禁用
+gui.team_block.button.activate=启用
+gui.team_block.button.deactivate=禁用
+gui.team_block.button.selected_team=选择团队
+gui.team_block.button.video_demonstration=视频演示
+gui.team_block.button.ok=确认
+
+gui.team_spawn.button.spawn_radius=半径
+gui.team_spawn.button.spawn_radius.desc=设置玩家与实体死后重生，医疗包半径，以及英雄选择。
+gui.team_spawn.button.activate_deactivate.desc=玩家选择的实体会在对应的团队生成。
+gui.team_spawn.button.activate.desc=每个团队仅可使用一个团队生成器。
+gui.team_spawn.button.deactivate.desc=每个团队仅可使用一个团队生成器。
+gui.team_spawn.button.selected_team.desc=将此设置为团队重生点。
+gui.team_spawn.question_mark_description_0=团队生成器会生成玩家所选的实体进行生成（箭头朝向即生成方向），且其还赋予了玩家与实体死后重生，医疗包半径，以及英雄选择的权利。
+gui.team_spawn.question_mark_description_1=团队生成器也可通过命令启用/禁用：
+gui.team_spawn.status.players_heroes_team=玩家与实体
+gui.team_spawn.status.players_heroes_all=全部玩家与实体（仅限一个团队中）
+gui.team_spawn.status.players_heroes_none=无
+gui.team_spawn.status.will_spawn=将此设置为生成点。
+
+gui.hero_select.select=选择
+gui.hero_select.select_hero=选择一个英雄

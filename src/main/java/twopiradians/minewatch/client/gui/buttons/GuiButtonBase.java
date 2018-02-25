@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -94,6 +95,12 @@ public class GuiButtonBase extends GuiButton {
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+		// PORT 1.10.2: FIXME (not working properly with stupid scaling - that's why we scrapped 1.10.2 and 1.11.2)
+		ScaledResolution resolution = new ScaledResolution(mc);
+		/*mouseX *= resolution.getScaleFactor();
+		mouseY *= resolution.getScaleFactor();*/
+		GlStateManager.scale(resolution.getScaleFactor(), resolution.getScaleFactor(), 0);
+		
 		this.prevHovered = this.hovered;
 		this.visible = shouldBeVisible == null || shouldBeVisible.apply(gui);
 
@@ -158,8 +165,10 @@ public class GuiButtonBase extends GuiButton {
 		case NONE:
 			break;
 		case TEXT:
-			if (visible)
+			if (visible) {
+				this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + actualHeight;
 				mc.fontRendererObj.drawString(displayString, this.xPosition + this.width / 2 - mc.fontRendererObj.getStringWidth(displayString)/2, this.yPosition + (this.height - 8) / 2, 14737632, true);
+			}
 			break;
 		case HERO_SELECT:
 			if (visible) {

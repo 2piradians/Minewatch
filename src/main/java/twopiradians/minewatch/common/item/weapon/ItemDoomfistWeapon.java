@@ -35,7 +35,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -503,6 +502,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			player.resetActiveHand();
 			ModSoundEvents.DOOMFIST_PUNCH_CHARGE.stopFollowingSound(player);
 			ModSoundEvents.DOOMFIST_PUNCH_CHARGE_VOICE.stopFollowingSound(player);
+			hero.ability1.keybind.setCooldown(player, 80, false);
 		}
 		// shoot
 		else if (this.canUse(player, true, hand, false) && !world.isRemote) {
@@ -833,16 +833,6 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
 		return "_"+getModel(entity);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void postRenderEntity(RenderLivingEvent.Post<EntityLivingBase> event) {
-		/*Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.DOOMFIST_PUNCH);
-		if (handler != null && handler.position != null) {
-			TextureAtlasSprite sprite = EnumParticle.DOOMFIST_PUNCH_2.sprite;
- TODO
-		}*/
 	}
 
 }

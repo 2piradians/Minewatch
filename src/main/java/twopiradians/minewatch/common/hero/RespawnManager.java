@@ -203,6 +203,9 @@ public class RespawnManager {
 				respawnEntity.prevRotationYaw = facing.getHorizontalAngle();
 				respawnEntity.setRenderYawOffset(facing.getHorizontalAngle());
 				respawnEntity.prevRenderYawOffset = facing.getHorizontalAngle();
+				respawnEntity.motionX = 0;
+				respawnEntity.motionY = 0;
+				respawnEntity.motionZ = 0;
 				entity.world.getScoreboard().addPlayerToTeam(respawnEntity.getCachedUniqueIdString(), team.getRegisteredName());
 				if (entity.hasCustomName()) {
 					respawnEntity.setCustomNameTag(entity.getCustomNameTag());

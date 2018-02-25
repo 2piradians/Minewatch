@@ -76,7 +76,7 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 		this.buttonList.add(new GuiButtonBase(-3, guiLeft+X_SIZE/2-80/2, offsetY+guiTop+96, 80, 20, format+Minewatch.translate("gui.team_block.button.selected_team"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT)); 
 		// Screen.QUESTION_MARK
 		this.buttonList.add(new GuiButtonBase(4, guiLeft+X_SIZE/2-30/2, guiTop+Y_SIZE-35, 30, 20, Minewatch.translate("gui.team_block.button.ok"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK));
-		this.buttonList.add(new GuiButtonBase(5, guiLeft+X_SIZE/2-80/2, guiTop+Y_SIZE-85, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD+Minewatch.translate("gui.team_block.button.video_demonstration"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK).setNoSound().setCustomRender(Render.TEXT));
+		this.buttonList.add(new GuiButtonBase(5, guiLeft+X_SIZE/2-80/2, guiTop+Y_SIZE-65, 80, 20, TextFormatting.BLUE+""+TextFormatting.UNDERLINE+""+TextFormatting.BOLD+Minewatch.translate("gui.team_block.button.video_demonstration"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.QUESTION_MARK).setNoSound().setCustomRender(Render.TEXT));
 
 		// set up scrolling lists
 		scrollingTeams = new GuiScrollingTeams(this, X_SIZE-6, 0, offsetY+guiTop+Y_SIZE-3-104, guiTop+Y_SIZE-3, guiLeft+3, 20, width, height);

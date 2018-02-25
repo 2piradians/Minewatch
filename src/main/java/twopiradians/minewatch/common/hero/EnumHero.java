@@ -480,7 +480,7 @@ public enum EnumHero {
 		GlStateManager.popMatrix();
 	}
 
-	/**Get formatted name - like L�cio and Soldier: 76*/
+	/**Get formatted name - like Lúcio and Soldier: 76*/
 	public String getFormattedName(boolean allCaps) {
 		String name = this.name;
 		if (this == EnumHero.SOLDIER76)

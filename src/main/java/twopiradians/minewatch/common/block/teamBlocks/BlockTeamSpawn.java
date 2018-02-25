@@ -1,14 +1,18 @@
 package twopiradians.minewatch.common.block.teamBlocks;
 
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -18,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
@@ -33,6 +39,12 @@ public class BlockTeamSpawn extends BlockTeam {
 		super();
 		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(HAS_TEAM, false).withProperty(ACTIVATED, false));
 	}
+	
+	@Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced) {
+		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("tile.team_spawn.desc"));
+    }
 
 	@Override
 	@Nullable

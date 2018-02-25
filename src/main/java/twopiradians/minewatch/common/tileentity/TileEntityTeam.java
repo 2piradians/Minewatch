@@ -127,6 +127,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 
 	@Override
 	public void onLoad() {
+		this.needsToBeUpdated = true;
 		// put position / name in map
 		if (!getPositions().values().contains(getPos())) {
 			getPositions().put(getPos(), getName());

@@ -25,8 +25,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	private boolean activated;
 
 	// have to delay a tick to prevent infinite loops while first adding tile
-	private boolean clientNeedsToBeUpdated;
-	private boolean serverNeedsToBeUpdated;
+	private boolean needsToBeUpdated;
 	private int ticksExisted;
 
 	public TileEntityTeam() {
@@ -36,7 +35,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	@Override
 	public void update() {		
 		// sync server data to client
-		if (!world.isRemote && (this.serverNeedsToBeUpdated || (this.isActivated() && this.ticksExisted % 200 == 0))) {
+		if (!world.isRemote && (this.needsToBeUpdated || (this.isActivated() && this.ticksExisted % 200 == 0))) {
 			IBlockState oldState = world.getBlockState(pos);
 			IBlockState newState = oldState
 					.withProperty(BlockTeam.HAS_TEAM, team != null)
@@ -49,15 +48,15 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 			}
 			this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), oldState, newState, 3);
 			Minewatch.network.sendToDimension(new SPacketSimple(68, null, pos.getX(), pos.getY(), pos.getZ()), world.provider.getDimension());
-			this.serverNeedsToBeUpdated = false;
+			this.needsToBeUpdated = false;
 		}
 		// update render
-		else if (world.isRemote && this.clientNeedsToBeUpdated) {
+		else if (world.isRemote && this.needsToBeUpdated) {
 			world.markBlockRangeForRenderUpdate(pos, pos);
 			this.markDirty();
-			this.clientNeedsToBeUpdated = false;
+			this.needsToBeUpdated = false;
 		}
-		
+
 		++ticksExisted;
 	}
 
@@ -202,12 +201,9 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 		te.activated = activated;
 		te.name = name;
 	}
-	
+
 	public void setNeedsToBeUpdated() {
-		if (world.isRemote)
-			this.clientNeedsToBeUpdated = true;
-		else
-			this.serverNeedsToBeUpdated = true;
+		this.needsToBeUpdated = true;
 	}
 
 }

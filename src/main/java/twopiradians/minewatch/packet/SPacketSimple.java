@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -71,6 +72,7 @@ import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -1011,6 +1013,12 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 67 && entity != null) {
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+					}
+					// update TileEntityTeam (because sometimes it's removed from tickableTileEntities)
+					else if (packet.type == 68 && player != null) {
+						TileEntity te = player.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						if (te != null && te instanceof TileEntityTeam && !player.world.tickableTileEntities.contains(te))
+							te.invalidate();
 					}
 				}
 			});

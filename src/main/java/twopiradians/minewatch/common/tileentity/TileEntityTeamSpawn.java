@@ -112,7 +112,7 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 		if (!world.isRemote) {
 			spawnRadius = MathHelper.clamp(spawnRadius, 0, MAX_SPAWN_RADIUS);
 			this.spawnRadius = spawnRadius;
-			this.needsToBeUpdated = true;
+			this.setNeedsToBeUpdated();
 		}
 	}
 

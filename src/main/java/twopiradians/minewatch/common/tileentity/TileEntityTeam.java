@@ -14,54 +14,62 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.teamBlocks.BlockTeam;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public abstract class TileEntityTeam extends TileEntity implements ITickable {
-
+	// BUG: sometimes doesn't recreate on client after dying, so particles don't show and can't open hero select
 	private Team team;
 	private String name;
 	private boolean activated;
-	
+
 	// have to delay a tick to prevent infinite loops while first adding tile
-	protected boolean needsToBeUpdated;
+	private boolean clientNeedsToBeUpdated;
+	private boolean serverNeedsToBeUpdated;
+	private int ticksExisted;
 
 	public TileEntityTeam() {
 		super();
 	}
-	
+
 	@Override
-	public void update() {
-		// sync server data to client and update render
-		if (this.needsToBeUpdated) {
-			if (!world.isRemote) {
-				IBlockState oldState = world.getBlockState(pos);
-				IBlockState newState = oldState
-						.withProperty(BlockTeam.HAS_TEAM, team != null)
-						.withProperty(BlockTeam.ACTIVATED, activated);
-				this.world.setBlockState(pos, newState);
-				// set values for new tile, because setBlockState will recreate tile
-				TileEntity te = this.world.getTileEntity(pos);
-				if (te instanceof TileEntityTeam) {
-					this.copyToNewTile((TileEntityTeam) te);
-				}
-				this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), oldState, newState, 3);
+	public void update() {		
+		// sync server data to client
+		if (!world.isRemote && (this.serverNeedsToBeUpdated || (this.isActivated() && this.ticksExisted % 200 == 0))) {
+			IBlockState oldState = world.getBlockState(pos);
+			IBlockState newState = oldState
+					.withProperty(BlockTeam.HAS_TEAM, team != null)
+					.withProperty(BlockTeam.ACTIVATED, activated);
+			this.world.setBlockState(pos, newState);
+			// set values for new tile, because setBlockState will recreate tile
+			TileEntity te = this.world.getTileEntity(pos);
+			if (te instanceof TileEntityTeam) {
+				this.copyToNewTile((TileEntityTeam) te);
 			}
-			else	
-				world.markBlockRangeForRenderUpdate(pos, pos);
-			this.markDirty();
-			this.needsToBeUpdated = false;
+			this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), oldState, newState, 3);
+			Minewatch.network.sendToDimension(new SPacketSimple(68, null, pos.getX(), pos.getY(), pos.getZ()), world.provider.getDimension());
+			this.serverNeedsToBeUpdated = false;
 		}
+		// update render
+		else if (world.isRemote && this.clientNeedsToBeUpdated) {
+			world.markBlockRangeForRenderUpdate(pos, pos);
+			this.markDirty();
+			this.clientNeedsToBeUpdated = false;
+		}
+		
+		++ticksExisted;
 	}
-	
+
 	@Override
-    public void invalidate() {
-        super.invalidate();
-        
-        this.getPositions().remove(pos);
-    }
+	public void invalidate() {
+		super.invalidate();
+
+		this.getPositions().remove(pos);
+	}
 
 	public abstract HashMap<BlockPos, String> getPositions();
-	
+
 	/**Checks that this name is unique and valid*/
 	public boolean isValidName(String name) {
 		return name != null && !name.contains(" ") && (!this.getPositions().values().contains(name) || name.equals(this.getPositions().get(this.pos)));
@@ -82,7 +90,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 		if (name != null && !name.equals(this.name)) {
 			this.name = name;
 			this.getPositions().put(pos, name);
-			this.needsToBeUpdated = true;
+			this.setNeedsToBeUpdated();
 		}
 	}
 
@@ -96,23 +104,23 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 			this.team = team;
 			if (activated)
 				this.deactivateOtherActive();
-			this.needsToBeUpdated = true;
+			this.setNeedsToBeUpdated();
 		}
 	}
-	
+
 	public boolean isActivated() {
 		return this.activated;
 	}
-	
+
 	public void setActivated(boolean activated) {
 		if (!world.isRemote) {
 			this.activated = activated;
 			if (activated) 
 				this.deactivateOtherActive();
-			this.needsToBeUpdated = true;
+			this.setNeedsToBeUpdated();
 		}
 	}
-	
+
 	/**Deactivate other active tiles with same team*/
 	public void deactivateOtherActive() {
 		for (BlockPos pos : this.getPositions().keySet())
@@ -120,14 +128,13 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 				TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
 				if (te.activated && te.getTeam() == this.getTeam()) {
 					te.activated = false;
-					te.needsToBeUpdated = true;
+					te.setNeedsToBeUpdated();
 				}
 			}
 	}
 
 	@Override
 	public void onLoad() {
-		this.needsToBeUpdated = true;
 		// put position / name in map
 		if (!getPositions().values().contains(getPos())) {
 			getPositions().put(getPos(), getName());
@@ -177,7 +184,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 		if (nbt.hasKey("activated"))
 			this.activated = nbt.getBoolean("activated");
 		if (world.isRemote)
-			this.needsToBeUpdated = true;
+			this.setNeedsToBeUpdated();
 	}
 
 	/**Set the world when creating - because readExtraNBT is called when world is null for some stupid reason*/
@@ -188,12 +195,19 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 		if (this.world == null) 
 			this.world = world;
 	}
-	
+
 	/**Copy this tile's variables to the new one when this is invalidated*/
 	public void copyToNewTile(TileEntityTeam te) {
 		te.team = team;
 		te.activated = activated;
 		te.name = name;
+	}
+	
+	public void setNeedsToBeUpdated() {
+		if (world.isRemote)
+			this.clientNeedsToBeUpdated = true;
+		else
+			this.serverNeedsToBeUpdated = true;
 	}
 
 }

@@ -185,7 +185,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// throw single shuriken
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) &&
-				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN)) {
+				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN) && !TickHandler.hasHandler(player, Identifier.GENJI_DEFLECT)) {
 			TickHandler.register(false, SHURIKEN.setEntity(player).setTicks(6).setNumber(hand.ordinal()));
 		}
 	}
@@ -194,7 +194,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// throw triple shuriken
 		if (!player.world.isRemote && this.canUse(player, true, hand, false) &&
-				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN)) {
+				!TickHandler.hasHandler(player, Identifier.GENJI_SHURIKEN) && !TickHandler.hasHandler(player, Identifier.GENJI_DEFLECT)) {
 			for (int i = 0; i < Math.min(3, this.getCurrentAmmo(player)); i++) {
 				EntityGenjiShuriken shuriken = new EntityGenjiShuriken(player.world, player, hand.ordinal());
 				EntityHelper.setAim(shuriken, player, player.rotationPitch, player.rotationYawHead + (1 - i)*8, 60, 1, hand, 15, 0.6f);

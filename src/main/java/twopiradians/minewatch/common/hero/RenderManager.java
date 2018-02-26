@@ -69,6 +69,7 @@ import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -512,7 +513,8 @@ public class RenderManager {
 		ItemStack held = player.getHeldItem(event.getHand());
 		ItemStack main = player.getHeldItemMainhand();
 		ItemStack off = player.getHeldItemOffhand();
-		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null || off.isEmpty() ? main : held;
+		// ask mainhand if offhand is empty or is another mw item (but not a weapon - like Sombra's hack or Junkrat's trigger)
+		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null || off.isEmpty() || (off.getItem() instanceof IChangingModel && !(off.getItem() instanceof ItemMWWeapon)) ? main : held;
 
 		if (player != null && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
 				((ItemMWWeapon)stack.getItem()).shouldRenderHand(player, event.getHand()))) || 

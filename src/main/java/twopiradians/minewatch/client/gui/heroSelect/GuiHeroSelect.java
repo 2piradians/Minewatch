@@ -115,12 +115,12 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 
 			// draw guiPlayer
 			GlStateManager.enableDepth();
-			GlStateManager.translate(0, 0, -500);
+			GlStateManager.translate(0, 0, -400);
 			scale = Math.min(width, height) / 2;
 			int x = this.width/2;
 			int y = (int) (guiPlayer.height*scale+this.height*0.2f);
 			GuiInventory.drawEntityOnScreen(x, y, (int) scale, -mouseX+x, (float) (-mouseY-this.guiPlayer.eyeHeight*scale)+y, this.guiPlayer);
-			GlStateManager.translate(0, 0, 500);
+			GlStateManager.translate(0, 0, 400);
 
 			// background 
 			GlStateManager.pushMatrix();

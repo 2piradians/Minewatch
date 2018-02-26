@@ -117,7 +117,6 @@ public class EntityMeiBlast extends EntityMW {
 						TickHandler.register(false, FROZEN.setEntity(result.entityHit).setTicks(1));
 					TickHandler.register(false, DELAYS.setEntity(result.entityHit).setTicks(10));
 				}			
-				((EntityLivingBase)result.entityHit).hurtResistantTime = 0;
 			}
 		}
 	}

@@ -627,7 +627,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
 		return hand == EnumHand.OFF_HAND && player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() == ModItems.sombra_hack;
-	}
+	} 
 
 	@Override
 	@SideOnly(Side.CLIENT)

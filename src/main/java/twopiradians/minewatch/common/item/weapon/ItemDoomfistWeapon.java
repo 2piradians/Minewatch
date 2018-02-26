@@ -145,7 +145,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 							EntityHelper.shouldHit(entity, target, false)) {
 								if (target.isEntityAlive() && EntityHelper.isInFieldOfVision(entity, target, 45, entity.rotationYaw, 0) && 
 										((EntityLivingBase)entity).canEntityBeSeen(target) && 
-										EntityHelper.attemptDamage(entity, target, damage, true)) {
+										EntityHelper.attemptDamage(entity, target, damage, true) && !EntityHelper.shouldIgnoreEntity(target)) {
 									target.onGround = false;
 									Vec3d motion = new Vec3d(entity.posX-target.posX, 0, entity.posZ-target.posZ).normalize().scale(0.3d);
 									target.motionX = motion.x;
@@ -267,12 +267,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				target instanceof EntityLivingBase && 
 				EntityHelper.shouldHit(handler.entity, target, false)) {
 					if (target.isEntityAlive() && !TickHandler.hasHandler(target, Identifier.DOOMFIST_UPPERCUT) && 
-							EntityHelper.attemptDamage(handler.entity, target, 50, false)) {
+							EntityHelper.attemptDamage(handler.entity, target, 50, false) && !EntityHelper.shouldIgnoreEntity(target)) {
 						target.motionX += handler.entity.motionX*2f;
 						target.motionZ += handler.entity.motionZ*2f;
 						TickHandler.interrupt(target);
 						Minewatch.network.sendToDimension(new SPacketSimple(63, handler.entity, true, target, handler.ticksLeft+1, 0, 0), handler.entity.world.provider.getDimension());
-						TickHandler.register(false, UPPERCUT.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks(handler.ticksLeft+1));
+						TickHandler.register(false, UPPERCUT.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks(handler.ticksLeft+1).setAllowDead(true));
 					}
 				}
 		}
@@ -352,8 +352,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				entity.motionX *= ((EntityLivingBase)entity).moveForward;
 				entity.motionZ *= ((EntityLivingBase)entity).moveForward;
 				entity.velocityChanged = true;
-			}
-			if (entity instanceof EntityLivingBase) {
+				entity.hurtResistantTime = 0;
+
 				// spawn particle
 				RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) entity, 5, 0, entity.rotationYaw);
 				if (result != null) {
@@ -384,6 +384,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			EnumHero.DOOMFIST.ability1.keybind.setCooldown(entityLiving, 80, false);
 			if (bool)
 				ModSoundEvents.DOOMFIST_PUNCH_DURING.stopFollowingSound(entity);
+			entity.hurtResistantTime = 0;
 			return super.onServerRemove();
 		}
 	};
@@ -402,6 +403,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		handler.entity.motionZ = motion.z;
 		if (handler.entity.motionY < 0)
 			handler.entity.motionY *= 0.5d;
+		if (handler.entity instanceof EntityLivingBase) {
+			((EntityLivingBase)handler.entity).moveForward = 0;
+			((EntityLivingBase)handler.entity).moveStrafing = 0;
+			if (handler.identifier == Identifier.DOOMFIST_PUNCH) // immunity from vanilla attacks while punching
+				handler.entity.hurtResistantTime = ((EntityLivingBase)handler.entity).maxHurtResistantTime;
+		}
 
 		// check for entities to hit
 		if (handler.identifier == Identifier.DOOMFIST_PUNCH) {
@@ -425,14 +432,14 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						TickHandler.getHandler(handler.entity, Identifier.PREVENT_MOVEMENT).setBoolean(false);
 						Minewatch.network.sendToDimension(new SPacketSimple(58, handler.entity, true, target), handler.entity.world.provider.getDimension());
 					}
-					else */if (EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true)) {
+					else */if (EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true) && !EntityHelper.shouldIgnoreEntity(target)) {
 						ModSoundEvents.DOOMFIST_PUNCH_HIT.playFollowingSound(handler.entity, 0.5f, 1, false);
 						TickHandler.interrupt(target);
 						Minewatch.network.sendToDimension(new SPacketSimple(62, handler.entity, false, target, handler.initialTicks*0.7f, handler.number, handler.entity.rotationYaw), handler.entity.world.provider.getDimension());
 						TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(target).setTicks((int) (handler.initialTicks*0.7f)),
 								Handlers.PREVENT_ROTATION.setEntity(target).setTicks((int) (handler.initialTicks*0.7f)), 
 								Handlers.PREVENT_MOVEMENT.setEntity(target).setTicks((int) (handler.initialTicks*0.7f)).setBoolean(true),
-								PUNCHED.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks((int) (handler.initialTicks*0.7f)).setNumber(handler.number).setNumber2(handler.entity.rotationYaw));
+								PUNCHED.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks((int) (handler.initialTicks*0.7f)).setNumber(handler.number).setNumber2(handler.entity.rotationYaw).setAllowDead(true));
 					}
 					handler.bool = true;
 					handler.ticksLeft = 1;
@@ -576,7 +583,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 
 			// seismic slam
 			if (hero.ability2.isSelected(player) &&
-					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
+					!world.isRemote && this.canUse(player, true, getHand(player, stack), true) && getCharge(player) == -1) {
 				RayTraceResult result = EntityHelper.getMouseOverBlock(player, 30);
 				if ((result != null && result.hitVec.y <= player.posY) || player.onGround) {
 					TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.DOOMFIST_UPPERCUTTING));
@@ -590,7 +597,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 
 			// uppercut
 			if (hero.ability3.isSelected(player) &&
-					!world.isRemote && this.canUse(player, true, getHand(player, stack), true)) {
+					!world.isRemote && this.canUse(player, true, getHand(player, stack), true) && getCharge(player) == -1) {
 				ModSoundEvents.DOOMFIST_UPPERCUT_START.playFollowingSound(player, 1, 1, false);		
 				ModSoundEvents.DOOMFIST_UPPERCUT_VOICE.playFollowingSound(player, 1, 1, false);	
 				int ticks = 4;
@@ -637,6 +644,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 
 		if (hand == EnumHand.MAIN_HAND && event.getType() == ElementType.CROSSHAIRS && mc.gameSettings.thirdPersonView == 0) {
 			GlStateManager.enableBlend();
+			GlStateManager.enableAlpha();
 
 			float charge = getCharge(player);
 

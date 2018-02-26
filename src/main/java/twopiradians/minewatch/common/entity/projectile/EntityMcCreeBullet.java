@@ -24,13 +24,13 @@ public class EntityMcCreeBullet extends EntityMW {
 		this.lifetime = 1;
 		this.fanTheHammer = fanTheHammer;
 	}
-	
+
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, (EntityLivingBase) getThrower(), 
 				0xFFEF89, 0x5A575A, 0.7f, 1, 5, 4.5f, 0, 0, hand, 10, 0.4f);
 	}
-	
+
 	@Override
 	public void spawnTrailParticles() {
 		EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0x5AD8E8, 0x5A575A, 0.8f, 7, 1);
@@ -40,9 +40,9 @@ public class EntityMcCreeBullet extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (this.fanTheHammer && EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 13.5f, 45, 18, 30))
-				result.entityHit.hurtResistantTime = 0;
-		else if (!this.fanTheHammer && EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 21, 70, 22, 45))
-			result.entityHit.hurtResistantTime = 0;
+		if (this.fanTheHammer)
+			EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 13.5f, 45, 18, 30);
+		else
+			EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 21, 70, 22, 45);
 	}
 }

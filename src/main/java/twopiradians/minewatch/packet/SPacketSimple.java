@@ -962,7 +962,7 @@ public class SPacketSimple implements IMessage {
 								TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(entity2).setTicks((int) packet.x),
 										Handlers.PREVENT_ROTATION.setEntity(entity2).setTicks((int) packet.x), 
 										Handlers.PREVENT_MOVEMENT.setEntity(entity2).setTicks((int) packet.x).setBoolean(true),
-										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z));
+										ItemDoomfistWeapon.PUNCHED.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setNumber(packet.y).setNumber2(packet.z).setAllowDead(true));
 								TickHandler.register(true, ItemDoomfistWeapon.PUNCH_ANIMATIONS.setEntity(entity).setTicks(5));
 								Vector2f rotations = EntityHelper.getEntityPartialRotations(entity);
 								Vec3d vec = EntityHelper.getShootingPos((EntityLivingBase) entity, rotations.x, rotations.y, EnumHand.MAIN_HAND, 0, 0.5f, 1);
@@ -982,7 +982,7 @@ public class SPacketSimple implements IMessage {
 							if (entity2 instanceof EntityLivingBase) {
 								entity2.motionX += entity.motionX*2f;
 								entity2.motionZ += entity.motionZ*2f;
-								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUT.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUT.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x).setAllowDead(true));
 							}
 							else
 								TickHandler.register(true, ItemDoomfistWeapon.UPPERCUTTING.setEntity(entity).setTicks((int) packet.x),

@@ -89,7 +89,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	protected boolean saveEntityToNBT;
 	public boolean showHealthParticles;
 	/**Saved result from onRightClick (since ours is called every tick, but theirs is called every 4 ticks)*/
-	public HashMap<UUID, ActionResult<ItemStack>> savedRightClickResult = Maps.newHashMap();
+	public HashMap<UUID, EnumActionResult> savedRightClickResult = Maps.newHashMap();
 	protected boolean noVerticalAimAssist;
 
 	private Handler CHARGE_RECOVERY = new Handler(Identifier.WEAPON_CHARGE, false) {
@@ -289,8 +289,9 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		return this.savedRightClickResult.containsKey(player.getPersistentID()) ? 
-				this.savedRightClickResult.get(player.getPersistentID()) : new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+		EnumActionResult result = this.savedRightClickResult.containsKey(player.getPersistentID()) ? 
+				this.savedRightClickResult.get(player.getPersistentID()) : EnumActionResult.PASS;
+		return new ActionResult(result, player.getHeldItem(hand));
 	}
 
 	/**Cancel swing animation when left clicking*/
@@ -303,7 +304,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		if (entity == null || !entity.isEntityAlive())
 			return;
-
+//((EntityPlayer)entity).inventory.removeStackFromSlot(index)
 		EnumHand hand = entity instanceof EntityLivingBase ? this.getHand((EntityLivingBase) entity, stack) : null;
 
 		//delete dev spawned items if not in dev's inventory
@@ -313,7 +314,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
-
+		
 		// set entity in nbt for model changer to reference
 		if (this.saveEntityToNBT && entity instanceof EntityLivingBase && !entity.world.isRemote && 
 				stack != null && stack.getItem() == this) {
@@ -355,7 +356,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) && !((EntityLivingBase) entity).isHandActive())) {
 				ActionResult<ItemStack> action = this.onItemRightClick(world, (EntityLivingBase) entity, this.getHand((EntityLivingBase) entity, stack));
 				if (entity instanceof EntityPlayer)
-					this.savedRightClickResult.put(entity.getPersistentID(), action);
+					this.savedRightClickResult.put(entity.getPersistentID(), action.getType());
 			}
 			else if (entity instanceof EntityHero && KeyBind.RMB.isKeyDown((EntityLivingBase) entity))
 				this.onUsingTick(stack, (EntityLivingBase) entity, ((EntityLivingBase) entity).getItemInUseCount());

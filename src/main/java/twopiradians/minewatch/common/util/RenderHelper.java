@@ -139,8 +139,8 @@ public class RenderHelper {
         GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
         GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, mc.fontRenderer, tooltipTextWidth, tooltipHeight));
-        int tooltipTop = tooltipY;
+        //MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, mc.fontRenderer, tooltipTextWidth, tooltipHeight));
+        //int tooltipTop = tooltipY;
         
         for (int lineNumber = 0; lineNumber < textLines.size(); ++lineNumber)
         {
@@ -155,7 +155,7 @@ public class RenderHelper {
             tooltipY += 10;
         }
 
-        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLines, tooltipX, tooltipTop, mc.fontRenderer, tooltipTextWidth, tooltipHeight));
+        //MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLines, tooltipX, tooltipTop, mc.fontRenderer, tooltipTextWidth, tooltipHeight));
 
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();

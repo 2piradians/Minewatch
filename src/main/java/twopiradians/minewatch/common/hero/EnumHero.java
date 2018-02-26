@@ -486,7 +486,7 @@ public enum EnumHero {
 		if (this == EnumHero.SOLDIER76)
 			name = "Soldier: 76";
 		else if (this == EnumHero.LUCIO)
-			name = allCaps ? "LÚCIO": "Lúcio";
+			name = allCaps ? "L\u00DACIO": "L\u00FAcio";
 
 		if (allCaps)
 			name = name.toUpperCase();

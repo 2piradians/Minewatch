@@ -37,7 +37,6 @@ public class EntityReaperBullet extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 2, 7, 11, 20))
-			result.entityHit.hurtResistantTime = 0;
+		EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 2, 7, 11, 20);
 	}
 }

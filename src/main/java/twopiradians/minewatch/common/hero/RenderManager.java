@@ -83,7 +83,7 @@ public class RenderManager {
 
 	public enum MessageTypes {
 		TOP, MIDDLE
-	}
+	} // TODO don't render in spectator
 
 	public static final ResourceLocation ABILITY_OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png");
 	public static final Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};

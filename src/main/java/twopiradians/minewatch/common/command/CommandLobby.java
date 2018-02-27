@@ -65,6 +65,8 @@ public class CommandLobby implements ICommand {
 		else 
 			TickHandler.unregister(false, handler);
 		
+		// TODO remove items from player
+		
 		sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Successfully removed from team and respawned"));
 	}
 

@@ -408,7 +408,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			handler.entity.rotationYaw = (float) handler.number2;
 		handler.entity.moveRelative(0, 0, 1, 1);
 		handler.entity.rotationYaw = prev;
-		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d);
+		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d); // TODO not as fast on server?	
 		handler.entity.motionX = motion.x;
 		handler.entity.motionZ = motion.z;
 		if (handler.entity.motionY < 0)

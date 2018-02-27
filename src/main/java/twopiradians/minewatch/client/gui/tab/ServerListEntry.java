@@ -55,7 +55,7 @@ public class ServerListEntry extends ServerListEntryNormal
         this.icon = (DynamicTexture)this.mc.getTextureManager().getTexture(this.serverIcon);
     }
 
-    @Override
+    @Override // TODO always says client out of date?
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks)
     {
         if (!this.server.pinged)

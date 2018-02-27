@@ -45,6 +45,9 @@ public class CPacketSimple implements IMessage {
 	private double x;
 	private double y;
 	private double z;
+	private double x2;
+	private double y2;
+	private double z2;
 	private int id;
 	private int id2;
 	private String string;
@@ -75,6 +78,10 @@ public class CPacketSimple implements IMessage {
 	public CPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, null, null);
 	}
+	
+	public CPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z, double x2, double y2, double z2) {
+		this(type, bool, null, x, y, z, entity, null, null, null, x2, y2, z2);
+	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player) {
 		this(type, bool, player, 0, 0, 0, null, null, null);
@@ -85,7 +92,7 @@ public class CPacketSimple implements IMessage {
 	}
 
 	public CPacketSimple(int type, String string, EntityPlayer player, String string2) {
-		this(type, false, player, 0, 0, 0, null, null, string, string2);
+		this(type, false, player, 0, 0, 0, null, null, string, string2, 0, 0, 0);
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z) {
@@ -109,10 +116,10 @@ public class CPacketSimple implements IMessage {
 	}
 
 	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, String string) {
-		this(type, bool, player, x, y, z, entity, entity2, string, null);
+		this(type, bool, player, x, y, z, entity, entity2, string, null, 0, 0, 0);
 	}
 
-	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, String string, String string2) {
+	public CPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, String string, String string2, double x2, double y2, double z2) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = player == null ? UUID.randomUUID() : player.getPersistentID();
@@ -121,6 +128,9 @@ public class CPacketSimple implements IMessage {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.z2 = z2;
 		this.string = string == null ? "" : string;
 		this.string2 = string2 == null ? "" : string2;
 	}
@@ -135,6 +145,9 @@ public class CPacketSimple implements IMessage {
 		this.x = buf.readDouble();
 		this.y = buf.readDouble();
 		this.z = buf.readDouble();
+		this.x2 = buf.readDouble();
+		this.y2 = buf.readDouble();
+		this.z2 = buf.readDouble();
 		this.string = ByteBufUtils.readUTF8String(buf);
 		this.string2 = ByteBufUtils.readUTF8String(buf);
 	}
@@ -149,6 +162,9 @@ public class CPacketSimple implements IMessage {
 		buf.writeDouble(this.x);
 		buf.writeDouble(this.y);
 		buf.writeDouble(this.z);
+		buf.writeDouble(this.x2);
+		buf.writeDouble(this.y2);
+		buf.writeDouble(this.z2);
 		ByteBufUtils.writeUTF8String(buf, this.string);
 		ByteBufUtils.writeUTF8String(buf, this.string2);
 	}
@@ -318,6 +334,10 @@ public class CPacketSimple implements IMessage {
 									packetPlayer.inventory.removeStackFromSlot(i);
 							}
 						CommandMinewatch.equipWithHeroArmor(EnumHero.values()[(int) packet.x], packetPlayer, packetPlayer);
+					}
+					// doomfist slam - tell other clients to render particle
+					else if (packet.type == 19 && player != null) {
+						Minewatch.network.sendToDimension(new SPacketSimple(67, player, packet.x, packet.y, packet.z, packet.x2, 0, 0), player.world.provider.getDimension());
 					}
 				}
 			});

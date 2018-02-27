@@ -75,6 +75,7 @@ public class Config {
 	public static double aimAssist;
 	public static boolean heroMobsDespawn;
 	public static boolean deleteItemsOnGround;
+	public static boolean lobbyCommand;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -265,6 +266,12 @@ public class Config {
 				prop.set(deleteItemsOnGround);
 			else
 				deleteItemsOnGround = prop.getBoolean();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Enable /lobby", false, "Should the /lobby command be enabled? It removes your team and respawns you.");
+			if (overriding)
+				prop.set(lobbyCommand);
+			else
+				lobbyCommand = prop.getBoolean();
 
 			// Team Block options ======================================================================================
 

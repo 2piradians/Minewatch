@@ -148,17 +148,29 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
 		this(type, false, player, x, y, z, null, null);
 	}
+	
+	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2) {
+		this(type, false, player, x, y, z, null, null, x2, y2, z2);
+	}
 
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, Entity entity) {
 		this(type, false, player, x, y, z, entity, null);
 	}
 
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
+		this(type, bool, player, x, y, z, entity, entity2, 0, 0, 0);
+	}
+	
+	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, double x2, double y2, double z2) {
 		this(type, bool, player == null ? UUID.randomUUID() : player.getPersistentID(), x, y, z, 
-				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId(), null);
+				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId(), null, x2, y2, z2);
+	}
+	
+	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2, String string) {
+		this(type, bool, playerUUID, x, y, z, entityID, entityID2, string, 0, 0, 0);
 	}
 
-	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2, String string) {
+	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2, String string, double x2, double y2, double z2) {
 		this.type = type;
 		this.bool = bool;
 		this.uuid = playerUUID;
@@ -168,6 +180,9 @@ public class SPacketSimple implements IMessage {
 		this.y = y;
 		this.z = z;
 		this.string = string == null ? "" : string;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.z2 = z2;
 	}
 
 	public SPacketSimple(int type, Entity entity, RayTraceResult result) {
@@ -386,7 +401,7 @@ public class SPacketSimple implements IMessage {
 						String string = null;
 						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
-							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+
+							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+" "+
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
@@ -969,8 +984,8 @@ public class SPacketSimple implements IMessage {
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFD9B2, 0xE8C4A2, 1f, 4, 10, 15, 0, 0);
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_PUNCH_3, entity.world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.7f, 4, 10, 15, 0, 0);
 							}
-							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
-									TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
+							//TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
+									//TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
 							if (entity == player)
 								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
 						}
@@ -1010,9 +1025,8 @@ public class SPacketSimple implements IMessage {
 						((EntityLivingBase) entity).setActiveHand(EnumHand.MAIN_HAND);
 					}
 					// doomfist slam
-					else if (packet.type == 67 && entity != null) {
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
-						Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, entity.world, packet.x, packet.y, packet.z, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (entity.rotationYaw + 90f) / 180f, 0, EnumFacing.UP, false);
+					else if (packet.type == 67 && packetPlayer != null) {
+						ItemDoomfistWeapon.spawnSlamParticles(packetPlayer.world, (float) packet.x2, new Vec3d(packet.x, packet.y, packet.z));
 					}
 					// update TileEntityTeam (because sometimes it's removed from tickableTileEntities)
 					else if (packet.type == 68 && player != null) {

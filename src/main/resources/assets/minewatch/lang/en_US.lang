@@ -12,6 +12,7 @@ command.hero.desc=equips you/target with armor and weapon(s) for hero
 command.sync.desc=syncs your config to the server (in multiplayer)
 command.team_spawn.desc=activates/deactivates a Team Spawn
 command.reset.desc=the master command to "reset" Minewatch games, currently kills and respawns entities that can respawn at Team Spawns
+command.lobby.desc=removes your team and respawns you
 
 effect.frozen=Frozen
 

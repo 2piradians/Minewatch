@@ -80,25 +80,28 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 			// regeneration
 			if (!this.world.isRemote && this.ticksExisted % 10 == 0) 
 				for (EntityLivingBase entity : world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						new AxisAlignedBB(pos.add(spawnRadius, spawnRadius, spawnRadius), 
+						new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
 								pos.add(-spawnRadius, -spawnRadius, -spawnRadius)))) 
 					if (entity != null && entity.isEntityAlive() && !(entity instanceof EntityLivingBaseMW) &&
 					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam())))
 						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
 
 			// hero selection overlay
-			if (this.ticksExisted % 10 == 0) 
+			if (this.ticksExisted % 10 == 0) {
+				AxisAlignedBB aabb = new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
+						pos.add(-spawnRadius, -spawnRadius, -spawnRadius));
 				for (EntityPlayer player : world.playerEntities)
 					if ((!world.isRemote || player == Minewatch.proxy.getClientPlayer()) && player.isEntityAlive() && 
 							!player.isSpectator() &&
-					(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
-					player.getDistance(pos.getX(), pos.getY(), pos.getZ()) <= spawnRadius) {
+							(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
+							aabb.contains(player.getPositionVector())) {
 						Handler handler = TickHandler.getHandler(player, Identifier.TEAM_SPAWN_IN_RANGE);
 						if (handler == null)
 							TickHandler.register(world.isRemote, IN_RANGE.setEntity(player).setTicks(12));
 						else
 							handler.ticksLeft = 12;
 					}
+			}
 		}
 
 		++this.ticksExisted;

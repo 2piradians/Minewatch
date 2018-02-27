@@ -31,6 +31,7 @@ public class PacketSyncConfig implements IMessage {
 	private double abilityCooldownMultiplier;
 	private double aimAssist;
 	private boolean deleteItemsOnGround;
+	private boolean lobbyCommand;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -76,6 +77,7 @@ public class PacketSyncConfig implements IMessage {
 		this.abilityCooldownMultiplier = Config.abilityCooldownMultiplier;
 		this.aimAssist = Config.aimAssist;
 		this.deleteItemsOnGround = Config.deleteItemsOnGround;
+		this.lobbyCommand = Config.lobbyCommand;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -119,7 +121,8 @@ public class PacketSyncConfig implements IMessage {
 		this.abilityCooldownMultiplier = buf.readDouble();
 		this.aimAssist = buf.readDouble();
 		this.deleteItemsOnGround = buf.readBoolean();
-
+		this.lobbyCommand = buf.readBoolean();
+		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
 		this.allowHeroRespawn = buf.readBoolean();
@@ -162,6 +165,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.abilityCooldownMultiplier);
 		buf.writeDouble(this.aimAssist);
 		buf.writeBoolean(this.deleteItemsOnGround);
+		buf.writeBoolean(this.lobbyCommand);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -204,6 +208,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.abilityCooldownMultiplier = this.abilityCooldownMultiplier;
 		Config.aimAssist = this.aimAssist;
 		Config.deleteItemsOnGround = this.deleteItemsOnGround;
+		Config.lobbyCommand = this.lobbyCommand;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

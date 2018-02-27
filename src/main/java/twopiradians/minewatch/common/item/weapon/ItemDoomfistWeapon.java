@@ -52,6 +52,7 @@ import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
+import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemDoomfistWeapon extends ItemMWWeapon {
@@ -70,6 +71,12 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
+
+	public static void spawnSlamParticles(World world, float yaw, Vec3d vec) {
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_1, world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 100, 60, 60, (yaw + 90f) / 180f, 0, EnumFacing.UP, false);
+		Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_2, world, vec.x, vec.y, vec.z, 0, 0, 0, 0x90FFF9, 0x90FFF9, 0.5f, 10, 60, 60, (yaw + 90f) / 180f, 0, EnumFacing.UP, false);
+	}
+	
 	/**number = ticks running, number2 = initial posY, position = targetPosition, bool = used while onGround*/
 	public static final Handler SLAM = new Handler(Identifier.DOOMFIST_SLAM, true) {
 		public void move() {
@@ -114,21 +121,8 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				this.ticksLeft = 1;
 				if (entity.onGround) {
 					if (!entity.world.isRemote) { // particles
-						double yOffset = 0.05d;
-						BlockPos pos = new BlockPos(entity.getPositionVector());
-						for (int i=0; i<5; ++i) {
-							IBlockState state = entity.world.getBlockState(pos);
-							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
-								yOffset += state.getBoundingBox(entity.world, pos).maxY;
-								Vec3d vec = new Vec3d(entity.posX, pos.getY()+yOffset, entity.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
-								Minewatch.network.sendToDimension(new SPacketSimple(67, entity, false, vec.x, vec.y, vec.z), entity.world.provider.getDimension());
-								break;
-							}
-							else
-								pos = pos.down();
-						}
 						// damage
-						yOffset = 0;
+						double yOffset = 0;
 						for (int i=0; i<3; ++i) {
 							IBlockState state = entity.world.getBlockState(new BlockPos(entity.getPositionVector().addVector(0, -i, 0)));
 							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
@@ -153,6 +147,22 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 									target.motionY = 0.4d;
 								}
 							}
+					}
+					// particle - detect on client (server very inaccurate), send to server, which sends to other clients
+					else {
+						double yOffset = 0.05d;
+						BlockPos pos = new BlockPos(entity.getPositionVector());
+						for (int i=0; i<5; ++i) {
+							IBlockState state = entity.world.getBlockState(pos);
+							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
+								yOffset += state.getBoundingBox(entity.world, pos).maxY;
+								Vec3d vec = new Vec3d(entity.posX, pos.getY()+yOffset, entity.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
+								Minewatch.network.sendToServer(new CPacketSimple(19, entity, false, vec.x, vec.y, vec.z, entity.getRotationYawHead(), 0, 0));
+								break;
+							}
+							else
+								pos = pos.down();
+						}
 					}
 				}
 				entity.motionX = 0;

@@ -315,6 +315,7 @@ public class TickHandler {
 		public Handler setEntity(Entity entity) {
 			this.allowDead = false;
 			this.bool = false;
+			this.number = 0;
 			
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)

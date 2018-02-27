@@ -407,9 +407,9 @@ public class SPacketSimple implements IMessage {
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
-						TickHandler.register(true, RenderManager.MESSAGES.
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(player).
 								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).
-								setEntity(player).setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool));
+								setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
@@ -965,7 +965,7 @@ public class SPacketSimple implements IMessage {
 					// Doomfist's punch
 					else if (packet.type == 62 && entity != null) {
 						if (packet.bool) {
-							TickHandler.register(true, ItemDoomfistWeapon.PUNCH.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks((int) packet.x),
+							TickHandler.register(true, ItemDoomfistWeapon.PUNCH.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks((int) packet.x).setNumber(packet.y),
 									Handlers.PREVENT_ROTATION.setEntity(entity).setTicks((int) packet.x));
 							if (entity == player)
 								TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.DOOMFIST.ability1));

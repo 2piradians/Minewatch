@@ -58,7 +58,7 @@ public class RespawnManager {
 	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick*/
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
-		@SideOnly(Side.CLIENT)
+		@SideOnly(Side.CLIENT) 
 		public boolean onClientTick() {
 			// prevent screen shake / stutter
 			player.deathTime = 0;
@@ -136,7 +136,8 @@ public class RespawnManager {
 
 	/**Respawn a player / mob*/
 	public static void respawnEntity(EntityLivingBase entity, @Nullable Team team, boolean allowAlive) {
-		if (entity == null || (entity.isEntityAlive() && !allowAlive))
+		if (entity == null || (entity.isEntityAlive() && !allowAlive) ||
+				(entity instanceof EntityPlayerMP && ((EntityPlayerMP)entity).hasDisconnected()))
 			return;
 		BlockPos teamSpawn = getTeamSpawn(entity, team);
 

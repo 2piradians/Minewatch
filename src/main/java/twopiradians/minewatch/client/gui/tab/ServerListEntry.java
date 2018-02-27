@@ -55,7 +55,7 @@ public class ServerListEntry extends ServerListEntryNormal
         this.icon = (DynamicTexture)this.mc.getTextureManager().getTexture(this.serverIcon);
     }
 
-    @Override // TODO always says client out of date?
+    @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks)
     {
         if (!this.server.pinged)
@@ -86,8 +86,8 @@ public class ServerListEntry extends ServerListEntryNormal
             });
         }
 
-        boolean flag = this.server.version > 316;
-        boolean flag1 = this.server.version < 316;
+        boolean flag = this.server.version > 340; // PORT check that these numbers are the same in ServerListEntryNormal
+        boolean flag1 = this.server.version < 340;
         boolean flag2 = flag || flag1;
         this.mc.fontRenderer.drawString(this.server.serverName, x + 32 + 3, y + 1, 16777215);
         List<String> list = this.mc.fontRenderer.listFormattedStringToWidth(net.minecraftforge.fml.client.FMLClientHandler.instance().fixDescription(this.server.serverMOTD), listWidth - 48 - 2);

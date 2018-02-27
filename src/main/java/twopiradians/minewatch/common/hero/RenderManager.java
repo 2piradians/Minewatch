@@ -83,7 +83,7 @@ public class RenderManager {
 
 	public enum MessageTypes {
 		TOP, MIDDLE
-	} // TODO don't render in spectator
+	} 
 
 	public static final ResourceLocation ABILITY_OVERLAY = new ResourceLocation(Minewatch.MODID, "textures/gui/ability_overlay.png");
 	public static final Handler SNEAKING = new Handler(Identifier.HERO_SNEAKING, true) {};
@@ -230,7 +230,7 @@ public class RenderManager {
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
 		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
 			event.setCanceled(true);
-		else if (Config.guiScale > 0) {
+		else if (Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {
 			Minecraft mc = Minecraft.getMinecraft();
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
@@ -352,14 +352,14 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {	
+		if (event.getType() == ElementType.HELMET && Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {	
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayer player = mc.player;
 			EnumHero hero = SetManager.getWornSet(player);
 			ItemMWWeapon weapon = player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? (ItemMWWeapon)player.getHeldItemMainhand().getItem() : null;
 			double width = event.getResolution().getScaledWidth_double();
 			double height = event.getResolution().getScaledHeight_double();
-			
+
 			// hero information screen
 			if (hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
 				hero.displayInfoScreen(width, height);
@@ -378,11 +378,11 @@ public class RenderManager {
 					int y = (int) (height/scale*0.65d);
 					GuiUtils.drawGradientRect(0, x-10, y, x+textWidth+10, y+mc.fontRenderer.FONT_HEIGHT+10, 0xCAFFDA56, 0xCAFFDA56);
 					mc.fontRenderer.drawString(text, x, y+6, 0xFFFFFF);
-					
+
 					GlStateManager.enableBlend();
 					GlStateManager.popMatrix();
 				}
-				
+
 				if (hero != null) {
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -739,7 +739,7 @@ public class RenderManager {
 		double maxY = MathHelper.floor(entityVec.y + (facing.getAxis() == Axis.Y ? 0 : size));
 		double minZ = MathHelper.floor(entityVec.z - (facing.getAxis() == Axis.Z ? 0 : size));
 		double maxZ = MathHelper.floor(entityVec.z + (facing.getAxis() == Axis.Z ? 0 : size));
-		
+
 		for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))) {
 			BlockPos[] positions = particle ? new BlockPos[] {blockpos, blockpos.offset(facing.getOpposite())} : new BlockPos[] {blockpos.offset(facing), blockpos, blockpos.offset(facing.getOpposite())};
 			for (BlockPos pos : positions) {
@@ -817,7 +817,15 @@ public class RenderManager {
 				}
 			}
 		}
+	}
 
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public static void hideNameTags(RenderLivingEvent.Specials.Pre event) {
+		if (event.getEntity() instanceof EntityPlayer && 
+				(event.getEntity().isInvisible() || 
+						TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_INVISIBLE)))
+			event.setCanceled(true);
 	}
 
 }

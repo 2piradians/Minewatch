@@ -49,7 +49,7 @@ public class ItemMeiBlaster extends ItemMWWeapon {
 				EnumHero.MEI.weapon.setCooldown(entityLiving, 9);
 				if (entityLiving.world.rand.nextInt(8) == 0)
 					entityLiving.getHeldItem(EnumHand.values()[(int) number]).damageItem(1, entityLiving);
-				EnumHero.MEI.weapon.subtractFromCurrentAmmo(entityLiving, 25, EnumHand.values()[(int) number]);
+				EnumHero.MEI.weapon.subtractFromCurrentAmmo(entityLiving, 20, EnumHand.values()[(int) number]);
 			}
 			return super.onServerRemove();
 		}

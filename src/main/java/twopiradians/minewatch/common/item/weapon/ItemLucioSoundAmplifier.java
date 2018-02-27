@@ -191,7 +191,8 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 		if (player != null) {
 			boolean playSound = false;
 			for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, player.getEntityBoundingBox().grow(7))) 
-				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90)) {
+				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90) &&
+						!EntityHelper.shouldIgnoreEntity(entity)) {
 					double distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
 					Vec3d base = player.getLookVec().scale(player instanceof EntityHero ? 3 : 2);

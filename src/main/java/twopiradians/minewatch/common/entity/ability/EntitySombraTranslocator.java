@@ -43,17 +43,17 @@ public class EntitySombraTranslocator extends EntityMW {
 			this.motionX = 0;
 			this.motionZ = 0;
 		}
-		
+
 		// prevOnGround and normal particle
 		if (prevOnGround != onGround && onGround) {
 			if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
 				ModSoundEvents.SOMBRA_TRANSLOCATOR_LAND.playFollowingSound(this.getThrower(), 1, 1, false);
 			if (!this.playedSound) {
 				if (this.world.isRemote && this.getThrower() == Minewatch.proxy.getClientPlayer())
-					ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.playFollowingSound(this.getThrower(), 0.8f, 1, false);
+					ModSoundEvents.SOMBRA_TRANSLOCATOR_DURING.playFollowingSound(this.getThrower(), 1f, 1, false);
 				this.playedSound = true;
 				if (!this.world.isRemote) 
-					this.lifetime = this.ticksExisted + 235;
+					this.lifetime = this.ticksExisted + 340;
 			}
 			if (world.isRemote && this.getThrower() instanceof EntityPlayer && 
 					this.getThrower().getPersistentID().equals(Minewatch.proxy.getClientUUID()))

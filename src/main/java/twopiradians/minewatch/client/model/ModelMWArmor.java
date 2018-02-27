@@ -34,37 +34,40 @@ public class ModelMWArmor extends ModelPlayer {
 
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		if (entityIn.isInvisible() || TickHandler.hasHandler(entityIn, Identifier.SOMBRA_INVISIBLE)) {
+			// get rid of arrows when invisible
+			if (entityIn instanceof EntityLivingBase)
+				((EntityLivingBase)entityIn).setArrowCountInEntity(0);
+
+			// don't render when invisible
+			if (entityIn.isInvisible())
+				return;
+		}
+
 		boolean preventColoring = true;
 		if (entityIn instanceof EntityLivingBase) {
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
 			EnumHero hero = entity.getHeldItemMainhand() != null && entity.getHeldItemMainhand().getItem() instanceof ItemMWWeapon ? 
-					((ItemMWWeapon)entity.getHeldItemMainhand().getItem()).hero : null;//SetManager.getWornSet(entityIn);
-			preventColoring = hero != null && hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
-			// only do more coloring if preRenderArmor returns false or hero is null
-			if (!preventColoring) {
-				// frozen coloring
-				if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
-						(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
-						entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
-					int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
-							TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
-							entity.maxHurtTime = -1;
-							entity.hurtTime = -1;
-							GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
-				}
-				// hurt coloring
-				else if (entity.hurtTime > 0 || entity.deathTime > 0)
-					GlStateManager.color(1, 0.6f, 0.6f);
-			}
+					((ItemMWWeapon)entity.getHeldItemMainhand().getItem()).hero : null;
+					preventColoring = hero != null && hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
+					// only do more coloring if preRenderArmor returns false or hero is null
+					if (!preventColoring) {
+						// frozen coloring
+						if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
+								(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
+								entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
+							int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
+									TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
+									entity.maxHurtTime = -1;
+									entity.hurtTime = -1;
+									GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
+						}
+						// hurt coloring
+						else if (entity.hurtTime > 0 || entity.deathTime > 0)
+							GlStateManager.color(1, 0.6f, 0.6f);
+					}
 		}
-		
-		// don't render when invisible
-		if (entityIn.isInvisible()) {
-			if (entityIn instanceof EntityLivingBase)
-				((EntityLivingBase)entityIn).setArrowCountInEntity(0);
-			return;
-		}
-		
+
 		boolean renderOutline = !preventColoring && Config.renderOutlines && 
 				!(entityIn instanceof EntityGuiPlayer) && !(entityIn instanceof EntityArmorStand) && 
 				!this.renderingEnchantment && !entityIn.isGlowing() && 
@@ -72,7 +75,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 		for (int i= renderOutline ? 0 : 1; i<2; ++i) {
 			GlStateManager.pushMatrix();
-			
+
 			// render outline
 			if (i==0) {
 				GlStateManager.enableColorMaterial();
@@ -81,7 +84,7 @@ public class ModelMWArmor extends ModelPlayer {
 				GlStateManager.scale(outlineScale, outlineScale, outlineScale);
 				GlStateManager.depthMask(false);
 			}
-			
+
 			if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
 				GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
 
@@ -95,7 +98,7 @@ public class ModelMWArmor extends ModelPlayer {
 				GlStateManager.disableOutlineMode();
 				GlStateManager.depthMask(true);
 			}
-			
+
 			GlStateManager.popMatrix();
 		}
 
@@ -122,32 +125,6 @@ public class ModelMWArmor extends ModelPlayer {
 		}
 
 		this.renderingEnchantment = false;
-	}
-
-	@Override
-	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
-		/*if (entityIn instanceof EntityLivingBase) {
-			EntityLivingBase entity = (EntityLivingBase) entityIn;
-			EnumHero hero = SetManager.getWornSet(entityIn);
-			this.preventColoring = hero.weapon.preRenderArmor((EntityLivingBase) entityIn, this);
-			// only do more coloring if preRenderArmor returns false or hero is null
-			if (hero == null || !preventColoring) {
-				// frozen coloring
-				if (TickHandler.hasHandler(entity, Identifier.POTION_FROZEN) || 
-						(entity != null && entity.getActivePotionEffect(ModPotions.frozen) != null && 
-						entity.getActivePotionEffect(ModPotions.frozen).getDuration() > 0)) {
-					int freeze = TickHandler.getHandler(entity, Identifier.POTION_FROZEN) != null ? 
-							TickHandler.getHandler(entity, Identifier.POTION_FROZEN).ticksLeft : 30;
-							entity.maxHurtTime = -1;
-							entity.hurtTime = -1;
-							GlStateManager.color(1f-freeze/30f, 1f-freeze/120f, 1f);
-				}
-				// hurt coloring
-				else if (entity.hurtTime > 0 || entity.deathTime > 0)
-					GlStateManager.color(1, 0.6f, 0.6f);
-			}
-
-		}*/
 	}
 
 }

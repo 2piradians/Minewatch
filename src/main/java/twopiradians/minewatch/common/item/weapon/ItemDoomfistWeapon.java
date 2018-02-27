@@ -408,7 +408,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			handler.entity.rotationYaw = (float) handler.number2;
 		handler.entity.moveRelative(0, 0, 1, 1);
 		handler.entity.rotationYaw = prev;
-		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d); // TODO not as fast on server?	
+		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d);	
 		handler.entity.motionX = motion.x;
 		handler.entity.motionZ = motion.z;
 		if (handler.entity.motionY < 0)
@@ -428,7 +428,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				if (target != handler.entityLiving && target != handler.entity && 
 				target instanceof EntityLivingBase && 
 				EntityHelper.shouldHit(handler.entity, target, false) && target.isEntityAlive() &&
-				((EntityLivingBase)handler.entity).canEntityBeSeen(target)) {
+				((EntityLivingBase)handler.entity).canEntityBeSeen(target) && !EntityHelper.shouldIgnoreEntity(target)) {
 					/*if (target.isEntityAlive() && (TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE) ||
 							TickHandler.hasHandler(target, Identifier.DOOMFIST_PUNCH))) {
 						handler.ticksLeft = 20; // TODO punch + punch, charge + charge
@@ -442,7 +442,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						TickHandler.getHandler(handler.entity, Identifier.PREVENT_MOVEMENT).setBoolean(false);
 						Minewatch.network.sendToDimension(new SPacketSimple(58, handler.entity, true, target), handler.entity.world.provider.getDimension());
 					}
-					else */if (EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true) && !EntityHelper.shouldIgnoreEntity(target)) {
+					else */if (EntityHelper.attemptDamage(handler.entity, target, (float) (49f+(51f*handler.number)), true)) {
 						ModSoundEvents.DOOMFIST_PUNCH_HIT.playFollowingSound(handler.entity, 0.5f, 1, false);
 						TickHandler.interrupt(target);
 						Minewatch.network.sendToDimension(new SPacketSimple(62, handler.entity, false, target, handler.initialTicks*0.7f, handler.number, handler.entity.rotationYaw), handler.entity.world.provider.getDimension());
@@ -484,7 +484,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	}
 
 	public ItemDoomfistWeapon() {
-		super(15);
+		super(13-1);
 		this.saveEntityToNBT = true;
 	}
 
@@ -550,7 +550,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			ModSoundEvents.DOOMFIST_PUNCH_DURING_VOICE.playFollowingSound(player, 1, 1, false);
 			player.renderYawOffset = player.rotationYawHead;
 			int ticks = 8;
-			Minewatch.network.sendToDimension(new SPacketSimple(62, player, true, ticks, 0, 0), world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(62, player, true, ticks, charge, 0), world.provider.getDimension());
 			TickHandler.register(false, PUNCH.setEntity(player).setTicks(ticks).setNumber(charge),
 					Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ability1),
 					Handlers.PREVENT_ROTATION.setEntity(player).setTicks(ticks));
@@ -584,7 +584,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 
 			// slam particle
 			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
-					player.ticksExisted % 5 == 0 && !player.onGround)
+					player.ticksExisted % 5 == 0 && !player.onGround && !(player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator()))
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_SLAM_0, world, player, 0xFFFFFF, 0xFFFFFF, 1, Integer.MAX_VALUE, 60, 60, 0, 0);
 
 			// reload automatically

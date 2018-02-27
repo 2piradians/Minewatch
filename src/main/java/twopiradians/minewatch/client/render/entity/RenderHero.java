@@ -21,7 +21,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 @SideOnly(Side.CLIENT)
 public class RenderHero extends RenderLivingBase<EntityHero> {
@@ -40,7 +44,11 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 	
 	@Override
     protected boolean canRenderName(EntityHero entity) {
-        return super.canRenderName(entity) && (entity.getAlwaysRenderNameTagForRender() || entity.hasCustomName() && entity == this.renderManager.pointedEntity);
+        return super.canRenderName(entity) && 
+        		(entity.getTeam() != null || 
+        		(entity.hasCustomName() && entity == this.renderManager.pointedEntity)) && 
+        		!(EntityHelper.shouldTarget(Minewatch.proxy.getClientPlayer(), entity, false) &&
+        				TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE));
     }
 
 	@Override

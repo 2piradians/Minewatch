@@ -179,9 +179,11 @@ public class ItemMWArmor extends ItemArmor {
 			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
 		}
+		
+		boolean hacked = TickHandler.hasHandler(player, Identifier.SOMBRA_HACKED);
 
 		// genji jump boost/double jump
-		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+		if (!hacked && this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				set == EnumHero.GENJI) {
 			// jump boost
 			if (!world.isRemote && (player.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
@@ -206,7 +208,7 @@ public class ItemMWArmor extends ItemArmor {
 		}
 
 		// genji/hanzo wall climb
-		if (this.armorType == EntityEquipmentSlot.CHEST && player != null && 
+		if (!hacked && this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
 			//BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
@@ -244,7 +246,7 @@ public class ItemMWArmor extends ItemArmor {
 			!world.isRemote && (player.getActivePotionEffect(MobEffects.REGENERATION) == null || 
 			player.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
-			else if (KeyBind.JUMP.isKeyDown(player) && player.motionY <= -0.09d && !player.isInWater() && !player.isInLava()) {
+			else if (!hacked && KeyBind.JUMP.isKeyDown(player) && player.motionY <= -0.09d && !player.isInWater() && !player.isInLava()) {
 				player.motionY = Math.min(player.motionY*0.75f, -0.1f);
 				player.fallDistance = Math.max(player.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(player) && !world.isRemote) {
@@ -258,23 +260,6 @@ public class ItemMWArmor extends ItemArmor {
 			}
 			else if (playersHovering.contains(player)) 
 				playersHovering.remove(player);
-
-		/*// tracer chestplate particles
-		double x = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosX : player.prevPosX;
-		double y = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosY : player.prevPosY;
-		double z = player instanceof EntityPlayer ? ((EntityPlayer)player).chasingPosZ : player.prevPosZ;
-		if (this.armorType == EntityEquipmentSlot.CHEST &&
-				set == EnumHero.TRACER && world.isRemote && !Minewatch.proxy.isPlayerInFirstPerson() && 
-				(x != 0 || y != 0 || z != 0) && 
-				!TickHandler.hasHandler(player, Identifier.TRACER_RECALL)) {
-			int numParticles = (int) ((Math.abs(x-player.posX)+Math.abs(y-player.posY)+Math.abs(z-player.posZ))*10d);
-			for (int i=0; i<numParticles; ++i)
-				Minewatch.proxy.spawnParticlesTrail(player.world, 
-						player.posX+(x-player.posX)*i/numParticles, 
-						player.posY+(y-player.posY)*i/numParticles+player.height/2+0.3f, 
-						player.posZ+(z-player.posZ)*i/numParticles, 
-						0, 0, 0, 0x5EDCE5, 0x007acc, 1, 3, 0, 1);
-		}*/
 
 		// set damage to full if wearing full set and option set to not use durability while wearing full set
 		if (!world.isRemote && (Config.durabilityOptionArmors == 1 || player instanceof EntityHero) && 

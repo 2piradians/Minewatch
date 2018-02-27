@@ -29,7 +29,7 @@ public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";
     public static final String MODID = "minewatch";
-    public static final String VERSION = "3.10.2";
+    public static final String VERSION = "3.10.3";
     public static final String MAP_TOOLS_VIDEO_URL = "https://youtu.be/uYehO-jO5OY"; 
     @Mod.Instance(MODID)
     public static Minewatch instance;

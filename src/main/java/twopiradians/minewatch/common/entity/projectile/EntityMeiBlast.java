@@ -43,17 +43,17 @@ public class EntityMeiBlast extends EntityMW {
 			// apply freeze/slowness effect
 			if (this.ticksLeft >= 30) {
 				entityLiving.removePotionEffect(MobEffects.SLOWNESS);
-				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 60, 0, false, true));
+				entityLiving.addPotionEffect(new PotionEffect(ModPotions.frozen, 90, 0, false, true));
 				TickHandler.interrupt(entityLiving);
-				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(60),
-						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(60),
-						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(60));
-				Minewatch.network.sendToAll(new SPacketSimple(9, entityLiving, true, 60, 0, 0));
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(entityLiving).setTicks(90),
+						Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(90),
+						Handlers.PREVENT_ROTATION.setEntity(entityLiving).setTicks(90));
+				Minewatch.network.sendToAll(new SPacketSimple(9, entityLiving, true, 90, 0, 0));
 				ModSoundEvents.MEI_FREEZE.playSound(entityLiving, 1, 1);
 				Minewatch.network.sendToAll(new SPacketSimple(23, entityLiving, false, entityLiving.posX, entityLiving.posY+entityLiving.height/2, entityLiving.posZ));
 			}
 			else
-				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 10, level, true, true));
+				entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 15, level, true, true));
 
 			if (TickHandler.hasHandler(entityLiving, Identifier.POTION_DELAY))
 				return false;

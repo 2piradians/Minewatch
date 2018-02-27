@@ -231,7 +231,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 				RayTraceResult result = EntityHelper.getMouseOverBlock((EntityLivingBase) followEntity, 30, rotations.x, rotations.y);
 				if (EnumHero.DOOMFIST.ability2.keybind.getCooldown((EntityLivingBase) followEntity) <= 0 && result != null && result.sideHit == EnumFacing.UP && !followEntity.onGround && 
 						(model == 0 || model == 3) && EntityHelper.isHoldingItem((EntityLivingBase) followEntity, EnumHero.DOOMFIST.weapon, EnumHand.MAIN_HAND) &&
-						SetManager.getWornSet(followEntity) == EnumHero.DOOMFIST) {
+						SetManager.getWornSet(followEntity) == EnumHero.DOOMFIST && 
+						!(followEntity instanceof EntityPlayer && ((EntityPlayer)followEntity).isSpectator())) {
 					Vec3d vec = result.hitVec.add(EntityHelper.getLook(0, rotations.y).scale(4d));
 					this.setPosition(vec.x, vec.y+0.05d, vec.z);
 					this.prevPosX = this.posX;

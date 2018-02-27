@@ -96,7 +96,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		}
 	};
 
-	public static Handler HACK = new Handler(Identifier.SOMBRA_HACK, true) {
+	public static final Handler HACK = new Handler(Identifier.SOMBRA_HACK, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
@@ -207,7 +207,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				}
 
 				// hacked
-				if (++number > 16) {
+				if (++number > 13) {
 					if (position != null) {
 						TileEntity te = entity.world.getTileEntity(new BlockPos(position));
 						if (te instanceof TileEntityHealthPack)
@@ -236,7 +236,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		public Handler onServerRemove() {
 			if (this.number > 0)
 				ModSoundEvents.SOMBRA_HACK_DURING.stopFollowingSound(entity);
-			Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, this.number >= 16 ? entityLiving : null), entity.dimension);
+			Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, this.number >= 13 ? entityLiving : null), entity.dimension);
 			return super.onServerRemove();
 		}
 		@Override

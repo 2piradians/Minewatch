@@ -3,10 +3,12 @@ package twopiradians.minewatch.common.item.armor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -16,6 +18,8 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,6 +42,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.SetManager;
@@ -47,6 +52,11 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 
 public class ItemMWArmor extends ItemArmor {
+
+	protected static final UUID HEALTH_MODIFIER_HEAD = UUID.fromString("CB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
+	protected static final UUID HEALTH_MODIFIER_CHEST = UUID.fromString("DB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
+	protected static final UUID HEALTH_MODIFIER_LEGS = UUID.fromString("EB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
+	protected static final UUID HEALTH_MODIFIER_FEET = UUID.fromString("FB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
 
 	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
@@ -61,11 +71,39 @@ public class ItemMWArmor extends ItemArmor {
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 
-	public ItemMWArmor(EnumHero hero, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn) {
-		super(materialIn, renderIndexIn, equipmentSlotIn);
+	public ItemMWArmor(EnumHero hero, ArmorMaterial material, int renderIndexIn, EntityEquipmentSlot slot) {
+		super(material, renderIndexIn, slot);
 		this.hero = hero;
 	}
-	
+
+	@Override
+	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
+		Multimap<String, AttributeModifier> map = super.getAttributeModifiers(slot, stack);
+
+		double health = (HealthManager.getMaxTotalHealth(hero)-20)/4d;
+		if (slot == this.armorType) {
+			UUID uuid = null;
+			switch (slot) {
+			case CHEST:
+				uuid = HEALTH_MODIFIER_CHEST;
+				break;
+			case FEET:
+				uuid = HEALTH_MODIFIER_FEET;
+				break;
+			case HEAD:
+				uuid = HEALTH_MODIFIER_HEAD;
+				break;
+			case LEGS:
+				uuid = HEALTH_MODIFIER_LEGS;
+				break;
+			}
+			if (uuid != null) 
+				map.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(uuid, "Health modifier", health, 0));
+		}
+
+		return map;
+	}
+
 	/**Gets the model for an entity (either male or female model) - creates the models if null*/
 	@SideOnly(Side.CLIENT)
 	public ModelMWArmor getModel(Entity entity) {
@@ -179,7 +217,7 @@ public class ItemMWArmor extends ItemArmor {
 			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
 		}
-		
+
 		boolean hacked = TickHandler.hasHandler(player, Identifier.SOMBRA_HACKED);
 
 		// genji jump boost/double jump

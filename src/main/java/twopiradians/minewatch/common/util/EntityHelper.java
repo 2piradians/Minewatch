@@ -306,7 +306,7 @@ public class EntityHelper {
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		// prevent healing mobs not on team with config option disabled
-		if (!Config.healMobs && friendly && target != null && entity != null && (targetTeam == null || targetTeam != entityTeam))
+		if (!Config.healMobs && friendly && target != null && entity != null && target != entity && (targetTeam == null || targetTeam != entityTeam))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entityTeam == null || targetTeam == null || 

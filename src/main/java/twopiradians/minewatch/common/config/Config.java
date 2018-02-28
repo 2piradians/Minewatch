@@ -76,6 +76,7 @@ public class Config {
 	public static boolean heroMobsDespawn;
 	public static boolean deleteItemsOnGround;
 	public static boolean lobbyCommand;
+	public static double healthScale;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -132,7 +133,8 @@ public class Config {
 		syncConfig(false, false);
 	}
 
-	/**@param overriding - should config sync from the config fields*/
+	/**@param overriding - should config sync from the config fields
+	 * @param clientSideOnly - should only client side options be synced*/
 	public static void syncConfig(boolean overriding, boolean clientSideOnly) {		
 		// CLIENT-SIDE ======================================================================================
 
@@ -272,6 +274,12 @@ public class Config {
 				prop.set(lobbyCommand);
 			else
 				lobbyCommand = prop.getBoolean();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means heroes have more health and a lower scale means they have less.", 0, 100);
+			if (overriding)
+				prop.set(healthScale * 10d);
+			else
+				healthScale = 0.1d * prop.getDouble();
 
 			// Team Block options ======================================================================================
 

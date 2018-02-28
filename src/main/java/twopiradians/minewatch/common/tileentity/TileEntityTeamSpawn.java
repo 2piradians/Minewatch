@@ -22,13 +22,14 @@ import twopiradians.minewatch.common.CommonProxy.EnumGui;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class TileEntityTeamSpawn extends TileEntityTeam {
 
-	public static Handler IN_RANGE = new Handler(Identifier.TEAM_SPAWN_IN_RANGE, false) {
+	public static final Handler IN_RANGE = new Handler(Identifier.TEAM_SPAWN_IN_RANGE, false) { // TODO spawn protection
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
@@ -83,8 +84,14 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 						new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
 								pos.add(-spawnRadius, -spawnRadius, -spawnRadius)))) 
 					if (entity != null && entity.isEntityAlive() && !(entity instanceof EntityLivingBaseMW) &&
-					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam())))
+					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam()))) {
 						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
+						Handler handler = TickHandler.getHandler(entity, Identifier.INVULNERABLE);
+						if (handler == null)
+							TickHandler.register(world.isRemote, Handlers.INVULNERABLE.setEntity(entity).setTicks(12));
+						else
+							handler.ticksLeft = 12;
+					}
 
 			// hero selection overlay
 			if (this.ticksExisted % 10 == 0) {

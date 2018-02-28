@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -34,25 +35,6 @@ import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 @Mod.EventBusSubscriber
 public class SetManager {
-
-	// REPLACE EVENT - COMMENT OUT FOR RELEASE
-	/*@SubscribeEvent(priority=EventPriority.LOWEST)
-	public static void replaceSpawns(LivingUpdateEvent event) {
-		if (!event.getEntity().world.isRemote && event.getEntity().ticksExisted == 1 && 
-				!(event.getEntity() instanceof EntityHero) && 
-				!event.getEntity().getEntityData().hasKey("Minewatch: Checked") && 
-				event.getEntity().isCreatureType(EnumCreatureType.MONSTER, false)) { //if server side & newly spawned
-			event.getEntity().getEntityData().setBoolean("Minewatch: Checked", true);
-
-			// replace with random hero
-			if (event.getEntity().world.rand.nextInt(event.getEntity().world.isDaytime() ? 150 : 100) <= Config.mobSpawnFreq*3) {
-				EntityHero hero = new EntityHero(event.getEntity().world);
-				hero.copyLocationAndAnglesFrom(event.getEntity());
-				event.getEntity().world.spawnEntity(hero);
-				event.getEntity().setDead();
-			}
-		}
-	}*/
 
 	/**List of players wearing full sets and the sets that they are wearing*/
 	private static HashMap<UUID, EnumHero> entitiesWearingSetsClient = Maps.newHashMap();	
@@ -144,30 +126,36 @@ public class SetManager {
 				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
 					ability.toggle(event.player, false);
 
-			// update entitiesWearingSets
-			if (fullSet) {
-				// set changed
-				if ((!SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID()) ||
-						SetManager.entitiesWearingSets(isRemote).get(event.player.getPersistentID()) != hero) &&
-						hero.selectSound != null) {
-					// sound plays twice in MP - both on clientside so cooldown should handle
-					if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP)
-						Minewatch.network.sendTo(new SPacketSimple(50, true, event.player, hero.ordinal(), 0, 0), (EntityPlayerMP) event.player);
-				}
+			// onSetChanged
+			if ((fullSet && (!SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID()) ||
+					SetManager.entitiesWearingSets(isRemote).get(event.player.getPersistentID()) != hero)) ||
+					(!fullSet && SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID())))
+				onSetChanged(event.player, SetManager.lastWornSets(isRemote).get(event.player.getPersistentID()), fullSet ? hero : null);
 
-				SetManager.entitiesWearingSets(isRemote).put(event.player.getPersistentID(), hero);
-
-				// set changed from prev
-				if (SetManager.lastWornSets(isRemote).get(event.player.getPersistentID()) != hero) {
-					for (KeyBind key : Keys.KeyBind.values()) 
-						if (key.getCooldown(event.player) > 0)
-							key.setCooldown(event.player, 0, true);
-					SetManager.lastWornSets(isRemote).put(event.player.getPersistentID(), hero);
-				}
-			}
-			else
-				SetManager.entitiesWearingSets(isRemote).remove(event.player.getPersistentID());
 		}
+	}
+
+	public static void onSetChanged(EntityPlayer player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
+		// update entitiesWearingSets
+		if (newHero == null)
+			SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());
+		else
+			SetManager.entitiesWearingSets(player.world.isRemote).put(player.getPersistentID(), newHero);
+
+		if (newHero != null) {
+			// play selection sound - plays twice in MP - both on clientside so cooldown should handle
+			if (newHero.selectSound != null && !player.world.isRemote && player instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(new SPacketSimple(50, true, player, newHero.ordinal(), 0, 0), (EntityPlayerMP) player);
+
+			// reset keybinds and update lastWornSets
+			if (prevHero != newHero) {
+				for (KeyBind key : Keys.KeyBind.values()) 
+					if (key.getCooldown(player) > 0)
+						key.setCooldown(player, 0, true);
+				SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
+			}
+		}
+
 	}
 
 	@SubscribeEvent

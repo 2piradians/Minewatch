@@ -32,6 +32,7 @@ public class PacketSyncConfig implements IMessage {
 	private double aimAssist;
 	private boolean deleteItemsOnGround;
 	private boolean lobbyCommand;
+	private double healthScale;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -78,6 +79,7 @@ public class PacketSyncConfig implements IMessage {
 		this.aimAssist = Config.aimAssist;
 		this.deleteItemsOnGround = Config.deleteItemsOnGround;
 		this.lobbyCommand = Config.lobbyCommand;
+		this.healthScale = Config.healthScale;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -122,6 +124,7 @@ public class PacketSyncConfig implements IMessage {
 		this.aimAssist = buf.readDouble();
 		this.deleteItemsOnGround = buf.readBoolean();
 		this.lobbyCommand = buf.readBoolean();
+		this.healthScale = buf.readDouble();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -166,6 +169,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.aimAssist);
 		buf.writeBoolean(this.deleteItemsOnGround);
 		buf.writeBoolean(this.lobbyCommand);
+		buf.writeDouble(this.healthScale);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -209,6 +213,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.aimAssist = this.aimAssist;
 		Config.deleteItemsOnGround = this.deleteItemsOnGround;
 		Config.lobbyCommand = this.lobbyCommand;
+		Config.healthScale = this.healthScale;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

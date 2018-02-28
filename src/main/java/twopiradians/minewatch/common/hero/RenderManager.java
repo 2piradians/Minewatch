@@ -248,6 +248,7 @@ public class RenderManager {
 			if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
 				GlStateManager.color(1, 1, 1, 1f);
 				GlStateManager.pushMatrix();
+				GlStateManager.enableAlpha();
 				weapon.preRenderGameOverlay(event, player, width, height, hand);
 				GlStateManager.popMatrix();
 			}
@@ -352,7 +353,7 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == ElementType.HELMET && Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {	
+		if (event.getType() == ElementType.HELMET && Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {				
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayer player = mc.player;
 			EnumHero hero = SetManager.getWornSet(player);
@@ -383,11 +384,30 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 
-				if (hero != null) {
+				if (hero != null) {					
+					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
 					EnumHero.displayPortrait(hero, 40-scale*120, (int) ((height - 256*scale) / scale) - 65+scale*110, false, false);
+					GlStateManager.popMatrix();
+					
+					// health TODO
+					int health = (int) player.getHealth();
+					int maxHealth = (int) player.getMaxHealth();
+					GlStateManager.pushMatrix();
+					GlStateManager.rotate(-4.5f, 0, 0, 1);
+					scale = 1.3d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 1);
+					int textWidth = mc.fontRenderer.getStringWidth(
+							TextFormatting.ITALIC+String.valueOf(health));
+					mc.fontRenderer.drawString(
+							TextFormatting.ITALIC+String.valueOf(health), 0, 10, 0xFFFFFF);
+					scale = 0.6d;
+					GlStateManager.scale(scale, scale, 1);
+					mc.fontRenderer.drawString("/", 53, 10, 0x00D5FF);
+					mc.fontRenderer.drawString(
+							TextFormatting.ITALIC+String.valueOf(maxHealth), 59, 10, 0xFFFFFF);
 					GlStateManager.popMatrix();
 				}
 
@@ -396,7 +416,8 @@ public class RenderManager {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableDepth();
 					GlStateManager.enableAlpha();
-
+					GlStateManager.color(1, 1, 1, 1);
+					
 					double scale = 2.7d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
 					GlStateManager.translate((int) (width/scale)-35, ((int)height/scale)-25+scale*2, 0);
@@ -516,7 +537,7 @@ public class RenderManager {
 		// ask mainhand if offhand is empty or is another mw item (but not a weapon - like Sombra's hack or Junkrat's trigger)
 		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null || off.isEmpty() || (off.getItem() instanceof IChangingModel && !(off.getItem() instanceof ItemMWWeapon)) ? main : held;
 
-		if (player != null && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
+		if (player != null && !player.isInvisible() && !player.isSpectator() && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
 				((ItemMWWeapon)stack.getItem()).shouldRenderHand(player, event.getHand()))) || 
 				(chest != null && chest.getItem() instanceof ItemMWArmor && event.getHand() == EnumHand.MAIN_HAND && 
 				(held == null || held.isEmpty()))) {

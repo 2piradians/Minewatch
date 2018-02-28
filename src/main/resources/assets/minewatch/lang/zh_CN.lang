@@ -237,8 +237,9 @@ gui.team_spawn.question_mark_description_0=团队生成器会生成玩家所选�
 gui.team_spawn.question_mark_description_1=团队生成器也可通过命令启用/禁用：
 gui.team_spawn.status.players_heroes_team=玩家与实体
 gui.team_spawn.status.players_heroes_all=全部玩家与实体（仅限一个团队中）
-gui.team_spawn.status.players_heroes_none=无
-gui.team_spawn.status.will_spawn=将此设置为生成点。
+gui.team_spawn.status.players_heroes_none=无团队
+gui.team_spawn.status.will_spawn=将此设置为重生点。
+command.lobby.desc=删除你的团队与重生点。
 
 gui.hero_select.select=选择
 gui.hero_select.select_hero=选择一个英雄

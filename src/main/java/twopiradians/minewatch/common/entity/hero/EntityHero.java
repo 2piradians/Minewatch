@@ -38,6 +38,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHero extends EntityMob {
 
+    public static final DataParameter<Float> ABSORPTION = EntityDataManager.<Float>createKey(EntityHero.class, DataSerializers.FLOAT);
 	public static final DataParameter<Integer> SKIN = EntityDataManager.<Integer>createKey(EntityHero.class, DataSerializers.VARINT);
 	public EnumHero hero;
 	@Nullable
@@ -84,6 +85,7 @@ public class EntityHero extends EntityMob {
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(SKIN, -1);
+		this.dataManager.register(ABSORPTION, 0f);
 
 		for (KeyBind key : KeyBind.values())
 			this.dataManager.register(key.datamanager, false);
@@ -171,6 +173,23 @@ public class EntityHero extends EntityMob {
 			e.printStackTrace();
 		}
 		this.setDead();
+	}
+
+	/**Overridden to sync absorption with data manager (like players)*/
+	@Override
+	public void setAbsorptionAmount(float amount) {
+		super.setAbsorptionAmount(amount);
+		
+		if (amount < 0.0F)
+			amount = 0.0F;
+
+		this.getDataManager().set(ABSORPTION, Float.valueOf(amount));
+	}
+
+	/**Overridden to sync absorption with data manager (like players)*/
+	@Override
+	public float getAbsorptionAmount() {
+		return ((Float)this.getDataManager().get(ABSORPTION)).floatValue();
 	}
 
 	@Override

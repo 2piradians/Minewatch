@@ -251,6 +251,7 @@ public class CommandMinewatch implements ICommand {
 			// sync inventory - needed for when called from GuiTab
 			if (sender instanceof EntityPlayerMP)
 				((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
+			entity.setHealth(entity.getMaxHealth());
 		}		
 	}
 

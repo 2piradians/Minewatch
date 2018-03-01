@@ -54,13 +54,15 @@ public class Config {
 
 	public static Configuration config;
 	public static boolean useObjModels;
-	public static double damageScale;
+	public static boolean customCrosshairs;
+	public static double guiScale;
+	public static boolean renderOutlines;
+	
 	public static int tokenDropRate;
 	public static int wildCardRate;
 	public static boolean allowGunWarnings;
-	public static boolean customCrosshairs;
 	public static boolean projectilesCauseKnockback;
-	public static double guiScale;
+	public static double damageScale;
 	public static int durabilityOptionArmors;
 	public static int durabilityOptionWeapons;
 	public static int trackKillsOption;
@@ -71,7 +73,6 @@ public class Config {
 	public static double ammoMultiplier;
 	public static boolean tokenDropRequiresPlayer;
 	public static double abilityCooldownMultiplier;
-	public static boolean renderOutlines;
 	public static double aimAssist;
 	public static boolean heroMobsDespawn;
 	public static boolean deleteItemsOnGround;
@@ -144,7 +145,7 @@ public class Config {
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Custom Crosshairs", true, "Should weapons change your crosshair?");
 		customCrosshairs = prop.getBoolean();
 
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui Scale", 1d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Gui Scale", 0.75d, "Scale for the hero and weapon GUI/overlays.", 0, 2);
 		guiScale = prop.getDouble();
 
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Track Kills and Damage", TRACK_KILLS_OPTIONS[0], "Tracked kills will display a message after killing them and will play kill and multi-kill sounds.", TRACK_KILLS_OPTIONS);
@@ -275,11 +276,11 @@ public class Config {
 			else
 				lobbyCommand = prop.getBoolean();
 			
-			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means heroes have more health and a lower scale means they have less.", 0, 100);
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means heroes have more health and a lower scale means they have less.", 0, 5);
 			if (overriding)
-				prop.set(healthScale * 10d);
+				prop.set(healthScale);
 			else
-				healthScale = 0.1d * prop.getDouble();
+				healthScale = prop.getDouble();
 
 			// Team Block options ======================================================================================
 

@@ -43,7 +43,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
 	}
 	
 	@Override
-    protected boolean canRenderName(EntityHero entity) {
+    public boolean canRenderName(EntityHero entity) {
         return super.canRenderName(entity) && 
         		(entity.getTeam() != null || 
         		(entity.hasCustomName() && entity == this.renderManager.pointedEntity)) && 

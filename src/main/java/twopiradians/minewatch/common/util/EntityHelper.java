@@ -742,7 +742,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !(input instanceof EntityLivingBaseMW) && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !shouldIgnoreEntity(input) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {
@@ -999,7 +999,7 @@ public class EntityHelper {
 
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreEntity(Entity entity) {
-		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand;
+		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || TickHandler.hasHandler(entity, Identifier.INVULNERABLE);
 	}
 
 }

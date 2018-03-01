@@ -80,7 +80,7 @@ public class ItemMWArmor extends ItemArmor {
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> map = super.getAttributeModifiers(slot, stack);
 
-		double health = (HealthManager.getMaxTotalHealth(hero)-20)/4d;
+		double health = (HealthManager.getMaxTotalHealth(hero)-200)/40d;
 		if (slot == this.armorType) {
 			UUID uuid = null;
 			switch (slot) {

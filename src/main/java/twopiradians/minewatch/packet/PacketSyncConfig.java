@@ -33,6 +33,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean deleteItemsOnGround;
 	private boolean lobbyCommand;
 	private double healthScale;
+	private double armor;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -80,6 +81,7 @@ public class PacketSyncConfig implements IMessage {
 		this.deleteItemsOnGround = Config.deleteItemsOnGround;
 		this.lobbyCommand = Config.lobbyCommand;
 		this.healthScale = Config.healthScale;
+		this.armor = Config.armor;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -125,6 +127,7 @@ public class PacketSyncConfig implements IMessage {
 		this.deleteItemsOnGround = buf.readBoolean();
 		this.lobbyCommand = buf.readBoolean();
 		this.healthScale = buf.readDouble();
+		this.armor = buf.readDouble();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -170,6 +173,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.deleteItemsOnGround);
 		buf.writeBoolean(this.lobbyCommand);
 		buf.writeDouble(this.healthScale);
+		buf.writeDouble(this.armor);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -214,6 +218,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.deleteItemsOnGround = this.deleteItemsOnGround;
 		Config.lobbyCommand = this.lobbyCommand;
 		Config.healthScale = this.healthScale;
+		Config.armor = this.armor;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

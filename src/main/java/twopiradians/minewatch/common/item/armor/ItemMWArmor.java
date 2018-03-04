@@ -57,6 +57,9 @@ public class ItemMWArmor extends ItemArmor {
 	protected static final UUID HEALTH_MODIFIER_CHEST = UUID.fromString("DB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
 	protected static final UUID HEALTH_MODIFIER_LEGS = UUID.fromString("EB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
 	protected static final UUID HEALTH_MODIFIER_FEET = UUID.fromString("FB3F4AD3-645C-4F88-A497-9C13A23DB5CF");
+	
+	// copied from ItemArmor
+    private static final UUID[] ARMOR_MODIFIERS = new UUID[] {UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150")};
 
 	public EnumHero hero;
 	@SideOnly(Side.CLIENT)
@@ -80,7 +83,7 @@ public class ItemMWArmor extends ItemArmor {
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> map = super.getAttributeModifiers(slot, stack);
 
-		double health = (HealthManager.getMaxTotalHealth(hero)-200)/40d;
+		double health = (HealthManager.getTotalBaseHealth(hero)-200)/40d;
 		if (slot == this.armorType) {
 			UUID uuid = null;
 			switch (slot) {
@@ -99,6 +102,10 @@ public class ItemMWArmor extends ItemArmor {
 			}
 			if (uuid != null) 
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(uuid, "Health modifier", health, 0));
+			
+			// override armor with config value
+			map.removeAll(SharedMonsterAttributes.ARMOR.getName());
+			map.put(SharedMonsterAttributes.ARMOR.getName(), new AttributeModifier(ARMOR_MODIFIERS[slot.getIndex()], "Armor modifier", Config.armor, 0));
 		}
 
 		return map;

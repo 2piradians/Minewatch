@@ -49,6 +49,7 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
@@ -1033,6 +1034,10 @@ public class SPacketSimple implements IMessage {
 						TileEntity te = player.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
 						if (te != null && te instanceof TileEntityTeam && !player.world.tickableTileEntities.contains(te))
 							te.invalidate();
+					}
+					// show health bar
+					else if (packet.type == 69 && entity != null) {
+						TickHandler.register(true, HealthManager.SHOW_HEALTH.setEntity(entity).setTicks(100));
 					}
 				}
 			});

@@ -18,16 +18,22 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketEntityEquipment;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.WorldServer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.HealthManager;
+import twopiradians.minewatch.common.hero.HealthManager.Type;
 import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
@@ -120,6 +126,9 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		// TODO
+		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 10);
+		
 		// sync config
 		if (args.length == 1 && args[0].equalsIgnoreCase("syncConfigToServer") && sender instanceof EntityPlayerMP) {
 			if (server.isSinglePlayer())
@@ -251,7 +260,7 @@ public class CommandMinewatch implements ICommand {
 			// sync inventory - needed for when called from GuiTab
 			if (sender instanceof EntityPlayerMP)
 				((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
-			entity.setHealth(entity.getMaxHealth());
+			entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
 		}		
 	}
 

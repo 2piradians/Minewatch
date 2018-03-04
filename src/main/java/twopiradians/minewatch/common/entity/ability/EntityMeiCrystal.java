@@ -7,6 +7,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
@@ -59,7 +60,14 @@ public class EntityMeiCrystal extends EntityMW {
 			this.rotationPitch = 0;
 			this.setPosition(this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ);
 		}
+		
+		EntityHelper.collideWithNearbyEntities(this);
 	}
+	
+	@Override
+    public boolean canBeCollidedWith() {
+        return true;
+    }
 
 	@Override
 	public void onImpact(RayTraceResult result) {}

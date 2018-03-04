@@ -215,17 +215,17 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 	}
 
 	@Nullable
-	private Vec3d getTeleportPos(EntityLivingBase player) {
+	private Vec3d getTeleportPos(EntityLivingBase player, boolean adjusted) {
 		try {
 			RayTraceResult result = player.world.rayTraceBlocks(EntityHelper.getPositionEyes(player), 
 					player.getLookVec().scale(Integer.MAX_VALUE), true, true, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.hitVec != null) {
 				BlockPos pos = result.getBlockPos();
-				
+
 				IBlockState state = player.world.getBlockState(pos);
 				IBlockState state1 = player.world.getBlockState(pos.up());
 				IBlockState state2 = player.world.getBlockState(pos.up(2));
-				
+
 				if ((player.world.isAirBlock(pos.up()) || state1.getCollisionBoundingBox(player.world, pos.up()) == null ||
 						state1.getCollisionBoundingBox(player.world, pos.up()) == Block.NULL_AABB) && 
 						(player.world.isAirBlock(pos.up(2)) || state2.getCollisionBoundingBox(player.world, pos.up(2)) == null ||
@@ -235,11 +235,16 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						state.getCollisionBoundingBox(player.world, pos) != Block.NULL_AABB &&
 						Math.sqrt(result.getBlockPos().distanceSq(player.posX, player.posY, player.posZ)) <= 35 &&
 						(EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up(2).getX()+0.5d, pos.up(2).getY()+0.5d, pos.up(2).getZ()+0.5d)) ||
-						EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up().getX()+0.5d, pos.up().getY()+0.5d, pos.up().getZ()+0.5d))))
-					return new Vec3d(result.hitVec.x, 
+								EntityHelper.canBeSeen(player.world, player.getPositionVector().addVector(0, player.getEyeHeight(), 0), new Vec3d(pos.up().getX()+0.5d, pos.up().getY()+0.5d, pos.up().getZ()+0.5d)))) {
+					Vec3d vec = new Vec3d(result.hitVec.x, 
 							result.getBlockPos().getY()+state.getCollisionBoundingBox(player.world, pos).maxY+
 							(state.getBlock() instanceof BlockFence ? 0.5d : 0), 
 							result.hitVec.z);
+					if (adjusted) // center on block (should be fine bc won't trigger if there's block above)
+						return new Vec3d(result.getBlockPos().getX()+0.5d, vec.y, result.getBlockPos().getZ()+0.5d);
+					else
+						return vec;
+				}
 			}
 		}
 		catch (Exception e) {}
@@ -255,7 +260,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			// teleport
 			if (hero.ability1.isSelected(player) && this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {   
 				if (world.isRemote) {
-					Vec3d tpVec = this.getTeleportPos(player);
+					Vec3d tpVec = this.getTeleportPos(player, false);
 					Handler handler = TickHandler.getHandler(player, Identifier.REAPER_TELEPORT);
 					if (tpVec != null) {
 						if (handler == null) {
@@ -272,7 +277,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						TickHandler.unregister(true, handler);
 				}
 				else if (KeyBind.LMB.isKeyDown(player)) {
-					Vec3d tpVec = this.getTeleportPos(player);
+					Vec3d tpVec = this.getTeleportPos(player, true);
 					// don't tp if hero and tp is less than 10 blocks or tp is farther from attack target than current position
 					if (tpVec != null && !world.isRemote && 
 							!(player instanceof EntityHero && (player.getPositionVector().distanceTo(tpVec) < 10 || 
@@ -280,9 +285,9 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 									player.getDistanceToEntity(((EntityHero)player).getAttackTarget()) < 
 									((EntityHero)player).getAttackTarget().getPositionVector().distanceTo(tpVec))))) {
 						player.rotationPitch = 0;
-						Minewatch.network.sendToAll(new SPacketSimple(1, player, false, Math.floor(tpVec.x)+0.5d, tpVec.y, Math.floor(tpVec.z)+0.5d));
+						Minewatch.network.sendToAll(new SPacketSimple(1, player, false, tpVec.x, tpVec.y, tpVec.z));
 						ModSoundEvents.REAPER_TELEPORT_FINAL.playFollowingSound(player, 1, 1, false);
-						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(Math.floor(tpVec.x)+0.5d, tpVec.y, Math.floor(tpVec.z)+0.5d)),
+						TickHandler.register(false, TPS.setEntity(player).setTicks(70).setPosition(new Vec3d(tpVec.x, tpVec.y, tpVec.z)),
 								Ability.ABILITY_USING.setEntity(player).setTicks(70).setAbility(EnumHero.REAPER.ability1),
 								Handlers.PREVENT_INPUT.setEntity(player).setTicks(70),
 								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(70), 

@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
@@ -74,9 +75,11 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
+import twopiradians.minewatch.common.hero.HealthManager.Type;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -390,11 +393,6 @@ public class RenderManager {
 				}
 
 				if (hero != null) {		
-					/*Config.guiScale += 0.005d;
-					if (Config.guiScale > 2)
-						Config.guiScale = 0.01d;*/
-					//Config.guiScale = 1;
-
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -408,89 +406,30 @@ public class RenderManager {
 					GlStateManager.translate(43, height/scale-27, 0);	
 					GlStateManager.rotate(-4f, 0, 0, 1);
 
-					renderHealthBar(player, hero, true);
-
-					/*
-					// health TODO
-					float maxHealth = player.getMaxHealth()*10f + player.getAbsorptionAmount()*10f;
-					float currentHealth = maxHealth * Math.abs(MathHelper.sin(player.ticksExisted/30f));// player.getHealth()*10f;
-
-					float health = MathHelper.clamp(HealthManager.getMaxHealth(hero), 0, currentHealth);
-					float armor = MathHelper.clamp(HealthManager.getMaxArmor(hero), 0, currentHealth-health);
-					float shield = MathHelper.clamp(HealthManager.getMaxShield(hero), 0, currentHealth-health-armor);
-					float barrier = MathHelper.clamp(player.getAbsorptionAmount()*10f, 0, currentHealth-health-armor-shield);
-
-					float maxWidth = 80f;
-					int barWidth = 8;
-					float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
-					float incrementX = barWidth + 0.4f/scaleX;
-
-					// health bars: health -> armor -> shields -> barriers
-					GlStateManager.pushMatrix();
-					mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
-					scale = 1.5d*Config.guiScale;
-					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(43, height/scale-27, 0);	
-					GlStateManager.rotate(-4f, 0, 0, 1);
-					GlStateManager.scale(scaleX, 1, 1);
-
-					float uScale = 1f / 0x100;
-					float vScale = 1f / 0x100;
-					int zLevel = 0;
-					int u = 39;
-					int v = 245;
-					int barHeight = 11;
-					int red = 150;
-					int green = 150;
-					int blue = 150;
-					int alpha = 160;
-					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder wr = tessellator.getBuffer();
-					wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-
-					// translucent background
-					int start = 0;
-					double finish = Math.ceil(maxHealth/25f);
-					int red = 150;
-					int green = 150;
-					int blue = 150;
-					int alpha = 160;
-					renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, maxWidth, scaleX, incrementX, red, green, blue, alpha);
-					// health
-					start = 0;
-					finish = Math.ceil(health/25f);
-					red = green = blue = 255;
-					alpha = 180;
-					renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, maxWidth, scaleX, incrementX, red, green, blue, alpha);
-					// armor
-					start = MathHelper.ceil(health/25f);
-					finish = Math.ceil((health+armor)/25f);
-					red = 255;
-					green = 220;
-					blue = 49;
-					alpha = 180;
-					renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, maxWidth, scaleX, incrementX, red, green, blue, alpha);
-					// shield
-					start = MathHelper.ceil((health+armor)/25f);
-					finish = Math.ceil((health+armor+shield)/25f);
-					red = 114;
-					green = 189;
-					blue = 234;
-					alpha = 180;
-					renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, maxWidth, scaleX, incrementX, red, green, blue, alpha);
-					// barrier
-					start = MathHelper.ceil((health+armor+shield)/25f);
-					finish = Math.ceil((health+armor+shield+barrier)/25f);
-					red = 6;
-					green = 58;
-					blue = 207;
-					alpha = 180;
-					renderIndividualHealthBar(buffer, start, finish, barrier, barHeight, barWidth, maxWidth, scaleX, incrementX, red, green, blue, alpha);
-
-					tessellator.draw();
+					renderHealthBar(player, hero, true, false);
 
 					GlStateManager.popMatrix();
-					 */
+
+					// current health / max health
+					GlStateManager.pushMatrix();
+
+					float maxHealth = HealthManager.getMaxCombinedHealth(player);
+					float currentHealth = HealthManager.getCurrentCombinedHealth(player);
+
+					scale = 1.3d*Config.guiScale;
+					GlStateManager.scale(scale, scale, 1);
+					GlStateManager.translate(49, height/scale-50, 0);
+					GlStateManager.rotate(-4.5f, 0, 0, 1);
+
+					int textWidth = mc.fontRenderer.getStringWidth(TextFormatting.ITALIC+String.valueOf((int)currentHealth))+1;
+					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)currentHealth), 0, 10, 0xFFFFFF, true);
+					scale = 0.6d;
+					GlStateManager.scale(scale, scale, 1);
+					mc.fontRenderer.drawString("/", (int) (textWidth/scale), 20, 0x00D5FF, true);
+					textWidth += mc.fontRenderer.getStringWidth("/")-2;
+					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)maxHealth), (int) (textWidth/scale), 20, 0xFFFFFF, true);
+
+					GlStateManager.popMatrix();
 
 				}
 
@@ -591,11 +530,11 @@ public class RenderManager {
 						scale = 0.45d;
 						GlStateManager.scale(scale, scale, 1);
 						int textWidth = mc.fontRenderer.getStringWidth(TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)));
-						mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-textWidth, -10, 0xFFFFFF);
+						mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf(weapon.getCurrentAmmo(player)), 31-textWidth, -10, 0xFFFFFF, true);
 						scale = 0.6d;
 						GlStateManager.scale(scale, scale, 1);
-						mc.fontRenderer.drawString("/", 53, -10, 0x00D5FF);
-						mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF);
+						mc.fontRenderer.drawString("/", 53, -10, 0x00D5FF, true);
+						mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf(weapon.getMaxAmmo(player)), 59, -10, 0xFFFFFF, true);
 					}
 
 					GlStateManager.popMatrix();
@@ -924,43 +863,72 @@ public class RenderManager {
 	@SubscribeEvent
 	public static void hideNameTags(RenderLivingEvent.Specials.Pre event) {
 		EnumHero hero = SetManager.getWornSet(event.getEntity());
+		// hide name tag for invis
 		if (event.getEntity() instanceof EntityPlayer && 
 				(event.getEntity().isInvisible() || TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_INVISIBLE))) 
 			event.setCanceled(true);
-		else if (event.getEntity() == null || !event.getEntity().isEntityAlive()) // and enabled
+
+		// override with custom health bar + name tag
+		if (Config.healthBars) {
 			event.setCanceled(true);
-		else if (canRenderName(event.getRenderer(), event.getEntity())) { // and enabled render health bar if name is rendered
-			GlStateManager.pushMatrix();
 
-			Minecraft mc = Minecraft.getMinecraft();
-			double scale = 0.02f;
-			boolean isThirdPersonFrontal = mc.getRenderManager().options.thirdPersonView == 2;
-			float viewerYaw = mc.getRenderManager().playerViewY;
-			float viewerPitch = mc.getRenderManager().playerViewX;
-			GlStateManager.translate(event.getX(), event.getY()+event.getEntity().height + 0.5F-(event.getEntity().isSneaking() ? 0.25F : 0.0F)+(11*0.3f+mc.fontRenderer.FONT_HEIGHT)*scale, event.getZ());
-			GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
-			GlStateManager.rotate(-viewerYaw, 0.0F, 1.0F, 0.0F);
-			GlStateManager.rotate((float)(isThirdPersonFrontal ? -1 : 1) * viewerPitch, 1.0F, 0.0F, 0.0F);
-			GlStateManager.scale(-scale, -scale, scale);
-			GlStateManager.disableLighting();
-			GlStateManager.depthMask(true);
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			if (event.getEntity() != null && event.getEntity().isEntityAlive() && 
+					hero != null && canRenderName(event.getRenderer(), event.getEntity())) { 
+				boolean enemy = EntityHelper.shouldTarget(Minewatch.proxy.getRenderViewEntity(), event.getEntity(), false);
+				float yOffset = event.getEntity().height + 0.5F - (event.getEntity().isSneaking() ? 0.25F : 0.0F);
 
-			if (hero != null)
-				renderHealthBar(event.getEntity(), hero, false);
+				GlStateManager.pushMatrix();
 
-			float yOffset = event.getEntity().height + 0.5F - (event.getEntity().isSneaking() ? 0.25F : 0.0F);
-			drawNameplate(mc.fontRenderer, event.getEntity().getDisplayName().getFormattedText(), (float)event.getX(), (float)event.getY()+yOffset, (float)event.getZ(), 0, viewerYaw, viewerPitch, isThirdPersonFrontal);
-
-			if (!event.getEntity().isSneaking())
+				Minecraft mc = Minecraft.getMinecraft();
+				double scale = 0.02f + mc.player.getDistanceToEntity(event.getEntity())/1000f;
+				boolean isThirdPersonFrontal = mc.getRenderManager().options.thirdPersonView == 2;
+				float viewerYaw = mc.getRenderManager().playerViewY;
+				float viewerPitch = mc.getRenderManager().playerViewX;
+				GlStateManager.translate(event.getX(), event.getY()+yOffset, event.getZ());
+				GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+				GlStateManager.rotate(-viewerYaw, 0.0F, 1.0F, 0.0F);
+				GlStateManager.rotate((float)(isThirdPersonFrontal ? -1 : 1) * viewerPitch, 1.0F, 0.0F, 0.0F);
+				GlStateManager.scale(-scale, -scale, scale);
+				GlStateManager.disableLighting();
+				GlStateManager.depthMask(true);
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.enableDepth();
-			GlStateManager.depthMask(true);
-			GlStateManager.enableLighting();
-			GlStateManager.disableBlend();
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-			event.setCanceled(true);
+				// translate based on distance
+				GlStateManager.translate(0, -mc.player.getDistanceToEntity(event.getEntity())/6f, 0);
+
+				// health bar
+				if (!enemy || TickHandler.hasHandler(event.getEntity(), Identifier.SHOW_HEALTH)) {
+					GlStateManager.translate(0, enemy ? -10 : -20, 0);
+					renderHealthBar(event.getEntity(), hero, false, enemy);
+					GlStateManager.translate(0, enemy ? 10 : 20, 0);
+				}
+
+				// icon
+				if (!enemy) {
+					GlStateManager.pushMatrix();
+					// hurt color
+					if (event.getEntity().getHealth() < event.getEntity().getMaxHealth() && 
+							TickHandler.hasHandler(event.getEntity(), Identifier.HEALTH_FIGHTING))
+						GlStateManager.color(0.7f, 0.67f, 0.35f);
+					// normal color
+					else
+						GlStateManager.color(0.19f, 0.84f, 0.78f);
+					GlStateManager.enableDepth();
+					GL11.glDepthFunc(GL11.GL_ALWAYS);
+					mc.getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);
+					GuiUtils.drawTexturedModalRect(-8, 0, 52, 245, 30, 10, 0);
+					GL11.glDepthFunc(GL11.GL_LEQUAL);
+					GlStateManager.popMatrix();
+				}
+
+				// name plate
+				GlStateManager.translate(0, enemy ? -0 : -8, 0);
+				drawNameplate(mc.fontRenderer, event.getEntity().getDisplayName().getFormattedText());
+
+				GlStateManager.popMatrix();
+			}
 		}
 	}
 
@@ -1003,24 +971,24 @@ public class RenderManager {
 		return Minecraft.isGuiEnabled() && entity != Minecraft.getMinecraft().getRenderManager().renderViewEntity && flag && !entity.isBeingRidden();
 	}
 
-	/**Render an entity's health bar - CALLS AN EXTRA GlStateManager.popMatrix(), BE SURE TO PUSH BEFOREHAND*/
+	/**Render an entity's health bar*/
 	@SideOnly(Side.CLIENT)
-	public static void renderHealthBar(EntityLivingBase entity, EnumHero hero, boolean inGui) {
+	public static void renderHealthBar(EntityLivingBase entity, EnumHero hero, boolean inGui, boolean enemy) {
+		GlStateManager.pushMatrix();
 		// health		
-		float maxHealth = entity.getMaxHealth()*10f + entity.getAbsorptionAmount()*10f;
-		float currentHealth = maxHealth * Math.abs(MathHelper.sin(entity.ticksExisted/30f));// player.getHealth()*10f;
-
-		float health = MathHelper.clamp(HealthManager.getMaxHealth(hero), 0, currentHealth);
-		float armor = MathHelper.clamp(HealthManager.getMaxArmor(hero), 0, currentHealth-health);
-		float shield = MathHelper.clamp(HealthManager.getMaxShield(hero), 0, currentHealth-health-armor);
-		float barrier = MathHelper.clamp(entity.getAbsorptionAmount()*10f, 0, currentHealth-health-armor-shield);
+		float maxHealth = HealthManager.getMaxCombinedHealth(entity);
+	
+		HashMap<Type, Float> map = HealthManager.getAllCurrentHealth(entity, hero);
+		float health = map.get(Type.HEALTH);
+		float armor = map.get(Type.ARMOR);
+		float shield = map.get(Type.SHIELD);
+		float shieldAbility = map.get(Type.SHIELD_ABILITY);
 
 		float maxWidth = 80f;
 		int barWidth = 8;
 		int barHeight = 11;
 		float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
 		float incrementX = barWidth + (inGui ? 0.4f/scaleX : 0);
-		boolean enemy = !inGui && EntityHelper.shouldTarget(Minewatch.proxy.getRenderViewEntity(), entity, false);
 
 		// health bars: health -> armor -> shields -> barriers
 		Minecraft mc = Minecraft.getMinecraft();
@@ -1087,7 +1055,7 @@ public class RenderManager {
 		renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
 		// barrier
 		start = MathHelper.ceil((health+armor+shield)/25f);
-		finish = Math.ceil((health+armor+shield+barrier)/25f);
+		finish = Math.ceil((health+armor+shield+shieldAbility)/25f);
 		if (enemy) {
 			red = 50;
 			green = 58;
@@ -1099,35 +1067,14 @@ public class RenderManager {
 			blue = 207;
 		}
 		alpha = inGui ? 180 : 255;
-		renderIndividualHealthBar(buffer, start, finish, barrier, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
 
 		tessellator.draw();
-		GlStateManager.popMatrix(); // extra pop to remove previous settings for text afterwards
-
-		// current health / max health
-		if (inGui) {
-			GlStateManager.pushMatrix();
-
-			double height = new ScaledResolution(mc).getScaledHeight_double();
-			double scale = 1.3d*Config.guiScale;
-			GlStateManager.scale(scale, scale, 1);
-			GlStateManager.translate(49, height/scale-50, 0);
-			GlStateManager.rotate(-4.5f, 0, 0, 1);
-
-			int textWidth = mc.fontRenderer.getStringWidth(TextFormatting.ITALIC+String.valueOf((int)currentHealth))+1;
-			mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)currentHealth), 0, 10, 0xFFFFFF);
-			scale = 0.6d;
-			GlStateManager.scale(scale, scale, 1);
-			mc.fontRenderer.drawString("/", (int) (textWidth/scale), 20, 0x00D5FF);
-			textWidth += mc.fontRenderer.getStringWidth("/")-2;
-			mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)maxHealth), (int) (textWidth/scale), 20, 0xFFFFFF);
-
-			GlStateManager.popMatrix();
-		}
-
+		GlStateManager.popMatrix(); 
 	}
 
 	/**Render health bar for a certain value (background, health, armor, shield, barrier)*/
+	@SideOnly(Side.CLIENT)
 	public static void renderIndividualHealthBar(BufferBuilder buffer, int start, double finish, float value, int barHeight, int barWidth, float xOffset, float incrementX, int red, int green, int blue, int alpha) {
 		float uScale = 1f / 0x100;
 		float vScale = 1f / 0x100;
@@ -1149,20 +1096,10 @@ public class RenderManager {
 	}
 
 	/**Modified from EntityRenderer#drawNamePlate()*/
-	public static void drawNameplate(FontRenderer fontRendererIn, String str, float x, float y, float z, int verticalShift, float viewerYaw, float viewerPitch, boolean isThirdPersonFrontal) {
+	@SideOnly(Side.CLIENT)
+	public static void drawNameplate(FontRenderer fontRendererIn, String str) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, z);
-		GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
-		GlStateManager.rotate(-viewerYaw, 0.0F, 1.0F, 0.0F);
-		GlStateManager.rotate((float)(isThirdPersonFrontal ? -1 : 1) * viewerPitch, 1.0F, 0.0F, 0.0F);
-		float scale = 0.025f;
-		GlStateManager.scale(-scale, -scale, scale);
-		GlStateManager.disableLighting();
-		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.enableDepth();
-		GlStateManager.depthMask(true);
-		fontRendererIn.drawString(str, -fontRendererIn.getStringWidth(str) / 2, verticalShift, -1, true);
+		fontRendererIn.drawString(str, -fontRendererIn.getStringWidth(str) / 2, 0, -1, true);
 		GlStateManager.enableLighting();
 		GlStateManager.disableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

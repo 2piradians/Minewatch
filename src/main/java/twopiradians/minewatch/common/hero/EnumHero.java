@@ -78,7 +78,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			10, 10, new int[] {2,3,3,2}, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, EntityAna.class,
+			10, 10, new ItemAnaRifle(), Crosshair.CIRCLE_SMALL, 0x6E8AB1, true, EntityAna.class,
 			new Skin(Skin.Type.COMMON, "Classic", "Overwatch - Ana", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---ana-shrike/"), 
 			new Skin(Skin.Type.COMMON, "Classic", "Until The End - Ana [Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/until-the-end-ana-overwatch/"),
 			new Skin(Skin.Type.EPIC, "Ghoul", "Ana Ghoul Skin", "DaDerpNarwhal", "http://www.minecraftskins.com/skin/11300611/ana-ghoul-skin/"), 
@@ -93,7 +93,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			24, 0, new int[] {2,3,3,2}, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, 0x95EF42, false, EntityGenji.class, 
+			24, 0, new ItemGenjiShuriken(), Crosshair.CIRCLE_SMALL, 0x95EF42, false, EntityGenji.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Overwatch- Genji", "Ringoster", "https://www.planetminecraft.com/skin/genji-3709302/"), 
 			new Skin(Skin.Type.RARE, "Carbon Fiber", "Genji: Carbon Fiber", "EP_Schnellnut", "https://www.planetminecraft.com/skin/genji-carbon-fiber/"), 
 			new Skin(Skin.Type.LEGENDARY, "Young Genji", "Young Genji", "Aegeah", "https://www.planetminecraft.com/skin/young-genji/"), 
@@ -107,7 +107,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
-			0, 0, new int[] {2,3,3,2}, new ItemHanzoBow(), Crosshair.BOW, 0xB6B589, false, EntityHanzo.class, 
+			0, 0, new ItemHanzoBow(), Crosshair.BOW, 0xB6B589, false, EntityHanzo.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Overwatch- Hanzo", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--hanzo/"), 
 			new Skin(Skin.Type.LEGENDARY, "Cyber Ninja", "Cyber Ninja Hanzo", "Arctrooper7802", "http://www.minecraftskins.com/skin/11071427/cyber-ninja-hanzo/"), 
 			new Skin(Skin.Type.LEGENDARY, "Lone Wolf", "Hanzo, Lone Wolf | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/hanzo-lone-wolf-overwatch/"), 
@@ -120,7 +120,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			6, 0, new int[] {2,3,3,2}, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, EntityMcCree.class, 
+			6, 0, new ItemMcCreeGun(), Crosshair.CIRCLE_SMALL, 0xAF595C, false, EntityMcCree.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "im yer huckleberry | Jesse McCree", "PlantyBox", "https://www.planetminecraft.com/skin/im-yer-huckleberry-jesse-mccree/"),
 			new Skin(Skin.Type.COMMON, "Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
 			new Skin(Skin.Type.LEGENDARY, "Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
@@ -131,7 +131,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			8, 0, new int[] {2,3,3,2}, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, EntityReaper.class, 
+			8, 0, new ItemReaperShotgun(), Crosshair.CIRCLE_BIG, 0x793E50, false, EntityReaper.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"), 
 			new Skin(Skin.Type.COMMON, "Classic", "Reaper (PlayOfTheGame)", "_Phantom", "https://www.planetminecraft.com/skin/reaper-playofthegame-overwatch/"),
 			new Skin(Skin.Type.COMMON, "Classic", "Reaper | Overwatch", "Cayde - 6", "https://www.planetminecraft.com/skin/reaper-overwatch-3652548/"),
@@ -145,7 +145,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, false, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			0, 0, new int[] {4,6,6,4}, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, EntityReinhardt.class, 
+			0, 0, new ItemReinhardtHammer(), Crosshair.CIRCLE_SMALL, 0x919EA4, false, EntityReinhardt.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Overwatch Reinhardt","Kohicup", "https://www.planetminecraft.com/skin/overwatch-reinhardt/"),
 			new Skin(Skin.Type.EPIC, "Coldhardt", "ColdHardt", "jay_zx_jc", "https://www.planetminecraft.com/skin/coldhardt/"),
 			new Skin(Skin.Type.LEGENDARY, "Lionhardt", "LionHardt Reinhardt", "ReinhardtWillhelm", "http://www.minecraftskins.com/skin/8764321/lionhardt-reinhardt/"),
@@ -157,7 +157,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.NONE, true, true), 
-			25, 0, new int[] {2,3,3,2}, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, EntitySoldier76.class, 
+			25, 0, new ItemSoldier76Gun(), Crosshair.PLUS, 0x6A7895, false, EntitySoldier76.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Soldier 76 (Overwatch)", "sixfootblue", "https://www.planetminecraft.com/skin/soldier-76-overwatch-3819528/"),
 			new Skin(Skin.Type.COMMON, "Classic", "Soldier 76", "Knap", "https://www.planetminecraft.com/skin/soldier-76-3820018/"),
 			new Skin(Skin.Type.RARE, "Smoke", "smoke update", "Shadowstxr", "http://www.minecraftskins.com/skin/9559771/smoke-update/"),
@@ -170,7 +170,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false, 3, 60), 
 			new Ability(KeyBind.NONE, false, false), 
-			40, 0, new int[] {2,2,2,2}, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, 0xD89441, true, EntityTracer.class, 
+			40, 0, new ItemTracerPistol(), Crosshair.CIRCLE_SMALL, 0xD89441, true, EntityTracer.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Tracer- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/tracer--overwatch-feat-19-transparency/"),
 			new Skin(Skin.Type.LEGENDARY, "Graffiti", "Graffiti Tracer (Overwatch)", "RyutoMatsuki", "https://www.planetminecraft.com/skin/graffiti-tracer-overwatch-better-in-preview-3982890/"),
 			new Skin(Skin.Type.LEGENDARY, "Slipstream", "Overwatch - Slipstream Tracer", "WeegeeTheLucario", "https://www.planetminecraft.com/skin/slipstream-tracer/"),
@@ -182,7 +182,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			25, 300, new int[] {2,3,3,2}, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false, EntityBastion.class,
+			25, 300, new ItemBastionGun(), Crosshair.PLUS, 0x7A8D79, false, EntityBastion.class,
 			new Skin(Skin.Type.COMMON, "Classic", "Bastion- Overwatch", "Ringoster", "https://www.planetminecraft.com/skin/bastion--overwatch/"),
 			new Skin(Skin.Type.EPIC, "Omnic Crisis", "Bastion Omnic Crisis", "LegitNickname", "http://www.minecraftskins.com/skin/10155984/bastion-omnic-crisis/"),
 			new Skin(Skin.Type.EPIC, "Blizzcon 2016", "Blizcon Bastion HD", "LegitNickname", "http://www.minecraftskins.com/skin/10221741/blizcon-bastion-hd/"),
@@ -194,7 +194,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
 			new Ability(KeyBind.NONE, false, false), 
-			200, 0, new int[] {2,3,3,2}, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, EntityMei.class, 
+			200, 0, new ItemMeiBlaster(), Crosshair.CIRCLE_SMALL, 0x6BA8E7, true, EntityMei.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
 			new Skin(Skin.Type.LEGENDARY, "Mei-rry", "Mei-Rry", "KevinAguirre2", "http://www.minecraftskins.com/skin/11709782/mei-rry/", "A-Mei-Zing! ...get it? 'cause Mei..", "oEffy", "https://www.planetminecraft.com/skin/a-mei-zing-get-it-cause-mei/"),
 			new Skin(Skin.Type.LEGENDARY, "Luna", "Mei v2", "nikita505n", "http://www.minecraftskins.com/skin/11711832/mei-v2/"),
@@ -204,7 +204,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			30, 0, new int[] {2,3,3,2}, 
+			30, 0, 
 			new ItemWidowmakerRifle(), Crosshair.CIRCLE_SMALL, 0x9A68A3, true, EntityWidowmaker.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Widowmaker - Overwatch: 1.8 Skin, Female", "sir-connor", "https://www.planetminecraft.com/skin/widowmaker---overwatch-18-skin-female/"),
 			new Skin(Skin.Type.COMMON, "Classic", "Widowmaker (Overwatch) ... ONE SHOT, ONE KILL", "KAWAI_Murderer", "https://www.planetminecraft.com/skin/widowmaker-overwatch-one-shot-one-kill/"),
@@ -218,7 +218,7 @@ public enum EnumHero {
 			new Ability(KeyBind.NONE, false, false), 
 			new Ability(KeyBind.ABILITY_2, false, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			0, 20, new int[] {2,2,2,2}, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, EntityMercy.class, 
+			0, 20, new ItemMercyWeapon(), Crosshair.CIRCLE_SMALL, 0xEBE8BB, true, EntityMercy.class, 
 			new Skin(Skin.Type.COMMON, "Classic", "Overwatch | Mercy", "Efflorescence", "https://www.planetminecraft.com/skin/-overwatch-mercy-/"),
 			new Skin(Skin.Type.COMMON, "Classic", "Mercy", "FireBoltCreeeper", "https://www.planetminecraft.com/skin/mercy-3684205/"),
 			new Skin(Skin.Type.LEGENDARY, "Imp", "Imp Mercy Overwatch", "Aireters", "https://www.planetminecraft.com/skin/-imp-mercy-overwatch/"),
@@ -231,7 +231,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false, 2, 160), 
 			new Ability(KeyBind.NONE, false, false), 
-			5, 0, new int[] {2,2,2,2}, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, EntityJunkrat.class, 
+			5, 0, new ItemJunkratLauncher(), Crosshair.CIRCLE_SMALL, 0xEABB51, true, EntityJunkrat.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "Overwatch- Junkrat", "Ringoster", "https://www.planetminecraft.com/skin/overwatch--junkrat/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Everything's coming up explodey! Overwatch - Junkrat", "_Phantom", "https://www.planetminecraft.com/skin/everything-s-coming-up-explodey-overwatch-junkrat/"),
 			new Skin(Skin.Type.LEGENDARY, "Scarecrow", "Scarecrow Junkrat- Overwatch", "-CenturianDoctor-", "https://www.planetminecraft.com/skin/scarecrow-junkrat--overwatch/"),
@@ -244,7 +244,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
-			60, 0, new int[] {2,2,2,2}, new ItemSombraMachinePistol(), Crosshair.CIRCLE_SMALL, 0x745ABB, true, EntitySombra.class, 
+			60, 0, new ItemSombraMachinePistol(), Crosshair.CIRCLE_SMALL, 0x745ABB, true, EntitySombra.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "Boop!", "Nutellah", "https://www.planetminecraft.com/skin/boop-3851181/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Virtuality - Sombra [Contest | Overwatch]", "Orbiter", "https://www.planetminecraft.com/skin/virtuality-sombra-contest-overwatch/"),
 			new Skin(Skin.Type.RARE, "Mar", "Sombra with Mar skin", "XxbalintgamerxX", "http://www.minecraftskins.com/skin/9944115/sombra-with-mar-skin/"),
@@ -258,7 +258,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			20, 20, new int[] {2,2,2,2}, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
+			20, 20, new ItemLucioSoundAmplifier(), Crosshair.CIRCLE_SMALL, 0x91D618, true, EntityLucio.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "L�cio", "Drazile", "https://www.planetminecraft.com/skin/jet-set-tiesto/"),
 			new Skin(Skin.Type.RARE, "Roxo", "lucio roxo", "electricgeek", "http://www.minecraftskins.com/skin/9502279/lucio-roxo/"),
 			new Skin(Skin.Type.EPIC, "Andes", "Lucio Andes", "Stuphie", "http://www.minecraftskins.com/skin/10880715/lucio-andes/"),
@@ -272,7 +272,7 @@ public enum EnumHero {
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 
-			20, 20, new int[] {2,2,2,2}, new ItemZenyattaWeapon(), Crosshair.CIRCLE_SMALL, 0xEDE582, true, EntityZenyatta.class, 
+			20, 20, new ItemZenyattaWeapon(), Crosshair.CIRCLE_SMALL, 0xEDE582, true, EntityZenyatta.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "Zenyatta (OverWatch)", "Kill3rCreeper", "https://www.planetminecraft.com/skin/zenyatta-overwatch/"),
 			new Skin(Skin.Type.EPIC, "Ascendant", "Zenyatta Ascendance skin", "brainman", "http://www.minecraftskins.com/skin/10621836/zenyatta-ascendance-skin/"),
 			new Skin(Skin.Type.LEGENDARY, "Djinnyatta", "Djinnyatta", "brainman", "http://www.minecraftskins.com/skin/11033097/djinnyatta/"),
@@ -285,7 +285,7 @@ public enum EnumHero {
 			new Ability(KeyBind.NONE, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, true), 
 			new Ability(KeyBind.ABILITY_1, true, true), 
-			0, 0, new int[] {2,2,2,2}, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
+			0, 0, new ItemMoiraWeapon(), Crosshair.CIRCLE_SMALL, 0x7D3E51, true, EntityMoira.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "MOIRA!!!!!!", "Aegeah", "https://www.planetminecraft.com/skin/moira/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Moira - Overwatch (Healer version)", "Elec", "https://www.planetminecraft.com/skin/moira-overwatch-healer-version/"),
 			new Skin(Skin.Type.LEGENDARY, "Moon", "Moira Moon", "KevinAguirre2", "http://www.minecraftskins.com/skin/11786311/moira-moon/")),
@@ -294,7 +294,7 @@ public enum EnumHero {
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
-			4, 4, new int[] {2,2,2,2}, new ItemDoomfistWeapon(), Crosshair.CIRCLE_SMALL, 0x83524B, false, EntityDoomfist.class, 
+			4, 4, new ItemDoomfistWeapon(), Crosshair.CIRCLE_SMALL, 0x83524B, false, EntityDoomfist.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "gab51299", "https://www.planetminecraft.com/skin/doomfist/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "HazelOrb", "https://www.planetminecraft.com/skin/doomfist-3979249/"),
 			new Skin(Skin.Type.LEGENDARY, "Spirit", "Doomfist Spirit", "CorduroyCorn", "http://www.minecraftskins.com/skin/11239728/doomfist-spirit/"));
@@ -328,7 +328,6 @@ public enum EnumHero {
 	/**max ammo for alt weapon*/
 	public int altAmmo;
 
-	public int[] armorReductionAmounts;
 	public ArmorMaterial material;
 	public ItemMWArmor helmet;
 	public ItemMWArmor chestplate;
@@ -423,7 +422,7 @@ public enum EnumHero {
 	}
 
 	private EnumHero(String name, Type type, boolean hasAltWeapon, boolean switchAltWithScroll, int baseHealth, int baseArmor, int baseShield, Ability ability1, Ability ability2, Ability ability3,
-			int mainAmmo, int altAmmo, int[] armorReductionAmounts, ItemMWWeapon weapon, Crosshair crosshair, 
+			int mainAmmo, int altAmmo, ItemMWWeapon weapon, Crosshair crosshair, 
 			int color, boolean smallArms, Class heroClass, Skin... skinInfo) {
 		this.heroClass = heroClass;
 		this.type = type;
@@ -444,7 +443,6 @@ public enum EnumHero {
 		this.ability3.hero = this;
 		this.mainAmmo = mainAmmo;
 		this.altAmmo = altAmmo;
-		this.armorReductionAmounts = armorReductionAmounts;
 		this.weapon = weapon;
 		this.crosshair = crosshair;
 		this.color = new Color(color);

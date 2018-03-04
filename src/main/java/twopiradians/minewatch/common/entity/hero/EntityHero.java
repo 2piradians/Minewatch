@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
@@ -13,15 +14,18 @@ import net.minecraft.entity.ai.EntityAIWanderAvoidWater;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -38,7 +42,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHero extends EntityMob {
 
-    public static final DataParameter<Float> ABSORPTION = EntityDataManager.<Float>createKey(EntityHero.class, DataSerializers.FLOAT);
+	public static final DataParameter<Float> ABSORPTION = EntityDataManager.<Float>createKey(EntityHero.class, DataSerializers.FLOAT);
 	public static final DataParameter<Integer> SKIN = EntityDataManager.<Integer>createKey(EntityHero.class, DataSerializers.VARINT);
 	public EnumHero hero;
 	@Nullable
@@ -174,12 +178,20 @@ public class EntityHero extends EntityMob {
 		}
 		this.setDead();
 	}
+	
+	@Override
+    @Nullable
+    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
+		this.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
+		
+    	return super.onInitialSpawn(difficulty, livingdata);
+    }
 
 	/**Overridden to sync absorption with data manager (like players)*/
 	@Override
 	public void setAbsorptionAmount(float amount) {
 		super.setAbsorptionAmount(amount);
-		
+
 		if (amount < 0.0F)
 			amount = 0.0F;
 
@@ -214,6 +226,12 @@ public class EntityHero extends EntityMob {
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
+		// still trigger event on client (for health manager)
+		if (world.isRemote) {
+			net.minecraftforge.common.ForgeHooks.onLivingAttack(this, source, amount);
+			return false;
+		}
+
 		// prevent same team damage (for non-mw attacks)
 		if (source != null && 
 				((source.getTrueSource() != null && source.getTrueSource().isOnSameTeam(this)) ||

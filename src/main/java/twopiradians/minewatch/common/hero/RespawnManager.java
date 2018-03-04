@@ -18,8 +18,10 @@ import net.minecraft.entity.monster.EntityShulker;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.CPacketClientStatus;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
@@ -67,7 +69,7 @@ public class RespawnManager {
 			if (this.ticksLeft % 20 == 0)
 				Minewatch.proxy.updateFOV();
 			Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
-			
+
 			// copy positions of spectating entity
 			player.setPosition(entityLiving.posX, entityLiving.posY, entityLiving.posZ);
 			player.prevPosX = entityLiving.prevPosX;
@@ -100,7 +102,7 @@ public class RespawnManager {
 			}
 			else 
 				this.bool = false;
-			
+
 			return --ticksLeft <= 0 || entity == null || entity.isEntityAlive() || entity != Minewatch.proxy.getClientPlayer();
 		}
 		@Override
@@ -185,6 +187,9 @@ public class RespawnManager {
 				}
 				catch (Exception e) {}
 			}
+			
+			// heal to full
+			player.connection.player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
 		}
 		else if (entity instanceof EntityLivingBase && teamSpawn != null && team != null) {
 			try {
@@ -217,6 +222,7 @@ public class RespawnManager {
 				respawnEntity.deathTime = 0;
 				if (respawnEntity instanceof EntityShulker)
 					((EntityShulker)respawnEntity).setAttachmentPos(teamSpawn);
+				respawnEntity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
 				entity.world.spawnEntity(respawnEntity);
 				if (Config.mobRespawnRandomHero && respawnEntity instanceof EntityHero) 
 					((EntityHero)respawnEntity).spawnRandomHero();
@@ -284,7 +290,7 @@ public class RespawnManager {
 		// put team in customEntityData because entity removed from team on death
 		if (event.getEntityLiving() != null && event.getEntityLiving().getTeam() != null)
 			event.getEntityLiving().getEntityData().setString("minewatch:team", event.getEntityLiving().getTeam().getName());
-		
+
 		// register dead mobs directly
 		if (isRespawnableEntity(event.getEntityLiving()) &&
 				!event.getEntityLiving().world.isRemote && !TickHandler.hasHandler(event.getEntityLiving(), Identifier.DEAD)) {
@@ -342,33 +348,34 @@ public class RespawnManager {
 				// top
 				double scale = Config.guiScale*1d;
 				GlStateManager.scale(scale, scale, 0);
-				GuiUtils.drawGradientRect(0, 0, 0, (int) width, 40, 0x6F000000, 0x6F000000);
-				GuiUtils.drawGradientRect(0, 0, 40, (int) width, 42, 0xAAAAAAAA, 0xAAAAAAAA);
+				GuiUtils.drawGradientRect(0, 0, 0, (int) (width/scale), (int) (40/scale), 0x6F000000, 0x6F000000);
+				GuiUtils.drawGradientRect(0, 0, (int) (40/scale), (int) (width/scale), (int) (42/scale), 0xAAAAAAAA, 0xAAAAAAAA);
 				GlStateManager.scale(1d/scale, 1d/scale, 0);
 				scale = Config.guiScale*3.8d;
 				GlStateManager.scale(scale, scale, 0);
 				GlStateManager.enableBlend();
 				GlStateManager.color(1, 1, 1, 1f);
-				GuiUtils.drawTexturedModalRect((int) (width/scale-50), 3, 38, 1008, 21, 5, 0);
+				GuiUtils.drawTexturedModalRect((int) (width/scale-250/scale), 3, 38, 1008, 21, 5, 0);
 				GlStateManager.scale(1d/scale, 1d/scale, 0);
-				scale = Config.guiScale*1d;
 
 				// text
+				scale = Config.guiScale*1d;
+				GlStateManager.scale(scale, scale, 0);
 				String format = TextFormatting.BOLD+""+TextFormatting.GOLD+""+TextFormatting.ITALIC;
 				String text = format+Minewatch.translate("overlay.respawn_in").toUpperCase()+": ";
-				mc.fontRenderer.drawString(text, (float) (width/scale-mc.fontRenderer.getStringWidth(text)-30), 16, 0xFFFFFF, true);
+				mc.fontRenderer.drawString(text, (float) (width/scale-mc.fontRenderer.getStringWidth(text)-30f/scale), (float) (16f/scale), 0xFFFFFF, true);
 				text = TextFormatting.BOLD+""+TextFormatting.ITALIC+handler.entityLiving.getName().toUpperCase();
-				mc.fontRenderer.drawString(text, 13, 23, 0xFFFFFF, true);
+				mc.fontRenderer.drawString(text, (float) (13f/scale), (float) (23f/scale), 0xFFFFFF, true);
 				text = format+Minewatch.translate("overlay.death_spectating").toUpperCase()+":";
 				GlStateManager.scale(1d/scale, 1d/scale, 0);
-				scale = Config.guiScale*1.2d;
+				scale = Config.guiScale*1.4d;
 				GlStateManager.scale(scale, scale, 0);
-				mc.fontRenderer.drawString(text, 10, 8, 0xFFFFFF, true);
+				mc.fontRenderer.drawString(text, (float) (10f/scale), (float) (8f/scale), 0xFFFFFF, true);
 				GlStateManager.scale(1d/scale, 1d/scale, 0);
 				scale = Config.guiScale*1.5d;
 				GlStateManager.scale(scale, scale, 0);
 				text = String.valueOf(handler.ticksLeft / 20);
-				mc.fontRenderer.drawString(text, (float) (width/scale-mc.fontRenderer.getStringWidth(text)/2d-18), 9, 0xFFFFFF, true);
+				mc.fontRenderer.drawString(text, (float) (width/scale-mc.fontRenderer.getStringWidth(text)/2d-28f/scale), (float) (15f/scale), 0xFFFFFF, true);
 
 				GlStateManager.popMatrix();
 			}

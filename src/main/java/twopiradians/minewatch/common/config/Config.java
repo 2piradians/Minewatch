@@ -7,6 +7,8 @@ import java.util.UUID;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.config.Configuration;
@@ -21,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.PacketSyncConfig;
 
@@ -57,7 +60,8 @@ public class Config {
 	public static boolean customCrosshairs;
 	public static double guiScale;
 	public static boolean renderOutlines;
-	
+	public static boolean healthBars;
+
 	public static int tokenDropRate;
 	public static int wildCardRate;
 	public static boolean allowGunWarnings;
@@ -78,6 +82,7 @@ public class Config {
 	public static boolean deleteItemsOnGround;
 	public static boolean lobbyCommand;
 	public static double healthScale;
+	public static double armor;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -166,6 +171,9 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Render Outlines", true, "Should enemy heroes have a red outline?");
 		renderOutlines = prop.getBoolean();
+
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Health Bars", true, "Should hero's health bars appear above their heads?");
+		healthBars = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 
@@ -269,18 +277,24 @@ public class Config {
 				prop.set(deleteItemsOnGround);
 			else
 				deleteItemsOnGround = prop.getBoolean();
-			
+
 			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Enable /lobby", false, "Should the /lobby command be enabled? It removes your team and respawns you.");
 			if (overriding)
 				prop.set(lobbyCommand);
 			else
 				lobbyCommand = prop.getBoolean();
-			
+
 			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Health Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means heroes have more health and a lower scale means they have less.", 0, 5);
 			if (overriding)
 				prop.set(healthScale);
 			else
 				healthScale = prop.getDouble();
+
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Armor Damage Reduction", 0d, "Damage reduction value for Minewatch armor.", 0d, 20d);
+			if (overriding)
+				prop.set(armor);
+			else 
+				armor = prop.getDouble();
 
 			// Team Block options ======================================================================================
 

@@ -2,13 +2,13 @@
 {
   "modid": "minewatch",
   "name": "Minewatch",
-  "description": "Minewatch brings Minecraft and Overwatch together! Overwatch character armor and weapons usable in Minecraft.",
+  "description": "Minewatch brings Minecraft and Overwatch together! Overwatch heroes, armor, and weapons usable in Minecraft.",
   "version": "3.10.3",
   "mcversion": "1.12.X",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",
   "authorList": ["2piradians, Furgl"],
-  "credits": "All characters, weapons, models, and sounds featured in this mod belong to Blizzard Entertainment, Battle.net, and Overwatch. We do not take credit for any of these features; this mod is solely a re-imagining of Overwatch in Minecraft. 
+  "credits": "All heroes, weapons, models, and sounds featured in this mod belong to Blizzard Entertainment, Battle.net, and Overwatch. We do not take credit for any of these features; this mod is solely a re-imagining of Overwatch in Minecraft. 
   
 Model Credits:
 -Reaper Shotgun and Reinhardt Hammer: https://www.reddit.com/user/Kamyflex 

@@ -86,6 +86,8 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 					if (entity != null && entity.isEntityAlive() && !(entity instanceof EntityLivingBaseMW) &&
 					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam()))) {
 						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
+						entity.addPotionEffect(new PotionEffect(MobEffects.SATURATION, 12, 0, false, false));
+						entity.extinguish();
 						Handler handler = TickHandler.getHandler(entity, Identifier.INVULNERABLE);
 						if (handler == null)
 							TickHandler.register(world.isRemote, Handlers.INVULNERABLE.setEntity(entity).setTicks(12));

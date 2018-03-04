@@ -15,12 +15,15 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -30,6 +33,8 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
@@ -62,10 +67,26 @@ public class SetManager {
 				}
 	}
 
-	/**Unregister client handlers to prevent Handlers using old objects*/
+	/**Unregister server handlers to make sure onServerRemove is called*/
 	@SubscribeEvent
 	public static void clearHandlers(PlayerLoggedOutEvent event) {
-		TickHandler.unregisterAllHandlers(true);
+		// only called on server as far as I can tell
+		if (event.player.getServer() != null && event.player.getServer().isSinglePlayer()) { // unregister everything bc sp
+			TickHandler.unregisterAllHandlers(event.player.world.isRemote);
+		}
+		else { // unregister handlers for the player - to make sure .onServerRemove is called
+			TickHandler.unregister(event.player.world.isRemote, TickHandler.getHandlers(event.player, (Identifier)null).toArray(new Handler[0]));
+		}
+	}
+	
+	/**Unregister client handlers to make sure onClientRemove is called*/
+	@SubscribeEvent
+	public static void clearHandlers(WorldEvent.Unload event) {
+		// basically PlayerLoggedOutEvent for client
+		if (event.getWorld().isRemote) { // unregister handlers for the player - to make sure .onClientRemove is called
+			TickHandler.unregister(event.getWorld().isRemote, TickHandler.getHandlers(Minewatch.proxy.getClientPlayer(), (Identifier)null).toArray(new Handler[0]));
+
+		}
 	}
 
 	private static HashMap<UUID, EnumHero> entitiesWearingSets(boolean isRemote) {
@@ -189,4 +210,5 @@ public class SetManager {
 			}
 		}
 	}
+
 }

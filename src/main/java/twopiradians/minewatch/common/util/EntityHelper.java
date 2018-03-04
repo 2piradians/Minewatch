@@ -18,8 +18,10 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -276,7 +278,7 @@ public class EntityHelper {
 		entityHit = getThrower(entityHit);
 		return shouldTarget(thrower, entityHit, friendly) && 
 				((entityHit instanceof EntityLivingBase && ((EntityLivingBase)entityHit).getHealth() > 0) || 
-						entityHit instanceof EntityEnderCrystal) && !entityHit.isEntityInvulnerable(source); 
+						entityHit instanceof MultiPartEntityPart || entityHit instanceof EntityEnderCrystal) && !entityHit.isEntityInvulnerable(source); 
 	}
 
 	/**Should target be hit by entity / should entity render red*/
@@ -412,7 +414,7 @@ public class EntityHelper {
 			else if (damage >= 0) {
 				boolean damaged = false;
 				// save prev hurtResistTime (use EntityDragon's resist if this is EntityDragonPart)
-				int prevHurtResist = entityHit.hurtResistantTime;
+				int prevHurtResist = entityHit instanceof MultiPartEntityPart && ((MultiPartEntityPart)entityHit).parent instanceof EntityDragon ? ((EntityDragon) ((MultiPartEntityPart)entityHit).parent).hurtResistantTime : entityHit.hurtResistantTime;
 				if (ignoreHurtResist)
 					entityHit.hurtResistantTime = 0;
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
@@ -425,6 +427,9 @@ public class EntityHelper {
 					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
 
 				if (damaged && ignoreHurtResist)
+					if (entityHit instanceof MultiPartEntityPart && ((MultiPartEntityPart)entityHit).parent instanceof EntityDragon) 
+						((EntityDragon) ((MultiPartEntityPart)entityHit).parent).hurtResistantTime = prevHurtResist;
+					else
 						entityHit.hurtResistantTime = prevHurtResist;
 
 				return damaged;
@@ -999,7 +1004,44 @@ public class EntityHelper {
 
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreEntity(Entity entity) {
-		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || TickHandler.hasHandler(entity, Identifier.INVULNERABLE);
+		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || 
+				TickHandler.hasHandler(entity, Identifier.INVULNERABLE) ||
+				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
 	}
+	
+	
+	/**Modified from EntityLivingBase#collideWithNearbyEntities() to make accessible for all entities*/
+	public static void collideWithNearbyEntities(Entity entityIn) {
+        List<Entity> list = entityIn.world.getEntitiesInAABBexcluding(entityIn, entityIn.getEntityBoundingBox(), EntitySelectors.getTeamCollisionPredicate(entityIn));
+
+        if (!list.isEmpty())
+        {
+            int i = entityIn.world.getGameRules().getInt("maxEntityCramming");
+
+            if (i > 0 && list.size() > i - 1 && entityIn.world.rand.nextInt(4) == 0)
+            {
+                int j = 0;
+
+                for (int k = 0; k < list.size(); ++k)
+                {
+                    if (!((Entity)list.get(k)).isRiding())
+                    {
+                        ++j;
+                    }
+                }
+
+                if (j > i - 1)
+                {
+                    entityIn.attackEntityFrom(DamageSource.CRAMMING, 6.0F);
+                }
+            }
+
+            for (int l = 0; l < list.size(); ++l)
+            {
+                Entity entity = list.get(l);
+                entityIn.applyEntityCollision(entity);
+            }
+        }
+    }
 
 }

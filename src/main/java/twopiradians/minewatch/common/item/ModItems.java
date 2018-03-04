@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -45,7 +46,7 @@ public class ModItems {
 				hero.token = (ItemMWToken) registerItem(event.getRegistry(), new ItemMWToken(), 
 						hero.name.toLowerCase()+"_token", Minewatch.tabArmorWeapons, false);
 				hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), 
-						Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, hero.armorReductionAmounts, 0, 
+						Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, new int[] {0,0,0,0}, 0, 
 						SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0); 
 				hero.helmet = (ItemMWArmor) registerItem(event.getRegistry(), new ItemMWArmor(hero, hero.material, 0, EntityEquipmentSlot.HEAD),
 						hero.name.toLowerCase()+"_helmet", Minewatch.tabArmorWeapons, false);

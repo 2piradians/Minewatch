@@ -34,6 +34,7 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIMoveToHealthPack;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -147,6 +148,10 @@ public class EntityHero extends EntityMob {
 			if (stack != null)
 				stack.getItem().onUpdate(stack, world, this, 0, stack == this.getHeldItemMainhand());
 		}
+		
+		// handle shield regen
+		if (!this.world.isRemote)
+			HealthManager.handleShieldRegen(this, hero);
 	}
 
 	/**Kill this and replace it with a random hero*/

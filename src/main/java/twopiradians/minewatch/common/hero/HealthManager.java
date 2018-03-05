@@ -2,17 +2,24 @@ package twopiradians.minewatch.common.hero;
 
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -25,43 +32,62 @@ public class HealthManager {
 
 	/**
 	 * Minecraft representations:
-	 * 	shields from abilities = absorption (default for non-mw absorption)
+	 *  absorption = non-mw absorption	
+	 *  shields from abilities = absorption
 	 * 	shields = health boost (regenerates 30 points/second after no damage for 3 seconds)
 	 * 	armor from abilities = absorption + ARMOR_ABILITY handler (damage reduction)	
 	 * 	armor = health boost (damage reduction)
 	 * 	health = health boost
 	 */
 
-	// TODO how to manage temp absorption? remove unaccounted for absorption or just remove in onServerRemove and forget about glitched absorption
+	/**entity = entity w/ health, number = absorption amount (scaled) - HANDLED WITH METHODS HERE ONLY*/
 	public static final Handler ARMOR_ABILITY = new Handler(Identifier.HEALTH_ARMOR_ABILITY, false) {
 		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
-
-			return super.onClientTick();
+		public Handler onServerRemove() {
+			entityLiving.setAbsorptionAmount(Math.max(0, entityLiving.getAbsorptionAmount() - (float)this.number/10f));
+			return super.onServerRemove();
 		}
+		/**Kill handler if number reaches 0, also manages absorption*/
 		@Override
-		public boolean onServerTick() {
-
-			return super.onServerTick();
+		public Handler setNumber(double number) {
+			number = Math.max(0, number);
+			// set absorption
+			if (!entity.world.isRemote) {
+				double diff = number - this.number;
+				entityLiving.setAbsorptionAmount((float) (entityLiving.getAbsorptionAmount() + diff/10f));
+			}
+			// kill handler if no absorption left
+			if (number <= 0)
+				this.ticksLeft = 1;
+			return super.setNumber(number);
 		}
-		@Override
-		@SideOnly(Side.CLIENT)
-		public Handler onClientRemove() {
-
-			return super.onClientRemove();
-		}
+	};
+	/**entity = entity w/ health, number = absorption amount (scaled) - HANDLED WITH METHODS HERE ONLY*/
+	public static final Handler SHIELD_ABILITY = new Handler(Identifier.HEALTH_SHIELD_ABILITY, false) {
 		@Override
 		public Handler onServerRemove() {
-			entityLiving.setAbsorptionAmount(0);
-			System.out.println("removing absorption"); // TODO
+			entityLiving.setAbsorptionAmount(Math.max(0, entityLiving.getAbsorptionAmount() - (float)this.number/10f));
 			return super.onServerRemove();
+		}
+		/**Kill handler if number reaches 0, also manages absorption*/
+		@Override
+		public Handler setNumber(double number) {
+			number = Math.max(0, number);
+			// set absorption
+			if (!entity.world.isRemote) {
+				double diff = number - this.number;
+				entityLiving.setAbsorptionAmount((float) (entityLiving.getAbsorptionAmount() + diff/10f));
+			}
+			// kill handler if no absorption left
+			if (number <= 0)
+				this.ticksLeft = 1;
+			return super.setNumber(number);
 		}
 	};
 
 	/**Health types in the order that damage is taken in*/
 	public static enum Type {
-		SHIELD_ABILITY(true), SHIELD(false), ARMOR_ABILITY(true), ARMOR(false), HEALTH(true);
+		ABSORPTION(false), SHIELD_ABILITY(true), SHIELD(false), ARMOR_ABILITY(true), ARMOR(false), HEALTH(true);
 
 		public boolean abilityGranted;
 
@@ -71,9 +97,15 @@ public class HealthManager {
 	}
 
 	/**entity = recently hurt entity*/
+	public static final Handler PREVENT_SHIELD_REGEN = new Handler(Identifier.HEALTH_PREVENT_SHIELD_REGEN, false) {};
+	/**entity = recently hurt entity*/
 	public static final Handler FIGHTING = new Handler(Identifier.HEALTH_FIGHTING, false) {};
 	/**entity = entity to show health for (this is only for clients)*/
-	public static final Handler SHOW_HEALTH = new Handler(Identifier.SHOW_HEALTH, false) {};
+	public static final Handler SHOW_HEALTH = new Handler(Identifier.HEALTH_SHOW_BAR, false) {};
+
+	/**Saved values to be restored after absorption is reduced*/
+	private static float savedAbsorption;
+	private static EntityLivingBase savedEntity;
 
 	/**
 	 * BASE HERO HEALTH
@@ -117,11 +149,14 @@ public class HealthManager {
 		map.put(Type.ARMOR, armor);
 		float shield = MathHelper.clamp(getBaseHealth(hero, Type.SHIELD), 0, current-health-armor);
 		map.put(Type.SHIELD, shield);
-		Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
-		float armorAbility = handler == null ? 0 : Math.min((float) handler.number, absorption);
+		Handler armorAbilityHandler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
+		float armorAbility = armorAbilityHandler == null ? 0 : Math.min((float) armorAbilityHandler.number, absorption);
 		map.put(Type.ARMOR_ABILITY, armorAbility);
-		float shieldAbility = absorption - armorAbility;
+		Handler shieldAbilityHandler = TickHandler.getHandler(entity, Identifier.HEALTH_SHIELD_ABILITY);
+		float shieldAbility = shieldAbilityHandler == null ? 0 : Math.min((float) shieldAbilityHandler.number, absorption);
 		map.put(Type.SHIELD_ABILITY, shieldAbility);
+		float extraAbsorption = Math.max(0, absorption - shieldAbility - armorAbility);
+		map.put(Type.ABSORPTION, extraAbsorption);
 		return map;
 	}
 
@@ -153,6 +188,11 @@ public class HealthManager {
 	/**Get the active health type that damage will apply to first*/
 	public static Type getCurrentHealthType(EntityLivingBase entity, EnumHero hero) {
 		HashMap<Type, Float> map = getAllCurrentHealth(entity, hero);
+		return getCurrentHealthType(map);
+	}
+
+	/**Get the active health type that damage will apply to first*/
+	public static Type getCurrentHealthType(HashMap<Type, Float> map) {
 		Type ret = Type.HEALTH;
 		for (Type type : Type.values()) {
 			ret = type;
@@ -166,17 +206,34 @@ public class HealthManager {
 	 * SETTING ENTITY CURRENT HEALTH
 	 */
 
+	/**Adds a type of health (only used for SHIELD_ABILITY and ARMOR_ABILITY) - only call on server (packet handled automatically)
+	 * @param amount to add (scaled) */
 	public static void addHealth(EntityLivingBase entity, Type type, float amount) {
 		if (entity != null) 
 			switch (type) {
 			case SHIELD_ABILITY:
+				// send packet
 				if (!entity.world.isRemote)
-					entity.setAbsorptionAmount(amount);
-				TickHandler.register(entity.world.isRemote, ARMOR_ABILITY.setEntity(entity).setTicks(999999));
+					Minewatch.network.sendToDimension(new SPacketSimple(70, entity, true, amount, type.ordinal(), 0), entity.world.provider.getDimension());
+				// add amount to handler
+				Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_SHIELD_ABILITY);
+				if (handler == null)
+					TickHandler.register(entity.world.isRemote, SHIELD_ABILITY.setEntity(entity).setTicks(999999).setNumber(amount));
+				else
+					handler.setNumber(handler.number + amount);
 				break;
 			case SHIELD:
 				break;
 			case ARMOR_ABILITY:
+				// send packet
+				if (!entity.world.isRemote)
+					Minewatch.network.sendToDimension(new SPacketSimple(70, entity, true, amount, type.ordinal(), 0), entity.world.provider.getDimension());
+				// add amount to handler
+				handler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
+				if (handler == null)
+					TickHandler.register(entity.world.isRemote, ARMOR_ABILITY.setEntity(entity).setTicks(999999).setNumber(amount));
+				else
+					handler.setNumber(handler.number + amount);
 				break;
 			case ARMOR:
 				break;
@@ -185,43 +242,174 @@ public class HealthManager {
 			}
 	}
 
+	/**Removes a type of health (only used for SHIELD_ABILITY, ARMOR_ABILITY, and ABSORPTION) - only call on server (packet handled automatically)
+	 * @param amount to remove (scaled)
+	 * @return amount of health removed */
+	public static float removeHealth(EntityLivingBase entity, Type type, @Nullable EnumHero hero, float amount) {
+		if (entity != null) 
+			switch (type) {
+			case SHIELD_ABILITY:
+				// send packet
+				if (!entity.world.isRemote)
+					Minewatch.network.sendToDimension(new SPacketSimple(70, entity, false, amount, type.ordinal(), 0), entity.world.provider.getDimension());
+				// remove amount from handler
+				Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_SHIELD_ABILITY);
+				if (handler != null) {
+					double prevNumber = handler.number;
+					handler.setNumber(handler.number - amount);
+					return (float) Math.abs(prevNumber - handler.number);
+				}
+				break;
+			case ARMOR_ABILITY:
+				// send packet
+				if (!entity.world.isRemote)
+					Minewatch.network.sendToDimension(new SPacketSimple(70, entity, false, amount, type.ordinal(), 0), entity.world.provider.getDimension());
+				// remove amount from handler
+				handler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
+				if (handler != null) {
+					double prevNumber = handler.number;
+					handler.setNumber(handler.number - amount);
+					return (float) Math.abs(prevNumber - handler.number);
+				}
+				break;
+			case ABSORPTION:
+				// set absorption
+				if (!entity.world.isRemote && hero != null) {
+					float absorption = getCurrentHealth(entity, hero, Type.ABSORPTION);
+					float prev = entity.getAbsorptionAmount();
+					entity.setAbsorptionAmount(entity.getAbsorptionAmount() - Math.min(amount/10f, absorption/10f));
+					return entity.getAbsorptionAmount() - prev;
+				}
+				break;
+			}
+		return 0;
+	}
+
 	/**
 	 * EVENTS
 	 */
 
 	@SubscribeEvent
-	public static void displayHealthBarWhenHurt(LivingAttackEvent event) {		
-		if (Config.healthBars && event.getEntityLiving() != null) {
-			// client - register for fighting (don't know who attacked on client)
-			if (event.getEntityLiving().world.isRemote) { 
-				TickHandler.register(true, FIGHTING.setEntity(event.getEntity()).setTicks(100));
-			}
-			// server - tell client to show health bar
-			else if (event.getSource().getTrueSource() instanceof EntityLivingBase) {
-				EntityLivingBase source = ((EntityLivingBase)event.getSource().getTrueSource());
-				EntityLivingBase target = event.getEntityLiving();
+	public static void displayHealthBarWhenHurt(LivingAttackEvent event) {	
+		if (event.getEntityLiving() != null && event.getAmount() > 0) {
+			// server - prevent shield regen for 3 seconds when hit
+			if (!event.getEntityLiving().world.isRemote)
+				TickHandler.register(false, PREVENT_SHIELD_REGEN.setEntity(event.getEntityLiving()).setTicks(60));
 
-				if (source instanceof EntityPlayerMP)
-					Minewatch.network.sendTo(new SPacketSimple(69, target, false), (EntityPlayerMP) source);
+			if (Config.healthBars) {
+				// client - register for fighting (don't know who attacked on client)
+				if (event.getEntityLiving().world.isRemote) { 
+					TickHandler.register(true, FIGHTING.setEntity(event.getEntity()).setTicks(100));
+				}
+				// server - tell client to show health bar
+				else if (event.getSource().getTrueSource() instanceof EntityLivingBase) {
+					EntityLivingBase source = ((EntityLivingBase)event.getSource().getTrueSource());
+					EntityLivingBase target = event.getEntityLiving();
+
+					if (source instanceof EntityPlayerMP)
+						Minewatch.network.sendTo(new SPacketSimple(69, target, false), (EntityPlayerMP) source);
+				}
 			}
 		}
 	}
 
 	@SubscribeEvent
-	public static void armorReduction(LivingHurtEvent event) {	
+	public static void saveAbsorption(LivingHurtEvent event) {	
 		EnumHero hero = SetManager.getWornSet(event.getEntityLiving());
-		if (hero != null) {
-			Type type = getCurrentHealthType(event.getEntityLiving(), hero);
-			float amount = event.getAmount();
+		if (!event.getEntityLiving().world.isRemote && hero != null && event.getAmount() > 0) {
+			savedAbsorption = event.getEntityLiving().getAbsorptionAmount();
+			savedEntity = event.getEntityLiving();
+			event.getEntityLiving().setAbsorptionAmount(0);
+		}
+	}
 
-			// armor damage reduction
-			if (type == Type.ARMOR || type == Type.ARMOR_ABILITY) {
-				if (amount >= 5)
-					amount -= 2.5f;
-				else
-					amount /= 2f;
-				event.setAmount(amount);
+	@SubscribeEvent
+	public static void handleHealth(LivingDamageEvent event) {	
+		if (event.getEntityLiving() == savedEntity) {
+			// restore absorption bc we handle it manually afterwards
+			event.getEntityLiving().setAbsorptionAmount(savedAbsorption);
+			savedAbsorption = 0;
+			savedEntity = null;					
+
+			EnumHero hero = SetManager.getWornSet(event.getEntityLiving());
+			if (!event.getEntityLiving().world.isRemote && hero != null && event.getAmount() > 0) {
+				savedAbsorption = 0;
+				savedEntity = null;
+				HashMap<Type, Float> currentMap = getAllCurrentHealth(event.getEntityLiving(), hero);
+				HashMap<Type, Float> map = Maps.newHashMap(currentMap);
+				Type type = getCurrentHealthType(map);
+				Type newType = type;
+				float amount = event.getAmount();
+
+				do {
+					// reset type if it's changed
+					type = newType;
+
+					// armor damage reduction
+					if (type == Type.ARMOR || type == Type.ARMOR_ABILITY) {
+						if (amount >= 0.5f)
+							amount -= 0.25f;
+						else
+							amount /= 2f;
+					}
+
+					// reduce tracked ability health and modify absorption
+					if (type == Type.ARMOR_ABILITY || type == Type.SHIELD_ABILITY || type == Type.ABSORPTION) 
+						amount = Math.max(0, amount - removeHealth(event.getEntityLiving(), type, hero, amount*10f)/10f);
+
+					// subtract from map and update amount
+					float remaining = Math.max(0, map.get(type) - amount*10f);
+					amount -= (map.get(type) - remaining)/10f;
+					map.put(type, remaining);
+
+					// recalculate type
+					newType = getCurrentHealthType(map);
+				}
+				while(newType != type && amount > 0);
+
+				event.setAmount((getSum(currentMap) - getSum(map))/10f); // set amount to the difference in maps
 			}
+		}
+	}
+
+	public static float getSum(HashMap<Type, Float> map) {
+		float sum = 0;
+		if (map != null)
+			for (Type type : map.keySet())
+				sum += map.get(type);
+		return sum;
+	}
+
+	/**Removed extra absorption - may come from mw if mc is closed improperly and onServerRemove isn't called*/
+	@SubscribeEvent
+	public static void removeUnaccountedForAbsorption(PlayerLoggedInEvent event) {
+		if (!event.player.world.isRemote) {
+			PotionEffect effect = event.player.getActivePotionEffect(MobEffects.ABSORPTION);
+			Handler armorAbility = TickHandler.getHandler(event.player, Identifier.HEALTH_ARMOR_ABILITY);
+			Handler shieldAbility = TickHandler.getHandler(event.player, Identifier.HEALTH_SHIELD_ABILITY);
+			float allowedAbsorption = (effect != null ? (effect.getAmplifier()+1)*4 : 0) +
+					(armorAbility != null ? (float) armorAbility.number : 0) +
+					(shieldAbility != null ? (float) shieldAbility.number : 0);
+			if (event.player.getAbsorptionAmount() > allowedAbsorption) {
+				Minewatch.logger.info("Player "+event.player.getName()+" had too much absorption ("+event.player.getAbsorptionAmount()+"), reduced to "+allowedAbsorption);
+				event.player.setAbsorptionAmount(allowedAbsorption);
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public static void healShields(TickEvent.PlayerTickEvent event) {
+		EnumHero hero = SetManager.getWornSet(event.player);
+		if (!event.player.world.isRemote && event.phase == Phase.END && hero != null)
+			handleShieldRegen(event.player, hero);
+	}
+	
+	/**Called once per tick for players and heroes*/
+	public static void handleShieldRegen(EntityLivingBase entity, EnumHero hero) {
+		if (entity != null && hero != null && 
+				getCurrentHealth(entity, hero, Type.SHIELD) < getBaseHealth(hero, Type.SHIELD) &&
+				!TickHandler.hasHandler(entity, Identifier.HEALTH_PREVENT_SHIELD_REGEN)) {
+			entity.heal((30f/20f)/10f);
 		}
 	}
 

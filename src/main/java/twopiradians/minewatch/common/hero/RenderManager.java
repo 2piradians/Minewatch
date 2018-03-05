@@ -15,8 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.client.model.ModelPlayer;
@@ -79,7 +77,6 @@ import twopiradians.minewatch.common.hero.HealthManager.Type;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -899,7 +896,7 @@ public class RenderManager {
 				GlStateManager.translate(0, -mc.player.getDistanceToEntity(event.getEntity())/6f, 0);
 
 				// health bar
-				if (!enemy || TickHandler.hasHandler(event.getEntity(), Identifier.SHOW_HEALTH)) {
+				if (!enemy || TickHandler.hasHandler(event.getEntity(), Identifier.HEALTH_SHOW_BAR)) {
 					GlStateManager.translate(0, enemy ? -10 : -20, 0);
 					renderHealthBar(event.getEntity(), hero, false, enemy);
 					GlStateManager.translate(0, enemy ? 10 : 20, 0);
@@ -980,9 +977,9 @@ public class RenderManager {
 	
 		HashMap<Type, Float> map = HealthManager.getAllCurrentHealth(entity, hero);
 		float health = map.get(Type.HEALTH);
-		float armor = map.get(Type.ARMOR);
+		float armor = map.get(Type.ARMOR) + map.get(Type.ARMOR_ABILITY);
 		float shield = map.get(Type.SHIELD);
-		float shieldAbility = map.get(Type.SHIELD_ABILITY);
+		float shieldAbility = map.get(Type.SHIELD_ABILITY) + map.get(Type.ABSORPTION);
 
 		float maxWidth = 80f;
 		int barWidth = 8;
@@ -990,7 +987,7 @@ public class RenderManager {
 		float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
 		float incrementX = barWidth + (inGui ? 0.4f/scaleX : 0);
 
-		// health bars: health -> armor -> shields -> barriers
+		// health bars: health -> armor -> shield -> shieldAbility
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 		GlStateManager.scale(scaleX, inGui ? 1 : 0.8f, 1);
@@ -1053,7 +1050,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
-		// barrier
+		// shield ability
 		start = MathHelper.ceil((health+armor+shield)/25f);
 		finish = Math.ceil((health+armor+shield+shieldAbility)/25f);
 		if (enemy) {

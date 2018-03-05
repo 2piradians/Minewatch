@@ -21,14 +21,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketEntityEquipment;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.WorldServer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -127,7 +125,8 @@ public class CommandMinewatch implements ICommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		// TODO
-		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 10);
+		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 20);
+		//HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.ARMOR_ABILITY, 20);
 		
 		// sync config
 		if (args.length == 1 && args[0].equalsIgnoreCase("syncConfigToServer") && sender instanceof EntityPlayerMP) {

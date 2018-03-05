@@ -149,7 +149,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z) {
 		this(type, false, player, x, y, z, null, null);
 	}
-	
+
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2) {
 		this(type, false, player, x, y, z, null, null, x2, y2, z2);
 	}
@@ -161,12 +161,12 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2) {
 		this(type, bool, player, x, y, z, entity, entity2, 0, 0, 0);
 	}
-	
+
 	public SPacketSimple(int type, boolean bool, EntityPlayer player, double x, double y, double z, Entity entity, Entity entity2, double x2, double y2, double z2) {
 		this(type, bool, player == null ? UUID.randomUUID() : player.getPersistentID(), x, y, z, 
 				entity == null ? -1 : entity.getEntityId(), entity2 == null ? -1 : entity2.getEntityId(), null, x2, y2, z2);
 	}
-	
+
 	public SPacketSimple(int type, boolean bool, UUID playerUUID, double x, double y, double z, int entityID, int entityID2, String string) {
 		this(type, bool, playerUUID, x, y, z, entityID, entityID2, string, 0, 0, 0);
 	}
@@ -403,7 +403,7 @@ public class SPacketSimple implements IMessage {
 						String name = EntityHelper.getName(entity);
 						if (packet.x == -1)
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+Minewatch.translate("overlay.eliminated_by").toUpperCase()+" "+
-							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
+									TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name);
 						else
 							string = TextFormatting.BOLD + "" + TextFormatting.ITALIC+(packet.bool ? Minewatch.translate("overlay.assist").toUpperCase()+" " : Minewatch.translate("overlay.eliminated").toUpperCase()+" ") +
 							TextFormatting.DARK_RED + TextFormatting.BOLD + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(name) +
@@ -986,7 +986,7 @@ public class SPacketSimple implements IMessage {
 								Minewatch.proxy.spawnParticlesCustom(EnumParticle.DOOMFIST_PUNCH_3, entity.world, vec.x, vec.y, vec.z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.7f, 4, 10, 15, 0, 0);
 							}
 							//TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.DOOMFIST_PUNCH),
-									//TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
+							//TickHandler.getHandler(entity, Identifier.PREVENT_ROTATION));
 							if (entity == player)
 								TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING));
 						}
@@ -1038,6 +1038,14 @@ public class SPacketSimple implements IMessage {
 					// show health bar
 					else if (packet.type == 69 && entity != null) {
 						TickHandler.register(true, HealthManager.SHOW_HEALTH.setEntity(entity).setTicks(100));
+					}
+					// add / remove health
+					else if (packet.type == 70 && entity instanceof EntityLivingBase && packet.y >= 0 && packet.y < HealthManager.Type.values().length) {
+						HealthManager.Type type = HealthManager.Type.values()[(int) packet.y];
+						if (packet.bool)
+							HealthManager.addHealth((EntityLivingBase) entity, type, (float) packet.x);
+						else
+							HealthManager.removeHealth((EntityLivingBase) entity, type, null, (float) packet.x);
 					}
 				}
 			});

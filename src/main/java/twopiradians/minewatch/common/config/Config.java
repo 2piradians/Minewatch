@@ -7,8 +7,6 @@ import java.util.UUID;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.config.Configuration;
@@ -23,7 +21,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.PacketSyncConfig;
 

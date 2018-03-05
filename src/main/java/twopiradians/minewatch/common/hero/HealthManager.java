@@ -96,6 +96,19 @@ public class HealthManager {
 		}
 	}
 
+	/**entity = entity with shield, number = amount of shield*/
+	public static final Handler NON_HEALTH_SHIELD = new Handler(Identifier.HEALTH_NON_HEALTH_SHIELD, false) {
+		/**Kill handler if number reaches 0, also manages absorption*/
+		@Override
+		public Handler setNumber(double number) {
+			number = Math.max(0, number);
+
+			// kill handler if no absorption left
+			if (number <= 0)
+				this.ticksLeft = 1;
+			return super.setNumber(number);
+		}
+	};
 	/**entity = recently hurt entity*/
 	public static final Handler PREVENT_SHIELD_REGEN = new Handler(Identifier.HEALTH_PREVENT_SHIELD_REGEN, false) {};
 	/**entity = recently hurt entity*/
@@ -142,12 +155,14 @@ public class HealthManager {
 		HashMap<Type, Float> map = Maps.newHashMap();
 		float current = getCurrentCombinedHealth(entity);
 		float absorption = entity.getAbsorptionAmount()*10f;
+		Handler shieldHandler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
+		float nonHealthShield = shieldHandler == null ? 0 : (float) shieldHandler.number;
 
-		float health = MathHelper.clamp(getBaseHealth(hero, Type.HEALTH), 0, current);
+		float health = MathHelper.clamp(getBaseHealth(hero, Type.HEALTH), 0, current-nonHealthShield);
 		map.put(Type.HEALTH, health);
 		float armor = MathHelper.clamp(getBaseHealth(hero, Type.ARMOR), 0, current-health);
 		map.put(Type.ARMOR, armor);
-		float shield = MathHelper.clamp(getBaseHealth(hero, Type.SHIELD), 0, current-health-armor);
+		float shield = MathHelper.clamp(getBaseHealth(hero, Type.SHIELD), 0, current-health-armor+0);
 		map.put(Type.SHIELD, shield);
 		Handler armorAbilityHandler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
 		float armorAbility = armorAbilityHandler == null ? 0 : Math.min((float) armorAbilityHandler.number, absorption);
@@ -281,6 +296,17 @@ public class HealthManager {
 					return entity.getAbsorptionAmount() - prev;
 				}
 				break;
+			case SHIELD:
+				// send packet
+				if (!entity.world.isRemote)
+					Minewatch.network.sendToDimension(new SPacketSimple(70, entity, false, amount, type.ordinal(), 0), entity.world.provider.getDimension());
+				// remove amount from handler
+				handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
+				if (handler != null) {
+					float maxShield = getBaseHealth(hero, Type.SHIELD) - getCurrentHealth(entity, hero, Type.SHIELD);
+					handler.setNumber(Math.max(handler.number - amount, 0));
+				}
+				break;
 			}
 		return 0;
 	}
@@ -354,8 +380,7 @@ public class HealthManager {
 					}
 
 					// reduce tracked ability health and modify absorption
-					if (type == Type.ARMOR_ABILITY || type == Type.SHIELD_ABILITY || type == Type.ABSORPTION) 
-						amount = Math.max(0, amount - removeHealth(event.getEntityLiving(), type, hero, amount*10f)/10f);
+					amount = Math.max(0, amount - removeHealth(event.getEntityLiving(), type, hero, amount*10f)/10f);
 
 					// subtract from map and update amount
 					float remaining = Math.max(0, map.get(type) - amount*10f);
@@ -396,20 +421,36 @@ public class HealthManager {
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public static void healShields(TickEvent.PlayerTickEvent event) {
 		EnumHero hero = SetManager.getWornSet(event.player);
 		if (!event.player.world.isRemote && event.phase == Phase.END && hero != null)
 			handleShieldRegen(event.player, hero);
 	}
-	
+
 	/**Called once per tick for players and heroes*/
 	public static void handleShieldRegen(EntityLivingBase entity, EnumHero hero) {
-		if (entity != null && hero != null && 
-				getCurrentHealth(entity, hero, Type.SHIELD) < getBaseHealth(hero, Type.SHIELD) &&
+		// TODO
+		//if (entity instanceof EntityPlayer)
+		//	System.out.println("health: "+entity.getHealth()+", "+TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD)+" "+HealthManager.getAllCurrentHealth(entity, hero));
+		if (entity != null && hero != null && entity.ticksExisted % 5 == 0 &&
+				(getCurrentHealth(entity, hero, Type.SHIELD) < getBaseHealth(hero, Type.SHIELD)/* || TickHandler.hasHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD)*/) &&
 				!TickHandler.hasHandler(entity, Identifier.HEALTH_PREVENT_SHIELD_REGEN)) {
-			entity.heal((30f/20f)/10f);
+			Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
+			float amount = Math.min(30f/20f*5f, getBaseHealth(hero, Type.SHIELD)-getCurrentHealth(entity, hero, Type.SHIELD));
+			entity.heal(amount/10f);
+			if (handler == null) 
+				TickHandler.register(false, NON_HEALTH_SHIELD.setEntity(entity).setTicks(999999).setNumber(amount));
+			else {
+				float maxShield = getBaseHealth(hero, Type.SHIELD) - getCurrentHealth(entity, hero, Type.SHIELD);
+				handler.setNumber(Math.max(handler.number + amount, 0));
+				//System.out.println("setting handler to: "+handler.number); // TODO
+			}
+			if (handler == null)
+				handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
+			amount = (float) handler.number;
+			Minewatch.network.sendToDimension(new SPacketSimple(71, entity, false, amount, 0, 0), entity.world.provider.getDimension());
 		}
 	}
 

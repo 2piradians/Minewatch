@@ -972,9 +972,10 @@ public class RenderManager {
 	@SideOnly(Side.CLIENT)
 	public static void renderHealthBar(EntityLivingBase entity, EnumHero hero, boolean inGui, boolean enemy) {
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1, 1, 1, 1);
 		// health		
 		float maxHealth = HealthManager.getMaxCombinedHealth(entity);
-	
+
 		HashMap<Type, Float> map = HealthManager.getAllCurrentHealth(entity, hero);
 		float health = map.get(Type.HEALTH);
 		float armor = map.get(Type.ARMOR) + map.get(Type.ARMOR_ABILITY);
@@ -997,7 +998,14 @@ public class RenderManager {
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
 		// translucent background
-		int start = 0;
+		// draw stencil
+		GL11.glEnable(GL11.GL_STENCIL_TEST);
+		GL11.glStencilMask(0xFF); // writing on
+		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // flush old data
+		GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF); // always add to buffer
+		GL11.glStencilOp(GL11.GL_REPLACE, GL11.GL_KEEP, GL11.GL_REPLACE); // replace on success
+
+		double start = 0;
 		double finish = Math.ceil(maxHealth/25f);
 		int red, green, blue;
 		red = green = blue = 150;
@@ -1007,10 +1015,18 @@ public class RenderManager {
 			blue = 52;
 		}
 		int alpha = inGui ? 160 : 90;
-		renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderHealthBarBackground(buffer, start, finish, maxHealth, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+
+		tessellator.draw();
+		GlStateManager.disableTexture2D();
+		GlStateManager.enableAlpha();
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF); // anything written to buffer will be drawn
+		GL11.glStencilMask(0x00); // writing off
+		
 		// health
-		start = 0;
-		finish = Math.ceil(health/25f);
+		start = inGui ? 0 : -maxWidth/scaleX/2f;
+		finish = (health / maxHealth) * maxWidth;
 		if (enemy) {
 			red = 185;
 			green = 8;
@@ -1019,10 +1035,10 @@ public class RenderManager {
 		else
 			red = green = blue = 255;
 		alpha = inGui ? 180 : 255;
-		renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderHealthBarForeground(buffer, start, finish, barHeight, red, green, blue, alpha);
 		// armor
-		start = MathHelper.ceil(health/25f);
-		finish = Math.ceil((health+armor)/25f);
+		start = finish;
+		finish = ((health+armor) / maxHealth) * maxWidth;
 		if (enemy) {
 			red = 226;
 			green = 172;
@@ -1034,10 +1050,10 @@ public class RenderManager {
 			blue = 49;
 		}
 		alpha = inGui ? 180 : 255;
-		renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderHealthBarForeground(buffer, start, finish, barHeight, red, green, blue, alpha);
 		// shield
-		start = MathHelper.ceil((health+armor)/25f);
-		finish = Math.ceil((health+armor+shield)/25f);
+		start = finish;
+		finish = ((health+armor+shield) / maxHealth) * maxWidth;
 		if (enemy) {
 			red = 42;
 			green = 145;
@@ -1049,10 +1065,10 @@ public class RenderManager {
 			blue = 234;
 		}
 		alpha = inGui ? 180 : 255;
-		renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderHealthBarForeground(buffer, start, finish, barHeight, red, green, blue, alpha);
 		// shield ability
-		start = MathHelper.ceil((health+armor+shield)/25f);
-		finish = Math.ceil((health+armor+shield+shieldAbility)/25f);
+		start = finish;
+		finish = ((health+armor+shield+shieldAbility) / maxHealth) * maxWidth;
 		if (enemy) {
 			red = 50;
 			green = 58;
@@ -1064,21 +1080,23 @@ public class RenderManager {
 			blue = 207;
 		}
 		alpha = inGui ? 180 : 255;
-		renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha);
+		renderHealthBarForeground(buffer, start, finish, barHeight, red, green, blue, alpha);
 
 		tessellator.draw();
+		GL11.glDisable(GL11.GL_STENCIL_TEST);
+		GlStateManager.enableTexture2D();
 		GlStateManager.popMatrix(); 
 	}
 
 	/**Render health bar for a certain value (background, health, armor, shield, barrier)*/
 	@SideOnly(Side.CLIENT)
-	public static void renderIndividualHealthBar(BufferBuilder buffer, int start, double finish, float value, int barHeight, int barWidth, float xOffset, float incrementX, int red, int green, int blue, int alpha) {
+	public static void renderHealthBarBackground(BufferBuilder buffer, double start, double finish, float value, int barHeight, int barWidth, float xOffset, float incrementX, int red, int green, int blue, int alpha) {
 		float uScale = 1f / 0x100;
 		float vScale = 1f / 0x100;
 		int zLevel = 0;
 		int u = 39;
 		int v = 245;
-		for (int i=start; i<finish; ++i) {
+		for (int i=(int) start; i<finish; ++i) {
 			int currentBarWidth = barWidth;
 			if (i == finish-1 && value % 25 != 0) // partial bar
 				currentBarWidth *= (value % 25) / 25;
@@ -1090,6 +1108,16 @@ public class RenderManager {
 			buffer.pos(x + currentBarWidth, y, zLevel).tex((u + currentBarWidth) * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
 			buffer.pos(x, y, zLevel).tex(u * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
 		}
+	}
+
+	/**Render health bar for a certain value (background, health, armor, shield, barrier)*/
+	@SideOnly(Side.CLIENT)
+	public static void renderHealthBarForeground(BufferBuilder buffer, double start, double finish, int barHeight, int red, int green, int blue, int alpha) {
+		int zLevel = 0;
+		buffer.pos(start, barHeight, zLevel).color(red, green, blue, alpha).endVertex();
+		buffer.pos(finish, barHeight, zLevel).color(red, green, blue, alpha).endVertex();
+		buffer.pos(finish, 0, zLevel).color(red, green, blue, alpha).endVertex();
+		buffer.pos(start, 0, zLevel).color(red, green, blue, alpha).endVertex();
 	}
 
 	/**Modified from EntityRenderer#drawNamePlate()*/

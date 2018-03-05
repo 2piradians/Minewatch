@@ -77,6 +77,7 @@ import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class SPacketSimple implements IMessage {
@@ -1046,6 +1047,14 @@ public class SPacketSimple implements IMessage {
 							HealthManager.addHealth((EntityLivingBase) entity, type, (float) packet.x);
 						else
 							HealthManager.removeHealth((EntityLivingBase) entity, type, null, (float) packet.x);
+					}
+					// non health shield
+					else if (packet.type == 71 && entity instanceof EntityLivingBase) {
+						TickHandler.Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
+						if (handler == null) 
+							TickHandler.register(true, HealthManager.NON_HEALTH_SHIELD.setEntity(entity).setTicks(999999).setNumber(packet.x));
+						else 
+							handler.setNumber(packet.x);
 					}
 				}
 			});

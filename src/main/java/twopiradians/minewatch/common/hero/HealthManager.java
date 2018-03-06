@@ -162,7 +162,7 @@ public class HealthManager {
 		map.put(Type.HEALTH, health);
 		float armor = MathHelper.clamp(getBaseHealth(hero, Type.ARMOR), 0, current-health);
 		map.put(Type.ARMOR, armor);
-		float shield = MathHelper.clamp(getBaseHealth(hero, Type.SHIELD), 0, current-health-armor+0);
+		float shield = MathHelper.clamp(getBaseHealth(hero, Type.SHIELD), 0, current-health-armor);
 		map.put(Type.SHIELD, shield);
 		Handler armorAbilityHandler = TickHandler.getHandler(entity, Identifier.HEALTH_ARMOR_ABILITY);
 		float armorAbility = armorAbilityHandler == null ? 0 : Math.min((float) armorAbilityHandler.number, absorption);

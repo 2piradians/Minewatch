@@ -58,6 +58,9 @@ public class Config {
 	public static double guiScale;
 	public static boolean renderOutlines;
 	public static boolean healthBars;
+	public static boolean hideHealthArmor;
+	public static boolean hideHunger;
+	public static boolean hideHotbar;
 
 	public static int tokenDropRate;
 	public static int wildCardRate;
@@ -171,6 +174,15 @@ public class Config {
 
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Health Bars", true, "Should hero's health bars appear above their heads?");
 		healthBars = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Health and Armor", true, "Should your health and armor be hidden while wearing a full set of armor?");
+		hideHealthArmor = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hunger", true, "Should your hunger be hidden while wearing a full set of armor and having saturation?");
+		hideHunger = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hotbar", false, "Should your hotbar be hidden while wearing a full set of armor and holding the set's weapon?");
+		hideHotbar = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 

@@ -125,7 +125,7 @@ public class CommandMinewatch implements ICommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		// TODO
-		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 20);
+		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 15);
 		//HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.ARMOR_ABILITY, 20);
 		
 		// sync config

@@ -57,7 +57,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 @Mod.EventBusSubscriber
 public class RespawnManager {
 
-	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick*/
+	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick, number = gamemode to set to afterwards*/
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
 		@SideOnly(Side.CLIENT) 
@@ -129,8 +129,12 @@ public class RespawnManager {
 		}
 		@Override
 		public Handler onServerRemove() {
-			if (player != null && player.getServer() != null)
-				player.setGameType(player.getServer().getGameType());
+			if (player != null && player.getServer() != null) {
+				GameType type = player.getServer().getGameType();
+				if (number >= 0 && number < GameType.values().length && (int)number != GameType.SPECTATOR.ordinal())
+					type = GameType.values()[(int) number];
+				player.setGameType(type);
+			}
 			respawnEntity(entityLiving, entityLiving.world.getScoreboard().getTeam(string), false); 
 			return super.onServerRemove();
 		}

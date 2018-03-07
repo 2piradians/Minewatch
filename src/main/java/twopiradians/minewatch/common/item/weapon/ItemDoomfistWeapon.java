@@ -45,7 +45,9 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.HealthManager.Type;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -133,6 +135,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						int damage = MathHelper.clamp(getSlamCharge((EntityLivingBase) entity), 11, 125);
 						Vec3d look = EntityHelper.getLook(0, entity.rotationYaw).scale(4d);
 						AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(4.5d, 0, 4.5d).offset(look.x, yOffset, look.z);
+						int entitiesHit = 0;
 						for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
 							if (target != entityLiving && target != entity && 
 							target instanceof EntityLivingBase && 
@@ -145,8 +148,14 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 									target.motionX = motion.x;
 									target.motionZ = motion.z;
 									target.motionY = 0.4d;
+									entitiesHit++;
 								}
 							}
+						float shield = Math.min(150f-HealthManager.getCurrentHealth((EntityLivingBase)entity, EnumHero.DOOMFIST, Type.SHIELD_ABILITY), entitiesHit*30f);
+						if (shield > 0) {
+							HealthManager.addHealth((EntityLivingBase) entity, Type.SHIELD_ABILITY, shield);
+							HealthManager.setShieldAbilityDecay((EntityLivingBase) entity, shield, 3, 20); 
+						}
 					}
 					// particle - detect on client (server very inaccurate), send to server, which sends to other clients
 					else {
@@ -272,6 +281,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				handler.ticksLeft > 2) {
 			Vec3d look = handler.entity.getLookVec().scale(1d);
 			AxisAlignedBB aabb = handler.entity.getEntityBoundingBox().grow(1d).offset(look);
+			int entitiesHit = 0;
 			for (Entity target : handler.entity.world.getEntitiesWithinAABBExcludingEntity(handler.entity, aabb)) 
 				if (target != handler.entityLiving && target != handler.entity && 
 				target instanceof EntityLivingBase && 
@@ -283,8 +293,14 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						TickHandler.interrupt(target);
 						Minewatch.network.sendToDimension(new SPacketSimple(63, handler.entity, true, target, handler.ticksLeft+1, 0, 0), handler.entity.world.provider.getDimension());
 						TickHandler.register(false, UPPERCUT.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks(handler.ticksLeft+1).setAllowDead(true));
+						entitiesHit++;
 					}
 				}
+			float shield = Math.min(150f-HealthManager.getCurrentHealth((EntityLivingBase)handler.entity, EnumHero.DOOMFIST, Type.SHIELD_ABILITY), entitiesHit*30f);
+			if (shield > 0) {
+				HealthManager.addHealth((EntityLivingBase) handler.entity, Type.SHIELD_ABILITY, shield);
+				HealthManager.setShieldAbilityDecay((EntityLivingBase) handler.entity, shield, 3, 20); 
+			}
 		}
 	}
 	/**number = punch power 0-1, number2 = yaw of punch, entity = getting punched, entityLiving = doomfist*/
@@ -450,6 +466,11 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 								Handlers.PREVENT_ROTATION.setEntity(target).setTicks((int) (handler.initialTicks*0.7f)), 
 								Handlers.PREVENT_MOVEMENT.setEntity(target).setTicks((int) (handler.initialTicks*0.7f)).setBoolean(true),
 								PUNCHED.setEntity(target).setEntityLiving((EntityLivingBase) handler.entity).setTicks((int) (handler.initialTicks*0.7f)).setNumber(handler.number).setNumber2(handler.entity.rotationYaw).setAllowDead(true));
+						float shield = Math.min(150f-HealthManager.getCurrentHealth((EntityLivingBase)handler.entity, EnumHero.DOOMFIST, Type.SHIELD_ABILITY), 30f);
+						if (shield > 0) {
+							HealthManager.addHealth((EntityLivingBase) handler.entity, Type.SHIELD_ABILITY, shield);
+							HealthManager.setShieldAbilityDecay((EntityLivingBase) handler.entity, shield, 3, 20); 
+						}
 					}
 					handler.bool = true;
 					handler.ticksLeft = 1;

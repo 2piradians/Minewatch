@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
@@ -20,6 +19,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -62,8 +63,35 @@ public class HealthManager {
 			return super.setNumber(number);
 		}
 	};
-	/**entity = entity w/ health, number = absorption amount (scaled) - HANDLED WITH METHODS HERE ONLY*/
+	/**entity = entity w/ health, number = absorption amount (scaled), number2 = amount to decay, number3 = decay rate - HANDLED WITH METHODS HERE ONLY*/
 	public static final Handler SHIELD_ABILITY = new Handler(Identifier.HEALTH_SHIELD_ABILITY, false) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			// decay
+			if (number2 > 0 && number3 > 0) {
+				this.setNumber(number - number3);
+				number2 -= number3;
+			}
+			else {
+				number2 = 0;
+				number3 = 0;
+			}
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			// decay
+			if (number2 > 0 && number3 > 0) {
+				this.setNumber(number - number3);
+				number2 -= number3;
+			}
+			else {
+				number2 = 0;
+				number3 = 0;
+			}
+			return super.onServerTick();
+		}
 		@Override
 		public Handler onServerRemove() {
 			entityLiving.setAbsorptionAmount(Math.max(0, entityLiving.getAbsorptionAmount() - (float)this.number/10f));
@@ -82,6 +110,15 @@ public class HealthManager {
 			if (number <= 0)
 				this.ticksLeft = 1;
 			return super.setNumber(number);
+		}
+	};
+	/**entity = entity w/ health, number = amount to decay, number2 = decay rate - HANDLED WITH METHODS HERE ONLY*/
+	public static final Handler SHIELD_ABILITY_DECAY_DELAY = new Handler(Identifier.HEALTH_SHIELD_ABILITY_DECAY_DELAY, false) {
+		@Override
+		public Handler onServerRemove() {
+			if (entityLiving != null)
+				HealthManager.setShieldAbilityDecay(entityLiving, (float) number, (float) number2, 0);
+			return super.onServerRemove();
 		}
 	};
 
@@ -303,12 +340,40 @@ public class HealthManager {
 				// remove amount from handler
 				handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
 				if (handler != null) {
-					float maxShield = getBaseHealth(hero, Type.SHIELD) - getCurrentHealth(entity, hero, Type.SHIELD);
 					handler.setNumber(Math.max(handler.number - amount, 0));
 				}
 				break;
 			}
 		return 0;
+	}
+
+	/**Sets decay for shield ability - only call on server (packet handled automatically)*/
+	public static void setShieldAbilityDecay(EntityLivingBase entity, float amount, float decayPerSecond, int delayTicks) {
+		Handler handler = TickHandler.getHandler(entity, Identifier.HEALTH_SHIELD_ABILITY);
+		if (handler != null) {
+			// delay
+			if (delayTicks > 0) {
+				if (!entity.world.isRemote) {
+					// copy over delay ticks
+					amount += handler.number2;
+					decayPerSecond = (float) Math.max(handler.number3*20f, decayPerSecond);
+					handler.number2 = 0;
+					handler.number3 = 0;
+					
+					handler = TickHandler.getHandler(entity, Identifier.HEALTH_SHIELD_ABILITY_DECAY_DELAY);
+					if (handler == null)
+						TickHandler.register(entity.world.isRemote, SHIELD_ABILITY_DECAY_DELAY.setEntity(entity).setTicks(delayTicks).setNumber(amount).setNumber2(decayPerSecond));
+					else
+						handler.setTicks(delayTicks).setNumber(handler.number+amount).setNumber2(decayPerSecond);
+				}
+			}
+			// decay
+			else 
+				handler.setNumber2(amount).setNumber3(decayPerSecond/20f);
+			// send packet
+			if (!entity.world.isRemote)
+				Minewatch.network.sendToDimension(new SPacketSimple(72, entity, true, amount, decayPerSecond, delayTicks), entity.world.provider.getDimension());
+		}
 	}
 
 	/**

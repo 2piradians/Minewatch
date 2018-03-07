@@ -154,6 +154,13 @@ item.doomfist_leggings.name=Doomfist Leggings
 item.doomfist_boots.name=Doomfist Boots
 item.doomfist_weapon.name=Doomfist's Gauntlet
 
+item.roadhog_token.name=Roadhog Token
+item.roadhog_helmet.name=Roadhog Helmet
+item.roadhog_chestplate.name=Roadhog Chestplate
+item.roadhog_leggings.name=Roadhog Leggings
+item.roadhog_boots.name=Roadhog Boots
+item.roadhog_weapon.name=Roadhog's Scrap Gun
+
 entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Arrow
@@ -208,6 +215,7 @@ entity.moira_heal_energy.name=Moira Heal Energy
 entity.moira_orb.name=Moira Biotic Orb
 entity.doomfist_hero.name=Doomfist
 entity.doomfist_bullet.name=Doomfist Bullet
+entity.roadhog_hero.name=Roadhog
 
 command.reset.success=Minewatch game reset by a moderator.
 command.reset.unrecognized_flags=Unrecognized flag(s)

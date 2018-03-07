@@ -1061,6 +1061,10 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 72 && entity != null && entity2 instanceof EntityLivingBase) {
 						TickHandler.register(true, EntityHanzoSonicArrow.SONIC.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(0).setAllowDead(true));
 					}
+					// health shield decay
+					else if (packet.type == 73 && entity instanceof EntityLivingBase) {
+						HealthManager.setShieldAbilityDecay((EntityLivingBase) entity, (float) packet.x, (float) packet.y, (int) packet.z);
+					}
 				}
 			});
 			return null;

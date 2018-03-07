@@ -49,7 +49,7 @@ public class CommandLobby implements ICommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		EntityPlayer player = CommandBase.getCommandSenderAsPlayer(sender);
+		EntityPlayerMP player = CommandBase.getCommandSenderAsPlayer(sender);
 		
 		// remove team
 		if (player != null && player.getTeam() != null)
@@ -58,7 +58,7 @@ public class CommandLobby implements ICommand {
 		Handler handler = TickHandler.getHandler(player, Identifier.DEAD);
 		// not dead, register DEAD and kill
 		if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console
-			TickHandler.register(false, RespawnManager.DEAD.setEntity(player).setTicks(player instanceof EntityPlayerMP ? 2 : 0).setString(player.getTeam() != null ? player.getTeam().getName() : null));
+			TickHandler.register(false, RespawnManager.DEAD.setEntity(player).setTicks(2).setString(player.getTeam() != null ? player.getTeam().getName() : null).setNumber(player.interactionManager.getGameType().ordinal()));
 			player.onKillCommand();
 		}
 		// already dead, respawn

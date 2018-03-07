@@ -40,6 +40,7 @@ import twopiradians.minewatch.common.entity.hero.EntityMercy;
 import twopiradians.minewatch.common.entity.hero.EntityMoira;
 import twopiradians.minewatch.common.entity.hero.EntityReaper;
 import twopiradians.minewatch.common.entity.hero.EntityReinhardt;
+import twopiradians.minewatch.common.entity.hero.EntityRoadhog;
 import twopiradians.minewatch.common.entity.hero.EntitySoldier76;
 import twopiradians.minewatch.common.entity.hero.EntitySombra;
 import twopiradians.minewatch.common.entity.hero.EntityTracer;
@@ -62,6 +63,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.common.item.weapon.ItemRoadhogWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemSoldier76Gun;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
@@ -313,15 +315,26 @@ public enum EnumHero {
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "gab51299", "https://www.planetminecraft.com/skin/doomfist/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "HazelOrb", "https://www.planetminecraft.com/skin/doomfist-3979249/"),
 			new Skin(Skin.Type.LEGENDARY, "Spirit", "Doomfist Spirit", "CorduroyCorn", "http://www.minecraftskins.com/skin/11239728/doomfist-spirit/"),
-			new Skin(Skin.Type.LEGENDARY, "Blackhand", "Doomfist [Blackhand]", "MeoWero", "https://www.planetminecraft.com/skin/doomfist-blackhand/"));
+			new Skin(Skin.Type.LEGENDARY, "Blackhand", "Doomfist [Blackhand]", "MeoWero", "https://www.planetminecraft.com/skin/doomfist-blackhand/")),
+	ROADHOG("Roadhog", Type.TANK, false, false,  
+			600, 0, 0,
+			new Ability(KeyBind.ABILITY_2, false, false), 
+			new Ability(KeyBind.ABILITY_1, true, false), 
+			new Ability(KeyBind.NONE, true, false), 
+			5, 5, new ItemRoadhogWeapon(), Crosshair.CIRCLE_BIG, 0xB68C52, false, EntityRoadhog.class, 
+			new Skin(Skin.Type.COMMON, "Classic" , "Overwatch - Roadhog", "Drzzter", "https://www.planetminecraft.com/skin/overwatch---roadhog-3838856/"),
+			new Skin(Skin.Type.LEGENDARY, "Ice Fisherman" , "Roadhog [Ice Fisherman]", "MeoWero", "https://www.planetminecraft.com/skin/roadhog-ice-fisherman/"),
+			new Skin(Skin.Type.LEGENDARY, "Junkenstein's Monster", "Roadhog [Junkenstein Monster]", "MeoWero", "https://www.planetminecraft.com/skin/roadhog-junkenstein-monster/"),
+			new Skin(Skin.Type.LEGENDARY, "Sharkbait", "Sharkbait Roadhog", "gab51299", "https://www.planetminecraft.com/skin/sharkbait-roadhog-3987502/"),
+			new Skin(Skin.Type.EPIC, "Rudolph", "Roadhog Christmas", "Enderlord2560", "http://www.minecraftskins.com/skin/11760054/roadhog-christmas/"));
 
 	public enum Type {
 		OFFENSE, DEFENSE, TANK, SUPPORT;
 	}
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
-	public static final ArrayList<EnumHero> ORDERED_HEROES = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, null, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, null, WIDOWMAKER, null, null, REINHARDT, null, null, null, ANA, LUCIO, MERCY, MOIRA, null, ZENYATTA);
-	public static final ArrayList<EnumHero> ORDERED_HEROES_NONNULL = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, WIDOWMAKER, REINHARDT, ANA, LUCIO, MERCY, MOIRA, ZENYATTA);
+	public static final ArrayList<EnumHero> ORDERED_HEROES = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, /*PHARAH*/null, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, /*TORBJORN*/null, WIDOWMAKER, /*DVA*/null, /*ORISA*/null, REINHARDT, ROADHOG, /*WINSTON*/null, /*ZARYA*/null, ANA, LUCIO, MERCY, MOIRA, /*SYMMETRA*/null, ZENYATTA);
+	public static final ArrayList<EnumHero> ORDERED_HEROES_NONNULL = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, WIDOWMAKER, REINHARDT, ROADHOG, ANA, LUCIO, MERCY, MOIRA, ZENYATTA);
 	public static final ArrayList<EnumHero> ORDERED_HEROES_ALPHABETICAL;
 	public static final ResourceLocation PORTRAIT_OVERLAY_0 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_0.png");
 	public static final ResourceLocation PORTRAIT_OVERLAY_1 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_1.png");

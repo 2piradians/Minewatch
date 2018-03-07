@@ -125,7 +125,8 @@ public class CommandMinewatch implements ICommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		// TODO
-		HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 15);
+		//HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.SHIELD_ABILITY, 20);
+		//HealthManager.setShieldAbilityDecay(CommandBase.getCommandSenderAsPlayer(sender), 500, 80, 0);
 		//HealthManager.addHealth(CommandBase.getCommandSenderAsPlayer(sender), Type.ARMOR_ABILITY, 20);
 		
 		// sync config
@@ -213,7 +214,7 @@ public class CommandMinewatch implements ICommand {
 
 					// not dead, register DEAD and kill
 					if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console
-						TickHandler.register(false, RespawnManager.DEAD.setEntity(entity).setTicks(entity instanceof EntityPlayerMP ? 2 : 0).setString(entity.getTeam() != null ? entity.getTeam().getName() : null));
+						TickHandler.register(false, RespawnManager.DEAD.setEntity(entity).setTicks(entity instanceof EntityPlayerMP ? 2 : 0).setString(entity.getTeam() != null ? entity.getTeam().getName() : null).setNumber(entity instanceof EntityPlayerMP ? ((EntityPlayerMP)entity).interactionManager.getGameType().ordinal() : -1));
 						entity.onKillCommand();
 					}
 					// already dead, respawn

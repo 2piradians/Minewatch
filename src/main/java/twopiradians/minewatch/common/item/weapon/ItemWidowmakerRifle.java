@@ -35,6 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
@@ -256,7 +257,6 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				(EnumHero.WIDOWMAKER.weapon.getCurrentAmmo(entity) > 0 || EnumHero.WIDOWMAKER.weapon.getMaxAmmo(entity) == 0);
 	}
 
-	//PORT correct scope scale
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
@@ -268,7 +268,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 			if (scoped != prevScoped) {
 				if (scoped) {
 					this.unscopedSensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
-					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity / 2f;
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = (float) (this.unscopedSensitivity * Config.scopedSensitivityMultiplier);
 				}
 				else
 					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity;

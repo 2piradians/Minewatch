@@ -56,6 +56,12 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
 		return !oldStack.equals(newStack);
 	}
+	
+	@Override
+	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
+		if (!world.isRemote && player.isHandActive() && player.getActiveHand() == hand)
+			player.resetActiveHand();
+	}
 
 	/**Called when the player stops using an Item (stops holding the right mouse button).*/
 	@Override
@@ -64,6 +70,9 @@ public class ItemHanzoBow extends ItemMWWeapon {
 				SetManager.getWornSet(player) == hero;
 		ItemStack itemstack = this.findAmmo(player);
 
+		if (!worldIn.isRemote)
+			ModSoundEvents.HANZO_DRAW.stopFollowingSound(player);
+		
 		int i = this.getMaxItemUseDuration(stack) - timeLeft;
 		if (player instanceof EntityPlayer)
 			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) player, i, !itemstack.isEmpty() || flag);
@@ -153,7 +162,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		else if (this.canUse(player, true, hand, false)) {
 			player.setActiveHand(hand);
 			if (!world.isRemote)
-				ModSoundEvents.HANZO_DRAW.playSound(player, 1.0f, world.rand.nextFloat()/2+0.75f);
+				ModSoundEvents.HANZO_DRAW.playFollowingSound(player, 1.0f, world.rand.nextFloat()/2+0.75f, false);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
 		else

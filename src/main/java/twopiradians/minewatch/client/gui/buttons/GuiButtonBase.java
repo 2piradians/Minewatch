@@ -200,7 +200,7 @@ public class GuiButtonBase extends GuiButton {
 				GL11.glStencilMask(0x00); // writing off
 
 				// background
-				drawRect((int) (x), (int) (y), (int) (x+this.width/scaleX), (int) (y+this.height/scaleY), selected ? 0xF0FFB43D : enabled ? 0xCA000000 : 0x40000000);
+				drawRect((int) (x), (int) (y), (int) (x+this.width/scaleX), (int) (y+this.height/scaleY), selected ? 0xF0FFB43D : enabled ? 0x8A000000 : 0x40000000);
 				GlStateManager.enableBlend();
 				GlStateManager.color(1, 1, 1, enabled ? 1 : 0.3f);
 				GlStateManager.enableDepth();

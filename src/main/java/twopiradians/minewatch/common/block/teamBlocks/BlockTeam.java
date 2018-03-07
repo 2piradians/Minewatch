@@ -44,6 +44,21 @@ public abstract class BlockTeam extends Block{
 		this.setCreativeTab((CreativeTabs) Minewatch.tabMapMaking);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(HAS_TEAM, false).withProperty(ACTIVATED, false));
 	}
+	
+	@Override
+    public boolean canProvidePower(IBlockState state) {
+        return false;
+    }
+	
+	@Override
+    public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return 0;
+    }
+	
+	@Override
+    public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return 0; 
+    }
 
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state) {

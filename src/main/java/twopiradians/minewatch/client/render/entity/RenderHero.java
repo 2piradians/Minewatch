@@ -48,7 +48,7 @@ public class RenderHero extends RenderLivingBase<EntityHero> {
         return super.canRenderName(entity) && 
         		(entity.getTeam() != null || Config.healthBars ||
         		(entity.hasCustomName() && entity == this.renderManager.pointedEntity)) && 
-        		!(EntityHelper.shouldTarget(Minewatch.proxy.getClientPlayer(), entity, false) &&
+        		!(EntityHelper.shouldTarget(entity, Minewatch.proxy.getClientPlayer(), false) &&
         				TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE));
     }
 

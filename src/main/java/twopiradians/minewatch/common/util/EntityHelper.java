@@ -10,6 +10,7 @@ import javax.vecmath.Vector2f;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -26,6 +27,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -1007,6 +1009,11 @@ public class EntityHelper {
 		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || 
 				TickHandler.hasHandler(entity, Identifier.INVULNERABLE) ||
 				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
+	}
+	
+	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
+	public static boolean shouldIgnoreBlock(Block block) {
+		return block == null || block == Blocks.BARRIER;
 	}
 	
 	

@@ -29,8 +29,12 @@ import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
+import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.TickHandler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class BakedMWItem extends OBJBakedModel {
 
@@ -45,11 +49,11 @@ public class BakedMWItem extends OBJBakedModel {
 		if (state instanceof TileEntityOBJRenderer.OBJModelState && textures.containsKey("None"))
 			this.particleTexture = textures.get("None");
 	}
-	
+
 	@Override
-    public TextureAtlasSprite getParticleTexture() {
-        return this.particleTexture != null ? this.particleTexture : super.getParticleTexture();
-    }
+	public TextureAtlasSprite getParticleTexture() {
+		return this.particleTexture != null ? this.particleTexture : super.getParticleTexture();
+	}
 
 	@Override
 	public ItemOverrideList getOverrides() {
@@ -59,18 +63,20 @@ public class BakedMWItem extends OBJBakedModel {
 	@Override
 	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType type) {			
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
-	
+
 		Pair<? extends IBakedModel, Matrix4f> ret = super.handlePerspective(type);
 
 		if (stack != null && stack.getItem() instanceof ItemMWWeapon)
 			ret = ((ItemMWWeapon)stack.getItem()).preRenderWeapon(entity, stack, type, ret);
-		
+
 		// don't render when invisible
 		if (entity != null && entity.isInvisible() && (type == TransformType.FIRST_PERSON_LEFT_HAND || 
 				type == TransformType.FIRST_PERSON_RIGHT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND ||
-				type == TransformType.THIRD_PERSON_RIGHT_HAND))
+				type == TransformType.THIRD_PERSON_RIGHT_HAND) && 
+				!(TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE) && 
+						!EntityHelper.shouldHit(entity, Minewatch.proxy.getClientPlayer(), false)))
 			ret.getRight().setScale(0);
-		
+
 		return ret;
 	}
 
@@ -78,12 +84,12 @@ public class BakedMWItem extends OBJBakedModel {
 	public List<BakedQuad> getQuads(IBlockState blockState, EnumFacing side, long rand) {
 		// set tint index for quads
 		List<BakedQuad> ret = super.getQuads(blockState, side, rand);
-				for (BakedQuad quad : ret)
-					if (!quad.hasTintIndex() && stack != null && (!(stack.getItem() instanceof IChangingModel) ||
+		for (BakedQuad quad : ret)
+			if (!quad.hasTintIndex() && stack != null && (!(stack.getItem() instanceof IChangingModel) ||
 					((IChangingModel)stack.getItem()).shouldRecolor(this, quad))) 
-						ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
+				ReflectionHelper.setPrivateValue(BakedQuad.class, quad, 1, 1); // PORT double check the index
 
-				return ret;
+		return ret;
 	}
 
 	private static class BakedMWItemOverrideHandler extends ItemOverrideList {

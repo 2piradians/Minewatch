@@ -16,6 +16,7 @@ import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 
 public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
@@ -109,9 +110,11 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) 
-			TickHandler.register(result.entityHit.world.isRemote, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0).setAllowDead(true));
-
+		if (!world.isRemote && EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) {
+			TickHandler.register(false, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0).setAllowDead(true));
+			Minewatch.network.sendToDimension(new SPacketSimple(72, result.entityHit, false, this.getThrower()), world.provider.getDimension());
+		}
+			
 		super.onHit(result);	
 	}
 

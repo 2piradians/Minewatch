@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.hero;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -125,7 +126,8 @@ public enum EnumHero {
 			new Skin(Skin.Type.COMMON, "Classic", "it's high noon", "HazelOrb", "https://www.planetminecraft.com/skin/its-high-noon/"),
 			new Skin(Skin.Type.LEGENDARY, "Riverboat", "Overwatch - McCree (Riverboat)", "Ford", "https://www.planetminecraft.com/skin/overwatch-mccree-riverboat/"),
 			new Skin(Skin.Type.LEGENDARY, "Blackwatch", "BlackWatch McCree", "12TheDoctor12", "http://www.minecraftskins.com/skin/10858794/blackwatch-mccree/"),
-			new Skin(Skin.Type.LEGENDARY, "Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/")),
+			new Skin(Skin.Type.LEGENDARY, "Lifeguard", "Lifeguard McCree", "OP_Beast", "https://www.planetminecraft.com/skin/lifeguard-mccree/"),
+			new Skin(Skin.Type.LEGENDARY, "Blackwatch", "Jesse McCree [Blackwatch] from Overwatch", "Sargu", "https://www.planetminecraft.com/skin/jesse-mccree-blackwatch-from-overwatch/")),
 	REAPER("Reaper", Type.OFFENSE, false, false,  
 			250, 0, 0,
 			new Ability(KeyBind.ABILITY_2, true, true), 
@@ -139,7 +141,15 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Mariachi", "Mariachi skin Reaper (OverWatch)", "Roostinator", "https://www.planetminecraft.com/skin/mariachi-skin-overwatch/"),
 			new Skin(Skin.Type.LEGENDARY, "Blackwatch Reyes", "Blackwatch Reyes", "Razmoto", "https://www.planetminecraft.com/skin/blackwatch-reyes/"),
 			new Skin(Skin.Type.LEGENDARY, "Dracula", "Dracula Reaper Skin", "DaDerpNarwhal", "https://www.planetminecraft.com/skin/dracula-reaper-skin/"),
-			new Skin(Skin.Type.LEGENDARY, "Blackwatch Reyes", "Gabriel Reyes [Reaper] from Overwatch", "Sargumilien", "https://www.planetminecraft.com/skin/gabriel-reyes-reaper-from-overwatch/")),
+			new Skin(Skin.Type.LEGENDARY, "Blackwatch Reyes", "Gabriel Reyes [Reaper] from Overwatch", "Sargumilien", "https://www.planetminecraft.com/skin/gabriel-reyes-reaper-from-overwatch/"),
+			new Skin(Skin.Type.EPIC, "Hellfire", "hellfire reaper", "nathanman213", "https://www.planetminecraft.com/skin/hellfire-reaper/"),
+			new Skin(Skin.Type.RARE, "Blood", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.RARE, "Midnight", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.RARE, "Moss", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.RARE, "Royal", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.EPIC, "Shiver", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.EPIC, "Wight", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/"),
+			new Skin(Skin.Type.EPIC, "Hellfire", "Reaper [Overwatch]", "MeoWero", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/", "Reaper [Overwatch]", "Aegeah", "https://www.planetminecraft.com/skin/reaper-overwatch-3670094/")),
 	REINHARDT("Reinhardt", Type.TANK, false, false,  
 			300, 200, 0,
 			new Ability(KeyBind.RMB, false, false), 
@@ -164,7 +174,8 @@ public enum EnumHero {
 			new Skin(Skin.Type.EPIC, "Golden", "Golden Soldier 76", "riddler55", "http://www.minecraftskins.com/skin/10930005/golden-soldier-76/"),
 			new Skin(Skin.Type.EPIC, "Bone", "Soldier 76 Bone SKin", "BagelSki", "http://www.minecraftskins.com/skin/9737491/soldier-76-bone-skin/"),
 			new Skin(Skin.Type.LEGENDARY, "Strike Commander", "Strike Commander Morrison - Soldier 76 - Overwatch", "Obvial", "https://www.planetminecraft.com/skin/strike-commander-morrison-3938568/"),
-			new Skin(Skin.Type.LEGENDARY, "Grill Master: 76", "Grill Master 76 (Soldier 76 Summer Games 2017)", "InfamousHN", "https://www.planetminecraft.com/skin/grill-master-76-soldier-76-summer-games-2017/")),
+			new Skin(Skin.Type.LEGENDARY, "Grill Master: 76", "Grill Master 76 (Soldier 76 Summer Games 2017)", "InfamousHN", "https://www.planetminecraft.com/skin/grill-master-76-soldier-76-summer-games-2017/"),
+			new Skin(Skin.Type.LEGENDARY, "Strike Commander", "Jack Morrison [Soldier: 76] from Overwatch", "Sargu", "https://www.planetminecraft.com/skin/jack-morrison-soldier-76-from-overwatch/")),
 	TRACER("Tracer", Type.OFFENSE, false, false,  
 			150, 0, 0,
 			new Ability(KeyBind.ABILITY_2, true, false), 
@@ -252,7 +263,11 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Augmented", "Sombra ONLINE - Augmented", "Grinshire", "https://www.planetminecraft.com/skin/sombra-online-augmented/"),
 			new Skin(Skin.Type.LEGENDARY, "Cyberspace", "Cyberspace Sombra", "oophelia", "https://www.planetminecraft.com/skin/cyberspace-sombra-3958304/"),
 			new Skin(Skin.Type.LEGENDARY, "Tulum", "Sombra Scuba skin ~ Elec", "Elec", "https://www.planetminecraft.com/skin/sombra-scuba-skin-elec-3999189/"),
-			new Skin(Skin.Type.EPIC, "Glitch", "Sombra [Glitch]", "MeoWero", "https://www.planetminecraft.com/skin/sombra-glitch/")),
+			new Skin(Skin.Type.EPIC, "Glitch", "Sombra [Glitch]", "MeoWero", "https://www.planetminecraft.com/skin/sombra-glitch/"),
+			new Skin(Skin.Type.RARE, "Incendio", "Sombra Incendio", "MeoWero", "http://www.minecraftskins.com/skin/12010392/sombra-incendio/"),
+			new Skin(Skin.Type.RARE, "Cidro", "Sombra Cidro", "MeoWero", "http://www.minecraftskins.com/skin/12010414/sombra-cidro/"),
+			new Skin(Skin.Type.RARE, "Noche", "Sombra Noche", "MeoWero", "http://www.minecraftskins.com/skin/12010425/sombra-noche/"),
+			new Skin(Skin.Type.RARE, "Mar", "Sombra Mar", "MeoWero", "http://www.minecraftskins.com/skin/12010433/sombra-mar/")),
 	LUCIO("Lucio", Type.SUPPORT, true, false,  
 			200, 0, 0,
 			new Ability(KeyBind.RMB, true, false), 
@@ -297,14 +312,17 @@ public enum EnumHero {
 			4, 4, new ItemDoomfistWeapon(), Crosshair.CIRCLE_SMALL, 0x83524B, false, EntityDoomfist.class, 
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "gab51299", "https://www.planetminecraft.com/skin/doomfist/"),
 			new Skin(Skin.Type.COMMON, "Classic" , "Doomfist", "HazelOrb", "https://www.planetminecraft.com/skin/doomfist-3979249/"),
-			new Skin(Skin.Type.LEGENDARY, "Spirit", "Doomfist Spirit", "CorduroyCorn", "http://www.minecraftskins.com/skin/11239728/doomfist-spirit/"));
+			new Skin(Skin.Type.LEGENDARY, "Spirit", "Doomfist Spirit", "CorduroyCorn", "http://www.minecraftskins.com/skin/11239728/doomfist-spirit/"),
+			new Skin(Skin.Type.LEGENDARY, "Blackhand", "Doomfist [Blackhand]", "MeoWero", "https://www.planetminecraft.com/skin/doomfist-blackhand/"));
 
 	public enum Type {
 		OFFENSE, DEFENSE, TANK, SUPPORT;
 	}
 
 	public static final Handler VOICE_COOLDOWN = new Handler(Identifier.VOICE_COOLDOWN, false) {};
-	public static final ArrayList<EnumHero> ORDERED_HEROES = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, null, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, null, WIDOWMAKER, null, null, REINHARDT, null, null, null, ANA, LUCIO, MERCY, MOIRA, null, ZENYATTA);;
+	public static final ArrayList<EnumHero> ORDERED_HEROES = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, null, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, null, WIDOWMAKER, null, null, REINHARDT, null, null, null, ANA, LUCIO, MERCY, MOIRA, null, ZENYATTA);
+	public static final ArrayList<EnumHero> ORDERED_HEROES_NONNULL = Lists.newArrayList(DOOMFIST, GENJI, MCCREE, REAPER, SOLDIER76, SOMBRA, TRACER, BASTION, HANZO, JUNKRAT, MEI, WIDOWMAKER, REINHARDT, ANA, LUCIO, MERCY, MOIRA, ZENYATTA);
+	public static final ArrayList<EnumHero> ORDERED_HEROES_ALPHABETICAL;
 	public static final ResourceLocation PORTRAIT_OVERLAY_0 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_0.png");
 	public static final ResourceLocation PORTRAIT_OVERLAY_1 = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_select_portrait_overlay_1.png");
 
@@ -419,6 +437,14 @@ public enum EnumHero {
 	static {
 		for (EnumHero hero : EnumHero.values())
 			hero.weapon.hero = hero;
+		
+		ORDERED_HEROES_ALPHABETICAL = Lists.newArrayList(EnumHero.values());
+		ORDERED_HEROES_ALPHABETICAL.sort(new Comparator<EnumHero>() {
+			@Override
+			public int compare(EnumHero h1, EnumHero h2) {
+				return h1.name.compareToIgnoreCase(h2.name);
+			}
+		});
 	}
 
 	private EnumHero(String name, Type type, boolean hasAltWeapon, boolean switchAltWithScroll, int baseHealth, int baseArmor, int baseShield, Ability ability1, Ability ability2, Ability ability3,

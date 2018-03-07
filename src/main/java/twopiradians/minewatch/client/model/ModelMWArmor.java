@@ -40,7 +40,9 @@ public class ModelMWArmor extends ModelPlayer {
 				((EntityLivingBase)entityIn).setArrowCountInEntity(0);
 
 			// don't render when invisible
-			if (entityIn.isInvisible())
+			if (entityIn.isInvisible() && 
+					!(TickHandler.hasHandler(entityIn, Identifier.SOMBRA_INVISIBLE) && 
+							!EntityHelper.shouldHit(entityIn, Minewatch.proxy.getClientPlayer(), false)))
 				return;
 		}
 

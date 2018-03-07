@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityAnaSleepDart;
@@ -247,7 +248,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 				!TickHandler.hasHandler(player, Identifier.ABILITY_USING) && !KeyBind.JUMP.isKeyDown(player);
 	}
 
-	//PORT correct scope scale
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void preRenderGameOverlay(Pre event, EntityPlayer player, double width, double height, EnumHand hand) {
@@ -259,7 +259,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 			if (scoped != prevScoped) {
 				if (scoped) {
 					this.unscopedSensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
-					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity / 2f;
+					Minecraft.getMinecraft().gameSettings.mouseSensitivity = (float) (this.unscopedSensitivity * Config.scopedSensitivityMultiplier);
 				}
 				else
 					Minecraft.getMinecraft().gameSettings.mouseSensitivity = this.unscopedSensitivity;

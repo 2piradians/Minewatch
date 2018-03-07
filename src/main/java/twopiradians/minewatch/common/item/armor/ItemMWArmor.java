@@ -28,6 +28,8 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
@@ -45,8 +47,10 @@ import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
@@ -256,12 +260,16 @@ public class ItemMWArmor extends ItemArmor {
 		if (!hacked && this.armorType == EntityEquipmentSlot.CHEST && player != null && 
 				(set == EnumHero.GENJI || set == EnumHero.HANZO) && world.isRemote == player instanceof EntityPlayer) {
 			// reset climbing
-			//BlockPos pos = new BlockPos(player.posX, player.getEntityBoundingBox().minY, player.posZ);
-			if ((player instanceof EntityPlayer && player.onGround) || /*(world.isAirBlock(pos.offset(player.getHorizontalFacing())) &&
-					world.isAirBlock(pos.up().offset(player.getHorizontalFacing()))) ||*/ player.isInWater() || player.isInLava()) {
+			boolean badBlock = false;
+			for (BlockPos pos : BlockPos.getAllInBox(player.getPosition().up().east().north(), player.getPosition().up().west().south()))
+				if (EntityHelper.shouldIgnoreBlock(player.world.getBlockState(pos).getBlock())) {
+					badBlock = true;
+					break;
+				}
+			if (badBlock || (player instanceof EntityPlayer && player.onGround) ||  player.isInWater() || player.isInLava()) {
 				playersClimbing.remove(player);
 			}
-			else if (player.isCollidedHorizontally && 
+			else if (player.isCollidedHorizontally && player.moveForward > 0 && 
 					!(player instanceof EntityPlayer && ((EntityPlayer)player).capabilities.isFlying) && 
 					KeyBind.JUMP.isKeyDown(player)) {
 				int ticks = playersClimbing.containsKey(player) ? playersClimbing.get(player)+1 : 1;

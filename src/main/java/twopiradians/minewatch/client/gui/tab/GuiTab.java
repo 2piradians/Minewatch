@@ -112,8 +112,8 @@ public class GuiTab extends GuiScreen {
 		int spaceBetweenX = 39;
 		int spaceBetweenY = 53;
 		int perRow = 6;
-		for (int i=0; i<EnumHero.values().length; ++i) 
-			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+11)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+32+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.values()[i]));
+		for (int i=0; i<EnumHero.ORDERED_HEROES_ALPHABETICAL.size(); ++i) 
+			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+11)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+32+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.ORDERED_HEROES_ALPHABETICAL.get(i)));
 		// Screen.GALLERY_HERO
 		this.buttonList.add(new GuiButtonGalleryHero(1, this.guiLeft+12, this.guiTop+40, 100, 20, "", Screen.GALLERY_HERO)); //Skins
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));

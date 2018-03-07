@@ -431,9 +431,6 @@ public class HealthManager {
 
 	/**Called once per tick for players and heroes*/
 	public static void handleShieldRegen(EntityLivingBase entity, EnumHero hero) {
-		// TODO
-		//if (entity instanceof EntityPlayer)
-		//	System.out.println("health: "+entity.getHealth()+", "+TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD)+" "+HealthManager.getAllCurrentHealth(entity, hero));
 		if (entity != null && hero != null && entity.ticksExisted % 5 == 0 &&
 				(getCurrentHealth(entity, hero, Type.SHIELD) < getBaseHealth(hero, Type.SHIELD)/* || TickHandler.hasHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD)*/) &&
 				!TickHandler.hasHandler(entity, Identifier.HEALTH_PREVENT_SHIELD_REGEN)) {
@@ -442,11 +439,8 @@ public class HealthManager {
 			entity.heal(amount/10f);
 			if (handler == null) 
 				TickHandler.register(false, NON_HEALTH_SHIELD.setEntity(entity).setTicks(999999).setNumber(amount));
-			else {
-				float maxShield = getBaseHealth(hero, Type.SHIELD) - getCurrentHealth(entity, hero, Type.SHIELD);
+			else 
 				handler.setNumber(Math.max(handler.number + amount, 0));
-				//System.out.println("setting handler to: "+handler.number); // TODO
-			}
 			if (handler == null)
 				handler = TickHandler.getHandler(entity, Identifier.HEALTH_NON_HEALTH_SHIELD);
 			amount = (float) handler.number;

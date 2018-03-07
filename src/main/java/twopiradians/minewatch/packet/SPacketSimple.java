@@ -41,6 +41,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
+import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
@@ -1055,6 +1056,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, HealthManager.NON_HEALTH_SHIELD.setEntity(entity).setTicks(999999).setNumber(packet.x));
 						else 
 							handler.setNumber(packet.x);
+					}
+					// hanzo sonic hit entity
+					else if (packet.type == 72 && entity != null && entity2 instanceof EntityLivingBase) {
+						TickHandler.register(true, EntityHanzoSonicArrow.SONIC.setEntity(entity).setEntityLiving((EntityLivingBase) entity2).setTicks(0).setAllowDead(true));
 					}
 				}
 			});

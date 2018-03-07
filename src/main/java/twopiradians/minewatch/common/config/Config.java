@@ -61,6 +61,7 @@ public class Config {
 	public static boolean hideHealthArmor;
 	public static boolean hideHunger;
 	public static boolean hideHotbar;
+	public static double scopedSensitivityMultiplier;
 
 	public static int tokenDropRate;
 	public static int wildCardRate;
@@ -183,6 +184,9 @@ public class Config {
 		
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hotbar", false, "Should your hotbar be hidden while wearing a full set of armor and holding the set's weapon?");
 		hideHotbar = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Scoped Sensitivity", 0.5d, "Mouse sensitivity multiplier while scoping with Widomaker or Ana.", 0.01d, 1);
+		scopedSensitivityMultiplier = prop.getDouble();
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 

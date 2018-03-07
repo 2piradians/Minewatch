@@ -299,7 +299,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (this.ticksLeft == 14) {
-				if (this.player == Minewatch.proxy.getClientPlayer() && player.world.isRemote)
+				if (this.player == Minewatch.proxy.getClientPlayer())
 					ModSoundEvents.SOMBRA_INVISIBLE_START.stopSound(player);
 				ModSoundEvents.SOMBRA_INVISIBLE_STOP.playFollowingSound(entity, 1, 1, false);
 				ModSoundEvents.SOMBRA_INVISIBLE_VOICE.playFollowingSound(entity, 0.7f, 1, false);
@@ -310,7 +310,9 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (this.entityLiving != null) {
-				this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, 2, true, false));
+				this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.SPEED, Math.min(5, ticksLeft-3), 2, true, false));
+				if (this.initialTicks - this.ticksLeft > 14)
+					this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, Math.min(5, ticksLeft-3), 0, true, false));
 			}
 
 			return super.onServerTick();

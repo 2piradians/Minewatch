@@ -1,6 +1,7 @@
 package twopiradians.minewatch.common.tileentity;
 
 import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;
 
@@ -20,7 +21,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public abstract class TileEntityHealthPack extends TileEntity implements ITickable {
 
 	/**Set of health pack positions for use by EntityHero AI*/
-	public static HashSet<BlockPos> healthPackPositions = new HashSet<BlockPos>();
+	public static CopyOnWriteArraySet<BlockPos> healthPackPositions = new CopyOnWriteArraySet<BlockPos>();
 
 	/**full ticks until health pack would respawn*/
 	private final double resetCooldown;

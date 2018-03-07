@@ -3,10 +3,12 @@ package twopiradians.minewatch.client.gui.tab;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.text.TextFormatting;
@@ -32,8 +34,22 @@ public class GuiScrollingServers extends GuiScrollingList {
 			gui.mc.displayGuiScreen(new GuiYesNo(new GuiYesNoCallback() {
 				@Override
 				public void confirmClicked(boolean result, int id) {
-					if (result)
+					if (result) {
+						ServerList list = new ServerList(Minecraft.getMinecraft());
+			            list.loadServerList();
+						boolean hasIp = false;
+						for (int i=0; i<list.countServers(); ++i) {
+							if (gui.serverList.get(index).getServerData().serverIP.equalsIgnoreCase(list.getServerData(i).serverIP)) {
+								hasIp = true;
+								break;
+							}
+						}
+						if (!hasIp) {
+							list.addServerData(gui.serverList.get(index).getServerData());
+							list.saveServerList();
+						}
 						net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServer(new GuiMultiplayer(new GuiMainMenu()), gui.serverList.get(index).getServerData());
+					}
 					else
 						gui.mc.displayGuiScreen(gui);
 				}
@@ -71,8 +87,8 @@ public class GuiScrollingServers extends GuiScrollingList {
 	@Override
 	protected void drawSlot(int index, int right, int top, int height, Tessellator tess) {	
 		boolean isHovering = mouseX >= this.left && mouseX <= this.left + this.listWidth &&
-                mouseY >= this.top && mouseY <= this.bottom;
-		gui.serverList.get(index).drawEntry(index, left+4, top, listWidth-10, 100, mouseX, mouseY, this.selectedIndex == index && isHovering, 0);
+				mouseY >= this.top && mouseY <= this.bottom;
+				gui.serverList.get(index).drawEntry(index, left+4, top, listWidth-10, 100, mouseX, mouseY, this.selectedIndex == index && isHovering, 0);
 	}
 
 	public void setSelectedIndex(int index) {

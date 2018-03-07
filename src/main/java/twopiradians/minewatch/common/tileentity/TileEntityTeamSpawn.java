@@ -29,7 +29,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class TileEntityTeamSpawn extends TileEntityTeam {
 
-	public static final Handler IN_RANGE = new Handler(Identifier.TEAM_SPAWN_IN_RANGE, false) { // TODO spawn protection
+	public static final Handler IN_RANGE = new Handler(Identifier.TEAM_SPAWN_IN_RANGE, false) { 
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {

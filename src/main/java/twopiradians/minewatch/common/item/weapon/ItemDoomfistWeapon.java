@@ -46,8 +46,8 @@ import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.HealthManager;
-import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.hero.HealthManager.Type;
+import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -484,7 +484,10 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		// check for wall impact
 		float pitch = handler.entity.rotationPitch;
 		handler.entity.rotationPitch = 0;
-		AxisAlignedBB aabb = handler.entity.getEntityBoundingBox().contract(0, 0.1d, 0).
+		AxisAlignedBB aabb = handler.entity.world.getBlockState(handler.entity.getPosition()).getBoundingBox(handler.entity.world, handler.entity.getPosition());
+		RenderManager.boundingBoxesToRender.clear();
+		RenderManager.boundingBoxesToRender.add(aabb); // TODO
+		aabb = handler.entity.getEntityBoundingBox().contract(0, 0.1d, 0).
 				offset(EntityHelper.getLook(0, (float) (handler.identifier == Identifier.DOOMFIST_PUNCH ? handler.entity.getRotationYawHead() : handler.number2)).scale(1));
 		handler.entity.rotationPitch = pitch;
 		if (handler.entity.world.collidesWithAnyBlock(aabb)) {
@@ -653,7 +656,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
 		EntityLivingBase entity = getEntity(Minecraft.getMinecraft().world, stack);
 		int model = getModel(entity);
-		if (model > 0 && entity.getHeldItemMainhand() == stack) {
+		if (model > 0 && entity != null && entity.getHeldItemMainhand() == stack) {
 			float percent = MathHelper.clamp(model == 1 ? ItemDoomfistWeapon.getCharge(entity) : 1, 0, 1);
 			return new Color((255f-203f*percent)/255f, (255f-140f*percent)/255f, (255f-1f*percent)/255f).getRGB();
 		}
@@ -823,7 +826,6 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				model.bipedLeftArmwear.rotateAngleY = -0.1f;
 				model.bipedLeftArm.rotateAngleY = -0.1f;
 			}
-			//entity.limbSwingAmount = 0;
 			break;
 		case 1:
 

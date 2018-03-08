@@ -68,6 +68,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
+import twopiradians.minewatch.common.item.weapon.ItemRoadhogWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemSombraMachinePistol;
 import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
@@ -78,7 +79,6 @@ import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
-import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class SPacketSimple implements IMessage {
@@ -412,7 +412,7 @@ public class SPacketSimple implements IMessage {
 							TextFormatting.RESET + TextFormatting.BOLD + TextFormatting.ITALIC + " " + (int)packet.x;
 						TickHandler.register(true, RenderManager.MESSAGES.setEntity(player).
 								setString(new String(string).toUpperCase()).setNumber(MessageTypes.MIDDLE.ordinal()).
-								setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool));
+								setTicks(70+TickHandler.getHandlers(player, Identifier.HERO_MESSAGES).size()*1).setBoolean(packet.bool).setAllowDead(true));
 						if (packet.x != -1) {
 							TickHandler.register(true, RenderManager.KILL_OVERLAY.setEntity(player).setTicks(10));
 							ModSoundEvents.KILL.playSound(player, 0.1f, 1, true);
@@ -1064,6 +1064,14 @@ public class SPacketSimple implements IMessage {
 					// health shield decay
 					else if (packet.type == 73 && entity instanceof EntityLivingBase) {
 						HealthManager.setShieldAbilityDecay((EntityLivingBase) entity, (float) packet.x, (float) packet.y, (int) packet.z);
+					}
+					// roadhog heal
+					else if (packet.type == 74 && entity instanceof EntityLivingBase) {
+						TickHandler.register(false, ItemRoadhogWeapon.HEALING.setEntity(player).setTicks(40));
+					}
+					// 3rd person on death
+					else if (packet.type == 75 && packetPlayer == player) {
+						Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
 					}
 				}
 			});

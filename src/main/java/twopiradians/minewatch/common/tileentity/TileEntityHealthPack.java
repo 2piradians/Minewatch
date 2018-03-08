@@ -1,6 +1,5 @@
 package twopiradians.minewatch.common.tileentity;
 
-import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;

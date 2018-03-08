@@ -1439,5 +1439,85 @@
 			"minewatch:doomfist_uppercut_voice_0",
 			"minewatch:doomfist_uppercut_voice_1"
 		]
+	},
+	"roadhog_heal_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_heal_0"
+		]
+	},
+	"roadhog_heal_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_heal_1"
+		]
+	},
+	"roadhog_heal_2": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_heal_2"
+		]
+	},
+	"roadhog_heal_toss": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_heal_toss"
+		]
+	},
+	"roadhog_hook_hit_entity": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_hit_entity"
+		]
+	},
+	"roadhog_hook_retract_entity": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_retract_entity"
+		]
+	},
+	"roadhog_hook_retract": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_retract"
+		]
+	},
+	"roadhog_hook_throw": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_throw"
+		]
+	},
+	"roadhog_hook_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_voice_0",
+			"minewatch:roadhog_hook_voice_1",
+			"minewatch:roadhog_hook_voice_2"
+		]
+	},
+	"roadhog_shoot_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_shoot_0"
+		]
+	},
+	"roadhog_shoot_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_shoot_1"
+		]
+	},
+	"roadhog_shoot_explode": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_shoot_explode"
+		]
+	},
+	"roadhog_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_reload"
+		]
 	}
 }

@@ -30,8 +30,6 @@ import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.hero.HealthManager;
-import twopiradians.minewatch.common.hero.HealthManager.Type;
 import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;

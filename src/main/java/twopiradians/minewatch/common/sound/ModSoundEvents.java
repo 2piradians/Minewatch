@@ -227,7 +227,6 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_DURING,
 	SOMBRA_HACK_COMPLETE,
 	SOMBRA_HACK_VOICE,
-
 	GUI_CHOOSE_HERO,
 	GUI_SELECT_HERO,
 	GUI_OPEN,
@@ -244,7 +243,20 @@ public enum ModSoundEvents {
 	DOOMFIST_UPPERCUT_START,
 	DOOMFIST_UPPERCUT_STOP,
 	DOOMFIST_UPPERCUT_VOICE,
-	DOOMFIST_SHOOT;
+	DOOMFIST_SHOOT,
+	
+	ROADHOG_RELOAD,
+	ROADHOG_HEAL_0,
+	ROADHOG_HEAL_1,
+	ROADHOG_HEAL_2,
+	ROADHOG_HEAL_TOSS,
+	ROADHOG_HOOK_HIT_ENTITY,
+	ROADHOG_HOOK_RETRACT_ENTITY,
+	ROADHOG_HOOK_THROW,
+	ROADHOG_HOOK_VOICE,
+	ROADHOG_SHOOT_0,
+	ROADHOG_SHOOT_1,
+	ROADHOG_SHOOT_EXPLODE;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -256,7 +268,6 @@ public enum ModSoundEvents {
 	private ModSoundEvents() {
 		loc = new ResourceLocation(Minewatch.MODID, this.name().toLowerCase());
 		event = new ModSoundEvent(loc, this);
-		// PORT 1.12: 
 		event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
 		this.isSelectVoiceLine = this.name().contains("SELECT_VOICE");

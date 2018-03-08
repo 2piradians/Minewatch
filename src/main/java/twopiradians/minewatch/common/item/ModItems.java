@@ -33,6 +33,7 @@ public class ModItems {
 	public static Item genji_shuriken_single; // used for projectile
 	public static Item junkrat_trigger; // used with Junkrat's mine
 	public static Item sombra_hack; // used with Sombra's hack
+	public static Item roadhog_health; // used with Roadhog's heal
 	public static Item team_stick;
 
 	@Mod.EventBusSubscriber
@@ -65,6 +66,7 @@ public class ModItems {
 			((ItemGenjiShuriken)genji_shuriken_single).hero = EnumHero.GENJI;
 			junkrat_trigger = registerItem(event.getRegistry(), new ItemJunkratTrigger(), "junkrat_trigger", null, true);
 			sombra_hack = registerItem(event.getRegistry(), new ItemSombraHack(), "sombra_hack", null, true);
+			roadhog_health = registerItem(event.getRegistry(), new ItemRoadhogHealth(), "roadhog_health", null, true);
 
 			// other items
 			team_stick = registerItem(event.getRegistry(), new ItemTeamStick(), "team_stick", Minewatch.tabMapMaking, false);

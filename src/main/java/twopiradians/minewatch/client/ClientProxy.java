@@ -83,6 +83,8 @@ import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderMoiraOrb;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
+import twopiradians.minewatch.client.render.entity.RenderRoadhogHook;
+import twopiradians.minewatch.client.render.entity.RenderRoadhogScrap;
 import twopiradians.minewatch.client.render.entity.RenderSoldier76Heal;
 import twopiradians.minewatch.client.render.entity.RenderSombraTranslocator;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerHook;
@@ -107,6 +109,8 @@ import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogScrap;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76Heal;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
@@ -125,6 +129,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
@@ -315,6 +320,9 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraHealEnergy.class, new RenderFactory());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMoiraOrb.class, RenderMoiraOrb::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityDoomfistBullet.class, new RenderFactory(new Color(0xEFFFF4), 1, 1, 2));
+		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogBullet.class, new RenderFactory(new Color(0xF68035), 1, 1, 1));
+		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogScrap.class, RenderRoadhogScrap::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogHook.class, RenderRoadhogHook::new);
 	}
 
 	private void registerBlockRenders() {
@@ -368,6 +376,9 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/widowmaker_hook_rope"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/sombra_hack"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_scrap"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_hook"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_chain"));
 	}
 
 	@Override

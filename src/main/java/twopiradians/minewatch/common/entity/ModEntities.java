@@ -18,6 +18,8 @@ import twopiradians.minewatch.common.entity.ability.EntityMeiIcicle;
 import twopiradians.minewatch.common.entity.ability.EntityMercyBeam;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogScrap;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76Heal;
 import twopiradians.minewatch.common.entity.ability.EntitySoldier76HelixRocket;
 import twopiradians.minewatch.common.entity.ability.EntitySombraTranslocator;
@@ -36,6 +38,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
+import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySombraBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityTracerBullet;
@@ -91,6 +94,9 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_heal_energy"), EntityMoiraHealEnergy.class, "moira_heal_energy", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "moira_orb"), EntityMoiraOrb.class, "moira_orb", id++, Minewatch.instance, 64, 1, true);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "doomfist_bullet"), EntityDoomfistBullet.class, "doomfist_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_bullet"), EntityRoadhogBullet.class, "roadhog_bullet", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_scrap"), EntityRoadhogScrap.class, "roadhog_scrap", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_hook"), EntityRoadhogHook.class, "roadhog_hook", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

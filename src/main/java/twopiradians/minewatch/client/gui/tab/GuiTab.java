@@ -109,11 +109,11 @@ public class GuiTab extends GuiScreen {
 		this.buttonList.add(new GuiButtonTab(0, this.width/2-30, this.height-25, 60, 20, "OK", Screen.MAPS_INFO));
 		// Screen.GALLERY
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY));
-		int spaceBetweenX = 39;
-		int spaceBetweenY = 53;
-		int perRow = 6;
+		int spaceBetweenX = 35;
+		int spaceBetweenY = 50;
+		int perRow = 7;
 		for (int i=0; i<EnumHero.ORDERED_HEROES_ALPHABETICAL.size(); ++i) 
-			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+11)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+32+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.ORDERED_HEROES_ALPHABETICAL.get(i)));
+			this.buttonList.add(new GuiButtonGallery(0, (int) ((this.guiLeft+5)+(int)(i%perRow)*spaceBetweenX), (int) ((this.guiTop+32+spaceBetweenY*(int)(i/perRow))), spaceBetweenX, spaceBetweenY, "", Screen.GALLERY, EnumHero.ORDERED_HEROES_ALPHABETICAL.get(i)));
 		// Screen.GALLERY_HERO
 		this.buttonList.add(new GuiButtonGalleryHero(1, this.guiLeft+12, this.guiTop+40, 100, 20, "", Screen.GALLERY_HERO)); //Skins
 		this.buttonList.add(new GuiButtonTab(0, this.guiLeft+198, this.guiTop+Y_SIZE-29, 50, 20, "Back", Screen.GALLERY_HERO));

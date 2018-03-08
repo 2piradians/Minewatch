@@ -257,7 +257,7 @@ public class RenderManager {
 
 		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
 			event.setCanceled(true);
-		else if (Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {
+		else if (Config.guiScale > 0) {
 			double height = event.getResolution().getScaledHeight_double();
 			double width = event.getResolution().getScaledWidth_double();
 			int imageSize = 256;
@@ -271,36 +271,38 @@ public class RenderManager {
 				}
 			ItemMWWeapon weapon = hand == null ? null : (ItemMWWeapon) player.getHeldItem(hand).getItem();
 
-			if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
-				GlStateManager.color(1, 1, 1, 1f);
-				GlStateManager.pushMatrix();
-				GlStateManager.enableAlpha();
-				weapon.preRenderGameOverlay(event, player, width, height, hand);
-				GlStateManager.popMatrix();
-			}
-
-			if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-				GlStateManager.color(1, 1, 1, 1f);
-
+			if (!Minewatch.proxy.getClientPlayer().isSpectator()) {
 				if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+					GlStateManager.color(1, 1, 1, 1f);
 					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-
-					// render crosshair
-					double scale = 0.2d*Config.guiScale;
-					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
-					if (Config.customCrosshairs) {
-						Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
-						GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
-					}
-
-					GlStateManager.disableBlend();
+					GlStateManager.enableAlpha();
+					weapon.preRenderGameOverlay(event, player, width, height, hand);
 					GlStateManager.popMatrix();
 				}
 
-				if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
-					event.setCanceled(true);
+				if (event.getType() == ElementType.CROSSHAIRS && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+					GlStateManager.color(1, 1, 1, 1f);
+
+					if (weapon != null && !KeyBind.HERO_INFORMATION.isKeyDown(player)) {
+						GlStateManager.pushMatrix();
+						GlStateManager.enableBlend();
+
+						// render crosshair
+						double scale = 0.2d*Config.guiScale;
+						GlStateManager.scale(scale, scale, 1);
+						GlStateManager.translate((int) ((event.getResolution().getScaledWidth_double() - 256*scale)/2d / scale), (int) ((event.getResolution().getScaledHeight_double() - 256*scale)/2d / scale), 0);
+						if (Config.customCrosshairs) {
+							Minecraft.getMinecraft().getTextureManager().bindTexture(weapon.hero.crosshair.loc);
+							GuiUtils.drawTexturedModalRect(3, 3, 0, 0, 256, 256, 0);
+						}
+
+						GlStateManager.disableBlend();
+						GlStateManager.popMatrix();
+					}
+
+					if (weapon != null && Config.customCrosshairs || hero != null && KeyBind.HERO_INFORMATION.isKeyDown(player))
+						event.setCanceled(true);
+				}
 			}
 
 			if (event.getType() == ElementType.CROSSHAIRS && hero != null) {
@@ -367,7 +369,7 @@ public class RenderManager {
 					else if (handler.ticksLeft < 3)
 						alpha = handler.ticksLeft/3f;
 					GlStateManager.scale(scale, scale, 1);
-					mc.fontRenderer.drawString(handler.string, (float)((width/2/scale) - mc.fontRenderer.getStringWidth(handler.string)/2), (float) (height/4f/scale+yOffset+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), true);
+					mc.fontRenderer.drawString(handler.string, (float)((width/2/scale) - mc.fontRenderer.getStringWidth(handler.string)/2), (float) (height/4f/scale+(handler.bool ? 4 : 0)), new Color(1, 1, 1, alpha).getRGB(), true);
 				}
 
 				GlStateManager.disableBlend();
@@ -711,6 +713,11 @@ public class RenderManager {
 				Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
 						0, 0, event.getEntityLiving().world.getPlayerEntityByUUID(mostDamage)), (EntityPlayerMP) event.getEntityLiving());
 			entityDamage.remove(event.getEntityLiving());
+		}
+		else if (event.getEntityLiving() instanceof EntityPlayerMP && event.getSource() != null && 
+				event.getSource().getTrueSource() instanceof EntityHero) {
+			Minewatch.network.sendTo(new SPacketSimple(14, false, (EntityPlayer) event.getEntityLiving(), -1,
+					0, 0, event.getSource().getTrueSource()), (EntityPlayerMP) event.getEntityLiving());
 		}
 	}
 

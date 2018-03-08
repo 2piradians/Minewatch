@@ -1,0 +1,8 @@
+# Blender MTL File: 'roadhog_hook.blend'
+# Material Count: 1
+
+newmtl 7A3E8E711019A6FC
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:entity/roadhog_hook

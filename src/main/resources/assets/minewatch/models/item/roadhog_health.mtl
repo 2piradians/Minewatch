@@ -1,0 +1,8 @@
+# Blender MTL File: 'roadhog_health.blend'
+# Material Count: 1
+
+newmtl 27F1A65BA175E322
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/roadhog_health_3d

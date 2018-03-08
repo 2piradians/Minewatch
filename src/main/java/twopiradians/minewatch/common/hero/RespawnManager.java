@@ -300,6 +300,11 @@ public class RespawnManager {
 				!event.getEntityLiving().world.isRemote && !TickHandler.hasHandler(event.getEntityLiving(), Identifier.DEAD)) {
 			TickHandler.register(false, DEAD.setEntity(event.getEntityLiving()).setTicks(Config.respawnTime).setString(event.getEntityLiving().getTeam().getName()));
 		}
+		
+		// put players in 3rd person
+		if (event.getEntityLiving() instanceof EntityPlayerMP && 
+				isRespawnablePlayer(event.getEntityLiving()) && Config.customDeathScreen)
+			Minewatch.network.sendTo(new SPacketSimple(75, false, (EntityPlayer) event.getEntityLiving()), (EntityPlayerMP) event.getEntityLiving());
 	}
 
 	@SideOnly(Side.CLIENT)

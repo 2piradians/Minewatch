@@ -154,7 +154,10 @@ public class EntityHelper {
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
-
+		
+		pitch = MathHelper.wrapDegrees(pitch);
+		yaw = MathHelper.wrapDegrees(yaw);
+		
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
 		RayTraceResult blockTrace = shooter instanceof EntityHero ? null : EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
@@ -1006,8 +1009,13 @@ public class EntityHelper {
 
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreEntity(Entity entity) {
+		return shouldIgnoreEntity(entity, false);
+	}
+	
+	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
+	public static boolean shouldIgnoreEntity(Entity entity, boolean allowInvulnerable) {
 		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || 
-				TickHandler.hasHandler(entity, Identifier.INVULNERABLE) ||
+				(!allowInvulnerable && TickHandler.hasHandler(entity, Identifier.INVULNERABLE)) ||
 				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
 	}
 	

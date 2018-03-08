@@ -201,7 +201,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
-		if (!player.world.isRemote && !player.isSneaking() && !EntityHelper.shouldIgnoreEntity(entity)) {
+		if (!player.world.isRemote && !player.isSneaking() && !EntityHelper.shouldIgnoreEntity(entity, true)) {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {

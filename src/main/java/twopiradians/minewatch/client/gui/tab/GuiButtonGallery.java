@@ -13,6 +13,7 @@ import twopiradians.minewatch.common.sound.ModSoundEvents;
 public class GuiButtonGallery extends GuiButtonTab {
 
 	private static final ResourceLocation GALLERY_OVERLAY = new ResourceLocation(Minewatch.MODID+":textures/gui/hero_gallery_overlay.png");
+	private static final double OVERALL_SCALE = 1d;
 	public EnumHero hero;
 
 	public GuiButtonGallery(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Screen screen, EnumHero hero) {
@@ -21,15 +22,20 @@ public class GuiButtonGallery extends GuiButtonTab {
 	}
 
 	@Override
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+        return this.enabled && this.visible && mouseX >= this.x*OVERALL_SCALE && mouseY >= this.y*OVERALL_SCALE && mouseX < this.x*OVERALL_SCALE + this.width*OVERALL_SCALE && mouseY < this.y*OVERALL_SCALE + this.height*OVERALL_SCALE;
+    }
+	
+	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {		
 		this.visible = GuiTab.currentScreen == screen;
 		boolean prev = this.hovered;
-        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+        this.hovered = mouseX >= this.x*OVERALL_SCALE && mouseY >= this.y*OVERALL_SCALE && mouseX < this.x*OVERALL_SCALE + this.width*OVERALL_SCALE && mouseY < this.y*OVERALL_SCALE + this.height*OVERALL_SCALE;
 
         if (visible && hovered && prev != hovered)
         	ModSoundEvents.GUI_HOVER.playSound(mc.player, 0.8f, 1.0f, true);
         
-		//super.drawButton(mc, mouseX, mouseY);
+		//super.drawButton(mc, mouseX, mouseY, partialTicks);
 		//this.hovered = true;
         
 		if (this.visible) {
@@ -37,6 +43,7 @@ public class GuiButtonGallery extends GuiButtonTab {
 			if (this.hovered)
 				GlStateManager.translate(-5, -3, 0);
 			GlStateManager.color(1, 1, 1);
+			//GlStateManager.scale(OVERALL_SCALE, OVERALL_SCALE, 1);
 			double iconScale = 0.52d;
 			double bothScale = this.hovered ? 0.42d : 0.32d;
 			double textScale = this.hovered ? 0.68d : 0.49f;

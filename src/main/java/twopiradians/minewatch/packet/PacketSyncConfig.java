@@ -34,6 +34,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean lobbyCommand;
 	private double healthScale;
 	private double armor;
+	private boolean stepAssist;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -82,6 +83,7 @@ public class PacketSyncConfig implements IMessage {
 		this.lobbyCommand = Config.lobbyCommand;
 		this.healthScale = Config.healthScale;
 		this.armor = Config.armor;
+		this.stepAssist = Config.stepAssist;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -128,6 +130,7 @@ public class PacketSyncConfig implements IMessage {
 		this.lobbyCommand = buf.readBoolean();
 		this.healthScale = buf.readDouble();
 		this.armor = buf.readDouble();
+		this.stepAssist = buf.readBoolean();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -174,6 +177,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.lobbyCommand);
 		buf.writeDouble(this.healthScale);
 		buf.writeDouble(this.armor);
+		buf.writeBoolean(this.stepAssist);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -219,6 +223,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.lobbyCommand = this.lobbyCommand;
 		Config.healthScale = this.healthScale;
 		Config.armor = this.armor;
+		Config.stepAssist = this.stepAssist;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

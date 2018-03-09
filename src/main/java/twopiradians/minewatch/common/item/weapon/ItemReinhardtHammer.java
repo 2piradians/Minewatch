@@ -56,12 +56,12 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 				Handlers.copyRotations((EntityLivingBase) entity);
 			}
 			if (this.ticksLeft <= this.initialTicks-14) {
-				((EntityLivingBase)entity).moveStrafing = 0;
-				((EntityLivingBase)entity).moveForward = 0;
 				entity.moveRelative(0, 0, 1, 1);
-				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d);
+				Vec3d motion = new Vec3d(entity.motionX, 0, entity.motionZ).normalize().scale(16.66d/20d); 
 				entity.motionX = motion.x;
 				entity.motionZ = motion.z;
+				((EntityLivingBase)entity).moveStrafing = 0;
+				((EntityLivingBase)entity).moveForward = 0;
 
 				// check for entities to pin / knockback
 				if (!entity.world.isRemote) {
@@ -101,11 +101,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 						}
 
 					// check for wall impact
-					float pitch = this.entity.rotationPitch;
-					this.entity.rotationPitch = 0;
-					aabb = this.entity.getEntityBoundingBox().contract(0, 0.1d, 0).offset(this.entity.getLookVec().scale(1)).offset(0, 0.1d, 0);
-					this.entity.rotationPitch = pitch;
-					if (this.entity.world.collidesWithAnyBlock(aabb)) {
+					if (this.entity.isCollidedHorizontally) {
 						this.ticksLeft = 1;
 						if (this.entityLiving != null)
 							EntityHelper.attemptDamage(entity, entityLiving, 300, true);

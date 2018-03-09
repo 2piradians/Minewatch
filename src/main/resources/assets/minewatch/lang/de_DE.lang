@@ -12,13 +12,15 @@ command.hero.desc=rüstet dich/das Ziel mit der Rüstung und der/den Waffe/n fü
 command.sync.desc=synchronisiert deine Konfiguration mit dem Server (im Mehrspieler Modus)
 command.team_spawn.desc=aktiviert/deaktiviert einen Teamspawn
 command.reset.desc=der HauptBefehl um Minewatch Spiele "zurückzusetzen", aktuell tötet und widerbelebt er Dinge/Spieler, die an Teamspawns wiederbelebt werden können
-
+command.lobby.desc=entfernt das Team, leert das Inventar, und belebt dich wieder
 
 effect.frozen=Eingefroren
 
 tile.health_pack_small.name=kleines Heilungspaket
 tile.health_pack_large.name=großes Heilungspaket
+tile.health_pack.desc=Heilt, wenn darüber gelaufen wird und braucht Zeit um wieder zu erscheinen
 tile.team_spawn.name=Teamspawn
+tile.team_spawn.desc=Ein Block, an dem Spieler und Kreaturen wiederbelebt werden können
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Helfer
@@ -153,6 +155,15 @@ item.doomfist_boots.name=Doomfist Stiefel
 item.doomfist_weapon.name=Doomfist's Handschuh
 
 
+item.roadhog_token.name=Roadhog Token
+item.roadhog_helmet.name=Roadhog Helm
+item.roadhog_chestplate.name=Roadhog Brustpanzer
+item.roadhog_leggings.name=Roadhog Beinschutz
+item.roadhog_boots.name=Roadhog Stiefel
+item.roadhog_weapon.name=Roadhog's Schrottflinte
+item.roadhog_health.name=Roadhog's Lebenskanister
+
+
 entity.random_hero.name=Zufälliger Held
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Pfeil
@@ -207,6 +218,9 @@ entity.moira_heal_energy.name=Moira Heilenergie
 entity.moira_orb.name=Moira Biotische Sphäre
 entity.doomfist_hero.name=Doomfist
 entity.doomfist_bullet.name=Doomfist Geschoss
+entity.roadhog_hero.name=Roadhog
+entity.roadhog_scrap.name=Roadhog Schrott
+entity.roadhog_hook.name=Roadhog Abschlepphaken
 
 
 command.reset.success=Minewatch Spiel wurde von einem Moderator zurückgesetzt.

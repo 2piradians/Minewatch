@@ -190,49 +190,6 @@ public class RenderManager {
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void renderWorldLast(RenderWorldLastEvent event) {
-		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		if (player != null && player.getHeldItemMainhand() != null && 
-				player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
-				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == SetManager.getWornSet(player)) {
-			GlStateManager.color(1, 1, 1, 1f);
-			GlStateManager.pushMatrix();
-			((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
-			GlStateManager.popMatrix();
-		}
-
-		if (!boundingBoxesToRender.isEmpty()) {
-			GlStateManager.pushMatrix();
-			GlStateManager.depthMask(false);
-			GlStateManager.disableDepth();
-			GlStateManager.disableTexture2D();
-			GlStateManager.disableLighting();
-			GlStateManager.disableCull();
-			GlStateManager.disableBlend();
-
-			Vec3d vec = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()).scale(-1);
-
-			for (AxisAlignedBB aabb : boundingBoxesToRender) {
-				Tessellator tessellator = Tessellator.getInstance();
-				BufferBuilder vertexbuffer = tessellator.getBuffer();
-				vertexbuffer.begin(3, DefaultVertexFormats.POSITION_NORMAL);
-				RenderGlobal.drawBoundingBox(vertexbuffer, aabb.minX + vec.x, aabb.minY + vec.y, aabb.minZ + vec.z, aabb.maxX + vec.x, aabb.maxY + vec.y, aabb.maxZ + vec.z, 
-						255, 255, 255, 1f);
-				tessellator.draw();
-			}
-
-			GlStateManager.enableTexture2D();
-			GlStateManager.enableLighting();
-			GlStateManager.enableCull();
-			GlStateManager.disableBlend();
-			GlStateManager.depthMask(true);
-			GlStateManager.enableDepth();
-			GlStateManager.popMatrix();
-		}
-	}
-
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
 		Minecraft mc = Minecraft.getMinecraft();
 
@@ -423,7 +380,7 @@ public class RenderManager {
 					GlStateManager.pushMatrix();
 					scale = 1.5d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(43, height/scale-27, 0);	
+					GlStateManager.translate(43, height/scale-28, 0);	
 					GlStateManager.rotate(-4f, 0, 0, 1);
 
 					renderHealthBar(player, hero, true, false);
@@ -436,18 +393,18 @@ public class RenderManager {
 					float maxHealth = HealthManager.getMaxCombinedHealth(player);
 					float currentHealth = HealthManager.getCurrentCombinedHealth(player);
 
-					scale = 1.3d*Config.guiScale;
+					scale = 1.6d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
-					GlStateManager.translate(49, height/scale-50, 0);
-					GlStateManager.rotate(-4.5f, 0, 0, 1);
+					GlStateManager.translate(40, height/scale-45, 0);
+					GlStateManager.rotate(-4f, 0, 0, 1);
 
 					int textWidth = mc.fontRenderer.getStringWidth(TextFormatting.ITALIC+String.valueOf((int)currentHealth))+1;
 					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)currentHealth), 0, 10, 0xFFFFFF, true);
-					scale = 0.6d;
+					scale = 0.53d;
 					GlStateManager.scale(scale, scale, 1);
-					mc.fontRenderer.drawString("/", (int) (textWidth/scale), 20, 0x00D5FF, true);
+					mc.fontRenderer.drawString("/", (int) (textWidth/scale), 24, 0xFFFFFF, true);
 					textWidth += mc.fontRenderer.getStringWidth("/")-2;
-					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)maxHealth), (int) (textWidth/scale), 20, 0xFFFFFF, true);
+					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)maxHealth), (int) (textWidth/scale), 24, 0xFFFFFF, true);
 
 					GlStateManager.popMatrix();
 
@@ -460,7 +417,7 @@ public class RenderManager {
 					GlStateManager.enableAlpha();
 					GlStateManager.color(1, 1, 1, 1);
 
-					double scale = 2.7d*Config.guiScale;
+					double scale = 3d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 1);
 					GlStateManager.translate((int) (width/scale)-35, ((int)height/scale)-25+scale*2, 0);
 					mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
@@ -747,6 +704,7 @@ public class RenderManager {
 	@SubscribeEvent
 	public static void renderOnBlocks(RenderWorldLastEvent event) {
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -786,6 +744,45 @@ public class RenderManager {
 		GlStateManager.depthMask(true);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		GlStateManager.popMatrix();
+		
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		if (player != null && player.getHeldItemMainhand() != null && 
+				player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
+				((ItemMWWeapon)player.getHeldItemMainhand().getItem()).hero == SetManager.getWornSet(player)) {
+			GlStateManager.color(1, 1, 1, 1f);
+			GlStateManager.pushMatrix();
+			((ItemMWWeapon)player.getHeldItemMainhand().getItem()).renderWorldLast(event, player);
+			GlStateManager.popMatrix();
+		}
+
+		// render bounding boxes
+		if (!boundingBoxesToRender.isEmpty()) {
+			GlStateManager.pushMatrix();
+			GlStateManager.depthMask(false);
+			GlStateManager.disableDepth();
+			GlStateManager.disableTexture2D();
+			GlStateManager.disableLighting();
+			GlStateManager.disableCull();
+			GlStateManager.disableBlend();
+
+			Vec3d vec = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity()).scale(-1);
+
+			for (AxisAlignedBB aabb : boundingBoxesToRender) {
+				BufferBuilder vertexbuffer = tessellator.getBuffer();
+				vertexbuffer.begin(3, DefaultVertexFormats.POSITION_NORMAL);
+				RenderGlobal.drawBoundingBox(vertexbuffer, aabb.minX + vec.x, aabb.minY + vec.y, aabb.minZ + vec.z, aabb.maxX + vec.x, aabb.maxY + vec.y, aabb.maxZ + vec.z, 
+						255, 255, 255, 1f);
+				tessellator.draw();
+			}
+
+			GlStateManager.enableTexture2D();
+			GlStateManager.enableLighting();
+			GlStateManager.enableCull();
+			GlStateManager.disableBlend();
+			GlStateManager.depthMask(true);
+			GlStateManager.enableDepth();
+			GlStateManager.popMatrix();
+		}
 	}
 
 	/**Render a texture (must be bound before calling this) on blocks
@@ -1009,7 +1006,7 @@ public class RenderManager {
 		float shield = map.get(Type.SHIELD);
 		float shieldAbility = map.get(Type.SHIELD_ABILITY) + map.get(Type.ABSORPTION);
 
-		float maxWidth = 80f;
+		float maxWidth = 70f;
 		int barWidth = 8;
 		int barHeight = 11;
 		float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
@@ -1110,6 +1107,7 @@ public class RenderManager {
 		float vScale = 1f / 0x100;
 		int zLevel = 0;
 		int v = 245;
+		double slant = barHeight * 0.15d;
 		for (int i=(int) start; i<finish; ++i) {
 			double currentBarWidth = barWidth;
 			double x = incrementX * i - xOffset;
@@ -1123,10 +1121,10 @@ public class RenderManager {
 			if (i == Math.ceil(finish)-1 && finish % 1 != 0) // partial end
 				currentBarWidth *= ((float)finish % 1);
 
-			buffer.pos(x, y + barHeight, zLevel).tex(u * uScale, ((v + barHeight) * vScale)).color(red, green, blue, alpha).endVertex();
-			buffer.pos(x + currentBarWidth, y + barHeight, zLevel).tex((u + currentBarWidth) * uScale, ((v + barHeight) * vScale)).color(red, green, blue, alpha).endVertex();
-			buffer.pos(x + currentBarWidth, y, zLevel).tex((u + currentBarWidth) * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
-			buffer.pos(x, y, zLevel).tex(u * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
+			buffer.pos(x-slant, y + barHeight, zLevel).tex(u * uScale, ((v + barHeight) * vScale)).color(red, green, blue, alpha).endVertex();
+			buffer.pos(x-slant + currentBarWidth, y + barHeight, zLevel).tex((u + currentBarWidth) * uScale, ((v + barHeight) * vScale)).color(red, green, blue, alpha).endVertex();
+			buffer.pos(x+slant + currentBarWidth, y, zLevel).tex((u + currentBarWidth) * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
+			buffer.pos(x+slant, y, zLevel).tex(u * uScale, (v * vScale)).color(red, green, blue, alpha).endVertex();
 		}
 	}
 

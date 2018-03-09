@@ -20,7 +20,7 @@ public class EntityRoadhogHook extends EntityMW {
 
 	@Override
 	public void onUpdate() {
-		super.onUpdate();
+		//super.onUpdate();
 	}
 
 	@Override

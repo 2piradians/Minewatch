@@ -424,7 +424,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 			handler.entity.rotationYaw = (float) handler.number2;
 		handler.entity.moveRelative(0, 0, 1, 1);
 		handler.entity.rotationYaw = prev;
-		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d);	
+		Vec3d motion = new Vec3d(handler.entity.motionX, 0, handler.entity.motionZ).normalize().scale((22d+(37d*handler.number))/20d); 	
 		handler.entity.motionX = motion.x;
 		handler.entity.motionZ = motion.z;
 		if (handler.entity.motionY < 0)
@@ -482,15 +482,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 		}
 
 		// check for wall impact
-		float pitch = handler.entity.rotationPitch;
-		handler.entity.rotationPitch = 0;
-		AxisAlignedBB aabb = handler.entity.world.getBlockState(handler.entity.getPosition()).getBoundingBox(handler.entity.world, handler.entity.getPosition());
-		RenderManager.boundingBoxesToRender.clear();
-		RenderManager.boundingBoxesToRender.add(aabb); // TODO
-		aabb = handler.entity.getEntityBoundingBox().contract(0, 0.1d, 0).
-				offset(EntityHelper.getLook(0, (float) (handler.identifier == Identifier.DOOMFIST_PUNCH ? handler.entity.getRotationYawHead() : handler.number2)).scale(1));
-		handler.entity.rotationPitch = pitch;
-		if (handler.entity.world.collidesWithAnyBlock(aabb)) {
+		if (handler.entity.isCollidedHorizontally) {
 			handler.ticksLeft = 1;
 			handler.entity.motionX = 0;
 			handler.entity.motionZ = 0;
@@ -605,7 +597,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
-
+			
 			// slam particle
 			if (player == Minewatch.proxy.getClientPlayer() && world.isRemote && hero.ability2.keybind.getCooldown(player) <= 0 && 
 					player.ticksExisted % 5 == 0 && !player.onGround && !(player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator()))

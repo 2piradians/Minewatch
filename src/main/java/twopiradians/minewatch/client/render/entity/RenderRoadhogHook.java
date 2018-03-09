@@ -23,6 +23,8 @@ public class RenderRoadhogHook extends RenderOBJModel<EntityRoadhogHook> {
 	@Override
 	protected boolean preRender(EntityRoadhogHook entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {	
 		GlStateManager.translate(0, -entity.height/2f, 0);
+		GlStateManager.rotate(90, 0, 0, 1);
+		GlStateManager.rotate(90, 1, 0, 0);
 
 		return true;
 	}

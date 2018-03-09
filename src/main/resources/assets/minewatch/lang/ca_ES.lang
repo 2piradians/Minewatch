@@ -6,6 +6,13 @@ config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Aparençes dels Herois
 config.server-side.hero_mobs=Herois Mobils
+config.server-side.team_blocks=Blocs dels equips
+
+command.hero.desc=et equipa a tu/a la persona destinataria amb la armadura i l'arma del heroi.
+command.sync.desc=sincroitza la teva configuracio amb el servidor (en multijugador)
+command.team_spawn.desc=activa/desavtiva el punt d'aparició
+command.reset.desc=el comandament mestre per "reiniciar" les partides de Minewatch, actualment mata i fa regenerar les entitats que reapareixen als generadors d'equips.
+command.lobby.desc=elimina el equip, nateja el inventari i et fa regenerar.
 
 effect.frozen=Congel·lat
 
@@ -77,7 +84,7 @@ item.mei_helmet.name=Casc de Mei
 item.mei_chestplate.name=Cuirassa de Mei
 item.mei_leggings.name=Pantalons de Mei
 item.mei_boots.name=Botes de Mei
-item.mei_weapon.name=Bláster Endotermic de Mei
+item.mei_weapon.name=Blaster Endotermic de Mei
 
 item.bastion_token.name=Fitxa de Bastion
 item.bastion_helmet.name=Casc de Bastion
@@ -128,7 +135,7 @@ item.zenyatta_helmet.name=Casc de Zenyatta
 item.zenyatta_chestplate.name=Cuirassa de Zenyatta
 item.zenyatta_leggings.name=Pantalons de Zenyatta
 item.zenyatta_boots.name=Botes de Zenyatta
-item.zenyatta_weapon.name=Orb de la destrucció de Zenyatta
+item.zenyatta_weapon.name=Orb de la destruccio de Zenyatta
 
 item.moira_token.name=Fitxa de Moira
 item.moira_helmet.name=Casc de Moira
@@ -143,6 +150,14 @@ item.doomfist_chestplate.name=Cuirassa de Doomfist
 item.doomfist_leggings.name=Pantalons de Doomfist
 item.doomfist_boots.name=Botes de Doomfist
 item.doomfist_weapon.name=Guant de Doomfist
+
+item.roadhog_token.name=Fitxa de Roadhog
+item.roadhog_helmet.name=Casc de Roadhog
+item.roadhog_chestplate.name=Cuirassa de Roadhog
+item.roadhog_leggings.name=Pantalons de Roadhog
+item.roadhog_boots.name=Botes de Roadhog
+item.roadhog_weapon.name=Pistola de Chatarra de Roadhog
+item.roadhog_health.name=Recipient d'salut de Roadhog
 
 entity.random_hero.name=Heroi al·leatori
 entity.hanzo_hero.name=Hanzo
@@ -197,6 +212,9 @@ entity.moira_heal_energy.name=Energia curativa de Moira
 entity.moira_orb.name=Orb biotic de Moira
 entity.doomfist_hero.name=Doomfist
 entity.doomfist_bullet.name=Bala de Doomfist
+entity.roadhog_hero.name=Roadhog
+entity.roadhog_scrap.name=Chatarra de Roadhog
+entity.roadhog_hook.name=Ganxo de Roadhog
 
 command.reset.success=Aquesta partida de Minewatch ha sigut reiniciat per un moderador.
 command.reset.unrecognized_flags=No reconegut.
@@ -226,3 +244,6 @@ gui.team_spawn.status.players_heroes_team=Jugadors i mobs dins
 gui.team_spawn.status.players_heroes_all=Tots el jugadors i mobs (els que estiguin en un equip)
 gui.team_spawn.status.players_heroes_none=Ningu
 gui.team_spawn.status.will_spawn=es generera aqui.
+
+gui.hero_select.select=Sel·lecciona
+gui.hero_select.select_hero=Sel·lecciona un heroi

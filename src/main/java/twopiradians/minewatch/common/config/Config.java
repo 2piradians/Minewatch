@@ -84,6 +84,7 @@ public class Config {
 	public static boolean lobbyCommand;
 	public static double healthScale;
 	public static double armor;
+	public static boolean stepAssist;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -308,6 +309,12 @@ public class Config {
 				prop.set(armor);
 			else 
 				armor = prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Step Assist", false, "Should players be allowed to walk up full blocks when wearing a full set of Minewatch armor?");
+			if (overriding)
+				prop.set(stepAssist);
+			else
+				stepAssist = prop.getBoolean();
 
 			// Team Block options ======================================================================================
 

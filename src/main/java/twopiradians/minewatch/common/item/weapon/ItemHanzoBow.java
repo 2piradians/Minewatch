@@ -16,6 +16,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoScatterArrow;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
@@ -59,7 +60,7 @@ public class ItemHanzoBow extends ItemMWWeapon {
 	
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
-		if (!world.isRemote && player.isHandActive() && player.getActiveHand() == hand)
+		if (player.isHandActive() && player.getActiveHand() == hand)
 			player.resetActiveHand();
 	}
 
@@ -159,14 +160,14 @@ public class ItemHanzoBow extends ItemMWWeapon {
 		if (player instanceof EntityPlayer && !((EntityPlayer)player).capabilities.isCreativeMode && !flag) {
 			return flag ? new ActionResult<ItemStack>(EnumActionResult.PASS, stack) : new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 		}
-		else if (this.canUse(player, true, hand, false)) {
+		else if (this.canUse(player, true, hand, false) && KeyBind.RMB.isKeyPressed(player)) {
 			player.setActiveHand(hand);
 			if (!world.isRemote)
 				ModSoundEvents.HANZO_DRAW.playFollowingSound(player, 1.0f, world.rand.nextFloat()/2+0.75f, false);
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
 		else
-			return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 	}
 
 	@Override

@@ -76,7 +76,7 @@ public class SetManager {
 			TickHandler.unregister(event.player.world.isRemote, TickHandler.getHandlers(event.player, (Identifier)null).toArray(new Handler[0]));
 		}
 	}
-	
+
 	/**Unregister client handlers to make sure onClientRemove is called*/
 	@SubscribeEvent
 	public static void clearHandlers(WorldEvent.Unload event) {
@@ -173,7 +173,16 @@ public class SetManager {
 						key.setCooldown(player, 0, true);
 				SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
 			}
+
+			// remove temp shields/armor
+			if (!player.world.isRemote && prevHero != null && newHero != prevHero) {
+				for (HealthManager.Type type : HealthManager.Type.values())
+					HealthManager.removeHealth(player, type, newHero, 9999);
+			}
 		}
+
+		// set step height (needed to sync stepHeight to server for .collidedHorizontally to work)
+		player.stepHeight = newHero != null && Config.stepAssist ? 1 : 0.6f;
 
 	}
 

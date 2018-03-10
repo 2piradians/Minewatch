@@ -1021,6 +1021,7 @@ public class RenderManager {
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
+		float slant = barHeight * maxHealth * 0.0006f;
 		// health
 		double start = 0;
 		double finish = health/25f;
@@ -1034,7 +1035,7 @@ public class RenderManager {
 			red = green = blue = 255;
 		alpha = inGui ? 180 : 255;
 		if (health > 0)
-			renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, false);
+			renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
 		// armor
 		start = finish;
 		finish = (health+armor)/25f;
@@ -1050,7 +1051,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (armor > 0)
-			renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, false);
+			renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
 		// shield
 		start = finish;
 		finish = (health+armor+shield)/25f;
@@ -1066,7 +1067,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (shield > 0)
-			renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, false);
+			renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
 		// shield ability
 		start = finish;
 		finish = (health+armor+shield+shieldAbility)/25f;
@@ -1082,7 +1083,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (shieldAbility > 0)
-			renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, false);
+			renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
 		// translucent background
 		start = finish;
 		finish = maxHealth/25f;
@@ -1094,7 +1095,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 160 : 90;
 		if (finish > start)
-			renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, true);
+			renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
 
 		tessellator.draw();
 		GlStateManager.popMatrix(); 
@@ -1102,12 +1103,11 @@ public class RenderManager {
 
 	/**Render health bar for a certain value (background, health, armor, shield, barrier)*/
 	@SideOnly(Side.CLIENT)
-	public static void renderIndividualHealthBar(BufferBuilder buffer, double start, double finish, float value, int barHeight, int barWidth, float xOffset, float incrementX, int red, int green, int blue, int alpha, boolean stencil) {
+	public static void renderIndividualHealthBar(BufferBuilder buffer, double start, double finish, float value, int barHeight, int barWidth, float xOffset, float incrementX, int red, int green, int blue, int alpha, float slant) {
 		float uScale = 1f / 0x100;
 		float vScale = 1f / 0x100;
 		int zLevel = 0;
 		int v = 245;
-		double slant = barHeight * 0.15d;
 		for (int i=(int) start; i<finish; ++i) {
 			double currentBarWidth = barWidth;
 			double x = incrementX * i - xOffset;

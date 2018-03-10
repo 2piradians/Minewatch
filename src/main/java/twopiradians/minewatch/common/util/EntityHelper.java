@@ -445,23 +445,23 @@ public class EntityHelper {
 	}
 
 	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking*/
-	public static void heal(EntityLivingBase entity, float damage) {
+	public static void heal(EntityLivingBase entity, float amount) {
 		if (entity != null && entity.getHealth() < entity.getMaxHealth() && 
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
-				damage *= 2f;
-			entity.heal((float) Math.abs(damage*Config.damageScale));
-			spawnHealParticles(entity);
+				amount *= 2f;
+			entity.heal((float) Math.abs(amount*Config.damageScale));
+			spawnHealParticles(entity, false);
 		}
 	}
 
 	/**Spawn healing particles on entity - sends packet to clients if called on server*/
-	public static void spawnHealParticles(Entity entity) {
-		if (entity != null && !TickHandler.hasHandler(entity, Identifier.HEALTH_PARTICLES) && 
+	public static void spawnHealParticles(Entity entity, boolean ignoreCooldown) {
+		if (entity != null && (ignoreCooldown || !TickHandler.hasHandler(entity, Identifier.HEALTH_PARTICLES)) && 
 				!TickHandler.hasHandler(entity, Identifier.MOIRA_FADE) && 
 				!TickHandler.hasHandler(entity, Identifier.SOMBRA_INVISIBLE)) {
 			if (!entity.world.isRemote)
-				Minewatch.network.sendToDimension(new SPacketSimple(44, entity, false), entity.world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(44, entity, ignoreCooldown), entity.world.provider.getDimension());
 			else {
 				float size = Math.min(entity.height, entity.width);
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, entity, 0xCFC77F, 0xCFC77F, 0.3f, 

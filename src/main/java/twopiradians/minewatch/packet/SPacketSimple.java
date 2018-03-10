@@ -44,6 +44,7 @@ import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityHanzoSonicArrow;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratTrap;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -753,7 +754,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// health plus particles
 					else if (packet.type == 44 && entity != null) {
-						EntityHelper.spawnHealParticles(entity);
+						EntityHelper.spawnHealParticles(entity, packet.bool);
 					}
 
 					// Team Selector send message
@@ -1067,11 +1068,20 @@ public class SPacketSimple implements IMessage {
 					}
 					// roadhog heal
 					else if (packet.type == 74 && entity instanceof EntityLivingBase) {
-						TickHandler.register(false, ItemRoadhogWeapon.HEALING.setEntity(player).setTicks(40));
+						TickHandler.register(true, ItemRoadhogWeapon.HEALING.setEntity(entity).setTicks(36));
+						if (entity == player)
+							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks(36).setAbility(EnumHero.ROADHOG.ability1));
 					}
 					// 3rd person on death
 					else if (packet.type == 75 && packetPlayer == player) {
-						Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
+						if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0)
+							Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
+					}
+					// roadhog hook
+					else if (packet.type == 75 && entity2 instanceof EntityRoadhogHook && entity instanceof EntityLivingBase) {
+						TickHandler.register(true, ItemRoadhogWeapon.HOOKING.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
+						if (entity == player)
+							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.ROADHOG.ability2));
 					}
 				}
 			});

@@ -1,23 +1,38 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import javax.vecmath.Vector2f;
+
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
 import twopiradians.minewatch.common.entity.ability.EntityRoadhogScrap;
+import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -33,23 +48,31 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-
+			if (this.ticksLeft <= 25 && this.ticksLeft % 4 == 0)
+				EntityHelper.spawnHealParticles(entity, true);
 			return super.onClientTick();
 		}
 		@Override
 		public boolean onServerTick() {
-
+			if (this.ticksLeft <= 20)
+				EntityHelper.heal(entityLiving, 15);
 			return super.onServerTick();
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-
+			if (this.ticksLeft <= 0) // if completed fully, toss sound
+				ModSoundEvents.ROADHOG_HEAL_TOSS.playFollowingSound(entity, 1.0f, 1.0f, false);
+			else { // if interrupted, stop healing sounds
+				ModSoundEvents.ROADHOG_HEAL_0.stopFollowingSound(entity);
+				ModSoundEvents.ROADHOG_HEAL_1.stopFollowingSound(entity);
+				ModSoundEvents.ROADHOG_HEAL_2.stopFollowingSound(entity);
+			}
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-
+			EnumHero.ROADHOG.ability1.keybind.setCooldown(entityLiving, 160, false);
 			return super.onServerRemove();
 		}
 	};
@@ -104,6 +127,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 
 	public ItemRoadhogWeapon() {
 		super(30);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -151,11 +175,12 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) { 
 				EntityRoadhogHook projectile = new EntityRoadhogHook(world, player, EnumHand.OFF_HAND.ordinal());
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 40, 0F, EnumHand.OFF_HAND, 10, 0);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 40, 0F, EnumHand.OFF_HAND, 40, 0.35f);
 				world.spawnEntity(projectile);
-				TickHandler.register(false, HOOKING.setEntity(projectile).setEntityLiving(player).setTicks(10),
-						Ability.ABILITY_USING.setEntity(player).setTicks(100).setAbility(hero.ability2));
-				Minewatch.network.sendToDimension(new SPacketSimple(55, player, false, projectile), world.provider.getDimension());
+				int ticks = 10;
+				TickHandler.register(false, HOOKING.setEntity(projectile).setEntityLiving(player).setTicks(ticks),
+						Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ability2));
+				Minewatch.network.sendToDimension(new SPacketSimple(75, player, false, projectile, ticks, 0, 0), world.provider.getDimension());
 				ModSoundEvents.ROADHOG_HOOK_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 			}
 			// health
@@ -166,15 +191,37 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				ModSoundEvents.ROADHOG_HEAL_0.playFollowingSound(player, 1, 1, false);
 				ModSoundEvents.ROADHOG_HEAL_1.playFollowingSound(player, 1, 1, false);
 				ModSoundEvents.ROADHOG_HEAL_2.playFollowingSound(player, 1, 1, false);
-				TickHandler.register(false, HEALING.setEntity(player).setTicks(40));
+				TickHandler.register(false, HEALING.setEntity(player).setTicks(36),
+						Ability.ABILITY_USING.setEntity(player).setTicks(36).setAbility(hero.ability1));
 				Minewatch.network.sendToDimension(new SPacketSimple(74, player, true), world.provider.getDimension());
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.roadhog_health));
-				player.setActiveHand(EnumHand.OFF_HAND);
 			}
 
 		}
 	}	
-	
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
+		// hack
+		if (entity.getHeldItemOffhand() != null && entity.getHeldItemOffhand().getItem() == ModItems.roadhog_health) {
+			model.bipedLeftArmwear.rotateAngleX = 5;
+			model.bipedLeftArm.rotateAngleX = 5;
+			model.bipedLeftArmwear.rotateAngleY = -0.2f;
+			model.bipedLeftArm.rotateAngleY = -0.2f;
+		}
+
+		// health coloring
+		Handler handler = TickHandler.getHandler(entity, Identifier.ROADHOG_HEALING);
+		if (handler != null && handler.ticksLeft <= 25) {
+			float percent = 1f - handler.ticksLeft / 25f;
+			GlStateManager.color((255f-67f*percent)/255f, (255f-102f*percent)/255f, (255f-201f*percent)/255f);
+			return true;
+		}
+
+		return false;
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
@@ -182,18 +229,24 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
 	}
 	
+	@SubscribeEvent(priority=EventPriority.LOWEST)
+	public void handleHealth(LivingDamageEvent event) {
+		if (TickHandler.hasHandler(event.getEntity(), Identifier.ROADHOG_HEALING))
+			event.setAmount(event.getAmount() / 2f);
+	}
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void renderHookChain(RenderWorldLastEvent event) {
-		/*for (Handler handler : TickHandler.getHandlers(true, null, Identifier.ROADHOG_HOOKING, null)) {
+		for (Handler handler : TickHandler.getHandlers(true, null, Identifier.ROADHOG_HOOKING, null)) {
 			// rope
-			if (handler.entity instanceof EntityWidowmakerHook && 
-					((EntityWidowmakerHook) handler.entity).getThrower() != null) {
-				EntityWidowmakerHook entity = (EntityWidowmakerHook) handler.entity;
+			if (handler.entity instanceof EntityRoadhogHook && handler.entity.isEntityAlive() && 
+					((EntityRoadhogHook) handler.entity).getThrower() != null) {
+				EntityRoadhogHook entity = (EntityRoadhogHook) handler.entity;
 				Minecraft mc = Minecraft.getMinecraft();
 				GlStateManager.pushMatrix();
 				GlStateManager.enableLighting();
-				mc.getTextureManager().bindTexture(ROPE);
+				mc.getTextureManager().bindTexture(CHAIN);
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
 				buffer.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION_TEX);
@@ -207,16 +260,16 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				// translate to thrower
 				Vec3d translate = throwerPos.subtract(playerPos);
 				GlStateManager.translate(translate.x, translate.y, translate.z);
-				
-				Vec3d hookLook = entity.getLook(mc.getRenderPartialTicks()).scale(0.17d);
+
+				Vec3d hookLook = entity.getLook(mc.getRenderPartialTicks()).scale(0.3d);
 				Vec3d hookPos = EntityHelper.getEntityPartialPos(entity).addVector(0, entity.height/2f, 0).subtract(hookLook).subtract(throwerPos);
 				double v = hookPos.distanceTo(shooting)*2d;
 
 				double deg_to_rad = 0.0174532925d;
-				double precision = 0.05d;
+				double precision = 0.013d;
 				double degrees = 360d;
 				double steps = Math.round(degrees*precision);
-				degrees += 21.2d;
+				degrees += 0.2d;
 				double angle = 0;
 
 				for (int i=1; i<=steps; i+=2) {
@@ -245,7 +298,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				tessellator.draw();
 				GlStateManager.popMatrix();
 			}
-		}*/
+		}
 	}
 
 }

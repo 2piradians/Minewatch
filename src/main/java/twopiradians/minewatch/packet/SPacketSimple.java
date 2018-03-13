@@ -1083,6 +1083,12 @@ public class SPacketSimple implements IMessage {
 						if (entity == player)
 							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.ROADHOG.ability2));
 					}
+					// roadhog hook attach / retract
+					else if (packet.type == 76 && entity instanceof EntityRoadhogHook) {
+						if (entity2 instanceof EntityLivingBase)
+							((EntityRoadhogHook)entity).setHooked((EntityLivingBase) entity2);
+						((EntityRoadhogHook)entity).setRetracting();
+					}
 				}
 			});
 			return null;

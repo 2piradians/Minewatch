@@ -28,7 +28,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
+		public boolean onClientTick() { // TODO only send handler for teammates (so particles not visible)
 			// glowing
 			if ((this.ticksLeft+1) % 10 == 0) { 
 				AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(10);

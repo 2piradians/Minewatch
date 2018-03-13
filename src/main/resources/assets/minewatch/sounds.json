@@ -1470,6 +1470,12 @@
 			"minewatch:roadhog_hook_hit_entity"
 		]
 	},
+	"roadhog_hook_hit_block": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_hook_hit_block"
+		]
+	},
 	"roadhog_hook_retract_entity": {
 	"category": "player",
 		"sounds": [

@@ -115,7 +115,7 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {	
-		// make entity body follow head
+		// make entity body follow head TODO not working on server
 		if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
 				event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
 				(KeyBind.LMB.isKeyDown((EntityLivingBase) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityLivingBase) event.getEntity()))) {

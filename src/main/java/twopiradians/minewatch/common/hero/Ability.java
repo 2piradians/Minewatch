@@ -39,7 +39,7 @@ public class Ability {
 	public static final Handler ABILITY_MULTI_COOLDOWNS = new Handler(Identifier.ABILITY_MULTI_COOLDOWNS, false) {
 		@Override
 		public Handler onServerRemove() {
-			if (!entityLiving.world.isRemote) {
+			if (!entityLiving.world.isRemote && ability != null) {
 				UUID uuid = entityLiving.getPersistentID();
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));

@@ -12,7 +12,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -29,13 +31,13 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
 import twopiradians.minewatch.common.entity.ability.EntityRoadhogScrap;
-import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -80,23 +82,53 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-
 			return super.onClientTick();
 		}
 		@Override
 		public boolean onServerTick() {
-
+			// slowness
+			if (this.entityLiving != null)
+				this.entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 1, 1, false, false));
+			// check that hook is moving
+			if (entity instanceof EntityRoadhogHook && ((EntityRoadhogHook)entity).getHooked() != null && 
+					entity.ticksExisted > 22 && entity.getPositionVector().equals(position))
+				number++;
+			else
+				number = 0;
+			position = entity.getPositionVector();
+			if (number > 5) {
+				entity.setDead();
+				return true;
+			}
 			return super.onServerTick();
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-
+			Handler handler = TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING);
+			if (handler != null && handler.ability == EnumHero.ROADHOG.ability2)
+				TickHandler.unregister(true, handler);
+			// handlers for 1 second afterwards
+			if (entity instanceof EntityRoadhogHook && ((EntityRoadhogHook)entity).getHooked() != null) {
+				TickHandler.register(true, Handlers.PREVENT_INPUT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
+						Handlers.PREVENT_MOVEMENT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20));
+			}
 			return super.onClientRemove();
 		}
 		@Override
 		public Handler onServerRemove() {
-
+			Handler handler = TickHandler.getHandler(entityLiving, Identifier.ABILITY_USING);
+			if (handler != null && handler.ability == EnumHero.ROADHOG.ability2)
+				TickHandler.unregister(false, handler);
+			EnumHero.ROADHOG.ability2.keybind.setCooldown(entityLiving, 160, false);
+			// handlers for 1 second afterwards
+			if (entity instanceof EntityRoadhogHook && ((EntityRoadhogHook)entity).getHooked() != null) {
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
+						Handlers.PREVENT_MOVEMENT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
+						Handlers.PREVENT_ROTATION.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20));
+			}
+			ModSoundEvents.ROADHOG_HOOK_THROW.stopFollowingSound(entityLiving);
 			return super.onServerRemove();
 		}
 	};
@@ -136,11 +168,11 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.ROADHOG_HEALING)) {
 			for (int i=0; i<25; ++i) {
 				EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f);
 				world.spawnEntity(projectile);
 			}
 			ModSoundEvents.ROADHOG_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
-			this.subtractFromCurrentAmmo(player, 1);
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 			this.setCooldown(player, 26);
@@ -152,10 +184,10 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		// secondary fire
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.ROADHOG_HEALING)) {
 			EntityRoadhogScrap projectile = new EntityRoadhogScrap(world, player, hand.ordinal());
-			EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 0F, hand, 10, 0);
+			EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 0F, hand, 19, 0.27f);
 			world.spawnEntity(projectile);
 			ModSoundEvents.ROADHOG_SHOOT_1.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
-			this.subtractFromCurrentAmmo(player, 1);
+			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
 			this.setCooldown(player, 26);
@@ -177,11 +209,11 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				EntityRoadhogHook projectile = new EntityRoadhogHook(world, player, EnumHand.OFF_HAND.ordinal());
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 40, 0F, EnumHand.OFF_HAND, 40, 0.35f);
 				world.spawnEntity(projectile);
-				int ticks = 10;
+				int ticks = 100;
 				TickHandler.register(false, HOOKING.setEntity(projectile).setEntityLiving(player).setTicks(ticks),
 						Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ability2));
 				Minewatch.network.sendToDimension(new SPacketSimple(75, player, false, projectile, ticks, 0, 0), world.provider.getDimension());
-				ModSoundEvents.ROADHOG_HOOK_THROW.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
+				ModSoundEvents.ROADHOG_HOOK_THROW.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f, false);
 			}
 			// health
 			else if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
@@ -228,7 +260,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		return hand == EnumHand.OFF_HAND &&
 				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
 	}
-	
+
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void handleHealth(LivingDamageEvent event) {
 		if (TickHandler.hasHandler(event.getEntity(), Identifier.ROADHOG_HEALING))

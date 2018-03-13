@@ -53,6 +53,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityAnaGrenade;
 import twopiradians.minewatch.common.entity.ability.EntityReinhardtStrike;
+import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
@@ -81,21 +82,23 @@ public class EntityHelper {
 		// if entityIn moving more than its collision box per tick - check for lookVec intercept, otherwise just check collision boxes
 		boolean fast = Math.abs(entityIn.motionX) > entityIn.width || Math.abs(entityIn.motionY) > entityIn.height || Math.abs(entityIn.motionZ) > entityIn.width;
 		AxisAlignedBB aabb = entityIn.getEntityBoundingBox();
-		if (fast) // PORT 1.12 grow
-			aabb = aabb.grow(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
+		if (fast) 
+			aabb = aabb.expand(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
 		// list of entities in (possibly very big) area
 		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
+		// entities in collision box
+		List<Entity> entitiesColliding = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, entityIn.getEntityBoundingBox());
 		for (int i = 0; i < list.size(); ++i) {
 			Entity entity = list.get(i);
-			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly)))/* && 
-					(entity.canBeCollidedWith() || entity instanceof EntityLivingBaseMW || entity instanceof EntityDragon)*/) {
+			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly)) ||
+					entityIn instanceof EntityRoadhogHook)) {
 				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
 				double y2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosY : entity.prevPosY;
 				double z2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosZ : entity.prevPosZ;
 				// move to prev pos
 				aabb = entity.getEntityBoundingBox().offset(new Vec3d(x2-entity.posX, y2-entity.posY, z2-entity.posZ));
 
-				if (!fast || aabb.calculateIntercept(posVec, posMotionVec) != null) 
+				if (!fast || aabb.calculateIntercept(posVec, posMotionVec) != null || entitiesColliding.contains(entity)) 
 					results.add(new RayTraceResult(entity));
 			}
 		}

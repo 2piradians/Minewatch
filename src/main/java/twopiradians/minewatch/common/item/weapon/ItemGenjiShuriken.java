@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
@@ -266,12 +267,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
-			if (entity instanceof EntityMW)
-				((EntityMW)entity).lifetime *= 2; 
-			if (entity instanceof EntityJunkratMine) {
-				((EntityJunkratMine)entity).ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
-				((EntityJunkratMine)entity).deflectTimer = 40;
-			}
+			
+			if (entity instanceof EntityMW) 
+				((EntityMW)entity).onDeflect();
+			else if (entity instanceof EntityLivingBaseMW)
+				((EntityLivingBaseMW)entity).onDeflect();
+			
 			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
 			if (data != null) 
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));

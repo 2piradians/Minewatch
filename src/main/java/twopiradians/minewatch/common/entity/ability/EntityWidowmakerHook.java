@@ -25,6 +25,7 @@ public class EntityWidowmakerHook extends EntityMW {
 		this.setSize(0.25f, 0.25f);
 		this.lifetime = 14;
 		this.setNoGravity(true);
+		this.notDeflectible = true;
 	}
 
 	@Override

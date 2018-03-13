@@ -103,7 +103,7 @@ public class ModEntities {
 	public static ItemStack getSpawnEgg(ResourceLocation id) {
 		ItemStack stack = new ItemStack(Items.SPAWN_EGG);
 		NBTTagCompound nbt = new NBTTagCompound();    	
-		nbt.setString("id", id.toString()); // PORT 1.10.2 add .replace(":", ".")
+		nbt.setString("id", id.toString());
 		NBTTagCompound nbt2 = new NBTTagCompound();
 		nbt2.setTag("EntityTag", nbt);
 		stack.setTagCompound(nbt2);

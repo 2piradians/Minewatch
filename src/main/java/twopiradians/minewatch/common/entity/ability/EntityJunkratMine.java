@@ -158,5 +158,13 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			this.setDead();
 		}
 	}
+	
+	@Override
+	public void onDeflect() {
+		super.onDeflect();
+		
+		this.ignoreImpacts.remove(RayTraceResult.Type.ENTITY);
+		this.deflectTimer = 40;
+	}
 
 }

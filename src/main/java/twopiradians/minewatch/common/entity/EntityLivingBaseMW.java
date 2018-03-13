@@ -121,6 +121,9 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 		if (this.shouldMoveToHitPosition(result))
 			EntityHelper.moveToHitPosition(this, result);
 	}
+	
+	/**Called when deflected by Genji - only on server*/
+	public void onDeflect() { }
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {

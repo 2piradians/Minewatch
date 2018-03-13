@@ -152,6 +152,11 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.onImpactMoveToHitPosition(result);
 		}
 	}
+	
+	/**Called when deflected by Genji - only on server*/
+	public void onDeflect() {
+		this.lifetime *= 2; 
+	}
 
 	@Override
 	public float getEyeHeight() {

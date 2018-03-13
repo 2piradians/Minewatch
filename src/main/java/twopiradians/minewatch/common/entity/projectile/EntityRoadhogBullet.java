@@ -25,9 +25,9 @@ public class EntityRoadhogBullet extends EntityMW {
 	@Override
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SMOKE, world, shooter, 
-				0x3C3C24, 0x070707, 0.4f/25f, 6, 5, 5, 0, 0, hand, 9, 0.41f);
+				0x3C3C24, 0x070707, 0.4f/25f, 6, 5, 5, 0, 0, hand, 10, 0.31f);
 		Minewatch.proxy.spawnParticlesMuzzle(EnumParticle.SPARK, world, shooter, 
-				0xFA8C34, 0xF68035, 0.5f/25f, 3, 5, 5, 0, 0, hand, 9, 0.41f);
+				0xFA8C34, 0xF68035, 0.5f/25f, 3, 5, 5, 0, 0, hand, 10, 0.31f);
 	}
 
 	@Override

@@ -36,7 +36,7 @@ public class Config {
 		}
 		OVERWORLD_BIOMES = biomes.toArray(new Biome[biomes.size()]);
 	}
-
+// TODO separate damage for bots, moira orb rates, doomfist slam particles on server (lots of them), reinhardt can't destroy traps, aim assist disable, hack in crystal
 	/**Version of this config - if loaded version is less than this, delete the config*/
 	private static final float CONFIG_VERSION = 3.9F;
 

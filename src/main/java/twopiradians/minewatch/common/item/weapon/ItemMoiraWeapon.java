@@ -62,7 +62,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 
 	private static final ResourceLocation DAMAGE_BEAM_MISS = new ResourceLocation(Minewatch.MODID, "textures/entity/moira_damage_beam_miss.png");
 	private static final ResourceLocation DAMAGE_BEAM_HIT = new ResourceLocation(Minewatch.MODID, "textures/entity/moira_damage_beam_hit.png");
-// TODO check that hands extend
+
 	public static Handler ORB_SELECT = new Handler(Identifier.MOIRA_ORB_SELECT, true) {
 		@Override
 		@SideOnly(Side.CLIENT)

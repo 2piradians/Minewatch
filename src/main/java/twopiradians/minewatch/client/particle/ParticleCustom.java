@@ -104,6 +104,11 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	public ParticleCustom(EnumParticle enumParticle, World world, Entity followEntity, int color, int colorFade, float alpha, int maxAge, float initialScale, float finalScale, float initialRotation, float rotationSpeed) {
 		this(enumParticle, world, followEntity, color, colorFade, alpha, maxAge, initialScale, finalScale, initialRotation, rotationSpeed, null, 0, 0, 0);
 	}
+	
+	@Override
+    public boolean shouldDisableDepth() {
+        return false;
+    }
 
 	@Override
 	public int getFXLayer() {
@@ -288,6 +293,8 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		}
 		else if (this.enumParticle.equals(EnumParticle.SOMBRA_HACK_MESH))
 			this.setBaseAirFriction(0.97f);
+		else if (this.enumParticle.equals(EnumParticle.DEATH_BLOCK))
+			this.particleAlpha = this.initialAlpha;
 	}
 
 	@Override

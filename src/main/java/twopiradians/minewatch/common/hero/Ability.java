@@ -44,7 +44,7 @@ public class Ability {
 				if (ability.multiAbilityUses.containsKey(uuid)) {
 					ability.multiAbilityUses.put(uuid, Math.min(ability.maxUses, ability.multiAbilityUses.get(uuid)+1));
 					if (ability.multiAbilityUses.get(uuid) < ability.maxUses) 
-						this.setTicks(Math.max(1, (int) (ability.useCooldown*Config.abilityCooldownMultiplier)));
+						this.setTicks(Math.max(2, (int) (ability.useCooldown*Config.abilityCooldownMultiplier)));
 				}
 				else
 					ability.multiAbilityUses.put(uuid, ability.maxUses);
@@ -203,7 +203,7 @@ public class Ability {
 		if (entity != null && !entity.world.isRemote && getUses(entity) > 0) {
 			multiAbilityUses.put(entity.getPersistentID(), multiAbilityUses.get(entity.getPersistentID())-1);
 			if (!TickHandler.hasHandler(entity, Identifier.ABILITY_MULTI_COOLDOWNS))
-				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setAbility(this).setEntity(entity).setTicks(Math.max(1, (int) (useCooldown*Config.abilityCooldownMultiplier))));
+				TickHandler.register(false, ABILITY_MULTI_COOLDOWNS.setEntity(entity).setAbility(this).setTicks(Math.max(2, (int) (useCooldown*Config.abilityCooldownMultiplier))));
 			if (entity instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(
 						new SPacketSyncAbilityUses(entity.getPersistentID(), hero, getNumber(), 

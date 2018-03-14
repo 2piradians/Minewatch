@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "normal": { "model": "minewatch:death_block" }
+    }
+}

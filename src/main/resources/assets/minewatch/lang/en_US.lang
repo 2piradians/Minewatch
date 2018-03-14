@@ -21,6 +21,9 @@ tile.health_pack_large.name=Large Health Pack
 tile.health_pack.desc=Heals when walked on and takes time to respawn
 tile.team_spawn.name=Team Spawn
 tile.team_spawn.desc=Block that players and mobs can respawn at
+tile.death_block.name=Death Block
+tile.death_block.desc1=Kills mobs and players (in survival or adventure mode) that touch it
+tile.death_block.desc2=Can be used to mimic falling off the map
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick

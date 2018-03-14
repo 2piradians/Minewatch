@@ -222,7 +222,7 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
+		//KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
 		KeyBind.CHANGE_HERO.keyBind = new KeyBinding("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME);
 	}
 

@@ -279,7 +279,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 				else if (KeyBind.LMB.isKeyDown(player)) {
 					Vec3d tpVec = this.getTeleportPos(player, true);
 					// don't tp if hero and tp is less than 10 blocks or tp is farther from attack target than current position
-					if (tpVec != null && !world.isRemote && 
+					if (tpVec != null && !world.isRemote && player.onGround && 
 							!(player instanceof EntityHero && (player.getPositionVector().distanceTo(tpVec) < 10 || 
 									(((EntityHero)player).getAttackTarget() != null && 
 									player.getDistanceToEntity(((EntityHero)player).getAttackTarget()) < 

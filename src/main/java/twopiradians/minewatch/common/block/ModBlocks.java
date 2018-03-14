@@ -21,20 +21,27 @@ public class ModBlocks {
 
 	public static Block healthPackSmall;
 	public static Block healthPackLarge;
+	
 	public static Block teamSpawn;
+	
+	public static Block deathBlock;
 
 	@Mod.EventBusSubscriber
 	public static class RegistrationHandler {
 
 		@SubscribeEvent
 		public static void registerBlocks(RegistryEvent.Register<Block> event) {
-			healthPackSmall = registerBlock(event.getRegistry(), new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true, true);
-			healthPackLarge = registerBlock(event.getRegistry(), new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true, true);
-			teamSpawn = registerBlock(event.getRegistry(), new BlockTeamSpawn(), "team_spawn", TileEntityTeamSpawn.class, true, true);
+			// health packs
+			healthPackSmall = registerBlock(event.getRegistry(), new BlockHealthPack.Small(), "health_pack_small", TileEntityHealthPack.Small.class, true);
+			healthPackLarge = registerBlock(event.getRegistry(), new BlockHealthPack.Large(), "health_pack_large", TileEntityHealthPack.Large.class, true);
+			// team blocks
+			teamSpawn = registerBlock(event.getRegistry(), new BlockTeamSpawn(), "team_spawn", TileEntityTeamSpawn.class, true);
+			// misc
+			deathBlock = registerBlock(event.getRegistry(), new BlockDeath(), "death_block", null, true);
 		}
 	}
 
-	public static Block registerBlock(IForgeRegistry<Block> registry, Block block, String unlocalizedName, @Nullable Class tileEntityClass, boolean isItemBlock, boolean addToTab) {
+	public static Block registerBlock(IForgeRegistry<Block> registry, Block block, String unlocalizedName, @Nullable Class tileEntityClass, boolean addToTab) {
 		block.setUnlocalizedName(unlocalizedName);
 		registry.register(block.setRegistryName(unlocalizedName));
 		if (tileEntityClass != null)

@@ -235,8 +235,9 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) {
-		// hack
-		if (entity.getHeldItemOffhand() != null && entity.getHeldItemOffhand().getItem() == ModItems.roadhog_health) {
+		// health / hook
+		if ((entity.getHeldItemOffhand() != null && entity.getHeldItemOffhand().getItem() == ModItems.roadhog_health) ||
+				TickHandler.hasHandler(handler->handler.entityLiving == entity && handler.identifier == Identifier.ROADHOG_HOOKING, true)) {
 			model.bipedLeftArmwear.rotateAngleX = 5;
 			model.bipedLeftArm.rotateAngleX = 5;
 			model.bipedLeftArmwear.rotateAngleY = -0.2f;
@@ -287,7 +288,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				Vec3d playerPos = EntityHelper.getEntityPartialPos(Minewatch.proxy.getRenderViewEntity());
 				Vec3d throwerPos = EntityHelper.getEntityPartialPos(entity.getThrower());
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(entity.getThrower());
-				Vec3d shooting = EntityHelper.getShootingPos(entity.getThrower(), rotations.x, rotations.y, EnumHand.OFF_HAND, 23, 0.7f).subtract(throwerPos);
+				Vec3d shooting = EntityHelper.getShootingPos(entity.getThrower(), rotations.x, rotations.y, EnumHand.OFF_HAND, 20, 0.25f, 0.5f).subtract(throwerPos);
 
 				// translate to thrower
 				Vec3d translate = throwerPos.subtract(playerPos);

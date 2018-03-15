@@ -57,7 +57,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 @Mod.EventBusSubscriber
 public class RespawnManager {
 
-	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick, number = gamemode to set to afterwards*/
+	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick, number = gamemode to set to afterwards, obj = TileEntityTeamSpawn to spawn at (or null)*/
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
 		@SideOnly(Side.CLIENT) 
@@ -135,17 +135,19 @@ public class RespawnManager {
 					type = GameType.values()[(int) number];
 				player.setGameType(type);
 			}
-			respawnEntity(entityLiving, entityLiving.world.getScoreboard().getTeam(string), false); 
+			respawnEntity(entityLiving, entityLiving.world.getScoreboard().getTeam(string), false, this.obj instanceof TileEntityTeamSpawn ? ((TileEntityTeamSpawn)obj).getPos() : null); 
 			return super.onServerRemove();
 		}
 	};
 
 	/**Respawn a player / mob*/
-	public static void respawnEntity(EntityLivingBase entity, @Nullable Team team, boolean allowAlive) {
+	public static void respawnEntity(EntityLivingBase entity, @Nullable Team team, boolean allowAlive, @Nullable BlockPos teamSpawn) {
 		if (entity == null || (entity.isEntityAlive() && !allowAlive) ||
 				(entity instanceof EntityPlayerMP && ((EntityPlayerMP)entity).hasDisconnected()))
 			return;
-		BlockPos teamSpawn = getTeamSpawn(entity, team);
+
+		if (teamSpawn == null || !isValidTeamSpawn(entity, team, teamSpawn))
+			teamSpawn = getTeamSpawn(entity, team);
 
 		if (entity instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) entity;
@@ -191,7 +193,7 @@ public class RespawnManager {
 				}
 				catch (Exception e) {}
 			}
-			
+
 			// heal to full
 			player.connection.player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
 		}
@@ -236,25 +238,39 @@ public class RespawnManager {
 			}
 		}
 	}
+	
+	public static boolean isValidTeamSpawn(EntityLivingBase entity, @Nullable Team team, BlockPos teamSpawn) {
+		ArrayList<BlockPos> spawns = getTeamSpawns(entity, team);
+		return spawns.contains(teamSpawn);
+	}
 
-	/**Gets the position of an active team spawn that this entity can spawn at*/
+	/**Gets the position of an active team spawn that this entity can spawn at (randomly pick one if multiple available)*/
 	@Nullable
 	public static BlockPos getTeamSpawn(EntityLivingBase entity, @Nullable Team team) {
+		ArrayList<BlockPos> spawns = getTeamSpawns(entity, team);
+		return spawns.isEmpty() ? null : spawns.get(entity.world.rand.nextInt(spawns.size()));
+	}
+	
+	/**Gets the position of an active team spawn that this entity can spawn at (randomly pick one if multiple available)*/
+	@Nullable
+	public static ArrayList<BlockPos> getTeamSpawns(EntityLivingBase entity, @Nullable Team team) {
+		ArrayList<BlockPos> spawns = new ArrayList<BlockPos>();
 		// check for same team first
 		for (BlockPos pos : TileEntityTeamSpawn.teamSpawnPositions.keySet())
 			if (entity != null && pos != null && entity.world.getTileEntity(pos) instanceof TileEntityTeamSpawn) {
 				TileEntityTeamSpawn te = ((TileEntityTeamSpawn)entity.world.getTileEntity(pos));
-				if (te.isActivated() && te.getTeam() != null && te.getTeam().isSameTeam(team))
-					return pos;
+				if (te.isActivated() && te.getTeam() != null && te.getTeam().isSameTeam(team) && !te.isInvalid())
+					spawns.add(pos);
 			}
 		// check for no team second
-		for (BlockPos pos : TileEntityTeamSpawn.teamSpawnPositions.keySet())
-			if (entity != null && pos != null && entity.world.getTileEntity(pos) instanceof TileEntityTeamSpawn) {
-				TileEntityTeamSpawn te = ((TileEntityTeamSpawn)entity.world.getTileEntity(pos));
-				if (te.isActivated() && te.getTeam() == null)
-					return pos;
-			}
-		return null;
+		if (spawns.isEmpty())
+			for (BlockPos pos : TileEntityTeamSpawn.teamSpawnPositions.keySet())
+				if (entity != null && pos != null && entity.world.getTileEntity(pos) instanceof TileEntityTeamSpawn) {
+					TileEntityTeamSpawn te = ((TileEntityTeamSpawn)entity.world.getTileEntity(pos));
+					if (te.isActivated() && te.getTeam() == null && !te.isInvalid())
+						spawns.add(pos);
+				}
+		return spawns;
 	}
 
 	/**Applies spawn fuzz to a position (randomly positioning in the spawn radius)*/
@@ -285,7 +301,7 @@ public class RespawnManager {
 	public static void respawnPlayers(PlayerRespawnEvent event) {
 		// respawn with method if custom death screen disabled 
 		if (!event.player.world.isRemote && !Config.customDeathScreen) {
-			respawnEntity(event.player, event.player.getTeam(), true);
+			respawnEntity(event.player, event.player.getTeam(), true, null);
 		}
 	}
 
@@ -300,10 +316,9 @@ public class RespawnManager {
 				!event.getEntityLiving().world.isRemote && !TickHandler.hasHandler(event.getEntityLiving(), Identifier.DEAD)) {
 			TickHandler.register(false, DEAD.setEntity(event.getEntityLiving()).setTicks(Config.respawnTime).setString(event.getEntityLiving().getTeam().getName()));
 		}
-		
+
 		// put players in 3rd person
-		if (event.getEntityLiving() instanceof EntityPlayerMP && 
-				isRespawnablePlayer(event.getEntityLiving()) && Config.customDeathScreen)
+		if (event.getEntityLiving() instanceof EntityPlayerMP && Config.customDeathScreen)
 			Minewatch.network.sendTo(new SPacketSimple(75, false, (EntityPlayer) event.getEntityLiving()), (EntityPlayerMP) event.getEntityLiving());
 	}
 
@@ -315,8 +330,13 @@ public class RespawnManager {
 			event.setGui(null);
 			EntityPlayer player = Minewatch.proxy.getClientPlayer();
 			if (player != null && player.isDead && !TickHandler.hasHandler(player, Identifier.DEAD)) {
-				Minewatch.network.sendToServer(new CPacketSimple(12, false, player));
-				TickHandler.register(true, RespawnManager.DEAD.setEntity(player).setTicks(Config.respawnTime+3).setString(player.getTeam() != null ? player.getTeam().getName() : null));
+				String team = player.getTeam() != null ? player.getTeam().getName() : null;
+				BlockPos teamSpawn = getTeamSpawn(player, player.getTeam());
+				TileEntityTeamSpawn te = teamSpawn != null && player.world.getTileEntity(teamSpawn) instanceof TileEntityTeamSpawn ? ((TileEntityTeamSpawn)player.world.getTileEntity(teamSpawn)) : null;
+				Minewatch.network.sendToServer(new CPacketSimple(12, false, player, teamSpawn == null ? 0 : teamSpawn.getX(), teamSpawn == null ? 0 : teamSpawn.getY(), teamSpawn == null ? 0 : teamSpawn.getZ()));
+				TickHandler.register(true, RespawnManager.DEAD.setEntity(player).setTicks(Config.respawnTime+3).setString(team).setObject(te));
+				if (te != null && te.isActivated() && te.getChangeHero())
+					TickHandler.register(true, TileEntityTeamSpawn.IN_RANGE.setEntity(player).setTicks(Config.respawnTime+3).setAllowDead(true));
 			}
 		}
 	}

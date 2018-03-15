@@ -392,7 +392,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 		}
 
 		// aim assist
-		if (world.isRemote && entity instanceof EntityPlayer && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
+		if (world.isRemote && entity instanceof EntityPlayer && !Config.disableAimAssist && Config.aimAssist > 0 && ((EntityPlayer)entity).getHeldItemMainhand() == stack && 
 				(KeyBind.LMB.isKeyDown((EntityLivingBase) entity) || KeyBind.RMB.isKeyDown((EntityLivingBase) entity))) {
 			float delta = (float) Config.aimAssist;
 			float yaw = MathHelper.wrapDegrees(entity.rotationYaw);
@@ -490,7 +490,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	/**Called before armor is rendered - mainly used for coloring / alpha
-	 * Returns if further coloring / alpha changing should be prevented*/
+	 * Returns if further coloring / alpha changing should be prevented and if outlines should not be rendered!*/
 	@SideOnly(Side.CLIENT)
 	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { return false; }
 

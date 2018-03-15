@@ -241,6 +241,8 @@ public class TickHandler {
 		public String string;
 		public Boolean bool = false;
 		public boolean allowDead = false;
+		@Nullable
+		public Object obj;
 
 		public Handler(boolean interruptible) {
 			this(Identifier.NONE, interruptible);
@@ -320,6 +322,7 @@ public class TickHandler {
 			this.ability = null;
 			this.position = null;
 			this.string = null;
+			this.obj = null;
 			
 			this.entity = entity;
 			if (entity instanceof EntityLivingBase)
@@ -386,6 +389,11 @@ public class TickHandler {
 		
 		public Handler setAllowDead(boolean allowDead) {
 			this.allowDead = allowDead;
+			return this;
+		}
+		
+		public Handler setObject(Object obj) {
+			this.obj = obj;
 			return this;
 		}
 

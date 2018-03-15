@@ -249,7 +249,7 @@ public class GuiButtonBase extends GuiButton {
 		GlStateManager.popMatrix();
 
 		if (this.useHoverSound && this.hovered && !this.prevHovered)
-			ModSoundEvents.GUI_HOVER.playFollowingSound(mc.player, 0.5f, 1, false);
+			ModSoundEvents.GUI_HOVER.playSound(mc.player, 0.5f, 1, true);
 	}
 
 	@Override

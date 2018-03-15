@@ -42,7 +42,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 50D*Config.damageScale));
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 50D));
 	}
 
 	@Override

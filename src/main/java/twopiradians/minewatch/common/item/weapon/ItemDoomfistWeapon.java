@@ -447,7 +447,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 				((EntityLivingBase)handler.entity).canEntityBeSeen(target) && !EntityHelper.shouldIgnoreEntity(target)) {
 					/*if (target.isEntityAlive() && (TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE) ||
 							TickHandler.hasHandler(target, Identifier.DOOMFIST_PUNCH))) {
-						handler.ticksLeft = 20; // TODO punch + punch, charge + charge
+						handler.ticksLeft = 20; // TODO (eventually?) punch + punch, charge + charge
 						TickHandler.unregister(false, TickHandler.getHandler(handler.entity, Identifier.HERO_SNEAKING));
 						TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(handler.entity).setTicks(handler.ticksLeft),
 								Handlers.PREVENT_ROTATION.setEntity(handler.entity).setTicks(handler.ticksLeft), 

@@ -2,6 +2,8 @@ package twopiradians.minewatch.common.entity.ability;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -28,7 +30,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() { // TODO only send handler for teammates (so particles not visible)
+		public boolean onClientTick() { 
 			// glowing
 			if ((this.ticksLeft+1) % 10 == 0) { 
 				AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(10);
@@ -56,14 +58,15 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 		super(worldIn, shooter);
 	}
 
-	public static boolean doEffect(World world, EntityLivingBase ignoreEntity, Entity trackEntity, double x, double y, double z, int ticks) {
-		if (world.isRemote && 
+	public static boolean doEffect(World world, EntityLivingBase ignoreEntity, @Nullable Entity trackEntity, double x, double y, double z, int ticks) {
+		boolean particles = !EntityHelper.shouldTarget(ignoreEntity, Minewatch.proxy.getClientPlayer(), false);
+		if (world.isRemote && particles && 
 				(ticks == 1 || ticks == 7 || ticks == 10 || ticks == 13))
 			if (trackEntity != null)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, trackEntity, true);
 			else
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, x, y, z, true, false);
-		else if (world.isRemote && ticks > 30 && ticks < 170 &&
+		else if (world.isRemote && particles && ticks > 30 && ticks < 170 &&
 				(ticks % 30 == 0 || ticks % 32 == 0))
 			if (trackEntity != null)
 				Minewatch.proxy.spawnParticlesHanzoSonic(world, trackEntity, false);
@@ -110,7 +113,8 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		if (!world.isRemote && EntityHelper.shouldHit(this.getThrower(), result.entityHit, false)) {
+		if (!world.isRemote && EntityHelper.shouldHit(this.getThrower(), result.entityHit, false) && 
+				!EntityHelper.shouldIgnoreEntity(result.entityHit, false)) {
 			TickHandler.register(false, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0).setAllowDead(true));
 			Minewatch.network.sendToDimension(new SPacketSimple(72, result.entityHit, false, this.getThrower()), world.provider.getDimension());
 		}

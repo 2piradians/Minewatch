@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -239,8 +240,8 @@ public class EntityHero extends EntityMob {
 
 		// prevent same team damage (for non-mw attacks)
 		if (source != null && 
-				((source.getTrueSource() != null && source.getTrueSource().isOnSameTeam(this)) ||
-						(source.getTrueSource() != null && source.getTrueSource().isOnSameTeam(this))))
+				((source.getTrueSource() != null && source.getTrueSource().isOnSameTeam(this)) &&
+						this.getTeam() != null && !this.getTeam().getAllowFriendlyFire()))
 			return false;
 		else
 			return super.attackEntityFrom(source, amount);
@@ -250,6 +251,12 @@ public class EntityHero extends EntityMob {
 	protected boolean canDespawn() {
 		return Config.heroMobsDespawn || this.getTeam() == null;
 	}
+	
+	/**Return false if allowFriendlyFire (because used by static method in EntityAITarget)*/
+	@Override
+    public boolean isOnSameTeam(Entity entityIn) {
+        return super.isOnSameTeam(entityIn) && (this.getTeam() == null || !this.getTeam().getAllowFriendlyFire());
+    }
 
 	/**Overridden to make public for ItemMWArmor genji double jump*/
 	@Override

@@ -1075,16 +1075,16 @@ public class SPacketSimple implements IMessage {
 					// 3rd person on death
 					else if (packet.type == 75 && packetPlayer == player) {
 						if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0)
-							Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
+							TickHandler.register(true, Handlers.FORCE_VIEW.setEntity(player).setTicks(21).setNumber(1).setAllowDead(true));
 					}
 					// roadhog hook
-					else if (packet.type == 75 && entity2 instanceof EntityRoadhogHook && entity instanceof EntityLivingBase) {
+					else if (packet.type == 76 && entity2 instanceof EntityRoadhogHook && entity instanceof EntityLivingBase) {
 						TickHandler.register(true, ItemRoadhogWeapon.HOOKING.setEntity(entity2).setEntityLiving((EntityLivingBase) entity).setTicks((int) packet.x));
 						if (entity == player)
 							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.ROADHOG.ability2));
 					}
 					// roadhog hook attach / retract
-					else if (packet.type == 76 && entity instanceof EntityRoadhogHook) {
+					else if (packet.type == 77 && entity instanceof EntityRoadhogHook) {
 						if (entity2 instanceof EntityLivingBase)
 							((EntityRoadhogHook)entity).setHooked((EntityLivingBase) entity2);
 						((EntityRoadhogHook)entity).setRetracting();

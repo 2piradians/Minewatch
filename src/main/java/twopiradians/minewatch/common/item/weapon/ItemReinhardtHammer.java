@@ -70,6 +70,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 					for (Entity target : entity.world.getEntitiesWithinAABBExcludingEntity(entity, aabb)) 
 						if (!hitEntities.contains(target) && target != entityLiving && target != entity && 
 						target instanceof EntityLivingBase && ((EntityLivingBase)entity).canEntityBeSeen(target) &&
+						!EntityHelper.shouldIgnoreEntity(target, false) && 
 						EntityHelper.attemptDamage(entity, target, 50, true)) {
 							hitEntities.add((EntityLivingBase) target);
 							if (target.isEntityAlive() && TickHandler.hasHandler(target, Identifier.REINHARDT_CHARGE)) {
@@ -240,7 +241,7 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(slot, stack);
 		if (slot == EntityEquipmentSlot.MAINHAND)
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 
-					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*Config.damageScale-1, 0));
+					new AttributeModifier(ATTACK_DAMAGE_MODIFIER, SharedMonsterAttributes.ATTACK_DAMAGE.getName(), 75d*Config.getDamageScale(null)-1, 0));
 		return multimap;
 	}
 

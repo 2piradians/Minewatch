@@ -27,6 +27,7 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 	// have to delay a tick to prevent infinite loops while first adding tile
 	private boolean needsToBeUpdated;
 	private int ticksExisted;
+	protected boolean allowOtherActive;
 
 	public TileEntityTeam() {
 		super();
@@ -122,14 +123,15 @@ public abstract class TileEntityTeam extends TileEntity implements ITickable {
 
 	/**Deactivate other active tiles with same team*/
 	public void deactivateOtherActive() {
-		for (BlockPos pos : this.getPositions().keySet())
-			if (!pos.equals(this.pos) && world.getTileEntity(pos) instanceof TileEntityTeam) {
-				TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
-				if (te.activated && te.getTeam() == this.getTeam()) {
-					te.activated = false;
-					te.setNeedsToBeUpdated();
+		if (!this.allowOtherActive)
+			for (BlockPos pos : this.getPositions().keySet())
+				if (!pos.equals(this.pos) && world.getTileEntity(pos) instanceof TileEntityTeam) {
+					TileEntityTeam te = (TileEntityTeam) world.getTileEntity(pos);
+					if (te.activated && te.getTeam() == this.getTeam()) {
+						te.activated = false;
+						te.setNeedsToBeUpdated();
+					}
 				}
-			}
 	}
 
 	@Override

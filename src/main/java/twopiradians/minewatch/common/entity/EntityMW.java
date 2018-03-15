@@ -41,6 +41,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	/**@param hand -1 no muzzle, 0 main-hand, 1 off-hand, 2 middle*/
 	public EntityMW(World worldIn, @Nullable EntityLivingBase throwerIn, int hand) {
 		super(worldIn);
+		this.isImmuneToFire = true;
 		if (throwerIn != null) {
 			this.thrower = throwerIn;
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);

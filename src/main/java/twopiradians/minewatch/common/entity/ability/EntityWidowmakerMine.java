@@ -93,7 +93,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 1.0D*Config.damageScale));
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(Math.max(1, 1.0D));
 	}
 
 	@Override

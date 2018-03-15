@@ -573,4 +573,9 @@ public class ClientProxy extends CommonProxy {
 		if (entity != null)
 			Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
 	}
+	
+	@Override
+	public void setThirdPersonView(int mode) {
+		Minecraft.getMinecraft().gameSettings.thirdPersonView = mode;
+	}
 }

@@ -158,13 +158,13 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		if (button.id >= 0 && button.id < EnumHero.ORDERED_HEROES.size() && EnumHero.ORDERED_HEROES.get(button.id) != null &&
-				button.isMouseOver()) 
+				button.isMouseOver() && button instanceof GuiButtonBase && ((GuiButtonBase)button).render == Render.HERO_SELECT) 
 			this.setSelectedHero(EnumHero.ORDERED_HEROES.get(button.id));
 		switch (button.id) {
 		case 100: 
 			Minewatch.network.sendToServer(new CPacketSimple(18, mc.player, this.getSelectedHero().ordinal(), 0, 0));
 			Minecraft.getMinecraft().displayGuiScreen(null);
-			ModSoundEvents.GUI_CHOOSE_HERO.playFollowingSound(mc.player, 1, 1, false);
+			ModSoundEvents.GUI_CHOOSE_HERO.playSound(mc.player, 1, 1, true);
 			break;
 		case 101:
 			this.currentScreen = Screen.HERO_INFO;
@@ -206,7 +206,7 @@ public class GuiHeroSelect extends GuiScreen implements IGuiScreen {
 					guiPlayer.setItemStackToSlot(slot, hero.getEquipment(slot) == null ? ItemStack.EMPTY : new ItemStack(hero.getEquipment(slot)));
 				guiPlayer.skin = hero.getSkin(Minecraft.getMinecraft().player.getPersistentID());
 				if (this.selectedHero != null)
-					ModSoundEvents.GUI_SELECT_HERO.playFollowingSound(mc.player, 1, 1, false);
+					ModSoundEvents.GUI_SELECT_HERO.playSound(mc.player, 1, 1, true);
 			}
 
 			this.selectedHero = hero;

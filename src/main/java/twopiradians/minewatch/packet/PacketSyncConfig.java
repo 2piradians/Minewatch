@@ -42,7 +42,6 @@ public class PacketSyncConfig implements IMessage {
 	private boolean allowMobRespawn;
 	private boolean allowPlayerRespawn;
 	private boolean mobRespawnRandomHero;
-	private int healChangeHero;
 	private boolean heroSelectClearMWItems;
 
 	private boolean heroMobsDespawn;
@@ -58,6 +57,7 @@ public class PacketSyncConfig implements IMessage {
 	private double mobEquipmentDropRate;
 	private double mobAttackCooldown;
 	private double mobInaccuracy;
+	private double damageScaleHero;
 
 	public PacketSyncConfig() {
 		// read values from config now that it's about to be sent to server
@@ -91,7 +91,6 @@ public class PacketSyncConfig implements IMessage {
 		this.allowMobRespawn = Config.allowMobRespawn;
 		this.allowPlayerRespawn = Config.allowPlayerRespawn;
 		this.mobRespawnRandomHero = Config.mobRespawnRandomHero;
-		this.healChangeHero = Config.healChangeHero;
 		this.heroSelectClearMWItems = Config.heroSelectClearMWItems;
 
 		this.heroMobsDespawn = Config.heroMobsDespawn;
@@ -107,6 +106,7 @@ public class PacketSyncConfig implements IMessage {
 		this.mobEquipmentDropRate = Config.mobEquipmentDropRate;
 		this.mobAttackCooldown = Config.mobAttackCooldown;
 		this.mobInaccuracy = Config.mobInaccuracy;
+		this.damageScaleHero = Config.damageScaleHero;
 	}
 
 	@Override
@@ -138,7 +138,6 @@ public class PacketSyncConfig implements IMessage {
 		this.allowMobRespawn = buf.readBoolean();
 		this.allowPlayerRespawn = buf.readBoolean();
 		this.mobRespawnRandomHero = buf.readBoolean();
-		this.healChangeHero = buf.readInt();
 		this.heroSelectClearMWItems = buf.readBoolean();
 
 		this.heroMobsDespawn = buf.readBoolean();
@@ -154,6 +153,7 @@ public class PacketSyncConfig implements IMessage {
 		this.mobEquipmentDropRate = buf.readDouble();
 		this.mobAttackCooldown = buf.readDouble();
 		this.mobInaccuracy = buf.readDouble();
+		this.damageScaleHero = buf.readDouble();
 	}
 
 	@Override
@@ -185,7 +185,6 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.allowMobRespawn);
 		buf.writeBoolean(this.allowPlayerRespawn);
 		buf.writeBoolean(this.mobRespawnRandomHero);
-		buf.writeInt(this.healChangeHero);
 		buf.writeBoolean(this.heroSelectClearMWItems);
 
 		buf.writeBoolean(this.heroMobsDespawn);
@@ -201,6 +200,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.mobEquipmentDropRate);
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
+		buf.writeDouble(this.damageScaleHero);
 	}
 
 	public void run() {
@@ -231,7 +231,6 @@ public class PacketSyncConfig implements IMessage {
 		Config.allowMobRespawn = this.allowMobRespawn;
 		Config.allowPlayerRespawn = this.allowPlayerRespawn;
 		Config.mobRespawnRandomHero = this.mobRespawnRandomHero;
-		Config.healChangeHero = this.healChangeHero;
 		Config.heroSelectClearMWItems = this.heroSelectClearMWItems;
 
 		Config.heroMobsDespawn = this.heroMobsDespawn;
@@ -247,6 +246,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.mobEquipmentDropRate = this.mobEquipmentDropRate;
 		Config.mobAttackCooldown = this.mobAttackCooldown;
 		Config.mobInaccuracy = this.mobInaccuracy;
+		Config.damageScaleHero = this.damageScaleHero;
 
 		Config.syncConfig(true, false);
 		Config.config.save();

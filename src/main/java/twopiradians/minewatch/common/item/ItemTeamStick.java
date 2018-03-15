@@ -171,7 +171,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote && entity instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(entity)) {
+		if (!player.world.isRemote && entity instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(entity, true)) {
 			Team team = getTeam(player.world, stack);
 			// copy team
 			if (player.isSneaking()) {

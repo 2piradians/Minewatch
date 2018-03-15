@@ -132,31 +132,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
-	public static final Handler HOOKED = new Handler(Identifier.ROADHOG_HOOKED, false) {
-		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
-
-			return super.onClientTick();
-		}
-		@Override
-		public boolean onServerTick() {
-
-			return super.onServerTick();
-		}
-		@Override
-		@SideOnly(Side.CLIENT)
-		public Handler onClientRemove() {
-
-			return super.onClientRemove();
-		}
-		@Override
-		public Handler onServerRemove() {
-
-			return super.onServerRemove();
-		}
-	};
-
+	
 	public ItemRoadhogWeapon() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
@@ -168,14 +144,14 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.ROADHOG_HEALING)) {
 			for (int i=0; i<25; ++i) {
 				EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f, true);
 				world.spawnEntity(projectile);
 			}
 			ModSoundEvents.ROADHOG_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			this.setCooldown(player, 26);
+			this.setCooldown(player, 16);
 		}
 	}
 
@@ -190,7 +166,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			this.subtractFromCurrentAmmo(player, 1, hand);
 			if (world.rand.nextInt(25) == 0)
 				player.getHeldItem(hand).damageItem(1, player);
-			this.setCooldown(player, 26);
+			this.setCooldown(player, 16);
 		}
 
 		return super.onItemRightClick(world, player, hand);
@@ -212,7 +188,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				int ticks = 100;
 				TickHandler.register(false, HOOKING.setEntity(projectile).setEntityLiving(player).setTicks(ticks),
 						Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ability2));
-				Minewatch.network.sendToDimension(new SPacketSimple(75, player, false, projectile, ticks, 0, 0), world.provider.getDimension());
+				Minewatch.network.sendToDimension(new SPacketSimple(76, player, false, projectile, ticks, 0, 0), world.provider.getDimension());
 				ModSoundEvents.ROADHOG_HOOK_THROW.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f, false);
 			}
 			// health
@@ -249,7 +225,6 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		if (handler != null && handler.ticksLeft <= 25) {
 			float percent = 1f - handler.ticksLeft / 25f;
 			GlStateManager.color((255f-67f*percent)/255f, (255f-102f*percent)/255f, (255f-201f*percent)/255f);
-			return true;
 		}
 
 		return false;

@@ -115,10 +115,12 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void hideEntityWearingArmor(RenderLivingEvent.Pre<EntityLivingBase> event) {	
-		// make entity body follow head TODO not working on server
+		// make entity body follow head
 		if (event.getEntity() instanceof EntityLivingBase && event.getEntity().getHeldItemMainhand() != null && 
 				event.getEntity().getHeldItemMainhand().getItem() instanceof ItemMWWeapon &&
-				(KeyBind.LMB.isKeyDown((EntityLivingBase) event.getEntity()) || KeyBind.RMB.isKeyDown((EntityLivingBase) event.getEntity()))) {
+				(event.getEntity() != Minewatch.proxy.getClientPlayer() || 
+				KeyBind.LMB.isKeyDown((EntityLivingBase) event.getEntity()) || 
+				KeyBind.RMB.isKeyDown((EntityLivingBase) event.getEntity()))) {
 			event.getEntity().renderYawOffset = event.getEntity().rotationYawHead;
 		}
 
@@ -338,7 +340,7 @@ public class RenderManager {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == ElementType.HELMET && Config.guiScale > 0 && !Minewatch.proxy.getClientPlayer().isSpectator()) {				
+		if (event.getType() == ElementType.HELMET && Config.guiScale > 0) {				
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayer player = mc.player;
 			EnumHero hero = SetManager.getWornSet(player);
@@ -369,7 +371,7 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 
-				if (hero != null) {		
+				if (hero != null && !Minewatch.proxy.getClientPlayer().isSpectator()) {		
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -411,7 +413,7 @@ public class RenderManager {
 				}
 
 				// display abilities/weapon
-				if (weapon != null) {
+				if (weapon != null && !Minewatch.proxy.getClientPlayer().isSpectator()) {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableDepth();
 					GlStateManager.enableAlpha();
@@ -921,7 +923,8 @@ public class RenderManager {
 				GlStateManager.translate(0, -mc.player.getDistanceToEntity(event.getEntity())/6f, 0);
 
 				// health bar
-				if (!enemy || TickHandler.hasHandler(event.getEntity(), Identifier.HEALTH_SHOW_BAR)) {
+				if (!enemy || TickHandler.hasHandler(event.getEntity(), Identifier.HEALTH_SHOW_BAR) ||
+						(mc.player.isSpectator() && !TickHandler.hasHandler(mc.player, Identifier.DEAD))) {
 					GlStateManager.translate(0, enemy ? -10 : -20, 0);
 					renderHealthBar(event.getEntity(), hero, false, enemy);
 					GlStateManager.translate(0, enemy ? 10 : 20, 0);
@@ -958,6 +961,9 @@ public class RenderManager {
 	public static boolean canRenderName(RenderLivingBase renderer, EntityLivingBase entity) {
 		if (entity == null || !entity.isEntityAlive())
 			return false;
+		// render for spectators
+		else if (Minewatch.proxy.getClientPlayer().isSpectator())
+			return true;
 		// if EntityHero, can check directly
 		else if (renderer instanceof RenderHero && entity instanceof EntityHero)
 			return ((RenderHero)renderer).canRenderName((EntityHero) entity);

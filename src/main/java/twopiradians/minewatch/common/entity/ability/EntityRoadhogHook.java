@@ -61,6 +61,7 @@ public class EntityRoadhogHook extends EntityMW {
 				this.height = entity.height;
 				this.setPosition(entity.posX, entity.posY, entity.posZ);
 				this.motionX = this.motionY = this.motionZ = 0;
+				TickHandler.interrupt(entity);
 				TickHandler.register(entity.world.isRemote, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(100),
 						Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(100),
 						Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(100));
@@ -153,7 +154,7 @@ public class EntityRoadhogHook extends EntityMW {
 				EntityHelper.attemptDamage(getThrower(), result.entityHit, 30, true)) {
 			this.setHooked((EntityLivingBase) result.entityHit);
 			this.setRetracting();
-			Minewatch.network.sendToDimension(new SPacketSimple(76, this, false, this.hooked), world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketSimple(77, this, false, this.hooked), world.provider.getDimension());
 		}
 	}
 	

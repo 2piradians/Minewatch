@@ -39,6 +39,7 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	public EntityLivingBaseMW(World worldIn, @Nullable EntityLivingBase throwerIn) {
 		super(worldIn);
+		this.isImmuneToFire = true;
 		if (throwerIn != null) {
 			this.thrower = throwerIn;
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);

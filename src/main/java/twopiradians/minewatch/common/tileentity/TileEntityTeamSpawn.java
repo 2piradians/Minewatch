@@ -50,10 +50,13 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 	public static final int MAX_SPAWN_RADIUS = 20;
 
 	private int spawnRadius;
-	public int ticksExisted;
+	private boolean heal = true;
+	private boolean changeHero = true;
+	private int ticksExisted;
 
 	public TileEntityTeamSpawn() {
 		super();
+		this.allowOtherActive = true;
 	}
 
 	@Override
@@ -72,45 +75,38 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 			}
 		}
 
-		// effects
-		if ((Config.healChangeHero == 0 && this.isActivated()) ||
-				(Config.healChangeHero == 1 && this.isActivated() && this.getTeam() != null) ||
-				(Config.healChangeHero == 2) ||
-				(Config.healChangeHero == 3 && this.getTeam() != null)) {
+		// regeneration
+		if (this.getHeal() && !this.world.isRemote && this.ticksExisted % 10 == 0) 
+			for (EntityLivingBase entity : world.getEntitiesWithinAABB(EntityLivingBase.class, 
+					new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
+							pos.add(-spawnRadius, -spawnRadius, -spawnRadius)))) 
+				if (entity != null && entity.isEntityAlive() && !(entity instanceof EntityLivingBaseMW) &&
+				(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam()))) {
+					entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
+					entity.addPotionEffect(new PotionEffect(MobEffects.SATURATION, 12, 0, false, false));
+					entity.extinguish();
+					Handler handler = TickHandler.getHandler(entity, Identifier.INVULNERABLE);
+					if (handler == null)
+						TickHandler.register(world.isRemote, Handlers.INVULNERABLE.setEntity(entity).setTicks(12));
+					else
+						handler.ticksLeft = 12;
+				}
 
-			// regeneration
-			if (!this.world.isRemote && this.ticksExisted % 10 == 0) 
-				for (EntityLivingBase entity : world.getEntitiesWithinAABB(EntityLivingBase.class, 
-						new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
-								pos.add(-spawnRadius, -spawnRadius, -spawnRadius)))) 
-					if (entity != null && entity.isEntityAlive() && !(entity instanceof EntityLivingBaseMW) &&
-					(this.getTeam() == null || this.getTeam().isSameTeam(entity.getTeam()))) {
-						entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 12, 5, false, false));
-						entity.addPotionEffect(new PotionEffect(MobEffects.SATURATION, 12, 0, false, false));
-						entity.extinguish();
-						Handler handler = TickHandler.getHandler(entity, Identifier.INVULNERABLE);
-						if (handler == null)
-							TickHandler.register(world.isRemote, Handlers.INVULNERABLE.setEntity(entity).setTicks(12));
-						else
-							handler.ticksLeft = 12;
-					}
-
-			// hero selection overlay
-			if (this.ticksExisted % 10 == 0) {
-				AxisAlignedBB aabb = new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
-						pos.add(-spawnRadius, -spawnRadius, -spawnRadius));
-				for (EntityPlayer player : world.playerEntities)
-					if ((!world.isRemote || player == Minewatch.proxy.getClientPlayer()) && player.isEntityAlive() && 
-							!player.isSpectator() &&
-							(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
-							aabb.contains(player.getPositionVector())) {
-						Handler handler = TickHandler.getHandler(player, Identifier.TEAM_SPAWN_IN_RANGE);
-						if (handler == null)
-							TickHandler.register(world.isRemote, IN_RANGE.setEntity(player).setTicks(12));
-						else
-							handler.ticksLeft = 12;
-					}
-			}
+		// hero selection overlay
+		if (this.getChangeHero() && this.ticksExisted % 10 == 0) {
+			AxisAlignedBB aabb = new AxisAlignedBB(pos.add(spawnRadius+1, spawnRadius+1, spawnRadius+1), 
+					pos.add(-spawnRadius, -spawnRadius, -spawnRadius));
+			for (EntityPlayer player : world.playerEntities)
+				if ((!world.isRemote || player == Minewatch.proxy.getClientPlayer()) && player.isEntityAlive() && 
+						!player.isSpectator() &&
+						(this.getTeam() == null || this.getTeam().isSameTeam(player.getTeam())) && 
+						aabb.contains(player.getPositionVector())) {
+					Handler handler = TickHandler.getHandler(player, Identifier.TEAM_SPAWN_IN_RANGE);
+					if (handler == null)
+						TickHandler.register(world.isRemote, IN_RANGE.setEntity(player).setTicks(12));
+					else
+						handler.ticksLeft = 12;
+				}
 		}
 
 		++this.ticksExisted;
@@ -128,11 +124,35 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 		}
 	}
 
+	public boolean getHeal() {
+		return heal;
+	}
+
+	public void setHeal(boolean heal) {
+		if (!world.isRemote && this.heal != heal) {
+			this.heal = heal;
+			this.setNeedsToBeUpdated();
+		}
+	}
+
+	public boolean getChangeHero() {
+		return changeHero;
+	}
+
+	public void setChangeHero(boolean changeHero) {
+		if (!world.isRemote && this.changeHero != changeHero) {
+			this.changeHero = changeHero;
+			this.setNeedsToBeUpdated();
+		}
+	}
+
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt = super.writeToNBT(nbt);
 
 		nbt.setInteger("spawnRadius", spawnRadius);
+		nbt.setBoolean("heal", heal);
+		nbt.setBoolean("changeHero", changeHero);
 
 		return nbt;
 	}
@@ -143,6 +163,10 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 
 		if (nbt.hasKey("spawnRadius"))
 			this.spawnRadius = MathHelper.clamp(nbt.getInteger("spawnRadius"), 0, MAX_SPAWN_RADIUS);
+		if (nbt.hasKey("heal"))
+			this.heal = nbt.getBoolean("heal");
+		if (nbt.hasKey("changeHero"))
+			this.changeHero = nbt.getBoolean("changeHero");
 	}
 
 	@Override
@@ -154,8 +178,11 @@ public class TileEntityTeamSpawn extends TileEntityTeam {
 	public void copyToNewTile(TileEntityTeam te) {
 		super.copyToNewTile(te);
 
-		if (te instanceof TileEntityTeamSpawn)
+		if (te instanceof TileEntityTeamSpawn) {
 			((TileEntityTeamSpawn)te).spawnRadius = spawnRadius;
+			((TileEntityTeamSpawn)te).heal = heal;
+			((TileEntityTeamSpawn)te).changeHero = changeHero;
+		}
 	}
 
 }

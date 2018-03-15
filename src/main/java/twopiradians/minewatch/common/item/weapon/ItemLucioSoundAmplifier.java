@@ -265,15 +265,14 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			boolean heal = isAlternate(player.getHeldItemMainhand());
 			double scale = 0.3d*Config.guiScale;
 			GlStateManager.scale(scale, scale, 1);
-			GlStateManager.translate((int) ((width - 256*scale)/2d / scale), (int) ((height - 256*scale)/2d / scale), 0);
+			GlStateManager.translate((int) ((width/2)/scale-128), (int) ((height/2)/scale-80), 0);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(Minewatch.MODID, "textures/gui/lucio_passive.png"));
-			GuiUtils.drawTexturedModalRect((int) ((heal ? -8 : 10) / scale), (int) (50 / scale), 0, heal ? 100 : 0, 256, 100, 0);
+			GuiUtils.drawTexturedModalRect((int) ((heal ? -35 : 35)), (int) (50 / scale), 0, heal ? 100 : 0, 256, 100, 0);
 			GlStateManager.popMatrix();
 			if (this.affectedEntities > 0)
 				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(String.valueOf(this.affectedEntities), 
-						(int) (width/2d - Minecraft.getMinecraft().fontRenderer.getStringWidth(String.valueOf(this.affectedEntities))/2d)+1, 
-						(int) (height/2d)+22, 0xFFFFFF);
-
+						(int) (width/2-Minecraft.getMinecraft().fontRenderer.getStringWidth(String.valueOf(this.affectedEntities))/2d)+1, 
+						(int) ((height/2+47)/1-37*scale), 0xFFFFFF);
 			GlStateManager.disableBlend();
 		}
 	}

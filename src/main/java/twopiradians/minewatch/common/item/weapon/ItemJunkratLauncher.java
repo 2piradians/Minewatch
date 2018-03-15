@@ -88,7 +88,7 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 				hero.ability2.subtractUse(player); 
 				hero.ability2.keybind.setCooldown(player, 10, true); 
 				EntityJunkratMine mine = new EntityJunkratMine(world, player);
-				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 25, 0, null, 0, 0);
+				EntityHelper.setAim(mine, player, player.rotationPitch, player.rotationYawHead, 17, 0, null, 0, 0);
 				ModSoundEvents.JUNKRAT_MINE_THROW.playSound(player, 1, 1);
 				world.spawnEntity(mine);
 				player.getHeldItem(EnumHand.MAIN_HAND).damageItem(1, player);

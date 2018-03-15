@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySlime;
@@ -344,14 +345,14 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
-			if (entity == Minecraft.getMinecraft().player)
+			if (entity instanceof EntityPlayerSP)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number;
 			return super.onClientTick();
 		}
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			if (entity == Minecraft.getMinecraft().player)
+			if (entity instanceof EntityPlayerSP)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
 			return super.onClientRemove();
 		}

@@ -107,7 +107,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	
 	@Override
     public boolean shouldDisableDepth() {
-        return false;
+        return this.particleAlpha < 1;
     }
 
 	@Override
@@ -257,7 +257,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 					this.setExpired();
 			}
 			else if (this.enumParticle.equals(EnumParticle.MOIRA_ORB) && followEntity instanceof EntityMoiraOrb) {
-				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f) * this.initialScale;
+				this.particleScale = (((EntityMoiraOrb)followEntity).chargeClient / 80f+0.2f) * this.initialScale;
 			}
 			else if (this.enumParticle == EnumParticle.DOOMFIST_PUNCH_3) {
 				boolean first = followEntity == Minewatch.proxy.getClientPlayer() && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0;

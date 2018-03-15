@@ -107,7 +107,7 @@ public class EntityJunkratGrenade extends EntityMW {
 		}
 		else {
 			Minewatch.proxy.createExplosion(world, this.getThrower(), posX, posY, posZ, 
-					1.6f, 0f, 12.5f, 80f, directHit, 120f, true, 0, 1); // TODO reduce knockback
+					1.6f, 0f, 12.5f, 80f, directHit, 120f, true, 0, 0.5f);
 		}
 		this.setDead();
 	}

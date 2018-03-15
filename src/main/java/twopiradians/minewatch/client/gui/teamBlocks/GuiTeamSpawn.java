@@ -1,5 +1,6 @@
 package twopiradians.minewatch.client.gui.teamBlocks;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.IGuiScreen.Screen;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase.Render;
 import twopiradians.minewatch.common.Minewatch;
@@ -18,12 +20,10 @@ import twopiradians.minewatch.packet.CPacketSimple;
 @SideOnly(Side.CLIENT)
 public class GuiTeamSpawn extends GuiTeamBlock {
 
-	private int offsetY;
 	private String questionMarkDescription;
 
 	public GuiTeamSpawn(TileEntityTeamSpawn te) {
 		super(te, 12);
-		this.offsetY = 2;
 	}
 
 	@Override
@@ -31,17 +31,18 @@ public class GuiTeamSpawn extends GuiTeamBlock {
 		super.initGui();
 
 		// buttons
-		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-80/2, offsetY+guiTop+0, 80, 20, format+Minewatch.translate("gui.team_spawn.button.spawn_radius"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.spawn_radius.desc")))); 
-		this.buttonList.add(new GuiButtonBase(6, guiLeft+X_SIZE/2-18/2+25, offsetY+guiTop+19, 18, 18, "+", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
-		this.buttonList.add(new GuiButtonBase(7, guiLeft+X_SIZE/2-18/2-25, offsetY+guiTop+19, 18, 18, "-", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
+		this.buttonList.add(new GuiButtonBase(8, guiLeft+X_SIZE/2-60/2+60+10, offsetY+guiTop+77, 20, 20, TextFormatting.BOLD+"+", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && ((TileEntityTeamSpawn)te).getHeal()).setColor(new Color(50, 255, 50)).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.heal.desc"))));
+		this.buttonList.add(new GuiButtonBase(9, guiLeft+X_SIZE/2-60/2-20-10, offsetY+guiTop+77, 20, 20, TextFormatting.BOLD+"H", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && ((TileEntityTeamSpawn)te).getChangeHero()).setColor(new Color(50, 255, 50)).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.change_hero.desc"))));
+		this.buttonList.add(new GuiButtonBase(10, guiLeft+X_SIZE/2-60/2+60+10, offsetY+guiTop+77, 20, 20, TextFormatting.GRAY+"+", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && !((TileEntityTeamSpawn)te).getHeal()).setColor(new Color(255, 50, 50)).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.heal.desc"))));
+		this.buttonList.add(new GuiButtonBase(11, guiLeft+X_SIZE/2-60/2-20-10, offsetY+guiTop+77, 20, 20, TextFormatting.GRAY+"H", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN && !((TileEntityTeamSpawn)te).getChangeHero()).setColor(new Color(255, 50, 50)).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.change_hero.desc"))));
+		this.buttonList.add(new GuiButtonBase(0, guiLeft+X_SIZE/2-80/2, offsetY+guiTop-10, 80, 20, format+Minewatch.translate("gui.team_spawn.button.spawn_radius"), this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN).setNoSound().setCustomRender(Render.TEXT).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.spawn_radius.desc")))); 
+		this.buttonList.add(new GuiButtonBase(6, guiLeft+X_SIZE/2-18/2+25, offsetY+guiTop+9, 18, 18, "+", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
+		this.buttonList.add(new GuiButtonBase(7, guiLeft+X_SIZE/2-18/2-25, offsetY+guiTop+9, 18, 18, "-", this).setVisiblePredicate(gui->gui.getCurrentScreen() == Screen.MAIN)); 
 
 		// add button descriptions
 		for (GuiButton button : this.buttonList) {
 			if (button instanceof GuiButtonBase) {
 				switch (button.id) {
-				case -2:
-					((GuiButtonBase)button).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.activate_deactivate.desc")));
-					break;
 				case 1:
 					((GuiButtonBase)button).setHoverText(Lists.newArrayList(Minewatch.translate("gui.team_spawn.button.activate.desc")));
 					break;
@@ -69,7 +70,7 @@ public class GuiTeamSpawn extends GuiTeamBlock {
 
 		switch (this.currentScreen) {
 		case MAIN:
-			this.drawCenteredString(mc.fontRenderer, String.valueOf(((TileEntityTeamSpawn) te).getSpawnRadius()), guiLeft+X_SIZE/2, offsetY+guiTop+24, 0xFFFFFF);
+			this.drawCenteredString(mc.fontRenderer, String.valueOf(((TileEntityTeamSpawn) te).getSpawnRadius()), guiLeft+X_SIZE/2, offsetY+guiTop+14, 0xFFFFFF);
 			break;
 		case QUESTION_MARK:
 			this.drawWrappedString(this.questionMarkDescription, guiLeft+8, guiTop+15, true, X_SIZE-16);
@@ -98,6 +99,18 @@ public class GuiTeamSpawn extends GuiTeamBlock {
 		case 7: // -
 			if (((TileEntityTeamSpawn) te).getSpawnRadius() > 0)
 				Minewatch.network.sendToServer(new CPacketSimple(16, false, mc.player, te.getPos().getX(), te.getPos().getY(), te.getPos().getZ()));
+			break;
+		case 8: // heal off
+			Minewatch.network.sendToServer(new CPacketSimple(20, false, mc.player, te.getPos().getX(), te.getPos().getY(), te.getPos().getZ()));
+			break;
+		case 9: // changeHero off
+			Minewatch.network.sendToServer(new CPacketSimple(21, false, mc.player, te.getPos().getX(), te.getPos().getY(), te.getPos().getZ()));
+			break;
+		case 10: // heal on
+			Minewatch.network.sendToServer(new CPacketSimple(20, true, mc.player, te.getPos().getX(), te.getPos().getY(), te.getPos().getZ()));
+			break;
+		case 11: // changeHero true
+			Minewatch.network.sendToServer(new CPacketSimple(21, true, mc.player, te.getPos().getX(), te.getPos().getY(), te.getPos().getZ()));
 			break;
 		}
 	}	

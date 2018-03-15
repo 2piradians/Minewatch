@@ -280,6 +280,7 @@ public class CPacketSimple implements IMessage {
 								team.setColor(format);
 								team.setPrefix(format.toString());
 								team.setSuffix(TextFormatting.RESET.toString());
+								team.setAllowFriendlyFire(false);
 							}
 						}
 						catch (Exception e) {}
@@ -290,8 +291,11 @@ public class CPacketSimple implements IMessage {
 					}
 					// player death screen
 					else if (packet.type == 12 && packetPlayer != null) {
+						TileEntityTeamSpawn te = packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn ? ((TileEntityTeamSpawn)packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z))) : null;
 						if (!TickHandler.hasHandler(packetPlayer, Identifier.DEAD) && !packetPlayer.isEntityAlive()) {
-							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getName() : null).setNumber(packetPlayer instanceof EntityPlayerMP ? ((EntityPlayerMP)packetPlayer).interactionManager.getGameType().ordinal() : -1));
+							TickHandler.register(false, RespawnManager.DEAD.setEntity(packetPlayer).setTicks(packet.bool ? 0 : Config.respawnTime).setString(packetPlayer.getTeam() != null ? packetPlayer.getTeam().getName() : null).setNumber(packetPlayer instanceof EntityPlayerMP ? ((EntityPlayerMP)packetPlayer).interactionManager.getGameType().ordinal() : -1).setObject(te));
+							if (te != null && te.isActivated() && te.getChangeHero())
+								TickHandler.register(false, TileEntityTeamSpawn.IN_RANGE.setEntity(packetPlayer).setTicks(Config.respawnTime+3).setAllowDead(true));
 						}
 					}
 					// GuiTeamBlock set team
@@ -338,6 +342,18 @@ public class CPacketSimple implements IMessage {
 					// doomfist slam - tell other clients to render particle
 					else if (packet.type == 19 && player != null) {
 						Minewatch.network.sendToDimension(new SPacketSimple(67, player, packet.x, packet.y, packet.z, packet.x2, 0, 0), player.world.provider.getDimension());
+					}
+					// GuiTeamSpawn heal
+					else if (packet.type == 20 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
+						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setHeal(packet.bool);
+					}
+					// GuiTeamSpawn changeHero
+					else if (packet.type == 21 && packetPlayer != null && packetPlayer.isCreative() &&
+							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
+						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
+						te.setChangeHero(packet.bool);
 					}
 				}
 			});

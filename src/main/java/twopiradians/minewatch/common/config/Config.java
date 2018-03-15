@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
 import twopiradians.minewatch.packet.PacketSyncConfig;
@@ -36,7 +38,7 @@ public class Config {
 		}
 		OVERWORLD_BIOMES = biomes.toArray(new Biome[biomes.size()]);
 	}
-// TODO separate damage for bots, moira orb rates, doomfist slam particles on server (lots of them), reinhardt can't destroy traps, aim assist disable, hack in crystal
+
 	/**Version of this config - if loaded version is less than this, delete the config*/
 	private static final float CONFIG_VERSION = 3.9F;
 
@@ -50,7 +52,6 @@ public class Config {
 	private static final String[] TRACK_KILLS_OPTIONS = new String[] {"For everything", "For players", "Never"};
 	private static final String[] SPAWN_OPTIONS = new String[] {"Always", "In darkness", "Never"};
 	private static final String[] SPAWN_FREQ_OPTIONS = new String[] {"Never", "Rarely", "Uncommonly", "Commonly"};
-	private static final String[] HEAL_CHANGE_HERO_OPTIONS = new String[] {"When active", "When active and with a team selected", "Always", "With a team selected", "Never"};
 
 	public static Configuration config;
 	public static boolean useObjModels;
@@ -62,6 +63,7 @@ public class Config {
 	public static boolean hideHunger;
 	public static boolean hideHotbar;
 	public static double scopedSensitivityMultiplier;
+	public static boolean disableAimAssist;
 
 	public static int tokenDropRate;
 	public static int wildCardRate;
@@ -92,7 +94,6 @@ public class Config {
 	public static boolean allowMobRespawn;
 	public static boolean allowPlayerRespawn;
 	public static boolean mobRespawnRandomHero;
-	public static int healChangeHero;
 	public static boolean heroSelectClearMWItems;
 
 	public static boolean mobRandomSkins;
@@ -107,6 +108,7 @@ public class Config {
 	public static double mobEquipmentDropRate;
 	public static double mobAttackCooldown;
 	public static double mobInaccuracy;
+	public static double damageScaleHero;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, CONFIG_VERSION+Configuration.NEW_LINE+Configuration.NEW_LINE+
@@ -188,6 +190,9 @@ public class Config {
 		
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Scoped Sensitivity", 0.5d, "Mouse sensitivity multiplier while scoping with Widomaker or Ana.", 0.01d, 1);
 		scopedSensitivityMultiplier = prop.getDouble();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Disable Aim Assist", false, "Should aim assist be disabled (if you don't like the server's aim assist)?");
+		disableAimAssist = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 
@@ -354,14 +359,6 @@ public class Config {
 			else
 				mobRespawnRandomHero = prop.getBoolean();
 
-			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Heal and Change Hero at Team Spawns", HEAL_CHANGE_HERO_OPTIONS[0], "Choose when Team Spawns should provide healing and allow players to change heroes within their radius.", HEAL_CHANGE_HERO_OPTIONS);
-			if (overriding)
-				prop.set(HEAL_CHANGE_HERO_OPTIONS[healChangeHero]);
-			else
-				for (int i=0; i<HEAL_CHANGE_HERO_OPTIONS.length; ++i)
-					if (prop.getString().equals(HEAL_CHANGE_HERO_OPTIONS[i]))
-						healChangeHero = i;
-
 			prop = config.get(Config.CATEGORY_TEAM_BLOCKS, "Hero Selection Removes Minewatch Equipment", false, "Should selecting a hero in hero selection remove other Minewatch equipment from the player's inventory?");
 			if (overriding)
 				prop.set(heroSelectClearMWItems);
@@ -457,7 +454,20 @@ public class Config {
 				prop.set(mobInaccuracy);
 			else
 				mobInaccuracy = prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Damage Scale", 1d, "1 is the recommended scale for vanilla. A higher scale means Hero Mobs do more damage and a lower scale means they do less.", 0, 100);
+			if (overriding)
+				prop.set(damageScaleHero * 10d);
+			else
+				damageScaleHero = 0.1d * prop.getDouble();
 		}
+	}
+	
+	public static double getDamageScale(Entity entity) {
+		if (entity instanceof EntityHero)
+			return Config.damageScaleHero;
+		else
+			return Config.damageScale;
 	}
 
 	public static Property getHeroTextureProp(EnumHero hero) {

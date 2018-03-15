@@ -132,28 +132,38 @@ public class EntityHelper {
 		Vec3d posVec = EntityHelper.getEntityPartialPos(shooter);
 		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
-
+	
 	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust, 1);
+		setAim(entity, shooter, target, shooter.rotationPitch, hand, verticalAdjust, horizontalAdjust, false);
+	}
+	
+	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, boolean ignoreHeroInaccuracy) {
+		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust, 1, ignoreHeroInaccuracy);
+	}
+	
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1. Make sure yaw is rotationYawHead*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1, false);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1. Make sure yaw is rotationYawHead*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
-		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1);
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, boolean ignoreHeroInaccuracy) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1, ignoreHeroInaccuracy);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
-		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, distance);
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, distance, false);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance) {
+	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy) {
 		boolean friendly = isFriendly(entity);
 		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
 
-		if (shooter instanceof EntityHero)
+		if (shooter instanceof EntityHero && !ignoreHeroInaccuracy)
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
@@ -316,11 +326,11 @@ public class EntityHelper {
 				((EntityLiving)target).getAttackTarget() == entity)
 			return false;
 		// prevent healing mobs not on team with config option disabled
-		if (!Config.healMobs && friendly && target != null && entity != null && target != entity && (targetTeam == null || targetTeam != entityTeam))
+		if (!Config.healMobs && friendly && target != null && entity != null && target != entity && (targetTeam == null || targetTeam != entityTeam || targetTeam.getAllowFriendlyFire()))
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entityTeam == null || targetTeam == null || 
-				(entityTeam == targetTeam) == friendly);
+				(entityTeam == targetTeam) == friendly || entityTeam.getAllowFriendlyFire());
 	}
 	
 	/**Get an entity's team - namely for getting a dead entity's team (since they are technically removed from team on death)*/
@@ -340,7 +350,12 @@ public class EntityHelper {
 	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
 		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
 			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
-			if (distance <= maxFalloff && attemptDamage(projectile, entityHit, (float) (maxDamage-(maxDamage-minDamage) * MathHelper.clamp((distance-minFalloff) / (maxFalloff-minFalloff), 0, 1)), friendly)) 
+			float damage = shooter.world.rand.nextFloat()*(maxDamage-minDamage) + minDamage; // random number between min and max
+			if (distance > maxFalloff)
+				damage = 0;
+			else if (distance > minFalloff && distance < maxFalloff)
+				damage *= 1f- (distance-minFalloff)/(maxFalloff-minFalloff);
+			if (damage > 0 && attemptDamage(projectile, entityHit, damage, friendly)) 
 				return true;
 		}
 		return false;
@@ -428,11 +443,11 @@ public class EntityHelper {
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(thrower)));
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				}
 				else
-					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.damageScale));
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(thrower)));
 
 				if (damaged && ignoreHurtResist)
 					if (entityHit instanceof MultiPartEntityPart && ((MultiPartEntityPart)entityHit).parent instanceof EntityDragon) 
@@ -453,7 +468,7 @@ public class EntityHelper {
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
 				amount *= 2f;
-			entity.heal((float) Math.abs(amount*Config.damageScale));
+			entity.heal((float) Math.abs(amount*Config.getDamageScale(entity)));
 			spawnHealParticles(entity, false);
 		}
 	}
@@ -755,7 +770,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !shouldIgnoreEntity(input) && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !shouldIgnoreEntity(input, friendly) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {

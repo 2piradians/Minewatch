@@ -67,8 +67,8 @@ public class EntityMoiraOrb extends EntityMW {
 
 		// effects
 		for (EntityLivingBase entity : this.tethered) {
-			if (this.chargeServer > 0 && !world.isRemote)
-				EntityHelper.attemptDamage(getThrower(), entity, this.isFriendly ? -3.75f : 2.5f, true);
+			if (this.chargeServer > 0 && !world.isRemote && this.chargeServer % 2 == 0)
+				EntityHelper.attemptDamage(getThrower(), entity, this.isFriendly ? -3.75f*2f : 2.5f*2f, true);
 
 			if (!world.isRemote && --this.chargeServer <= 0)
 				this.setDead();

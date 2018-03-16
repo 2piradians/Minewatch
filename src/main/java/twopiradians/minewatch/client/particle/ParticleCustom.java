@@ -107,7 +107,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	
 	@Override
     public boolean shouldDisableDepth() {
-        return this.particleAlpha < 1;
+        return /*this.particleAlpha < 1*/ true; // z-fighting if disabled
     }
 
 	@Override
@@ -214,10 +214,6 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 			else if (this.enumParticle.equals(EnumParticle.STUN)) {
 				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height+0.6d, this.followEntity.posZ);
 				this.particleAlpha *= 5f;
-			}
-			else if (this.enumParticle.equals(EnumParticle.ANA_GRENADE_HEAL) || this.enumParticle.equals(EnumParticle.ANA_GRENADE_DAMAGE)) {
-				this.setPosition(this.followEntity.posX, this.followEntity.posY+this.followEntity.height+0.6d, this.followEntity.posZ);
-				this.particleAlpha = this.initialAlpha;
 			}
 			else if ((this.verticalAdjust != 0 || this.horizontalAdjust != 0) && followEntity instanceof EntityLivingBase) {
 				Vector2f rotations = EntityHelper.getEntityPartialRotations(followEntity);

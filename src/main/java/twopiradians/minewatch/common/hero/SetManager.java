@@ -11,8 +11,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -121,37 +123,42 @@ public class SetManager {
 	@SubscribeEvent
 	public static void updateSets(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
-			boolean isRemote = event.player.world.isRemote;
-
-			//detect if player is wearing a set
-			ItemStack helm = event.player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-			EnumHero hero = null;
-			boolean fullSet = helm != null && helm.getItem() instanceof ItemMWArmor;
-			if (fullSet) {
-				hero = ((ItemMWArmor)helm.getItem()).hero;
-				for (EntityEquipmentSlot slot : ItemMWArmor.SLOTS) {
-					ItemStack armor = event.player.getItemStackFromSlot(slot);
-					if (armor == null || !(armor.getItem() instanceof ItemMWArmor)
-							|| ((ItemMWArmor)(armor.getItem())).hero != hero) 
-						fullSet = false;
-				}
-			}
-
-			// clear toggles when switching to set or if not holding weapon
-			if (hero != null && (event.player.getHeldItemMainhand() == null || 
-					event.player.getHeldItemMainhand().getItem() != hero.weapon) || 
-					(fullSet && (SetManager.getWornSet(event.player) == null ||
-					SetManager.getWornSet(event.player) != hero)))
-				for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
-					ability.toggle(event.player, false);
-
-			// onSetChanged
-			if ((fullSet && (!SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID()) ||
-					SetManager.entitiesWearingSets(isRemote).get(event.player.getPersistentID()) != hero)) ||
-					(!fullSet && SetManager.entitiesWearingSets(isRemote).containsKey(event.player.getPersistentID())))
-				onSetChanged(event.player, SetManager.lastWornSets(isRemote).get(event.player.getPersistentID()), fullSet ? hero : null);
-
+			updateSets(event.player);
 		}
+	}
+
+	/**Update worn sets*/
+	public static void updateSets(EntityPlayer player) {
+		boolean isRemote = player.world.isRemote;
+
+		//detect if player is wearing a set
+		ItemStack helm = player.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
+		EnumHero hero = null;
+		boolean fullSet = helm != null && helm.getItem() instanceof ItemMWArmor;
+		if (fullSet) {
+			hero = ((ItemMWArmor)helm.getItem()).hero;
+			for (EntityEquipmentSlot slot : ItemMWArmor.SLOTS) {
+				ItemStack armor = player.getItemStackFromSlot(slot);
+				if (armor == null || !(armor.getItem() instanceof ItemMWArmor)
+						|| ((ItemMWArmor)(armor.getItem())).hero != hero) 
+					fullSet = false;
+			}
+		}
+
+		// clear toggles when switching to set or if not holding weapon
+		if (hero != null && (player.getHeldItemMainhand() == null || 
+				player.getHeldItemMainhand().getItem() != hero.weapon) || 
+				(fullSet && (SetManager.getWornSet(player) == null ||
+				SetManager.getWornSet(player) != hero)))
+			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3})
+				ability.toggle(player, false);
+
+		// onSetChanged
+		if ((fullSet && (!SetManager.entitiesWearingSets(isRemote).containsKey(player.getPersistentID()) ||
+				SetManager.entitiesWearingSets(isRemote).get(player.getPersistentID()) != hero)) ||
+				(!fullSet && SetManager.entitiesWearingSets(isRemote).containsKey(player.getPersistentID())))
+			onSetChanged(player, SetManager.lastWornSets(isRemote).get(player.getPersistentID()), fullSet ? hero : null);
+
 	}
 
 	public static void onSetChanged(EntityPlayer player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
@@ -216,6 +223,15 @@ public class SetManager {
 				Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
 			}
 		}
+	}
+
+	/**Heal entity to full - for when set switched / respawned*/
+	public static void healToFull(EntityLivingBase entity) {
+		if (entity instanceof EntityPlayer)
+			updateSets((EntityPlayer) entity);
+		EnumHero hero = getWornSet(entity);
+		if (entity != null && !entity.world.isRemote && hero != null)
+			entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 60, 31, false, false));
 	}
 
 }

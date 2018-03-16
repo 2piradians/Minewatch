@@ -6,46 +6,57 @@ config.server-side=Server-Side
 config.client-side=Client-Side
 config.client-side.hero_skins=Скины Героев
 config.server-side.hero_mobs=Мобы-Герои
-config.server-side.team_blocks=Team Blocks
+config.server-side.team_blocks=Командные блоки
+
+command.hero.desc=equips тебя/игрока в броню и оружие(я) указанного героя
+command.sync.desc=синхронизирует ваш конфиг с сервером (в мультиплеере)
+command.team_spawn.desc=активирует/деактивирует Командные Спавны
+command.reset.desc=команда которая "перезагружает" игры Minewatch, количество убийств и возрождение существ, которые возрождаются в Командном Спавнере
+command.lobby.desc=удаляет команды, очищает инвертарь, и респавнит вас
 
 effect.frozen=Замораживание
 
 tile.health_pack_small.name=Маленькая аптечка
 tile.health_pack_large.name=Большая аптечка
+tile.health_pack.desc=Лечит при прохождении и требует времени для респавна
 tile.team_spawn.name=Командный спавнер
+tile.team_spawn.desc=Блок на котором будут возрождатся игроки и мобы определённой команды
+tile.death_block.name=Убивающий Блок
+tile.death_block.desc1=Убивает мобов и игроков (в режиме выживания и приключения) при косании
+tile.death_block.desc2=Может использоватся для имитации падения за пределы карты
 
-item.wild_card_token.name=Маркер на выбор
+item.wild_card_token.name=Токен на выбор
 item.team_stick.name=Командная палка
 
-item.reaper_token.name=Маркер Жнеца
+item.reaper_token.name=Токен Жнеца
 item.reaper_helmet.name=Шлем Жнеца
 item.reaper_chestplate.name=Нагрудник Жнеца
 item.reaper_leggings.name=Поножи Жнеца
 item.reaper_boots.name=Ботинки Жнеца
 item.reaper_weapon.name=Адский дробовик Жнеца
 
-item.hanzo_token.name=Маркер Хандзо
+item.hanzo_token.name=Токен Хандзо
 item.hanzo_helmet.name=Шлем Хандзо
 item.hanzo_chestplate.name=Нагрудник Хандзо
 item.hanzo_leggings.name=Поножи Хандзо
 item.hanzo_boots.name=Ботинки Хандзо
 item.hanzo_weapon.name=Лук бури Хандзо
 
-item.reinhardt_token.name=Маркер Райнхардта
+item.reinhardt_token.name=Токен Райнхардта
 item.reinhardt_helmet.name=Шлем Райнхардта
 item.reinhardt_chestplate.name=Нагрудник Райнхардта
 item.reinhardt_leggings.name=Поножи Райнхардта
 item.reinhardt_boots.name=Ботинки Райнхардта
 item.reinhardt_weapon.name=Ракетный молот Райнхардта
 
-item.ana_token.name=Маркер Аны
+item.ana_token.name=Токен Аны
 item.ana_helmet.name=Шлем Аны
 item.ana_chestplate.name=Нагрудник Аны
 item.ana_leggings.name=Поножи Аны
 item.ana_boots.name=Ботинки Аны
 item.ana_weapon.name=Биотическое ружье Аны
 
-item.genji_token.name=Маркер Гэндзи
+item.genji_token.name=Токен Гэндзи
 item.genji_helmet.name=Шлем Гэндзи
 item.genji_chestplate.name=Нагрудник Гэндзи
 item.genji_leggings.name=Поножи Гэндзи
@@ -53,56 +64,56 @@ item.genji_boots.name=Ботинки Гэндзи
 item.genji_weapon.name=Сюрикены Гэндзи
 item.genji_shuriken_single.name=Сюрикены Гэндзи
 
-item.tracer_token.name=Маркер Трейсер
+item.tracer_token.name=Токен Трейсер
 item.tracer_helmet.name=Шлем Трейсер
 item.tracer_chestplate.name=Нагрудник Трейсер
 item.tracer_leggings.name=Поножи Трейсер
 item.tracer_boots.name=Ботинки Трейсер
 item.tracer_weapon.name=Импульсный пистолет Трейсер
 
-item.mccree_token.name=Маркер Маккри
+item.mccree_token.name=Токен Маккри
 item.mccree_helmet.name=Шлем Маккри
 item.mccree_chestplate.name=Нагрудник Маккри
 item.mccree_leggings.name=Поножи Маккри
 item.mccree_boots.name=Ботинки Маккри
 item.mccree_weapon.name=Миротворец Маккри
 
-item.soldier76_token.name=Маркер Солдата-76
+item.soldier76_token.name=Токен Солдата-76
 item.soldier76_helmet.name=Шлем Солдата-76
 item.soldier76_chestplate.name=Нагрудник Солдата-76
 item.soldier76_leggings.name=Поножи Солдата-76
 item.soldier76_boots.name=Ботинки Солдата-76
 item.soldier76_weapon.name=Импульсная винтовка Солдата-76
 
-item.mei_token.name=Маркер Мэй
+item.mei_token.name=Токен Мэй
 item.mei_helmet.name=Шлем Мэй
 item.mei_chestplate.name=Нагрудник Мэй
 item.mei_leggings.name=Поножи Мэй
 item.mei_boots.name=Ботинки Мэй
 item.mei_weapon.name=Эндотермический бластер Мэй
 
-item.bastion_token.name=Маркер Бастиона
+item.bastion_token.name=Токен Бастиона
 item.bastion_helmet.name=Шлем Бастиона
 item.bastion_chestplate.name=Нагрудник Бастиона
 item.bastion_leggings.name=Поножи Бастиона
 item.bastion_boots.name=Ботинки Бастиона
 item.bastion_weapon.name=Пистолет-пулемёт Бастиона
 
-item.widowmaker_token.name=Маркер Роковой вдовы
+item.widowmaker_token.name=Токен Роковой вдовы
 item.widowmaker_helmet.name=Шлем Роковой вдовы
 item.widowmaker_chestplate.name=Нагрудник Роковой вдовы
 item.widowmaker_leggings.name=Поножи Роковой вдовы
 item.widowmaker_boots.name=Ботинки Роковой вдовы
 item.widowmaker_weapon.name=Поцелуй вдовы
 
-item.mercy_token.name=Маркер Ангела
+item.mercy_token.name=Токен Ангела
 item.mercy_helmet.name=Шлем Ангела
 item.mercy_chestplate.name=Нагрудник Ангела
 item.mercy_leggings.name=Поножи Ангела
 item.mercy_boots.name=Ботинки Ангела
 item.mercy_weapon.name=Оружие Ангела
 
-item.junkrat_token.name=Маркер Крысавчика
+item.junkrat_token.name=Токен Крысавчика
 item.junkrat_helmet.name=Шлем Крысавчика
 item.junkrat_chestplate.name=Нагрудник Крысавчика
 item.junkrat_leggings.name=Поножи Крысавчика
@@ -110,7 +121,7 @@ item.junkrat_boots.name=Ботинки Крысавчика
 item.junkrat_weapon.name=Гранатомет Крысавчика
 item.junkrat_trigger.name=Фугасная мина Крысавчика
 
-item.sombra_token.name=Маркер Сомбры
+item.sombra_token.name=Токен Сомбры
 item.sombra_helmet.name=Шлем Сомбры
 item.sombra_chestplate.name=Нагрудник Сомбры
 item.sombra_leggings.name=Поножи Сомбры
@@ -118,33 +129,41 @@ item.sombra_boots.name=Ботинки Сомбры
 item.sombra_weapon.name=Пистолет-Пулемёт Сомбры
 item.sombra_hack.name=Взлом Сомбры
 
-item.lucio_token.name=Маркер Лусио
+item.lucio_token.name=Токен Лусио
 item.lucio_helmet.name=Шлем Лусио
 item.lucio_chestplate.name=Нагрудник Лусио
 item.lucio_leggings.name=Поножи Лусио
 item.lucio_boots.name=Ботинки Лусио
 item.lucio_weapon.name=Усилитель звука Лусио
 
-item.zenyatta_token.name=Маркер Дзенъятты
+item.zenyatta_token.name=Токен Дзенъятты
 item.zenyatta_helmet.name=Шлем Дзенъятты
 item.zenyatta_chestplate.name=Нагрудник Дзенъятты
 item.zenyatta_leggings.name=Поножи Дзенъятты
 item.zenyatta_boots.name=Ботинки Дзенъятты
 item.zenyatta_weapon.name=Сфера Дзенъятты
 
-item.moira_token.name=Маркер Мойры
+item.moira_token.name=Токен Мойры
 item.moira_helmet.name=Шлем Мойры
 item.moira_chestplate.name=Нагрудник Мойры
 item.moira_leggings.name=Поножи Мойры
 item.moira_boots.name=Ботинки Мойры
 item.moira_weapon.name=Биотическая хватка Мойры
 
-item.doomfist_token.name=Маркер Кулака смерти
+item.doomfist_token.name=Токен Кулака смерти
 item.doomfist_helmet.name=Шлем Кулака смерти
 item.doomfist_chestplate.name=Нагрудник Кулака смерти
 item.doomfist_leggings.name=Поножи Кулака смерти
 item.doomfist_boots.name=Ботинки Кулака смерти
 item.doomfist_weapon.name=Бомбарда Кулака смерти
+
+item.roadhog_token.name=Токен Турбосвина
+item.roadhog_helmet.name=Шлем Турбосвина
+item.roadhog_chestplate.name=Нагрудник Турбосвина
+item.roadhog_leggings.name=Поножи Турбосвина
+item.roadhog_boots.name=Ботинки Турбосвина
+item.roadhog_weapon.name=Металломет Турбосвина
+item.roadhog_health.name=Лечебная канистра Турбосвина
 
 entity.random_hero.name=Случайный герой
 entity.hanzo_hero.name=Хандзо
@@ -200,6 +219,9 @@ entity.moira_heal_energy.name=Биотичесская энергия Мойры
 entity.moira_orb.name=Биотическая сфера Мойры
 entity.doomfist_hero.name=Кулак смерти
 entity.doomfist_bullet.name=Снаряд Кулака смерти
+entity.roadhog_hero.name=Турбосвин
+entity.roadhog_scrap.name=Метал Турбосвина
+entity.roadhog_hook.name=Цепной крюк Турбосвина
 
 command.reset.success=Minewatch игра сброшенна модератором.
 command.reset.unrecognized_flags=Нераспознанный флаг(и)
@@ -209,6 +231,7 @@ overlay.assist=помощь
 overlay.eliminated=устранён
 overlay.death_spectating=Вы теперь наблюдатель
 overlay.respawn_in=Возрождение через
+overlay.change_hero=Нажми %s для смены героя
 
 gui.team_block.button.name=Имя
 gui.team_block.button.name.desc=Это имя используется командами
@@ -219,6 +242,8 @@ gui.team_block.button.selected_team=Выбор команды
 gui.team_block.button.video_demonstration=Видео демонстрация
 gui.team_block.button.ok=ОК
 
+gui.team_spawn.button.spawn_radius=Радиус
+gui.team_spawn.button.spawn_radius.desc=Радиус вокруг блока, на котором игроки и мобы будут возрождатся, лечится, и получать доступ к смене героя
 gui.team_spawn.button.activate_deactivate.desc=Игроки и мобы будут появлятся на активном командном спавнере их команды
 gui.team_spawn.button.activate.desc=Только один командный спавнер может быть активным за один раз, в команде
 gui.team_spawn.button.deactivate.desc=Только один командный спавнер может быть активным за один раз, в команде
@@ -229,3 +254,6 @@ gui.team_spawn.status.players_heroes_team=Игроки и мобы в
 gui.team_spawn.status.players_heroes_all=Все игроки и мобы (которые находятся в команде)
 gui.team_spawn.status.players_heroes_none=Ничего
 gui.team_spawn.status.will_spawn=будут возрождатся здесь
+
+gui.hero_select.select=Выбор
+gui.hero_select.select_hero=Выбор героя

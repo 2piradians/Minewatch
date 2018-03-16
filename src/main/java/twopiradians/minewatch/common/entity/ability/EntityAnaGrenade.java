@@ -82,14 +82,14 @@ public class EntityAnaGrenade extends EntityMW {
 			for (EntityLivingBase entity : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox().grow(4))) {
 				if (entity.isEntityAlive()) { 
 					// heal
-					if (EntityHelper.attemptDamage(getThrower(), entity, -100, true)) {
+					if (EntityHelper.attemptDamage(this, entity, -100, true)) {
 						TickHandler.register(false, HEAL.setEntity(entity).setTicks(80));
 						Minewatch.network.sendToDimension(new SPacketSimple(53, entity, true), world.provider.getDimension());
 						if (getThrower() != entity)
 							heal = true;
 					}
 					// damage
-					else if (EntityHelper.attemptDamage(getThrower(), entity, 60, true)) {
+					else if (EntityHelper.attemptDamage(this, entity, 60, true)) {
 						TickHandler.register(false, DAMAGE.setEntity(entity).setTicks(80).setNumber(entity.getHealth()));
 						Minewatch.network.sendToDimension(new SPacketSimple(53, entity, false, entity.getHealth(), 0, 0), world.provider.getDimension());
 						damage = true;

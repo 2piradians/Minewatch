@@ -88,7 +88,7 @@ public class EntityReinhardtStrike extends EntityMW {
 			Minewatch.proxy.spawnParticlesCustom(EnumParticle.REINHARDT_STRIKE, world, x, y, z, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1.0f, 100, 20, 20, world.rand.nextFloat(), 0, result.sideHit, true);
 		}
 
-		EntityHelper.attemptDamage(getThrower(), result.entityHit, 100, false, false);
+		EntityHelper.attemptDamage(this, result.entityHit, 100, false, false);
 	}
 	
 	@Override

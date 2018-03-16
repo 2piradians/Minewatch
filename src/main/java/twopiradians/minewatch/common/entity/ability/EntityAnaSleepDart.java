@@ -3,7 +3,6 @@ package twopiradians.minewatch.common.entity.ability;
 import org.apache.commons.lang3.tuple.Triple;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
@@ -38,7 +37,7 @@ public class EntityAnaSleepDart extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (EntityHelper.attemptDamage(this, result.entityHit, 5, true, DamageSource.causeIndirectDamage(this, this.getThrower())) &&
+		if (EntityHelper.attemptDamage(this, result.entityHit, 5, true) &&
 				result.entityHit.isNonBoss() && !(result.entityHit instanceof EntityLivingBaseMW)) {
 			TickHandler.interrupt(result.entityHit);
 			TickHandler.register(this.world.isRemote, ItemAnaRifle.SLEEP.setEntity(result.entityHit).setTicks(120),

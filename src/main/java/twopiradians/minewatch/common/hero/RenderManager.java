@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.client.model.ModelPlayer;
@@ -79,6 +80,7 @@ import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.RenderHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -622,7 +624,7 @@ public class RenderManager {
 				try {
 					float damage = event.getAmount();
 					damage = CombatRules.getDamageAfterAbsorb(damage, (float)event.getEntityLiving().getTotalArmorValue(), (float)event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-					damage = applyPotionDamageCalculations(player, event.getSource(), damage);
+					damage = applyPotionDamageCalculations(event.getEntityLiving(), event.getSource(), damage);
 					damage = Math.min(damage, event.getEntityLiving().getHealth());
 					if (damage > 0) {
 						HashMap<UUID, Tuple<Float, Integer>> damageMap = entityDamage.get(event.getEntityLiving()) == null ? Maps.newHashMap() : entityDamage.get(event.getEntityLiving());
@@ -746,7 +748,7 @@ public class RenderManager {
 		GlStateManager.depthMask(true);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		GlStateManager.popMatrix();
-		
+
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		if (player != null && player.getHeldItemMainhand() != null && 
 				player.getHeldItemMainhand().getItem() instanceof ItemMWWeapon && 
@@ -1016,18 +1018,36 @@ public class RenderManager {
 		int barWidth = 8;
 		int barHeight = 11;
 		float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
+		float scaleY = inGui ? 1 : 0.8f;
 		float incrementX = barWidth + (inGui ? 0.4f/scaleX : 0);
+		float slant = barHeight * maxHealth * 0.0006f;
+		float xOffset = inGui ? 0 : maxWidth/scaleX/2f;
 
 		// health bars: health -> armor -> shield -> shieldAbility
 		Minecraft mc = Minecraft.getMinecraft();
-		mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
-		GlStateManager.scale(scaleX, inGui ? 1 : 0.8f, 1);
+		GlStateManager.scale(scaleX, scaleY, 1);
 
+		// ana health / damage bar background
+		boolean hasHeal = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL);
+		boolean hasDamage = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE);
+		if (hasHeal || hasDamage) {
+			RenderHelper.drawSlantedRect(-scaleX-xOffset, 1, (int) (maxHealth/25f*incrementX)+scaleX-xOffset, barHeight, hasHeal ? 0x60FFFF63 : 0x60E702FF, inGui ? -0.001D : 0.001D, slant);
+			GlStateManager.enableBlend();
+			Minecraft.getMinecraft().renderEngine.bindTexture(hasHeal ? EnumParticle.ANA_GRENADE_HEAL.facingLoc : EnumParticle.ANA_GRENADE_DAMAGE.facingLoc);	
+			GlStateManager.color(1, 1, 1, 0.7f);
+			GlStateManager.scale(1/scaleX, 1/scaleY, 1);
+			if (inGui)
+				Gui.drawModalRectWithCustomSizedTexture((int) (((maxHealth/25f*incrementX)+10)*scaleX-xOffset+1), -2, 0, 0, 16, 16, 16, 16);
+			else
+				Gui.drawModalRectWithCustomSizedTexture(-8, -barHeight-7, 0, 0, 16, 16, 16, 16);
+			GlStateManager.scale(scaleX, scaleY, 1);
+		}
+
+		mc.getTextureManager().bindTexture(ABILITY_OVERLAY);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-		float slant = barHeight * maxHealth * 0.0006f;
 		// health
 		double start = 0;
 		double finish = health/25f;
@@ -1041,7 +1061,7 @@ public class RenderManager {
 			red = green = blue = 255;
 		alpha = inGui ? 180 : 255;
 		if (health > 0)
-			renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
+			renderIndividualHealthBar(buffer, start, finish, health, barHeight, barWidth, xOffset, incrementX, red, green, blue, alpha, slant);
 		// armor
 		start = finish;
 		finish = (health+armor)/25f;
@@ -1057,7 +1077,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (armor > 0)
-			renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
+			renderIndividualHealthBar(buffer, start, finish, armor, barHeight, barWidth, xOffset, incrementX, red, green, blue, alpha, slant);
 		// shield
 		start = finish;
 		finish = (health+armor+shield)/25f;
@@ -1073,7 +1093,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (shield > 0)
-			renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
+			renderIndividualHealthBar(buffer, start, finish, shield, barHeight, barWidth, xOffset, incrementX, red, green, blue, alpha, slant);
 		// shield ability
 		start = finish;
 		finish = (health+armor+shield+shieldAbility)/25f;
@@ -1089,7 +1109,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 180 : 255;
 		if (shieldAbility > 0)
-			renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
+			renderIndividualHealthBar(buffer, start, finish, shieldAbility, barHeight, barWidth, xOffset, incrementX, red, green, blue, alpha, slant);
 		// translucent background
 		start = finish;
 		finish = maxHealth/25f;
@@ -1101,7 +1121,7 @@ public class RenderManager {
 		}
 		alpha = inGui ? 160 : 90;
 		if (finish > start)
-			renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, inGui ? 0 : maxWidth/scaleX/2f, incrementX, red, green, blue, alpha, slant);
+			renderIndividualHealthBar(buffer, start, finish, maxHealth, barHeight, barWidth, xOffset, incrementX, red, green, blue, alpha, slant);
 
 		tessellator.draw();
 		GlStateManager.popMatrix(); 

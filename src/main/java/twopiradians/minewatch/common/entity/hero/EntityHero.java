@@ -65,6 +65,7 @@ public class EntityHero extends EntityMob {
 		}
 		Arrays.fill(this.inventoryArmorDropChances, (float) Config.mobEquipmentDropRate);
 		Arrays.fill(this.inventoryHandsDropChances, (float) Config.mobEquipmentDropRate);
+		this.stepHeight = Config.stepAssist ? 1 : 0.6f;
 	}
 
 	@Override
@@ -149,7 +150,7 @@ public class EntityHero extends EntityMob {
 			if (stack != null)
 				stack.getItem().onUpdate(stack, world, this, 0, stack == this.getHeldItemMainhand());
 		}
-		
+
 		// handle shield regen
 		if (!this.world.isRemote)
 			HealthManager.handleShieldRegen(this, hero);
@@ -184,14 +185,14 @@ public class EntityHero extends EntityMob {
 		}
 		this.setDead();
 	}
-	
+
 	@Override
-    @Nullable
-    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
+	@Nullable
+	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
 		this.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
-		
-    	return super.onInitialSpawn(difficulty, livingdata);
-    }
+
+		return super.onInitialSpawn(difficulty, livingdata);
+	}
 
 	/**Overridden to sync absorption with data manager (like players)*/
 	@Override
@@ -251,12 +252,12 @@ public class EntityHero extends EntityMob {
 	protected boolean canDespawn() {
 		return Config.heroMobsDespawn || this.getTeam() == null;
 	}
-	
+
 	/**Return false if allowFriendlyFire (because used by static method in EntityAITarget)*/
 	@Override
-    public boolean isOnSameTeam(Entity entityIn) {
-        return super.isOnSameTeam(entityIn) && (this.getTeam() == null || !this.getTeam().getAllowFriendlyFire());
-    }
+	public boolean isOnSameTeam(Entity entityIn) {
+		return super.isOnSameTeam(entityIn) && (this.getTeam() == null || !this.getTeam().getAllowFriendlyFire());
+	}
 
 	/**Overridden to make public for ItemMWArmor genji double jump*/
 	@Override

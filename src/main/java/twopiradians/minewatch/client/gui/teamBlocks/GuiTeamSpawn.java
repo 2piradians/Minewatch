@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.gui.IGuiScreen.Screen;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase;
 import twopiradians.minewatch.client.gui.buttons.GuiButtonBase.Render;
 import twopiradians.minewatch.common.Minewatch;

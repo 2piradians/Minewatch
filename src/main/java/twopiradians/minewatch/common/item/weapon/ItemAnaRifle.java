@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,7 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -52,8 +50,6 @@ public class ItemAnaRifle extends ItemMWWeapon {
 
 	private boolean prevScoped;
 	private float unscopedSensitivity;
-
-	private boolean resetColor;
 
 	public static final Handler SLEEP = new Handler(Identifier.ANA_SLEEP, true) {
 		@SideOnly(Side.CLIENT)
@@ -195,7 +191,7 @@ public class ItemAnaRifle extends ItemMWWeapon {
 	public void wakeUpSleeping(LivingHurtEvent event) {
 		Handler handler = TickHandler.getHandler(event.getEntity(), Identifier.ANA_SLEEP);
 		if (handler != null && (event.getSource().getTrueSource() == null || 
-				!(event.getSource().getTrueSource() instanceof EntityAnaSleepDart))) {
+				!(event.getSource().getImmediateSource() instanceof EntityAnaSleepDart))) {
 			for (Identifier identifier : new Identifier[] {Identifier.ANA_SLEEP, 
 					Identifier.PREVENT_INPUT, Identifier.PREVENT_MOVEMENT, Identifier.PREVENT_ROTATION}) {
 				handler = TickHandler.getHandler(event.getEntity(), identifier);
@@ -302,42 +298,5 @@ public class ItemAnaRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
-
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void renderGrenadeHealth(RenderGameOverlayEvent.Pre event) {
-		if (event.getType() == ElementType.HEALTH) {
-			resetColor = false;
-			int width = event.getResolution().getScaledWidth();
-			int height = event.getResolution().getScaledHeight();
-			int left = width / 2 - 91;
-			int top = height - 39;
-
-			if (TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.ANA_GRENADE_HEAL)) {
-				GlStateManager.enableBlend();
-				Minecraft.getMinecraft().renderEngine.bindTexture(EnumParticle.ANA_GRENADE_HEAL.facingLoc);	
-				Gui.drawModalRectWithCustomSizedTexture(left-18, top-4, 0, 0, 16, 16, 16, 16);
-				Minecraft.getMinecraft().renderEngine.bindTexture(Gui.ICONS);
-
-				GlStateManager.color(255/255f, 255/255f, 0/255f);	
-				resetColor = true;
-			}
-			else if (TickHandler.hasHandler(Minecraft.getMinecraft().player, Identifier.ANA_GRENADE_DAMAGE)) {
-				GlStateManager.enableBlend();
-				Minecraft.getMinecraft().renderEngine.bindTexture(EnumParticle.ANA_GRENADE_DAMAGE.facingLoc);	
-				Gui.drawModalRectWithCustomSizedTexture(left-18, top-4, 0, 0, 16, 16, 16, 16);
-				Minecraft.getMinecraft().renderEngine.bindTexture(Gui.ICONS);
-				GlStateManager.color(75/255f, 0/255f, 255/255f);
-				resetColor = true;
-			}
-		}
-	}
-
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void renderGrenadeHealth(RenderGameOverlayEvent.Post event) {
-		if (resetColor) 
-			GlStateManager.color(1, 1, 1);
-	}
 
 }

@@ -126,7 +126,7 @@ public abstract class EntityHeroAIAttackBase extends EntityAIBase {
 
 		switch (movementType) {
 		case STRAFING:
-			if (distanceSq <= (double)this.maxAttackDistance && this.seeTime >= 20) {
+			if (distanceSq <= (double)this.maxAttackDistance/* && this.seeTime >= 20*/) {
 				this.entity.getNavigator().clearPathEntity();
 				++this.strafingTime;
 			}

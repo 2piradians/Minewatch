@@ -60,6 +60,7 @@ public class EntityMoiraOrb extends EntityMW {
 			this.tethered.clear();
 			for (Entity entity : world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(5)))
 				if (entity instanceof EntityLivingBase && EntityHelper.shouldHit(this, entity, this.isFriendly) &&
+						!EntityHelper.shouldIgnoreEntity(entity) && 
 						((EntityLivingBase)entity).canEntityBeSeen(this) && 
 						(!this.isFriendly || ((EntityLivingBase) entity).getHealth() < ((EntityLivingBase) entity).getMaxHealth())) 
 					this.tethered.add((EntityLivingBase) entity);

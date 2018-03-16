@@ -21,7 +21,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -34,7 +33,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
@@ -75,11 +73,11 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
-	
+
 	public static final Handler DEFLECT = new Handler(Identifier.GENJI_DEFLECT, true) {
 		@Override
 		public boolean onServerTick() {
-			AxisAlignedBB aabb = entityLiving.getEntityBoundingBox().grow(4);
+			AxisAlignedBB aabb = entityLiving.getEntityBoundingBox().grow(2d);
 			List<Entity> list = entityLiving.world.getEntitiesWithinAABBExcludingEntity(entityLiving, aabb);
 			for (Entity entity : list) 
 				if (!(entity instanceof EntityArrow))
@@ -134,7 +132,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		public boolean onServerTick() {
 			if (entityLiving instanceof EntityHero)
 				SPacketSimple.move(entityLiving, 1.5f, true, true);
-			
+
 			// block while striking
 			if (entityLiving.getHeldItemMainhand() != null && entityLiving.getHeldItemMainhand().getItem() instanceof ItemGenjiShuriken &&
 					entityLiving.getActiveItemStack() != entityLiving.getHeldItemMainhand()) 
@@ -267,12 +265,12 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
-			
+
 			if (entity instanceof EntityMW) 
 				((EntityMW)entity).onDeflect();
 			else if (entity instanceof EntityLivingBaseMW)
 				((EntityLivingBaseMW)entity).onDeflect();
-			
+
 			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
 			if (data != null) 
 				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
@@ -285,21 +283,21 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 		return false;
 	}
-	
+
 	public static boolean canDeflect(EntityLivingBase player, Entity entity) {
 		return entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) && !entity.onGround &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.1d &&
-				!(entity instanceof EntityMW && ((((EntityMW)entity).notDeflectible) || 
-						!EntityHelper.shouldHit(((EntityMW)entity).getThrower(), player, false)));
+				!(entity instanceof EntityMW && ((EntityMW)entity).notDeflectible) && 
+				EntityHelper.shouldHit(entity, player, false);
 	}
 
 	@SubscribeEvent
 	public void deflectAttack(LivingAttackEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().world.isRemote && 
 				TickHandler.hasHandler(event.getEntity(), Identifier.GENJI_DEFLECT)) {
-			if (deflect((EntityLivingBase) event.getEntity(), event.getSource().getTrueSource())) 
+			if (deflect((EntityLivingBase) event.getEntity(), event.getSource().getImmediateSource())) 
 				event.setCanceled(true);
 		}
 	}

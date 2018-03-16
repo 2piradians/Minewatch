@@ -7,9 +7,12 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
+import twopiradians.minewatch.common.hero.RenderManager;
+import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
@@ -65,6 +68,8 @@ public class EntityRoadhogHook extends EntityMW {
 				TickHandler.register(entity.world.isRemote, Handlers.PREVENT_INPUT.setEntity(entity).setTicks(100),
 						Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(100),
 						Handlers.PREVENT_ROTATION.setEntity(entity).setTicks(100));
+				if (entity.world.isRemote && entity == Minewatch.proxy.getClientPlayer())
+					TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(40).setString(TextFormatting.DARK_RED+""+TextFormatting.BOLD+"STUNNED").setNumber(MessageTypes.TOP.ordinal()));
 			}
 		}
 		else
@@ -128,7 +133,7 @@ public class EntityRoadhogHook extends EntityMW {
 	@Override
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
 		return result != null && result.typeOfHit != RayTraceResult.Type.MISS && 
-				((!isRetracting() && hooked == null && result.typeOfHit == RayTraceResult.Type.ENTITY && EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly) && nearest) || // hook target
+				((!isRetracting() && hooked == null && result.typeOfHit == RayTraceResult.Type.ENTITY && EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly) && nearest && !EntityHelper.shouldIgnoreEntity(result.entityHit)) || // hook target
 						(isRetracting() && hooked == null && result.typeOfHit == Type.ENTITY && result.entityHit == getThrower()) || // finished retracting
 						(!this.noClip && result.typeOfHit == Type.BLOCK)); // hit block 
 	}
@@ -150,8 +155,8 @@ public class EntityRoadhogHook extends EntityMW {
 		else if (!world.isRemote && result.entityHit == getThrower())
 			this.setDead();
 		// hit entity to hook (server only)
-		else if (result.entityHit instanceof EntityLivingBase && 
-				EntityHelper.attemptDamage(getThrower(), result.entityHit, 30, true)) {
+		else if (result.entityHit instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(result.entityHit) && 
+				EntityHelper.attemptDamage(this, result.entityHit, 30, true)) {
 			this.setHooked((EntityLivingBase) result.entityHit);
 			this.setRetracting();
 			Minewatch.network.sendToDimension(new SPacketSimple(77, this, false, this.hooked), world.provider.getDimension());

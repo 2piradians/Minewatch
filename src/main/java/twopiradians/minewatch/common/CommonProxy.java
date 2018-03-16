@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;

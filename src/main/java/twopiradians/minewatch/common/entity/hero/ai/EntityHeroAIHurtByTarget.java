@@ -19,4 +19,14 @@ public class EntityHeroAIHurtByTarget extends EntityAIHurtByTarget {
 				EntityHelper.shouldHit(this.taskOwner, target, false) && target != this.taskOwner;
 	}
 
+	@Override
+	public boolean shouldContinueExecuting() {
+		if (this.isSuitableTarget(target, false)) {
+			this.taskOwner.setAttackTarget(target);
+			return true;
+		}
+		else
+			return false;
+	}
+
 }

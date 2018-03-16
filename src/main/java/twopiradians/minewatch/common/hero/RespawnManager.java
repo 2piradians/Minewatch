@@ -195,7 +195,7 @@ public class RespawnManager {
 			}
 
 			// heal to full
-			player.connection.player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
+			SetManager.healToFull(player.connection.player);
 		}
 		else if (entity instanceof EntityLivingBase && teamSpawn != null && team != null) {
 			try {
@@ -238,7 +238,7 @@ public class RespawnManager {
 			}
 		}
 	}
-	
+
 	public static boolean isValidTeamSpawn(EntityLivingBase entity, @Nullable Team team, BlockPos teamSpawn) {
 		ArrayList<BlockPos> spawns = getTeamSpawns(entity, team);
 		return spawns.contains(teamSpawn);
@@ -250,7 +250,7 @@ public class RespawnManager {
 		ArrayList<BlockPos> spawns = getTeamSpawns(entity, team);
 		return spawns.isEmpty() ? null : spawns.get(entity.world.rand.nextInt(spawns.size()));
 	}
-	
+
 	/**Gets the position of an active team spawn that this entity can spawn at (randomly pick one if multiple available)*/
 	@Nullable
 	public static ArrayList<BlockPos> getTeamSpawns(EntityLivingBase entity, @Nullable Team team) {
@@ -303,6 +303,9 @@ public class RespawnManager {
 		if (!event.player.world.isRemote && !Config.customDeathScreen) {
 			respawnEntity(event.player, event.player.getTeam(), true, null);
 		}
+		// put players in 1st person
+		else if (event.player instanceof EntityPlayerMP && Config.customDeathScreen)
+			Minewatch.network.sendTo(new SPacketSimple(75, false, event.player), (EntityPlayerMP) event.player);
 	}
 
 	@SubscribeEvent
@@ -319,7 +322,7 @@ public class RespawnManager {
 
 		// put players in 3rd person
 		if (event.getEntityLiving() instanceof EntityPlayerMP && Config.customDeathScreen)
-			Minewatch.network.sendTo(new SPacketSimple(75, false, (EntityPlayer) event.getEntityLiving()), (EntityPlayerMP) event.getEntityLiving());
+			Minewatch.network.sendTo(new SPacketSimple(75, true, (EntityPlayer) event.getEntityLiving()), (EntityPlayerMP) event.getEntityLiving());
 	}
 
 	@SideOnly(Side.CLIENT)

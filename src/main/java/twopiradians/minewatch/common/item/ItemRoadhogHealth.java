@@ -48,14 +48,12 @@ public class ItemRoadhogHealth extends Item implements IChangingModel {
 					((EntityLivingBase)entity).getHeldItemMainhand().getItem() != EnumHero.ROADHOG.weapon || 
 					!TickHandler.hasHandler(entity, Identifier.ROADHOG_HEALING))) {
 				((EntityLivingBase)entity).setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
-				//ModSoundEvents.SOMBRA_HACK_STOP.playFollowingSound(entity, 1, 1, false);
 			}
 			// if not in offhand
 			else if (entity instanceof EntityPlayer && 
 					((EntityPlayer)entity).getHeldItemOffhand() != stack &&
 					((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
 				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
-				//ModSoundEvents.SOMBRA_HACK_STOP.playFollowingSound(entity, 1, 1, false);
 			}
 		}
 	}

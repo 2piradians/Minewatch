@@ -7,7 +7,10 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -162,5 +165,42 @@ public class RenderHelper {
         net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting();
         GlStateManager.enableRescaleNormal();
 	}
+	
+	/**Modified from Gui.drawRect() to allow slant*/
+	public static void drawSlantedRect(double left, double top, double right, double bottom, int color, double z, double slant)
+    {
+        if (left < right)
+        {
+        	double i = left;
+            left = right;
+            right = i;
+        }
+
+        if (top < bottom)
+        {
+        	double j = top;
+            top = bottom;
+            bottom = j;
+        }
+
+        float f3 = (float)(color >> 24 & 255) / 255.0F;
+        float f = (float)(color >> 16 & 255) / 255.0F;
+        float f1 = (float)(color >> 8 & 255) / 255.0F;
+        float f2 = (float)(color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(f, f1, f2, f3);
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.pos((double)left+slant, (double)bottom, z).endVertex();
+        bufferbuilder.pos((double)right+slant, (double)bottom, z).endVertex();
+        bufferbuilder.pos((double)right-slant, (double)top, z).endVertex();
+        bufferbuilder.pos((double)left-slant, (double)top, z).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
 	
 }

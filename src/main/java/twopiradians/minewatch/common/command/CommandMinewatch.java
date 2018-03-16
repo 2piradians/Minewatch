@@ -18,10 +18,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -31,6 +29,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RespawnManager;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
@@ -253,7 +252,7 @@ public class CommandMinewatch implements ICommand {
 			// sync inventory - needed for when called from GuiTab
 			if (sender instanceof EntityPlayerMP)
 				((EntityPlayerMP)sender).sendContainerToPlayer(((EntityPlayerMP)sender).inventoryContainer);
-			entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 40, 31, false, false));
+			SetManager.healToFull(entity);
 		}		
 	}
 

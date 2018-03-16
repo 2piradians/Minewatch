@@ -41,6 +41,7 @@ public class EntityMoiraHealEnergy extends EntityMW {
 		this.setSize(0.1f, 0.1f);
 		this.lifetime = 10; 
 		this.isFriendly = true;
+		this.notDeflectible = true;
 	}
 
 	@Override

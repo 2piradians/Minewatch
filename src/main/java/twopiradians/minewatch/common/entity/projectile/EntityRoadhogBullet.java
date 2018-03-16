@@ -40,6 +40,6 @@ public class EntityRoadhogBullet extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		EntityHelper.attemptDamage(getThrower(), result.entityHit, world.rand.nextInt(6)+1, false);
+		EntityHelper.attemptDamage(this, result.entityHit, world.rand.nextInt(6)+1, false);
 	}
 }

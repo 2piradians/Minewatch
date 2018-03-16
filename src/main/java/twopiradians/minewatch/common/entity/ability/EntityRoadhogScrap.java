@@ -62,7 +62,7 @@ public class EntityRoadhogScrap extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		// only damage if it hasn't exploded yet (has to be before super.onImpact bc that kills it too)
 		if (!this.isDead)
-			EntityHelper.attemptDamage(getThrower(), result.entityHit, 50, false);
+			EntityHelper.attemptDamage(this, result.entityHit, 50, false);
 
 		super.onImpact(result);
 

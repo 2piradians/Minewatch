@@ -820,13 +820,11 @@ public class SPacketSimple implements IMessage {
 					// Ana's grenade
 					else if (packet.type == 53 && entity != null) {
 						if (packet.bool) {
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_HEAL, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
 							TickHandler.register(true, EntityAnaGrenade.HEAL.setEntity(entity).setTicks(80));
 							if (entity == player)
 								ModSoundEvents.ANA_GRENADE_HEAL.playFollowingSound(entity, 0.2f, 1, false);
 						}
 						else {
-							Minewatch.proxy.spawnParticlesCustom(EnumParticle.ANA_GRENADE_DAMAGE, entity.world, entity, 0xFFFFFF, 0xFFFFFF, 1, 80, 2, 2, 0, 0);
 							TickHandler.register(true, EntityAnaGrenade.DAMAGE.setEntity(entity).setTicks(80).setNumber(packet.x));
 							if (entity == player)
 								ModSoundEvents.ANA_GRENADE_DAMAGE.playFollowingSound(entity, 1, 1, false);
@@ -1072,10 +1070,12 @@ public class SPacketSimple implements IMessage {
 						if (entity == player)
 							TickHandler.register(true, Ability.ABILITY_USING.setEntity(player).setTicks(36).setAbility(EnumHero.ROADHOG.ability1));
 					}
-					// 3rd person on death
+					// 3rd person / 1st person
 					else if (packet.type == 75 && packetPlayer == player) {
-						if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0)
-							TickHandler.register(true, Handlers.FORCE_VIEW.setEntity(player).setTicks(21).setNumber(1).setAllowDead(true));
+						if (packet.bool && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0)
+							Minecraft.getMinecraft().gameSettings.thirdPersonView = 1;
+						else if (!packet.bool && Minecraft.getMinecraft().gameSettings.thirdPersonView != 0)
+							Minecraft.getMinecraft().gameSettings.thirdPersonView = 0;
 					}
 					// roadhog hook
 					else if (packet.type == 76 && entity2 instanceof EntityRoadhogHook && entity instanceof EntityLivingBase) {

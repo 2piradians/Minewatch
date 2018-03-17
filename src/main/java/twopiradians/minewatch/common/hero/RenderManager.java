@@ -537,11 +537,11 @@ public class RenderManager {
 		// ask mainhand if offhand is empty or is another mw item (but not a weapon - like Sombra's hack or Junkrat's trigger)
 		ItemStack stack = event.getHand() == EnumHand.MAIN_HAND || off == null || off.isEmpty() || (off.getItem() instanceof IChangingModel && !(off.getItem() instanceof ItemMWWeapon)) ? main : held;
 
+		GlStateManager.pushMatrix();
 		if (player != null && !player.isInvisible() && !player.isSpectator() && ((stack != null && stack.getItem() instanceof ItemMWWeapon &&
 				((ItemMWWeapon)stack.getItem()).shouldRenderHand(player, event.getHand()))) || 
 				(chest != null && chest.getItem() instanceof ItemMWArmor && event.getHand() == EnumHand.MAIN_HAND && 
 				(held == null || held.isEmpty()))) {
-			GlStateManager.pushMatrix();
 			float partialTicks = mc.getRenderPartialTicks();
 			float swing = player.getSwingProgress(partialTicks);	
 			float f7 = event.getHand() == EnumHand.MAIN_HAND ? swing : 0.0F;
@@ -582,8 +582,8 @@ public class RenderManager {
 				renderplayer.renderLeftArm(abstractclientplayer);
 
 			GlStateManager.enableCull();
-			GlStateManager.popMatrix();
 		}
+		GlStateManager.popMatrix();
 	}
 
 	@SideOnly(Side.CLIENT)

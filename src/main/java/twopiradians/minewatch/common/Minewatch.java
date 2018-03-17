@@ -24,7 +24,7 @@ import twopiradians.minewatch.creativetab.MapMakingTab;
 import twopiradians.minewatch.creativetab.MinewatchTab;
 
 @SuppressWarnings("deprecation")
-@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json", acceptedMinecraftVersions="[1.12,1.13)")
+@Mod(modid = Minewatch.MODID, version = Minewatch.VERSION, name = Minewatch.MODNAME, guiFactory = "twopiradians.minewatch.client.gui.config.GuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Minewatch/update.json", acceptedMinecraftVersions="[1.12,1.13)", dependencies="required-after:forge@[14.23.0.2528,);")
 public class Minewatch {
 	
     public static final String MODNAME = "Minewatch";

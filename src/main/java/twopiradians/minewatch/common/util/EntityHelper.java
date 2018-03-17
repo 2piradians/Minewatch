@@ -9,6 +9,7 @@ import javax.vecmath.Vector2f;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -85,11 +86,17 @@ public class EntityHelper {
 		if (fast) 
 			aabb = aabb.expand(entityIn.motionX, entityIn.motionY, entityIn.motionZ);
 		// list of entities in (possibly very big) area
-		List<Entity> list = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
+		HashSet<Entity> list = Sets.newHashSet(entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb));
 		// entities in collision box
-		List<Entity> entitiesColliding = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, entityIn.getEntityBoundingBox());
-		for (int i = 0; i < list.size(); ++i) {
-			Entity entity = list.get(i);
+		if (entityIn instanceof EntityMW)
+			aabb = ((EntityMW)entityIn).getImpactBoundingBox();
+		else if (entityIn instanceof EntityLivingBaseMW)
+			aabb = ((EntityLivingBaseMW)entityIn).getImpactBoundingBox();
+		else
+			aabb = entityIn.getEntityBoundingBox();
+		List<Entity> entitiesColliding = entityIn.world.getEntitiesWithinAABBExcludingEntity(entityIn, aabb);
+		list.addAll(entitiesColliding);
+		for (Entity entity : list) {
 			if ((shouldHit(entityIn, entity, friendly) || (entityIn instanceof EntityAnaGrenade && shouldHit(entityIn, entity, !friendly)) ||
 					entityIn instanceof EntityRoadhogHook)) {
 				double x2 = entity instanceof EntityPlayer ? ((EntityPlayer)entity).chasingPosX : entity.prevPosX;
@@ -132,17 +139,17 @@ public class EntityHelper {
 		Vec3d posVec = EntityHelper.getEntityPartialPos(shooter);
 		return posVec.add(lookVec).add(horizontalVec).addVector(0, shooter.getEyeHeight(), 0);
 	}
-	
+
 	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		setAim(entity, shooter, target, metersPerSecond, hand, verticalAdjust, horizontalAdjust, false);
 	}
-	
+
 	/**Aim the entity at the target. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, Entity target, float metersPerSecond, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, boolean ignoreHeroInaccuracy) {
 		setAim(entity, shooter, target, shooter.rotationPitch, shooter.rotationYawHead, metersPerSecond, 0, hand, verticalAdjust, horizontalAdjust, 1, ignoreHeroInaccuracy);
 	}
-	
+
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1. Make sure yaw is rotationYawHead*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust) {
 		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1, false);
@@ -167,10 +174,10 @@ public class EntityHelper {
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
 		pitch += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
 		yaw += (entity.world.rand.nextFloat()-0.5f)*inaccuracy;
-		
+
 		pitch = MathHelper.wrapDegrees(pitch);
 		yaw = MathHelper.wrapDegrees(yaw);
-		
+
 		// get block that shooter is looking at
 		double blockDistance = Double.MAX_VALUE;
 		RayTraceResult blockTrace = shooter instanceof EntityHero ? null : EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
@@ -332,7 +339,7 @@ public class EntityHelper {
 				(entityTeam == null || targetTeam == null || 
 				(entityTeam == targetTeam) == friendly || entityTeam.getAllowFriendlyFire());
 	}
-	
+
 	/**Get an entity's team - namely for getting a dead entity's team (since they are technically removed from team on death)*/
 	@Nullable
 	public static Team getTeam(Entity entity) {
@@ -395,7 +402,7 @@ public class EntityHelper {
 						result.entityHit instanceof EntityLivingBase && 
 						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile)) {
 					//if (projectile instanceof EntityMW)
-						//projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
+					//projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
 				}
 				// don't kill if deflecting
 				else if (kill)
@@ -1024,7 +1031,7 @@ public class EntityHelper {
 		IBlockState equal = world.getBlockState(pos);
 		IBlockState up = world.getBlockState(pos.up());
 		// valid spot found
-		return down.getMaterial().blocksMovement() && 
+		return !down.getBlock().isPassable(world, pos) && 
 				(world.isAirBlock(pos) || equal.getCollisionBoundingBox(world, pos) == null) &&
 				(world.isAirBlock(pos.up()) || up.getCollisionBoundingBox(world, pos.up()) == null);
 	}
@@ -1033,52 +1040,52 @@ public class EntityHelper {
 	public static boolean shouldIgnoreEntity(Entity entity) {
 		return shouldIgnoreEntity(entity, false);
 	}
-	
+
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreEntity(Entity entity, boolean allowInvulnerable) {
 		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || 
 				(!allowInvulnerable && TickHandler.hasHandler(entity, Identifier.INVULNERABLE)) ||
 				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
 	}
-	
+
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreBlock(Block block) {
 		return block == null || block == Blocks.BARRIER;
 	}
-	
-	
+
+
 	/**Modified from EntityLivingBase#collideWithNearbyEntities() to make accessible for all entities*/
 	public static void collideWithNearbyEntities(Entity entityIn) {
-        List<Entity> list = entityIn.world.getEntitiesInAABBexcluding(entityIn, entityIn.getEntityBoundingBox(), EntitySelectors.getTeamCollisionPredicate(entityIn));
+		List<Entity> list = entityIn.world.getEntitiesInAABBexcluding(entityIn, entityIn.getEntityBoundingBox(), EntitySelectors.getTeamCollisionPredicate(entityIn));
 
-        if (!list.isEmpty())
-        {
-            int i = entityIn.world.getGameRules().getInt("maxEntityCramming");
+		if (!list.isEmpty())
+		{
+			int i = entityIn.world.getGameRules().getInt("maxEntityCramming");
 
-            if (i > 0 && list.size() > i - 1 && entityIn.world.rand.nextInt(4) == 0)
-            {
-                int j = 0;
+			if (i > 0 && list.size() > i - 1 && entityIn.world.rand.nextInt(4) == 0)
+			{
+				int j = 0;
 
-                for (int k = 0; k < list.size(); ++k)
-                {
-                    if (!((Entity)list.get(k)).isRiding())
-                    {
-                        ++j;
-                    }
-                }
+				for (int k = 0; k < list.size(); ++k)
+				{
+					if (!((Entity)list.get(k)).isRiding())
+					{
+						++j;
+					}
+				}
 
-                if (j > i - 1)
-                {
-                    entityIn.attackEntityFrom(DamageSource.CRAMMING, 6.0F);
-                }
-            }
+				if (j > i - 1)
+				{
+					entityIn.attackEntityFrom(DamageSource.CRAMMING, 6.0F);
+				}
+			}
 
-            for (int l = 0; l < list.size(); ++l)
-            {
-                Entity entity = list.get(l);
-                entityIn.applyEntityCollision(entity);
-            }
-        }
-    }
+			for (int l = 0; l < list.size(); ++l)
+			{
+				Entity entity = list.get(l);
+				entityIn.applyEntityCollision(entity);
+			}
+		}
+	}
 
 }

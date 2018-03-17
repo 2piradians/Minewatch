@@ -12,6 +12,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
@@ -157,6 +158,11 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	/**Called when deflected by Genji - only on server*/
 	public void onDeflect() {
 		this.lifetime *= 2; 
+	}
+	
+	/**Used to check for impacts*/
+	public AxisAlignedBB getImpactBoundingBox() {
+		return this.getEntityBoundingBox();
 	}
 
 	@Override

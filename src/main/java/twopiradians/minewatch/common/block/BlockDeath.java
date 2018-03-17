@@ -32,24 +32,34 @@ public class BlockDeath extends BlockBarrier {
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("tile.death_block.desc1"));
 		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("tile.death_block.desc2"));
 	}
-
-    @Override
-    @Nullable
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
-        return NULL_AABB;
-    }
-    
-    @Override
-    public boolean isFullCube(IBlockState state) {
+	
+	@Override
+    public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
         return false;
     }
-    
+	
+	@Override
+    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
+        return false;
+    }
+
+	@Override
+	@Nullable
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+		return NULL_AABB;
+	}
+
+	@Override
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		// kill on collide
 		if (!worldIn.isRemote && entityIn instanceof EntityLivingBase && ((EntityLivingBase)entityIn).isEntityAlive() && 
 				(!(entityIn instanceof EntityPlayer) || (!((EntityPlayer)entityIn).isSpectator() && !((EntityPlayer)entityIn).isCreative())))
-				entityIn.onKillCommand();
+			entityIn.onKillCommand();
 	}
 
 	public static class ItemBlockDeath extends ItemBlock {

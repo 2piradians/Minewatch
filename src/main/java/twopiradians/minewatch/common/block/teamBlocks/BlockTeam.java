@@ -30,7 +30,7 @@ import twopiradians.minewatch.common.util.ColorHelper;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
-public abstract class BlockTeam extends Block{
+public abstract class BlockTeam extends Block {
 
     public static final PropertyBool HAS_TEAM = PropertyBool.create("has_team");
     public static final PropertyBool ACTIVATED = PropertyBool.create("activated");

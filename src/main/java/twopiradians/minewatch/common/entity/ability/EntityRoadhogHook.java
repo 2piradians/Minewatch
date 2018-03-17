@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector2f;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
@@ -29,7 +30,7 @@ public class EntityRoadhogHook extends EntityMW {
 
 	public EntityRoadhogHook(World worldIn, EntityLivingBase throwerIn, int hand) {
 		super(worldIn, throwerIn, hand);
-		this.setSize(0.9f, 0.9f);
+		this.setSize(0.2f, 0.2f);
 		this.lifetime = 100;
 		this.setNoGravity(false);
 	}
@@ -85,7 +86,7 @@ public class EntityRoadhogHook extends EntityMW {
 
 		if (getThrower() != null) {
 			// face thrower
-			Vector2f look = EntityHelper.getDirectLookAngles(getThrower(), this);
+			Vector2f look = EntityHelper.getDirectLookAngles(getThrower().getPositionVector().addVector(0, getThrower().height/2f, 0), this.getPositionVector());
 			this.rotationYaw = look.x;
 			this.rotationPitch = look.y;
 
@@ -128,6 +129,11 @@ public class EntityRoadhogHook extends EntityMW {
 				this.setRetracting();
 			}
 		}
+	}
+	
+	@Override
+	public AxisAlignedBB getImpactBoundingBox() {
+		return this.getEntityBoundingBox().grow(0.8f);
 	}
 
 	@Override

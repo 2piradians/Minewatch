@@ -15,6 +15,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
@@ -126,6 +127,11 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 	/**Called when deflected by Genji - only on server*/
 	public void onDeflect() { }
 
+	/**Used to check for impacts*/
+	public AxisAlignedBB getImpactBoundingBox() {
+		return this.getEntityBoundingBox();
+	}
+	
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
 		if ((source.getTrueSource() == null || EntityHelper.shouldHit(source.getTrueSource(), this, false, source)) &&

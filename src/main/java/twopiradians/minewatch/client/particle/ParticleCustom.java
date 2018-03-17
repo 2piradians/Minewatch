@@ -107,7 +107,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 	
 	@Override
     public boolean shouldDisableDepth() {
-        return /*this.particleAlpha < 1*/ true; // z-fighting if disabled
+        return /*this.particleAlpha < 1*/ !enumParticle.equals(EnumParticle.DEATH_BLOCK); // z-fighting if disabled
     }
 
 	@Override

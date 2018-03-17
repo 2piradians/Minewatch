@@ -240,6 +240,7 @@ public class TickHandler {
 		@Nullable
 		public String string;
 		public Boolean bool = false;
+		public Boolean bool2 = false;
 		public boolean allowDead = false;
 		@Nullable
 		public Object obj;
@@ -316,6 +317,7 @@ public class TickHandler {
 		public Handler setEntity(Entity entity) {
 			this.allowDead = false;
 			this.bool = false;
+			this.bool2 = false;
 			this.number = 0;
 			this.number2 = 0;
 			this.number3 = 0;
@@ -384,6 +386,11 @@ public class TickHandler {
 
 		public Handler setBoolean(Boolean bool) {
 			this.bool = bool;
+			return this;
+		}
+		
+		public Handler setBoolean2(Boolean bool2) {
+			this.bool2 = bool2;
 			return this;
 		}
 		

@@ -35,7 +35,7 @@ public class BlockDeath extends BlockBarrier {
 	
 	@Override
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
-        return false;
+        return true;
     }
 	
 	@Override

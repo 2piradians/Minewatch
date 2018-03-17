@@ -50,6 +50,10 @@ public class CommandLobby implements ICommand {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		EntityPlayerMP player = CommandBase.getCommandSenderAsPlayer(sender);
 		
+		// remove items from player
+		player.inventory.clear();
+		player.inventoryContainer.detectAndSendChanges();
+		
 		// remove team
 		if (player != null && player.getTeam() != null)
 			player.world.getScoreboard().removePlayerFromTeams(player.getName());
@@ -57,16 +61,14 @@ public class CommandLobby implements ICommand {
 		Handler handler = TickHandler.getHandler(player, Identifier.DEAD);
 		// not dead, register DEAD and kill
 		if (handler == null) { // delay player respawn a bit to prevent "Fetching addPacket for removed entity" warning in console
-			TickHandler.register(false, RespawnManager.DEAD.setEntity(player).setTicks(2).setString(player.getTeam() != null ? player.getTeam().getName() : null).setNumber(player.interactionManager.getGameType().ordinal()));
+			TickHandler.register(false, RespawnManager.DEAD.setEntity(player).setTicks(2).setString(player.getTeam() != null ? player.getTeam().getName() : null).setNumber(player.interactionManager.getGameType().ordinal()).setBoolean2(true));
 			player.onKillCommand();
 		}
 		// already dead, respawn
-		else 
+		else {
+			handler.setBoolean2(true);
 			TickHandler.unregister(false, handler);
-		
-		// remove items from player
-		player.inventory.clear();
-		player.inventoryContainer.detectAndSendChanges();
+		}
 		
 		sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Successfully removed from team and respawned"));
 	}

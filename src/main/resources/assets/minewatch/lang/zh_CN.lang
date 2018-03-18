@@ -245,8 +245,8 @@ gui.team_block.button.ok=确认
 
 gui.team_spawn.button.spawn_radius=半径
 gui.team_spawn.button.spawn_radius.desc=设置玩家与实体死后重生，医疗包半径，以及英雄选择。
-gui.team_spawn.button.heal.desc=Should players and mobs be healed in this radius when this is active
-gui.team_spawn.button.change_hero.desc=Should players and mobs be allowed to change hero in this radius when this is active
+gui.team_spawn.button.heal.desc=允许玩家与实体在该半径内获得治疗。
+gui.team_spawn.button.change_hero.desc=允许玩家与实体在该半径内修改英雄。
 gui.team_spawn.button.activate.desc=玩家选择的实体会在对应的团队生成。
 gui.team_spawn.button.deactivate.desc=每个团队仅可使用一个团队生成器。
 gui.team_spawn.button.selected_team.desc=将此设置为团队重生点。

@@ -11,7 +11,7 @@ config.server-side.team_blocks=组队选项
 command.hero.desc=设置玩家/实体所穿戴的武器以及护甲
 command.sync.desc=将你已更改的配置同步至服务器
 command.team_spawn.desc=启用/禁用团队生成器
-command.reset.desc=通过命令可'重置'当前Minewatch竞速游戏，且实体均可于团队生成器重新生成。
+command.reset.desc=通过命令可'重置'当前Minewatch竞技游戏，且实体均可于团队生成器重新生成。
 command.lobby.desc=删除团队，清空物品栏与重生点
 
 effect.frozen=急冻
@@ -223,7 +223,7 @@ entity.roadhog_hero.name=路霸
 entity.roadhog_scrap.name=爆裂枪（路霸）
 entity.roadhog_hook.name=链钩（路霸）
 
-command.reset.success=Minewatch game reset by a moderator.
+command.reset.success=Minewatch竞技游戏仅可由拥有者重置。
 command.reset.unrecognized_flags=Unrecognized flag(s)
 
 overlay.eliminated_by=你已经出局了

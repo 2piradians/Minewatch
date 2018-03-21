@@ -89,7 +89,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 			if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
 				GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
-
+			
 			super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
 			if (!this.renderingEnchantment)

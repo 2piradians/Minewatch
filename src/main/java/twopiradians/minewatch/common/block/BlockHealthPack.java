@@ -60,7 +60,7 @@ public abstract class BlockHealthPack extends Block {
 			TileEntityHealthPack te = (TileEntityHealthPack) worldIn.getTileEntity(pos);
 			EntityLivingBase entity = (EntityLivingBase) entityIn;
 			if (te.canHeal(entity)) {
-				EntityHelper.heal(entity, te.getHealAmount());
+				EntityHelper.heal(null, null, entity, te.getHealAmount());
 				te.setResetCooldown();
 			}
 		}

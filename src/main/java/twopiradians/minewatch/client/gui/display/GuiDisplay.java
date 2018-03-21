@@ -18,9 +18,9 @@ import twopiradians.minewatch.common.hero.EnumHero;
 @SuppressWarnings({"all"})
 @SideOnly(Side.CLIENT)
 public class GuiDisplay extends GuiScreen {
-	
+
 	private EntityGuiPlayer guiPlayer;
-	
+
 	/**0 = everything, 1 = no name, tooltip background, or icon, 2 = only name, tooltip background, and icon*/
 	private int mode;
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID+":textures/gui/white.png");
@@ -60,7 +60,7 @@ public class GuiDisplay extends GuiScreen {
 			GlStateManager.translate(-(Minecraft.getMinecraft().fontRenderer.getStringWidth(list.get(0))-120)/2, 0, 0);
 			list.add("");list.add("");list.add("");list.add("");list.add("");list.add("");
 			if (mode == 0 || mode == 2) 
-				this.drawHoveringText(list, 45, -33);
+				twopiradians.minewatch.common.util.RenderHelper.drawHoveringText(null, list, 45, -33, 1, 1, -1);
 
 			// equip player
 			for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())

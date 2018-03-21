@@ -60,7 +60,7 @@ public class RespawnManager {
 	/**entity = dead respawning entity, entityLiving = (client) spectating entity, @Nullable string = entity's team, bool = changed render view entity this tick, bool2 = use nearest team spawn (for /lobby), number = gamemode to set to afterwards, obj = TileEntityTeamSpawn to spawn at (or null)*/
 	public static final Handler DEAD = new Handler(Identifier.DEAD, false) {
 		@Override
-		@SideOnly(Side.CLIENT) 
+		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// prevent screen shake / stutter
 			player.deathTime = 0;

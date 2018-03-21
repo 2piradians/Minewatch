@@ -373,7 +373,10 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 
-				if (hero != null && !Minewatch.proxy.getClientPlayer().isSpectator()) {		
+				if (hero != null && !player.isSpectator()) {	
+					// ultimate
+					UltimateManager.renderUltimateMeter(player, hero, width, height);
+					
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -415,7 +418,7 @@ public class RenderManager {
 				}
 
 				// display abilities/weapon
-				if (weapon != null && !Minewatch.proxy.getClientPlayer().isSpectator()) {
+				if (weapon != null && !player.isSpectator()) {		
 					GlStateManager.pushMatrix();
 					GlStateManager.enableDepth();
 					GlStateManager.enableAlpha();
@@ -961,10 +964,11 @@ public class RenderManager {
 
 	@SideOnly(Side.CLIENT) // copied from RenderLivingBase#canRenderName() to make public
 	public static boolean canRenderName(RenderLivingBase renderer, EntityLivingBase entity) {
-		if (entity == null || !entity.isEntityAlive())
+		if (entity == null || !entity.isEntityAlive()) // TODO zen health when low, speed up moira heal, increase hog hook impact size
 			return false;
 		// render for spectators
-		else if (Minewatch.proxy.getClientPlayer().isSpectator())
+		else if (Minewatch.proxy.getClientPlayer().isSpectator() && 
+				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator()))
 			return true;
 		// if EntityHero, can check directly
 		else if (renderer instanceof RenderHero && entity instanceof EntityHero)

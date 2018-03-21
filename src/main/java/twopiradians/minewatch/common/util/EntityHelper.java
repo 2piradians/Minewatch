@@ -58,6 +58,8 @@ import twopiradians.minewatch.common.entity.ability.EntityRoadhogHook;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.hero.EntityLucio;
 import twopiradians.minewatch.common.entity.projectile.EntityHanzoArrow;
+import twopiradians.minewatch.common.hero.UltimateManager;
+import twopiradians.minewatch.common.hero.UltimateManager.AttackType;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
@@ -420,32 +422,33 @@ public class EntityHelper {
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
-	 * THROWER SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - SO GENJI CAN DEFLECT*/
-	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
-		Entity actualThrower = getThrower(thrower);
-		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(thrower, (EntityLivingBase) actualThrower) : null;
-		return source != null && attemptDamage(actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
+		Entity actualThrower = getThrower(damageSource);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(damageSource, (EntityLivingBase) actualThrower) : null;
+		return source != null && attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
-	 * THROWER SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - SO GENJI CAN DEFLECT*/
-	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
-		return attemptDamage(thrower, entityHit, damage, neverKnockback, true, source);
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+		Entity actualThrower = getThrower(damageSource);
+		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, true, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
-	 * If damage is negative, entity will be healed by that amount
-	 * THROWER SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - SO GENJI CAN DEFLECT*/
-	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
-		if (shouldHit(thrower, entityHit, damage < 0) && !thrower.world.isRemote) {
+	 * If damage is negative, entity will be healed by that amount*/
+	public static boolean attemptDamage(Entity damageSource, Entity actualThrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
+		if (shouldHit(actualThrower, entityHit, damage < 0) && !actualThrower.world.isRemote) {
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
-				heal((EntityLivingBase)entityHit, damage);
+				heal(damageSource, actualThrower, (EntityLivingBase)entityHit, damage);
 				return true;
 			}
 			// damage
 			else if (damage >= 0) {
+				float amountDamaged = entityHit instanceof EntityLivingBase ? ((EntityLivingBase)entityHit).getHealth() : 0;
 				boolean damaged = false;
 				// save prev hurtResistTime (use EntityDragon's resist if this is EntityDragonPart)
 				int prevHurtResist = entityHit instanceof MultiPartEntityPart && ((MultiPartEntityPart)entityHit).parent instanceof EntityDragon ? ((EntityDragon) ((MultiPartEntityPart)entityHit).parent).hurtResistantTime : entityHit.hurtResistantTime;
@@ -454,17 +457,25 @@ public class EntityHelper {
 				if ((!Config.projectilesCauseKnockback || neverKnockback) && entityHit instanceof EntityLivingBase) {
 					double prev = ((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(thrower)));
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(actualThrower)));
 					((EntityLivingBase) entityHit).getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(prev);
 				}
 				else
-					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(thrower)));
+					damaged = entityHit.attackEntityFrom(source, (float) (damage*Config.getDamageScale(actualThrower)));
 
+				// reset hurt resist
 				if (damaged && ignoreHurtResist)
 					if (entityHit instanceof MultiPartEntityPart && ((MultiPartEntityPart)entityHit).parent instanceof EntityDragon) 
 						((EntityDragon) ((MultiPartEntityPart)entityHit).parent).hurtResistantTime = prevHurtResist;
 					else
 						entityHit.hurtResistantTime = prevHurtResist;
+				
+				// ultimate charge
+				if (damaged) {
+					amountDamaged -= entityHit instanceof EntityLivingBase ? ((EntityLivingBase)entityHit).getHealth() : 0;
+					if (amountDamaged > 0 && actualThrower != entityHit)
+						UltimateManager.handleAbilityCharge(actualThrower, damageSource, amountDamaged, AttackType.DAMAGE);
+				}
 
 				return damaged;
 			}
@@ -473,14 +484,21 @@ public class EntityHelper {
 		return false;
 	}
 
-	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking*/
-	public static void heal(EntityLivingBase entity, float amount) {
+	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR ULT CHARGE*/
+	public static void heal(@Nullable Entity damageSource, @Nullable Entity actualThrower, EntityLivingBase entity, float amount) {
 		if (entity != null && entity.getHealth() < entity.getMaxHealth() && 
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
 				amount *= 2f;
+			float amountHealed = entity.getHealth();
 			entity.heal((float) Math.abs(amount*Config.getDamageScale(entity)));
+			amountHealed = entity.getHealth() - amountHealed;
 			spawnHealParticles(entity, false);
+			
+			// ultimate charge
+			if (amountHealed > 0 && damageSource != null && actualThrower != null)
+				UltimateManager.handleAbilityCharge(actualThrower, damageSource, amountHealed, actualThrower == entity ? AttackType.SELF_HEAL : AttackType.HEAL);
 		}
 	}
 

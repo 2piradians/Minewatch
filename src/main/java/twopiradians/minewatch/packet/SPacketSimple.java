@@ -460,11 +460,11 @@ public class SPacketSimple implements IMessage {
 						GuiTab.addOppedButtons();
 					}
 					// Mercy's Angel
-					else if (packet.type == 19 && entity != null) {
+					else if (packet.type == 19 && entity != null) { 
 						if (packet.bool)
 							ModSoundEvents.MERCY_ANGEL_VOICE.playFollowingSound(entity, 1, 1, false);
 						ModSoundEvents.MERCY_ANGEL.playFollowingSound(entity, 1, 1, false);
-						TickHandler.register(true, ItemMercyWeapon.ANGEL.setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75).setEntity(entity),
+						TickHandler.register(true, ItemMercyWeapon.ANGEL.setEntity(entity).setPosition(new Vec3d(packet.x, packet.y, packet.z)).setTicks(75),
 								Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(EnumHero.MERCY.ability3));
 					}
 					// Junkrat's grenade bounce
@@ -1088,6 +1088,10 @@ public class SPacketSimple implements IMessage {
 						if (entity2 instanceof EntityLivingBase)
 							((EntityRoadhogHook)entity).setHooked((EntityLivingBase) entity2);
 						((EntityRoadhogHook)entity).setRetracting();
+					}
+					// print client handlers
+					else if (packet.type == 78) {
+						player.sendMessage(new TextComponentString("Client handlers: "+TickHandler.getHandlersString(true)));
 					}
 				}
 			});

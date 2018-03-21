@@ -321,7 +321,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			if (handler != null && handler.entityLiving != null && 
 					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f, true, true)) {
 				if (!(handler.entityLiving instanceof EntityLivingBaseMW))
-					EntityHelper.heal(player, 1.5f);
+					EntityHelper.heal(player, player, player, 1.5f);
 				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
 			}
 		}

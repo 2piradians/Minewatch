@@ -3,8 +3,6 @@ package twopiradians.minewatch.common.entity.ability;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
@@ -19,12 +17,6 @@ public class EntityAnaGrenade extends EntityMW {
 
 	public static final Handler DAMAGE = new Handler(Identifier.ANA_GRENADE_DAMAGE, false) {
 		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
-
-			return super.onClientTick();
-		}
-		@Override
 		public boolean onServerTick() {
 			if (entityLiving != null && this.number > 0 && entityLiving.getHealth() > this.number)
 				entityLiving.setHealth((float) this.number);
@@ -32,19 +24,7 @@ public class EntityAnaGrenade extends EntityMW {
 		}
 	};
 
-	public static final Handler HEAL = new Handler(Identifier.ANA_GRENADE_HEAL, false) {
-		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean onClientTick() {
-
-			return super.onClientTick();
-		}
-		@Override
-		public boolean onServerTick() {
-
-			return super.onServerTick();
-		}
-	};
+	public static final Handler HEAL = new Handler(Identifier.ANA_GRENADE_HEAL, false) {};
 
 	public EntityAnaGrenade(World worldIn) {
 		this(worldIn, null, -1);

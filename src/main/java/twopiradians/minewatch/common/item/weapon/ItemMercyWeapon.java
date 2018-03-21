@@ -184,7 +184,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 30, 20, true);
 				if (target != null && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
-					TickHandler.register(false, ANGEL.setPosition(vec).setTicks(75).setEntity(entity),
+					TickHandler.register(false, ANGEL.setEntity(entity).setTicks(75).setPosition(vec),
 							Ability.ABILITY_USING.setTicks(75).setEntity(entity).setAbility(hero.ability3));
 					Minewatch.network.sendToAll(new SPacketSimple(19, (EntityLivingBase) entity, world.rand.nextInt(3) == 0, vec.x, vec.y, vec.z));
 				}

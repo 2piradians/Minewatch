@@ -36,6 +36,7 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIMoveToHealthPack
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.HealthManager;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -51,6 +52,7 @@ public class EntityHero extends EntityMob {
 	public EntityLivingBase healTarget;
 	public boolean movingToHealthPack;
 	public boolean onPack;
+	public float ultCharge;
 
 	public EntityHero(World worldIn) {
 		this(worldIn, null);
@@ -152,8 +154,10 @@ public class EntityHero extends EntityMob {
 		}
 
 		// handle shield regen
-		if (!this.world.isRemote)
+		if (!this.world.isRemote) {
 			HealthManager.handleShieldRegen(this, hero);
+			UltimateManager.handleNormalCharge(this);
+		}
 	}
 
 	/**Kill this and replace it with a random hero*/

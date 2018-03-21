@@ -152,11 +152,16 @@ public class Ability {
 		if (player instanceof EntityPlayer && ((EntityPlayer)player).isSpectator())
 			return false;
 
+		// not ready sound
 		if (player.world.isRemote && this.keybind.getCooldown(player) > 0 && keybind.isKeyDown(player) &&
 				!TickHandler.hasHandler(player, Identifier.KEYBIND_ABILITY_NOT_READY)) {
 			ModSoundEvents.ABILITY_NOT_READY.playSound(player, 1.0f, 1.0f, true);
 			TickHandler.register(true, this.keybind.ABILITY_NOT_READY.setEntity(player).setTicks(20));
 		}
+		
+		// if ultimate and doesn't have charge
+		if (this.keybind == KeyBind.ULTIMATE && !UltimateManager.canUseUltimate(player))
+			return false;
 
 		boolean ret = (maxUses == 0 || getUses(player) > 0) && ((player.getActivePotionEffect(ModPotions.frozen) == null || 
 				player.getActivePotionEffect(ModPotions.frozen).getDuration() == 0 || 
@@ -167,6 +172,7 @@ public class Ability {
 						toggled.contains(player.getPersistentID())) &&
 				!TickHandler.hasHandler(player, Identifier.SOMBRA_HACKED);
 
+		// ABILITY_USING handler
 		Handler handler = TickHandler.getHandler(player, Identifier.ABILITY_USING);
 		boolean ignoreAbility = false;
 		for (Ability ability : ignoreAbilities)

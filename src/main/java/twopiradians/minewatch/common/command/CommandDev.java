@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.minewatch.common.Minewatch;
@@ -24,6 +25,7 @@ import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
 public class CommandDev implements ICommand {
@@ -53,14 +55,17 @@ public class CommandDev implements ICommand {
 
 	/**Actually runs the command (for chat event), returns if message was a valid command (and chat should be hidden)*/
 	public static boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
-		if (sender instanceof EntityPlayer && args.length == 2 && args[0].equalsIgnoreCase("hero")) {
+		EntityPlayerMP player = sender instanceof EntityPlayerMP ? (EntityPlayerMP) sender : null;
+		if (player == null)
+			return false;
+		
+		if (args.length == 2 && args[0].equalsIgnoreCase("hero")) {
 			EnumHero hero = null;
 			for (EnumHero hero2 : EnumHero.values())
 				if (hero2.name.equalsIgnoreCase(args[1]))
 					hero = hero2;
 
 			if (hero != null) {
-				EntityPlayer player = (EntityPlayer) sender;
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					ItemStack stack = player.getItemStackFromSlot(slot);
 					ItemStack newStack = hero.getEquipment(slot) == null ? 
@@ -82,9 +87,13 @@ public class CommandDev implements ICommand {
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.RED+args[1]+" is not a valid hero"));
 			return true;
 		}
-		else if (sender instanceof EntityPlayerMP && args.length == 2 && args[0].equalsIgnoreCase("display")) {
-			if (NumberUtils.isCreatable(args[1])) // PORT 1.12: isCreatable
-				Minewatch.network.sendTo(new SPacketSimple(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), (EntityPlayerMP) sender);
+		else if (args.length == 2 && args[0].equalsIgnoreCase("display")) {
+			if (NumberUtils.isCreatable(args[1])) 
+				Minewatch.network.sendTo(new SPacketSimple(7, (EntityPlayer) sender, Integer.parseInt(args[1]), 0, 0), player);
+		}
+		else if (args.length == 1 && args[0].equalsIgnoreCase("tickhandlers")) {
+			sender.sendMessage(new TextComponentString("Server handlers: "+TickHandler.getHandlersString(false)));
+			Minewatch.network.sendTo(new SPacketSimple(78), player);
 		}
 		return false;
 	}
@@ -99,7 +108,7 @@ public class CommandDev implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
-			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display");}});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display"); add("tickhandlers");}});
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, CommandMinewatch.ALL_HERO_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase("display"))

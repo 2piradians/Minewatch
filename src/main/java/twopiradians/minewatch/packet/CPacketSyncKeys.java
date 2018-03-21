@@ -18,27 +18,31 @@ public class CPacketSyncKeys implements IMessage
 	private UUID player;
 	private int key;
 	private boolean isToggle;
+	private float pitch;
+	private float yawHead;
 
 	public CPacketSyncKeys() {}
 
-	public CPacketSyncKeys(KeyBind key, boolean isKeyPressed, UUID player) {
-		this(key, isKeyPressed, -1, player, false);
+	public CPacketSyncKeys(KeyBind key, boolean isKeyPressed, UUID player, float pitch, float yawHead) {
+		this(key, isKeyPressed, -1, player, false, pitch, yawHead);
 	}
 
 	public CPacketSyncKeys(KeyBind key, boolean isKeyPressed, UUID player, boolean isToggle) {
-		this(key, isKeyPressed, -1, player, isToggle);
+		this(key, isKeyPressed, -1, player, isToggle, -1, -1);
 	}
 
 	public CPacketSyncKeys(KeyBind key, float fov, UUID player) {
-		this(key, false, fov, player, false);
+		this(key, false, fov, player, false, -1, -1);
 	}
 
-	public CPacketSyncKeys(KeyBind key, boolean isKeyPressed, float fov, UUID player, boolean isToggle) {
+	public CPacketSyncKeys(KeyBind key, boolean isKeyPressed, float fov, UUID player, boolean isToggle, float pitch, float yawHead) {
 		this.key = key == null ? -1 : key.ordinal();
 		this.isKeyPressed = isKeyPressed;
 		this.fov = fov;
 		this.player = player;
 		this.isToggle = isToggle;
+		this.pitch = pitch;
+		this.yawHead = yawHead;
 	}
 
 	@Override
@@ -48,6 +52,8 @@ public class CPacketSyncKeys implements IMessage
 		this.fov = buf.readFloat();
 		this.player = UUID.fromString(ByteBufUtils.readUTF8String(buf));
 		this.isToggle = buf.readBoolean();
+		this.pitch = buf.readFloat();
+		this.yawHead = buf.readFloat();
 	}
 
 	@Override
@@ -57,6 +63,8 @@ public class CPacketSyncKeys implements IMessage
 		buf.writeFloat(this.fov);
 		ByteBufUtils.writeUTF8String(buf, this.player.toString());
 		buf.writeBoolean(this.isToggle);
+		buf.writeFloat(this.pitch);
+		buf.writeFloat(this.yawHead);
 	}
 
 	public static class Handler implements IMessageHandler<CPacketSyncKeys, IMessage> {
@@ -74,8 +82,14 @@ public class CPacketSyncKeys implements IMessage
 							key.toggle(packet.player, packet.isKeyPressed, false);
 						else if (key == KeyBind.FOV && packet.fov != -1)
 							key.setFOV(packet.player, packet.fov);
-						else
+						else {
+							// copy pitch / yaw from when button clicked
+							if (packet.pitch != -1 || packet.yawHead != -1) {
+								ctx.getServerHandler().player.rotationPitch = packet.pitch;
+								ctx.getServerHandler().player.rotationYawHead = packet.yawHead;
+							}
 							key.setKeyDown(packet.player, packet.isKeyPressed, false);
+						}
 					}
 				}
 			});

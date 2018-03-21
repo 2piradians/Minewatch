@@ -11,7 +11,8 @@ config.server-side.team_blocks=组队选项
 command.hero.desc=设置玩家/实体所穿戴的武器以及护甲
 command.sync.desc=将你已更改的配置同步至服务器
 command.team_spawn.desc=启用/禁用团队生成器
-command.reset.desc=通过命令可'重置'当前Minewatch竞速游戏，且实体均可于团队生成器重新生成。
+command.reset.desc=通过命令可'重置'当前Minewatch竞技游戏，且实体均可于团队生成器重新生成。
+command.lobby.desc=删除团队，清空物品栏与重生点
 
 effect.frozen=急冻
 
@@ -20,6 +21,9 @@ tile.health_pack_large.name=大型医疗包
 tile.health_pack.desc=玩家经过医疗包会恢复生命，之后会进入冷却以重新生成。
 tile.team_spawn.name=团队生成器
 tile.team_spawn.desc=设置玩家与实体重生区域
+tile.death_block.name=死亡标识
+tile.death_block.desc1=任何触及到它的玩家或者实体都将被抹杀。
+tile.death_block.desc2=用来模仿掉出地图外。
 
 item.wild_card_token.name=万能纹章
 item.team_stick.name=组队之杖
@@ -146,12 +150,20 @@ item.moira_leggings.name=莫伊拉护腿
 item.moira_boots.name=莫伊拉靴子
 item.moira_weapon.name=生物之握（莫伊拉）
 
-item.doomfist_token.name=毁灭之拳纹章
-item.doomfist_helmet.name=毁灭之拳头盔
-item.doomfist_chestplate.name=毁灭之拳胸甲
-item.doomfist_leggings.name=毁灭之拳护腿
-item.doomfist_boots.name=毁灭之拳靴子
-item.doomfist_weapon.name=拳套（毁灭之拳）
+item.doomfist_token.name=末日铁拳纹章
+item.doomfist_helmet.name=末日铁拳头盔
+item.doomfist_chestplate.name=末日铁拳胸甲
+item.doomfist_leggings.name=末日铁拳护腿
+item.doomfist_boots.name=末日铁拳靴子
+item.doomfist_weapon.name=拳套（末日铁拳）
+
+item.roadhog_token.name=路霸纹章
+item.roadhog_helmet.name=路霸头盔
+item.roadhog_chestplate.name=路霸胸甲
+item.roadhog_leggings.name=路霸护腿
+item.roadhog_boots.name=路霸靴子
+item.roadhog_weapon.name=爆裂枪（路霸）
+item.roadhog_health.name=呼吸器（路霸）
 
 entity.random_hero.name=随机英雄
 entity.hanzo_hero.name=半藏
@@ -204,11 +216,14 @@ entity.zenyatta_hero.name=禅雅塔
 entity.zenyatta_orb.name=灭（禅雅塔）
 entity.moira_hero.name=莫伊拉
 entity.moira_heal_energy.name=治愈能量（莫伊拉）
-entity.moira_orb.name=Biotic Orb（莫伊拉）
-entity.doomfist_hero.name=毁灭之拳
-entity.doomfist_bullet.name=子弹（毁灭之拳）
+entity.moira_orb.name=生化之球（莫伊拉）
+entity.doomfist_hero.name=末日铁拳
+entity.doomfist_bullet.name=子弹（末日铁拳）
+entity.roadhog_hero.name=路霸
+entity.roadhog_scrap.name=爆裂枪（路霸）
+entity.roadhog_hook.name=链钩（路霸）
 
-command.reset.success=Minewatch game reset by a moderator.
+command.reset.success=Minewatch竞技游戏仅可由拥有者重置。
 command.reset.unrecognized_flags=Unrecognized flag(s)
 
 overlay.eliminated_by=你已经出局了
@@ -220,17 +235,19 @@ overlay.change_hero=按住 %s 键切换英雄
 
 gui.team_block.button.name=名称
 gui.team_block.button.name.desc=这个名称已经存在
+gui.team_block.button.options=选择
+gui.team_block.button.active=启用
+gui.team_block.button.inactive=禁用
 gui.team_block.button.activate_deactivate=启用 / 禁用
-gui.team_block.button.activate=启用
-gui.team_block.button.deactivate=禁用
 gui.team_block.button.selected_team=选择团队
 gui.team_block.button.video_demonstration=视频演示
 gui.team_block.button.ok=确认
 
 gui.team_spawn.button.spawn_radius=半径
 gui.team_spawn.button.spawn_radius.desc=设置玩家与实体死后重生，医疗包半径，以及英雄选择。
-gui.team_spawn.button.activate_deactivate.desc=玩家选择的实体会在对应的团队生成。
-gui.team_spawn.button.activate.desc=每个团队仅可使用一个团队生成器。
+gui.team_spawn.button.heal.desc=允许玩家与实体在该半径内获得治疗。
+gui.team_spawn.button.change_hero.desc=允许玩家与实体在该半径内修改英雄。
+gui.team_spawn.button.activate.desc=玩家选择的实体会在对应的团队生成。
 gui.team_spawn.button.deactivate.desc=每个团队仅可使用一个团队生成器。
 gui.team_spawn.button.selected_team.desc=将此设置为团队重生点。
 gui.team_spawn.question_mark_description_0=团队生成器会生成玩家所选的实体进行生成（箭头朝向即生成方向），且其还赋予了玩家与实体死后重生，医疗包半径，以及英雄选择的权利。
@@ -239,7 +256,6 @@ gui.team_spawn.status.players_heroes_team=玩家与实体
 gui.team_spawn.status.players_heroes_all=全部玩家与实体（仅限一个团队中）
 gui.team_spawn.status.players_heroes_none=无团队
 gui.team_spawn.status.will_spawn=将此设置为重生点。
-command.lobby.desc=删除你的团队与重生点。
 
 gui.hero_select.select=选择
 gui.hero_select.select_hero=选择一个英雄

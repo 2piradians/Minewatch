@@ -173,12 +173,22 @@ public class SetManager {
 			if (newHero.selectSound != null && !player.world.isRemote && player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(50, true, player, newHero.ordinal(), 0, 0), (EntityPlayerMP) player);
 
-			// reset keybinds and update lastWornSets
+			// reset keybinds, reset ultimate charge, kill entitylivingbasemw, and update lastWornSets
 			if (prevHero != newHero) {
 				for (KeyBind key : Keys.KeyBind.values()) 
 					if (key.getCooldown(player) > 0)
 						key.setCooldown(player, 0, true);
 				SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
+				UltimateManager.setCharge(player, 0);
+				// kill old entities
+				if (prevHero != null)
+					for (Ability ability : new Ability[] {prevHero.ability1, prevHero.ability2, prevHero.ability3}) {
+						Entity entity = ability.entities.get(player);
+						if (entity != null) {
+							entity.setDead();
+							ability.entities.remove(player);
+						}
+					}
 			}
 
 			// remove temp shields/armor

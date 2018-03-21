@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -383,7 +385,9 @@ public class HealthManager {
 
 	@SubscribeEvent
 	public static void displayHealthBarWhenHurt(LivingAttackEvent event) {	
-		if (event.getEntityLiving() != null && event.getAmount() > 0) {
+		if (event.getAmount() > 0 &&
+				(event.getEntityLiving() instanceof EntityPlayer || 
+						event.getEntityLiving() instanceof EntityHero)) {
 			// server - prevent shield regen for 3 seconds when hit
 			if (!event.getEntityLiving().world.isRemote)
 				TickHandler.register(false, PREVENT_SHIELD_REGEN.setEntity(event.getEntityLiving()).setTicks(60));

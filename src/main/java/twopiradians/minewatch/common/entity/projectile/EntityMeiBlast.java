@@ -96,7 +96,7 @@ public class EntityMeiBlast extends EntityMW {
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 
-		if (result.entityHit != null) {
+		if (result.entityHit != null && result.entityHit instanceof EntityLivingBase) {
 			if (this.world.isRemote && 
 					(((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen) == null || 
 					((EntityLivingBase) result.entityHit).getActivePotionEffect(ModPotions.frozen).getDuration() == 0)) {

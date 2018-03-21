@@ -57,7 +57,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			if (this.ticksLeft <= 20)
-				EntityHelper.heal(entityLiving, 15);
+				EntityHelper.heal(entityLiving, entityLiving, entityLiving, 15);
 			return super.onServerTick();
 		}
 		@Override

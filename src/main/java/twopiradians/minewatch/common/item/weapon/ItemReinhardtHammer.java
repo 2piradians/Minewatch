@@ -221,6 +221,26 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			return super.onServerTick();
 		}
 	};
+	
+	public static final Handler ATTACK = new Handler(Identifier.REINHARDT_ATTACK, true) {
+		@Override
+		public Handler onServerRemove() {
+			for (EntityLivingBase entity : 
+				this.entityLiving.world.getEntitiesWithinAABB(EntityLivingBase.class, this.entityLiving.getEntityBoundingBox().grow(4f))) 
+				if (entity != this.entityLiving && entity != null && this.entityLiving.getDistanceToEntity(entity) <= 5 &&
+				EntityHelper.isInFieldOfVision(this.entityLiving, entity, 80)) {
+					if (this.entityLiving.canEntityBeSeen(entity) && EntityHelper.attemptDamage(this.entityLiving, entity, 75, false)) {
+						if (entity instanceof EntityLivingBase) 
+							((EntityLivingBase) entity).knockBack(this.entityLiving, 0.4F, 
+									(double)MathHelper.sin(this.entityLiving.rotationYaw * 0.017453292F), 
+									(double)(-MathHelper.cos(this.entityLiving.rotationYaw * 0.017453292F)));
+						this.entityLiving.getHeldItemMainhand().damageItem(1, this.entityLiving);
+					}
+				}
+			EnumHero.REINHARDT.weapon.setCooldown(this.entityLiving, 20);
+			return super.onServerRemove();
+		}
+	};
 
 	public ItemReinhardtHammer() {
 		super(0);
@@ -254,19 +274,6 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 			return true;
 	}
 
-	public void attack(ItemStack stack, EntityLivingBase player, Entity entity) {
-		// swing
-		if (!player.world.isRemote && this.canUse(player, true, getHand(player, stack), false) && 
-				player.canEntityBeSeen(entity) && 
-				EntityHelper.attemptDamage(player, entity, 75, false)) {
-			if (entity instanceof EntityLivingBase) 
-				((EntityLivingBase) entity).knockBack(player, 0.4F, 
-						(double)MathHelper.sin(player.rotationYaw * 0.017453292F), 
-						(double)(-MathHelper.cos(player.rotationYaw * 0.017453292F)));
-			player.getHeldItemMainhand().damageItem(1, player);
-		}
-	}
-
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		return true;
@@ -276,16 +283,11 @@ public class ItemReinhardtHammer extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// swing
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !hero.ability1.isSelected(player) &&
-				hand == EnumHand.MAIN_HAND) {
+				hand == EnumHand.MAIN_HAND && !TickHandler.hasHandler(player, Identifier.REINHARDT_ATTACK)) {
 			if (player instanceof EntityPlayerMP)
 				Minewatch.network.sendTo(new SPacketSimple(5), (EntityPlayerMP) player);
-			for (EntityLivingBase entity : 
-				player.world.getEntitiesWithinAABB(EntityLivingBase.class, player.getEntityBoundingBox().grow(5))) 
-				if (entity != player && entity != null && player.getDistanceToEntity(entity) <= 5 &&
-				EntityHelper.isInFieldOfVision(player, entity, 80)) 
-					this.attack(stack, player, entity);
+			TickHandler.register(false, ATTACK.setEntity(player).setTicks(7)); // attack delay
 			ModSoundEvents.REINHARDT_WEAPON.playSound(player, 1.0F, player.world.rand.nextFloat()/3+0.8f);
-			this.setCooldown(player, 20);
 		}
 	}
 

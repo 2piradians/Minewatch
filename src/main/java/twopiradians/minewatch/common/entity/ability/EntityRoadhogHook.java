@@ -133,7 +133,7 @@ public class EntityRoadhogHook extends EntityMW {
 	
 	@Override
 	public AxisAlignedBB getImpactBoundingBox() {
-		return this.getEntityBoundingBox().grow(0.8f);
+		return this.getEntityBoundingBox().grow(1f);
 	}
 
 	@Override

@@ -153,7 +153,7 @@ public class EntityJunkratMine extends EntityLivingBaseMW {
 			ModSoundEvents.JUNKRAT_MINE_EXPLODE.playSound(this, 1, 1);
 		}
 		else {
-			Minewatch.proxy.createExplosion(world, getThrower(), posX, posY, posZ, 2f, 0, 120, 120, null, 120, false, 2.2f, 2.2f);
+			Minewatch.proxy.createExplosion(world, this, posX, posY, posZ, 2f, 0, 120, 120, null, 120, false, 2.2f, 2.2f);
 			Minewatch.network.sendToDimension(new SPacketSimple(30, this, false), world.provider.getDimension());
 			this.setDead();
 		}

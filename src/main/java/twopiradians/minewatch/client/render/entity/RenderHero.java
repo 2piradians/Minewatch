@@ -4,6 +4,7 @@ import java.util.Random;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -31,16 +32,23 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 @SideOnly(Side.CLIENT)
 public class RenderHero extends RenderLivingBase<EntityHero> {
 
-	public RenderHero(RenderManager manager) {
-		super(manager, new ModelBiped(), 0.5f);
+	public RenderHero(RenderManager manager, boolean smallArms) {
+		super(manager, new ModelPlayer(0, smallArms), 0.5f);
 		this.addLayer(new LayerBipedArmor(this));
 		this.addLayer(new LayerHeldItem(this));
 		this.addLayer(new LayerHeroArrow(this));
 	}
 
+	/**Give texture for other mods that want it (CustomNPCs)*/
 	@Override
 	protected ResourceLocation getEntityTexture(EntityHero entity) {
-		return null;
+		return new ResourceLocation(Minewatch.MODID+":textures/models/armor/"+entity.hero.name.toLowerCase()+".png");
+	}
+	
+	/**But don't render the model - only render armor*/
+	@Override
+    protected void renderModel(EntityHero entitylivingbaseIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor) {
+		super.renderModel(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 	}
 	
 	@Override

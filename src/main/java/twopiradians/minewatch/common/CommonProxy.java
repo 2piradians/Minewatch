@@ -246,9 +246,9 @@ public class CommonProxy {
 	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
-	public void createExplosion(World world, Entity exploder, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
 		if (!world.isRemote) {
-			Explosion explosion = new Explosion(world, exploder, x, y, z, size, false, false);
+			Explosion explosion = new Explosion(world, damageSource, x, y, z, size, false, false);
 
 			float f3 = size * 2.0F;
 			int k1 = MathHelper.floor(x - (double)f3 - 1.0D);
@@ -280,19 +280,19 @@ public class CommonProxy {
 							d9 = d9 / d13; 
 							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
-							float damage = (float) (entity == exploder ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
+							float damage = (float) (entity == damageSource ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
-							if (EntityHelper.attemptDamage(exploder, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
-									entity == exploder) {
+							if (EntityHelper.attemptDamage(damageSource, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
+									entity == damageSource) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;
 
 								if (entity instanceof EntityLivingBase)
 									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
-								entity.motionX += d5 * d11 * (entity == exploder ? exploderKnockback : knockback);
-								entity.motionY += d7 * d11 * (entity == exploder ? exploderKnockback : knockback);
-								entity.motionZ += d9 * d11 * (entity == exploder ? exploderKnockback : knockback);
+								entity.motionX += d5 * d11 * (entity == damageSource ? exploderKnockback : knockback);
+								entity.motionY += d7 * d11 * (entity == damageSource ? exploderKnockback : knockback);
+								entity.motionZ += d9 * d11 * (entity == damageSource ? exploderKnockback : knockback);
 								entity.velocityChanged = true;
 							}
 						}

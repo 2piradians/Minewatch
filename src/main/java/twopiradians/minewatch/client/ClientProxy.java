@@ -206,7 +206,6 @@ public class ClientProxy extends CommonProxy {
 		for (String materialName : model.getMatLib().getMaterialNames()) {
 			Material material = model.getMatLib().getMaterial(materialName);
 			if (material.getTexture().getTextureLocation().getResourcePath().startsWith("#")) {
-				// PORT 1.10.2: bigWarning
 				FMLLog.bigWarning("OBJLoaderMW: Unresolved texture '%s' for obj model '%s'", material.getTexture().getTextureLocation().getResourcePath(), model.toString());
 				builder.put(materialName, missing);
 			}
@@ -222,7 +221,7 @@ public class ClientProxy extends CommonProxy {
 		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
 		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
 		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		//KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
+		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
 		KeyBind.CHANGE_HERO.keyBind = new KeyBinding("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME);
 	}
 
@@ -283,7 +282,7 @@ public class ClientProxy extends CommonProxy {
 		// heroes
 		RenderingRegistry.registerEntityRenderingHandler(EntityHero.class, new RenderFactory());
 		for (EnumHero hero : EnumHero.values())
-			RenderingRegistry.registerEntityRenderingHandler(hero.heroClass, RenderHero::new);
+			RenderingRegistry.registerEntityRenderingHandler(hero.heroClass, manager->new RenderHero(manager, hero.smallArms));
 
 		// projectiles and abilities
 		RenderingRegistry.registerEntityRenderingHandler(EntityReaperBullet.class, new RenderFactory(new Color(0xCC0000), 1, 1, 2));

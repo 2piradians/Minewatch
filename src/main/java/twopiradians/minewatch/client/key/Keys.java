@@ -290,7 +290,7 @@ public class Keys {
 									(off != null && off.getItem() instanceof ItemMWWeapon)) &&
 							mc.currentScreen == null) || !isKeyDown)) {
 						key.setKeyDown(uuid, isKeyDown, true);
-						Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid));
+						Minewatch.network.sendToServer(new CPacketSyncKeys(key, isKeyDown, uuid, player.rotationPitch, player.rotationYawHead));
 						if (isKeyDown && (key == KeyBind.ABILITY_1 || key == KeyBind.ABILITY_2))
 							key.toggle(uuid, true, true);
 					}

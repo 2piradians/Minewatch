@@ -211,7 +211,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					if (position != null) {
 						TileEntity te = entity.world.getTileEntity(new BlockPos(position));
 						if (te instanceof TileEntityHealthPack)
-							((TileEntityHealthPack)te).hack(entity.getTeam());
+							((TileEntityHealthPack)te).hack(entity.getTeam(), entity.getPersistentID());
 					}
 					EnumHero.SOMBRA.ability1.keybind.setCooldown((EntityLivingBase) entity, 160, false);
 					//Minewatch.network.sendToDimension(new SPacketSimple(61, entity, false, entityLiving),  entity.world.provider.getDimension());
@@ -663,6 +663,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 	public void stopHacking(LivingHurtEvent event) {
 		if (!event.getEntity().world.isRemote && TickHandler.hasHandler(event.getEntity(), Identifier.SOMBRA_HACK)) {
 			TickHandler.unregister(false, TickHandler.getHandler(event.getEntity(), Identifier.SOMBRA_HACK));
+			EnumHero.SOMBRA.ability1.keybind.setCooldown(event.getEntityLiving(), 40, false);
 			Minewatch.network.sendToDimension(new SPacketSimple(61, event.getEntity(), false), event.getEntity().world.provider.getDimension());
 		}
 	}

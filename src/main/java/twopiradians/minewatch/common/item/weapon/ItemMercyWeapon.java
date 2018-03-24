@@ -31,6 +31,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -211,8 +212,10 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 		// increase damage
 		for (EntityMercyBeam beam : beams.values()) {
 			if (beam.target == source && beam.player instanceof EntityLivingBase && !beam.player.world.isRemote) {
-				if (!beam.isHealing())
+				if (!beam.isHealing()) {
 					event.setAmount(event.getAmount()*1.3f);
+					UltimateManager.addCharge(beam.player, event.getAmount() * 2/3f, true);
+				}
 				if (beam.player instanceof EntityPlayerMP)
 					Minewatch.network.sendTo(new SPacketSimple(40, beam.player, false), (EntityPlayerMP)beam.player);
 				break;

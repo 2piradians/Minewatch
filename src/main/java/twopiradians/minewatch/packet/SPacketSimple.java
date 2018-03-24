@@ -57,6 +57,7 @@ import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.hero.RenderManager;
 import twopiradians.minewatch.common.hero.RenderManager.MessageTypes;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.weapon.ItemAnaRifle;
 import twopiradians.minewatch.common.item.weapon.ItemBastionGun;
 import twopiradians.minewatch.common.item.weapon.ItemDoomfistWeapon;
@@ -1092,6 +1093,12 @@ public class SPacketSimple implements IMessage {
 					// print client handlers
 					else if (packet.type == 78) {
 						player.sendMessage(new TextComponentString("Client handlers: "+TickHandler.getHandlersString(true)));
+					}
+					// sync ultimate charge
+					else if (packet.type == 79) {
+						UltimateManager.setCharge(player, (float) packet.x, false);
+						UltimateManager.prevPlayerChargeClient = (float) packet.x;
+						UltimateManager.partialPlayerChargeTimer = (int) packet.y;
 					}
 				}
 			});

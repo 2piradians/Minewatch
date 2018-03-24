@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.tileentity;
 
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;
@@ -35,6 +36,8 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	public Team hackedTeam;	
 	public int hackedTime;
 	public int hackedIconTime;
+	@Nullable
+	public UUID hacker;
 
 	public TileEntityHealthPack(int resetCooldown, int hackedResetCooldown, int healAmount) {
 		super();
@@ -72,6 +75,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			if (this.hackedTime <= 0) {
 				this.hackedTeam = null;
 				this.hackedTime = 0;
+				this.hacker = null;
 			}
 		}
 		if (this.cooldown > 0) {
@@ -105,9 +109,13 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			this.hackedTeam = world.getScoreboard().getTeam(nbt.getString("hackedTeam"));
 		else
 			this.hackedTeam = null;
+		if (nbt.hasKey("hacker"))
+			this.hacker = nbt.getUniqueId("hacker");
+		else
+			this.hacker = null;
 		if (nbt.hasKey("hackedTime")) {
 			if (!this.isHacked() && world.isRemote)
-				this.hack(this.hackedTeam);
+				this.hack(this.hackedTeam, this.hacker);
 			this.hackedTime = nbt.getInteger("hackedTime");
 		}
 		else
@@ -127,6 +135,8 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			nbt.setString("hackedTeam", this.hackedTeam.getName());
 		if (this.hackedTime > 0)
 			nbt.setInteger("hackedTime", this.hackedTime);
+		if (this.hacker != null)
+			nbt.setUniqueId("hacker", this.hacker);
 		return nbt;
 	}
 
@@ -157,10 +167,11 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	}
 
 	/**Hacks for team*/
-	public void hack(@Nullable Team team) {
+	public void hack(@Nullable Team team, UUID hacker) {
 		if (!world.isRemote) {
 			this.hackedTeam = team;
 			this.hackedTime = HACK_TIME;
+			this.hacker = hacker;
 			this.world.markAndNotifyBlock(pos, this.world.getChunkFromBlockCoords(pos), this.getBlockType().getDefaultState(), this.getBlockType().getDefaultState(), 2);
 		}
 		else {
@@ -174,7 +185,8 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	/**Not on cooldown, not hacked by opposing team, health below max*/
 	public boolean canHeal(EntityLivingBase entity) {
 		return this.getCooldown() <= 0 && entity.getHealth() < entity.getMaxHealth() && entity.isEntityAlive() &&
-				(!this.isHacked() || this.hackedTeam == null || this.hackedTeam == entity.getTeam());
+				(!this.isHacked() || this.hackedTeam == null || 
+				(this.hackedTeam == entity.getTeam() && (!this.hackedTeam.getAllowFriendlyFire() || entity.getPersistentID().equals(this.hacker))));
 	}
 
 	public boolean isHacked() {
@@ -182,7 +194,8 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 	}
 
 	public boolean canBeHacked(EntityLivingBase entity) {
-		return entity != null && (!this.isHacked() || this.hackedTeam == null || this.hackedTeam == entity.getTeam());
+		return entity != null && (!this.isHacked() || this.hackedTeam == null || 
+				(this.hackedTeam == entity.getTeam() && (!this.hackedTeam.getAllowFriendlyFire() || entity.getPersistentID().equals(this.hacker))));
 	}
 	
 	public static class Large extends TileEntityHealthPack {

@@ -157,13 +157,13 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 							HealthManager.setShieldAbilityDecay((EntityLivingBase) entity, shield, 3, 20); 
 						}
 					}
-					// particle - detect on client (server very inaccurate), send to server, which sends to other clients
-					else {
+					// particle - detect on player's client (server very inaccurate), send to server, which sends to other clients
+					else if (entity == Minewatch.proxy.getClientPlayer()) {
 						double yOffset = 0.05d;
 						BlockPos pos = new BlockPos(entity.getPositionVector());
 						for (int i=0; i<5; ++i) {
 							IBlockState state = entity.world.getBlockState(pos);
-							if (state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
+							if (state.getCollisionBoundingBox(entity.world, pos) != null && state.getRenderType() != EnumBlockRenderType.INVISIBLE && state.getRenderType() != EnumBlockRenderType.LIQUID) {
 								yOffset += state.getBoundingBox(entity.world, pos).maxY;
 								Vec3d vec = new Vec3d(entity.posX, pos.getY()+yOffset, entity.posZ).add(EntityHelper.getLook(0, entity.getRotationYawHead()).scale(3d));
 								Minewatch.network.sendToServer(new CPacketSimple(19, entity, false, vec.x, vec.y, vec.z, entity.getRotationYawHead(), 0, 0));

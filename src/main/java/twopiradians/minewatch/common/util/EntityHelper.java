@@ -1066,7 +1066,7 @@ public class EntityHelper {
 				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
 	}
 
-	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
+	/**Should ignore for things - namely barriers*/
 	public static boolean shouldIgnoreBlock(Block block) {
 		return block == null || block == Blocks.BARRIER;
 	}

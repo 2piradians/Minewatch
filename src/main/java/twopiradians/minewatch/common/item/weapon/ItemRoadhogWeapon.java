@@ -122,11 +122,11 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			if (handler != null && handler.ability == EnumHero.ROADHOG.ability2)
 				TickHandler.unregister(false, handler);
 			EnumHero.ROADHOG.ability2.keybind.setCooldown(entityLiving, 160, false);
-			// handlers for 1 second afterwards
+			// handlers afterwards
 			if (entity instanceof EntityRoadhogHook && ((EntityRoadhogHook)entity).getHooked() != null) {
-				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
-						Handlers.PREVENT_MOVEMENT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20),
-						Handlers.PREVENT_ROTATION.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(20));
+				TickHandler.register(false, Handlers.PREVENT_INPUT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(10),
+						Handlers.PREVENT_MOVEMENT.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(10),
+						Handlers.PREVENT_ROTATION.setEntity(((EntityRoadhogHook)entity).getHooked()).setTicks(10));
 			}
 			ModSoundEvents.ROADHOG_HOOK_THROW.stopFollowingSound(entityLiving);
 			return super.onServerRemove();

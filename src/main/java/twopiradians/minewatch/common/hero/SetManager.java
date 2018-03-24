@@ -179,7 +179,7 @@ public class SetManager {
 					if (key.getCooldown(player) > 0)
 						key.setCooldown(player, 0, true);
 				SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
-				UltimateManager.setCharge(player, 0);
+				UltimateManager.setCharge(player, 0, true);
 				// kill old entities
 				if (prevHero != null)
 					for (Ability ability : new Ability[] {prevHero.ability1, prevHero.ability2, prevHero.ability3}) {

@@ -373,10 +373,12 @@ public class RenderManager {
 					GlStateManager.popMatrix();
 				}
 
-				if (hero != null && !player.isSpectator()) {	
+				if (hero != null && weapon != null && hero == weapon.hero && !player.isSpectator()) {
 					// ultimate
 					UltimateManager.renderUltimateMeter(player, hero, width, height);
-					
+				}
+				
+				if (hero != null && !player.isSpectator()) {					
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -414,7 +416,6 @@ public class RenderManager {
 					mc.fontRenderer.drawString(TextFormatting.ITALIC+String.valueOf((int)maxHealth), (int) (textWidth/scale), 24, 0xFFFFFF, true);
 
 					GlStateManager.popMatrix();
-
 				}
 
 				// display abilities/weapon

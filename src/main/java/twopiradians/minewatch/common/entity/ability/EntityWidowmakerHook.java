@@ -52,7 +52,8 @@ public class EntityWidowmakerHook extends EntityMW {
 
 	@Override
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
-		return result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && nearest;
+		return result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && nearest &&
+				!EntityHelper.shouldIgnoreBlock(world.getBlockState(result.getBlockPos()).getBlock());
 	}
 
 	@Override

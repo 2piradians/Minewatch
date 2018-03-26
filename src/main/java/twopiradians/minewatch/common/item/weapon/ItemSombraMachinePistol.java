@@ -114,7 +114,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// both invalid targets
 				if ((entityLiving == null || !entityLiving.isEntityAlive()) && 
 						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
-					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false, true);
 					if (entityLiving == null)
 						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, entity instanceof EntityHero ? 20 : 10);
 				}
@@ -176,7 +176,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 				// both invalid targets
 				if ((entityLiving == null || !entityLiving.isEntityAlive()) && 
 						(this.position == null || !(entity.world.getTileEntity(new BlockPos(this.position)) instanceof TileEntityHealthPack))) { 
-					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false);
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 10, false, true);
 					if (entityLiving == null)
 						position = EntityHelper.getHealthPackInFieldOfVision((EntityLivingBase) entity, 15, entity instanceof EntityHero ? 20 : 10);
 				}

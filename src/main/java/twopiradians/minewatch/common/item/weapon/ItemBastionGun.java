@@ -89,7 +89,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && hero.ability2.getCooldown(player) == 0 && 
 				!KeyBind.RMB.isKeyDown(player)) {
-			boolean turret = isAlternate(stack); // TODO prob only way to do is on render tick
+			boolean turret = isAlternate(stack); // TODO prob only way to do is on render tick, get rid of hitscan entitiies
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
 				if (turret) 

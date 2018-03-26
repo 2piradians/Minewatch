@@ -114,7 +114,7 @@ public class EntityHanzoSonicArrow extends EntityHanzoArrow {
 	@Override
 	protected void onHit(RayTraceResult result) {
 		if (!world.isRemote && EntityHelper.shouldHit(this.getThrower(), result.entityHit, false) && 
-				!EntityHelper.shouldIgnoreEntity(result.entityHit, false)) {
+				!EntityHelper.shouldIgnoreEntity(result.entityHit, false, false)) {
 			TickHandler.register(false, SONIC.setEntity(result.entityHit).setEntityLiving(this.getThrower()).setTicks(0).setAllowDead(true));
 			Minewatch.network.sendToDimension(new SPacketSimple(72, result.entityHit, false, this.getThrower()), world.provider.getDimension());
 		}

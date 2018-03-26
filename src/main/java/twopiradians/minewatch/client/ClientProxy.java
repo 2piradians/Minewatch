@@ -137,6 +137,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.ServerManager;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.ItemTeamStick;
 import twopiradians.minewatch.common.item.ModItems;
@@ -378,6 +379,7 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_scrap"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_hook"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_chain"));
+		UltimateManager.ready = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "gui/ultimate_ready"));
 	}
 
 	@Override

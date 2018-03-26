@@ -21,7 +21,7 @@ public class EntityMoiraOrb extends EntityMW {
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityMoiraOrb.class, DataSerializers.BOOLEAN);
 
 	public CopyOnWriteArrayList<EntityLivingBase> tethered = new CopyOnWriteArrayList<EntityLivingBase>();
-	public int chargeClient = 80; // TODO heal self
+	public int chargeClient = 80;
 	public int chargeServer = 80;
 	private double prevMotionX;
 	private double prevMotionY;

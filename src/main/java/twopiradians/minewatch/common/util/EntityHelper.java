@@ -317,6 +317,10 @@ public class EntityHelper {
 		Team entityTeam = getTeam(entity);
 		Team targetTeam = getTeam(target);
 
+		// TODO
+		if (entity instanceof EntityPlayer && target instanceof EntityLivingBaseMW)
+			System.out.println(target);
+		
 		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
 		if (entity instanceof EntityHero && target != null && 
 				!(friendly && entityTeam != null && entityTeam == targetTeam) &&
@@ -784,13 +788,13 @@ public class EntityHelper {
 
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
-	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly) {
-		return getTargetInFieldOfVision(shooter, range, maxAngle, friendly, null);
+	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, boolean ignoreEntityLivingBaseMW) {
+		return getTargetInFieldOfVision(shooter, range, maxAngle, friendly, ignoreEntityLivingBaseMW, null);
 	}
 
 	/**Get target within maxAngle degrees of being looked at by shooter*/
 	@Nullable
-	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, @Nullable Predicate<EntityLivingBase> predicate) {
+	public static EntityLivingBase getTargetInFieldOfVision(EntityLivingBase shooter, float range, float maxAngle, boolean friendly, boolean ignoreEntityLivingBaseMW, @Nullable Predicate<EntityLivingBase> predicate) {
 		Vec3d lookVec = shooter.getLookVec().scale(range-1);
 		AxisAlignedBB aabb = shooter.getEntityBoundingBox().grow(5).expand(lookVec.x, lookVec.y, lookVec.z);
 
@@ -799,7 +803,7 @@ public class EntityHelper {
 		for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, aabb, new Predicate<Entity>() {
 			@Override
 			public boolean apply(Entity input) {
-				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !shouldIgnoreEntity(input, friendly) && 
+				return input instanceof EntityLivingBase && EntityHelper.shouldHit(shooter, input, friendly) && !shouldIgnoreEntity(input, friendly, !ignoreEntityLivingBaseMW) && 
 						shooter.canEntityBeSeen(input) && shooter.getDistanceToEntity(input) <= range && (predicate == null || predicate.apply((EntityLivingBase) input));
 			}
 		})) {
@@ -1056,12 +1060,12 @@ public class EntityHelper {
 
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
 	public static boolean shouldIgnoreEntity(Entity entity) {
-		return shouldIgnoreEntity(entity, false);
+		return shouldIgnoreEntity(entity, false, false);
 	}
 
 	/**Should ignore for things - namely EntityLivingBaseMW and EntityArmorStand*/
-	public static boolean shouldIgnoreEntity(Entity entity, boolean allowInvulnerable) {
-		return entity == null || entity instanceof EntityLivingBaseMW || entity instanceof EntityArmorStand || 
+	public static boolean shouldIgnoreEntity(Entity entity, boolean allowInvulnerable, boolean allowEntityLivingBaseMW) {
+		return entity == null || (!allowEntityLivingBaseMW && entity instanceof EntityLivingBaseMW) || entity instanceof EntityArmorStand || 
 				(!allowInvulnerable && TickHandler.hasHandler(entity, Identifier.INVULNERABLE)) ||
 				(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
 	}

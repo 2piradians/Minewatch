@@ -20,7 +20,7 @@ public class EntityMeiCrystal extends EntityMW {
 	public EntityMeiCrystal(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn, -1);
 		this.setSize(1.8f, 2.3f);
-		this.lifetime = Integer.MAX_VALUE;
+		this.lifetime = 1000;
 		if (this.getThrower() != null) {
 			this.rotationYaw = this.getThrower().rotationYaw;
 			this.rotationPitch = 0;

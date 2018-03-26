@@ -152,7 +152,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 			if (isStaff(stack) && 
 					(KeyBind.RMB.isKeyDown((EntityLivingBase) entity) || KeyBind.LMB.isKeyDown((EntityLivingBase) entity)) &&
 					!ItemMercyWeapon.beams.containsKey(entity)) {
-				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 15, true);
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 15, 15, true, true);
 				if (target != null && !(target instanceof EntityArmorStand)) {				
 					EntityMercyBeam beam = new EntityMercyBeam(world, (EntityLivingBase) entity, target);
 					world.spawnEntity(beam);
@@ -182,7 +182,7 @@ public class ItemMercyWeapon extends ItemMWWeapon {
 
 			// angel
 			if (hero.ability3.isSelected((EntityLivingBase) entity, true) && !TickHandler.hasHandler(entity, Identifier.MERCY_ANGEL)) {
-				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 30, 20, true);
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 30, 20, true, true);
 				if (target != null && !(target instanceof EntityArmorStand)) {	
 					Vec3d vec = target.getPositionVector().addVector(0, target.height, 0);
 					TickHandler.register(false, ANGEL.setEntity(entity).setTicks(75).setPosition(vec),

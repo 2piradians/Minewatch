@@ -186,7 +186,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// harmony
 			if (!world.isRemote && hero.ability1.isSelected(player, player instanceof EntityPlayer) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, true, 
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, true, true,
 						// ignore if harmony from anyone
 						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_HARMONY && handler.entityLiving == input, false));
 				if (target != null) {
@@ -209,7 +209,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			// discord
 			if (!world.isRemote && hero.ability2.isSelected(player, true) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, false, 
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 40, 10, false, true, 
 						// ignore if discord from anyone
 						input -> !(input instanceof EntityLivingBaseMW) && !TickHandler.hasHandler(handler -> handler.identifier == Identifier.ZENYATTA_DISCORD && handler.entityLiving == input, false));	
 				if (target != null) {

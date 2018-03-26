@@ -965,7 +965,7 @@ public class RenderManager {
 
 	@SideOnly(Side.CLIENT) // copied from RenderLivingBase#canRenderName() to make public
 	public static boolean canRenderName(RenderLivingBase renderer, EntityLivingBase entity) {
-		if (entity == null || !entity.isEntityAlive()) // TODO zen health when low, speed up moira heal, increase hog hook impact size
+		if (entity == null || !entity.isEntityAlive()) // TODO speed up moira heal
 			return false;
 		// render for spectators
 		else if (Minewatch.proxy.getClientPlayer().isSpectator() && 

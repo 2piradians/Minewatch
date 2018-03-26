@@ -28,6 +28,7 @@ import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
@@ -184,7 +185,7 @@ public class SetManager {
 				if (prevHero != null)
 					for (Ability ability : new Ability[] {prevHero.ability1, prevHero.ability2, prevHero.ability3}) {
 						Entity entity = ability.entities.get(player);
-						if (entity != null) {
+						if (entity instanceof EntityLivingBaseMW) {
 							entity.setDead();
 							ability.entities.remove(player);
 						}

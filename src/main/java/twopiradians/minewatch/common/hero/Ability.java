@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ResourceLocation;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -222,6 +223,11 @@ public class Ability {
 		return keybind.getCooldown(player) <= 0 && 
 				(!isSelected(player) || (isToggled(player))) &&
 				(maxUses == 0 || getUses(player) > 0);
+	}
+	
+	/**Currently only for ultimates*/
+	public ResourceLocation getTexture() {
+		return new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_ultimate.png");
 	}
 
 }

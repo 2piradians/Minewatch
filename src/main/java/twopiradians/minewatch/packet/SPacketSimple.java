@@ -1097,8 +1097,6 @@ public class SPacketSimple implements IMessage {
 					// sync ultimate charge
 					else if (packet.type == 79) {
 						UltimateManager.setCharge(player, (float) packet.x, false);
-						UltimateManager.prevPlayerChargeClient = (float) packet.x;
-						UltimateManager.partialPlayerChargeTimer = (int) packet.y;
 					}
 				}
 			});

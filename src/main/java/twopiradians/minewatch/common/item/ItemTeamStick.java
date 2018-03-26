@@ -171,7 +171,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
-		if (!player.world.isRemote && entity instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(entity, true)) {
+		if (!player.world.isRemote && entity instanceof EntityLivingBase && !EntityHelper.shouldIgnoreEntity(entity, true, true)) {
 			Team team = getTeam(player.world, stack);
 			// copy team
 			if (player.isSneaking()) {
@@ -201,7 +201,7 @@ public class ItemTeamStick extends Item {
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
-		if (!player.world.isRemote && !player.isSneaking() && !EntityHelper.shouldIgnoreEntity(entity, true)) {
+		if (!player.world.isRemote && !player.isSneaking() && !EntityHelper.shouldIgnoreEntity(entity, true, true)) {
 			// remove from team
 			if (entity.getTeam() != null) {
 				try {

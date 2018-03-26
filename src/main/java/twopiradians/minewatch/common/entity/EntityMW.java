@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -119,7 +120,9 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 		// set dead if needed
 		if (((this.ticksExisted > lifetime) || 
-				!(this.getThrower() instanceof EntityLivingBase) || posY <= -64))
+				!(this.getThrower() instanceof EntityLivingBase) || 
+				posY <= -64) ||
+				(this.getThrower() instanceof EntityPlayerMP && ((EntityPlayerMP)this.getThrower()).hasDisconnected()))
 			this.setDead();
 
 		// spawn trail particles

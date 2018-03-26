@@ -132,8 +132,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			// find new target / clear target
 			else if (entity.ticksExisted % 5 == 0) {
 				if (entityLiving == null || !entityLiving.isEntityAlive()) 
-					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 10, false);
-				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21)
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 5, false, false);
+				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 5) || entityLiving.getDistanceToEntity(entity) > 21)
 					entityLiving = null;
 				if (!checkTargetInShootingView((EntityLivingBase) entity, entityLiving))
 					entityLiving = null;
@@ -163,8 +163,8 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			// find new target / clear target
 			else if (entity.ticksExisted % 5 == 0) {
 				if (entityLiving == null || !entityLiving.isEntityAlive()) 
-					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 10, false);
-				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 10) || entityLiving.getDistanceToEntity(entity) > 21)
+					entityLiving = EntityHelper.getTargetInFieldOfVision((EntityLivingBase) entity, 21, 5, false, false);
+				else if (!EntityHelper.isInFieldOfVision(entity, entityLiving, 5) || entityLiving.getDistanceToEntity(entity) > 21)
 					entityLiving = null;
 				if (!checkTargetInShootingView((EntityLivingBase) entity, entityLiving))
 					entityLiving = null;
@@ -306,7 +306,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 				!TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
 			// start damage
 			if (!TickHandler.hasHandler(player, Identifier.MOIRA_DAMAGE)) {
-				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 10, false);
+				EntityLivingBase target = EntityHelper.getTargetInFieldOfVision(player, 21, 5, false, false);
 				if (!checkTargetInShootingView(player, target))
 					target = null;
 				TickHandler.register(false, DAMAGE.setEntity(player).setEntityLiving(target).setTicks(10));

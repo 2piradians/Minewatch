@@ -247,6 +247,7 @@ public class CommonProxy {
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
 	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
 		if (!world.isRemote) {
+			Entity actualThrower = EntityHelper.getThrower(damageSource);
 			Explosion explosion = new Explosion(world, damageSource, x, y, z, size, false, false);
 
 			float f3 = size * 2.0F;
@@ -279,19 +280,19 @@ public class CommonProxy {
 							d9 = d9 / d13; 
 							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
 							double d10 = (1.0D - d12) * d14;
-							float damage = (float) (entity == damageSource ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
+							float damage = (float) (entity == actualThrower ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
 							double d11 = d10;
 							if (EntityHelper.attemptDamage(damageSource, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
-									entity == damageSource) {
+									entity == actualThrower) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;
 
 								if (entity instanceof EntityLivingBase)
 									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
 
-								entity.motionX += d5 * d11 * (entity == damageSource ? exploderKnockback : knockback);
-								entity.motionY += d7 * d11 * (entity == damageSource ? exploderKnockback : knockback);
-								entity.motionZ += d9 * d11 * (entity == damageSource ? exploderKnockback : knockback);
+								entity.motionX += d5 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
+								entity.motionY += d7 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
+								entity.motionZ += d9 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
 								entity.velocityChanged = true;
 							}
 						}

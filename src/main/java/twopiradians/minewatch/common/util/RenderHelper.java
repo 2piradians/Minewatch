@@ -203,4 +203,19 @@ public class RenderHelper {
         GlStateManager.disableBlend();
     }
 	
+	/**Modified from {@link GuiUtils#drawTexturedModalRect(int, int, int, int, int, int, float)} to allow double positions*/
+    public static void drawTexturedModalRect(double x, double y, double u, double v, double width, double height, double zLevel)
+    {
+        float uScale = 1f / 0x100;
+        float vScale = 1f / 0x100;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder wr = tessellator.getBuffer();
+        wr.begin(7, DefaultVertexFormats.POSITION_TEX);
+        wr.pos(x        , y + height, zLevel).tex( u          * uScale, ((v + height) * vScale)).endVertex();
+        wr.pos(x + width, y + height, zLevel).tex((u + width) * uScale, ((v + height) * vScale)).endVertex();
+        wr.pos(x + width, y         , zLevel).tex((u + width) * uScale, ( v           * vScale)).endVertex();
+        wr.pos(x        , y         , zLevel).tex( u          * uScale, ( v           * vScale)).endVertex();
+        tessellator.draw();
+    }
+	
 }

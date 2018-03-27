@@ -26,8 +26,10 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -275,10 +277,16 @@ public class EntityHelper {
 	public static Entity getThrower(Entity entity) {
 		if (entity instanceof IThrowableEntity)
 			return ((IThrowableEntity)entity).getThrower();
+		else if (entity instanceof EntityArrow)
+			return ((EntityArrow)entity).shootingEntity;
+		else if (entity instanceof EntityFireball)
+			return ((EntityFireball)entity).shootingEntity;
+		else if (entity instanceof EntityTNTPrimed)
+			return ((EntityTNTPrimed)entity).getTntPlacedBy();
 		return entity;
 	}
 
-	/**Should entity entity be hit by entity projectile.
+	/**Should entityHit be hit by thrower projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly) {
 		Entity actualThrower = getThrower(thrower);
@@ -286,7 +294,7 @@ public class EntityHelper {
 		return source != null && shouldHit(actualThrower, entityHit, friendly, source);
 	}
 
-	/**Should entity entity be hit by entity projectile.
+	/**Should entityHit be hit by thrower projectile.
 	 * @param friendly - should this hit teammates or enemies?*/
 	public static boolean shouldHit(Entity thrower, Entity entityHit, boolean friendly, DamageSource source) {
 		// prevent hitting EntityMW
@@ -317,10 +325,6 @@ public class EntityHelper {
 		Team entityTeam = getTeam(entity);
 		Team targetTeam = getTeam(target);
 
-		// TODO
-		if (entity instanceof EntityPlayer && target instanceof EntityLivingBaseMW)
-			System.out.println(target);
-		
 		// prevent EntityHero attacking/targeting things it shouldn't (unless friendly and on same team)
 		if (entity instanceof EntityHero && target != null && 
 				!(friendly && entityTeam != null && entityTeam == targetTeam) &&
@@ -406,7 +410,7 @@ public class EntityHelper {
 				// change prevPos to deflect pos so particles follow properly
 				if (TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
 						result.entityHit instanceof EntityLivingBase && 
-						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile)) {
+						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile, projectile)) {
 					//if (projectile instanceof EntityMW)
 					//projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
 				}

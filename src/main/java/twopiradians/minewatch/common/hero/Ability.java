@@ -6,16 +6,22 @@ import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.potion.ModPotions;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
+import twopiradians.minewatch.common.util.RenderHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -228,6 +234,13 @@ public class Ability {
 	/**Currently only for ultimates*/
 	public ResourceLocation getTexture() {
 		return new ResourceLocation(Minewatch.MODID, "textures/gui/"+hero.name+"_ultimate.png");
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void drawNotEnabledIcon(double x, double y, double z) {
+		Minecraft mc = Minecraft.getMinecraft();
+		mc.getTextureManager().bindTexture(RenderManager.ABILITY_OVERLAY);	
+		RenderHelper.drawTexturedModalRect(x, y, 16, 246, 5, 5, z);
 	}
 
 }

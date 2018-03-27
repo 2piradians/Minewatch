@@ -28,7 +28,7 @@ import twopiradians.minewatch.packet.PacketSyncConfig;
 
 public class Config {
 
-	private static final Biome[] OVERWORLD_BIOMES;
+	private static final Biome[] OVERWORLD_BIOMES; 
 	static {
 		ArrayList<Biome> biomes = new ArrayList<Biome>();
 		for (ResourceLocation loc : Biome.REGISTRY.getKeys()) {
@@ -87,6 +87,8 @@ public class Config {
 	public static double healthScale;
 	public static double armor;
 	public static boolean stepAssist;
+	public static double ultimateChargeNormal;
+	public static double ultimateChargeDamage;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -109,6 +111,8 @@ public class Config {
 	public static double mobAttackCooldown;
 	public static double mobInaccuracy;
 	public static double damageScaleHero;
+	public static double ultimateChargeNormalHero;
+	public static double ultimateChargeDamageHero;
 
 	public static void preInit(final File file) {
 		config = new Configuration(file, CONFIG_VERSION+Configuration.NEW_LINE+Configuration.NEW_LINE+
@@ -182,10 +186,10 @@ public class Config {
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Health and Armor", true, "Should your health and armor be hidden while wearing a full set of armor?");
 		hideHealthArmor = prop.getBoolean();
 		
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hunger", true, "Should your hunger be hidden while wearing a full set of armor and having saturation?");
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hunger", true, "Should your hunger be hidden while wearing a full set of armor and having full hunger?");
 		hideHunger = prop.getBoolean();
 		
-		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hotbar", false, "Should your hotbar be hidden while wearing a full set of armor and holding the set's weapon?");
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Hide Hotbar", true, "Should your hotbar be hidden while wearing a full set of armor and holding the set's weapon?");
 		hideHotbar = prop.getBoolean();
 		
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Scoped Sensitivity", 0.5d, "Mouse sensitivity multiplier while scoping with Widomaker or Ana.", 0.01d, 1);
@@ -315,11 +319,23 @@ public class Config {
 			else 
 				armor = prop.getDouble();
 			
-			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Step Assist", false, "Should players be allowed to walk up full blocks when wearing a full set of Minewatch armor?");
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Step Assist", true, "Should players be allowed to walk up full blocks when wearing a full set of Minewatch armor?");
 			if (overriding)
 				prop.set(stepAssist);
 			else
 				stepAssist = prop.getBoolean();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ultimate Charge Rate (Normal)", 1d, "Rate at which ultimates charge on their own for players.", 0d, 20d);
+			if (overriding)
+				prop.set(ultimateChargeNormal);
+			else 
+				ultimateChargeNormal = prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Ultimate Charge Rate (Damage)", 1d, "Rate at which ultimates charge from dealing damage for players.", 0d, 20d);
+			if (overriding)
+				prop.set(ultimateChargeDamage);
+			else 
+				ultimateChargeDamage = prop.getDouble();
 
 			// Team Block options ======================================================================================
 
@@ -460,6 +476,18 @@ public class Config {
 				prop.set(damageScaleHero * 10d);
 			else
 				damageScaleHero = 0.1d * prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Ultimate Charge Rate (Normal)", 1d, "Rate at which ultimates charge on their own for hero mobs.", 0d, 20d);
+			if (overriding)
+				prop.set(ultimateChargeNormalHero);
+			else 
+				ultimateChargeNormalHero = prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_HERO_MOBS, "Ultimate Charge Rate (Damage)", 1d, "Rate at which ultimates charge from dealing damage for hero mobs.", 0d, 20d);
+			if (overriding)
+				prop.set(ultimateChargeDamageHero);
+			else 
+				ultimateChargeDamageHero = prop.getDouble();
 		}
 	}
 	

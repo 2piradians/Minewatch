@@ -81,7 +81,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			List<Entity> list = entityLiving.world.getEntitiesWithinAABBExcludingEntity(entityLiving, aabb);
 			for (Entity entity : list) 
 				if (!(entity instanceof EntityArrow))
-					ItemGenjiShuriken.deflect(entityLiving, entity);
+					ItemGenjiShuriken.deflect(entityLiving, entity, entity);
 			return super.onServerTick();
 		}
 
@@ -240,8 +240,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 	}	
 
-	private static boolean deflect(EntityLivingBase player, Entity entity) {
-		if (canDeflect(player, entity)) {
+	private static boolean deflect(EntityLivingBase player, Entity entity, Entity thrower) {
+		if (canDeflect(player, entity, thrower)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
 					entity.motionY*entity.motionY + entity.motionZ*entity.motionZ); // do not make faster - hitscan doesn't hit properly
 			entity.motionX = player.getLookVec().x*velScale;	
@@ -284,20 +284,20 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		return false;
 	}
 
-	public static boolean canDeflect(EntityLivingBase player, Entity entity) {
+	public static boolean canDeflect(EntityLivingBase player, Entity entity, Entity thrower) {
 		return entity != null && !entity.isDead && (entity instanceof EntityArrow || entity instanceof EntityThrowable || 
 				entity instanceof IThrowableEntity ||entity instanceof EntityFireball ||
 				entity instanceof EntityTNTPrimed) && !entity.onGround &&
 				player.getLookVec().dotProduct(new Vec3d(entity.motionX, entity.motionY, entity.motionZ).normalize()) < -0.1d &&
 				!(entity instanceof EntityMW && ((EntityMW)entity).notDeflectible) && 
-				EntityHelper.shouldHit(entity, player, false);
+				EntityHelper.shouldHit(thrower, player, false);
 	}
 
 	@SubscribeEvent
 	public void deflectAttack(LivingAttackEvent event) {
 		if (event.getEntity() instanceof EntityLivingBase && !event.getEntity().world.isRemote && 
 				TickHandler.hasHandler(event.getEntity(), Identifier.GENJI_DEFLECT)) {
-			if (deflect((EntityLivingBase) event.getEntity(), event.getSource().getImmediateSource())) 
+			if (deflect((EntityLivingBase) event.getEntity(), event.getSource().getImmediateSource(), event.getSource().getTrueSource())) 
 				event.setCanceled(true);
 		}
 	}

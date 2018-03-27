@@ -19,6 +19,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.FOVUpdateEvent;
@@ -28,6 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
@@ -178,7 +180,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			animatingHarmony = null;
 			animatingDiscord = null;
 		}
-		
+
 		if (isSelected && entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHeldItemMainhand() == stack &&
 				((EntityLivingBase)entity).getActiveItemStack() != stack) {	
 			EntityLivingBase player = (EntityLivingBase) entity;
@@ -238,7 +240,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	public EnumAction getItemUseAction(ItemStack stack)	{
-		return EnumAction.BLOCK;
+		return EnumAction.NONE;
 	}
 
 	@Override
@@ -317,7 +319,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase player, int timeLeft) {
-		this.shootVolley(player, (this.getMaxItemUseDuration(stack)-timeLeft)/(this.getMaxItemUseDuration(stack)/5)+1);
+		this.shootVolley(player, MathHelper.clamp((this.getMaxItemUseDuration(stack)-timeLeft) / VOLLEY_CHARGE_DELAY-1, 0, 5));
 	}
 
 	private void shootVolley(EntityLivingBase entity, int orbs) {
@@ -325,7 +327,9 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			ModSoundEvents.ZENYATTA_VOLLEY_CHARGE.stopSound(entity.world);
 		this.reequipAnimation(entity.getHeldItem(EnumHand.MAIN_HAND), 0);
 		this.reequipAnimation(entity.getHeldItem(EnumHand.OFF_HAND), 0);
-		TickHandler.register(entity.world.isRemote, VOLLEY.setEntity(entity).setTicks(orbs*2));
+		if (orbs > 0) {
+			TickHandler.register(entity.world.isRemote, VOLLEY.setEntity(entity).setTicks(orbs*2));
+		}
 	}
 
 	@SubscribeEvent
@@ -359,12 +363,12 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType cameraTransformType, Pair<? extends IBakedModel, Matrix4f> ret) {
+	public Pair<? extends IBakedModel, Matrix4f> preRenderWeapon(EntityLivingBase entity, ItemStack stack, TransformType type, Pair<? extends IBakedModel, Matrix4f> ret) {
 		if (animatingTime != -1 && entity != null && Minewatch.proxy.getClientPlayer() != null && 
 				(animatingHarmony == stack && entity.getHeldItemMainhand() == stack && 
-				(cameraTransformType.equals(TransformType.FIRST_PERSON_RIGHT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_RIGHT_HAND))) ||
+				(type.equals(TransformType.FIRST_PERSON_RIGHT_HAND) || type.equals(TransformType.THIRD_PERSON_RIGHT_HAND))) ||
 				(animatingDiscord == stack && entity.getHeldItemOffhand() == stack && 
-				(cameraTransformType.equals(TransformType.FIRST_PERSON_LEFT_HAND) || cameraTransformType.equals(TransformType.THIRD_PERSON_LEFT_HAND)))) {
+				(type.equals(TransformType.FIRST_PERSON_LEFT_HAND) || type.equals(TransformType.THIRD_PERSON_LEFT_HAND)))) {
 
 			float percent = 1f - ((((float)animatingTime) - Minewatch.proxy.getClientPlayer().ticksExisted-Minewatch.proxy.getRenderPartialTicks()) / ANIMATION_TIME);
 			float upTime = 0.1f;
@@ -380,6 +384,14 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 			GlStateManager.translate(0, percent*0.25f, 0);
 		}
+		// volley
+		else if (entity != null && entity.getActiveItemStack() != null && entity.getActiveItemStack().getItem() == this) {
+			if (type == TransformType.THIRD_PERSON_LEFT_HAND)
+				GlStateManager.translate(0.25f, 0.35f, 0.35f);
+			else if (type == TransformType.THIRD_PERSON_RIGHT_HAND)
+				GlStateManager.translate(-0.25f, 0.35f, 0.35f);
+		}
+
 		return ret;
 	}
 
@@ -398,6 +410,28 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 			return 0xFFD800;
 		else 
 			return -1;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean preRenderArmor(EntityLivingBase entity, ModelMWArmor model) { 
+		// volley
+		if (entity.getActiveItemStack() != null && entity.getActiveItemStack().getItem() == this) {
+			model.bipedLeftArmwear.rotateAngleX = -1.5f;
+			model.bipedLeftArm.rotateAngleX = -1.5f;
+			model.bipedLeftArmwear.rotateAngleZ = 0f;
+			model.bipedLeftArm.rotateAngleZ = 0f;
+			model.bipedLeftArmwear.rotateAngleY = 0.4f;
+			model.bipedLeftArm.rotateAngleY = 0.4f;
+			model.bipedRightArmwear.rotateAngleX = -1.5f;
+			model.bipedRightArm.rotateAngleX = -1.5f;
+			model.bipedRightArmwear.rotateAngleZ = 0f;
+			model.bipedRightArm.rotateAngleZ = 0f;
+			model.bipedRightArmwear.rotateAngleY = -0.4f;
+			model.bipedRightArm.rotateAngleY = -0.4f;
+		}
+
+		return false; 
 	}
 
 }

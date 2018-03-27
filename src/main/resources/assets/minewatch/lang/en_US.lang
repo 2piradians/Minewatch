@@ -24,6 +24,9 @@ tile.team_spawn.desc=Block that players and mobs can respawn at
 tile.death_block.name=Death Block
 tile.death_block.desc1=Kills mobs and players (in survival or adventure mode) that touch it
 tile.death_block.desc2=Can be used to mimic falling off the map
+tile.push_block.name=Push Block
+tile.push_block.desc1=Pushes mobs and players that touch it
+tile.push_block.desc2=Can be used to mimic roofs that can't be stood on
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick

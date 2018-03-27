@@ -579,4 +579,9 @@ public class ClientProxy extends CommonProxy {
 	public void setThirdPersonView(int mode) {
 		Minecraft.getMinecraft().gameSettings.thirdPersonView = mode;
 	}
+	
+	@Override
+	public boolean isSinglePlayer() {
+		return Minecraft.getMinecraft().isSingleplayer();
+	}
 }

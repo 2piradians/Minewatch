@@ -35,7 +35,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
@@ -191,7 +190,27 @@ public class RenderManager {
 			GlStateManager.popMatrix();
 		}
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean hideHealthArmor(EntityPlayer player) {
+		return Config.hideHealthArmor && SetManager.getWornSet(player) != null;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean hideFood(EntityPlayer player) {
+		return Config.hideHunger && SetManager.getWornSet(player) != null && !player.getFoodStats().needFood();
+	}
 
+	@SideOnly(Side.CLIENT)
+	public static boolean hideHotBar(EntityPlayer player) {
+		if (Config.hideHotbar) {
+			EnumHero hero = SetManager.getWornSet(player);
+			if (hero != null && player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() == hero.weapon)
+				return true;
+		}
+		return false;
+	}
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
@@ -199,22 +218,16 @@ public class RenderManager {
 
 		// hide health / armor
 		if ((event.getType() == ElementType.HEALTH || event.getType() == ElementType.ARMOR) &&
-				Config.hideHealthArmor && SetManager.getWornSet(mc.player) != null)
+				hideHealthArmor(mc.player))
 			event.setCanceled(true);
 		// hide food
 		else if (event.getType() == ElementType.FOOD &&
-				Config.hideHunger && SetManager.getWornSet(mc.player) != null) {
-			PotionEffect effect = mc.player.getActivePotionEffect(MobEffects.SATURATION);
-			if (effect != null && effect.getDuration() > 0)
+				hideFood(mc.player)) 
 				event.setCanceled(true);
-		}
 		// hide hotbar
 		else if ((event.getType() == ElementType.HOTBAR || event.getType() == ElementType.EXPERIENCE) &&
-				Config.hideHotbar) {
-			EnumHero hero = SetManager.getWornSet(mc.player);
-			if (hero != null && mc.player.getHeldItemMainhand() != null && mc.player.getHeldItemMainhand().getItem() == hero.weapon)
+				hideHotBar(mc.player)) 
 				event.setCanceled(true);
-		}
 
 		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
 			event.setCanceled(true);
@@ -365,7 +378,7 @@ public class RenderManager {
 					String text = TextFormatting.BLACK+""+TextFormatting.BOLD+String.format(Minewatch.translate("overlay.change_hero"), KeyBind.CHANGE_HERO.keyBind.getDisplayName()).toUpperCase();
 					int textWidth = mc.fontRenderer.getStringWidth(text);
 					int x = (int) (width/scale/2d-textWidth/2d);
-					int y = (int) (height/scale*0.65d);
+					int y = (int) (height/scale-190f);
 					GuiUtils.drawGradientRect(0, x-10, y, x+textWidth+10, y+mc.fontRenderer.FONT_HEIGHT+10, 0xCAFFDA56, 0xCAFFDA56);
 					mc.fontRenderer.drawString(text, x, y+6, 0xFFFFFF);
 
@@ -466,7 +479,8 @@ public class RenderManager {
 							// not implemented icon
 							if (!ability.isEnabled && ability.keybind != KeyBind.NONE) {
 								GlStateManager.translate(i*0.3d, -i*0.5d, 0);
-								GuiUtils.drawTexturedModalRect(-i*9+1, 6, 16, 246, 5, 5, 0);
+								ability.drawNotEnabledIcon(-i*9+1, 6, 0);
+								
 							}
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.popMatrix();
@@ -965,7 +979,7 @@ public class RenderManager {
 
 	@SideOnly(Side.CLIENT) // copied from RenderLivingBase#canRenderName() to make public
 	public static boolean canRenderName(RenderLivingBase renderer, EntityLivingBase entity) {
-		if (entity == null || !entity.isEntityAlive()) // TODO speed up moira heal
+		if (entity == null || !entity.isEntityAlive())
 			return false;
 		// render for spectators
 		else if (Minewatch.proxy.getClientPlayer().isSpectator() && 

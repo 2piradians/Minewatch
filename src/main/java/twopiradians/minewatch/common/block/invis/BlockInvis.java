@@ -1,6 +1,5 @@
-package twopiradians.minewatch.common.block;
+package twopiradians.minewatch.common.block.invis;
 
-import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -8,34 +7,23 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBarrier;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 
-public class BlockDeath extends BlockBarrier {
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced) {
-		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("tile.death_block.desc1"));
-		tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("tile.death_block.desc2"));
-	}
+public class BlockInvis extends BlockBarrier {
+	
+	public static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	
 	@Override
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
-        return true;
+        return true; 
     }
 	
 	@Override
@@ -48,28 +36,27 @@ public class BlockDeath extends BlockBarrier {
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
 		return NULL_AABB;
 	}
+	
+	@Override
+	@SuppressWarnings("deprecation")
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return (Minewatch.proxy.getClientPlayer() != null && !Minewatch.proxy.getClientPlayer().isCreative()) ? EMPTY_AABB : super.getBoundingBox(state, source, pos);
+    }
 
 	@Override
 	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 
-	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		// kill on collide
-		if (!worldIn.isRemote && entityIn instanceof EntityLivingBase && ((EntityLivingBase)entityIn).isEntityAlive() && 
-				(!(entityIn instanceof EntityPlayer) || (!((EntityPlayer)entityIn).isSpectator() && !((EntityPlayer)entityIn).isCreative())))
-			entityIn.onKillCommand();
-	}
+	public static class ItemBlockInvis extends ItemBlock {
 
-	public static class ItemBlockDeath extends ItemBlock {
 
-		public ItemBlockDeath(Block block) {
+		public ItemBlockInvis(Block block) {
 			super(block);
 		}
 
 		public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-			// death particle
+			// particle
 			if (isSelected && entity.ticksExisted % 1 == 0 && world.isRemote && 
 					entity == Minewatch.proxy.getClientPlayer() && ((EntityPlayer)entity).isCreative()) {
 				this.doVoidFogParticles(world, (int) entity.posX, (int) entity.posY, (int) entity.posZ); 
@@ -100,12 +87,14 @@ public class BlockDeath extends BlockBarrier {
 			IBlockState iblockstate = world.getBlockState(pos);
 			//iblockstate.getBlock().randomDisplayTick(iblockstate, this, pos, random);
 
-			if (holdingBarrier && iblockstate.getBlock() == ModBlocks.deathBlock)
+			if (holdingBarrier && iblockstate.getBlock() == this.block)
 			{
-				Minewatch.proxy.spawnParticlesCustom(EnumParticle.DEATH_BLOCK, world, i+0.5f, j+0.5f, k+0.5f, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 1, 80, 6, 6, 0, 0);
+				spawnParticle(world, iblockstate, i+0.5f, j+0.5f, k+0.5f);
 				//this.spawnParticle(EnumParticleTypes.BARRIER, (double)((float)i + 0.5F), (double)((float)j + 0.5F), (double)((float)k + 0.5F), 0.0D, 0.0D, 0.0D, new int[0]);
 			}
 		}
+		
+		public void spawnParticle(World world, IBlockState state, float x, float y, float z) {}
 
 	}
 

@@ -289,7 +289,7 @@ public class ParticleCustom extends ParticleSimpleAnimated {
 		}
 		else if (this.enumParticle.equals(EnumParticle.SOMBRA_HACK_MESH))
 			this.setBaseAirFriction(0.97f);
-		else if (this.enumParticle.equals(EnumParticle.DEATH_BLOCK))
+		else if (this.enumParticle.equals(EnumParticle.DEATH_BLOCK) || this.enumParticle.equals(EnumParticle.PUSH_BLOCK))
 			this.particleAlpha = this.initialAlpha;
 	}
 

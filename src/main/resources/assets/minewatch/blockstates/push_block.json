@@ -1,0 +1,9 @@
+{
+    "variants": {
+        "facing=north": { "model": "minewatch:push_block" },
+        "facing=south": { "model": "minewatch:push_block", "y": 180 },
+        "facing=west":  { "model": "minewatch:push_block", "y": 270 },
+        "facing=east":  { "model": "minewatch:push_block", "y": 90 }
+        
+    }
+}

@@ -32,7 +32,7 @@ import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.util.Texture;
+import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -42,10 +42,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class UltimateManager {
 
 	public static TextureAtlasSprite ready;
-	public static Texture gif;
-	public static final ResourceLocation GIF = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate.gif");
 	public static final ResourceLocation CIRCLE = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate_circle.png");
-	public static final ResourceLocation READY = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate_ready.png");
 	public static final ResourceLocation BACKGROUND = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate_background.png");
 	public static final ResourceLocation FOREGROUND = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate_foreground.png");
 	public static final ResourceLocation STENCIL = new ResourceLocation(Minewatch.MODID, "textures/gui/ultimate_stencil.png");
@@ -60,6 +57,8 @@ public class UltimateManager {
 	}
 
 	private static float playerChargeClient;
+	public static float increment;
+	public static float partialChargeClient;
 	/**Map of player UUIDs and their current ult charge*/
 	private static HashMap<UUID, Float> playerChargesServer = Maps.newHashMap();
 
@@ -79,7 +78,7 @@ public class UltimateManager {
 		if (entity instanceof EntityHero)
 			return ((EntityHero)entity).ultCharge;
 		else if (entity instanceof EntityPlayer) {
-			if (!entity.world.isRemote && playerChargesServer.containsKey(entity.getPersistentID()))
+			if ((!entity.world.isRemote || Minewatch.proxy.isSinglePlayer()) && playerChargesServer.containsKey(entity.getPersistentID()))
 				return playerChargesServer.get(entity.getPersistentID());
 			else if (entity.world.isRemote && entity == Minewatch.proxy.getClientPlayer()) 
 				return playerChargeClient;
@@ -104,6 +103,17 @@ public class UltimateManager {
 
 	/**Add ultimate charge for an entity - amount should be unscaled*/
 	public static void addCharge(Entity entity, float amount, boolean syncToClient) {
+		addCharge(entity, amount, syncToClient, false);
+	}
+
+	/**Add ultimate charge for an entity - amount should be unscaled*/
+	public static void addCharge(Entity entity, float amount, boolean syncToClient, boolean isNormalCharge) {
+		// config multipliers
+		if (isNormalCharge)
+			amount *= entity instanceof EntityPlayer ? Config.ultimateChargeNormal : Config.ultimateChargeNormalHero;
+		else
+			amount *= entity instanceof EntityPlayer ? Config.ultimateChargeDamage : Config.ultimateChargeDamageHero;
+
 		if (entity instanceof EntityHero)
 			amount += ((EntityHero)entity).ultCharge;
 		else if (entity instanceof EntityPlayer) {
@@ -112,11 +122,14 @@ public class UltimateManager {
 			else if (entity.world.isRemote && entity == Minewatch.proxy.getClientPlayer()) 
 				amount += playerChargeClient;
 		}
+
 		setCharge(entity, amount, syncToClient);
 	}
 
-	/**Set ultimate charge for an entity - amount should be unscaled*/
+	/**Set ultimate charge for an entity - amount should be scaled*/
 	public static void setCharge(Entity entity, float amount, boolean syncToClient) {
+		boolean hasUlt = getCurrentCharge(entity) >= getMaxCharge(entity);
+		
 		if (entity instanceof EntityHero)
 			((EntityHero)entity).ultCharge = amount;
 		else if (entity instanceof EntityPlayer) {
@@ -130,6 +143,10 @@ public class UltimateManager {
 				playerChargeClient = amount;
 			}
 		}
+		
+		// charged sound
+		if (!hasUlt && entity instanceof EntityPlayerMP && getCurrentCharge(entity) >= getMaxCharge(entity))
+			ModSoundEvents.ULTIMATE_CHARGED.playFollowingSound(entity, 1, 1, false, true);
 	}
 
 	/**Handles ultimate charge for attacks / abilities / healing - see https://overwatch.gamepedia.com/Ultimate_ability*/
@@ -174,7 +191,9 @@ public class UltimateManager {
 
 	@SubscribeEvent
 	public static void syncToClients(TickEvent.ServerTickEvent event) {
-		if (event.phase == Phase.END && --syncTickTimer <= 0 && !needToBeSynced.isEmpty()) {
+		// only needs to sync in mp, sp uses server charge on client
+		if (event.phase == Phase.END && !Minewatch.proxy.isSinglePlayer() && 
+				--syncTickTimer <= 0 && !needToBeSynced.isEmpty()) {
 			syncTickTimer = SYNC_DELAY;
 			for (EntityPlayerMP player : needToBeSynced)
 				Minewatch.network.sendTo(new SPacketSimple(79, false, player, getCurrentCharge(player), syncTickTimer, 0), player);
@@ -187,17 +206,21 @@ public class UltimateManager {
 		if (entity != null && entity.ticksExisted % 4 == 0) {
 			EnumHero hero = SetManager.getWornSet(entity);
 			if (hero != null) {
-				addCharge(entity, 1, false);
+				addCharge(entity, 1, false, true);
 			}
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	public static void renderUltimateMeter(EntityPlayer player, EnumHero hero, double width, double height) {
-		Config.guiScale += 0.01d; // TODO, move up h to change hero
+		Config.guiScale += 0.01d; 
 		if (Config.guiScale > 1.3d)
 			Config.guiScale = 0.001d;
 		Config.guiScale = 0.75d;
+
+		float yOffset = 70f;
+		if (RenderManager.hideFood(player) && RenderManager.hideHealthArmor(player) && RenderManager.hideHotBar(player))
+			yOffset = 47.5f;
 
 		Minecraft mc = Minecraft.getMinecraft();
 		double percent = MathHelper.clamp(Math.floor((getCurrentCharge(player)/getMaxCharge(player)*100d)), 0d, 100d);
@@ -205,7 +228,7 @@ public class UltimateManager {
 		double scale, scale2;
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1, 1, 1, 1);
-		GlStateManager.translate(width/2f, height-80f, 0);
+		GlStateManager.translate(width/2f, height-yOffset, 0);
 
 		if (!ready) {
 			// background
@@ -270,9 +293,11 @@ public class UltimateManager {
 			mc.getTextureManager().bindTexture(CIRCLE);
 			Gui.drawModalRectWithCustomSizedTexture(-32, -32, 0, 0, 64, 64, 64, 64);
 			GlStateManager.popMatrix();
+
 			// animation
 			GlStateManager.pushMatrix();
-			GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
+			GlStateManager.disableDepth();
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.2F);
 			scale = 0.88d*Config.guiScale;
 			GlStateManager.scale(scale, scale, 1);
 			GlStateManager.color(1, 1, 1, 1);
@@ -281,20 +306,18 @@ public class UltimateManager {
 			double yCoord = -92.5d;
 			double heightIn = 256;
 			double widthIn = 256;
-			double z = 0;
+			double z = 0d;
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferbuilder = tessellator.getBuffer();
 			bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-			for (int i=0; i<1; ++i) {
-				bufferbuilder.pos((double)(xCoord + 0), (double)(yCoord + heightIn), (double)z).tex((double)UltimateManager.ready.getMinU(), (double)UltimateManager.ready.getMaxV()).endVertex();
-				bufferbuilder.pos((double)(xCoord + widthIn), (double)(yCoord + heightIn), (double)z).tex((double)UltimateManager.ready.getMaxU(), (double)UltimateManager.ready.getMaxV()).endVertex();
-				bufferbuilder.pos((double)(xCoord + widthIn), (double)(yCoord + 0), (double)z).tex((double)UltimateManager.ready.getMaxU(), (double)UltimateManager.ready.getMinV()).endVertex();
-				bufferbuilder.pos((double)(xCoord + 0), (double)(yCoord + 0), (double)z).tex((double)UltimateManager.ready.getMinU(), (double)UltimateManager.ready.getMinV()).endVertex();
-			}
+			bufferbuilder.pos((double)(xCoord + 0), (double)(yCoord + heightIn), (double)z).tex((double)UltimateManager.ready.getMinU(), (double)UltimateManager.ready.getMaxV()).endVertex();
+			bufferbuilder.pos((double)(xCoord + widthIn), (double)(yCoord + heightIn), (double)z).tex((double)UltimateManager.ready.getMaxU(), (double)UltimateManager.ready.getMaxV()).endVertex();
+			bufferbuilder.pos((double)(xCoord + widthIn), (double)(yCoord + 0), (double)z).tex((double)UltimateManager.ready.getMaxU(), (double)UltimateManager.ready.getMinV()).endVertex();
+			bufferbuilder.pos((double)(xCoord + 0), (double)(yCoord + 0), (double)z).tex((double)UltimateManager.ready.getMinU(), (double)UltimateManager.ready.getMinV()).endVertex();
 			tessellator.draw();
 			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 			GlStateManager.popMatrix();
-			
+
 			// icon
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1, 1, 1, 0.9f);
@@ -312,7 +335,7 @@ public class UltimateManager {
 		GlStateManager.scale(scale, scale, 1);
 		String keybind = (ready ? TextFormatting.BOLD : "") + KeyBind.ULTIMATE.getKeyName();
 		float widthString = mc.fontRenderer.getStringWidth(keybind);
-		mc.fontRenderer.drawString(keybind, -widthString/2f, 31f, ready ? 0xE0000000 : 0xE0757575, !ready);		
+		mc.fontRenderer.drawString(keybind, -widthString/2f+0.4f, 31f, ready ? 0xE0000000 : 0xE0757575, !ready);		
 		GlStateManager.popMatrix();
 
 		if (!ready) {
@@ -331,7 +354,17 @@ public class UltimateManager {
 			GlStateManager.pushMatrix();
 			scale2 = 0.70d*Config.guiScale;
 			GlStateManager.scale(scale2, scale2*stretchY, 1);
-			mc.fontRenderer.drawString(TextFormatting.GOLD+""+TextFormatting.ITALIC+"%", (float) (widthString*(scale-scale2)/2f+9), -1, 0xE0FFFFFF, true);
+			mc.fontRenderer.drawString(TextFormatting.ITALIC+"%", (float) (widthString*(scale-scale2)/2f+9), -1, 0xE0FFFFFF, true);
+			GlStateManager.popMatrix();
+		}
+
+		// not enabled icon
+		if (!hero.ultimate.isEnabled) {
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1, 1, 1, 1);
+			scale = 3d*Config.guiScale;
+			GlStateManager.scale(scale, scale, 1);
+			hero.ultimate.drawNotEnabledIcon(-0.5d, 10.5d, 0);
 			GlStateManager.popMatrix();
 		}
 

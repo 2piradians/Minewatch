@@ -85,7 +85,7 @@ public class CommonProxy {
 		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS,
 		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_PUNCH_2, DOOMFIST_PUNCH_3, 
 		DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2,
-		DEATH_BLOCK;
+		DEATH_BLOCK, PUSH_BLOCK;
 
 		public HashMap<UUID, Integer> particleEntities = Maps.newHashMap();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -217,6 +217,13 @@ public class CommonProxy {
 	public EntityPlayer getClientPlayer() {
 		return null;
 	}
+	
+	@Nullable
+	public Object playFollowingSoundToPlayer(EntityPlayerMP entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
+			Minewatch.network.sendTo(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity);
+		return null;
+	}
 
 	@Nullable
 	public Object playFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
@@ -325,4 +332,8 @@ public class CommonProxy {
 	public void updateFOV() {}
 
 	public void setThirdPersonView(int mode) {}
+
+	public boolean isSinglePlayer() {
+		return false;
+	}
 }

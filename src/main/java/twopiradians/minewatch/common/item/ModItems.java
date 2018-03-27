@@ -16,8 +16,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.minewatch.common.Minewatch;
-import twopiradians.minewatch.common.block.BlockDeath;
 import twopiradians.minewatch.common.block.ModBlocks;
+import twopiradians.minewatch.common.block.invis.BlockDeath;
+import twopiradians.minewatch.common.block.invis.BlockPush;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemGenjiShuriken;
@@ -77,6 +78,7 @@ public class ModItems {
 			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.healthPackLarge), ModBlocks.healthPackLarge.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 			registerItem(event.getRegistry(), new ItemBlock(ModBlocks.teamSpawn), ModBlocks.teamSpawn.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 			registerItem(event.getRegistry(), new BlockDeath.ItemBlockDeath(ModBlocks.deathBlock), ModBlocks.deathBlock.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
+			registerItem(event.getRegistry(), new BlockPush.ItemBlockPush(ModBlocks.pushBlock), ModBlocks.pushBlock.getUnlocalizedName().replace("tile.", ""), Minewatch.tabMapMaking, false);
 		}
 	}
 

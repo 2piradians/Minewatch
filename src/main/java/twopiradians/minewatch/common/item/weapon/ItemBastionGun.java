@@ -61,10 +61,9 @@ public class ItemBastionGun extends ItemMWWeapon {
 				// prevent movement
 				Handler handler = TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT);
 				if (handler == null)
-					TickHandler.register(false, Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(ticksLeft));
+					TickHandler.register(false, Handlers.PREVENT_MOVEMENT.setEntity(entityLiving).setTicks(30));
 				else
 					handler.ticksLeft = this.ticksLeft;
-
 				return false;
 			}
 			else if (isAlternate(entityLiving.getHeldItemMainhand())) {
@@ -73,6 +72,11 @@ public class ItemBastionGun extends ItemMWWeapon {
 			}
 
 			return super.onServerTick();
+		}
+		@Override
+		public Handler onServerRemove() {
+			TickHandler.unregister(false, TickHandler.getHandler(entityLiving, Identifier.PREVENT_MOVEMENT));
+			return super.onServerRemove();
 		}
 	};
 

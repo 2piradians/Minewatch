@@ -35,6 +35,8 @@ public class PacketSyncConfig implements IMessage {
 	private double healthScale;
 	private double armor;
 	private boolean stepAssist;
+	private double ultimateChargeNormal;
+	private double ultimateChargeDamage;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -58,6 +60,8 @@ public class PacketSyncConfig implements IMessage {
 	private double mobAttackCooldown;
 	private double mobInaccuracy;
 	private double damageScaleHero;
+	private double ultimateChargeNormalHero;
+	private double ultimateChargeDamageHero;
 
 	public PacketSyncConfig() {
 		// read values from config now that it's about to be sent to server
@@ -84,6 +88,8 @@ public class PacketSyncConfig implements IMessage {
 		this.healthScale = Config.healthScale;
 		this.armor = Config.armor;
 		this.stepAssist = Config.stepAssist;
+		this.ultimateChargeNormal = Config.ultimateChargeNormal;
+		this.ultimateChargeDamage = Config.ultimateChargeDamage;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -107,6 +113,8 @@ public class PacketSyncConfig implements IMessage {
 		this.mobAttackCooldown = Config.mobAttackCooldown;
 		this.mobInaccuracy = Config.mobInaccuracy;
 		this.damageScaleHero = Config.damageScaleHero;
+		this.ultimateChargeNormalHero = Config.ultimateChargeNormalHero;
+		this.ultimateChargeDamageHero = Config.ultimateChargeDamageHero;
 	}
 
 	@Override
@@ -131,6 +139,8 @@ public class PacketSyncConfig implements IMessage {
 		this.healthScale = buf.readDouble();
 		this.armor = buf.readDouble();
 		this.stepAssist = buf.readBoolean();
+		this.ultimateChargeNormal = buf.readDouble();
+		this.ultimateChargeDamage = buf.readDouble();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -154,6 +164,8 @@ public class PacketSyncConfig implements IMessage {
 		this.mobAttackCooldown = buf.readDouble();
 		this.mobInaccuracy = buf.readDouble();
 		this.damageScaleHero = buf.readDouble();
+		this.ultimateChargeNormalHero = buf.readDouble();
+		this.ultimateChargeDamageHero = buf.readDouble();
 	}
 
 	@Override
@@ -178,6 +190,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.healthScale);
 		buf.writeDouble(this.armor);
 		buf.writeBoolean(this.stepAssist);
+		buf.writeDouble(this.ultimateChargeNormal);
+		buf.writeDouble(this.ultimateChargeDamage);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -201,6 +215,8 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.mobAttackCooldown);
 		buf.writeDouble(this.mobInaccuracy);
 		buf.writeDouble(this.damageScaleHero);
+		buf.writeDouble(this.ultimateChargeNormalHero);
+		buf.writeDouble(this.ultimateChargeDamageHero);
 	}
 
 	public void run() {
@@ -224,6 +240,8 @@ public class PacketSyncConfig implements IMessage {
 		Config.healthScale = this.healthScale;
 		Config.armor = this.armor;
 		Config.stepAssist = this.stepAssist;
+		Config.ultimateChargeNormal = this.ultimateChargeNormal;
+		Config.ultimateChargeDamage = this.ultimateChargeDamage;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;
@@ -247,6 +265,8 @@ public class PacketSyncConfig implements IMessage {
 		Config.mobAttackCooldown = this.mobAttackCooldown;
 		Config.mobInaccuracy = this.mobInaccuracy;
 		Config.damageScaleHero = this.damageScaleHero;
+		Config.ultimateChargeNormalHero = this.ultimateChargeNormalHero;
+		Config.ultimateChargeDamageHero = this.ultimateChargeDamageHero;
 
 		Config.syncConfig(true, false);
 		Config.config.save();

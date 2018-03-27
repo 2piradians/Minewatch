@@ -1,4 +1,10 @@
 {
+	"ultimate_charged": {
+		"category": "player",
+		"sounds": [
+			"minewatch:ultimate_charged"
+		]
+	},
 	"gui_hover": {
 		"category": "player",
 		"sounds": [

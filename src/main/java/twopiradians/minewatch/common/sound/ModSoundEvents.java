@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -20,6 +21,7 @@ public enum ModSoundEvents {
 
 	/**Registry name must be equal to name.toLowerCase()
 	 * Voice lines must have "voice" in them*/
+	ULTIMATE_CHARGED,
 	GUI_HOVER,
 	MULTIKILL_2,
 	MULTIKILL_3,
@@ -244,7 +246,6 @@ public enum ModSoundEvents {
 	DOOMFIST_UPPERCUT_STOP,
 	DOOMFIST_UPPERCUT_VOICE,
 	DOOMFIST_SHOOT,
-	
 	ROADHOG_RELOAD,
 	ROADHOG_HEAL_0,
 	ROADHOG_HEAL_1,
@@ -300,12 +301,25 @@ public enum ModSoundEvents {
 		if (world != null) 
 			world.playSound(world.isRemote ? Minewatch.proxy.getClientPlayer() : null, x, y, z, event, SoundCategory.PLAYERS, volume, pitch);
 	}
+	
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
+		return playFollowingSound(entity, volume, pitch, repeat, false);
+	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
-	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
+	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, boolean onlyPlayToEntity) {
 		// debug
 		// Minewatch.logger.info(this.name());
-		return entity != null && this.shouldPlay(entity) ? Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat) : null;
+		if (entity != null && this.shouldPlay(entity)) {
+			if (onlyPlayToEntity && entity instanceof EntityPlayerMP)
+				return Minewatch.proxy.playFollowingSoundToPlayer((EntityPlayerMP) entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+			else
+				return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+		}
+		return null;
 	}
 
 	/**Handles voice cooldown - only works for same client / server...*/

@@ -36,7 +36,7 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class Handlers {
 
-	/**Clientside glowing effect - if entityLiving != null, will only give glowing to entities friendly to it*/
+	/**Clientside glowing effect*/
 	public static final Handler CLIENT_GLOWING = new Handler(Identifier.GLOWING, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -49,7 +49,7 @@ public class Handlers {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Handler onClientRemove() {
-			if (this.entity != null && (((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING) == null ||
+			if (this.entity instanceof EntityLivingBase && (((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING) == null ||
 					((EntityLivingBase) this.entity).getActivePotionEffect(MobEffects.GLOWING).getDuration() <= 0))
 				this.entity.setGlowing(false);
 
@@ -354,6 +354,29 @@ public class Handlers {
 		public Handler onClientRemove() {
 			if (entity instanceof EntityPlayerSP)
 				Minecraft.getMinecraft().gameSettings.thirdPersonView = (int) number2;
+			return super.onClientRemove();
+		}
+	};
+	
+	/**bool = view bobbing to force, bool2 = prev view bobbing*/
+	public static final Handler VIEW_BOBBING = new Handler(Identifier.VIEW_BOBBING, false) {
+		@Override
+		public Handler setBoolean(Boolean bool) {
+			this.bool2 = Minecraft.getMinecraft().gameSettings.viewBobbing;
+			if (entity instanceof EntityPlayerSP)
+				Minecraft.getMinecraft().gameSettings.viewBobbing = bool;
+			return super.setBoolean(bool);
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			return super.onClientTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			if (entity instanceof EntityPlayerSP)
+				Minecraft.getMinecraft().gameSettings.viewBobbing = bool2;
 			return super.onClientRemove();
 		}
 	};

@@ -391,7 +391,10 @@ public class RenderManager {
 					UltimateManager.renderUltimateMeter(player, hero, width, height);
 				}
 				
-				if (hero != null && !player.isSpectator()) {					
+				if (hero != null && !player.isSpectator()) {	
+					// charge
+					ChargeManager.renderChargeOverlay(player, width, height);
+					
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -503,12 +506,15 @@ public class RenderManager {
 									ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 26, 247, 5, 5, 0);
 							// text
-							int textWidth = mc.fontRenderer.getStringWidth(ability.keybind.getKeyName());
+							String text = ability.keybind.getKeyName();
+							if ("LMENU".equalsIgnoreCase(text))
+								text = "LALT";
+							int textWidth = mc.fontRenderer.getStringWidth(text);
 							GlStateManager.scale(0.25d, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// keybind text
 							if (ability.showKeybind(player)) 
-								mc.fontRenderer.drawString(ability.keybind.getKeyName(), 3-i*36-textWidth/2, 43+i*3, 0);
+								mc.fontRenderer.drawString(text, 3-i*36-textWidth/2, 43+i*3, 0);
 							// multi-use number
 							if (ability.maxUses > 0)
 								mc.fontRenderer.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);
@@ -1037,7 +1043,7 @@ public class RenderManager {
 		int barWidth = 8;
 		int barHeight = 11;
 		float scaleX = maxWidth / (maxHealth/25f*(barWidth+0.4f));
-		float scaleY = inGui ? 1 : 0.8f;
+		float scaleY = inGui ? 1 : 0.6f;
 		float incrementX = barWidth + (inGui ? 0.4f/scaleX : 0);
 		float slant = barHeight * maxHealth * 0.0006f;
 		float xOffset = inGui ? 0 : maxWidth/scaleX/2f;

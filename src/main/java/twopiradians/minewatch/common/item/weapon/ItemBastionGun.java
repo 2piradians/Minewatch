@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityBastionBullet;
+import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -84,8 +85,6 @@ public class ItemBastionGun extends ItemMWWeapon {
 		super(40);
 		this.saveEntityToNBT = true;
 		MinecraftForge.EVENT_BUS.register(this);
-		this.maxCharge = 80;
-		this.rechargeRate = 80f/140f;
 	}
 
 	@Override
@@ -93,7 +92,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 		// shoot
 		if (this.canUse(player, true, hand, false) && hero.ability2.getCooldown(player) == 0 && 
 				!KeyBind.RMB.isKeyDown(player)) {
-			boolean turret = isAlternate(stack); // TODO prob only way to do is on render tick, get rid of hitscan entitiies
+			boolean turret = isAlternate(stack); 
 			if (!world.isRemote) {
 				EntityBastionBullet bullet = new EntityBastionBullet(world, player, turret ? 2 : hand.ordinal());
 				if (turret) 
@@ -123,7 +122,7 @@ public class ItemBastionGun extends ItemMWWeapon {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// start heal
 		if (hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
-				this.getCurrentCharge(player) >= this.maxCharge*0.2f && hero.ability1.isSelected(player)) {
+				ChargeManager.canUseCharge(player) && hero.ability1.isSelected(player)) {
 			player.setActiveHand(hand);
 		}
 
@@ -133,24 +132,26 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
 		// heal
-		if (this.canUse(player, true, EnumHand.MAIN_HAND, true) && this.getCurrentCharge(player) >= 1 &&
+		if (this.canUse(player, true, EnumHand.MAIN_HAND, true) && ChargeManager.getCurrentCharge(player) >= 1 &&
 				hero.ability1.isSelected(player) && !this.hasCooldown(player)) {
 			if (count == this.getMaxItemUseDuration(stack) - 10 && !player.world.isRemote)
 				ModSoundEvents.BASTION_HEAL.playFollowingSound(player, 1.0f, 1.0f, false);
 			if (count <= this.getMaxItemUseDuration(stack) - 10) { 
-				this.subtractFromCurrentCharge(player, 1, true);
+				ChargeManager.subtractFromCurrentCharge(player, 1, true);
 				if (!player.world.isRemote) 
 					EntityHelper.attemptDamage(player, player, -3.75f, true);
-			}
-			else if (this.getCurrentCharge(player) <= 0) 
-				player.stopActiveHand();
+			}				
 		}
+		else
+			player.stopActiveHand();
 	}
 
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase entity, int timeLeft) {
-		if (!world.isRemote)
+		if (!world.isRemote) {
 			ModSoundEvents.BASTION_HEAL.stopSound(world);
+			this.setCooldown(entity, 10);
+		}
 	}
 
 	@Override

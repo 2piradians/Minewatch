@@ -1,0 +1,14 @@
+# Blender MTL File: 'pharah_weapon.blend'
+# Material Count: 2
+
+newmtl 043BE835517B680E
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/pharah_weapon_1
+
+newmtl 9E37D7E4DA103EFA
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+d 1.000000
+map_Kd minewatch:items/pharah_weapon_0

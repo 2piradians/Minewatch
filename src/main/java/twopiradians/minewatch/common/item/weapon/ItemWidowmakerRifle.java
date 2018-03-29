@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -284,7 +285,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				GlStateManager.enableBlend();
 				int power = player.getActiveItemStack() == player.getHeldItemMainhand() ? (int) (getPower(player)*100d) : 0;
 				int powerWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(power+"%");
-				Minecraft.getMinecraft().fontRenderer.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
+				if (power > 0)
+					Minecraft.getMinecraft().fontRenderer.drawString(power+"%", (int) width/2-powerWidth/2, (int) height/2+40, 0xFFFFFF);
 				// scope
 				Minecraft.getMinecraft().getTextureManager().bindTexture(SCOPE);
 				GuiUtils.drawTexturedModalRect((int) (width/2-imageSize/2), (int) (height/2-imageSize/2), 0, 0, imageSize, imageSize, 0);
@@ -311,7 +313,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		boolean scoping = entity instanceof EntityLivingBase && isScoped((EntityLivingBase) entity, stack);
 		return scoping ? "_scoping" : "";
 	}	
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
@@ -358,7 +360,7 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				// translate to thrower
 				Vec3d translate = throwerPos.subtract(playerPos);
 				GlStateManager.translate(translate.x, translate.y, translate.z);
-				
+
 				Vec3d hookLook = entity.getLook(mc.getRenderPartialTicks()).scale(0.17d);
 				Vec3d hookPos = EntityHelper.getEntityPartialPos(entity).addVector(0, entity.height/2f, 0).subtract(hookLook).subtract(throwerPos);
 				double v = hookPos.distanceTo(shooting)*2d;
@@ -397,6 +399,19 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 				GlStateManager.popMatrix();
 			}
 		}
+	}
+
+	@Override
+	public void onUltimate(ItemStack stack, World world, EntityLivingBase player) {
+		ModSoundEvents.WIDOWMAKER_ULTIMATE_0.playFollowingSound(player, 1, 1, false, true, true, false);
+		ModSoundEvents.WIDOWMAKER_ULTIMATE_1.playFollowingSound(player, 1, 1, false, false, false, true);
+
+		for (EntityPlayer entity : ModSoundEvents.getPlayers(player, true, true, false)) {
+			if (entity instanceof EntityPlayerMP)
+				Minewatch.network.sendTo(new SPacketSimple(80, player, false), (EntityPlayerMP) entity);
+		}
+
+		super.onUltimate(stack, world, player);
 	}
 
 }

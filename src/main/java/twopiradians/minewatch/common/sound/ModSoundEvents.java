@@ -1,10 +1,11 @@
 package twopiradians.minewatch.common.sound;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
@@ -22,7 +24,12 @@ public enum ModSoundEvents {
 	/**Registry name must be equal to name.toLowerCase()
 	 * Voice lines must have "voice" in them*/
 	ULTIMATE_CHARGED,
+	HEAL, // TODO (eventually?)
 	GUI_HOVER,
+	GUI_CHOOSE_HERO,
+	GUI_SELECT_HERO,
+	GUI_OPEN,
+	GUI_CLOSE,
 	MULTIKILL_2,
 	MULTIKILL_3,
 	MULTIKILL_4,
@@ -93,6 +100,8 @@ public enum ModSoundEvents {
 	WIDOWMAKER_MINE_LAND,
 	WIDOWMAKER_MINE_TRIGGER,
 	WIDOWMAKER_MINE_DESTROYED,
+	WIDOWMAKER_ULTIMATE_0,
+	WIDOWMAKER_ULTIMATE_1,
 	MERCY_RELOAD,
 	MERCY_SHOOT,
 	MERCY_HEAL_VOICE,
@@ -155,7 +164,6 @@ public enum ModSoundEvents {
 	ZENYATTA_VOLLEY_SHOOT,
 	HEALTH_PACK_USE,
 	HEALTH_PACK_RESPAWN,
-	HEAL, // TODO (eventually?)
 	BASTION_HEAL,
 	MOIRA_DAMAGE_DURING_HIT,
 	MOIRA_DAMAGE_DURING_MISS,
@@ -208,6 +216,9 @@ public enum ModSoundEvents {
 	ANA_GRENADE_DAMAGE,
 	ANA_GRENADE_HEAL_VOICE,
 	ANA_GRENADE_DAMAGE_VOICE,
+	ANA_SCOPE,
+	ANA_UNSCOPE,
+	ANA_HEAL_VOICE,
 	SOLDIER76_HEAL_THROW,
 	SOLDIER76_HEAL_PASSIVE,
 	SOLDIER76_HEAL_VOICE,
@@ -219,9 +230,6 @@ public enum ModSoundEvents {
 	WIDOWMAKER_SCOPE,
 	WIDOWMAKER_UNSCOPE,
 	WIDOWMAKER_SCOPE_VOICE,
-	ANA_SCOPE,
-	ANA_UNSCOPE,
-	ANA_HEAL_VOICE,
 	REINHARDT_CHARGE,
 	REINHARDT_CHARGE_HIT,
 	SOMBRA_HACK_START,
@@ -229,10 +237,6 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_DURING,
 	SOMBRA_HACK_COMPLETE,
 	SOMBRA_HACK_VOICE,
-	GUI_CHOOSE_HERO,
-	GUI_SELECT_HERO,
-	GUI_OPEN,
-	GUI_CLOSE,
 	DOOMFIST_PUNCH_CHARGE_VOICE,
 	DOOMFIST_PUNCH_CHARGE,
 	DOOMFIST_PUNCH_DURING_VOICE,
@@ -259,12 +263,22 @@ public enum ModSoundEvents {
 	ROADHOG_HOOK_VOICE,
 	ROADHOG_SHOOT_0,
 	ROADHOG_SHOOT_1,
-	ROADHOG_SHOOT_EXPLODE;
+	ROADHOG_SHOOT_EXPLODE,
+	PHARAH_CONCUSSION_HIT,
+	PHARAH_CONCUSSION_SHOOT,
+	PHARAH_CONCUSSION_VOICE,
+	PHARAH_FLY_0,
+	PHARAH_FLY_1,
+	PHARAH_JET,
+	PHARAH_RELOAD,
+	PHARAH_ROCKET_HIT,
+	PHARAH_ROCKET_SHOOT;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
 	public boolean isVoiceLine;
 	public boolean isSelectVoiceLine;
+	public boolean isUltimate;
 	@Nullable
 	public EnumHero hero;
 
@@ -274,6 +288,7 @@ public enum ModSoundEvents {
 		event.setRegistryName(loc.getResourcePath());
 		this.isVoiceLine = this.name().contains("VOICE");
 		this.isSelectVoiceLine = this.name().contains("SELECT_VOICE");
+		this.isUltimate = this.name().contains("ULTIMATE");
 		String heroName = this.name().split("_")[0];
 		for (EnumHero hero : EnumHero.values())
 			if (hero.name().equals(heroName))
@@ -301,23 +316,29 @@ public enum ModSoundEvents {
 		if (world != null) 
 			world.playSound(world.isRemote ? Minewatch.proxy.getClientPlayer() : null, x, y, z, event, SoundCategory.PLAYERS, volume, pitch);
 	}
-	
+
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
-		return playFollowingSound(entity, volume, pitch, repeat, false);
+		return playFollowingSound(entity, volume, pitch, repeat, null);
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
-	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, boolean onlyPlayToEntity) {
-		// debug
-		// Minewatch.logger.info(this.name());
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, boolean toPlayer, boolean toFriendly, boolean toHostile) {
+		return playFollowingSound(entity, volume, pitch, repeat, getPlayers(entity, toPlayer, toFriendly, toHostile));
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, @Nullable ArrayList<EntityPlayer> players) {
+		// Minewatch.logger.info(this.name()); // debug
 		if (entity != null && this.shouldPlay(entity)) {
-			if (onlyPlayToEntity && entity instanceof EntityPlayerMP)
-				return Minewatch.proxy.playFollowingSoundToPlayer((EntityPlayerMP) entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
-			else
+			if (players == null)
 				return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+			else // play to certain players on server
+				for (EntityPlayer player : players)
+					Minewatch.proxy.playFollowingSound(player, entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
 		}
 		return null;
 	}
@@ -351,6 +372,26 @@ public enum ModSoundEvents {
 	public void stopFollowingSound(Entity followingEntity) {
 		if (followingEntity != null)
 			Minewatch.proxy.stopFollowingSound(followingEntity, event);
+	}
+
+	/**Get players to play sound for*/
+	public static ArrayList<EntityPlayer> getPlayers(Entity entity, boolean toPlayer, boolean toFriendly, boolean toHostile) {
+		ArrayList<EntityPlayer> players = new ArrayList<EntityPlayer>();
+		if (entity != null) {
+			for (EntityPlayer player : entity.world.playerEntities) {
+				if (player == entity) { // toPlayer
+					if (toPlayer)
+						players.add(player);
+				}
+				else if (toFriendly && toHostile) // toFriendly and toHostile
+					players.add(player);
+				else if (toHostile && EntityHelper.shouldTarget(entity, player, false)) // toHostile
+					players.add(player);
+				else if (toFriendly && EntityHelper.shouldTarget(entity, player, true)) // toFriendly
+					players.add(player);
+			}
+		}
+		return players;
 	}
 
 	/**Separate Sound Event class to prevent bypassing using these methods (i.e. proxy playFollowSound method)*/

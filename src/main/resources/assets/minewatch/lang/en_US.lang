@@ -168,6 +168,13 @@ item.roadhog_boots.name=Roadhog Boots
 item.roadhog_weapon.name=Roadhog's Scrap Gun
 item.roadhog_health.name=Roadhog's Health Canister
 
+item.pharah_token.name=Pharah Token
+item.pharah_helmet.name=Pharah Helmet
+item.pharah_chestplate.name=Pharah Chestplate
+item.pharah_leggings.name=Pharah Leggings
+item.pharah_boots.name=Pharah Boots
+item.pharah_weapon.name=Pharah's Rocket Launcher
+
 entity.random_hero.name=Random Hero
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Arrow
@@ -225,6 +232,8 @@ entity.doomfist_bullet.name=Doomfist Bullet
 entity.roadhog_hero.name=Roadhog
 entity.roadhog_scrap.name=Roadhog Scrap
 entity.roadhog_hook.name=Roadhog Hook
+entity.pharah_hero.name=Pharah
+entity.pharah_rocket.name=Pharah Rocket
 
 command.reset.success=Minewatch game reset by a moderator.
 command.reset.unrecognized_flags=Unrecognized flag(s)

@@ -1,0 +1,49 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minewatch:pharah_weapon.obj"
+  },
+  "variants": {
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson_lefthand": {
+            "rotation": [ { "x": 252 }, { "y": 0 }, { "z": 180 } ],
+       		"translation": [ 0.50, 0.61, 0.8 ],
+       		"scale": [ 1, 1, 1 ]
+          },
+          "thirdperson_righthand": {
+            "rotation": [ { "x": 252 }, { "y": 0 }, { "z": 180 } ],
+       		"translation": [ -0.5, 0.61, 0.8 ],
+       		"scale": [ 1, 1, 1 ]
+          },
+          "gui": {
+            "rotation": [ { "x": 0 }, { "y": 270 }, { "z": 0 } ],
+            "translation": [ -0.19, 0.5, 1 ],
+       		"scale": [ 0.80, 0.80, 0.80 ]
+          },
+          "firstperson_righthand": {
+            "rotation": [ { "x": 180 }, { "y": 0 }, { "z": 180 } ],
+            "translation": [ -0.525, 0.55, 0.05 ],
+       		"scale": [0.5, 0.5, 0.5 ]
+          },
+          "firstperson_lefthand": {
+            "rotation": [ { "x": 180 }, { "y": 0 }, { "z": 180 } ],
+            "translation": [ -0.025, 0.55, 0.05 ],
+       		"scale": [0.5, 0.5, 0.5 ]
+          },
+          "ground": {
+            "rotation": [ { "x": 0 }, { "y": 0 }, { "z": 0 } ],
+       		"translation": [ 0.75, 1, 0.2 ],
+       		"scale": [1.0, 1.0, 1.0 ]
+          },
+          "fixed": {
+            "rotation": [ { "x": 0 }, { "y": 90 }, { "z": 0 } ],
+       		"translation": [ 0.15, 0.5, -0.5 ],
+       		"scale": [1.0, 1.0, 1.0 ]
+          }
+        }
+      }
+    ]
+  }
+}

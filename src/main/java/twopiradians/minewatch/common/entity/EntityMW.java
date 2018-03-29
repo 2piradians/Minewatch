@@ -30,11 +30,14 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public static final DataParameter<Rotations> POSITION = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public static final DataParameter<Integer> HAND = EntityDataManager.<Integer>createKey(EntityMW.class, DataSerializers.VARINT);
+	public static final DataParameter<Rotations> HITSCAN = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	public int lifetime;
 	private EntityLivingBase thrower;
 	public boolean isFriendly;
 	protected boolean impactOnClient;
+	/**if hitscan, kill instantly in onUpdate*/
+	public boolean hitscan;
 
 	public EntityMW(World worldIn) {
 		this(worldIn, null, -1);
@@ -56,12 +59,22 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
 		this.dataManager.register(POSITION, new Rotations(0, 0, 0));
 		this.dataManager.register(HAND, -1);
+		this.dataManager.register(HITSCAN, new Rotations(0, 0, 0));
 	}
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
+		// hitscan
+		if (key.getId() == HITSCAN.getId() && 
+				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
+			this.hitscan = true;
+			this.prevPosX = this.dataManager.get(HITSCAN).getX();
+			this.prevPosY = this.dataManager.get(HITSCAN).getY();
+			this.prevPosZ = this.dataManager.get(HITSCAN).getZ();
+			this.spawnTrailParticles();
+		}
 		// velocity
-		if (key.getId() == VELOCITY.getId()) {
+		else if (key.getId() == VELOCITY.getId()) {
 			this.motionX = this.dataManager.get(VELOCITY).getX();
 			this.motionY = this.dataManager.get(VELOCITY).getY();
 			this.motionZ = this.dataManager.get(VELOCITY).getZ();
@@ -92,7 +105,13 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	public void spawnMuzzleParticles(EnumHand hand, EntityLivingBase shooter) {}
 
 	@Override
-	public void onUpdate() {	
+	public void onUpdate() {
+		// kill instantly as hitscan
+		if (hitscan) {
+			this.setDead();
+			return;
+		}
+		
 		// check for impacts
 		if (!world.isRemote || this.impactOnClient) { 
 			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this, this.isFriendly);
@@ -150,7 +169,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		if (!world.isRemote) { 
 			this.onImpactMoveToHitPosition(result);
 			Minewatch.network.sendToAllAround(new SPacketSimple(41, this, result), 
-					new TargetPoint(world.provider.getDimension(), posX, posY, posZ, 64));
+					new TargetPoint(world.provider.getDimension(), posX, posY, posZ, 200));
 		}
 		else {
 			this.spawnTrailParticles();

@@ -219,6 +219,26 @@ public class EntityHelper {
 			x = entityTrace.hitVec.x - vec.x;
 			y = entityTrace.hitVec.y - vec.y - entity.height/2d;
 			z = entityTrace.hitVec.z - vec.z; 
+			
+/*			if (metersPerSecond == -1 && entity instanceof EntityMW) {
+				((EntityMW)entity).hitscan = true;
+				entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
+				entity.prevPosX = vec.x;
+				entity.prevPosY = vec.y;
+				entity.prevPosZ = vec.z;
+				EntityHelper.moveToHitPosition(entity, entityTrace);
+				((EntityMW)entity).onImpact(entityTrace);
+				//((EntityMW)entity).spawnTrailParticles();
+				entity.isDead = false;
+				//entity.getDataManager().set(EntityMW.HITSCAN, true);
+				//entity.getDataManager().set(EntityMW.HITSCAN, new Rotations((float)vec.x, (float)vec.y, (float)vec.z));
+				DataParameter<Rotations> data = getVelocityParameter(entity);
+				if (data != null)
+					entity.getDataManager().set(data, new Rotations((float)x, (float)y, (float)z));
+				else
+					Minewatch.logger.error("Missing velocity parameter for: "+entity);
+				return;
+			}*/
 		}
 		// not looking at block/entity
 		else {
@@ -229,6 +249,9 @@ public class EntityHelper {
 		}
 
 		entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
+		
+		//if (metersPerSecond == -1 && entity instanceof EntityMW)
+		//	((EntityMW)entity).hitscan = true;
 
 		// send velocity to server/client
 		Vec3d scaledVelocity = new Vec3d(x, y, z);
@@ -366,8 +389,8 @@ public class EntityHelper {
 	/**Attempts do damage with falloff returns true if successful on server*/
 	public static <T extends Entity & IThrowableEntity> boolean attemptFalloffImpact(T projectile, Entity shooter, Entity entityHit, boolean friendly, float minDamage, float maxDamage, float minFalloff, float maxFalloff) {
 		if (EntityHelper.shouldHit(shooter, entityHit, friendly)) {
-			double distance = projectile.getPositionVector().distanceTo(new Vec3d(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ));
-			float damage = shooter.world.rand.nextFloat()*(maxDamage-minDamage) + minDamage; // random number between min and max
+			double distance = Math.max(0, projectile.getPositionVector().distanceTo(shooter.getPositionVector())-shooter.width/2f-entityHit.width/2f);
+			float damage = maxDamage;
 			if (distance > maxFalloff)
 				damage = 0;
 			else if (distance > minFalloff && distance < maxFalloff)
@@ -427,28 +450,46 @@ public class EntityHelper {
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
 	}
-
+	
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
 	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist) {
-		Entity actualThrower = getThrower(damageSource);
-		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(damageSource, (EntityLivingBase) actualThrower) : null;
-		return source != null && attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, source);	
+		return attemptDamage(damageSource, entityHit, damage, neverKnockback, ignoreHurtResist, false);	
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
-	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, boolean skipShouldHit) {
 		Entity actualThrower = getThrower(damageSource);
-		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, true, source);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(damageSource, (EntityLivingBase) actualThrower) : null;
+		return source != null && attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, skipShouldHit, source);	
+	}
+	
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
+		return attemptDamage(damageSource, entityHit, damage, neverKnockback, false, source);
+	}
+
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean skipShouldHit, DamageSource source) {
+		Entity actualThrower = getThrower(damageSource);
+		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, true, skipShouldHit, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
-	public static boolean attemptDamage(Entity damageSource, Entity actualThrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
-		if (shouldHit(actualThrower, entityHit, damage < 0) && !actualThrower.world.isRemote) {
+	public static boolean attemptDamage(Entity damageSource, Entity actualThrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, boolean skipShouldHit, DamageSource source) {
+		if (!actualThrower.world.isRemote && (skipShouldHit || shouldHit(actualThrower, entityHit, damage < 0))) {
+			// change dragon to part
+			if (entityHit instanceof EntityDragon)
+				entityHit = ((EntityDragon)entityHit).dragonPartHead;
+			
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
 				heal(damageSource, actualThrower, (EntityLivingBase)entityHit, damage);

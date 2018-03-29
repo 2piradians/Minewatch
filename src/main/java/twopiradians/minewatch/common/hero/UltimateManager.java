@@ -146,7 +146,7 @@ public class UltimateManager {
 		
 		// charged sound
 		if (!hasUlt && entity instanceof EntityPlayerMP && getCurrentCharge(entity) >= getMaxCharge(entity))
-			ModSoundEvents.ULTIMATE_CHARGED.playFollowingSound(entity, 1, 1, false, true);
+			ModSoundEvents.ULTIMATE_CHARGED.playFollowingSound(entity, 1, 1, false, true, false, false);
 	}
 
 	/**Handles ultimate charge for attacks / abilities / healing - see https://overwatch.gamepedia.com/Ultimate_ability*/

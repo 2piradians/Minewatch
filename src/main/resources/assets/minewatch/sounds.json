@@ -1531,5 +1531,75 @@
 		"sounds": [
 			"minewatch:roadhog_reload"
 		]
+	},
+	"widowmaker_ultimate_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_ultimate_0"
+		]
+	},
+	"widowmaker_ultimate_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:widowmaker_ultimate_1"
+		]
+	},
+	"pharah_fly_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_fly_0"
+		]
+	},
+	"pharah_fly_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_fly_1"
+		]
+	},
+	"pharah_jet": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_jet"
+		]
+	},
+	"pharah_reload": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_reload"
+		]
+	},
+	"pharah_rocket_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_rocket_shoot"
+		]
+	},
+	"pharah_rocket_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_rocket_hit_0",
+			"minewatch:pharah_rocket_hit_1"
+		]
+	}
+	,
+	"pharah_concussion_shoot": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_concussion_shoot"
+		]
+	},
+	"pharah_concussion_hit": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_concussion_hit"
+		]
+	},
+	"pharah_concussion_voice": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_concussion_voice_0",
+			"minewatch:pharah_concussion_voice_1",
+			"minewatch:pharah_concussion_voice_2"
+		]
 	}
 }

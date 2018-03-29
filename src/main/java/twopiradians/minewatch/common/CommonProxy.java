@@ -11,7 +11,6 @@ import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -219,9 +218,9 @@ public class CommonProxy {
 	}
 	
 	@Nullable
-	public Object playFollowingSoundToPlayer(EntityPlayerMP entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
-			Minewatch.network.sendTo(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity);
+	public Object playFollowingSound(EntityPlayer player, Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+		if (entity != null && entity.isEntityAlive() && sound != null && category != null && player instanceof EntityPlayerMP) 
+			Minewatch.network.sendTo(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), (EntityPlayerMP) player);
 		return null;
 	}
 
@@ -250,56 +249,55 @@ public class CommonProxy {
 			((EntityPlayerMP)player).connection.sendPacket(new SPacketCustomPayload("MC|StopSound", packetbuffer));
 		}
 	}
+	
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
+		createExplosion(world, damageSource, x, y, z, size, exploderDamage, minDamage, maxDamage, directHit, directHitDamage, resetHurtResist, exploderKnockback, exploderKnockback, knockback, knockback);
+	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
-	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockbackVertical, float exploderKnockbackHorizontal, float knockbackVertical, float knockbackHorizontal) {
 		if (!world.isRemote) {
 			Entity actualThrower = EntityHelper.getThrower(damageSource);
-			Explosion explosion = new Explosion(world, damageSource, x, y, z, size, false, false);
+			Explosion explosion = new Explosion(world, actualThrower, x, y, z, size, false, false);
 
-			float f3 = size * 2.0F;
-			int k1 = MathHelper.floor(x - (double)f3 - 1.0D);
-			int l1 = MathHelper.floor(x + (double)f3 + 1.0D);
-			int i2 = MathHelper.floor(y - (double)f3 - 1.0D);
-			int i1 = MathHelper.floor(y + (double)f3 + 1.0D);
-			int j2 = MathHelper.floor(z - (double)f3 - 1.0D);
-			int j1 = MathHelper.floor(z + (double)f3 + 1.0D);
+			float diameter = size * 2.0F;
+			int k1 = MathHelper.floor(x - (double)diameter - 1.0D);
+			int l1 = MathHelper.floor(x + (double)diameter + 1.0D);
+			int i2 = MathHelper.floor(y - (double)diameter - 1.0D);
+			int i1 = MathHelper.floor(y + (double)diameter + 1.0D);
+			int j2 = MathHelper.floor(z - (double)diameter - 1.0D);
+			int j1 = MathHelper.floor(z + (double)diameter + 1.0D);
 			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB((double)k1, (double)i2, (double)j2, (double)l1, (double)i1, (double)j1));
-			net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(world, explosion, list, f3);
+			net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(world, explosion, list, diameter);
 
 			for (int k2 = 0; k2 < list.size(); ++k2) {
 				Entity entity = (Entity)list.get(k2);
 
 				if (!entity.isImmuneToExplosions() && (!(entity instanceof EntityLivingBase) || 
 						((EntityLivingBase)entity).getHealth() > 0)) {
-					double d12 = entity.getDistance(x, y, z) / (double)f3;
+					double distance = Math.max(0, entity.getDistance(x, y, z)-entity.width/2f);
 
-					if (d12 <= 1.0D) {
-						d12 /= 2d;
-						double d5 = entity.posX - x;
-						double d7 = entity.posY + (double)entity.getEyeHeight() - y;
-						double d9 = entity.posZ - z;
-						double d13 = (double)MathHelper.sqrt(d5 * d5 + d7 * d7 + d9 * d9);
+					if (distance <= size) {
+						double diffX = entity.posX - x;
+						double diffY = entity.posY + (double)entity.getEyeHeight() - y;
+						double diffZ = entity.posZ - z;
+						double diffAverage = (double)MathHelper.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
 
-						if (d13 != 0.0D) {
-							d5 = d5 / d13;
-							d7 = d7 / d13;
-							d9 = d9 / d13; 
-							double d14 = 1;//(double)world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
-							double d10 = (1.0D - d12) * d14;
-							float damage = (float) (entity == actualThrower ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-d12)*(maxDamage-minDamage));
-							double d11 = d10;
-							if (EntityHelper.attemptDamage(damageSource, entity, damage, true, DamageSource.causeExplosionDamage(explosion)) ||
+						if (diffAverage != 0.0D) {
+							diffX = diffX / diffAverage;
+							diffY = diffY / diffAverage;
+							diffZ = diffZ / diffAverage; 
+							float damage = (float) (entity == actualThrower ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-distance/size)*(maxDamage-minDamage));
+							if (EntityHelper.attemptDamage(damageSource, entity, damage, true, entity == actualThrower, DamageSource.causeExplosionDamage(explosion)) ||
 									entity == actualThrower) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;
 
-								if (entity instanceof EntityLivingBase)
-									d11 = EnchantmentProtection.getBlastDamageReduction((EntityLivingBase)entity, d10);
-
-								entity.motionX += d5 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
-								entity.motionY += d7 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
-								entity.motionZ += d9 * d11 * (entity == actualThrower ? exploderKnockback : knockback);
+								double kbHorizontal = (1f-distance/size) * (entity == actualThrower ? exploderKnockbackHorizontal : knockbackHorizontal);
+								double kbVertical = (1f-distance/size) * (entity == actualThrower ? exploderKnockbackVertical : knockbackVertical);
+								entity.motionX += diffX * kbHorizontal;
+								entity.motionY += diffY * kbVertical;
+								entity.motionZ += diffZ * kbHorizontal;
 								entity.velocityChanged = true;
 							}
 						}

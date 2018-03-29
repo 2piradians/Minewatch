@@ -48,6 +48,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
@@ -64,7 +65,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	private static final ResourceLocation DAMAGE_BEAM_HIT = new ResourceLocation(Minewatch.MODID, "textures/entity/moira_damage_beam_hit.png");
 
 	public static Handler ORB_SELECT = new Handler(Identifier.MOIRA_ORB_SELECT, true) {
-		@Override
+		@Override 
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			// stop handler
@@ -229,8 +230,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 
 	public ItemMoiraWeapon() {
 		super(0); 
-		this.maxCharge = 180;
-		this.rechargeRate = 1/5f;
 		this.hasOffhand = true;
 		this.showHealthParticles = true;
 		MinecraftForge.EVENT_BUS.register(this);
@@ -239,9 +238,9 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 	@Override
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 	
 		// heal
-		if (hand == EnumHand.OFF_HAND && this.canUse(player, true, hand, false) && this.getCurrentCharge(player) >= 1 && 
+		if (hand == EnumHand.OFF_HAND && this.canUse(player, true, hand, false) && ChargeManager.canUseCharge(player) && 
 				!KeyBind.RMB.isKeyDown(player) && !TickHandler.hasHandler(player, Identifier.MOIRA_ORB_SELECT)) {
-			this.subtractFromCurrentCharge(player, 1, player.ticksExisted % 10 == 0);
+			ChargeManager.subtractFromCurrentCharge(player, 1, player.ticksExisted % 10 == 0);
 			if (!world.isRemote) {
 				EntityMoiraHealEnergy energy = new EntityMoiraHealEnergy(world, player, hand.ordinal());
 				EntityHelper.setAim(energy, player, player.rotationPitch, player.rotationYawHead, 30, 0,  
@@ -322,7 +321,7 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 					EntityHelper.attemptDamage(player, handler.entityLiving, 2.5f, true, true)) {
 				if (!(handler.entityLiving instanceof EntityLivingBaseMW))
 					EntityHelper.heal(player, player, player, 1.5f);
-				this.setCurrentCharge(player, this.getCurrentCharge(player)+1f, true);
+				ChargeManager.setCurrentCharge(player, ChargeManager.getCurrentCharge(player)+1f, true);
 			}
 		}
 

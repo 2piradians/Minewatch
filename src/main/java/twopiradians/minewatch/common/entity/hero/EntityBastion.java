@@ -6,6 +6,7 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
+import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 
@@ -29,9 +30,9 @@ public class EntityBastion extends EntityHero {
 			// heal
 			if (((this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null) || 
 					this.getHealth() < this.getMaxHealth()/2f) && 
-					EnumHero.BASTION.weapon.getCurrentCharge(this) > EnumHero.BASTION.weapon.maxCharge*0.7f) 
+					ChargeManager.getCurrentCharge(this) > ChargeManager.getMaxCharge(hero)*0.7f) 
 				this.getDataManager().set(KeyBind.RMB.datamanager, true);
-			else if (this.getHealth() >= this.getMaxHealth() || EnumHero.BASTION.weapon.getCurrentCharge(this) <= 0)
+			else if (this.getHealth() >= this.getMaxHealth() || ChargeManager.getCurrentCharge(this) <= 0)
 				this.getDataManager().set(KeyBind.RMB.datamanager, false);
 		}
 		

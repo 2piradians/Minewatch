@@ -7,6 +7,7 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIAttackBase.MovementType;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHealBase;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestHealableTarget;
+import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class EntityMoira extends EntityHero {
@@ -80,7 +81,7 @@ public class EntityMoira extends EntityHero {
 
 		@Override
 		public boolean shouldExecute() {
-			return super.shouldExecute() && this.entity.hero.weapon.getCurrentCharge(this.entity) > 0;
+			return super.shouldExecute() && ChargeManager.getCurrentCharge(this.entity) > 0;
 		}
 
 		@Override

@@ -50,6 +50,7 @@ import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
+import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RankManager;
@@ -68,6 +69,7 @@ import twopiradians.minewatch.common.item.weapon.ItemMcCreeGun;
 import twopiradians.minewatch.common.item.weapon.ItemMeiBlaster;
 import twopiradians.minewatch.common.item.weapon.ItemMercyWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemMoiraWeapon;
+import twopiradians.minewatch.common.item.weapon.ItemPharahWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemReaperShotgun;
 import twopiradians.minewatch.common.item.weapon.ItemReinhardtHammer;
 import twopiradians.minewatch.common.item.weapon.ItemRoadhogWeapon;
@@ -767,7 +769,7 @@ public class SPacketSimple implements IMessage {
 					else if (packet.type == 46) {
 						EnumHero hero = SetManager.getWornSet(player);
 						if (hero != null)
-							hero.weapon.setCurrentCharge(player, (float) packet.x, false);
+							ChargeManager.setCurrentCharge(player, (float) packet.x, false);
 					}
 					// Moira's Fade
 					else if (packet.type == 47 && entity != null) {
@@ -1097,6 +1099,21 @@ public class SPacketSimple implements IMessage {
 					// sync ultimate charge
 					else if (packet.type == 79) {
 						UltimateManager.setCharge(player, (float) packet.x, false);
+					}
+					// widowmaker's ult
+					else if (packet.type == 80 && entity instanceof EntityLivingBase) {
+						for (Entity target : entity.world.loadedEntityList)
+							if (target instanceof EntityLivingBase && EntityHelper.shouldTarget(entity, target, false))
+								TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(target).setTicks(310));
+					}
+					// pharah's concussive
+					else if (packet.type == 81 && entity instanceof EntityLivingBase) {
+						TickHandler.register(true, ItemPharahWeapon.CONCUSSIVE.setEntity(entity).setTicks(10));
+					}
+					// pharah's jump jet
+					else if (packet.type == 82 && entity instanceof EntityLivingBase) {
+						entity.onGround = false;
+						entity.motionY = packet.x;
 					}
 				}
 			});

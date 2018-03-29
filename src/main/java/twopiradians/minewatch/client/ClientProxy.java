@@ -82,6 +82,7 @@ import twopiradians.minewatch.client.render.entity.RenderMeiCrystal;
 import twopiradians.minewatch.client.render.entity.RenderMeiIcicle;
 import twopiradians.minewatch.client.render.entity.RenderMercyBeam;
 import twopiradians.minewatch.client.render.entity.RenderMoiraOrb;
+import twopiradians.minewatch.client.render.entity.RenderPharahRocket;
 import twopiradians.minewatch.client.render.entity.RenderReinhardtStrike;
 import twopiradians.minewatch.client.render.entity.RenderRoadhogHook;
 import twopiradians.minewatch.client.render.entity.RenderRoadhogScrap;
@@ -128,6 +129,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
+import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
@@ -323,6 +325,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogBullet.class, new RenderFactory(new Color(0xF68035), 1, 1, 1));
 		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogScrap.class, RenderRoadhogScrap::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityRoadhogHook.class, RenderRoadhogHook::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityPharahRocket.class, RenderPharahRocket::new);
 	}
 
 	private void registerBlockRenders() {
@@ -379,6 +382,7 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_scrap"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_hook"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_chain"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/pharah_rocket"));
 		UltimateManager.ready = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "gui/ultimate_ready"));
 	}
 

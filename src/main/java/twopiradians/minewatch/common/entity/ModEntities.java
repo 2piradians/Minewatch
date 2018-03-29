@@ -37,6 +37,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityMcCreeBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMeiBlast;
 import twopiradians.minewatch.common.entity.projectile.EntityMercyBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityMoiraHealEnergy;
+import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket;
 import twopiradians.minewatch.common.entity.projectile.EntityReaperBullet;
 import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.entity.projectile.EntitySoldier76Bullet;
@@ -97,6 +98,7 @@ public class ModEntities {
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_bullet"), EntityRoadhogBullet.class, "roadhog_bullet", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_scrap"), EntityRoadhogScrap.class, "roadhog_scrap", id++, Minewatch.instance, 64, 20, false);
 		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "roadhog_hook"), EntityRoadhogHook.class, "roadhog_hook", id++, Minewatch.instance, 64, 20, false);
+		EntityRegistry.registerModEntity(new ResourceLocation(Minewatch.MODID, "pharah_rocket"), EntityPharahRocket.class, "pharah_rocket", id++, Minewatch.instance, 64, 20, false);
 	}
 	
     /**Get spawn egg for given entity class*/

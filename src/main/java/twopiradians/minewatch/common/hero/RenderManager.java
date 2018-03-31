@@ -616,7 +616,7 @@ public class RenderManager {
 		// limit hurt time when wearing full set
 		if (Minecraft.getMinecraft().player != null && 
 				SetManager.getWornSet(Minecraft.getMinecraft().player) != null)
-			Minecraft.getMinecraft().player.hurtTime = Math.min(5, Minecraft.getMinecraft().player.hurtTime);
+			Minecraft.getMinecraft().player.hurtTime = Math.min(4, Minecraft.getMinecraft().player.hurtTime);
 	}
 
 	@SubscribeEvent
@@ -1056,6 +1056,7 @@ public class RenderManager {
 		boolean hasHeal = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL);
 		boolean hasDamage = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE);
 		if (hasHeal || hasDamage) {
+			GlStateManager.disableDepth();
 			RenderHelper.drawSlantedRect(-scaleX-xOffset, 1, (int) (maxHealth/25f*incrementX)+scaleX-xOffset, barHeight, hasHeal ? 0x60FFFF63 : 0x60E702FF, inGui ? -0.001D : 0.001D, slant);
 			GlStateManager.enableBlend();
 			Minecraft.getMinecraft().renderEngine.bindTexture(hasHeal ? EnumParticle.ANA_GRENADE_HEAL.facingLoc : EnumParticle.ANA_GRENADE_DAMAGE.facingLoc);	
@@ -1066,6 +1067,7 @@ public class RenderManager {
 			else
 				Gui.drawModalRectWithCustomSizedTexture(-8, -barHeight-7, 0, 0, 16, 16, 16, 16);
 			GlStateManager.scale(scaleX, scaleY, 1);
+			GlStateManager.enableDepth();
 		}
 
 		mc.getTextureManager().bindTexture(ABILITY_OVERLAY);

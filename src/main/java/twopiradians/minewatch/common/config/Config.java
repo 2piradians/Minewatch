@@ -89,6 +89,7 @@ public class Config {
 	public static boolean stepAssist;
 	public static double ultimateChargeNormal;
 	public static double ultimateChargeDamage;
+	public static boolean lowerGravity;
 
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
@@ -336,6 +337,12 @@ public class Config {
 				prop.set(ultimateChargeDamage);
 			else 
 				ultimateChargeDamage = prop.getDouble();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Lower Gravity", true, "Should entities have lower gravity (similar to Overwatch) when wearing a full set of Minewatch armor?");
+			if (overriding)
+				prop.set(lowerGravity);
+			else
+				lowerGravity = prop.getBoolean();
 
 			// Team Block options ======================================================================================
 

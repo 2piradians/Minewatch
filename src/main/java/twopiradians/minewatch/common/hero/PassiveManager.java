@@ -16,6 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -23,6 +24,7 @@ import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.item.weapon.ItemPharahWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -30,14 +32,18 @@ import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.SPacketSimple;
 
+@Mod.EventBusSubscriber
 public class PassiveManager {
 
 	public static ArrayList<EntityLivingBase> playersJumped = new ArrayList<EntityLivingBase>(); // Genji double jump
 	public static ArrayList<EntityLivingBase> playersHovering = new ArrayList<EntityLivingBase>(); // Mercy hover
 	public static HashMap<EntityLivingBase, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
-	
+
 	/**Called once per tick for (all) players and heroes wearing a full set*/
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
+		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation
+			return;
+		
 		boolean hacked = TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED);
 
 		// genji jump boost/double jump
@@ -63,7 +69,7 @@ public class PassiveManager {
 				entity.fallDistance = 0;
 			}
 		}
-		
+
 		// genji/hanzo wall climb
 		if (!hacked && (hero == EnumHero.GENJI || hero == EnumHero.HANZO) && 
 				world.isRemote == entity instanceof EntityPlayer) {
@@ -104,8 +110,8 @@ public class PassiveManager {
 		// mercy's regen/slow fall
 		else if (hero == EnumHero.MERCY) {
 			if (TickHandler.getHandler(entity, Identifier.MERCY_NOT_REGENING) == null &&
-			!world.isRemote && (entity.getActivePotionEffect(MobEffects.REGENERATION) == null || 
-			entity.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
+					!world.isRemote && (entity.getActivePotionEffect(MobEffects.REGENERATION) == null || 
+					entity.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
 			else if (!hacked && KeyBind.JUMP.isKeyDown(entity) && entity.motionY <= -0.09d && !entity.isInWater() && !entity.isInLava()) {
 				entity.motionY = Math.min(entity.motionY*0.75f, -0.1f);
@@ -123,15 +129,22 @@ public class PassiveManager {
 				playersHovering.remove(entity);
 		}
 		// pharah's jet pack
-		else if (hero == EnumHero.PHARAH) {
-			if (KeyBind.JUMP.isKeyDown(entity) && ChargeManager.canUseCharge(entity)) {
+		else if (hero == EnumHero.PHARAH && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying)) {
+			if ((KeyBind.JUMP.isKeyDown(entity) || KeyBind.RMB.isKeyDown(entity)) && ChargeManager.canUseCharge(entity)) {
 				ChargeManager.subtractFromCurrentCharge(entity, 1, false);
-				entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f));
+				entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f+0.06f));
+				if (entity.world.isRemote)
+					ItemPharahWeapon.spawnJetPackParticles(entity, false);
 			}
 		}
-		
+
+		// reduced gravity
+		if (Config.lowerGravity && !entity.hasNoGravity() && !entity.isElytraFlying() && 
+				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying))
+			entity.motionY += 0.02f;
+
 	}
-	
+
 	@SubscribeEvent
 	public static void preventFallDamage(LivingFallEvent event) {
 		// prevent fall damage if enabled in config and wearing set
@@ -167,5 +180,5 @@ public class PassiveManager {
 			}
 		}
 	}
-	
+
 }

@@ -383,7 +383,7 @@ public class SPacketSimple implements IMessage {
 					}
 					// Ana's sleep dart
 					else if (packet.type == 12 && entity != null) {
-						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"SLEEP").setNumber(MessageTypes.TOP.ordinal()));
+						TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"SLEEP").setNumber(MessageTypes.TOP.ordinal()));
 						TickHandler.register(true, ItemAnaRifle.SLEEP.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_INPUT.setEntity(entity).setTicks(120),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(120),
@@ -1113,7 +1113,11 @@ public class SPacketSimple implements IMessage {
 					// pharah's jump jet
 					else if (packet.type == 82 && entity instanceof EntityLivingBase) {
 						entity.onGround = false;
-						entity.motionY = packet.x;
+						entity.motionY = Math.max(2, entity.motionY);
+						Vec3d look = EntityHelper.getLook(0, entity.getRotationYawHead()).scale(0.9d);
+						entity.motionX += look.x;
+						entity.motionZ += look.z;
+						TickHandler.register(true, ItemPharahWeapon.JET.setEntity(entity).setTicks(20));
 					}
 				}
 			});

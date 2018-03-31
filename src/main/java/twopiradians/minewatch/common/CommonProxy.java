@@ -288,7 +288,7 @@ public class CommonProxy {
 							diffY = diffY / diffAverage;
 							diffZ = diffZ / diffAverage; 
 							float damage = (float) (entity == actualThrower ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-distance/size)*(maxDamage-minDamage));
-							if (EntityHelper.attemptDamage(damageSource, entity, damage, true, entity == actualThrower, DamageSource.causeExplosionDamage(explosion)) ||
+							if (damage == 0 || EntityHelper.attemptDamage(damageSource, entity, damage, true, entity == actualThrower, DamageSource.causeExplosionDamage(explosion)) ||
 									entity == actualThrower) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;

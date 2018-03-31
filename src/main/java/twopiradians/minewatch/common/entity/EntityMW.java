@@ -51,7 +51,8 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.thrower = throwerIn;
 			this.setPosition(throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.1D, throwerIn.posZ);
 		}
-		this.dataManager.set(HAND, hand);
+		if (!worldIn.isRemote)
+			this.dataManager.set(HAND, hand);
 	}
 
 	@Override
@@ -91,12 +92,6 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.prevPosY = this.posY;
 			this.prevPosZ = this.posZ;
 		}
-		// muzzle particle
-		else if (key.getId() == HAND.getId() && this.world.isRemote && this.ticksExisted == 0 && !this.isDead && 
-				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase)
-			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
-					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
-
 	}
 
 	public void spawnTrailParticles() {}
@@ -106,12 +101,19 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	@Override
 	public void onUpdate() {
+		// muzzle particle
+		if (this.firstUpdate && this.world.isRemote && !this.isDead && 
+				this.dataManager.get(HAND) != -1 && this.getThrower() instanceof EntityLivingBase) {
+			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
+					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
+		}
+		
 		// kill instantly as hitscan
 		if (hitscan) {
 			this.setDead();
 			return;
 		}
-		
+
 		// check for impacts
 		if (!world.isRemote || this.impactOnClient) { 
 			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this, this.isFriendly);
@@ -176,12 +178,12 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.onImpactMoveToHitPosition(result);
 		}
 	}
-	
+
 	/**Called when deflected by Genji - only on server*/
 	public void onDeflect() {
 		this.lifetime *= 2; 
 	}
-	
+
 	/**Used to check for impacts*/
 	public AxisAlignedBB getImpactBoundingBox() {
 		return this.getEntityBoundingBox();
@@ -215,7 +217,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	}
 
 	@Override
-    public boolean doesEntityNotTriggerPressurePlate() {return true;}
+	public boolean doesEntityNotTriggerPressurePlate() {return true;}
 	@Override
 	public boolean writeToNBTOptional(NBTTagCompound compound) {return false;}
 	@Override

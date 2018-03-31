@@ -37,6 +37,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean stepAssist;
 	private double ultimateChargeNormal;
 	private double ultimateChargeDamage;
+	private boolean lowerGravity;
 
 	private boolean customDeathScreen;
 	private int respawnTime;
@@ -90,6 +91,7 @@ public class PacketSyncConfig implements IMessage {
 		this.stepAssist = Config.stepAssist;
 		this.ultimateChargeNormal = Config.ultimateChargeNormal;
 		this.ultimateChargeDamage = Config.ultimateChargeDamage;
+		this.lowerGravity = Config.lowerGravity;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -141,6 +143,7 @@ public class PacketSyncConfig implements IMessage {
 		this.stepAssist = buf.readBoolean();
 		this.ultimateChargeNormal = buf.readDouble();
 		this.ultimateChargeDamage = buf.readDouble();
+		this.lowerGravity = buf.readBoolean();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -192,6 +195,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeBoolean(this.stepAssist);
 		buf.writeDouble(this.ultimateChargeNormal);
 		buf.writeDouble(this.ultimateChargeDamage);
+		buf.writeBoolean(this.lowerGravity);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -242,6 +246,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.stepAssist = this.stepAssist;
 		Config.ultimateChargeNormal = this.ultimateChargeNormal;
 		Config.ultimateChargeDamage = this.ultimateChargeDamage;
+		Config.lowerGravity = this.lowerGravity;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

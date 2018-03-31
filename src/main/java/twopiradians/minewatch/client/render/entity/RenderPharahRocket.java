@@ -25,6 +25,6 @@ public class RenderPharahRocket extends RenderOBJModel<EntityPharahRocket> {
 		GlStateManager.translate(0, -entity.height/2f, 0);
 		GlStateManager.rotate(90, 1, 0, 0);
 		
-		return true;
+		return entity.ticksExisted > 1;
 	}
 }

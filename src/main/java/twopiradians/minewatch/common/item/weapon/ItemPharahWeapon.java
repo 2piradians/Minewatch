@@ -5,6 +5,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
@@ -22,7 +24,35 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class ItemPharahWeapon extends ItemMWWeapon {
 
 	public static final Handler CONCUSSIVE = new Handler(Identifier.PHARAH_CONCUSSIVE, true) {};
-	
+
+	public static final Handler JET = new Handler(Identifier.PHARAH_JET, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			ItemPharahWeapon.spawnJetPackParticles(entityLiving, true);
+			return super.onClientTick();
+		}
+	};
+
+	public static void spawnJetPackParticles(EntityLivingBase entity, boolean big) {
+		if (entity != null && entity.world.isRemote) {
+			float offset = 50;
+			double amountPerBlock = big ? 5 : 4;
+			float scale = big ? 1.5f : 1f;
+			int ageBig = big ? 10 : 7;
+			int ageSmall = big ? 2 : 2;
+			Vec3d vec = entity.getPositionVector().subtract(EntityHelper.getLook(10, entity.rotationYaw-offset).scale(0.5d));
+			Vec3d prevVec = EntityHelper.getPrevPositionVector(entity).subtract(EntityHelper.getLook(10, entity.prevRotationYaw-offset).scale(0.5d));
+			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.2d, 0, 0, 0, 0xCF9B4A, 0x33271B, scale, ageBig, 0.7f, vec, prevVec);
+			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.05d, 0, 0, 0, 0xFAED5C, 0xE2C457, scale, ageSmall, 0.7f, vec, prevVec);
+		
+			vec = entity.getPositionVector().subtract(EntityHelper.getLook(10, entity.rotationYaw+offset).scale(0.5d));
+			prevVec = EntityHelper.getPrevPositionVector(entity).subtract(EntityHelper.getLook(10, entity.prevRotationYaw+offset).scale(0.5d));
+			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.2d, 0, 0, 0, 0xCF9B4A, 0x33271B, scale, ageBig, 0.7f, vec, prevVec);
+			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.05d, 0, 0, 0, 0xFAED5C, 0xE2C457, scale, ageSmall, 0.7f, vec, prevVec);
+		}
+	}
+
 	public ItemPharahWeapon() {
 		super(20);
 		MinecraftForge.EVENT_BUS.register(this);
@@ -42,7 +72,7 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			this.setCooldown(player, 18);
 		}
 	}
-	
+
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		super.onUpdate(stack, world, entity, slot, isSelected);
@@ -54,8 +84,10 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				player.onGround = false;
-				player.motionY = 2;
-				// TODO forward
+				player.motionY = Math.max(2, player.motionY);
+				Vec3d look = EntityHelper.getLook(0, player.rotationYawHead).scale(0.9d);
+				player.motionX += look.x;
+				player.motionZ += look.z;
 				ModSoundEvents.PHARAH_JET.playFollowingSound(player, 1, 1, false);
 				hero.ability2.keybind.setCooldown(player, 200, false);
 				Minewatch.network.sendToDimension(new SPacketSimple(82, player, false, player.motionY, 0, 0), world.provider.getDimension());

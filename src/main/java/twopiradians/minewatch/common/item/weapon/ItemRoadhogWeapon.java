@@ -204,7 +204,6 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				Minewatch.network.sendToDimension(new SPacketSimple(74, player, true), world.provider.getDimension());
 				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.roadhog_health));
 			}
-
 		}
 	}	
 

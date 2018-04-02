@@ -29,6 +29,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -44,6 +45,7 @@ import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
+import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
@@ -57,6 +59,8 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	private boolean prevScoped;
 	private float unscopedSensitivity;
+
+	public static final Handler ULTIMATE = new Handler(Identifier.WIDOWMAKER_ULTIMATE, false) {};
 
 	public static final Handler HOOK = new Handler(Identifier.WIDOWMAKER_HOOK, true) {
 		private void move() {
@@ -394,7 +398,6 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 					buffer.pos(vec.x, vec.y, vec.z).tex((i+1)/steps, v).endVertex();
 				}
 
-
 				tessellator.draw();
 				GlStateManager.popMatrix();
 			}
@@ -403,15 +406,27 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 
 	@Override
 	public void onUltimate(ItemStack stack, World world, EntityLivingBase player) {
-		ModSoundEvents.WIDOWMAKER_ULTIMATE_0.playFollowingSound(player, 1, 1, false, true, true, false);
-		ModSoundEvents.WIDOWMAKER_ULTIMATE_1.playFollowingSound(player, 1, 1, false, false, false, true);
+		ModSoundEvents.WIDOWMAKER_ULTIMATE_0.playFollowingSound(player, 1, 1, false, 0, true, true, false);
+		ModSoundEvents.WIDOWMAKER_ULTIMATE_1.playFollowingSound(player, 1, 1, false, 0, false, false, true);
 
 		for (EntityPlayer entity : ModSoundEvents.getPlayers(player, true, true, false)) {
-			if (entity instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketSimple(80, player, false), (EntityPlayerMP) entity);
+			if (entity instanceof EntityPlayerMP) {
+				TickHandler.register(false, ULTIMATE.setEntity(entity).setTicks(310));
+				Minewatch.network.sendTo(new SPacketSimple(80, player, false, 310, 0, 0), (EntityPlayerMP) entity);
+			}
 		}
 
 		super.onUltimate(stack, world, player);
+	}
+
+	@SubscribeEvent
+	public void tracking(PlayerEvent.StartTracking event) {
+		if (event.getEntityPlayer() instanceof EntityPlayerMP &&
+				event.getTarget() instanceof EntityLivingBase && EntityHelper.shouldTarget(event.getEntityPlayer(), event.getTarget(), false)) {
+			Handler handler = TickHandler.getHandler(event.getEntityPlayer(), Identifier.WIDOWMAKER_ULTIMATE);
+			if (handler != null)
+				Minewatch.network.sendTo(new SPacketSimple(83, event.getEntityPlayer(), false, event.getTarget(), handler.ticksLeft, 0, 0), (EntityPlayerMP) event.getEntityPlayer());
+		}
 	}
 
 }

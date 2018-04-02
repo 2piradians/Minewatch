@@ -34,6 +34,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.DamageSource;
@@ -172,7 +173,8 @@ public class EntityHelper {
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy) {
 		boolean friendly = isFriendly(entity);
-		Vec3d vec = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
+		Vec3d vecS = getShootingPos(shooter, pitch, yaw, null, 0, 0, 0);
+		Vec3d vecC = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
 
 		if (shooter instanceof EntityHero && !ignoreHeroInaccuracy)
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
@@ -186,7 +188,7 @@ public class EntityHelper {
 		double blockDistance = Double.MAX_VALUE;
 		RayTraceResult blockTrace = shooter instanceof EntityHero ? null : EntityHelper.getMouseOverBlock(shooter, 512, pitch, yaw);
 		if (blockTrace != null && blockTrace.typeOfHit == RayTraceResult.Type.BLOCK)
-			blockDistance = Math.sqrt(vec.squareDistanceTo(blockTrace.hitVec.x, blockTrace.hitVec.y, blockTrace.hitVec.z));
+			blockDistance = Math.sqrt(vecS.squareDistanceTo(blockTrace.hitVec.x, blockTrace.hitVec.y, blockTrace.hitVec.z));
 		// get entity that shooter is looking at
 		double entityDistance = Double.MAX_VALUE;
 		RayTraceResult entityTrace = null;
@@ -205,75 +207,93 @@ public class EntityHelper {
 			entityTrace = EntityHelper.getMouseOverEntity(shooter, shooter instanceof EntityHero ? 64 : 512, friendly, pitch, yaw);
 
 		if (entityTrace != null && entityTrace.typeOfHit == RayTraceResult.Type.ENTITY)
-			entityDistance = Math.sqrt(vec.squareDistanceTo(entityTrace.hitVec.x, entityTrace.hitVec.y, entityTrace.hitVec.z));
+			entityDistance = Math.sqrt(vecS.squareDistanceTo(entityTrace.hitVec.x, entityTrace.hitVec.y, entityTrace.hitVec.z));
 
-		double x, y, z;
+		double xS, yS, zS, xC, yC, zC;
 		// block is closest
 		if (target == null && blockDistance < entityDistance && blockDistance < Double.MAX_VALUE) {
-			x = blockTrace.hitVec.x - vec.x;
-			y = blockTrace.hitVec.y - vec.y - entity.height/2d;
-			z = blockTrace.hitVec.z - vec.z;
+			xS = blockTrace.hitVec.x - vecS.x;
+			yS = blockTrace.hitVec.y - vecS.y - entity.height/2d;
+			zS = blockTrace.hitVec.z - vecS.z;
+			xC = blockTrace.hitVec.x - vecC.x;
+			yC = blockTrace.hitVec.y - vecC.y - entity.height/2d;
+			zC = blockTrace.hitVec.z - vecC.z;
 		}
 		// entity is closest
 		else if (target != null || (entityDistance < blockDistance && entityDistance < Double.MAX_VALUE)) {
-			x = entityTrace.hitVec.x - vec.x;
-			y = entityTrace.hitVec.y - vec.y - entity.height/2d;
-			z = entityTrace.hitVec.z - vec.z; 
-			
-/*			if (metersPerSecond == -1 && entity instanceof EntityMW) {
-				((EntityMW)entity).hitscan = true;
-				entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
-				entity.prevPosX = vec.x;
-				entity.prevPosY = vec.y;
-				entity.prevPosZ = vec.z;
-				EntityHelper.moveToHitPosition(entity, entityTrace);
-				((EntityMW)entity).onImpact(entityTrace);
-				//((EntityMW)entity).spawnTrailParticles();
-				entity.isDead = false;
-				//entity.getDataManager().set(EntityMW.HITSCAN, true);
-				//entity.getDataManager().set(EntityMW.HITSCAN, new Rotations((float)vec.x, (float)vec.y, (float)vec.z));
-				DataParameter<Rotations> data = getVelocityParameter(entity);
-				if (data != null)
-					entity.getDataManager().set(data, new Rotations((float)x, (float)y, (float)z));
-				else
-					Minewatch.logger.error("Missing velocity parameter for: "+entity);
-				return;
-			}*/
+			xS = entityTrace.hitVec.x - vecS.x;
+			yS = entityTrace.hitVec.y - vecS.y - entity.height/2d;
+			zS = entityTrace.hitVec.z - vecS.z; 
+			xC = entityTrace.hitVec.x - vecC.x;
+			yC = entityTrace.hitVec.y - vecC.y - entity.height/2d;
+			zC = entityTrace.hitVec.z - vecC.z; 
 		}
 		// not looking at block/entity
 		else {
 			Vec3d look = getLook(pitch, yaw).scale(metersPerSecond == -1 ? 100 : 1);
-			x = look.x;
-			y = look.y;
-			z = look.z;
+			xS = look.x;
+			yS = look.y;
+			zS = look.z;
+			xC = look.x;
+			yC = look.y;
+			zC = look.z;
 		}
 
-		entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
-		
-		//if (metersPerSecond == -1 && entity instanceof EntityMW)
-		//	((EntityMW)entity).hitscan = true;
+		Vec3d scaledVelocityS = new Vec3d(xS, yS, zS);
+		Vec3d scaledVelocityC = new Vec3d(xC, yC, zC);
+		if (metersPerSecond != -1) { // hitscan if -1
+			scaledVelocityS = scaledVelocityS.normalize().scale(metersPerSecond/20d);
+			scaledVelocityC = scaledVelocityC.normalize().scale(metersPerSecond/20d);
+		}
+		else if (entityTrace != null && entityTrace.entityHit != null) { // scale velocity by hit entity width (for leeway since lifetime is 1)
+			scaledVelocityS = scaledVelocityS.add(scaledVelocityS.normalize().scale(entityTrace.entityHit.width));
+			scaledVelocityC = scaledVelocityC.add(scaledVelocityC.normalize().scale(entityTrace.entityHit.width));
+		}
+		else { // go a little faster for blocks when hitscanning - so it only takes 1 tick to hit
+			scaledVelocityS = scaledVelocityS.add(scaledVelocityS.normalize().scale(0.1d));
+			scaledVelocityC = scaledVelocityC.add(scaledVelocityC.normalize().scale(0.1d));
+		}
 
-		// send velocity to server/client
-		Vec3d scaledVelocity = new Vec3d(x, y, z);
-		if (metersPerSecond != -1) // hitscan if -1
-			scaledVelocity = scaledVelocity.normalize().scale(metersPerSecond/20d);
-		else if (entityTrace != null && entityTrace.entityHit != null) // scale velocity by hit entity width (for leeway since lifetime is 1)
-			scaledVelocity = scaledVelocity.add(scaledVelocity.normalize().scale(entityTrace.entityHit.width));
-		else // go a little faster for blocks when hitscanning - so it only takes 1 tick to hit
-			scaledVelocity = scaledVelocity.add(scaledVelocity.normalize().scale(0.1d));
-
-		DataParameter<Rotations> data = getVelocityParameter(entity);
-		if (data != null)
-			entity.getDataManager().set(data, new Rotations((float)scaledVelocity.x, (float)scaledVelocity.y, (float)scaledVelocity.z));
+		// send velocity to client
+		DataParameter<Rotations> dataVel = getVelocityParameter(entity);
+		if (dataVel != null)
+			entity.getDataManager().set(dataVel, new Rotations((float)scaledVelocityC.x, (float)scaledVelocityC.y, (float)scaledVelocityC.z));
 		else
 			Minewatch.logger.error("Missing velocity parameter for: "+entity);
+
+		// send position to client
+		DataParameter<NBTTagCompound> dataPos = getPositionParameter(entity);
+		if (dataPos != null) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setDouble("x", vecC.x);
+			nbt.setDouble("y", vecC.y);
+			nbt.setDouble("z", vecC.z);
+			entity.getDataManager().set(dataPos, nbt);
+		}
+		else
+			Minewatch.logger.error("Missing position parameter for: "+entity);
+
+		Vec3d vec = entity.world.isRemote ? vecC : vecS;
+		entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
+		vec = entity.world.isRemote ? scaledVelocityC : scaledVelocityS;
+		entity.motionX = vec.x;
+		entity.motionY = vec.y;
+		entity.motionZ = vec.z;
+		EntityHelper.setRotations(entity);
+	}
+
+	/**Get DataParemeter for setting velocity for entity*/
+	public static DataParameter<NBTTagCompound> getPositionParameter(Entity entity) {
+		return entity instanceof EntityMW ? EntityMW.POSITION_CLIENT :
+			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.POSITION_CLIENT : 
+				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.POSITION_CLIENT : null;
 	}
 
 	/**Get DataParemeter for setting velocity for entity*/
 	public static DataParameter<Rotations> getVelocityParameter(Entity entity) {
-		return entity instanceof EntityMW ? EntityMW.VELOCITY : 
-			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY : 
-				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.VELOCITY : null;
+		return entity instanceof EntityMW ? EntityMW.VELOCITY_CLIENT : 
+			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY_CLIENT : 
+				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.VELOCITY_CLIENT : null;
 	}
 
 	/**Set rotations based on entity's motion*/
@@ -434,8 +454,6 @@ public class EntityHelper {
 				if (TickHandler.hasHandler(result.entityHit, Identifier.GENJI_DEFLECT) && 
 						result.entityHit instanceof EntityLivingBase && 
 						ItemGenjiShuriken.canDeflect((EntityLivingBase) result.entityHit, projectile, projectile)) {
-					//if (projectile instanceof EntityMW)
-					//projectile.getDataManager().set(EntityMW.POSITION, new Rotations((float)projectile.posX, (float)projectile.posY, (float)projectile.posZ));
 				}
 				// don't kill if deflecting
 				else if (kill)
@@ -450,7 +468,7 @@ public class EntityHelper {
 	public static boolean attemptDamage(Entity thrower, Entity entityHit, float damage, boolean neverKnockback) {
 		return attemptDamage(thrower, entityHit, damage, neverKnockback, true);
 	}
-	
+
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
@@ -466,7 +484,7 @@ public class EntityHelper {
 		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(damageSource, (EntityLivingBase) actualThrower) : null;
 		return source != null && attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, skipShouldHit, source);	
 	}
-	
+
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
@@ -489,7 +507,7 @@ public class EntityHelper {
 			// change dragon to part
 			if (entityHit instanceof EntityDragon)
 				entityHit = ((EntityDragon)entityHit).dragonPartHead;
-			
+
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
 				heal(damageSource, actualThrower, (EntityLivingBase)entityHit, damage);
@@ -518,7 +536,7 @@ public class EntityHelper {
 						((EntityDragon) ((MultiPartEntityPart)entityHit).parent).hurtResistantTime = prevHurtResist;
 					else
 						entityHit.hurtResistantTime = prevHurtResist;
-				
+
 				// ultimate charge
 				if (damaged) {
 					amountDamaged -= entityHit instanceof EntityLivingBase ? ((EntityLivingBase)entityHit).getHealth() : 0;
@@ -544,7 +562,7 @@ public class EntityHelper {
 			entity.heal((float) Math.abs(amount*Config.getDamageScale(entity)));
 			amountHealed = entity.getHealth() - amountHealed;
 			spawnHealParticles(entity, false);
-			
+
 			// ultimate charge
 			if (amountHealed > 0 && damageSource != null && actualThrower != null)
 				UltimateManager.handleAbilityCharge(actualThrower, damageSource, amountHealed, actualThrower == entity ? AttackType.SELF_HEAL : AttackType.HEAL);
@@ -708,10 +726,10 @@ public class EntityHelper {
 		else if (partialTicks == 1.0F)
 			return new Vec3d(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
 		else {
-			double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
+			/*double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
 			double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)entity.getEyeHeight();
-			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
-			return new Vec3d(d0, d1, d2);
+			double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;*/
+			return EntityHelper.getEntityPartialPos(entity).addVector(0, entity.getEyeHeight(), 0);
 		}
 	}
 
@@ -1152,6 +1170,24 @@ public class EntityHelper {
 				Entity entity = list.get(l);
 				entityIn.applyEntityCollision(entity);
 			}
+		}
+	}
+
+	public static void handleNotifyDataManagerChange(DataParameter<?> key, Entity entity) {
+		DataParameter<Rotations> dataVel = EntityHelper.getVelocityParameter(entity);
+		DataParameter<NBTTagCompound> dataPos = EntityHelper.getPositionParameter(entity);
+		// velocity
+		if (dataVel != null && entity.world.isRemote && entity.ticksExisted == 0 && key.getId() == dataVel.getId()) {
+			entity.motionX = entity.getDataManager().get(dataVel).getX();
+			entity.motionY = entity.getDataManager().get(dataVel).getY();
+			entity.motionZ = entity.getDataManager().get(dataVel).getZ();
+			EntityHelper.setRotations(entity);
+		}
+		// client position (because server always spawns centered)
+		else if (dataPos != null && entity.world.isRemote && entity.ticksExisted == 0 && key.getId() == dataPos.getId() &&
+				entity.getDataManager().get(dataPos) != null) {
+			NBTTagCompound nbt = entity.getDataManager().get(dataPos);
+			entity.setLocationAndAngles(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"), entity.rotationYaw, entity.rotationPitch);
 		}
 	}
 

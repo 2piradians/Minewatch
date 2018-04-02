@@ -22,13 +22,13 @@ public class FollowingSound extends MovingSound {
 	private int junkratGrenadeBounces;
 	public boolean lucioSound;
 
-	public FollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
+	public FollowingSound(Entity entity, SoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat, ISound.AttenuationType type) {
 		super(event, category);
 		this.entity = entity;
 		this.volume = volume;
 		this.pitch = pitch;
 		this.repeat = repeat;
-		this.attenuationType = ISound.AttenuationType.LINEAR;
+		this.attenuationType = type;
 		sounds.add(this);
 
 		// junkrat grenade tick

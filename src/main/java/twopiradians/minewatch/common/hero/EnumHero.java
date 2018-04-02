@@ -357,7 +357,7 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Toa", "Roadhog Toa skin", "SpookiOrange", "https://www.planetminecraft.com/skin/roadhog-toa-skin/")),
 	PHARAH("Pharah", Type.OFFENSE, false, false,  
 			200, 0, 0, 1850,
-			new Ability(KeyBind.ULTIMATE, false, false),
+			new Ability(KeyBind.ULTIMATE, true, false),
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 

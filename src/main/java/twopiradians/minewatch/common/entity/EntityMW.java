@@ -27,10 +27,9 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public abstract class EntityMW extends Entity implements IThrowableEntity {
 
-	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
-	public static final DataParameter<Rotations> POSITION = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY_CLIENT = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<NBTTagCompound> POSITION_CLIENT = EntityDataManager.<NBTTagCompound>createKey(EntityMW.class, DataSerializers.COMPOUND_TAG);
 	public static final DataParameter<Integer> HAND = EntityDataManager.<Integer>createKey(EntityMW.class, DataSerializers.VARINT);
-	public static final DataParameter<Rotations> HITSCAN = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public boolean notDeflectible;
 	public int lifetime;
 	private EntityLivingBase thrower;
@@ -57,41 +56,14 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	@Override
 	protected void entityInit() {
-		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
-		this.dataManager.register(POSITION, new Rotations(0, 0, 0));
+		this.dataManager.register(VELOCITY_CLIENT, new Rotations(0, 0, 0));
+		this.dataManager.register(POSITION_CLIENT, null);
 		this.dataManager.register(HAND, -1);
-		this.dataManager.register(HITSCAN, new Rotations(0, 0, 0));
 	}
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
-		// hitscan
-		if (key.getId() == HITSCAN.getId() && 
-				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
-			this.hitscan = true;
-			this.prevPosX = this.dataManager.get(HITSCAN).getX();
-			this.prevPosY = this.dataManager.get(HITSCAN).getY();
-			this.prevPosZ = this.dataManager.get(HITSCAN).getZ();
-			this.spawnTrailParticles();
-		}
-		// velocity
-		else if (key.getId() == VELOCITY.getId()) {
-			this.motionX = this.dataManager.get(VELOCITY).getX();
-			this.motionY = this.dataManager.get(VELOCITY).getY();
-			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);
-		}
-		// update prev position and spawn trail (for genji's deflect mostly)
-		else if (key.getId() == POSITION.getId() && this.world.isRemote && 
-				(this.dataManager.get(POSITION).getX() != 0 || this.dataManager.get(POSITION).getY() != 0 || this.dataManager.get(POSITION).getZ() != 0)) {
-			this.posX = this.dataManager.get(POSITION).getX();
-			this.posY = this.dataManager.get(POSITION).getY();
-			this.posZ = this.dataManager.get(POSITION).getZ();
-			this.spawnTrailParticles();
-			this.prevPosX = this.posX;
-			this.prevPosY = this.posY;
-			this.prevPosZ = this.posZ;
-		}
+		EntityHelper.handleNotifyDataManagerChange(key, this);
 	}
 
 	public void spawnTrailParticles() {}
@@ -107,7 +79,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 			this.spawnMuzzleParticles(this.dataManager.get(HAND) >= 0 && this.dataManager.get(HAND) < EnumHand.values().length ? 
 					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
 		}
-		
+
 		// kill instantly as hitscan
 		if (hitscan) {
 			this.setDead();

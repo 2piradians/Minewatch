@@ -1102,9 +1102,11 @@ public class SPacketSimple implements IMessage {
 					}
 					// widowmaker's ult
 					else if (packet.type == 80 && entity instanceof EntityLivingBase) {
+						if (entity == player)
+							TickHandler.register(true, ItemWidowmakerRifle.ULTIMATE.setEntity(player).setTicks((int) packet.x));
 						for (Entity target : entity.world.loadedEntityList)
 							if (target instanceof EntityLivingBase && EntityHelper.shouldTarget(entity, target, false))
-								TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(target).setTicks(310));
+								TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(target).setTicks((int) packet.x));
 					}
 					// pharah's concussive
 					else if (packet.type == 81 && entity instanceof EntityLivingBase) {
@@ -1113,11 +1115,19 @@ public class SPacketSimple implements IMessage {
 					// pharah's jump jet
 					else if (packet.type == 82 && entity instanceof EntityLivingBase) {
 						entity.onGround = false;
-						entity.motionY = Math.max(2, entity.motionY);
+						entity.motionY = Math.max(Config.lowerGravity ? 1.7f : 2, entity.motionY);
 						Vec3d look = EntityHelper.getLook(0, entity.getRotationYawHead()).scale(0.9d);
 						entity.motionX += look.x;
 						entity.motionZ += look.z;
-						TickHandler.register(true, ItemPharahWeapon.JET.setEntity(entity).setTicks(20));
+						TickHandler.register(true, ItemPharahWeapon.JET.setEntity(entity).setTicks(15));
+					}
+					// widowmaker's ult - start tracking entity
+					else if (packet.type == 83 && entity instanceof EntityLivingBase && entity2 instanceof EntityLivingBase) {
+						TickHandler.register(true, Handlers.CLIENT_GLOWING.setEntity(entity2).setTicks((int) packet.x));
+					}
+					// pharah's ult
+					else if (packet.type == 84 && entity instanceof EntityLivingBase) {
+						
 					}
 				}
 			});

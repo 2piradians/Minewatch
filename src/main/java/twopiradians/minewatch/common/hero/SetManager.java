@@ -15,12 +15,8 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -28,15 +24,12 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
-import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
-import twopiradians.minewatch.common.hero.CleanUpManager.Type;
+import twopiradians.minewatch.common.hero.EventManager.Type;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
-import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.SPacketSimple;
-import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 @Mod.EventBusSubscriber
 public class SetManager {
@@ -50,22 +43,6 @@ public class SetManager {
 	private static HashMap<UUID, EnumHero> lastWornSetsClient = Maps.newHashMap();
 	/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
 	private static HashMap<UUID, EnumHero> lastWornSetsServer = Maps.newHashMap();
-
-	/**Clear cooldowns of players logging in (for when switching worlds)*/
-	@SubscribeEvent
-	public static void resetCooldowns(PlayerLoggedInEvent event) {
-		for (KeyBind key : Keys.KeyBind.values()) 
-			if (key.getCooldown(event.player) > 0)
-				key.setCooldown(event.player, 0, false);
-		for (EnumHero hero : EnumHero.values())
-			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) 
-				if (ability.multiAbilityUses.remove(event.player.getPersistentID()) != null &&
-				event.player instanceof EntityPlayerMP) {
-					Minewatch.network.sendTo(
-							new SPacketSyncAbilityUses(event.player.getPersistentID(), hero, ability.getNumber(), 
-									ability.maxUses, false), (EntityPlayerMP) event.player);
-				}
-	}
 
 	private static HashMap<UUID, EnumHero> entitiesWearingSets(boolean isRemote) {
 		return isRemote ? entitiesWearingSetsClient : entitiesWearingSetsServer;
@@ -85,14 +62,6 @@ public class SetManager {
 	@Nullable
 	public static EnumHero getWornSet(UUID uuid, boolean isRemote) {
 		return entitiesWearingSets(isRemote).get(uuid);
-	}
-
-	/**Clear cooldowns of players respawning*/
-	@SubscribeEvent
-	public static void resetCooldowns(PlayerRespawnEvent event) {
-		for (KeyBind key : Keys.KeyBind.values()) 
-			if (key.getCooldown(event.player) > 0)
-				key.setCooldown(event.player, 0, false);
 	}
 
 	/**Update entitiesWearingSets each tick
@@ -191,9 +160,8 @@ public class SetManager {
 			else 
 				TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.VIEW_BOBBING));
 
-		// clean up
 		if (prevHero != null)
-			CleanUpManager.onCleanUp(Type.REMOVE_SET, player);
+			EventManager.onEvent(Type.REMOVE_SET, player);
 	}
 
 	/**Heal entity to full - for when set switched / respawned*/

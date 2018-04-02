@@ -225,7 +225,7 @@ public class CommonProxy {
 	}
 
 	@Nullable
-	public Object playFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+	public Object playFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat, int attentuationType) {
 		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
 			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity.world.provider.getDimension());
 		return null;

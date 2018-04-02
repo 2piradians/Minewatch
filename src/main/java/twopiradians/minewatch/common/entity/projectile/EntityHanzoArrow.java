@@ -6,6 +6,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -13,13 +14,15 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import twopiradians.minewatch.common.entity.EntityMW;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
 
 public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
-	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityHanzoArrow.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY_CLIENT = EntityDataManager.<Rotations>createKey(EntityHanzoArrow.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<NBTTagCompound> POSITION_CLIENT = EntityDataManager.<NBTTagCompound>createKey(EntityHanzoArrow.class, DataSerializers.COMPOUND_TAG);
 	
 	public EntityHanzoArrow(World worldIn) {
 		super(worldIn);
@@ -37,18 +40,13 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
-		if (key.getId() == VELOCITY.getId()) {
-			this.motionX = this.dataManager.get(VELOCITY).getX();
-			this.motionY = this.dataManager.get(VELOCITY).getY();
-			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this);
-		}
+		EntityHelper.handleNotifyDataManagerChange(key, this);
 	}
 
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+		this.dataManager.register(VELOCITY_CLIENT, new Rotations(0, 0, 0));
 	}
 	
 	@Override

@@ -26,7 +26,8 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public abstract class EntityLivingBaseMW extends EntityLivingBase implements IThrowableEntity {
 
-	public static final DataParameter<Rotations> VELOCITY = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> VELOCITY_CLIENT = EntityDataManager.<Rotations>createKey(EntityLivingBaseMW.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<NBTTagCompound> POSITION_CLIENT = EntityDataManager.<NBTTagCompound>createKey(EntityLivingBaseMW.class, DataSerializers.COMPOUND_TAG);
 	public boolean notDeflectible;
 	protected int lifetime;
 	private EntityLivingBase thrower;
@@ -49,18 +50,13 @@ public abstract class EntityLivingBaseMW extends EntityLivingBase implements ITh
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
-		if (key.getId() == VELOCITY.getId()) {
-			this.motionX = this.dataManager.get(VELOCITY).getX();
-			this.motionY = this.dataManager.get(VELOCITY).getY();
-			this.motionZ = this.dataManager.get(VELOCITY).getZ();
-			EntityHelper.setRotations(this); 
-		}
+		EntityHelper.handleNotifyDataManagerChange(key, this);
 	}
 
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		this.dataManager.register(VELOCITY, new Rotations(0, 0, 0));
+		this.dataManager.register(VELOCITY_CLIENT, new Rotations(0, 0, 0));
 	}
 
 	@Override

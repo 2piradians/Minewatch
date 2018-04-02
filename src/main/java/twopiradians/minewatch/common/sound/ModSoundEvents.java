@@ -316,26 +316,38 @@ public enum ModSoundEvents {
 		if (world != null) 
 			world.playSound(world.isRemote ? Minewatch.proxy.getClientPlayer() : null, x, y, z, event, SoundCategory.PLAYERS, volume, pitch);
 	}
-
+	
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
-		return playFollowingSound(entity, volume, pitch, repeat, null);
+		return playFollowingSound(entity, volume, pitch, repeat, 1, null);
 	}
 
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType) {
+		return playFollowingSound(entity, volume, pitch, repeat, attenuationType, null);
+	}
+	
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, boolean toPlayer, boolean toFriendly, boolean toHostile) {
-		return playFollowingSound(entity, volume, pitch, repeat, getPlayers(entity, toPlayer, toFriendly, toHostile));
+		return playFollowingSound(entity, volume, pitch, repeat, 1, getPlayers(entity, toPlayer, toFriendly, toHostile));
 	}
 
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
-	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, @Nullable ArrayList<EntityPlayer> players) {
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType, boolean toPlayer, boolean toFriendly, boolean toHostile) {
+		return playFollowingSound(entity, volume, pitch, repeat, attenuationType, getPlayers(entity, toPlayer, toFriendly, toHostile));
+	}
+
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType, @Nullable ArrayList<EntityPlayer> players) {
 		// Minewatch.logger.info(this.name()); // debug
 		if (entity != null && this.shouldPlay(entity)) {
 			if (players == null)
-				return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+				return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat, attenuationType);
 			else // play to certain players on server
 				for (EntityPlayer player : players)
 					Minewatch.proxy.playFollowingSound(player, entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);

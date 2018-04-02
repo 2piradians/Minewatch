@@ -51,7 +51,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 				side = EnumFacing.getFacingFromVector((float)vec.x, (float)vec.y, (float)vec.z);
 			}
 			EntityHelper.bounce(this, side, 0.1d, 1.3d);
-			this.getDataManager().set(VELOCITY, new Rotations((float) this.motionX, (float) this.motionY, (float) this.motionZ));
+			this.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) this.motionX, (float) this.motionY, (float) this.motionZ));
 
 			// scatter
 			if (scatter) {
@@ -65,7 +65,7 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 					entityarrow.motionZ = this.motionZ;
 
 					entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
-					entityarrow.getDataManager().set(VELOCITY, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
+					entityarrow.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
 					if (result.entityHit != null)
 						entityarrow.ignoreEntity = result.entityHit;
 					this.world.spawnEntity(entityarrow);

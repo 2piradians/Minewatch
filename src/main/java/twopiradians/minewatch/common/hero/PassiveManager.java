@@ -38,12 +38,13 @@ public class PassiveManager {
 	public static ArrayList<EntityLivingBase> playersJumped = new ArrayList<EntityLivingBase>(); // Genji double jump
 	public static ArrayList<EntityLivingBase> playersHovering = new ArrayList<EntityLivingBase>(); // Mercy hover
 	public static HashMap<EntityLivingBase, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
+	public static ArrayList<EntityLivingBase> playersFlying = new ArrayList<EntityLivingBase>(); // Pharah hover
 
 	/**Called once per tick for (all) players and heroes wearing a full set*/
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
-		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation
+		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation, prevent kick for flying
 			return;
-		
+
 		boolean hacked = TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED);
 
 		// genji jump boost/double jump
@@ -129,13 +130,25 @@ public class PassiveManager {
 				playersHovering.remove(entity);
 		}
 		// pharah's jet pack
-		else if (hero == EnumHero.PHARAH && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying)) {
-			if ((KeyBind.JUMP.isKeyDown(entity) || KeyBind.RMB.isKeyDown(entity)) && ChargeManager.canUseCharge(entity)) {
-				ChargeManager.subtractFromCurrentCharge(entity, 1, false);
-				entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f+0.06f));
-				if (entity.world.isRemote)
-					ItemPharahWeapon.spawnJetPackParticles(entity, false);
+		else if (!hacked && hero == EnumHero.PHARAH && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying) &&
+				(KeyBind.JUMP.isKeyDown(entity) || KeyBind.RMB.isKeyDown(entity)) && ChargeManager.canUseCharge(entity)) {
+			ChargeManager.subtractFromCurrentCharge(entity, 1, false);
+			entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f));
+			if (entity.world.isRemote) {
+				ItemPharahWeapon.spawnJetPackParticles(entity, false);
+				// start flying sounds
+				if (!playersFlying.contains(entity)) {
+					ModSoundEvents.PHARAH_FLY_0.playFollowingSound(entity, 0.2f, 1, true);
+					ModSoundEvents.PHARAH_FLY_1.playFollowingSound(entity, 0.3f, 1, true);
+					playersFlying.add(entity);
+				}
 			}
+		}
+		// stop flying sounds
+		else if (world.isRemote && playersFlying.contains(entity)) {
+			ModSoundEvents.PHARAH_FLY_0.stopFollowingSound(entity);
+			ModSoundEvents.PHARAH_FLY_1.stopFollowingSound(entity);
+			playersFlying.remove(entity);
 		}
 
 		// reduced gravity

@@ -16,6 +16,7 @@ import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -388,14 +389,15 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	@Nullable
-	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat) {
-		if (entity != null && entity.isEntityAlive() && event != null && category != null && entity.world.isRemote) {
-			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat);
+	public Object playFollowingSound(Entity entity, ModSoundEvent event, SoundCategory category, float volume, float pitch, boolean repeat, int attenuationType) {
+		if (entity != null && entity.isEntityAlive() && event != null && category != null && 
+				entity.world.isRemote && attenuationType >= 0 && attenuationType < ISound.AttenuationType.values().length) {
+			FollowingSound sound = new FollowingSound(entity, event, category, volume, pitch, repeat, ISound.AttenuationType.values()[attenuationType]);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 			return sound;
 		}
 		else
-			return super.playFollowingSound(entity, event, category, volume, pitch, repeat);
+			return super.playFollowingSound(entity, event, category, volume, pitch, repeat, attenuationType);
 	}
 
 	/**Copied from Minecraft to allow Reinhardt to continue attacking while holding lmb*/

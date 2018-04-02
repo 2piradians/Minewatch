@@ -3,6 +3,8 @@ package twopiradians.minewatch.common.item.weapon;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
@@ -13,7 +15,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket;
+import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket.Type;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.TickHandler;
@@ -24,6 +28,34 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class ItemPharahWeapon extends ItemMWWeapon {
 
 	public static final Handler CONCUSSIVE = new Handler(Identifier.PHARAH_CONCUSSIVE, true) {};
+	public static final Handler ULTIMATE = new Handler(Identifier.PHARAH_ULTIMATE, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			for (int i=0; i<(this.ticksLeft % 2 == 0 ? 2 : 1); ++i) {
+				EntityPharahRocket projectile = new EntityPharahRocket(entity.world, entityLiving, -1, Type.ULTIMATE);
+				EntityHelper.setAim(projectile, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 28.5f, 30, null, (entityLiving.world.rand.nextFloat()-0.5f)*120, (entityLiving.world.rand.nextFloat()-0.5f)*1.5f);
+				entity.world.spawnEntity(projectile);
+			}
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+
+			return super.onServerRemove();
+		}
+	};
 
 	public static final Handler JET = new Handler(Identifier.PHARAH_JET, true) {
 		@Override
@@ -45,7 +77,7 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			Vec3d prevVec = EntityHelper.getPrevPositionVector(entity).subtract(EntityHelper.getLook(10, entity.prevRotationYaw-offset).scale(0.5d));
 			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.2d, 0, 0, 0, 0xCF9B4A, 0x33271B, scale, ageBig, 0.7f, vec, prevVec);
 			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.05d, 0, 0, 0, 0xFAED5C, 0xE2C457, scale, ageSmall, 0.7f, vec, prevVec);
-		
+
 			vec = entity.getPositionVector().subtract(EntityHelper.getLook(10, entity.rotationYaw+offset).scale(0.5d));
 			prevVec = EntityHelper.getPrevPositionVector(entity).subtract(EntityHelper.getLook(10, entity.prevRotationYaw+offset).scale(0.5d));
 			EntityHelper.spawnTrailParticles(entity, amountPerBlock, 0.2d, 0, 0, 0, 0xCF9B4A, 0x33271B, scale, ageBig, 0.7f, vec, prevVec);
@@ -62,8 +94,8 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 	public void onItemLeftClick(ItemStack stack, World world, EntityLivingBase player, EnumHand hand) { 
 		// primary fire
 		if (!world.isRemote && this.canUse(player, true, hand, false)) {
-			EntityPharahRocket projectile = new EntityPharahRocket(world, player, hand.ordinal(), false);
-			EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 35, 0, hand, 10, 0.31f, true);
+			EntityPharahRocket projectile = new EntityPharahRocket(world, player, hand.ordinal(), Type.NORMAL);
+			EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 35, 0, hand, 14, 0.15f);
 			world.spawnEntity(projectile);
 			ModSoundEvents.PHARAH_ROCKET_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);
 			this.subtractFromCurrentAmmo(player, 1, hand);
@@ -84,7 +116,7 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
 				player.onGround = false;
-				player.motionY = Math.max(2, player.motionY);
+				entity.motionY = Math.max(Config.lowerGravity ? 1.7f : 2, entity.motionY);
 				Vec3d look = EntityHelper.getLook(0, player.rotationYawHead).scale(0.9d);
 				player.motionX += look.x;
 				player.motionZ += look.z;
@@ -95,8 +127,8 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			// concussive
 			else if (!world.isRemote && hero.ability1.isSelected(player) && 
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				EntityPharahRocket projectile = new EntityPharahRocket(world, player, EnumHand.OFF_HAND.ordinal(), true);
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 35, 0, EnumHand.OFF_HAND, 10, 0.31f, true);
+				EntityPharahRocket projectile = new EntityPharahRocket(world, player, EnumHand.OFF_HAND.ordinal(), Type.CONCUSSIVE);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 35, 0, EnumHand.OFF_HAND, 15, 0.6f);
 				world.spawnEntity(projectile);
 				ModSoundEvents.PHARAH_ROCKET_SHOOT.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f, false);
 				ModSoundEvents.PHARAH_CONCUSSION_VOICE.playFollowingSound(player, 1, 1, false);
@@ -125,6 +157,17 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
 		return hand == EnumHand.OFF_HAND && TickHandler.hasHandler(player, Identifier.PHARAH_CONCUSSIVE);
+	}
+
+	@Override
+	public void onUltimate(ItemStack stack, World world, EntityLivingBase player) {
+		//ModSoundEvents.WIDOWMAKER_ULTIMATE_0.playFollowingSound(player, 1, 1, false, true, true, false);
+		//ModSoundEvents.WIDOWMAKER_ULTIMATE_1.playFollowingSound(player, 1, 1, false, false, false, true);
+
+		TickHandler.register(false, ULTIMATE.setEntity(player).setTicks(60));
+		Minewatch.network.sendToDimension(new SPacketSimple(84, player, false, 60, 0, 0), player.world.provider.getDimension());
+
+		super.onUltimate(stack, world, player);
 	}
 
 }

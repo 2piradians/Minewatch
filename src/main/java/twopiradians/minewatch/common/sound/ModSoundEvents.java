@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.audio.ISound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -152,6 +153,10 @@ public enum ModSoundEvents {
 	LUCIO_PASSIVE_HEAL_VOICE,
 	LUCIO_SOUNDWAVE,
 	LUCIO_SOUNDWAVE_VOICE,
+	LUCIO_RIDING,
+	LUCIO_RIDING_START,
+	LUCIO_RIDING_STOP_0,
+	LUCIO_RIDING_STOP_1,
 	ZENYATTA_RELOAD,
 	ZENYATTA_SHOOT,
 	ZENYATTA_HEAL,
@@ -272,7 +277,10 @@ public enum ModSoundEvents {
 	PHARAH_JET,
 	PHARAH_RELOAD,
 	PHARAH_ROCKET_HIT,
-	PHARAH_ROCKET_SHOOT;
+	PHARAH_ROCKET_SHOOT,
+	PHARAH_ULTIMATE_0,
+	PHARAH_ULTIMATE_1,
+	PHARAH_ULT;
 
 	public final ModSoundEvent event;
 	public final ResourceLocation loc;
@@ -319,11 +327,18 @@ public enum ModSoundEvents {
 	
 	/**To allow future customization - i.e. adjust volume based on teams*/
 	@Nullable
+	public Object playFollowingSound(Entity entity, float volume, float pitch) {
+		return playFollowingSound(entity, volume, pitch, false, 1, null);
+	}
+	
+	/**To allow future customization - i.e. adjust volume based on teams*/
+	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat) {
 		return playFollowingSound(entity, volume, pitch, repeat, 1, null);
 	}
 
-	/**To allow future customization - i.e. adjust volume based on teams*/
+	/**To allow future customization - i.e. adjust volume based on teams
+	 * attenuationType: 0 = none, 1 = linear*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType) {
 		return playFollowingSound(entity, volume, pitch, repeat, attenuationType, null);
@@ -335,22 +350,29 @@ public enum ModSoundEvents {
 		return playFollowingSound(entity, volume, pitch, repeat, 1, getPlayers(entity, toPlayer, toFriendly, toHostile));
 	}
 
-	/**To allow future customization - i.e. adjust volume based on teams*/
+	/**To allow future customization - i.e. adjust volume based on teams
+	 * attenuationType: 0 = none, 1 = linear*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType, boolean toPlayer, boolean toFriendly, boolean toHostile) {
 		return playFollowingSound(entity, volume, pitch, repeat, attenuationType, getPlayers(entity, toPlayer, toFriendly, toHostile));
 	}
 
-	/**To allow future customization - i.e. adjust volume based on teams*/
+	/**To allow future customization - i.e. adjust volume based on teams
+	 * attenuationType: 0 = none, 1 = linear*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType, @Nullable ArrayList<EntityPlayer> players) {
 		// Minewatch.logger.info(this.name()); // debug
 		if (entity != null && this.shouldPlay(entity)) {
+			// ultimate sound adjustment
+			if (this.isUltimate && attenuationType == 1) {
+				volume = 14;
+			}
+			
 			if (players == null)
 				return Minewatch.proxy.playFollowingSound(entity, event, SoundCategory.PLAYERS, volume, pitch, repeat, attenuationType);
 			else // play to certain players on server
 				for (EntityPlayer player : players)
-					Minewatch.proxy.playFollowingSound(player, entity, event, SoundCategory.PLAYERS, volume, pitch, repeat);
+					Minewatch.proxy.playFollowingSound(player, entity, event, SoundCategory.PLAYERS, volume, pitch, repeat, attenuationType);
 		}
 		return null;
 	}

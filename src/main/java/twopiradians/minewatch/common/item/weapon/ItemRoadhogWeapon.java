@@ -144,7 +144,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.ROADHOG_HEALING)) {
 			for (int i=0; i<25; ++i) {
 				EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, player, hand.ordinal());
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f, true);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f, true, true);
 				world.spawnEntity(projectile);
 			}
 			ModSoundEvents.ROADHOG_SHOOT_0.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f);

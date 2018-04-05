@@ -10,6 +10,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -20,8 +21,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
-import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.Minewatch;
+import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.item.weapon.ItemPharahWeapon;
@@ -39,10 +40,12 @@ public class PassiveManager {
 	public static ArrayList<EntityLivingBase> playersHovering = new ArrayList<EntityLivingBase>(); // Mercy hover
 	public static HashMap<EntityLivingBase, Integer> playersClimbing = Maps.newHashMap(); // Genji/Hanzo climb
 	public static ArrayList<EntityLivingBase> playersFlying = new ArrayList<EntityLivingBase>(); // Pharah hover
+	public static HashMap<EntityLivingBase, LucioWallRideInfo> playersWallRiding = Maps.newHashMap(); // Lucio wallride
+	public static HashMap<EntityLivingBase, EnumFacing> prevWall = Maps.newHashMap(); // Lucio wallride prev wall
 
 	/**Called once per tick for (all) players and heroes wearing a full set*/
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
-		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation, prevent kick for flying
+		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation, lucio walking
 			return;
 
 		boolean hacked = TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED);
@@ -59,6 +62,7 @@ public class PassiveManager {
 			else if (KeyBind.JUMP.isKeyPressed(entity) && !entity.onGround && !entity.isOnLadder() && 
 					entity.motionY < 0.2d && !playersJumped.contains(entity)) {
 				if (world.isRemote) {
+					EntityHelper.resetFloatTime(entity);
 					if (entity instanceof EntityPlayer)
 						((EntityPlayer)entity).jump();
 					else if (entity instanceof EntityHero)
@@ -96,6 +100,8 @@ public class PassiveManager {
 							ModSoundEvents.WALL_CLIMB.playSound(entity, 0.9f, 1);
 						entity.fallDistance = 0.0F;
 					}
+					if (entity.ticksExisted % 40 == 0) 
+						EntityHelper.resetFloatTime(entity);
 					entity.motionX = MathHelper.clamp(entity.motionX, -0.15D, 0.15D);
 					entity.motionZ = MathHelper.clamp(entity.motionZ, -0.15D, 0.15D);
 					entity.motionY = Math.max(0.2d, entity.motionY);
@@ -115,6 +121,8 @@ public class PassiveManager {
 					entity.getActivePotionEffect(MobEffects.REGENERATION).getDuration() == 0))
 				entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 100, 0, true, false));
 			else if (!hacked && KeyBind.JUMP.isKeyDown(entity) && entity.motionY <= -0.09d && !entity.isInWater() && !entity.isInLava()) {
+				if (entity.ticksExisted % 40 == 0) 
+					EntityHelper.resetFloatTime(entity);
 				entity.motionY = Math.min(entity.motionY*0.75f, -0.1f);
 				entity.fallDistance = Math.max(entity.fallDistance*0.75f, 1);
 				if (!playersHovering.contains(entity) && !world.isRemote) {
@@ -131,7 +139,10 @@ public class PassiveManager {
 		}
 		// pharah's jet pack
 		else if (!hacked && hero == EnumHero.PHARAH && !(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying) &&
-				(KeyBind.JUMP.isKeyDown(entity) || KeyBind.RMB.isKeyDown(entity)) && ChargeManager.canUseCharge(entity)) {
+				(KeyBind.JUMP.isKeyDown(entity) || KeyBind.RMB.isKeyDown(entity)) && ChargeManager.canUseCharge(entity) &&
+				!TickHandler.hasHandler(entity, Identifier.PHARAH_ULTIMATE)) {
+			if (entity.ticksExisted % 40 == 0) 
+				EntityHelper.resetFloatTime(entity);
 			ChargeManager.subtractFromCurrentCharge(entity, 1, false);
 			entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f));
 			if (entity.world.isRemote) {
@@ -150,10 +161,118 @@ public class PassiveManager {
 			ModSoundEvents.PHARAH_FLY_1.stopFollowingSound(entity);
 			playersFlying.remove(entity);
 		}
+		// lucio wallride
+		else if (hero == EnumHero.LUCIO && // TEST that you can hear other players
+				((world.isRemote && entity instanceof EntityPlayer) || (!world.isRemote && entity instanceof EntityHero))) {
+			// bad block (like barrier)
+			boolean badBlock = false;
+			for (BlockPos pos : BlockPos.getAllInBox(entity.getPosition().east().north(), entity.getPosition().west().south()))
+				if (EntityHelper.shouldIgnoreBlock(world.getBlockState(pos).getBlock())) {
+					badBlock = true;
+					break;
+				}
+
+			// can wallride
+			if (!hacked && !badBlock && !entity.isInWater() && !entity.isInLava() &&
+					entity.isCollidedHorizontally && 
+					!(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying) && 
+					KeyBind.JUMP.isKeyDown(entity)) {
+
+				// start wallriding
+				if (!playersWallRiding.containsKey(entity) && (entity.motionX != 0 || entity.motionZ != 0)) {
+					// copied from Entity#moveRelative
+					float f1 = MathHelper.sin(entity.rotationYaw * 0.017453292F);
+					float f2 = MathHelper.cos(entity.rotationYaw * 0.017453292F);
+					double x = (double)(entity.moveStrafing * f2 - entity.moveForward * f1);
+					double z = (double)(entity.moveForward * f2 + entity.moveStrafing * f1);
+
+					// wall to ride on
+					EnumFacing wall = null;
+					if (entity.motionX == 0) {
+						if (x > 0) 
+							wall = EnumFacing.EAST;
+						else
+							wall = EnumFacing.WEST;
+					}
+					else if (entity.motionZ == 0) {
+						if (z > 0)
+							wall = EnumFacing.SOUTH;
+						else
+							wall = EnumFacing.NORTH;
+					}
+
+					// direction to move in
+					EnumFacing direction = null;
+					if (wall == EnumFacing.EAST || wall == EnumFacing.WEST) {
+						if (z > 0)
+							direction = EnumFacing.SOUTH;
+						else
+							direction = EnumFacing.NORTH;
+					}
+					else if (wall == EnumFacing.NORTH || wall == EnumFacing.SOUTH) {
+						if (x > 0)
+							direction = EnumFacing.EAST;
+						else
+							direction = EnumFacing.WEST;
+					}
+
+					// start riding
+					if (wall != null && direction != null && 
+							(!prevWall.containsKey(entity) || prevWall.get(entity) != wall)) {
+						playersWallRiding.put(entity, new LucioWallRideInfo(wall, direction));
+						prevWall.put(entity, wall);
+						ModSoundEvents.LUCIO_RIDING_START.playFollowingSound(entity, 1, 1);
+						ModSoundEvents.LUCIO_RIDING.playFollowingSound(entity, 0.3f, 1, true);
+					}
+				}
+
+				// continue wallriding
+				LucioWallRideInfo info = playersWallRiding.get(entity);
+				if (info != null) {			
+					// check that entity can move in direction
+					if (((info.direction == EnumFacing.NORTH || info.direction == EnumFacing.SOUTH) && entity.motionZ == 0) ||
+							((info.direction == EnumFacing.EAST || info.direction == EnumFacing.WEST) && entity.motionX == 0)) {
+
+					}
+					else {
+						if (entity.ticksExisted % 40 == 0 &&
+								entity instanceof EntityPlayer && world.isRemote)
+							Minewatch.network.sendToServer(new CPacketSimple(22, false, (EntityPlayer)entity));
+						Vec3d motion = new Vec3d(info.wall.getDirectionVec()).scale(0.2d);
+						motion = motion.add(new Vec3d(info.direction.getDirectionVec()).scale(7.7d/20d));
+						motion = motion.addVector(0, 0.07d, 0);
+						entity.motionX = motion.x;
+						entity.motionY = motion.y;
+						entity.motionZ = motion.z;
+					}
+				}
+			}
+			// stop wallriding
+			else if (playersWallRiding.containsKey(entity)) {
+				// jump off
+				LucioWallRideInfo info = playersWallRiding.get(entity);
+				Vec3d motion = new Vec3d(info.wall.getOpposite().getDirectionVec()).scale(0.3d);
+				motion = motion.add(new Vec3d(info.direction.getDirectionVec()).scale(7.7d/20d));
+				motion = motion.addVector(0, 0.4d, 0);
+				entity.motionX += motion.x;
+				entity.motionY += motion.y;
+				entity.motionZ += motion.z;
+				playersWallRiding.remove(entity);
+				ModSoundEvents.LUCIO_RIDING_STOP_0.playFollowingSound(entity, 1, 1);
+				ModSoundEvents.LUCIO_RIDING_STOP_1.playFollowingSound(entity, 1, 1);
+				ModSoundEvents.LUCIO_RIDING.stopFollowingSound(entity);
+			}
+			// remove prevWall
+			else if (prevWall.containsKey(entity) &&
+					(entity.onGround || (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying)))
+				prevWall.remove(entity);
+		}
 
 		// reduced gravity
 		if (Config.lowerGravity && !entity.hasNoGravity() && !entity.isElytraFlying() && 
-				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying))
+				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying) &&
+				!TickHandler.hasHandler(entity, Identifier.PREVENT_MOVEMENT) &&
+				!playersWallRiding.containsKey(entity))
 			entity.motionY += 0.02f;
 
 	}
@@ -189,9 +308,26 @@ public class PassiveManager {
 				grenade.motionZ = (event.getEntity().world.rand.nextDouble()-0.5d)*0.1d;
 				event.getEntity().world.spawnEntity(grenade);
 				grenade.isDeathGrenade = true;
-				Minewatch.network.sendToAll(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0));
+				Minewatch.network.sendToDimension(new SPacketSimple(24, grenade, false, grenade.explodeTimer, 0, 0), grenade.world.provider.getDimension());
 			}
 		}
+	}
+
+	public static class LucioWallRideInfo {
+
+		public EnumFacing wall;
+		public EnumFacing direction;
+
+		public LucioWallRideInfo(EnumFacing wall, EnumFacing direction) {
+			this.wall = wall;
+			this.direction = direction;
+		}
+
+		@Override
+		public String toString() {
+			return "wall: "+this.wall+", direction: "+this.direction;
+		}
+
 	}
 
 }

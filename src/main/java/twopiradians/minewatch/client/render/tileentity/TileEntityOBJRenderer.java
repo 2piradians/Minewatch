@@ -52,7 +52,7 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 	protected abstract void postRender(T te, int model, BufferBuilder buffer, double x, double y, double z, float partialTicks);
 	protected int getColor(int i, T entity) {return -1;}
 
-	// PORT 1.12 render
+	
 	@Override
 	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		if (this.bakedModels == null) {

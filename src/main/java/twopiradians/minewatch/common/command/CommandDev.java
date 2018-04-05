@@ -9,6 +9,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -19,12 +20,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
+import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
@@ -58,7 +62,7 @@ public class CommandDev implements ICommand {
 		EntityPlayerMP player = sender instanceof EntityPlayerMP ? (EntityPlayerMP) sender : null;
 		if (player == null)
 			return false;
-		
+
 		if (args.length == 2 && args[0].equalsIgnoreCase("hero")) {
 			EnumHero hero = null;
 			for (EnumHero hero2 : EnumHero.values())
@@ -95,6 +99,22 @@ public class CommandDev implements ICommand {
 			sender.sendMessage(new TextComponentString("Server handlers: "+TickHandler.getHandlersString(false)));
 			Minewatch.network.sendTo(new SPacketSimple(78), player);
 		}
+		else if (args.length == 1 && args[0].equalsIgnoreCase("sounds")) {
+			sender.sendMessage(new TextComponentString("Sounds: "+FollowingSound.sounds));
+		}
+		else if (args.length >= 1 && args[0].equalsIgnoreCase("ult")) {
+			try {
+				Entity entity = args.length > 1 ? CommandBase.getEntity(server, sender, args[1]) : CommandBase.getCommandSenderAsPlayer(sender);
+				UltimateManager.setCharge(entity, UltimateManager.getMaxCharge(entity), true);
+			} 
+			catch (Exception e) {}
+		}
+		else if (args.length == 1 && args[0].equalsIgnoreCase("facingParticles")) {
+			for (EnumParticle particle : EnumParticle.values()) {
+				if (!particle.facingParticles.isEmpty())
+				sender.sendMessage(new TextComponentString("Facing Particles ("+particle+"): "+particle.facingParticles));
+			}
+		}
 		return false;
 	}
 
@@ -108,7 +128,9 @@ public class CommandDev implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
-			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display"); add("tickhandlers");}});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display"); add("tickhandlers"); add("sounds"); add("ult"); add("facingParticles");}});
+		else if (args.length == 2 && args[0].equalsIgnoreCase("ult"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, CommandMinewatch.ALL_HERO_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase("display"))
@@ -119,6 +141,6 @@ public class CommandDev implements ICommand {
 
 	@Override
 	public boolean isUsernameIndex(String[] args, int index) {
-		return false;
+		return args.length == 2 && args[0].equalsIgnoreCase("ult");
 	}
 }

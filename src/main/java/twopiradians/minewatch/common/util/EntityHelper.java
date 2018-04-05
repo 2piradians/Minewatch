@@ -1,5 +1,6 @@
 package twopiradians.minewatch.common.util;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.init.Blocks;
@@ -35,6 +37,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.DamageSource;
@@ -72,6 +75,23 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class EntityHelper {
 
 	private static final Handler HEALTH_PARTICLES = new Handler(Identifier.HEALTH_PARTICLES, false) {};
+	private static Field floatingTickCountField;
+
+	/**Reset a player's floating time (to prevent being kicked)*/
+	public static void resetFloatTime(Entity entity) {
+		try {
+			if (entity instanceof EntityPlayerMP) {
+				if (floatingTickCountField == null) {
+					floatingTickCountField = NetHandlerPlayServer.class.getDeclaredFields()[28];
+					floatingTickCountField.setAccessible(true);
+				}
+				floatingTickCountField.set(((EntityPlayerMP)entity).connection, 0);
+			}
+		}
+		catch (Exception e) {
+			Minewatch.logger.warn("Unable to reset float time, please report this to the mod authors: ", e);
+		}
+	}
 
 	/**Copied from EntityThrowable*/
 	public static ArrayList<RayTraceResult> checkForImpact(Entity entityIn, boolean friendly) {
@@ -161,8 +181,8 @@ public class EntityHelper {
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1. Make sure yaw is rotationYawHead*/
-	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, boolean ignoreHeroInaccuracy) {
-		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1, ignoreHeroInaccuracy);
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, boolean ignoreHeroInaccuracy, boolean differentClientServerPos) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, 1, ignoreHeroInaccuracy, differentClientServerPos);
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
@@ -171,10 +191,23 @@ public class EntityHelper {
 	}
 
 	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy, boolean differentClientServerPos) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, distance, ignoreHeroInaccuracy, differentClientServerPos);
+	}
+
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
 	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy) {
+		setAim(entity, shooter, null, pitch, yaw, metersPerSecond, inaccuracy, hand, verticalAdjust, horizontalAdjust, distance, ignoreHeroInaccuracy, true);
+	}
+
+	/**Aim the entity in the proper direction to be thrown/shot. Hitscan if metersPerSecond == -1*/
+	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy, boolean differentClientServerPos) {
 		boolean friendly = isFriendly(entity);
+		// server pos w/o adjustments to shoot from center of player
 		Vec3d vecS = getShootingPos(shooter, pitch, yaw, null, 0, 0, 0);
 		Vec3d vecC = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
+		if (!differentClientServerPos)
+			vecS = vecC;
 
 		if (shooter instanceof EntityHero && !ignoreHeroInaccuracy)
 			inaccuracy = (float) (Math.max(0.5f, inaccuracy) * Config.mobInaccuracy);
@@ -488,6 +521,15 @@ public class EntityHelper {
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, boolean skipShouldHit, boolean giveUltCharge) {
+		Entity actualThrower = getThrower(damageSource);
+		DamageSource source = actualThrower instanceof EntityLivingBase ? DamageSource.causeIndirectDamage(damageSource, (EntityLivingBase) actualThrower) : null;
+		return source != null && attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, skipShouldHit, giveUltCharge, source);	
+	}
+
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
 	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, DamageSource source) {
 		return attemptDamage(damageSource, entityHit, damage, neverKnockback, false, source);
 	}
@@ -495,14 +537,20 @@ public class EntityHelper {
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR GENJI DEFLECT AND ULT CHARGE*/
-	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean skipShouldHit, DamageSource source) {
+	public static boolean attemptDamage(Entity damageSource, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, DamageSource source) {
 		Entity actualThrower = getThrower(damageSource);
-		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, true, skipShouldHit, source);
+		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, false, source);
 	}
 
 	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
 	 * If damage is negative, entity will be healed by that amount*/
 	public static boolean attemptDamage(Entity damageSource, Entity actualThrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, boolean skipShouldHit, DamageSource source) {
+		return attemptDamage(damageSource, actualThrower, entityHit, damage, neverKnockback, ignoreHurtResist, skipShouldHit, true, source);
+	}
+
+	/**Attempts to damage entity (damage parameter should be unscaled) - returns if successful
+	 * If damage is negative, entity will be healed by that amount*/
+	public static boolean attemptDamage(Entity damageSource, Entity actualThrower, Entity entityHit, float damage, boolean neverKnockback, boolean ignoreHurtResist, boolean skipShouldHit, boolean giveUltCharge, DamageSource source) {
 		if (!actualThrower.world.isRemote && (skipShouldHit || shouldHit(actualThrower, entityHit, damage < 0))) {
 			// change dragon to part
 			if (entityHit instanceof EntityDragon)
@@ -510,7 +558,7 @@ public class EntityHelper {
 
 			// heal
 			if (damage < 0 && entityHit instanceof EntityLivingBase) {
-				heal(damageSource, actualThrower, (EntityLivingBase)entityHit, damage);
+				heal(damageSource, actualThrower, (EntityLivingBase)entityHit, damage, giveUltCharge);
 				return true;
 			}
 			// damage
@@ -538,7 +586,7 @@ public class EntityHelper {
 						entityHit.hurtResistantTime = prevHurtResist;
 
 				// ultimate charge
-				if (damaged) {
+				if (giveUltCharge && damaged) {
 					amountDamaged -= entityHit instanceof EntityLivingBase ? ((EntityLivingBase)entityHit).getHealth() : 0;
 					if (amountDamaged > 0 && actualThrower != entityHit)
 						UltimateManager.handleAbilityCharge(actualThrower, damageSource, amountDamaged, AttackType.DAMAGE);
@@ -554,6 +602,12 @@ public class EntityHelper {
 	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking
 	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR ULT CHARGE*/
 	public static void heal(@Nullable Entity damageSource, @Nullable Entity actualThrower, EntityLivingBase entity, float amount) {
+		heal(damageSource, actualThrower, entity, amount, true);
+	}
+
+	/**Heal the entity by the specified (unscaled) amount - does not do any shouldTarget checking
+	 * DAMAGESOURCE SHOULD BE THE ACTUAL SOURCE OF DAMAGE (NOT PLAYER THROWER) - FOR ULT CHARGE*/
+	public static void heal(@Nullable Entity damageSource, @Nullable Entity actualThrower, EntityLivingBase entity, float amount, boolean giveUltCharge) {
 		if (entity != null && entity.getHealth() < entity.getMaxHealth() && 
 				!TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE)) {
 			if (TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL))
@@ -564,7 +618,7 @@ public class EntityHelper {
 			spawnHealParticles(entity, false);
 
 			// ultimate charge
-			if (amountHealed > 0 && damageSource != null && actualThrower != null)
+			if (giveUltCharge && amountHealed > 0 && damageSource != null && actualThrower != null)
 				UltimateManager.handleAbilityCharge(actualThrower, damageSource, amountHealed, actualThrower == entity ? AttackType.SELF_HEAL : AttackType.HEAL);
 		}
 	}
@@ -1185,10 +1239,17 @@ public class EntityHelper {
 		}
 		// client position (because server always spawns centered)
 		else if (dataPos != null && entity.world.isRemote && entity.ticksExisted == 0 && key.getId() == dataPos.getId() &&
-				entity.getDataManager().get(dataPos) != null) {
+				entity.getDataManager().get(dataPos).hasKey("x")) {
 			NBTTagCompound nbt = entity.getDataManager().get(dataPos);
 			entity.setLocationAndAngles(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"), entity.rotationYaw, entity.rotationPitch);
 		}
+	}
+
+	/**Get more accurate distance from pos to entity - uses center of entity and subtracts max(height, width)/2f*/
+	public static double getDistance(Vec3d pos, Entity entity) {
+		if (entity != null && pos != null)
+			return Math.max(0, pos.distanceTo(entity.getPositionVector().addVector(0, entity.height/2f, 0))-Math.max(entity.width, entity.height)/2f);
+		return 0;
 	}
 
 }

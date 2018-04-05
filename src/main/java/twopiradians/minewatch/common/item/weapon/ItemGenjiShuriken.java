@@ -271,12 +271,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			else if (entity instanceof EntityLivingBaseMW)
 				((EntityLivingBaseMW)entity).onDeflect();
 
-			DataParameter<Rotations> data = EntityHelper.getVelocityParameter(entity);
-			if (data != null) 
-				entity.getDataManager().set(data, new Rotations((float)entity.motionX, (float)entity.motionY, (float)entity.motionZ));
-			else
-				entity.velocityChanged = true;
-			//EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, -1, (float) 0.1d, null, 0, 0);
+			EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, -1, (float) 0.1d, null, 20, 0);
 			ModSoundEvents.GENJI_DEFLECT_HIT.playSound(player, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
 			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false, entity), player.world.provider.getDimension());
 			return true;

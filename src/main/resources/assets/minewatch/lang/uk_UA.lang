@@ -1,0 +1,272 @@
+itemGroup.tabMinewatch=Вкладка Minewatch
+itemGroup.tabMinewatchArmorWeapons=Обладунки та зброя Minewatch
+itemGroup.tabMinewatchMapMaking=Інструменти для створювання карт Minewatch
+
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Скіни Героїв
+config.server-side.hero_mobs=Герої-Моби
+config.server-side.team_blocks=Командні блоки
+
+command.hero.desc=экіпіровуває тебе/гравця в обладунки та зброю зазначеного героя
+command.sync.desc=синхронізує ваш конфіг з сервером (в мультиплеєрі)
+command.team_spawn.desc=активує/деактивує Командні Спавнери
+command.reset.desc=команда яка "перезагружає" ігры Minewatch, кількість вбивств та відродження істот, які відроджуются в Командному Спавнері
+command.lobby.desc=видаляє команди, очищає інвентар, та відроджує вас
+
+effect.frozen=Заморожування
+
+
+tile.health_pack_small.name=Маленька аптечка
+tile.health_pack_large.name=Велика аптечка
+tile.health_pack.desc=Лікує при проходженні і потребує час для відродження
+tile.team_spawn.name=Командний спавнер
+tile.team_spawn.desc=Блок на якому будуть відродждуватися гравці та моби певної команди
+tile.death_block.name=Блок-Вбивця
+tile.death_block.desc1=Вбиває мобів та гравців (в режимі выживання та пригоди) що доторкнулися до нього
+tile.death_block.desc2=Може використовуватися для імітації падіння за межі карти
+tile.push_block.name=Блок-Відбрасувач
+tile.push_block.desc1=Відрасує мобів та гравців, що доторкнулися до нього
+tile.push_block.desc2=Може використовуватися щоб гравці не могли забиратися в недоступні місця
+
+item.wild_card_token.name=Токен на вибір
+item.team_stick.name=Командна палка
+
+item.reaper_token.name=Токен Жнеця
+item.reaper_helmet.name=Шолом Жнеця
+item.reaper_chestplate.name=Нагрудник Жнеця
+item.reaper_leggings.name=Наголінники Жнеця
+item.reaper_boots.name=Чоботи Жнеця
+item.reaper_weapon.name=Пекельний дробовик Жнеця
+
+item.hanzo_token.name=Токен Хандзо
+item.hanzo_helmet.name=Шолом Хандзо
+item.hanzo_chestplate.name=Нагрудник Хандзо
+item.hanzo_leggings.name=Наголінники Хандзо
+item.hanzo_boots.name=Чоботи Хандзо
+item.hanzo_weapon.name=Лук шторму Хандзо
+
+item.reinhardt_token.name=Токен Райнхардта
+item.reinhardt_helmet.name=Шолом Райнхардта
+item.reinhardt_chestplate.name=Нагрудник Райнхардта
+item.reinhardt_leggings.name=Наголінники Райнхардта
+item.reinhardt_boots.name=Чоботи Райнхардта
+item.reinhardt_weapon.name=Ракетний молот Райнхардта
+
+item.ana_token.name=Токен Ани
+item.ana_helmet.name=Шолом Ани
+item.ana_chestplate.name=Нагрудник Ани
+item.ana_leggings.name=Наголінники Ани
+item.ana_boots.name=Чоботи Ани
+item.ana_weapon.name=Биотическое ружье Ани
+
+item.genji_token.name=Токен Гендзі
+item.genji_helmet.name=Шолом Гендзі
+item.genji_chestplate.name=Нагрудник Гендзі
+item.genji_leggings.name=Наголінники Гендзі
+item.genji_boots.name=Чоботи Гендзі
+item.genji_weapon.name=Сюрікены Гендзі
+item.genji_shuriken_single.name=Сюрікен Гендзі
+
+item.tracer_token.name=Токен Трейсер
+item.tracer_helmet.name=Шолом Трейсер
+item.tracer_chestplate.name=Нагрудник Трейсер
+item.tracer_leggings.name=Наголінники Трейсер
+item.tracer_boots.name=Чоботи Трейсер
+item.tracer_weapon.name=Імпульсний пістолет Трейсер
+
+item.mccree_token.name=Токен Маккрі
+item.mccree_helmet.name=Шолом Маккрі
+item.mccree_chestplate.name=Нагрудник Маккрі
+item.mccree_leggings.name=Наголінники Маккрі
+item.mccree_boots.name=Чоботи Маккрі
+item.mccree_weapon.name=Миротворець Маккрі
+
+item.soldier76_token.name=Токен Солдата-76
+item.soldier76_helmet.name=Шолом Солдата-76
+item.soldier76_chestplate.name=Нагрудник Солдата-76
+item.soldier76_leggings.name=Наголінники Солдата-76
+item.soldier76_boots.name=Чоботи Солдата-76
+item.soldier76_weapon.name=Імпульсна гвинтівка Солдата-76
+
+item.mei_token.name=Токен Мей
+item.mei_helmet.name=Шолом Мей
+item.mei_chestplate.name=Нагрудник Мей
+item.mei_leggings.name=Наголінники Мей
+item.mei_boots.name=Чоботи Мей
+item.mei_weapon.name=Ендотермічний бластер Мей
+
+item.bastion_token.name=Токен Бастіона
+item.bastion_helmet.name=Шолом Бастіона
+item.bastion_chestplate.name=Нагрудник Бастіона
+item.bastion_leggings.name=Наголінники Бастіона
+item.bastion_boots.name=Чоботи Бастіона
+item.bastion_weapon.name=Пістолет-кулемет Бастіона
+
+item.widowmaker_token.name=Токен Рокової вдови
+item.widowmaker_helmet.name=Шолом Рокової вдови
+item.widowmaker_chestplate.name=Нагрудник Рокової вдови
+item.widowmaker_leggings.name=Наголінники Рокової вдови
+item.widowmaker_boots.name=Чоботи Рокової вдови
+item.widowmaker_weapon.name=Поцілунок вдови
+
+item.mercy_token.name=Токен Ангела
+item.mercy_helmet.name=Шолом Ангела
+item.mercy_chestplate.name=Нагрудник Ангела
+item.mercy_leggings.name=Наголінники Ангела
+item.mercy_boots.name=Чоботи Ангела
+item.mercy_weapon.name=Зброя Ангела
+
+item.junkrat_token.name=Токен Крисавчіка
+item.junkrat_helmet.name=Шолом Крисавчіка
+item.junkrat_chestplate.name=Нагрудник Крисавчіка
+item.junkrat_leggings.name=Наголінники Крисавчіка
+item.junkrat_boots.name=Чоботи Крисавчіка
+item.junkrat_weapon.name=Гранатомет Крисавчкіка
+item.junkrat_trigger.name=Фугасная міна Крисавчіка
+
+item.sombra_token.name=Токен Сомбри
+item.sombra_helmet.name=Шолом Сомбри
+item.sombra_chestplate.name=Нагрудник Сомбри
+item.sombra_leggings.name=Наголінники Сомбри
+item.sombra_boots.name=Чоботи Сомбри
+item.sombra_weapon.name=Пістолет-Кулемет Сомбри
+item.sombra_hack.name=Хак Сомбри
+
+item.lucio_token.name=Токен Лусіо
+item.lucio_helmet.name=Шолом Лусіо
+item.lucio_chestplate.name=Нагрудник Лусіо
+item.lucio_leggings.name=Наголінники Лусіо
+item.lucio_boots.name=Чоботи Лусіо
+item.lucio_weapon.name=Усилювач звуку Лусіо
+
+item.zenyatta_token.name=Токен Дзеньятти
+item.zenyatta_helmet.name=Шолом Дзеньятти
+item.zenyatta_chestplate.name=Нагрудник Дзеньятти
+item.zenyatta_leggings.name=Наголінники Дзенъятти
+item.zenyatta_boots.name=Чоботи Дзеньятти
+item.zenyatta_weapon.name=Сфера Дзеньятти
+
+item.moira_token.name=Токен Мойри
+item.moira_helmet.name=Шолом Мойри
+item.moira_chestplate.name=Нагрудник Мойри
+item.moira_leggings.name=Наголінники Мойри
+item.moira_boots.name=Чоботи Мойри
+item.moira_weapon.name=Біотична хватка Мойри
+
+item.doomfist_token.name=Токен Кулака смерті
+item.doomfist_helmet.name=Шолом Кулака смерті
+item.doomfist_chestplate.name=Нагрудник Кулака смерті
+item.doomfist_leggings.name=Наголінники Кулака смерті
+item.doomfist_boots.name=Чоботи Кулака смерті
+item.doomfist_weapon.name=Бомбарда Кулака смерті
+
+item.roadhog_token.name=Токен Турбосвина
+item.roadhog_helmet.name=Шолом Турбосвина
+item.roadhog_chestplate.name=Нагрудник Турбосвина
+item.roadhog_leggings.name=Наголінники Турбосвина
+item.roadhog_boots.name=Чоботи Турбосвина
+item.roadhog_weapon.name=Металломет Турбосвина
+item.roadhog_health.name=Лікувальна каністра Турбосвина
+
+item.pharah_token.name=Токен Фарри
+item.pharah_helmet.name=Шолом Фарри
+item.pharah_chestplate.name=Нагрудник Фарри
+item.pharah_leggings.name=Наголінники Фарри
+item.pharah_boots.name=Чоботи Фарри
+item.pharah_weapon.name=Ракетомет Фарри
+
+entity.random_hero.name=Выпадковий герой
+entity.hanzo_hero.name=Хандзо
+entity.hanzo_arrow.name=Стріла Хандзо
+entity.hanzo_sonic_arrow.name=Звукова стріла Хандзо
+entity.hanzo_scatter_arrow.name=Кластерна стріла Хандзо
+entity.reaper_hero.name=Жнець
+entity.reaper_bullet.name=Снаряд Жнеця
+entity.ana_hero.name=Ана
+entity.ana_bullet.name=Снаряд Ани
+entity.ana_sleep_dart.name=Усипляючий дротик Ани
+entity.ana_grenade.name=Биотична граната
+entity.genji_hero.name=Гендзі
+entity.genji_shuriken.name=Сюрікени Гендзі
+entity.genji_shuriken_single.name=Сюрікен Гендзі
+entity.tracer_hero.name=Трейсер
+entity.tracer_bullet.name=Снаряд Трейсер
+entity.mccree_hero.name=Маккрі
+entity.mccree_bullet.name=Снаряд Маккрі
+entity.mccree_stun.name=Світлошумова граната Маккрі
+entity.soldier76_hero.name=Солдат-76
+entity.soldier76_bullet.name=Снаряд Солдата-76
+entity.soldier76_helix_rocket.name=Ракета Солдата-76
+entity.soldier76_heal.name=Біотичне поле Солдата-76
+entity.bastion_hero.name=Бастіон
+entity.bastion_bullet.name=Снаряд Бастіона
+entity.mei_hero.name=Мей
+entity.mei_blast.name=Постріл Мей
+entity.mei_icicle.name=Бурулька Мей
+entity.mei_crystal.name=Кріостазис Мей
+entity.mercy_hero.name=Ангел
+entity.mercy_bullet.name=Снаряд Ангела
+entity.mercy_beam.name=Луч Ангела
+entity.junkrat_hero.name=Крисавчік
+entity.junkrat_grenade.name=Граната Крисавчіка
+entity.junkrat_trap.name=Стальна ловушка Крисавчіка
+entity.junkrat_mine.name=Фугасна міна Крисавчіка
+entity.widowmaker_hero.name=Рокова вдова
+entity.widowmaker_bullet.name=Снаряд Рокової вдови
+entity.widowmaker_mine.name=Ядовита міна Рокової вдови
+entity.widowmaker_hook.name=Крюк Рокової вдови
+entity.sombra_hero.name=Сомбра
+entity.sombra_bullet.name=Снаряд Сомбри
+entity.sombra_translocator.name=Транслокатор Сомбри
+entity.reinhardt_hero.name=Райнхардт
+entity.reinhardt_strike.name=Вогнянний удар Райнхардта
+entity.lucio_hero.name=Лусіо
+entity.lucio_sonic.name=Звуковий снаряд Лусіо
+entity.zenyatta_hero.name=Дзеньятта
+entity.zenyatta_orb.name=Сфера Дзеньятти
+entity.moira_hero.name=Мойра
+entity.moira_heal_energy.name=Биотична энергія Мойри
+entity.moira_orb.name=Биотична сфера Мойри
+entity.doomfist_hero.name=Кулак смерті
+entity.doomfist_bullet.name=Снаряд Кулака смертi
+entity.roadhog_hero.name=Турбосвин
+entity.roadhog_scrap.name=Метал Турбосвина
+entity.roadhog_hook.name=Цепний гак Турбосвина
+entity.pharah_hero.name=Фарра
+entity.pharah_rocket.name=Ракета Фарри
+
+command.reset.success=Minewatch гра скинута модератором.
+command.reset.unrecognized_flags=Нераспізнанний флаг(и)
+
+overlay.eliminated_by=Ви були усунуті 
+overlay.assist=поміч
+overlay.eliminated=усунут
+overlay.death_spectating=Ви тепер наблюдач
+overlay.respawn_in=Відродження через
+overlay.change_hero=Натисни %s для змінни героя
+
+gui.team_block.button.name=Им`я
+gui.team_block.button.name.desc=Це им`я використовуєтся командами
+gui.team_block.button.activate_deactivate=Активувати/Деактивувати
+gui.team_block.button.activate=Активувати
+gui.team_block.button.deactivate=Деактивувати
+gui.team_block.button.selected_team=Выбір команди
+gui.team_block.button.video_demonstration=Відео демонстрація
+gui.team_block.button.ok=ОК
+
+gui.team_spawn.button.spawn_radius=Радіус
+gui.team_spawn.button.spawn_radius.desc=Радіус вокруг блока, на якому гравці та моби будуть відроджуватися, лікуватись, та отримувати доступ до зміни героя
+gui.team_spawn.button.activate_deactivate.desc=Гравці та моби будуть появлятися на активному командному спавнері їх команди
+gui.team_spawn.button.activate.desc=Тільки один командний спавнер може бути активним за один раз, у команді
+gui.team_spawn.button.deactivate.desc=Тільки один командний спавнер може бути активним за один раз, у команді
+gui.team_spawn.button.selected_team.desc=Виберіть команди, які будуть відроджуватися тут
+gui.team_spawn.question_mark_description_0=Гравці та моби будуть появлятися на активному командному спавнері. Вони відроджуються у напрямку стрілки.
+gui.team_spawn.question_mark_description_1=Блоки командного спавнера можно активировать/деактивировать с помощью команды, а также:
+gui.team_spawn.status.players_heroes_team=Гравці та моби в
+gui.team_spawn.status.players_heroes_all=Усі гравці та моби (які знаходяться у команді)
+gui.team_spawn.status.players_heroes_none=Нічого
+gui.team_spawn.status.will_spawn=будуть відроджуватись тут
+
+gui.hero_select.select=Вибір
+gui.hero_select.select_hero=Вибір героя

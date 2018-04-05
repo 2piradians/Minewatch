@@ -113,6 +113,9 @@ public class SetManager {
 	}
 
 	public static void onSetChanged(EntityPlayer player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
+		if (prevHero != null)
+			EventManager.onEvent(Type.REMOVE_SET, player);
+		
 		// update entitiesWearingSets
 		if (newHero == null)
 			SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());
@@ -159,9 +162,6 @@ public class SetManager {
 				TickHandler.register(true, Handlers.VIEW_BOBBING.setEntity(player).setBoolean(false).setTicks(999999));
 			else 
 				TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.VIEW_BOBBING));
-
-		if (prevHero != null)
-			EventManager.onEvent(Type.REMOVE_SET, player);
 	}
 
 	/**Heal entity to full - for when set switched / respawned*/

@@ -13,8 +13,11 @@ import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
+import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
+import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ResourceLocation;
@@ -200,6 +203,11 @@ public class GuiTeamBlock extends GuiTeamSelector implements IGuiScreen {
 		// unfocus when enter key hit
 		if (keyCode == Keyboard.KEY_RETURN && nameField.isFocused())
 			nameField.setFocused(false);
+		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode() && !nameField.isFocused()) {
+			this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
+			for (AbstractTab tab : TabRegistry.getTabList())
+				tab.visible = true;
+		}
 	}
 
 	@Override

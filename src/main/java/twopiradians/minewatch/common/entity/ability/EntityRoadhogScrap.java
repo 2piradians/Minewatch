@@ -41,7 +41,7 @@ public class EntityRoadhogScrap extends EntityMW {
 			else {
 				for (int i=0; i<25; ++i) {
 					EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, getThrower(), -1);
-					EntityHelper.setAim(projectile, getThrower(), this.rotationPitch, this.rotationYaw, 60, 19F, null, 10, 0, true);
+					EntityHelper.setAim(projectile, getThrower(), this.rotationPitch, this.rotationYaw, 60, 19F, null, 10, 0, true, true);
 					projectile.setLocationAndAngles(this.posX, this.posY, this.posZ, projectile.rotationYaw, projectile.rotationPitch);
 					world.spawnEntity(projectile);
 				}

@@ -48,6 +48,8 @@ public class BlockPush extends BlockInvis {
 			entityIn.onGround = false;
 			EnumFacing facing = state.getValue(FACING);
 			Vec3d vec = new Vec3d(facing.getDirectionVec()).scale(0.025d);
+			if (entityIn.getPosition().equals(pos) && worldIn.rand.nextInt(5) == 0)
+				vec = vec.scale(1.5d);
 			entityIn.motionX += vec.x;
 			entityIn.motionZ += vec.z;
 		}

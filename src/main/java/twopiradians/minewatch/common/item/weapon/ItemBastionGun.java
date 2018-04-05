@@ -121,8 +121,8 @@ public class ItemBastionGun extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// start heal
-		if (hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
-				ChargeManager.canUseCharge(player) && hero.ability1.isSelected(player)) {
+		if (!world.isRemote && hand == EnumHand.MAIN_HAND && this.canUse(player, true, hand, true) && 
+				ChargeManager.canUseCharge(player) && hero.ability1.isSelected(player) && !this.hasCooldown(player)) {
 			player.setActiveHand(hand);
 		}
 

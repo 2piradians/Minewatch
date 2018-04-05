@@ -42,6 +42,7 @@ import twopiradians.minewatch.client.model.ModelMWArmor;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityDoomfistBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -158,7 +159,7 @@ public class ItemDoomfistWeapon extends ItemMWWeapon {
 						}
 					}
 					// particle - detect on player's client (server very inaccurate), send to server, which sends to other clients
-					else if (entity == Minewatch.proxy.getClientPlayer()) {
+					else if (entity == Minewatch.proxy.getClientPlayer() || (entity instanceof EntityHero && entity.world.isRemote)) {
 						double yOffset = 0.05d;
 						BlockPos pos = new BlockPos(entity.getPositionVector());
 						for (int i=0; i<5; ++i) {

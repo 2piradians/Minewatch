@@ -159,6 +159,10 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2) {
 		this(type, false, player, x, y, z, null, null, x2, y2, z2);
 	}
+	
+	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2, Entity entity) {
+		this(type, false, player, x, y, z, entity, null, x2, y2, z2);
+	}
 
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, Entity entity) {
 		this(type, false, player, x, y, z, entity, null);
@@ -1030,8 +1034,8 @@ public class SPacketSimple implements IMessage {
 						((EntityLivingBase) entity).setActiveHand(EnumHand.MAIN_HAND);
 					}
 					// doomfist slam
-					else if (packet.type == 67 && packetPlayer != null) {
-						ItemDoomfistWeapon.spawnSlamParticles(packetPlayer.world, (float) packet.x2, new Vec3d(packet.x, packet.y, packet.z));
+					else if (packet.type == 67 && entity != null) {
+						ItemDoomfistWeapon.spawnSlamParticles(entity.world, (float) packet.x2, new Vec3d(packet.x, packet.y, packet.z));
 					}
 					// update TileEntityTeam (because sometimes it's removed from tickableTileEntities)
 					else if (packet.type == 68 && player != null) {
@@ -1127,7 +1131,9 @@ public class SPacketSimple implements IMessage {
 					}
 					// pharah's ult
 					else if (packet.type == 84 && entity instanceof EntityLivingBase) {
-						
+						TickHandler.register(true, ItemPharahWeapon.ULTIMATE.setEntity(entity).setTicks(60),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(60),
+								UltimateManager.PREVENT_CHARGE.setEntity(entity).setTicks(60));
 					}
 				}
 			});

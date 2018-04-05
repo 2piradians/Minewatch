@@ -202,7 +202,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 			if (!world.isRemote) {
 				for (int i=0; i<20; i++) {
 					EntityReaperBullet bullet = new EntityReaperBullet(world, player, hand.ordinal());
-					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 8F, hand, 14, 0.55f, true);
+					EntityHelper.setAim(bullet, player, player.rotationPitch, player.rotationYawHead, -1, 8F, hand, 14, 0.55f, true, true);
 					world.spawnEntity(bullet);
 				}
 				ModSoundEvents.REAPER_SHOOT.playSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f);
@@ -422,7 +422,6 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					GlStateManager.pushMatrix();
 					GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 					GlStateManager.enableBlend();
-					//PORT scale x event.getResolution().getScaleFactor()
 					GlStateManager.scale(width/256d, height/256d, 1);
 					int firstImage = (int) (ticks / 10);
 					int secondImage = firstImage + 1;

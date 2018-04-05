@@ -66,6 +66,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.particle.ParticleCustom;
@@ -502,7 +503,7 @@ public class RenderManager {
 							if (ability.maxUses > 0)
 								GuiUtils.drawTexturedModalRect(-i*9+2, -3, 21, 247, 5, 9, 0);
 							// ability entity icon
-							if (ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive() && !(hero == EnumHero.SOMBRA && 
+							if (ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive() && !((hero == EnumHero.SOMBRA || hero == EnumHero.SOLDIER76) && 
 									ability.entities.get(player) != null && ability.entities.get(player).isEntityAlive())) 
 								GuiUtils.drawTexturedModalRect(-i*9+(ability.maxUses > 0 ? 3 : 2), (ability.maxUses > 0 ? -8 : -3), 26, 247, 5, 5, 0);
 							// text
@@ -985,7 +986,7 @@ public class RenderManager {
 
 	@SideOnly(Side.CLIENT) // copied from RenderLivingBase#canRenderName() to make public
 	public static boolean canRenderName(RenderLivingBase renderer, EntityLivingBase entity) {
-		if (entity == null || !entity.isEntityAlive())
+		if (entity == null || !entity.isEntityAlive() || entity instanceof EntityGuiPlayer)
 			return false;
 		// render for spectators
 		else if (Minewatch.proxy.getClientPlayer().isSpectator() && 

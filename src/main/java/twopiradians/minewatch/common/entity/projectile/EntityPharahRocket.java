@@ -6,6 +6,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -16,20 +17,28 @@ import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityPharahRocket extends EntityMW {
 
+	public static final DataParameter<Rotations> ULT_OSCILLATION = EntityDataManager.<Rotations>createKey(EntityMW.class, DataSerializers.ROTATIONS);
 	public enum Type { NORMAL, CONCUSSIVE, ULTIMATE }
 
 	private static final DataParameter<Integer> TYPE = EntityDataManager.<Integer>createKey(EntityPharahRocket.class, DataSerializers.VARINT);
 	public Type type;
+	public Vec3d velocity = null;
+	public Vec3d oscillation = null;
 
-	public EntityPharahRocket(World worldIn) {
+	public EntityPharahRocket(World worldIn) { // TODO deflect
 		this(worldIn, null, -1, Type.NORMAL);
 
 	}
 
 	public EntityPharahRocket(World worldIn, EntityLivingBase throwerIn, int hand, Type type) {
 		super(worldIn, throwerIn, hand);
-		if (!worldIn.isRemote)
+		if (!worldIn.isRemote) {
 			this.getDataManager().set(TYPE, type.ordinal());
+			if (type == Type.ULTIMATE) { 
+				Vec3d vec = new Vec3d(worldIn.rand.nextDouble()-0.5d, worldIn.rand.nextDouble()-0.5d, worldIn.rand.nextDouble()-0.5d).normalize();
+				this.getDataManager().set(ULT_OSCILLATION, new Rotations((float)vec.x, (float)vec.y, (float)vec.z));
+			}
+		}
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 		this.lifetime = type == Type.ULTIMATE ? 60 : 200; 
@@ -47,10 +56,24 @@ public class EntityPharahRocket extends EntityMW {
 	protected void entityInit() {
 		super.entityInit();
 		this.getDataManager().register(TYPE, -1);
+		this.getDataManager().register(ULT_OSCILLATION, new Rotations(0, 0, 0));
 	}
 
 	@Override
 	public void onUpdate() {
+		if (type == Type.ULTIMATE) {
+			// save values to not have to read from datamanager constantly
+			if (velocity == null)
+				velocity = new Vec3d(dataManager.get(VELOCITY_CLIENT).getX(), dataManager.get(VELOCITY_CLIENT).getY(), dataManager.get(VELOCITY_CLIENT).getZ());
+			if (oscillation == null)
+				oscillation = new Vec3d(dataManager.get(ULT_OSCILLATION).getX(), dataManager.get(ULT_OSCILLATION).getY(), dataManager.get(ULT_OSCILLATION).getZ());
+
+			float motion = (float) Math.cos(ticksExisted/5f)/4f;
+			motionX = velocity.x+motion*oscillation.x;
+			motionY = velocity.y+motion*oscillation.y;
+			motionZ = velocity.z+motion*oscillation.z;
+		}
+
 		super.onUpdate();
 	}
 
@@ -91,8 +114,9 @@ public class EntityPharahRocket extends EntityMW {
 			if (!this.firstUpdate) 
 				EntityHelper.spawnTrailParticles(this, 18, 0.05d, 0xFDF36A, 0xDC9D6A, 1.3f, 2, 1);
 		}
-		else if (type == Type.ULTIMATE) {
-			EntityHelper.spawnTrailParticles(this, 10, 0.05d, 0xFDF36A, 0xDC9D6A, 0.5f, 15, 1);
+		else if (type == Type.ULTIMATE && (this.ticksExisted > 2 || getThrower() != Minewatch.proxy.getClientPlayer())) {
+			EntityHelper.spawnTrailParticles(this, 8, 0.09d, 0xCDCDC4, 0xCDCDC4, 0.4f, 9, 1); 
+			EntityHelper.spawnTrailParticles(this, 8, 0.05d, 0xFDF36A, 0xDC9D6A, 0.7f, 2, 1);
 		}
 	}
 
@@ -125,8 +149,9 @@ public class EntityPharahRocket extends EntityMW {
 		}
 		else if (type == Type.ULTIMATE) {
 			if (!world.isRemote) {
-				ModSoundEvents.PHARAH_ROCKET_HIT.playSound(this, 1, 1);
-				Minewatch.proxy.createExplosion(world, this, posX, posY, posZ, 0.5f, 40, 40, 40, result.entityHit, 40, false, 0.25f, 0.25f);
+				if (world.rand.nextInt(3) == 0)
+					ModSoundEvents.PHARAH_ROCKET_HIT.playSound(this, 1, 1);
+				Minewatch.proxy.createExplosion(world, this, posX, posY, posZ, 1.0f, 40, 40, 40, result.entityHit, 40, false, 0.15f, 0.15f, false);
 			}
 			else {
 				Minewatch.proxy.spawnParticlesCustom(EnumParticle.EXPLOSION, world, posX, posY, posZ, 0, 0, 0, 0xFFFFFF, 0xFFFFFF, 0.8f, 15, 10, 30, world.rand.nextFloat(), 0);

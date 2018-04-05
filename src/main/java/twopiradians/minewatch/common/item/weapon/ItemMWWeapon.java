@@ -48,6 +48,7 @@ import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
+import twopiradians.minewatch.common.entity.hero.EntityBastion;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -293,7 +294,7 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 
 
 		// ultimate
-		if (entity instanceof EntityLivingBase && hero.ultimate.isEnabled && 
+		if (!world.isRemote && entity instanceof EntityLivingBase && hero.ultimate.isEnabled && 
 				hero.ultimate.isSelected((EntityLivingBase) entity) &&
 				this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true))
 			this.onUltimate(stack, world, (EntityLivingBase) entity);

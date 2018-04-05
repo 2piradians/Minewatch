@@ -12,9 +12,12 @@ import org.lwjgl.input.Mouse;
 
 import com.google.common.base.Predicate;
 
+import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
+import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
@@ -436,6 +439,11 @@ public class GuiTeamStick extends GuiTeamSelector {
 		if (keyCode == Keyboard.KEY_RETURN && teamNameField.isFocused() && 
 				!teamNameField.getText().isEmpty() && !teamNameField.getText().equals(getTeamName(this.getSelectedTeam())))
 			Minewatch.network.sendToServer(new CPacketSimple(9, this.getSelectedTeam().getName(), mc.player, this.teamNameField.getText()));
+		else if (keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode() && !(teamNameField.isFocused() && (this.currentScreen == Screen.EDIT_TEAM || this.currentScreen == Screen.CREATE_TEAM))) {
+			this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
+			for (AbstractTab tab : TabRegistry.getTabList())
+				tab.visible = true;
+		}
 	}
 
 	@Override

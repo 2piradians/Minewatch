@@ -28,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -218,16 +219,16 @@ public class CommonProxy {
 	}
 	
 	@Nullable
-	public Object playFollowingSound(EntityPlayer player, Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+	public Object playFollowingSound(EntityPlayer player, Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat, int attentuationType) {
 		if (entity != null && entity.isEntityAlive() && sound != null && category != null && player instanceof EntityPlayerMP) 
-			Minewatch.network.sendTo(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), (EntityPlayerMP) player);
+			Minewatch.network.sendTo(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat, attentuationType), (EntityPlayerMP) player);
 		return null;
 	}
 
 	@Nullable
 	public Object playFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat, int attentuationType) {
 		if (entity != null && entity.isEntityAlive() && sound != null && category != null) 
-			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat), entity.world.provider.getDimension());
+			Minewatch.network.sendToDimension(new SPacketFollowingSound(entity, sound, category, volume, pitch, repeat, attentuationType), entity.world.provider.getDimension());
 		return null;
 	}
 
@@ -253,9 +254,17 @@ public class CommonProxy {
 	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback) {
 		createExplosion(world, damageSource, x, y, z, size, exploderDamage, minDamage, maxDamage, directHit, directHitDamage, resetHurtResist, exploderKnockback, exploderKnockback, knockback, knockback);
 	}
+	
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockback, float knockback, boolean giveUltCharge) {
+		createExplosion(world, damageSource, x, y, z, size, exploderDamage, minDamage, maxDamage, directHit, directHitDamage, resetHurtResist, exploderKnockback, exploderKnockback, knockback, knockback, giveUltCharge);
+	}
+	
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockbackVertical, float exploderKnockbackHorizontal, float knockbackVertical, float knockbackHorizontal) {
+		createExplosion(world, damageSource, x, y, z, size, exploderDamage, minDamage, maxDamage, directHit, directHitDamage, resetHurtResist, exploderKnockbackVertical, exploderKnockbackHorizontal, knockbackVertical, knockbackHorizontal, true);
+	}
 
 	/**Modified from {@link Explosion#doExplosionA()} && {@link Explosion#doExplosionB(boolean)}*/
-	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockbackVertical, float exploderKnockbackHorizontal, float knockbackVertical, float knockbackHorizontal) {
+	public void createExplosion(World world, Entity damageSource, double x, double y, double z, float size, float exploderDamage, float minDamage, float maxDamage, @Nullable Entity directHit, float directHitDamage, boolean resetHurtResist, float exploderKnockbackVertical, float exploderKnockbackHorizontal, float knockbackVertical, float knockbackHorizontal, boolean giveUltCharge) {
 		if (!world.isRemote) {
 			Entity actualThrower = EntityHelper.getThrower(damageSource);
 			Explosion explosion = new Explosion(world, actualThrower, x, y, z, size, false, false);
@@ -275,8 +284,7 @@ public class CommonProxy {
 
 				if (!entity.isImmuneToExplosions() && (!(entity instanceof EntityLivingBase) || 
 						((EntityLivingBase)entity).getHealth() > 0)) {
-					double distance = Math.max(0, entity.getDistance(x, y, z)-entity.width/2f);
-
+					double distance = EntityHelper.getDistance(new Vec3d(x, y, z), entity);
 					if (distance <= size) {
 						double diffX = entity.posX - x;
 						double diffY = entity.posY + (double)entity.getEyeHeight() - y;
@@ -288,7 +296,7 @@ public class CommonProxy {
 							diffY = diffY / diffAverage;
 							diffZ = diffZ / diffAverage; 
 							float damage = (float) (entity == actualThrower ? exploderDamage : entity == directHit ? directHitDamage : minDamage+(1f-distance/size)*(maxDamage-minDamage));
-							if (damage == 0 || EntityHelper.attemptDamage(damageSource, entity, damage, true, entity == actualThrower, DamageSource.causeExplosionDamage(explosion)) ||
+							if (damage == 0 || EntityHelper.attemptDamage(damageSource, actualThrower, entity, damage, true, true, entity == actualThrower, giveUltCharge, DamageSource.causeExplosionDamage(explosion)) ||
 									entity == actualThrower) {
 								if (resetHurtResist)
 									entity.hurtResistantTime = 0;

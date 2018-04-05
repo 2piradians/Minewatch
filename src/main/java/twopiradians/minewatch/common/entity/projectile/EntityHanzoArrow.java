@@ -47,6 +47,7 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(VELOCITY_CLIENT, new Rotations(0, 0, 0));
+		this.dataManager.register(POSITION_CLIENT, new NBTTagCompound());
 	}
 	
 	@Override

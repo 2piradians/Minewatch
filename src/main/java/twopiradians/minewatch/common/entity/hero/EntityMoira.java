@@ -62,7 +62,7 @@ public class EntityMoira extends EntityHero {
 				else {
 					this.entity.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);
 					this.entity.getDataManager().set(KeyBind.RMB.datamanager, false);
-					this.entity.getDataManager().set(KeyBind.LMB.datamanager, true);
+					this.entity.getDataManager().set(KeyBind.LMB.datamanager, false);
 				}
 
 

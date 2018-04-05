@@ -18,6 +18,15 @@ effect.frozen=Congel·lat
 
 tile.health_pack_small.name=Paquet de curacio petita
 tile.health_pack_large.name=Paquet de curacio grossa
+tile.health_pack.desc=Et cura quan camines damunt i tarda una estona en regenerar-se
+tile.team_spawn.name=Generador d'equips
+tile.team_spawn.desc=Es un block els quals els jugadors i entitats poden reapareixe
+tile.death_block.name=Bloc Mortal
+tile.death_block.desc1=Mata a les entitats i jugadors (en supervivéncia i en adventura) que ho toquen
+tile.death_block.desc2=Poden ser utilitzats per simular la caiguda del mapa.
+tile.push_block.name=Bloc que empenya
+tile.push_block.desc1=Empenya les entitats i jugadors que ho toquen
+tile.push_block.desc2=Poden utilitzarse per simular els sostres els quals no es poden estar.
 
 item.wild_card_token.name=Fitxa Al·leatoria
 item.team_stick.name=Sel·lector d'Equips
@@ -102,7 +111,7 @@ item.widowmaker_weapon.name=Peto de la Viuda
 
 item.mercy_token.name=Fitxa de Mercy
 item.mercy_helmet.name=Casc de Mercy
-item.mercy_chestplate.name=Cuirassa de Mercu
+item.mercy_chestplate.name=Cuirassa de Mercy
 item.mercy_leggings.name=Pantalons de Mercy
 item.mercy_boots.name=Botes de Mercy
 item.mercy_weapon.name=Arma de Mercy
@@ -158,6 +167,14 @@ item.roadhog_leggings.name=Pantalons de Roadhog
 item.roadhog_boots.name=Botes de Roadhog
 item.roadhog_weapon.name=Pistola de Chatarra de Roadhog
 item.roadhog_health.name=Recipient d'salut de Roadhog
+
+item.pharah_token.name=Fitxa de Pharah
+item.pharah_helmet.name=Casc de Pharah
+item.pharah_chestplate.name=Cuirassa de Pharah
+item.pharah_leggings.name=Pantalons de Pharah
+item.pharah_boots.name=Botes de Pharah
+item.pharah_weapon.name=Llançacoets de Pharah
+
 
 entity.random_hero.name=Heroi al·leatori
 entity.hanzo_hero.name=Hanzo
@@ -215,6 +232,8 @@ entity.doomfist_bullet.name=Bala de Doomfist
 entity.roadhog_hero.name=Roadhog
 entity.roadhog_scrap.name=Chatarra de Roadhog
 entity.roadhog_hook.name=Ganxo de Roadhog
+entity.pharah_hero.name=Pharah
+entity.pharah_rocket.name=Coet de Pharah
 
 command.reset.success=Aquesta partida de Minewatch ha sigut reiniciat per un moderador.
 command.reset.unrecognized_flags=No reconegut.
@@ -224,6 +243,7 @@ overlay.assist=assistencia
 overlay.eliminated=eliminat
 overlay.death_spectating=tu ara estas espectant.
 overlay.respawn_in=regeneracio en...
+overlay.change_hero=Pulsa el boto %s per cambiar d'heroi
 
 gui.team_block.button.name=Nom
 gui.team_block.button.name.desc=Aquest nom es utilitzat amb commandaments
@@ -234,14 +254,14 @@ gui.team_block.button.selected_team=Equip sel·leccionat.
 gui.team_block.button.video_demonstration=Demostracio
 gui.team_block.button.ok=D'Acord
 
-gui.team_spawn.button.activate_deactivate.desc=Jugadors i mobs es genererán en el seu generador d'equip
+gui.team_spawn.button.activate_deactivate.desc=Jugadors i entitats es genererán en el seu generador d'equip
 gui.team_spawn.button.activate.desc=Nomes un generador d'equip pot ser activat a la vegada, per equip
 gui.team_spawn.button.deactivate.desc=Nomes un generador d'equip pot ser desactivat a la vegada, per equip
 gui.team_spawn.button.selected_team.desc=Selecciona el equip que reapareixera aqui.
-gui.team_spawn.question_mark_description_0=Els Jugadors i mobs apareixerán en el seu generador d'equips. Apareixeran mirant on apuntin la fletxa.
+gui.team_spawn.question_mark_description_0=Els Jugadors i entitats apareixeran en el seu generador d'equips. Apareixeran mirant on apuntin la fletxa.
 gui.team_spawn.question_mark_description_1=Els generadors de equips poden ser activats o desactivats amb un commandament, tant mateix:
-gui.team_spawn.status.players_heroes_team=Jugadors i mobs dins
-gui.team_spawn.status.players_heroes_all=Tots el jugadors i mobs (els que estiguin en un equip)
+gui.team_spawn.status.players_heroes_team=Jugadors i entitats dins
+gui.team_spawn.status.players_heroes_all=Tots el jugadors i entitats (els que estiguin en un equip)
 gui.team_spawn.status.players_heroes_none=Ningu
 gui.team_spawn.status.will_spawn=es generera aqui.
 

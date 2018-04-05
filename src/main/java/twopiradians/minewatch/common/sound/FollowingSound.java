@@ -60,8 +60,10 @@ public class FollowingSound extends MovingSound {
 
 	/**Mark the sound as donePlaying (to make public)*/
 	public static void stopPlaying(@Nullable FollowingSound sound) {
-		if (sound != null)
+		if (sound != null) {
 			sound.donePlaying = true;
+			sounds.remove(sound);
+		}
 	}
 
 	/**Stop playing a FollowingSound that's playing event with this followingEntity*/

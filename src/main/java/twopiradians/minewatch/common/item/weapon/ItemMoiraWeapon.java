@@ -511,7 +511,6 @@ public class ItemMoiraWeapon extends ItemMWWeapon {
 			GlStateManager.pushMatrix();
 			GL11.glAlphaFunc(GL11.GL_GREATER, 0.0F);
 			GlStateManager.enableBlend();
-			//PORT scale x event.getResolution().getScaleFactor()
 			GlStateManager.scale(width/256d, height/256d, 1);
 			int firstImage = (int) (ticks / 10);
 			int secondImage = firstImage + 1;

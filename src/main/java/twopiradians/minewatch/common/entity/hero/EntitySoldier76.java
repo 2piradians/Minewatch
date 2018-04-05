@@ -17,8 +17,9 @@ public class EntitySoldier76 extends EntityHero {
 	public void onUpdate() {
 		if (!world.isRemote) {
 			// heal
-			if (this.getHealth() < this.getMaxHealth()/2f || 
-					(this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null))
+			if ((this.getHealth() < this.getMaxHealth()/2f || 
+					(this.getHealth() < this.getMaxHealth() && this.getAttackTarget() == null)) &&
+					(!hero.ability2.entities.containsKey(this) || !hero.ability2.entities.get(this).isEntityAlive()))
 				this.getDataManager().set(KeyBind.ABILITY_2.datamanager, true);
 			else
 				this.getDataManager().set(KeyBind.ABILITY_2.datamanager, false);

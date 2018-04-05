@@ -1601,5 +1601,47 @@
 			"minewatch:pharah_concussion_voice_1",
 			"minewatch:pharah_concussion_voice_2"
 		]
+	},
+	"pharah_ultimate_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_ultimate_0"
+		]
+	},
+	"pharah_ultimate_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_ultimate_1"
+		]
+	},
+	"pharah_ult": {
+	"category": "player",
+		"sounds": [
+			"minewatch:pharah_ult"
+		]
+	},
+	"lucio_riding": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_riding"
+		]
+	},
+	"lucio_riding_start": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_riding_start"
+		]
+	},
+	"lucio_riding_stop_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_riding_stop_0"
+		]
+	},
+	"lucio_riding_stop_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:lucio_riding_stop_1"
+		]
 	}
 }

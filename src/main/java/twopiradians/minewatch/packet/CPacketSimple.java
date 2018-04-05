@@ -340,8 +340,8 @@ public class CPacketSimple implements IMessage {
 						CommandMinewatch.equipWithHeroArmor(EnumHero.values()[(int) packet.x], packetPlayer, packetPlayer);
 					}
 					// doomfist slam - tell other clients to render particle
-					else if (packet.type == 19 && player != null) {
-						Minewatch.network.sendToDimension(new SPacketSimple(67, player, packet.x, packet.y, packet.z, packet.x2, 0, 0), player.world.provider.getDimension());
+					else if (packet.type == 19 && entity != null) {
+						Minewatch.network.sendToDimension(new SPacketSimple(67, null, packet.x, packet.y, packet.z, packet.x2, 0, 0, entity), entity.world.provider.getDimension());
 					}
 					// GuiTeamSpawn heal
 					else if (packet.type == 20 && packetPlayer != null && packetPlayer.isCreative() &&
@@ -354,6 +354,10 @@ public class CPacketSimple implements IMessage {
 							packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z)) instanceof TileEntityTeamSpawn) {
 						TileEntityTeamSpawn te = (TileEntityTeamSpawn) packetPlayer.world.getTileEntity(new BlockPos(packet.x, packet.y, packet.z));
 						te.setChangeHero(packet.bool);
+					}
+					// reset float count
+					else if (packet.type == 22 && packetPlayer != null) {
+						EntityHelper.resetFloatTime(packetPlayer);
 					}
 				}
 			});

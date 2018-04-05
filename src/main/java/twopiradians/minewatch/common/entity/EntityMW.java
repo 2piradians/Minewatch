@@ -57,7 +57,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	@Override
 	protected void entityInit() {
 		this.dataManager.register(VELOCITY_CLIENT, new Rotations(0, 0, 0));
-		this.dataManager.register(POSITION_CLIENT, null);
+		this.dataManager.register(POSITION_CLIENT, new NBTTagCompound());
 		this.dataManager.register(HAND, -1);
 	}
 
@@ -154,6 +154,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	/**Called when deflected by Genji - only on server*/
 	public void onDeflect() {
 		this.lifetime *= 2; 
+		this.getDataManager().set(HAND, -1);
 	}
 
 	/**Used to check for impacts*/

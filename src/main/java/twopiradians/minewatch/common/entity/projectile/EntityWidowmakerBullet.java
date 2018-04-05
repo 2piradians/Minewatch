@@ -54,7 +54,7 @@ public class EntityWidowmakerBullet extends EntityMW {
 	@Override
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
-
+		
 		EntityHelper.attemptDamage(this, result.entityHit, damage, false);
 	}
 }

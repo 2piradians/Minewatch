@@ -52,7 +52,7 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityLivingBase player, EnumHand hand) {
 		// helix rockets
-		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player, true)) {
+		if (this.canUse(player, true, hand, true) && hero.ability1.isSelected(player)) {
 			if (!world.isRemote) {
 				for (int i=1; i<=3; ++i) {
 					EntitySoldier76HelixRocket rocket = new EntitySoldier76HelixRocket(world, player, hand.ordinal(), i);
@@ -79,8 +79,12 @@ public class ItemSoldier76Gun extends ItemMWWeapon {
 			if (!world.isRemote && hero.ability2.isSelected(player, player instanceof EntityPlayer) && 
 					this.canUse((EntityLivingBase) entity, true, EnumHand.MAIN_HAND, true)) {
 				EntitySoldier76Heal projectile = new EntitySoldier76Heal(world, player);
-				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 0, 0F, EnumHand.OFF_HAND, 40, 0.15f, 0.5f);
+				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 0, 0F, EnumHand.OFF_HAND, 40, 0.15f, 0.5f, true, false);
 				world.spawnEntity(projectile);
+				Entity entity2 = hero.ability2.entities.get(player);
+				if (entity2 != null) 
+					entity2.setDead();
+				hero.ability2.entities.put(player, projectile);
 				ModSoundEvents.SOLDIER76_HEAL_THROW.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/2+0.75f, false);
 				ModSoundEvents.SOLDIER76_HEAL_VOICE.playFollowingSound(player, 1, 1, false);
 				hero.ability2.keybind.setCooldown(player, 300, false); 

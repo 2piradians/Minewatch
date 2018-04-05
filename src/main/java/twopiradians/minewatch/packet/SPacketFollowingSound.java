@@ -19,16 +19,18 @@ public class SPacketFollowingSound implements IMessage{
     private float volume;
     private float pitch;
     private boolean repeat;
+	private int attentuationType;
 
 	public SPacketFollowingSound() {}
 
-	public SPacketFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat) {
+	public SPacketFollowingSound(Entity entity, ModSoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat, int attentuationType) {
         this.sound = sound;
         this.category = category;
         this.entity = entity.getEntityId();
         this.volume = volume;
         this.pitch = pitch;
         this.repeat = repeat;
+        this.attentuationType = attentuationType;
     }
 
 	@Override
@@ -39,6 +41,7 @@ public class SPacketFollowingSound implements IMessage{
         this.volume = buf.readFloat();
         this.pitch = buf.readFloat();
         this.repeat = buf.readBoolean();
+        this.attentuationType = buf.readInt();
 	}
 
 	@Override
@@ -49,6 +52,7 @@ public class SPacketFollowingSound implements IMessage{
         buf.writeFloat(this.volume);
         buf.writeFloat(this.pitch);
         buf.writeBoolean(this.repeat);
+        buf.writeInt(this.attentuationType);
 	}
 
 	public static class Handler implements IMessageHandler<SPacketFollowingSound, IMessage> {
@@ -59,7 +63,7 @@ public class SPacketFollowingSound implements IMessage{
 				@Override
 				public void run() {
 					Entity entity = Minecraft.getMinecraft().world.getEntityByID(packet.entity);
-					packet.sound.event.playFollowingSound(entity, packet.volume, packet.pitch, packet.repeat);
+					packet.sound.event.playFollowingSound(entity, packet.volume, packet.pitch, packet.repeat, packet.attentuationType);
 				}
 			});
 			return null;

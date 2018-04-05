@@ -1,0 +1,271 @@
+itemGroup.tabMinewatch=Section Minewatch
+itemGroup.tabMinewatchArmorWeapons=Armes & Armures Minewatch
+itemGroup.tabMinewatchMapMaking=Outils de création de maps Minewatch
+config.server-side=Côté-Serveur
+config.client-side=Côté-Client
+config.client-side.hero_skins=Skins Héros
+config.server-side.hero_mobs=Mobs Héros
+config.server-side.team_blocks=Blocs d'équipes
+
+command.hero.desc=va équiper toi/destinateur avec l'armure et l'arme/les armes du héros choisi
+command.sync.desc=va synchroniser ta configuration au serveur (en mutlijoueur)
+command.team_spawn.desc=active/déactive le spawn d'une équipe
+command.reset.desc=la commande maître pour "remettre à 0" les parties Minewatch, en ce moment les kill et respawn les entités qui peuvent respawner à un spawn d'équipe
+command.lobby.desc=t'enlèves de l'équipe, vide ton inventoire et te respawn
+
+effect.frozen=Gelé
+
+tile.health_pack_small.name=Petit Pack de Soins
+tile.health_pack_large.name=Gros Pack de Soins
+tile.health_pack.desc=Te soigne quand tu marches dessus et prend du temps à respawner
+tile.team_spawn.name=Spawn d'Équipe
+tile.team_spawn.desc=Blocs sur lesquels mobs et joueurs peuvent respawner
+tile.death_block.name=Bloc de mort
+tile.death_block.desc1=Tue les mobs ou joueurs (en survie ou en aventure) qui marchent dessus
+tile.death_block.desc2=Peut être utiliser pour mimer tomber de la map
+tile.push_block.name=Bloc de poussé
+tile.push_block.desc1=Pousse les mobs et joueurs qui le touchent
+tile.push_block.desc2=Peut être utiliser pour mimer les toits qui ne peuvent pas être marcher dessus
+item.wild_card_token.name=Carte d'héros "au hasard"
+item.team_stick.name=Baton d'equipes
+
+item.reaper_token.name=Carte de Reaper
+item.reaper_helmet.name=Casque de Reaper
+item.reaper_chestplate.name=Plastron de Reaper
+item.reaper_leggings.name=Jambières de Reaper
+item.reaper_boots.name=Bottes de Reaper
+item.reaper_weapon.name=Fusil à pompe Hellfire de reaper
+
+item.hanzo_token.name=Carte d'Hanzo
+item.hanzo_helmet.name=Casque d'Hanzo
+item.hanzo_chestplate.name=Plastron d'Hanzo
+item.hanzo_leggings.name=Jambières d'Hanzo
+item.hanzo_boots.name=Bottes d'Hanzo
+item.hanzo_weapon.name=Arc Tempête d'Hanzo
+
+item.reinhardt_token.name=Carte de Reinhardt
+item.reinhardt_helmet.name=Casque de Reinhardt
+item.reinhardt_chestplate.name=Plastron de Reinhardt
+item.reinhardt_leggings.name=Jambières de Reinhardt
+item.reinhardt_boots.name=Bottes de Reinhardt
+item.reinhardt_weapon.name=Marteau Fusée de Reinhardt
+
+item.ana_token.name=Carte d'Ana
+item.ana_helmet.name=Casque d'Ana
+item.ana_chestplate.name=Plastron d'Ana
+item.ana_leggings.name=Jambières d'Ana
+item.ana_boots.name=Bottes d'Ana
+item.ana_weapon.name=Fusil Biotique d'Ana
+
+item.genji_token.name=Carte de Genji
+item.genji_helmet.name=Casque de Genji
+item.genji_chestplate.name=Plastron de Genji
+item.genji_leggings.name=Jambières de Genji
+item.genji_boots.name=Bottes de Genji
+item.genji_weapon.name=Shuriken de Genji
+item.genji_shuriken_single.name=Shuriken de Genji
+
+item.tracer_token.name=Carte de Tracer
+item.tracer_helmet.name=Casque de Tracer
+item.tracer_chestplate.name=Plastron de Tracer
+item.tracer_leggings.name=Jambières de Tracer
+item.tracer_boots.name=Bottes de Tracer
+item.tracer_weapon.name=Fusil à Impulsion de Tracer
+
+item.mccree_token.name=Carte de McCree
+item.mccree_helmet.name=Casque de McCree
+item.mccree_chestplate.name=Plastron de McCree
+item.mccree_leggings.name=Jambières de McCree
+item.mccree_boots.name=Bottes de McCree
+item.mccree_weapon.name=PeaceKeeper de McCree
+
+item.soldier76_token.name=Carte de Soldier: 76
+item.soldier76_helmet.name=Casque de Soldier: 76
+item.soldier76_chestplate.name=Plastron de Soldier: 76
+item.soldier76_leggings.name=Jambières de Soldier: 76
+item.soldier76_boots.name=Bottes de Soldier: 76
+item.soldier76_weapon.name=Fusil à Impulsion de Soldier: 76
+
+item.mei_token.name=Carte de Mei
+item.mei_helmet.name=Casque de Mei
+item.mei_chestplate.name=Plastron de Mei
+item.mei_leggings.name=Jambières de Mei
+item.mei_boots.name=Bottes de Mei
+item.mei_weapon.name=Blaster Endothermique de Mei
+
+item.bastion_token.name=Carte de Bastion
+item.bastion_helmet.name=Casque de Bastion
+item.bastion_chestplate.name=Plastron de Bastion
+item.bastion_leggings.name=Jambières de Bastion
+item.bastion_boots.name=Bottes de Bastion
+item.bastion_weapon.name=Mitraillette de Bastion
+
+item.widowmaker_token.name=Carte de Widowmaker
+item.widowmaker_helmet.name=Casque de Widowmaker
+item.widowmaker_chestplate.name=Plastron de Widowmaker
+item.widowmaker_leggings.name=Jambières de Widowmaker
+item.widowmaker_boots.name=Bottes de Widowmaker
+item.widowmaker_weapon.name=Le Baiser de Widowmaker 
+
+item.mercy_token.name=Carte de Mercy
+item.mercy_helmet.name=Casque de Mercy
+item.mercy_chestplate.name=Plastron de Mercy
+item.mercy_leggings.name=Jambières de Mercy
+item.mercy_boots.name=Bottes de Mercy
+item.mercy_weapon.nameL'Arme de Mercy
+
+item.junkrat_token.name=Carte de Junkrat
+item.junkrat_helmet.name=Casque de Junkrat
+item.junkrat_chestplate.name=Plastron de Junkrat
+item.junkrat_leggings.name=Jambières de Junkrat
+item.junkrat_boots.name=Bottes de Junkrat
+item.junkrat_weapon.name=Lance-Grenades de Junkrat
+item.junkrat_trigger.name=Déclencheur de mines de Junkrat
+
+item.sombra_token.name=Carte de Sombra
+item.sombra_helmet.name=Casque de Sombra
+item.sombra_chestplate.name=Plastron de Sombra
+item.sombra_leggings.name=Jambières de Sombra
+item.sombra_boots.name=Bottes de Sombra
+item.sombra_weapon.name=Mitraillette de Sombra
+item.sombra_hack.name=L'Hack de Sombra
+
+item.lucio_token.name=Carte de Lúcio
+item.lucio_helmet.name=Casque de Lúcio
+item.lucio_chestplate.name=Plastron de Lúcio
+item.lucio_leggings.name=Jambières de Lúcio
+item.lucio_boots.name=Bottes de Lúcio
+item.lucio_weapon.name=L'Amplifieur de Son de Lúcio
+
+item.zenyatta_token.name=Carte de Zenyatta
+item.zenyatta_helmet.name=Casque de Zenyatta
+item.zenyatta_chestplate.name=Plastron de Zenyatta
+item.zenyatta_leggings.name=Jambières de Zenyatta
+item.zenyatta_boots.name=Bottes de Zenyatta
+item.zenyatta_weapon.name=Orbe de Déstruction de Zenyatta
+
+item.moira_token.name=Carte de Moira
+item.moira_helmet.name=Casque de Moira
+item.moira_chestplate.name=Plastron de Moira
+item.moira_leggings.name=Jambières de Moira
+item.moira_boots.name=Bottes de Moira
+item.moira_weapon.name=Poigne Biotique de Moira
+
+item.doomfist_token.name=Carte de Doomfist
+item.doomfist_helmet.name=Casque de Doomfist
+item.doomfist_chestplate.name=Plastron de Doomfist
+item.doomfist_leggings.name=Jambières de Dommfist
+item.doomfist_boots.name=Bottes de Dommfist
+item.doomfist_weapon.name=Gant de Doomfist
+
+item.roadhog_token.name=Carte de Roadhog
+item.roadhog_helmet.name=Casque de Roadhog
+item.roadhog_chestplate.name=Plastron de Roadhog
+item.roadhog_leggings.name=Jambières de Roadhog
+item.roadhog_boots.name=Bottes de Roadhog
+item.roadhog_weapon.name=Fusil de Ferraille de Roadhog
+item.roadhog_health.name=Boîte de Soins de Roadhog
+
+item.pharah_token.name=Carte de Pharah
+item.pharah_helmet.name=Casque de Pharah
+item.pharah_chestplate.name=Plastron de Pharah
+item.pharah_leggings.name=Jambières de Pharah
+item.pharah_boots.name=Bottes de Pharah
+item.pharah_weapon.name=Lance-Roquettes de Pharah
+
+entity.random_hero.name=Héro au hasard
+entity.hanzo_hero.name=Hanzo
+entity.hanzo_arrow.name=Flèche d'Hanzo
+entity.hanzo_sonic_arrow.name=Flèche Sonique d'Hanzo
+entity.hanzo_scatter_arrow.name=Flèche de Dispersion d'Hanzo
+entity.reaper_hero.name=Reaper
+entity.reaper_bullet.name=Balle de Reaper
+entity.ana_hero.name=Ana
+entity.ana_bullet.name=Balle d'Ana
+entity.ana_sleep_dart.name=Fléchette de Sommeil d'Ana
+entity.ana_grenade.name=Grenade Biotique d'Ana
+entity.genji_hero.name=Genji
+entity.genji_shuriken.name=Shuriken de Genji
+entity.genji_shuriken_single.name=Shuriken de Genji
+entity.tracer_hero.name=Tracer
+entity.tracer_bullet.name=Balle de Tracer
+entity.mccree_hero.name=McCree
+entity.mccree_bullet.name=Balle de McCree
+entity.mccree_stun.name=Flashbang de McCree
+entity.soldier76_hero.name=Soldier: 76
+entity.soldier76_bullet.name=Balle de Soldier: 76
+entity.soldier76_helix_rocket.name=Roquette Hélix de Soldier: 76
+entity.soldier76_heal.name=Champ Biotique de Soldier: 76
+entity.bastion_hero.name=Bastion
+entity.bastion_bullet.name=Balle de Bastion
+entity.mei_hero.name=Mei
+entity.mei_blast.name=Explosion de Mei
+entity.mei_icicle.name=Stalactite de Mei
+entity.mei_crystal.name=Cyo-Gel de Mei
+entity.mercy_hero.name=Mercy
+entity.mercy_bullet.name=Balle de Mercy
+entity.mercy_beam.name=Rayon de Mercy
+entity.junkrat_hero.name=Junkrat
+entity.junkrat_grenade.name=Grenade de Junkrat
+entity.junkrat_trap.name=Piège Acier de Junkrat
+entity.junkrat_mine.name=Mine de Junkrat
+entity.widowmaker_hero.name=Widowmaker
+entity.widowmaker_bullet.name=Balle de Widowmaker
+entity.widowmaker_mine.name=Mine Venin de Widowmaker 
+entity.widowmaker_hook.name=Grappin de Widowmaker
+entity.sombra_hero.name=Sombra
+entity.sombra_bullet.name=Balle de Sombra
+entity.sombra_translocator.name=Balise de Sombra
+entity.reinhardt_hero.name=Reinhardt
+entity.reinhardt_strike.name=Frappe de Feu de Reinhardt
+entity.lucio_hero.name=Lúcio
+entity.lucio_sonic.name=Projectile Sonique de Lúcio
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Orbe de Déstruction de Zenyatta
+entity.moira_hero.name=Moira
+entity.moira_heal_energy.name=Énergie de Soins de Moira
+entity.moira_orb.name=Orbe Biotique de Moira
+entity.doomfist_hero.name=Doomfist
+entity.doomfist_bullet.name=Balle de Doomfist
+entity.roadhog_hero.name=Roadhog
+entity.roadhog_scrap.name=Ferraille de Roadhog
+entity.roadhog_hook.name=Crochet de Roadhog
+entity.pharah_hero.name=Pharah
+entity.pharah_rocket.name=Fusée de Pharah
+
+command.reset.success=Partie de Minewatche "remise à 0" par un modérateur.
+command.reset.unrecognized_flags=Drapeau(s) non-reconnaisable
+
+overlay.eliminated_by=tu a était éliminé par
+overlay.assist=assist
+overlay.eliminated=eliminé
+overlay.death_spectating=tu est maintenant en train spectater mort
+overlay.respawn_in=respawn dans
+overlay.change_hero=Appuis %s pour change de Héros
+
+gui.team_block.button.name=Nom
+gui.team_block.button.name.desc=Ce nom est utilisé par les commandes
+gui.team_block.button.options=Options
+gui.team_block.button.active=Activé
+gui.team_block.button.inactive=Déactivé
+gui.team_block.button.activate_deactivate=Actives / Déactives
+gui.team_block.button.selected_team=Équipe Choisi
+gui.team_block.button.video_demonstration=Démonstration Vidéo
+gui.team_block.button.ok=OK
+
+gui.team_spawn.button.spawn_radius=Radius
+gui.team_spawn.button.spawn_radius.desc=Le radius autour de ce bloc dans lequel les joueurs et mobs peuvent respawner, être soigner et accéder au choisi de Héros
+gui.team_spawn.button.heal.desc=Les joueurs et mobs devraient-ils être soignés quand ils sont dans le radius quand ceci est activé
+gui.team_spawn.button.change_hero.desc=Les joueurs et mobs devraient-ils pouvoir changer de Héros quand ils sont dans le radius quand ceci est activé
+gui.team_spawn.button.activate.desc=Les joueurs et mobs respawneront au spawn d'équipe activé de leur équipe respective
+gui.team_spawn.button.deactivate.desc=Les joueurs et mobs respawneront au spawn d'équipe activé de leur équipe respective
+gui.team_spawn.button.selected_team.desc=Choisis l'équipe qui va respawner ici
+gui.team_spawn.question_mark_description_0=Les joueurs et mobs respawneront au spawn d'équipe activé de leur équipe respective. Ils spawneront orientés vers la direction de la flèche. Ils seront aussi soignés et pourront accéder à la sélection de Héros quand ils sont dans le radius.
+gui.team_spawn.question_mark_description_1=Le bloc de spawn d'équipe peut être activé/déactivé avec une commande, aussi comme:
+gui.team_spawn.status.players_heroes_team=Les joueurs et mobs dans
+gui.team_spawn.status.players_heroes_all=Tout les joueurs et mobs (qui sont dans une équipe)
+gui.team_spawn.status.players_heroes_none=Rien
+gui.team_spawn.status.will_spawn=vont spawner ici
+
+gui.hero_select.select=Choisi
+gui.hero_select.select_hero=Choisi un Héros

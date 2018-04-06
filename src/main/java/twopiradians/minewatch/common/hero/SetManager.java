@@ -52,6 +52,20 @@ public class SetManager {
 		return isRemote ? lastWornSetsClient : lastWornSetsServer;
 	}
 
+	/**Clear tracked worn sets - i.e. when reconnecting to world*/
+	public static void clearWornSets(Entity entity, boolean isRemote) {
+		if (entity != null)
+			clearWornSets(entity.getPersistentID(), isRemote);
+	}
+
+	/**Clear tracked worn sets - i.e. when reconnecting to world*/
+	public static void clearWornSets(UUID uuid, boolean isRemote) {
+		if (uuid != null) {
+			entitiesWearingSets(isRemote).remove(uuid);
+			lastWornSets(isRemote).remove(uuid);
+		}
+	}
+
 	@Nullable
 	public static EnumHero getWornSet(Entity entity) {
 		return entity == null ? null : 
@@ -113,9 +127,8 @@ public class SetManager {
 	}
 
 	public static void onSetChanged(EntityPlayer player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
-		if (prevHero != null)
-			EventManager.onEvent(Type.REMOVE_SET, player);
-		
+		EventManager.onEvent(Type.CHANGE_SET, player);
+
 		// update entitiesWearingSets
 		if (newHero == null)
 			SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());

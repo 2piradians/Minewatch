@@ -45,7 +45,7 @@ public class PassiveManager {
 
 	/**Called once per tick for (all) players and heroes wearing a full set*/
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
-		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation, lucio walking
+		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation
 			return;
 
 		boolean hacked = TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED);
@@ -54,7 +54,7 @@ public class PassiveManager {
 		if (!hacked && hero == EnumHero.GENJI) {
 			// jump boost
 			if (!world.isRemote && (entity.getActivePotionEffect(MobEffects.JUMP_BOOST) == null || 
-					entity.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() == 0))
+					entity.getActivePotionEffect(MobEffects.JUMP_BOOST).getDuration() <= 10))
 				entity.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 10, 0, true, false));
 			// double jump
 			else if (world.isRemote && (entity.onGround || entity.isInWater() || entity.isInLava()))
@@ -251,8 +251,8 @@ public class PassiveManager {
 			else if (playersWallRiding.containsKey(entity)) {
 				// jump off
 				LucioWallRideInfo info = playersWallRiding.get(entity);
-				Vec3d motion = new Vec3d(info.wall.getOpposite().getDirectionVec()).scale(0.3d);
-				motion = motion.add(new Vec3d(info.direction.getDirectionVec()).scale(7.7d/20d));
+				Vec3d motion = new Vec3d(info.wall.getOpposite().getDirectionVec()).scale(0.2d);
+				motion = motion.add(new Vec3d(info.direction.getDirectionVec()).scale(6d/20d));
 				motion = motion.addVector(0, 0.4d, 0);
 				entity.motionX += motion.x;
 				entity.motionY += motion.y;

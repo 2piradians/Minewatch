@@ -23,7 +23,6 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket;
 import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket.Type;
-import twopiradians.minewatch.common.entity.projectile.EntityZenyattaOrb;
 import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -48,7 +47,7 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			entity.motionY = 0;
 			for (int i=0; i<(this.ticksLeft % 2 == 0 ? 2 : 1); ++i) {
 				EntityPharahRocket projectile = new EntityPharahRocket(entity.world, entityLiving, -1, Type.ULTIMATE);
-				EntityHelper.setAim(projectile, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 28.5f, 16, null, (entityLiving.world.rand.nextFloat()-0.2f)*120, (entityLiving.world.rand.nextFloat()-0.5f)*1.5f, 0.2f, true, true);
+				EntityHelper.setAim(projectile, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 28.5f, 16, null, (entityLiving.world.rand.nextFloat()-0.5f)*100, (entityLiving.world.rand.nextFloat()-0.5f)*1.5f, 0.2f, true, true);
 				entity.world.spawnEntity(projectile);
 			}
 			return super.onServerTick();

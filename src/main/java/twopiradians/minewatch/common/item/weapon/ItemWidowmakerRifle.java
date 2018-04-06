@@ -40,6 +40,7 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerHook;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
+import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityWidowmakerBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
@@ -408,6 +409,10 @@ public class ItemWidowmakerRifle extends ItemMWWeapon {
 		ModSoundEvents.WIDOWMAKER_ULTIMATE_0.playFollowingSound(player, 1, 1, false, 0, true, true, false);
 		ModSoundEvents.WIDOWMAKER_ULTIMATE_1.playFollowingSound(player, 1, 1, false, 0, false, false, true);
 
+		// add handler for hero too, so it doesn't ult constantly
+		if (player instanceof EntityHero)
+			TickHandler.register(false, ULTIMATE.setEntity(player).setTicks(310));
+		
 		for (EntityPlayer entity : ModSoundEvents.getPlayers(player, true, true, false)) {
 			if (entity instanceof EntityPlayerMP) {
 				TickHandler.register(false, ULTIMATE.setEntity(entity).setTicks(310));

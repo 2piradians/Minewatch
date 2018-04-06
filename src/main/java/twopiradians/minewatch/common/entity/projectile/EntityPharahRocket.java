@@ -25,23 +25,25 @@ public class EntityPharahRocket extends EntityMW {
 	public Vec3d velocity = null;
 	public Vec3d oscillation = null;
 
-	public EntityPharahRocket(World worldIn) { // TODO deflect
+	public EntityPharahRocket(World worldIn) { 
 		this(worldIn, null, -1, Type.NORMAL);
-
 	}
 
 	public EntityPharahRocket(World worldIn, EntityLivingBase throwerIn, int hand, Type type) {
 		super(worldIn, throwerIn, hand);
-		if (!worldIn.isRemote) {
-			this.getDataManager().set(TYPE, type.ordinal());
-			if (type == Type.ULTIMATE) { 
-				Vec3d vec = new Vec3d(worldIn.rand.nextDouble()-0.5d, worldIn.rand.nextDouble()-0.5d, worldIn.rand.nextDouble()-0.5d).normalize();
-				this.getDataManager().set(ULT_OSCILLATION, new Rotations((float)vec.x, (float)vec.y, (float)vec.z));
-			}
-		}
+		if (!worldIn.isRemote) 
+			setOscillation(type);
 		this.setNoGravity(true);
 		this.setSize(0.1f, 0.1f);
 		this.lifetime = type == Type.ULTIMATE ? 60 : 200; 
+	}
+
+	private void setOscillation(Type type) {
+		this.getDataManager().set(TYPE, type.ordinal());
+		if (type == Type.ULTIMATE) { 
+			Vec3d vec = new Vec3d(world.rand.nextDouble()-0.5d, world.rand.nextDouble()-0.5d, world.rand.nextDouble()-0.5d).normalize();
+			this.getDataManager().set(ULT_OSCILLATION, new Rotations((float)vec.x, (float)vec.y, (float)vec.z));
+		}		
 	}
 
 	@Override
@@ -49,6 +51,12 @@ public class EntityPharahRocket extends EntityMW {
 		// type
 		if (key.getId() == TYPE.getId() && this.dataManager.get(TYPE) >= 0 && this.dataManager.get(TYPE) < Type.values().length)
 			type = Type.values()[this.dataManager.get(TYPE)];
+
+		// reset saved values if they are changed
+		if (key.getId() == VELOCITY_CLIENT.getId())
+			this.velocity = null;
+		if (key.getId() == ULT_OSCILLATION.getId())
+			this.oscillation = null;
 		super.notifyDataManagerChange(key);
 	}
 
@@ -63,7 +71,7 @@ public class EntityPharahRocket extends EntityMW {
 	public void onUpdate() {
 		if (type == Type.ULTIMATE) {
 			// save values to not have to read from datamanager constantly
-			if (velocity == null)
+			if (velocity == null) 
 				velocity = new Vec3d(dataManager.get(VELOCITY_CLIENT).getX(), dataManager.get(VELOCITY_CLIENT).getY(), dataManager.get(VELOCITY_CLIENT).getZ());
 			if (oscillation == null)
 				oscillation = new Vec3d(dataManager.get(ULT_OSCILLATION).getX(), dataManager.get(ULT_OSCILLATION).getY(), dataManager.get(ULT_OSCILLATION).getZ());
@@ -158,4 +166,5 @@ public class EntityPharahRocket extends EntityMW {
 			}
 		}
 	}
+
 }

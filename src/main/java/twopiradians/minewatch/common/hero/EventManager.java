@@ -23,6 +23,7 @@ import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
 import twopiradians.minewatch.common.util.TickHandler.Identifier;
+import twopiradians.minewatch.packet.SPacketSimple;
 import twopiradians.minewatch.packet.SPacketSyncAbilityUses;
 
 @Mod.EventBusSubscriber
@@ -32,10 +33,11 @@ public class EventManager {
 	//private static int cleanUpTimerS;
 
 	public enum Type {
-		DEATH, CONNECT, DISCONNECT, REMOVE_SET, RESPAWN
+		DEATH, CONNECT, DISCONNECT, CHANGE_SET, RESPAWN
 	}
 
-	public static void onEvent(Type type, EntityLivingBase entity) {
+	/**Called on SERVER and CLIENT (sometimes only for players)*/
+	public static void onEvent(Type type, EntityLivingBase entity) {		
 		EnumHero hero = SetManager.getWornSet(entity);
 
 		// clean up passives
@@ -45,7 +47,7 @@ public class EventManager {
 		PassiveManager.playersFlying.remove(entity);
 		PassiveManager.playersWallRiding.remove(entity);
 		PassiveManager.prevWall.remove(entity);
-		if (hero != null && (type == Type.DISCONNECT || type == Type.REMOVE_SET))
+		if (hero != null && (type == Type.DISCONNECT || type == Type.CHANGE_SET))
 			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) {
 				Entity entity2 = ability.entities.get(entity);
 				if (entity2 != null) {
@@ -86,36 +88,33 @@ public class EventManager {
 					((ItemMWWeapon)stack.getItem()).setCurrentAmmo(entity, ((ItemMWWeapon)stack.getItem()).getMaxAmmo(entity));
 			}
 		}
+		
+		// reset tracked heroes on reconnect (so onSetChanged is called consistently)
+		if (type == Type.CONNECT)
+			SetManager.clearWornSets(entity, entity.world.isRemote);
 	}
 
 	@SideOnly(Side.CLIENT)
 	public static void onCleanUpC() {
 		// clean up following sounds that aren't playing
-		//Minewatch.logger.info("cleanup - before: "+FollowingSound.sounds);
 		for (FollowingSound sound : FollowingSound.sounds) {
-			if (!Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound)) {
-				//Minewatch.logger.info("sound found: "+sound.getSoundLocation());
+			if (!Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound)) 
 				FollowingSound.stopPlaying(sound);
-			}
 		}
-		//Minewatch.logger.info("cleanup - after: "+FollowingSound.sounds);
 	}
 
 	@SubscribeEvent
 	public static void onEvent(LivingDeathEvent event) {
 		onEvent(Type.DEATH, event.getEntityLiving());
+		if (event.getEntityLiving() instanceof EntityPlayerMP)
+			Minewatch.network.sendTo(new SPacketSimple(85, event.getEntityLiving(), false, Type.DEATH.ordinal(), 0, 0), (EntityPlayerMP) event.getEntityLiving());
 	}
 
 	@SubscribeEvent
 	public static void onEvent(PlayerEvent.PlayerLoggedOutEvent event) {
 		onEvent(Type.DISCONNECT, event.player);
 	}
-
-	@SubscribeEvent
-	public static void onEvent(PlayerEvent.PlayerRespawnEvent event) {
-		onEvent(Type.RESPAWN, event.player);
-	}
-
+	
 	@SubscribeEvent
 	public static void onEvent(WorldEvent.Unload event) {
 		// basically PlayerLoggedOutEvent for client
@@ -124,8 +123,17 @@ public class EventManager {
 	}
 
 	@SubscribeEvent
+	public static void onEvent(PlayerEvent.PlayerRespawnEvent event) {
+		onEvent(Type.RESPAWN, event.player);
+		if (event.player instanceof EntityPlayerMP)
+			Minewatch.network.sendTo(new SPacketSimple(85, event.player, false, Type.RESPAWN.ordinal(), 0, 0), (EntityPlayerMP) event.player);
+	}
+
+	@SubscribeEvent
 	public static void onEvent(PlayerLoggedInEvent event) {
 		onEvent(Type.CONNECT, event.player);
+		if (event.player instanceof EntityPlayerMP)
+			Minewatch.network.sendTo(new SPacketSimple(85, event.player, false, Type.CONNECT.ordinal(), 0, 0), (EntityPlayerMP) event.player);
 	}
 
 	@SubscribeEvent

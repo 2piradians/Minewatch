@@ -9,7 +9,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -25,7 +24,6 @@ import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
-import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.sound.FollowingSound;
@@ -102,13 +100,6 @@ public class CommandDev implements ICommand {
 		else if (args.length == 1 && args[0].equalsIgnoreCase("sounds")) {
 			sender.sendMessage(new TextComponentString("Sounds: "+FollowingSound.sounds));
 		}
-		else if (args.length >= 1 && args[0].equalsIgnoreCase("ult")) {
-			try {
-				Entity entity = args.length > 1 ? CommandBase.getEntity(server, sender, args[1]) : CommandBase.getCommandSenderAsPlayer(sender);
-				UltimateManager.setCharge(entity, UltimateManager.getMaxCharge(entity), true);
-			} 
-			catch (Exception e) {}
-		}
 		else if (args.length == 1 && args[0].equalsIgnoreCase("facingParticles")) {
 			for (EnumParticle particle : EnumParticle.values()) {
 				if (!particle.facingParticles.isEmpty())
@@ -128,9 +119,7 @@ public class CommandDev implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
-			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display"); add("tickhandlers"); add("sounds"); add("ult"); add("facingParticles");}});
-		else if (args.length == 2 && args[0].equalsIgnoreCase("ult"))
-			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, new ArrayList<String>() {{add("hero"); add("display"); add("tickhandlers"); add("sounds"); add("facingParticles");}});
 		else if (args.length == 2 && args[0].equalsIgnoreCase("hero"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, CommandMinewatch.ALL_HERO_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase("display"))

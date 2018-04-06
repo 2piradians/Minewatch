@@ -65,8 +65,8 @@ public class Minewatch {
 		RankManager.lookUpRanks();
 	}
 	
-	public static String translate(String str) {
-		return I18n.translateToLocal(str);
+	public static String translate(String str, Object... format) {
+		return I18n.translateToLocalFormatted(str, format);
 	}
 
 }

@@ -52,6 +52,7 @@ import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.ChargeManager;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.EventManager;
 import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
@@ -405,6 +406,10 @@ public class SPacketSimple implements IMessage {
 							TickHandler.register(true, Handlers.ACTIVE_HAND.setEntity(entity).setTicks(5));
 						if (entity2 instanceof IThrowableEntity)
 							((IThrowableEntity)entity2).setThrower(entity);
+						if (entity2 instanceof EntityMW) 
+							((EntityMW)entity2).onDeflect();
+						else if (entity2 instanceof EntityLivingBaseMW)
+							((EntityLivingBaseMW)entity2).onDeflect();
 					}
 					// Kill/assist messages
 					else if (packet.type == 14 && packetPlayer == player && entity != null && 
@@ -1134,6 +1139,10 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemPharahWeapon.ULTIMATE.setEntity(entity).setTicks(60),
 								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks(60),
 								UltimateManager.PREVENT_CHARGE.setEntity(entity).setTicks(60));
+					}
+					// login event
+					else if (packet.type == 85 && entity instanceof EntityLivingBase && packet.x >= 0 && packet.x < EventManager.Type.values().length) {
+						EventManager.onEvent(EventManager.Type.values()[(int) packet.x], (EntityLivingBase) entity);
 					}
 				}
 			});

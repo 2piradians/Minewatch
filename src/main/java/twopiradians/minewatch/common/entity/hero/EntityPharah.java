@@ -22,7 +22,7 @@ public class EntityPharah extends EntityHero {
 	@Override
 	protected void initEntityAI() {
 		super.initEntityAI();
-		this.tasks.addTask(2, new EntityHeroAIAttackBastion(this, MovementType.STRAFING, 15));
+		this.tasks.addTask(2, new EntityHeroAIAttackBastion(this, MovementType.STRAFING, 35));
 	}
 
 	public class EntityHeroAIAttackBastion extends EntityHeroAIAttackBase {

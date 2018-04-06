@@ -172,7 +172,7 @@ public class CommonProxy {
 	protected void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new Config());
-		MinecraftForge.EVENT_BUS.register(new ItemMWToken());
+		MinecraftForge.EVENT_BUS.register(new ItemMWToken(null));
 		MinecraftForge.EVENT_BUS.register(new TickHandler());
 		MinecraftForge.EVENT_BUS.register(new Handlers());
 	}

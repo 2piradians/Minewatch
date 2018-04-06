@@ -46,7 +46,8 @@ public class FollowingSound extends MovingSound {
 			if (this.lucioSound && this.volume > 0.1f)
 				this.volume = Math.max(0.1f, this.volume-0.005f);
 		}
-		else 
+		// don't stop playing if no attenuation (i.e. Widowmaker dies while saying voice line)
+		else if (this.attenuationType != AttenuationType.NONE)
 			this.donePlaying = true;
 	}
 
@@ -71,7 +72,7 @@ public class FollowingSound extends MovingSound {
 		if (event != null && followingEntity != null)
 			stopPlaying(event.getSoundName().toString(), followingEntity);
 	}
-	
+
 	/**Stop playing a FollowingSound that's playing event with this followingEntity*/
 	public static void stopPlaying(String event, Entity followingEntity) {
 		if (event != null && followingEntity != null)

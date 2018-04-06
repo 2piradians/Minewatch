@@ -16,12 +16,10 @@ import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -231,7 +229,8 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			// strike
 			if (isSelected && !world.isRemote && hero.ability2.isSelected(player) &&
 					this.canUse(player, true, EnumHand.MAIN_HAND, true)) {
-				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.GENJI_DEFLECT));
+				TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.GENJI_DEFLECT), TickHandler.getHandler(player, Identifier.ABILITY_USING));
+				hero.ability1.toggle(player, false);
 				TickHandler.register(false, STRIKE.setEntity(player).setTicks(8));
 				TickHandler.register(false, Ability.ABILITY_USING.setEntity(player).setTicks(8).setAbility(hero.ability2));
 				Minewatch.network.sendToDimension(new SPacketSimple(3, (EntityLivingBase) entity, true), world.provider.getDimension());
@@ -240,6 +239,7 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 		}
 	}	
 
+	/**Only called on SERVER*/
 	private static boolean deflect(EntityLivingBase player, Entity entity, Entity thrower) {
 		if (canDeflect(player, entity, thrower)) {
 			double velScale = Math.sqrt(entity.motionX*entity.motionX + 
@@ -266,12 +266,14 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
 
+			Vec3d vec = new Vec3d(entity.motionX, entity.motionY, entity.motionZ);
+			EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, (float) (vec.lengthVector()*20f), (float) 0.1d, null, 20, 0, false, false);
+			
 			if (entity instanceof EntityMW) 
 				((EntityMW)entity).onDeflect();
 			else if (entity instanceof EntityLivingBaseMW)
 				((EntityLivingBaseMW)entity).onDeflect();
-
-			EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, -1, (float) 0.1d, null, 20, 0);
+			
 			ModSoundEvents.GENJI_DEFLECT_HIT.playSound(player, 0.6f, player.world.rand.nextFloat()/6f+0.9f);
 			Minewatch.network.sendToDimension(new SPacketSimple(13, player, false, entity), player.world.provider.getDimension());
 			return true;

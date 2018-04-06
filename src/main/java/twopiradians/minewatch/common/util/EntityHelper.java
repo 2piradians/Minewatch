@@ -1231,14 +1231,14 @@ public class EntityHelper {
 		DataParameter<Rotations> dataVel = EntityHelper.getVelocityParameter(entity);
 		DataParameter<NBTTagCompound> dataPos = EntityHelper.getPositionParameter(entity);
 		// velocity
-		if (dataVel != null && entity.world.isRemote && entity.ticksExisted == 0 && key.getId() == dataVel.getId()) {
+		if (dataVel != null && entity.world.isRemote/* && entity.ticksExisted == 0*/ && key.getId() == dataVel.getId()) {
 			entity.motionX = entity.getDataManager().get(dataVel).getX();
 			entity.motionY = entity.getDataManager().get(dataVel).getY();
 			entity.motionZ = entity.getDataManager().get(dataVel).getZ();
 			EntityHelper.setRotations(entity);
 		}
 		// client position (because server always spawns centered)
-		else if (dataPos != null && entity.world.isRemote && entity.ticksExisted == 0 && key.getId() == dataPos.getId() &&
+		else if (dataPos != null && entity.world.isRemote/* && entity.ticksExisted == 0*/ && key.getId() == dataPos.getId() &&
 				entity.getDataManager().get(dataPos).hasKey("x")) {
 			NBTTagCompound nbt = entity.getDataManager().get(dataPos);
 			entity.setLocationAndAngles(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"), entity.rotationYaw, entity.rotationPitch);

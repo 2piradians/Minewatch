@@ -2,6 +2,8 @@ package twopiradians.minewatch.common.item;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
@@ -24,6 +26,21 @@ import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.hero.EnumHero;
 
 public class ItemMWToken extends Item {
+
+	@Nullable
+	public EnumHero hero;
+
+	public ItemMWToken(EnumHero hero) {
+		super();
+		this.hero = hero;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced) {
+		if (hero != null)
+			tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("item.hero_token.desc", hero.getFormattedName(false), hero.getFormattedName(false)));
+	}
 
 	@Override
 	public boolean canApplyAtEnchantingTable(ItemStack stack, net.minecraft.enchantment.Enchantment enchantment) {
@@ -58,6 +75,10 @@ public class ItemMWToken extends Item {
 
 	public static class ItemWildCardToken extends ItemMWToken {
 
+		public ItemWildCardToken() {
+			super(null);
+		}
+
 		@Override
 		public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 			if (world.isRemote)
@@ -69,7 +90,7 @@ public class ItemMWToken extends Item {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
-			tooltip.add(TextFormatting.GOLD+"Right-click this token to exchange for another hero token of your choice.");
+			tooltip.add(TextFormatting.GOLD+""+TextFormatting.ITALIC+Minewatch.translate("item.hero_token_wildCard.desc"));
 		}
 	}
 }

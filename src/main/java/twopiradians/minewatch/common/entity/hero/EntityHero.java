@@ -143,7 +143,7 @@ public class EntityHero extends EntityMob {
 		this.setLeftHanded(false);
 		for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 			ItemStack stack = this.getItemStackFromSlot(slot);
-			if ((stack == null || stack.isEmpty()) && hero.getEquipment(slot) != null) {
+			if (stack == null || (hero.getEquipment(slot) != stack.getItem() && hero.getEquipment(slot) != null)) {
 				stack = new ItemStack(hero.getEquipment(slot));
 				this.setItemStackToSlot(slot, stack);
 			}
@@ -159,7 +159,7 @@ public class EntityHero extends EntityMob {
 			HealthManager.handleShieldRegen(this, hero);
 			UltimateManager.handleNormalCharge(this);
 		}
-		
+
 		// set onUpdate
 		PassiveManager.onUpdate(world, this, hero);
 	}

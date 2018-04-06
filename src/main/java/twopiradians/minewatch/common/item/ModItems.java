@@ -45,7 +45,7 @@ public class ModItems {
 		public static void registerItems(RegistryEvent.Register<Item> event) {
 			// hero armor, weapons, and tokens
 			for (EnumHero hero : EnumHero.values()) {
-				hero.token = (ItemMWToken) registerItem(event.getRegistry(), new ItemMWToken(), 
+				hero.token = (ItemMWToken) registerItem(event.getRegistry(), new ItemMWToken(hero), 
 						hero.name.toLowerCase()+"_token", Minewatch.tabArmorWeapons, false);
 				hero.material = EnumHelper.addArmorMaterial(hero.name.toLowerCase(), 
 						Minewatch.MODNAME+":"+hero.name.toLowerCase(), 20, new int[] {0,0,0,0}, 0, 

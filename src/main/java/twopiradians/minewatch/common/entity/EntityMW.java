@@ -151,10 +151,11 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		}
 	}
 
-	/**Called when deflected by Genji - only on server*/
+	/**Called when deflected by Genji - on both sides*/
 	public void onDeflect() {
 		this.lifetime *= 2; 
-		this.getDataManager().set(HAND, -1);
+		if (!world.isRemote)
+			this.getDataManager().set(HAND, -1);
 	}
 
 	/**Used to check for impacts*/

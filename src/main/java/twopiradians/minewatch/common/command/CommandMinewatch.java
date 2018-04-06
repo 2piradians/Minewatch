@@ -30,6 +30,7 @@ import twopiradians.minewatch.common.entity.EntityLivingBaseMW;
 import twopiradians.minewatch.common.hero.EnumHero;
 import twopiradians.minewatch.common.hero.RespawnManager;
 import twopiradians.minewatch.common.hero.SetManager;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
@@ -111,6 +112,7 @@ public class CommandMinewatch implements ICommand {
 		+ f1 + "/mw hero <hero|random> [target] "+ f2 + Minewatch.translate("command.hero.desc")+"\n"
 		+ f1 + "/mw syncConfigToServer "+ f2 + Minewatch.translate("command.sync.desc")+"\n"
 		+ f1 + "/mw teamSpawn <name> <activate|deactivate> "+ f2 + Minewatch.translate("command.team_spawn.desc")+"\n"
+		+ f1 + "/mw ult <target> [charge] "+ f2 + Minewatch.translate("command.ult.desc")+"\n"
 		+ f1 + "/mw reset"+flagUsage+" "+ f2 + Minewatch.translate("command.reset.desc");
 	}
 
@@ -161,6 +163,15 @@ public class CommandMinewatch implements ICommand {
 				boolean activate = args[2].equalsIgnoreCase("activate");
 				te.setActivated(activate);
 				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+args[1]+" is now: "+(activate ? TextFormatting.DARK_GREEN+"Activated" : TextFormatting.DARK_RED+"Deactivated")));
+			}
+		}
+		// ult <target> [percent]
+		else if (args.length >= 2 && args[0].equalsIgnoreCase("ult")) {
+			Entity entity = CommandBase.getEntity(server, sender, args[1]);
+			double charge = args.length > 2 ? CommandBase.parseDouble(args[2], 0, 100) : 100;
+			if (UltimateManager.getMaxCharge(entity) > 0) {
+				UltimateManager.setCharge(entity, (float) (charge/100d*UltimateManager.getMaxCharge(entity)), true);
+				sender.sendMessage(new TextComponentTranslation(TextFormatting.GREEN+"Set "+entity.getName()+"'s ultimate charge to "+charge));
 			}
 		}
 		// reset
@@ -265,7 +276,7 @@ public class CommandMinewatch implements ICommand {
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			ArrayList<String> list = Lists.newArrayList("hero", "teamSpawn", "reset");
+			ArrayList<String> list = Lists.newArrayList("hero", "teamSpawn", "reset", "ult");
 			if (!server.isSinglePlayer())
 				list.add("syncConfigToServer");
 			return CommandBase.getListOfStringsMatchingLastWord(args, list);
@@ -283,13 +294,19 @@ public class CommandMinewatch implements ICommand {
 			return CommandBase.getListOfStringsMatchingLastWord(args, TileEntityTeamSpawn.teamSpawnPositions.values());
 		else if (args.length == 3 && args[0].equalsIgnoreCase("teamSpawn"))
 			return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"activate", "deactivate"});
-
+		
+		// ult
+		else if (args.length == 2 && args[0].equalsIgnoreCase("ult"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+		else if (args.length == 3 && args[0].equalsIgnoreCase("ult"))
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[] {"100", "0"});
+		
 		else
 			return new ArrayList<String>();
 	}
 
 	@Override
 	public boolean isUsernameIndex(String[] args, int index) {
-		return args.length == 3 && args[0].equalsIgnoreCase("hero");
+		return (args.length == 3 && args[0].equalsIgnoreCase("hero")) || (args.length == 3 && args[0].equalsIgnoreCase("ult"));
 	}
 }

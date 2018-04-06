@@ -11,6 +11,7 @@ config.server-side.team_blocks=Team Blocks
 command.hero.desc=equips you/target with armor and weapon(s) for hero
 command.sync.desc=syncs your config to the server (in multiplayer)
 command.team_spawn.desc=activates/deactivates a Team Spawn
+command.ult.desc=sets a target's ultimate charge percent
 command.reset.desc=the master command to "reset" Minewatch games, currently kills and respawns entities that can respawn at Team Spawns
 command.lobby.desc=removes team, clears inventory, and respawns you
 
@@ -30,6 +31,8 @@ tile.push_block.desc2=Can be used to mimic roofs that can't be stood on
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Stick
+item.hero_token.desc=Craft with iron armor to create %s's armor or craft alone to create %s's weapon(s)
+item.hero_token_wildCard.desc=Right-click this token to exchange for another hero token of your choice
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helmet

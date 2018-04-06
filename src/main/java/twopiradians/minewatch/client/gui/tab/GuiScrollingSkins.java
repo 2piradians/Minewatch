@@ -84,7 +84,7 @@ public class GuiScrollingSkins extends GuiScrollingList {
 		this.skins.sort(new Comparator<Skin>() {
 			@Override // sort by type
 			public int compare(Skin skin1, Skin skin2) {
-				return skin1.type.ordinal() > skin2.type.ordinal() ? 1 : -1;
+				return skin1.type.ordinal() >= skin2.type.ordinal() ? 1 : -1;
 			}
 		});
 		// selected index

@@ -212,6 +212,11 @@ public class HealthManager {
 		map.put(Type.SHIELD_ABILITY, shieldAbility);
 		float extraAbsorption = Math.max(0, absorption - shieldAbility - armorAbility);
 		map.put(Type.ABSORPTION, extraAbsorption);
+		
+		// add extra to health (maybe from health boost potion)
+		health += current - getSum(map);
+		map.put(Type.HEALTH, health);
+		
 		return map;
 	}
 

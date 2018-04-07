@@ -46,7 +46,7 @@ public class EntityMeiCrystal extends EntityMW {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isInRangeToRenderDist(double distance){
-		return distance < 2000;
+		return distance < 3000;
 	}
 
 	@Override

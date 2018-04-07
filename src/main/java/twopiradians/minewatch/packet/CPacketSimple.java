@@ -31,7 +31,6 @@ import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemLucioSoundAmplifier;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.item.weapon.ItemPharahWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.tileentity.TileEntityTeamSpawn;
@@ -376,7 +375,6 @@ public class CPacketSimple implements IMessage {
 					// pharah start/stop flying (bc doesn't track jump for other players)
 					else if (packet.type == 24 && entity instanceof EntityLivingBase) {
 						if (packet.bool) {
-							ItemPharahWeapon.spawnJetPackParticles((EntityLivingBase) entity, false);
 							// start flying sounds
 							ModSoundEvents.PHARAH_FLY_0.playFollowingSound(entity, 0.2f, 1, true);
 							ModSoundEvents.PHARAH_FLY_1.playFollowingSound(entity, 0.3f, 1, true);

@@ -37,7 +37,7 @@ public class EntityBastionBullet extends EntityMW {
 	@Override
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
-
+		
 		if (this.getThrower() != null && ItemMWWeapon.isAlternate(this.getThrower().getHeldItemMainhand())) 
 			EntityHelper.attemptFalloffImpact(this, getThrower(), result.entityHit, false, 4, 15, 35, 55);
 		else 

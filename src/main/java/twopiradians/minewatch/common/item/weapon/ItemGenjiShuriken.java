@@ -265,9 +265,10 @@ public class ItemGenjiShuriken extends ItemMWWeapon {
 			}
 			if (entity instanceof IThrowableEntity)
 				((IThrowableEntity) entity).setThrower(player);
-
+			
 			Vec3d vec = new Vec3d(entity.motionX, entity.motionY, entity.motionZ);
-			EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, (float) (vec.lengthVector()*20f), (float) 0.1d, null, 20, 0, false, false);
+			float velocity = entity instanceof EntityMW && ((EntityMW)entity).hitscan ? -1 : (float) (vec.lengthVector()*20f);
+			EntityHelper.setAim(entity, player, player.rotationPitch, player.rotationYawHead, velocity, (float) 0.1d, null, 20, 0, false, false);
 			
 			if (entity instanceof EntityMW) 
 				((EntityMW)entity).onDeflect();

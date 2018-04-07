@@ -35,7 +35,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 	private EntityLivingBase thrower;
 	public boolean isFriendly;
 	protected boolean impactOnClient;
-	/**if hitscan, kill instantly in onUpdate*/
+	/**if hitscan, use hitscan with deflect*/
 	public boolean hitscan;
 
 	public EntityMW(World worldIn) {
@@ -80,12 +80,6 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 					EnumHand.values()[this.dataManager.get(HAND)] : null, this.getThrower());
 		}
 
-		// kill instantly as hitscan
-		if (hitscan) {
-			this.setDead();
-			return;
-		}
-
 		// check for impacts
 		if (!world.isRemote || this.impactOnClient) { 
 			ArrayList<RayTraceResult> results = EntityHelper.checkForImpact(this, this.isFriendly);
@@ -115,7 +109,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 		if (((this.ticksExisted > lifetime) || 
 				!(this.getThrower() instanceof EntityLivingBase) || 
 				posY <= -64) ||
-				(this.getThrower() instanceof EntityPlayerMP && ((EntityPlayerMP)this.getThrower()).hasDisconnected()))
+				(this.getThrower() instanceof EntityPlayerMP && ((EntityPlayerMP)this.getThrower()).hasDisconnected())) 
 			this.setDead();
 
 		// spawn trail particles

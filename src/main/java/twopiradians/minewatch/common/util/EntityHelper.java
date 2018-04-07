@@ -286,6 +286,10 @@ public class EntityHelper {
 			scaledVelocityS = scaledVelocityS.add(scaledVelocityS.normalize().scale(0.1d));
 			scaledVelocityC = scaledVelocityC.add(scaledVelocityC.normalize().scale(0.1d));
 		}
+		
+		// mark hitscan (for genji deflect)
+		if (metersPerSecond == -1 && entity instanceof EntityMW)
+			((EntityMW)entity).hitscan = true;
 
 		// send velocity to client
 		DataParameter<Rotations> dataVel = getVelocityParameter(entity);

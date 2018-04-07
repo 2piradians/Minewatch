@@ -146,19 +146,16 @@ public class PassiveManager {
 			ChargeManager.subtractFromCurrentCharge(entity, 1, false);
 			entity.motionY = Math.min(entity.motionY+0.22f, Math.max(entity.motionY, 5.5f/20f));
 			if (entity.world.isRemote) {
-				ItemPharahWeapon.spawnJetPackParticles(entity, false);
-				// start flying sounds
-				if (!playersFlying.contains(entity)) {
-					ModSoundEvents.PHARAH_FLY_0.playFollowingSound(entity, 0.2f, 1, true);
-					ModSoundEvents.PHARAH_FLY_1.playFollowingSound(entity, 0.3f, 1, true);
+				ItemPharahWeapon.spawnJetPackParticles((EntityLivingBase) entity, false);
+				if (!PassiveManager.playersFlying.contains(entity)) {
+					Minewatch.network.sendToServer(new CPacketSimple(24, entity, true));
 					playersFlying.add(entity);
 				}
 			}
 		}
 		// stop flying sounds
 		else if (world.isRemote && playersFlying.contains(entity)) {
-			ModSoundEvents.PHARAH_FLY_0.stopFollowingSound(entity);
-			ModSoundEvents.PHARAH_FLY_1.stopFollowingSound(entity);
+			Minewatch.network.sendToServer(new CPacketSimple(24, entity, false));
 			playersFlying.remove(entity);
 		}
 		// lucio wallride

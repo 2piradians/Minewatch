@@ -78,7 +78,7 @@ public class CPacketSimple implements IMessage {
 	public CPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z) {
 		this(type, bool, null, x, y, z, entity, null, null);
 	}
-	
+
 	public CPacketSimple(int type, Entity entity, boolean bool, double x, double y, double z, double x2, double y2, double z2) {
 		this(type, bool, null, x, y, z, entity, null, null, null, x2, y2, z2);
 	}
@@ -358,6 +358,18 @@ public class CPacketSimple implements IMessage {
 					// reset float count
 					else if (packet.type == 22 && packetPlayer != null) {
 						EntityHelper.resetFloatTime(packetPlayer);
+					}
+					// lucio start/stop wall riding (bc doesn't run on client for other players)
+					else if (packet.type == 23 && entity != null) {
+						if (packet.bool) {
+							ModSoundEvents.LUCIO_RIDING_START.playFollowingSound(entity, 1, 1);
+							ModSoundEvents.LUCIO_RIDING.playFollowingSound(entity, 0.3f, 1, true);
+						}
+						else {
+							ModSoundEvents.LUCIO_RIDING_STOP_0.playFollowingSound(entity, 1, 1);
+							ModSoundEvents.LUCIO_RIDING_STOP_1.playFollowingSound(entity, 1, 1);
+							ModSoundEvents.LUCIO_RIDING.stopFollowingSound(entity);
+						}
 					}
 				}
 			});

@@ -45,6 +45,8 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 		@Override
 		public boolean onServerTick() {
 			entity.motionY = 0;
+			if (this.ticksLeft % 20 == 0)
+				EntityHelper.resetFloatTime(entity);
 			for (int i=0; i<(this.ticksLeft % 2 == 0 ? 2 : 1); ++i) {
 				EntityPharahRocket projectile = new EntityPharahRocket(entity.world, entityLiving, -1, Type.ULTIMATE);
 				EntityHelper.setAim(projectile, entityLiving, entityLiving.rotationPitch, entityLiving.rotationYawHead, 28.5f, 16, null, (entityLiving.world.rand.nextFloat()-0.5f)*100, (entityLiving.world.rand.nextFloat()-0.5f)*1.5f, 0.2f, true, true);

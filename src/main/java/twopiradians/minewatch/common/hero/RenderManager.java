@@ -376,7 +376,7 @@ public class RenderManager {
 					double scale = 0.8d*Config.guiScale;
 					GlStateManager.scale(scale, scale, 0);
 
-					String text = TextFormatting.BLACK+""+TextFormatting.BOLD+String.format(Minewatch.translate("overlay.change_hero"), KeyBind.CHANGE_HERO.keyBind.getDisplayName()).toUpperCase();
+					String text = TextFormatting.BLACK+""+TextFormatting.BOLD+Minewatch.translate("overlay.change_hero", KeyBind.CHANGE_HERO.keyBind.getDisplayName()).toUpperCase();
 					int textWidth = mc.fontRenderer.getStringWidth(text);
 					int x = (int) (width/scale/2d-textWidth/2d);
 					int y = (int) (height/scale-190f);

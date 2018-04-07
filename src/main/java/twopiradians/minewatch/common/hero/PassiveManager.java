@@ -221,8 +221,12 @@ public class PassiveManager {
 							(!prevWall.containsKey(entity) || prevWall.get(entity) != wall)) {
 						playersWallRiding.put(entity, new LucioWallRideInfo(wall, direction));
 						prevWall.put(entity, wall);
-						ModSoundEvents.LUCIO_RIDING_START.playFollowingSound(entity, 1, 1);
-						ModSoundEvents.LUCIO_RIDING.playFollowingSound(entity, 0.3f, 1, true);
+						if (world.isRemote)
+							Minewatch.network.sendToServer(new CPacketSimple(23, entity, true));
+						else {
+							ModSoundEvents.LUCIO_RIDING_START.playFollowingSound(entity, 1, 1);
+							ModSoundEvents.LUCIO_RIDING.playFollowingSound(entity, 0.3f, 1, true);
+						}
 					}
 				}
 
@@ -258,9 +262,13 @@ public class PassiveManager {
 				entity.motionY += motion.y;
 				entity.motionZ += motion.z;
 				playersWallRiding.remove(entity);
-				ModSoundEvents.LUCIO_RIDING_STOP_0.playFollowingSound(entity, 1, 1);
-				ModSoundEvents.LUCIO_RIDING_STOP_1.playFollowingSound(entity, 1, 1);
-				ModSoundEvents.LUCIO_RIDING.stopFollowingSound(entity);
+				if (world.isRemote)
+					Minewatch.network.sendToServer(new CPacketSimple(23, entity, false));
+				else {
+					ModSoundEvents.LUCIO_RIDING_STOP_0.playFollowingSound(entity, 1, 1);
+					ModSoundEvents.LUCIO_RIDING_STOP_1.playFollowingSound(entity, 1, 1);
+					ModSoundEvents.LUCIO_RIDING.stopFollowingSound(entity);
+				}
 			}
 			// remove prevWall
 			else if (prevWall.containsKey(entity) &&
@@ -272,7 +280,8 @@ public class PassiveManager {
 		if (Config.lowerGravity && !entity.hasNoGravity() && !entity.isElytraFlying() && 
 				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isFlying) &&
 				!TickHandler.hasHandler(entity, Identifier.PREVENT_MOVEMENT) &&
-				!playersWallRiding.containsKey(entity))
+				!playersWallRiding.containsKey(entity) &&
+				!entity.isInWater() && !entity.isInLava())
 			entity.motionY += 0.02f;
 
 	}

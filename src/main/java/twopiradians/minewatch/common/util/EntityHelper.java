@@ -1170,7 +1170,7 @@ public class EntityHelper {
 		IBlockState equal = world.getBlockState(pos);
 		IBlockState up = world.getBlockState(pos.up());
 		// valid spot found
-		return !down.getBlock().isPassable(world, pos) && 
+		return !down.getBlock().isPassable(world, pos.down()) && 
 				(world.isAirBlock(pos) || equal.getCollisionBoundingBox(world, pos) == null) &&
 				(world.isAirBlock(pos.up()) || up.getCollisionBoundingBox(world, pos.up()) == null);
 	}

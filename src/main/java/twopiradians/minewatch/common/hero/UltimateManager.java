@@ -213,11 +213,6 @@ public class UltimateManager {
 
 	@SideOnly(Side.CLIENT)
 	public static void renderUltimateMeter(EntityPlayer player, EnumHero hero, double width, double height) {
-		Config.guiScale += 0.01d; 
-		if (Config.guiScale > 1.3d)
-			Config.guiScale = 0.001d;
-		Config.guiScale = 0.75d;
-
 		float yOffset = 70f;
 		if (RenderManager.hideFood(player) && RenderManager.hideHealthArmor(player) && RenderManager.hideHotBar(player))
 			yOffset = 47.5f;

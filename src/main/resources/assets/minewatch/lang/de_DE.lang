@@ -11,8 +11,9 @@ config.server-side.team_blocks=Team Blöcke
 command.hero.desc=rüstet dich/das Ziel mit der Rüstung und der/den Waffe/n für den Helden aus
 command.sync.desc=synchronisiert deine Konfiguration mit dem Server (im Mehrspieler Modus)
 command.team_spawn.desc=aktiviert/deaktiviert einen Teamspawn
+command.ult.desc=setzt die Ultimate-Ladung des Ziels
 command.reset.desc=der HauptBefehl um Minewatch Spiele "zurückzusetzen", aktuell tötet und widerbelebt er Dinge/Spieler, die an Teamspawns wiederbelebt werden können
-command.lobby.desc=entfernt das Team, leert das Inventar, und belebt dich wieder
+command.lobby.desc=entfernt das Team, leert das Inventar und belebt dich wieder
 
 effect.frozen=Eingefroren
 
@@ -21,9 +22,17 @@ tile.health_pack_large.name=großes Heilungspaket
 tile.health_pack.desc=Heilt, wenn darüber gelaufen wird und braucht Zeit um wieder zu erscheinen
 tile.team_spawn.name=Teamspawn
 tile.team_spawn.desc=Ein Block, an dem Spieler und Kreaturen wiederbelebt werden können
+tile.death_block.name=Todesblock
+tile.death_block.desc1=Tötet Kreaturen und Spieler (im Überlebens- oder Abenteuermodus) die ihn berühren
+tile.death_block.desc2=Kann benutzt werden, um das Fallen von der Karte zu imitieren
+tile.push_block.name=Schiebeblock
+tile.push_block.desc1=Schiebt Kreaturen und Spieler die ihn berühren
+tile.push_block.desc2=Kann benutzt werden, um Dächer, auf denen nicht gestanden werden kann, zu imitieren
 
 item.wild_card_token.name=Wild Card Token
 item.team_stick.name=Team Helfer
+item.hero_token.desc=Verbaue ihn mit Eisenrüstung, um %s's Rüstung zu erstellen oder verbaue ihn alleine, um %s's Waffe(n) zu erstellen
+item.hero_token_wildCard.desc=Rechtsklicke diesen Token um ihn gegen einen Heldentoken deiner Wahl auszutauschen
 
 item.reaper_token.name=Reaper Token
 item.reaper_helmet.name=Reaper Helm
@@ -164,6 +173,13 @@ item.roadhog_weapon.name=Roadhog's Schrottflinte
 item.roadhog_health.name=Roadhog's Lebenskanister
 
 
+item.pharah_token.name=Pharah Token
+item.pharah_helmet.name=Pharah Helm
+item.pharah_chestplate.name=Pharah Brustpanzer
+item.pharah_leggings.name=Pharah Beinschutz
+item.pharah_boots.name=Pharah Stiefel
+item.pharah_weapon.name=Pharah's Raketenwerfer
+
 entity.random_hero.name=Zufälliger Held
 entity.hanzo_hero.name=Hanzo
 entity.hanzo_arrow.name=Hanzo Pfeil
@@ -221,7 +237,8 @@ entity.doomfist_bullet.name=Doomfist Geschoss
 entity.roadhog_hero.name=Roadhog
 entity.roadhog_scrap.name=Roadhog Schrott
 entity.roadhog_hook.name=Roadhog Abschlepphaken
-
+entity.pharah_hero.name=Pharah
+entity.pharah_rocket.name=Pharah Rakete
 
 command.reset.success=Minewatch Spiel wurde von einem Moderator zurückgesetzt.
 command.reset.unrecognized_flags=Unerkannte Flagge(n)

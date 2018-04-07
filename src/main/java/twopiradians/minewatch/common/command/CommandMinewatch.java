@@ -307,6 +307,6 @@ public class CommandMinewatch implements ICommand {
 
 	@Override
 	public boolean isUsernameIndex(String[] args, int index) {
-		return (args.length == 3 && args[0].equalsIgnoreCase("hero")) || (args.length == 3 && args[0].equalsIgnoreCase("ult"));
+		return (args.length == 3 && args[0].equalsIgnoreCase("hero")) || (args.length >= 2 && args[0].equalsIgnoreCase("ult"));
 	}
 }

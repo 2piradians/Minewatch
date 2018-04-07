@@ -48,7 +48,6 @@ public class EntityAnaBullet extends EntityMW {
 
 	public EntityAnaBullet(World worldIn, EntityLivingBase throwerIn, int hand, boolean heal) {
 		super(worldIn, throwerIn, hand);
-
 		if (!worldIn.isRemote)
 			this.getDataManager().set(HEAL, heal);
 		this.setNoGravity(true);
@@ -65,7 +64,7 @@ public class EntityAnaBullet extends EntityMW {
 	@Override
 	public void onUpdate() {
 		this.isFriendly = this.getDataManager().get(HEAL);
-
+	
 		super.onUpdate();
 	}
 
@@ -73,6 +72,11 @@ public class EntityAnaBullet extends EntityMW {
 	public void spawnTrailParticles() {
 		EntityHelper.spawnTrailParticles(this, 18, 0.05d, this.isFriendly ? 0xFFFCC7 : 0x9361D4, 
 				this.isFriendly ? 0xEAE7B9 : 0xEBBCFF, 0.5f, 8, 1); 
+	}
+	
+	@Override
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
+		return super.isValidImpact(result, nearest) && result.entityHit != this.getThrower();
 	}
 
 	@Override

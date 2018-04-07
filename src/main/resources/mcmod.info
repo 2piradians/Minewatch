@@ -3,7 +3,7 @@
   "modid": "minewatch",
   "name": "Minewatch",
   "description": "Minewatch brings Minecraft and Overwatch together! Overwatch heroes, armor, and weapons usable in Minecraft.",
-  "version": "3.11",
+  "version": "3.12",
   "mcversion": "1.12.X",
   "url": "https://github.com/2piradians/Minewatch",
   "updateUrl": "",

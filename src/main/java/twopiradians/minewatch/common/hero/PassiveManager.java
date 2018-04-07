@@ -162,7 +162,7 @@ public class PassiveManager {
 			playersFlying.remove(entity);
 		}
 		// lucio wallride
-		else if (hero == EnumHero.LUCIO && // TEST that you can hear other players
+		else if (hero == EnumHero.LUCIO &&
 				((world.isRemote && entity instanceof EntityPlayer) || (!world.isRemote && entity instanceof EntityHero))) {
 			// bad block (like barrier)
 			boolean badBlock = false;

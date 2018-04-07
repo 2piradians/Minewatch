@@ -997,8 +997,8 @@ public class RenderManager {
 			return ((RenderHero)renderer).canRenderName((EntityHero) entity);
 
 		EntityPlayerSP entityplayersp = Minecraft.getMinecraft().player;
-		boolean flag = !entity.isInvisibleToPlayer(entityplayersp);
-
+		boolean flag = !entity.isInvisibleToPlayer(entityplayersp) && !entity.isInvisible();
+		
 		if (entity != entityplayersp)
 		{
 			Team team = entity.getTeam();
@@ -1057,8 +1057,7 @@ public class RenderManager {
 		boolean hasHeal = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_HEAL);
 		boolean hasDamage = TickHandler.hasHandler(entity, Identifier.ANA_GRENADE_DAMAGE);
 		if (hasHeal || hasDamage) {
-			GlStateManager.disableDepth();
-			RenderHelper.drawSlantedRect(-scaleX-xOffset, 1, (int) (maxHealth/25f*incrementX)+scaleX-xOffset, barHeight, hasHeal ? 0x60FFFF63 : 0x60E702FF, inGui ? -0.001D : 0.001D, slant);
+			RenderHelper.drawSlantedRect(-scaleX-xOffset, 1, (int) (maxHealth/25f*incrementX)+scaleX-xOffset, barHeight, hasHeal ? 0x60FFFF63 : 0x60E702FF, inGui ? -0.001D : 0.01D, slant);
 			GlStateManager.enableBlend();
 			Minecraft.getMinecraft().renderEngine.bindTexture(hasHeal ? EnumParticle.ANA_GRENADE_HEAL.facingLoc : EnumParticle.ANA_GRENADE_DAMAGE.facingLoc);	
 			GlStateManager.color(1, 1, 1, 0.7f);
@@ -1068,7 +1067,6 @@ public class RenderManager {
 			else
 				Gui.drawModalRectWithCustomSizedTexture(-8, -barHeight-7, 0, 0, 16, 16, 16, 16);
 			GlStateManager.scale(scaleX, scaleY, 1);
-			GlStateManager.enableDepth();
 		}
 
 		mc.getTextureManager().bindTexture(ABILITY_OVERLAY);

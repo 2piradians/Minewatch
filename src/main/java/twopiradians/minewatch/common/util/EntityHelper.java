@@ -423,7 +423,7 @@ public class EntityHelper {
 			return false;
 		return entity != null && target != null && (target != entity || friendly) &&
 				(entityTeam == null || targetTeam == null || 
-				(entityTeam == targetTeam) == friendly || entityTeam.getAllowFriendlyFire());
+				(entityTeam == targetTeam && !entityTeam.getAllowFriendlyFire()) == friendly);
 	}
 
 	/**Get an entity's team - namely for getting a dead entity's team (since they are technically removed from team on death)*/

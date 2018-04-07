@@ -53,6 +53,7 @@ import twopiradians.minewatch.common.util.EntityHelper;
 import twopiradians.minewatch.common.util.Handlers;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.common.util.TickHandler.Handler;
+import twopiradians.minewatch.common.util.TickHandler.Identifier;
 import twopiradians.minewatch.packet.CPacketSimple;
 import twopiradians.minewatch.packet.CPacketSyncKeys;
 import twopiradians.minewatch.packet.CPacketSyncSkins;
@@ -283,7 +284,7 @@ public class CommonProxy {
 				Entity entity = (Entity)list.get(k2);
 
 				if (!entity.isImmuneToExplosions() && (!(entity instanceof EntityLivingBase) || 
-						((EntityLivingBase)entity).getHealth() > 0)) {
+						((EntityLivingBase)entity).getHealth() > 0) && !TickHandler.hasHandler(entity, Identifier.TEAM_SPAWN_IN_RANGE)) {
 					double distance = EntityHelper.getDistance(new Vec3d(x, y, z), entity);
 					if (distance <= size) {
 						double diffX = entity.posX - x;

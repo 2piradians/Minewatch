@@ -418,9 +418,9 @@ public enum ModSoundEvents {
 				}
 				else if (toFriendly && toHostile) // toFriendly and toHostile
 					players.add(player);
-				else if (toHostile && EntityHelper.shouldTarget(entity, player, false)) // toHostile
+				else if (toFriendly && (EntityHelper.shouldTarget(entity, player, true) && !EntityHelper.shouldTarget(entity, player, false))) // toFriendly
 					players.add(player);
-				else if (toFriendly && EntityHelper.shouldTarget(entity, player, true)) // toFriendly
+				else if (toHostile && EntityHelper.shouldTarget(entity, player, false)) // toHostile
 					players.add(player);
 			}
 		}

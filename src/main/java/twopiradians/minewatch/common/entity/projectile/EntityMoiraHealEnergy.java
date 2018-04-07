@@ -68,9 +68,9 @@ public class EntityMoiraHealEnergy extends EntityMW {
 					posX+(world.rand.nextFloat()-0.5f)*0.1f+vec.x, 
 					posY+(world.rand.nextFloat()-0.5f)*0.1f+vec.y, 
 					posZ+(world.rand.nextFloat()-0.5f)*0.1f+vec.z, 
-					motionX/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
-					motionY/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
-					motionZ/2f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionX*0.9f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionY*0.9f+(world.rand.nextFloat()-0.5f)*0.1f, 
+					motionZ*0.9f+(world.rand.nextFloat()-0.5f)*0.1f, 
 					0xFFF555, 0xC2B55F, 0.4f, 20, 1, 1.3f, world.rand.nextFloat(), world.rand.nextFloat()/10f);
 		}
 		for (int i=0; i<1; ++i) {

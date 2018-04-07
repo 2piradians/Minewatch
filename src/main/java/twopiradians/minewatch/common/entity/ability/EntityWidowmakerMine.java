@@ -210,7 +210,7 @@ public class EntityWidowmakerMine extends EntityLivingBaseMW {
 
 	@Override
 	public void onImpact(RayTraceResult result) {
-		if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+		if (result.typeOfHit == RayTraceResult.Type.BLOCK && !EntityHelper.shouldIgnoreBlock(world.getBlockState(result.getBlockPos()).getBlock())) {
 			this.onGround = true;
 			this.facing = result.sideHit.getOpposite();
 			this.setPosition(result.hitVec.x, result.hitVec.y-(result.sideHit == EnumFacing.DOWN ? this.height : 0), result.hitVec.z);

@@ -34,7 +34,8 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 	protected boolean preRender(TileEntityHealthPack te, int model, BufferBuilder buffer, double x, double y, double z, float partialTicks) {
 		GlStateManager.translate(0.5d, 0, 0.5d);
 
-		boolean friendly = te.hackedTeam == null || te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam();
+		boolean friendly = (!te.isHacked() || te.hackedTeam == null || 
+				(te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam() && (!te.hackedTeam.getAllowFriendlyFire() || Minewatch.proxy.getRenderViewEntity().getPersistentID().equals(te.hacker))));
 
 		// hacked see through walls
 		if (te.isHacked() && friendly && (model == 2 || model == 3)) {
@@ -131,7 +132,8 @@ public class TileEntityHealthPackRenderer extends TileEntityOBJRenderer<TileEnti
 				Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				TextureAtlasSprite sprite = EnumParticle.SOMBRA_HACK.sprite;
 				double yOffset = -15;
-				boolean friendly = te.hackedTeam == null || te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam();
+				boolean friendly = (!te.isHacked() || te.hackedTeam == null || 
+						(te.hackedTeam == Minewatch.proxy.getRenderViewEntity().getTeam() && (!te.hackedTeam.getAllowFriendlyFire() || Minewatch.proxy.getRenderViewEntity().getPersistentID().equals(te.hacker))));
 				
 				GlStateManager.pushMatrix();
 				GlStateManager.enableTexture2D();

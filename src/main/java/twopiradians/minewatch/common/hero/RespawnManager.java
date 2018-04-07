@@ -112,6 +112,8 @@ public class RespawnManager {
 					((EntityPlayerMP)player).setSpectatingEntity(player);
 				player.isDead = false; // needed to keep entities from spazzing out (in SP at least)
 				player.setGameType(GameType.SPECTATOR);
+				if (this.ticksLeft % 20 == 0)
+					EntityHelper.resetFloatTime(player);
 			}
 			return --ticksLeft <= 0 || entity == null || entity.isEntityAlive();
 		}

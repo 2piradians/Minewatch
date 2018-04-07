@@ -52,6 +52,12 @@ public class EntityAnaGrenade extends EntityMW {
 	}
 
 	@Override
+	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
+		return super.isValidImpact(result, nearest) && 
+				(result.typeOfHit != RayTraceResult.Type.ENTITY || result.entityHit != getThrower());
+	}
+
+	@Override
 	public void onImpact(RayTraceResult result) {
 		super.onImpact(result);
 

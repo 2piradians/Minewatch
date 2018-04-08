@@ -1,4 +1,4 @@
-itemGroup.tabMinewatch=Minewatch Tab
+itemGroup.tabMinewatch=Minewatch|选项
 itemGroup.tabMinewatchArmorWeapons=Minewatch|护甲与武器
 itemGroup.tabMinewatchMapMaking=Minewatch|地图制作工具
 
@@ -11,6 +11,7 @@ config.server-side.team_blocks=组队选项
 command.hero.desc=设置玩家/实体所穿戴的武器以及护甲
 command.sync.desc=将你已更改的配置同步至服务器
 command.team_spawn.desc=启用/禁用团队生成器
+#command.ult.desc=sets a target's ultimate charge percent
 command.reset.desc=通过命令可'重置'当前Minewatch竞技游戏，且实体均可于团队生成器重新生成。
 command.lobby.desc=删除团队，清空物品栏与重生点
 
@@ -24,9 +25,14 @@ tile.team_spawn.desc=设置玩家与实体重生区域
 tile.death_block.name=死亡标识
 tile.death_block.desc1=任何触及到它的玩家或者实体都将被抹杀。
 tile.death_block.desc2=用来模仿掉出地图外。
+tile.push_block.name=动态方块
+tile.push_block.desc1=缓慢推离实体或者玩家
+tile.push_block.desc2=用来模仿无法站立在高处。
 
 item.wild_card_token.name=万能纹章
 item.team_stick.name=组队之杖
+item.hero_token.desc=通过与铁套合成以制造%s的护甲或者直接合成%s的武器。
+item.hero_token_wildCard.desc=手持其右击选择一个任意的英雄纹章
 
 item.reaper_token.name=死神纹章
 item.reaper_helmet.name=死神头盔
@@ -155,7 +161,7 @@ item.doomfist_helmet.name=末日铁拳头盔
 item.doomfist_chestplate.name=末日铁拳胸甲
 item.doomfist_leggings.name=末日铁拳护腿
 item.doomfist_boots.name=末日铁拳靴子
-item.doomfist_weapon.name=拳套（末日铁拳）
+item.doomfist_weapon.name=毁灭之拳（末日铁拳）
 
 item.roadhog_token.name=路霸纹章
 item.roadhog_helmet.name=路霸头盔
@@ -164,6 +170,13 @@ item.roadhog_leggings.name=路霸护腿
 item.roadhog_boots.name=路霸靴子
 item.roadhog_weapon.name=爆裂枪（路霸）
 item.roadhog_health.name=呼吸器（路霸）
+
+item.pharah_token.name=法老之鹰纹章
+item.pharah_helmet.name=法老之鹰头盔
+item.pharah_chestplate.name=法老之鹰胸甲
+item.pharah_leggings.name=法老之鹰护腿
+item.pharah_boots.name=法老之鹰靴子
+item.pharah_weapon.name=火箭发射器（法老之鹰）
 
 entity.random_hero.name=随机英雄
 entity.hanzo_hero.name=半藏
@@ -222,6 +235,8 @@ entity.doomfist_bullet.name=子弹（末日铁拳）
 entity.roadhog_hero.name=路霸
 entity.roadhog_scrap.name=爆裂枪（路霸）
 entity.roadhog_hook.name=链钩（路霸）
+entity.pharah_hero.name=法老之鹰
+entity.pharah_rocket.name=火箭弹（法老之鹰）
 
 command.reset.success=Minewatch竞技游戏仅可由拥有者重置。
 command.reset.unrecognized_flags=Unrecognized flag(s)

@@ -25,7 +25,7 @@ tile.team_spawn.desc=设置玩家与实体重生区域
 tile.death_block.name=死亡标识
 tile.death_block.desc1=任何触及到它的玩家或者实体都将被抹杀。
 tile.death_block.desc2=用来模仿掉出地图外。
-tile.push_block.name=动态方块
+tile.push_block.name=拟态块
 tile.push_block.desc1=缓慢推离实体或者玩家
 tile.push_block.desc2=用来模仿无法站立在高处。
 

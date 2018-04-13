@@ -109,7 +109,7 @@ public abstract class TileEntityHealthPack extends TileEntity implements ITickab
 			this.hackedTeam = world.getScoreboard().getTeam(nbt.getString("hackedTeam"));
 		else
 			this.hackedTeam = null;
-		if (nbt.hasKey("hacker"))
+		if (nbt.getUniqueId("hacker") != null)
 			this.hacker = nbt.getUniqueId("hacker");
 		else
 			this.hacker = null;

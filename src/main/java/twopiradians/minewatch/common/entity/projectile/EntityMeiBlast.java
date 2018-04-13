@@ -91,6 +91,9 @@ public class EntityMeiBlast extends EntityMW {
 				EntityHelper.spawnTrailParticles(this, 1, 0.8d, motionX, motionY, motionZ, 0xAED4FF, 0x007acc, 0.3f, 5, 1);
 		}
 	}
+	
+	@Override
+	protected void onImpactMoveToHitPosition(RayTraceResult result) {}
 
 	@Override
 	public void onImpact(RayTraceResult result) {

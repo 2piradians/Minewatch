@@ -45,7 +45,7 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemZenyattaWeapon extends ItemMWWeapon {
 
-	private static final int VOLLEY_CHARGE_DELAY = 8;
+	private static final int VOLLEY_CHARGE_DELAY = 9;
 	public static final int ANIMATION_TIME = 40;
 	/**Client: ItemStacks and the ticksExisted that their animations stop - only for client player*/
 	public static ItemStack animatingDiscord;
@@ -158,7 +158,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 		if (this.canUse(player, true, hand, false) && !player.isHandActive() && !TickHandler.hasHandler(player, Identifier.ZENYATTA_VOLLEY)) {
 			if (!world.isRemote) {
 				EntityZenyattaOrb orb = new EntityZenyattaOrb(world, player, hand.ordinal(), 0);
-				EntityHelper.setAim(orb, player, player.rotationPitch, player.rotationYawHead, 80, 0.2F, hand, 22, 0.78f);
+				EntityHelper.setAim(orb, player, player.rotationPitch, player.rotationYawHead, 80, 0.2F, hand, 22, 0.78f, 0.1f);
 				world.spawnEntity(orb);
 				ModSoundEvents.ZENYATTA_SHOOT.playFollowingSound(player, world.rand.nextFloat()+0.5F, world.rand.nextFloat()/3+0.8f, false);
 				this.subtractFromCurrentAmmo(player, 1);
@@ -234,7 +234,7 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
-		return 70;
+		return 80;
 	}
 
 	@Override

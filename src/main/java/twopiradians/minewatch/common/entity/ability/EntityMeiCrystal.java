@@ -20,7 +20,7 @@ public class EntityMeiCrystal extends EntityMW {
 	public EntityMeiCrystal(World worldIn, EntityLivingBase throwerIn) {
 		super(worldIn, throwerIn, -1);
 		this.setSize(1.8f, 2.3f);
-		this.lifetime = 1000;
+		this.lifetime = 80;
 		if (this.getThrower() != null) {
 			this.rotationYaw = this.getThrower().rotationYaw;
 			this.rotationPitch = 0;
@@ -53,6 +53,8 @@ public class EntityMeiCrystal extends EntityMW {
 	public void onUpdate() {
 		super.onUpdate();
 		
+		EntityHelper.collideWithNearbyEntities(this);
+		
 		if (!this.world.isRemote && (this.getThrower() == null || 
 				!TickHandler.hasHandler(this.getThrower(), Identifier.MEI_CRYSTAL)))
 			this.setDead();
@@ -61,7 +63,6 @@ public class EntityMeiCrystal extends EntityMW {
 			this.setPosition(this.getThrower().posX, this.getThrower().posY, this.getThrower().posZ);
 		}
 		
-		EntityHelper.collideWithNearbyEntities(this);
 	}
 	
 	@Override

@@ -61,18 +61,12 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
-	public static HashMap<EntityPlayer, Boolean> wraithViewBobbing = Maps.newHashMap();
+	public static HashMap<EntityPlayer, Boolean> wraithViewBobbing = Maps.newHashMap(); // TODO remove
 	public static final Handler WRAITH = new Handler(Identifier.REAPER_WRAITH, false) {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onClientTick() {
 			if (player == Minecraft.getMinecraft().player)
-				if (this.ticksLeft > 1)
-					Minecraft.getMinecraft().gameSettings.viewBobbing = false;
-				else if (wraithViewBobbing.containsKey(player)) {
-					Minecraft.getMinecraft().gameSettings.viewBobbing = wraithViewBobbing.get(player);
-					wraithViewBobbing.remove(player);
-				}
 			if (this.ticksLeft > 8) {
 				boolean firstPerson = player == Minecraft.getMinecraft().player && 
 						Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ;
@@ -104,6 +98,8 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 		public Handler onServerRemove() {
 			EnumHero.REAPER.ability2.keybind.setCooldown(entityLiving, 160, false);
 			entityLiving.hurtResistantTime = 0;
+			entityLiving.removePotionEffect(MobEffects.SPEED);
+			ModSoundEvents.REAPER_WRAITH.stopFollowingSound(entityLiving);
 			return super.onServerRemove();
 		}
 	};
@@ -212,6 +208,14 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 					player.getHeldItem(hand).damageItem(1, player);
 			}
 		}
+		// cancel wraith
+		else if (!world.isRemote && TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
+			Minewatch.network.sendToDimension(new SPacketSimple(86, player, false), world.provider.getDimension());
+			TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.ABILITY_USING),
+					TickHandler.getHandler(player, Identifier.REAPER_WRAITH),
+					TickHandler.getHandler(player, Identifier.INVULNERABLE));
+			this.setCooldown(player, 10);
+		}
 	}
 
 	@Nullable
@@ -307,8 +311,20 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						WRAITH.setEntity(player).setTicks(60), Handlers.INVULNERABLE.setEntity(player).setTicks(60));
 				Minewatch.network.sendToAll(new SPacketSimple(10, player, false));
 				this.setCurrentAmmo(player, this.getMaxAmmo(player), EnumHand.MAIN_HAND, EnumHand.OFF_HAND);
-				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 1, true, false));
+				player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 60, 2, true, false));
 				ModSoundEvents.REAPER_WRAITH.playFollowingSound(player, 1, 1, false);
+			}
+			// cancel wraith
+			else if (!world.isRemote && KeyBind.ABILITY_1.isKeyPressed(player) && 
+					TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
+				Handler handler = TickHandler.getHandler(player, Identifier.REAPER_WRAITH);
+				if (handler.ticksLeft < handler.initialTicks-3) {
+					Minewatch.network.sendToDimension(new SPacketSimple(86, player, false), world.provider.getDimension());
+					TickHandler.unregister(false, TickHandler.getHandler(player, Identifier.ABILITY_USING),
+							TickHandler.getHandler(player, Identifier.REAPER_WRAITH),
+							TickHandler.getHandler(player, Identifier.INVULNERABLE));
+					this.setCooldown(player, 10);
+				}
 			}
 		}
 	}
@@ -414,6 +430,7 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 
 			GlStateManager.disableBlend();
 		}
+		// wraith
 		else if (event.getType() == ElementType.ALL && 
 				TickHandler.hasHandler(player, Identifier.REAPER_WRAITH)) {
 			float ticks = TickHandler.hasHandler(player, Identifier.REAPER_WRAITH) ? 
@@ -436,6 +453,14 @@ public class ItemReaperShotgun extends ItemMWWeapon {
 						GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 256, 256, 0);
 					}
 					GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+					GlStateManager.popMatrix();
+
+					// cancel overlay
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(width/2, height/2, 0);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(ItemDoomfistWeapon.PUNCH_OVERLAY);
+					GlStateManager.color(1, 1, 1, 1);
+					GuiUtils.drawTexturedModalRect(-128, -128, 0, 0, 256, 256, 0);
 					GlStateManager.popMatrix();
 		}
 	}

@@ -160,7 +160,7 @@ public class SPacketSimple implements IMessage {
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2) {
 		this(type, false, player, x, y, z, null, null, x2, y2, z2);
 	}
-	
+
 	public SPacketSimple(int type, EntityPlayer player, double x, double y, double z, double x2, double y2, double z2, Entity entity) {
 		this(type, false, player, x, y, z, entity, null, x2, y2, z2);
 	}
@@ -372,9 +372,9 @@ public class SPacketSimple implements IMessage {
 					// Reaper's wraith
 					else if (packet.type == 10 && entity != null) {
 						TickHandler.register(true, Ability.ABILITY_USING.setEntity(entity).setTicks(60).setAbility(EnumHero.REAPER.ability2),
-								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60), Handlers.INVULNERABLE.setEntity(entity).setTicks(60));
-						if (player == entity)
-							ItemReaperShotgun.wraithViewBobbing.put(player, Minecraft.getMinecraft().gameSettings.viewBobbing);
+								ItemReaperShotgun.WRAITH.setEntity(entity).setTicks(60), 
+								Handlers.INVULNERABLE.setEntity(entity).setTicks(60),
+								Handlers.VIEW_BOBBING.setEntity(entity).setTicks(60).setBoolean(false));
 					}
 					// wake up from Ana's sleep dart
 					else if (packet.type == 11 && entity != null) {
@@ -1143,6 +1143,13 @@ public class SPacketSimple implements IMessage {
 					// login event
 					else if (packet.type == 85 && entity instanceof EntityLivingBase && packet.x >= 0 && packet.x < EventManager.Type.values().length) {
 						EventManager.onEvent(EventManager.Type.values()[(int) packet.x], (EntityLivingBase) entity);
+					}
+					// cancel Reaper's wraith
+					else if (packet.type == 86 && entity != null) {
+						TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.ABILITY_USING),
+								TickHandler.getHandler(entity, Identifier.REAPER_WRAITH),
+								TickHandler.getHandler(entity, Identifier.INVULNERABLE),
+								TickHandler.getHandler(entity, Identifier.VIEW_BOBBING));
 					}
 				}
 			});

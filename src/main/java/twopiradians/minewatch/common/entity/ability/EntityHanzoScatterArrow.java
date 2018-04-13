@@ -42,43 +42,45 @@ public class EntityHanzoScatterArrow extends EntityHanzoArrow {
 
 	@Override
 	protected void onHit(RayTraceResult result) {
-		EntityHelper.moveToHitPosition(this, result, false);
-		if (!this.world.isRemote && this.shootingEntity instanceof EntityLivingBase) {
-			// bounce off block / entity
-			EnumFacing side = result.sideHit;
-			if (side == null && result.entityHit != null && result.hitVec != null) {
-				Vec3d vec = this.getPositionVector().subtract(EntityHelper.getCenter(result.entityHit.getEntityBoundingBox()));
-				side = EnumFacing.getFacingFromVector((float)vec.x, (float)vec.y, (float)vec.z);
-			}
-			EntityHelper.bounce(this, side, 0.1d, 1.3d);
-			this.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) this.motionX, (float) this.motionY, (float) this.motionZ));
-
-			// scatter
-			if (scatter) {
-				for (int i=0; i<6; ++i) {
-					EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
-					entityarrow.setDamage(this.getDamage());
-					entityarrow.copyLocationAndAnglesFrom(this);
-
-					entityarrow.motionX = this.motionX;
-					entityarrow.motionY = this.motionY;
-					entityarrow.motionZ = this.motionZ;
-
-					entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
-					entityarrow.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
-					if (result.entityHit != null)
-						entityarrow.ignoreEntity = result.entityHit;
-					this.world.spawnEntity(entityarrow);
+		if (result.getBlockPos() == null || !EntityHelper.shouldIgnoreBlock(world.getBlockState(result.getBlockPos()).getBlock())) {
+			EntityHelper.moveToHitPosition(this, result, false);
+			if (!this.world.isRemote && this.shootingEntity instanceof EntityLivingBase) {
+				// bounce off block / entity
+				EnumFacing side = result.sideHit;
+				if (side == null && result.entityHit != null && result.hitVec != null) {
+					Vec3d vec = this.getPositionVector().subtract(EntityHelper.getCenter(result.entityHit.getEntityBoundingBox()));
+					side = EnumFacing.getFacingFromVector((float)vec.x, (float)vec.y, (float)vec.z);
 				}
-				EntityHelper.moveToHitPosition(this, result);
-			}
+				EntityHelper.bounce(this, side, 0.1d, 1.3d);
+				this.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) this.motionX, (float) this.motionY, (float) this.motionZ));
 
-			// hit entity (ignore entity scattered on for first tick)
-			if (result.typeOfHit == RayTraceResult.Type.ENTITY && !(!this.scatter && this.ignoreEntity == result.entityHit && this.ticksExisted <= 2))
+				// scatter
+				if (scatter) {
+					for (int i=0; i<6; ++i) {
+						EntityHanzoScatterArrow entityarrow = new EntityHanzoScatterArrow(world, (EntityLivingBase) this.shootingEntity, false);
+						entityarrow.setDamage(this.getDamage());
+						entityarrow.copyLocationAndAnglesFrom(this);
+
+						entityarrow.motionX = this.motionX;
+						entityarrow.motionY = this.motionY;
+						entityarrow.motionZ = this.motionZ;
+
+						entityarrow.setThrowableHeading(entityarrow.motionX, entityarrow.motionY, entityarrow.motionZ, 2.0f, 10.0f);
+						entityarrow.getDataManager().set(VELOCITY_CLIENT, new Rotations((float) entityarrow.motionX, (float) entityarrow.motionY, (float) entityarrow.motionZ));
+						if (result.entityHit != null)
+							entityarrow.ignoreEntity = result.entityHit;
+						this.world.spawnEntity(entityarrow);
+					}
+					EntityHelper.moveToHitPosition(this, result);
+				}
+
+				// hit entity (ignore entity scattered on for first tick)
+				if (result.typeOfHit == RayTraceResult.Type.ENTITY && !(!this.scatter && this.ignoreEntity == result.entityHit && this.ticksExisted <= 2))
+					super.onHit(result);
+			}
+			else
 				super.onHit(result);
 		}
-		else
-			super.onHit(result);
 	}
 
 }

@@ -191,12 +191,12 @@ public class RenderManager {
 			GlStateManager.popMatrix();
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public static boolean hideHealthArmor(EntityPlayer player) {
 		return Config.hideHealthArmor && SetManager.getWornSet(player) != null;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public static boolean hideFood(EntityPlayer player) {
 		return Config.hideHunger && SetManager.getWornSet(player) != null && !player.getFoodStats().needFood();
@@ -211,7 +211,7 @@ public class RenderManager {
 		}
 		return false;
 	}
-	
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void renderCrosshairs(RenderGameOverlayEvent.Pre event) {
@@ -224,11 +224,11 @@ public class RenderManager {
 		// hide food
 		else if (event.getType() == ElementType.FOOD &&
 				hideFood(mc.player)) 
-				event.setCanceled(true);
+			event.setCanceled(true);
 		// hide hotbar
 		else if ((event.getType() == ElementType.HOTBAR || event.getType() == ElementType.EXPERIENCE) &&
 				hideHotBar(mc.player)) 
-				event.setCanceled(true);
+			event.setCanceled(true);
 
 		if (Minecraft.getMinecraft().currentScreen instanceof GuiHeroSelect)
 			event.setCanceled(true);
@@ -391,11 +391,11 @@ public class RenderManager {
 					// ultimate
 					UltimateManager.renderUltimateMeter(player, hero, width, height);
 				}
-				
+
 				if (hero != null && !player.isSpectator()) {	
 					// charge
 					ChargeManager.renderChargeOverlay(player, width, height);
-					
+
 					// portrait
 					GlStateManager.pushMatrix();
 					double scale = 0.25d*Config.guiScale;
@@ -484,7 +484,7 @@ public class RenderManager {
 							if (!ability.isEnabled && ability.keybind != KeyBind.NONE) {
 								GlStateManager.translate(i*0.3d, -i*0.5d, 0);
 								ability.drawNotEnabledIcon(-i*9+1, 6, 0);
-								
+
 							}
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.popMatrix();
@@ -989,16 +989,18 @@ public class RenderManager {
 		if (entity == null || !entity.isEntityAlive() || entity instanceof EntityGuiPlayer)
 			return false;
 		// render for spectators
-		else if (Minewatch.proxy.getClientPlayer().isSpectator() && 
-				!(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator()))
+		else if (Minewatch.proxy.getClientPlayer().isSpectator())
 			return true;
+		// don't render for other spectators
+		else if (entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator())
+			return false;
 		// if EntityHero, can check directly
 		else if (renderer instanceof RenderHero && entity instanceof EntityHero)
 			return ((RenderHero)renderer).canRenderName((EntityHero) entity);
 
 		EntityPlayerSP entityplayersp = Minecraft.getMinecraft().player;
 		boolean flag = !entity.isInvisibleToPlayer(entityplayersp) && !entity.isInvisible();
-		
+
 		if (entity != entityplayersp)
 		{
 			Team team = entity.getTeam();

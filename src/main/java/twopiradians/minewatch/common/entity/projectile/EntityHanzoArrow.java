@@ -78,7 +78,8 @@ public class EntityHanzoArrow extends EntityArrow implements IThrowableEntity {
 				this.motionZ = 0;
 			}
 		}
-		else if (result.entityHit == null)
+		else if (result.entityHit == null && result.getBlockPos() != null && 
+				!EntityHelper.shouldIgnoreBlock(world.getBlockState(result.getBlockPos()).getBlock()))
 			super.onHit(result);
 	}
 

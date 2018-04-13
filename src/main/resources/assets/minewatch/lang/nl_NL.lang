@@ -1,0 +1,276 @@
+itemGroup.tabMinewatch=Minewatch Tab
+itemGroup.tabMinewatchArmorWeapons=Minewatch Harnas & Wapens
+itemGroup.tabMinewatchMapMaking=Minewatch Map-Maken Gereedschap
+
+config.server-side=Server-Side
+config.client-side=Client-Side
+config.client-side.hero_skins=Helden skins
+config.server-side.hero_mobs=Helden Mobs
+config.server-side.team_blocks=Team Blocken
+
+command.hero.desc=equips you/target with armor and weapon(s) for hero
+command.sync.desc=syncs your config to the server (in multiplayer)
+command.team_spawn.desc=activates/deactivates a Team Spawn
+command.ult.desc=sets a target's ultimate charge percent
+command.reset.desc=the master command to "reset" Minewatch games, currently kills and respawns entities that can respawn at Team Spawns
+command.lobby.desc=removes team, clears inventory, and respawns you
+
+effect.frozen=Frozen
+
+tile.health_pack_small.name=Klein Gezondheidspakket
+tile.health_pack_large.name=Groot Gezondheidspakket
+tile.health_pack.desc=Geneest als je er over loopt en kost tijd om te respawnen
+tile.team_spawn.name=Team Spawn
+tile.team_spawn.desc=Block waarop players en mobs kunnen respawnen 
+tile.death_block.name=Dood Block
+tile.death_block.desc1=Maakt mobs en players ( in survival of adventure mode) die het aanraken dood
+tile.death_block.desc2=Kan woorden gebruikt om het fallen van de map na te doen.
+tile.push_block.name=Duw Block
+tile.push_block.desc1=Duwt mobs en spelers die het aanraken
+tile.push_block.desc2=Kan woorden gebruikt voor het nadoen van daken waarop je niet kan staan.
+
+item.wild_card_token.name=Wild Card Token
+item.team_stick.name=Team Stock
+item.hero_token.desc=Maak met iron armor om %s's armor te maken of maak aleen om %s's wapen(s) te maken
+item.hero_token_wildCard.desc=Rechter-click deze token om interuilen voor een andere helden token na jouw keuze.
+
+item.reaper_token.name=Reaper Token
+item.reaper_helmet.name=Reaper Helm
+item.reaper_chestplate.name=Reaper Borststuk
+item.reaper_leggings.name=Reaper Broek
+item.reaper_boots.name=Reaper Schoenen
+item.reaper_weapon.name=Reaper's Hellvuur Shotgun
+
+item.hanzo_token.name=Hanzo Token
+item.hanzo_helmet.name=Hanzo Helm
+item.hanzo_chestplate.name=Hanzo Borststuk
+item.hanzo_leggings.name=Hanzo Broek
+item.hanzo_boots.name=Hanzo Schoenen
+item.hanzo_weapon.name=Hanzo's Storm Pijlenboog
+
+item.reinhardt_token.name=Reinhardt Token
+item.reinhardt_helmet.name=Reinhardt Helm
+item.reinhardt_chestplate.name=Reinhardt Borststuk
+item.reinhardt_leggings.name=Reinhardt Broek
+item.reinhardt_boots.name=Reinhardt Schoenen
+item.reinhardt_weapon.name=Reinhardt's Raket Hamer
+
+item.ana_token.name=Ana Token
+item.ana_helmet.name=Ana Helm
+item.ana_chestplate.name=Ana Borststuk
+item.ana_leggings.name=Ana Broek
+item.ana_boots.name=Ana Schoenen
+item.ana_weapon.name=Ana's Biotische Geweer
+
+item.genji_token.name=Genji Token
+item.genji_helmet.name=Genji Helm
+item.genji_chestplate.name=Genji Borststuk
+item.genji_leggings.name=Genji Broek
+item.genji_boots.name=Genji Schoenen
+item.genji_weapon.name=Genji's Werpster
+item.genji_shuriken_single.name=Genji's Werpster
+
+item.tracer_token.name=Tracer Token
+item.tracer_helmet.name=Tracer Helm
+item.tracer_chestplate.name=Tracer Borststuk
+item.tracer_leggings.name=Tracer Broek
+item.tracer_boots.name=Tracer Schoenen
+item.tracer_weapon.name=Tracer's Pulse Pistool
+
+item.mccree_token.name=McCree Token
+item.mccree_helmet.name=McCree Helm
+item.mccree_chestplate.name=McCree Borststuk
+item.mccree_leggings.name=McCree Broek
+item.mccree_boots.name=McCree Schoenen
+item.mccree_weapon.name=McCree's Vredehouder
+
+item.soldier76_token.name=Soldier: 76 Token
+item.soldier76_helmet.name=Soldier: 76 Helm
+item.soldier76_chestplate.name=Soldier: 76 Borststuk
+item.soldier76_leggings.name=Soldier: 76 Broek
+item.soldier76_boots.name=Soldier: 76 Schoenen
+item.soldier76_weapon.name=Soldier: 76's Pulse Geweer
+
+item.mei_token.name=Mei Token
+item.mei_helmet.name=Mei Helm
+item.mei_chestplate.name=Mei Borststuk
+item.mei_leggings.name=Mei Broek
+item.mei_boots.name=Mei Schoenen
+item.mei_weapon.name=Mei's Endothermic Blaster
+
+item.bastion_token.name=Bastion Token
+item.bastion_helmet.name=Bastion Helm
+item.bastion_chestplate.name=Bastion Borststuk
+item.bastion_leggings.name=Bastion Broek
+item.bastion_boots.name=Bastion Schoenen
+item.bastion_weapon.name=Bastion's Machinepistool
+
+item.widowmaker_token.name=Widowmaker Token
+item.widowmaker_helmet.name=Widowmaker Helm
+item.widowmaker_chestplate.name=Widowmaker Borststuk
+item.widowmaker_leggings.name=Widowmaker Broek
+item.widowmaker_boots.name=Widowmaker Schoenen
+item.widowmaker_weapon.name=Widow's Kuss
+
+item.mercy_token.name=Mercy Token
+item.mercy_helmet.name=Mercy Helm
+item.mercy_chestplate.name=Mercy Borststuk
+item.mercy_leggings.name=Mercy Broek
+item.mercy_boots.name=Mercy Schoenen
+item.mercy_weapon.name=Mercy's Wapen
+
+item.junkrat_token.name=Junkrat Token
+item.junkrat_helmet.name=Junkrat Helm
+item.junkrat_chestplate.name=Junkrat Borststuk
+item.junkrat_leggings.name=Junkrat Broek
+item.junkrat_boots.name=Junkrat Schoenen
+item.junkrat_weapon.name=Junkrat's Granaatlanceerder
+item.junkrat_trigger.name=Junkrat's Hersenschudding Mijn trekker
+
+item.sombra_token.name=Sombra Token
+item.sombra_helmet.name=Sombra Helm
+item.sombra_chestplate.name=Sombra Borststuk
+item.sombra_leggings.name=Sombra Broek
+item.sombra_boots.name=Sombra Schoenen
+item.sombra_weapon.name=Sombra's Machinepistool
+item.sombra_hack.name=Sombra's Hack
+
+item.lucio_token.name=Lúcio Token
+item.lucio_helmet.name=Lúcio Helm
+item.lucio_chestplate.name=Lúcio Borststuk
+item.lucio_leggings.name=Lúcio Broek
+item.lucio_boots.name=Lúcio Schoenen
+item.lucio_weapon.name=Lúcio's Geluid Versterker
+
+item.zenyatta_token.name=Zenyatta Token
+item.zenyatta_helmet.name=Zenyatta Helm
+item.zenyatta_chestplate.name=Zenyatta Borststuk
+item.zenyatta_leggings.name=Zenyatta Broek
+item.zenyatta_boots.name=Zenyatta Schoenen
+item.zenyatta_weapon.name=Zenyatta's Bol van verwoesting
+
+item.moira_token.name=Moira Token
+item.moira_helmet.name=Moira Helm
+item.moira_chestplate.name=Moira Borststuk
+item.moira_leggings.name=Moira Broek
+item.moira_boots.name=Moira Schoenen
+item.moira_weapon.name=Moira's Biotische Greep
+
+item.doomfist_token.name=Doomfist Token
+item.doomfist_helmet.name=Doomfist Helm
+item.doomfist_chestplate.name=Doomfist Borststuk
+item.doomfist_leggings.name=Doomfist Broek
+item.doomfist_boots.name=Doomfist Schoenen
+item.doomfist_weapon.name=Doomfist's Handschoen
+
+item.roadhog_token.name=Roadhog Token
+item.roadhog_helmet.name=Roadhog Helm
+item.roadhog_chestplate.name=Roadhog Borststuk
+item.roadhog_leggings.name=Roadhog Broek
+item.roadhog_boots.name=Roadhog Schoenen
+item.roadhog_weapon.name=Roadhog's Schroot Geweer
+item.roadhog_health.name=Roadhog's Genees Bus
+
+item.pharah_token.name=Pharah Token
+item.pharah_helmet.name=Pharah Helm
+item.pharah_chestplate.name=Pharah Borststuk
+item.pharah_leggings.name=Pharah Broek
+item.pharah_boots.name=Pharah Schoenen
+item.pharah_weapon.name=Pharah's Raketenwerper 
+
+entity.random_hero.name=Willekeurige Held
+entity.hanzo_hero.name=Hanzo
+entity.hanzo_arrow.name=Hanzo Pijl
+entity.hanzo_sonic_arrow.name=Hanzo Sonic Pijl
+entity.hanzo_scatter_arrow.name=Hanzo Opsplits Pijl
+entity.reaper_hero.name=Reaper
+entity.reaper_bullet.name=Reaper Kogel
+entity.ana_hero.name=Ana
+entity.ana_bullet.name=Ana Kogel
+entity.ana_sleep_dart.name=Ana Slaap Pijl
+entity.ana_grenade.name=Ana Biotische Granaat
+entity.genji_hero.name=Genji
+entity.genji_shuriken.name=Genji Werpster
+entity.genji_shuriken_single.name=Genji Werpster
+entity.tracer_hero.name=Tracer
+entity.tracer_bullet.name=Tracer Kogel
+entity.mccree_hero.name=McCree
+entity.mccree_bullet.name=McCree Kogel
+entity.mccree_stun.name=McCree Flashbang
+entity.soldier76_hero.name=Soldier: 76
+entity.soldier76_bullet.name=Soldier: 76 Kogel
+entity.soldier76_helix_rocket.name=Soldier: 76 Helix Raket
+entity.soldier76_heal.name=Soldier: 76 Biotische Veld
+entity.bastion_hero.name=Bastion
+entity.bastion_bullet.name=Bastion Kogel
+entity.mei_hero.name=Mei
+entity.mei_blast.name=Mei Blast
+entity.mei_icicle.name=Mei Ijskegel
+entity.mei_crystal.name=Mei Cryo-Vrieser
+entity.mercy_hero.name=Mercy
+entity.mercy_bullet.name=Mercy Kogel
+entity.mercy_beam.name=Mercy Straal
+entity.junkrat_hero.name=Junkrat
+entity.junkrat_grenade.name=Junkrat Granaat
+entity.junkrat_trap.name=Junkrat Stale val
+entity.junkrat_mine.name=Junkrat Hersenschudding Mijn
+entity.widowmaker_hero.name=Widowmaker
+entity.widowmaker_bullet.name=Widowmaker Kogel
+entity.widowmaker_mine.name=Widowmaker Gif Mijn
+entity.widowmaker_hook.name=Widowmaker Grappling Hook
+entity.sombra_hero.name=Sombra
+entity.sombra_bullet.name=Sombra Kogel
+entity.sombra_translocator.name=Sombra Translocator
+entity.reinhardt_hero.name=Reinhardt
+entity.reinhardt_strike.name=Reinhardt Vuur Strike
+entity.lucio_hero.name=Lúcio
+entity.lucio_sonic.name=Lúcio Sonic Projectiel
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Zenyatta Bal Van Verwoesting
+entity.moira_hero.name=Moira
+entity.moira_heal_energy.name=Moira Genees Energie
+entity.moira_orb.name=Moira Biotische bal
+entity.doomfist_hero.name=Doomfist
+entity.doomfist_bullet.name=Doomfist Kogel
+entity.roadhog_hero.name=Roadhog
+entity.roadhog_scrap.name=Roadhog Schroot
+entity.roadhog_hook.name=Roadhog Haak
+entity.pharah_hero.name=Pharah
+entity.pharah_rocket.name=Pharah Raket
+
+command.reset.success=Minewatch game reset by a moderator.
+command.reset.unrecognized_flags=Unrecognized flag(s)
+
+overlay.eliminated_by=Jij bent geëlimineert door
+overlay.assist=assist
+overlay.eliminated=geëlimineert
+overlay.death_spectating=Jij bent nu aan het bekijken na de dood
+overlay.respawn_in=respawn in
+overlay.change_hero=Druk %s om held te veranderen
+
+gui.team_block.button.name=Naam
+gui.team_block.button.name.desc=Deze naam is gebruikt bij commands
+gui.team_block.button.options=Opties
+gui.team_block.button.active=Actief
+gui.team_block.button.inactive=Inactief
+gui.team_block.button.activate_deactivate=Activeer / Deactiveer
+gui.team_block.button.selected_team=Kiez Team
+gui.team_block.button.video_demonstration=Video Demonstratie
+gui.team_block.button.ok=OK
+
+gui.team_spawn.button.spawn_radius=Straal
+gui.team_spawn.button.spawn_radius.desc=De straal rond dit blok dat spelers en mobs kunnen spawnen, genezen en toegang hebben tot heldenselectie
+gui.team_spawn.button.heal.desc=Moeten players en mobs geheeld woorden in deze straal als deze actief is
+gui.team_spawn.button.change_hero.desc=Moeten spelers en mobs in deze straal de keuzen krijgen van held te veranderen als deze actief is
+gui.team_spawn.button.activate.desc=Spelers en mobs zullen spawnen in hun team's actieve team spawn
+gui.team_spawn.button.deactivate.desc=Spelers en mobs zullen spawnen in hun team's actieve team spawn
+gui.team_spawn.button.selected_team.desc=Choose the team that will respawn here
+gui.team_spawn.question_mark_description_0=Players and mobs will spawn at their team's active Team Spawn. They spawn facing the direction of the arrow. They will also be healed and can access hero selection within the radius.
+gui.team_spawn.question_mark_description_1=Team Spawn blocks kunnen woorden ook geactieveerd/deactiveerd met een command
+gui.team_spawn.status.players_heroes_team=Speler en mobs in
+gui.team_spawn.status.players_heroes_all=Alle spelers en mobs (Die in een team zitten)
+gui.team_spawn.status.players_heroes_none=Niets
+gui.team_spawn.status.will_spawn=Zou hier spawnen
+
+gui.hero_select.select=Kiez
+gui.hero_select.select_hero=Kiez een held

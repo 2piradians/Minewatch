@@ -114,12 +114,6 @@ public class EntityMeiIcicle extends EntityMW {
 				if (iblockstate.getMaterial() != Material.AIR)
 					this.inTile.onEntityCollidedWithBlock(this.world, blockpos, iblockstate, this);
 			}
-			else {
-				if (world.isRemote)
-					this.setDead();
-				else
-					EntityHelper.moveToHitPosition(this, result);
-			}
 		}
 	}
 

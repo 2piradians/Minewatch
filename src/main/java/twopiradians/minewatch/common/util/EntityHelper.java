@@ -227,11 +227,11 @@ public class EntityHelper {
 		RayTraceResult entityTrace = null;
 		if (target != null)
 			entityTrace = new RayTraceResult(target, new Vec3d(target.posX, target.posY+target.height/2d, target.posZ));
-		/*// aim bot (eventually used with Soldier's ult)
-		else if () {
-			EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision(shooter, shooter instanceof EntityHero ? 64 : 512, 15, friendly);
+		// aim bot (eventually might be used with Soldier's ult)
+		/*else if (false) { 
+			EntityLivingBase targetEntity = EntityHelper.getTargetInFieldOfVision(shooter, shooter instanceof EntityHero ? 64 : 512, 60, friendly, true);
 				if (targetEntity != null) { 
-				Vec3d targetHit = EntityHelper.getClosestPointOnBoundingBox(vec, shooter.getLookVec(), targetEntity);
+				Vec3d targetHit = EntityHelper.getClosestPointOnBoundingBox(vecS, shooter.getLookVec(), targetEntity);
 				if (targetHit != null)
 					entityTrace = new RayTraceResult(target, targetHit);
 			}
@@ -286,7 +286,7 @@ public class EntityHelper {
 			scaledVelocityS = scaledVelocityS.add(scaledVelocityS.normalize().scale(0.1d));
 			scaledVelocityC = scaledVelocityC.add(scaledVelocityC.normalize().scale(0.1d));
 		}
-		
+
 		// mark hitscan (for genji deflect)
 		if (metersPerSecond == -1 && entity instanceof EntityMW)
 			((EntityMW)entity).hitscan = true;
@@ -667,6 +667,16 @@ public class EntityHelper {
 
 	/**Spawn trail particles behind entity based on entity's prevPos and current motion*/
 	public static void spawnTrailParticles(Entity entity, double amountPerBlock, double random, double motionX, double motionY, double motionZ, int color, int colorFade, float scale, int maxAge, float alpha, Vec3d pos, Vec3d prevPos) {
+		// change amount based on particle settings
+		switch (Minewatch.proxy.getParticleSettings()) {
+		case 1:
+			amountPerBlock *= 0.6d;
+			break;
+		case 2:
+			amountPerBlock *= 0.3d;
+			break;
+		}
+
 		int numParticles = MathHelper.ceil(amountPerBlock * Math.sqrt(entity.getDistanceSq(prevPos.x, prevPos.y, prevPos.z)));
 		for (float i=0; i<numParticles; ++i) 
 			Minewatch.proxy.spawnParticlesTrail(entity.world, 
@@ -1256,190 +1266,190 @@ public class EntityHelper {
 			return Math.max(0, pos.distanceTo(entity.getPositionVector().addVector(0, entity.height/2f, 0))-Math.max(entity.width, entity.height)/2f);
 		return 0;
 	}
-	
+
 	/**Copied from {@link World#rayTraceBlocks(Vec3d, Vec3d, boolean, boolean, boolean)}
 	 * ignores blocks that shouldIgnoreBlock() returns true for*/
 	@Nullable
-    public static RayTraceResult rayTraceBlocks(World world, Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
-    {
-        if (!Double.isNaN(vec31.x) && !Double.isNaN(vec31.y) && !Double.isNaN(vec31.z))
-        {
-            if (!Double.isNaN(vec32.x) && !Double.isNaN(vec32.y) && !Double.isNaN(vec32.z))
-            {
-                int i = MathHelper.floor(vec32.x);
-                int j = MathHelper.floor(vec32.y);
-                int k = MathHelper.floor(vec32.z);
-                int l = MathHelper.floor(vec31.x);
-                int i1 = MathHelper.floor(vec31.y);
-                int j1 = MathHelper.floor(vec31.z);
-                BlockPos blockpos = new BlockPos(l, i1, j1);
-                IBlockState iblockstate = world.getBlockState(blockpos);
-                Block block = iblockstate.getBlock();
+	public static RayTraceResult rayTraceBlocks(World world, Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
+	{
+		if (!Double.isNaN(vec31.x) && !Double.isNaN(vec31.y) && !Double.isNaN(vec31.z))
+		{
+			if (!Double.isNaN(vec32.x) && !Double.isNaN(vec32.y) && !Double.isNaN(vec32.z))
+			{
+				int i = MathHelper.floor(vec32.x);
+				int j = MathHelper.floor(vec32.y);
+				int k = MathHelper.floor(vec32.z);
+				int l = MathHelper.floor(vec31.x);
+				int i1 = MathHelper.floor(vec31.y);
+				int j1 = MathHelper.floor(vec31.z);
+				BlockPos blockpos = new BlockPos(l, i1, j1);
+				IBlockState iblockstate = world.getBlockState(blockpos);
+				Block block = iblockstate.getBlock();
 
-                if ((!ignoreBlockWithoutBoundingBox || iblockstate.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB) && block.canCollideCheck(iblockstate, stopOnLiquid))
-                {
-                    RayTraceResult raytraceresult = iblockstate.collisionRayTrace(world, blockpos, vec31, vec32);
+				if ((!ignoreBlockWithoutBoundingBox || iblockstate.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB) && block.canCollideCheck(iblockstate, stopOnLiquid))
+				{
+					RayTraceResult raytraceresult = iblockstate.collisionRayTrace(world, blockpos, vec31, vec32);
 
-                    if (raytraceresult != null &&
-                    		!EntityHelper.shouldIgnoreBlock(iblockstate.getBlock())) // added
-                    {
-                        return raytraceresult;
-                    }
-                }
+					if (raytraceresult != null &&
+							!EntityHelper.shouldIgnoreBlock(iblockstate.getBlock())) // added
+					{
+						return raytraceresult;
+					}
+				}
 
-                RayTraceResult raytraceresult2 = null;
-                int k1 = 200;
+				RayTraceResult raytraceresult2 = null;
+				int k1 = 200;
 
-                while (k1-- >= 0)
-                {
-                    if (Double.isNaN(vec31.x) || Double.isNaN(vec31.y) || Double.isNaN(vec31.z))
-                    {
-                        return null;
-                    }
+				while (k1-- >= 0)
+				{
+					if (Double.isNaN(vec31.x) || Double.isNaN(vec31.y) || Double.isNaN(vec31.z))
+					{
+						return null;
+					}
 
-                    if (l == i && i1 == j && j1 == k)
-                    {
-                        return returnLastUncollidableBlock ? raytraceresult2 : null;
-                    }
+					if (l == i && i1 == j && j1 == k)
+					{
+						return returnLastUncollidableBlock ? raytraceresult2 : null;
+					}
 
-                    boolean flag2 = true;
-                    boolean flag = true;
-                    boolean flag1 = true;
-                    double d0 = 999.0D;
-                    double d1 = 999.0D;
-                    double d2 = 999.0D;
+					boolean flag2 = true;
+					boolean flag = true;
+					boolean flag1 = true;
+					double d0 = 999.0D;
+					double d1 = 999.0D;
+					double d2 = 999.0D;
 
-                    if (i > l)
-                    {
-                        d0 = (double)l + 1.0D;
-                    }
-                    else if (i < l)
-                    {
-                        d0 = (double)l + 0.0D;
-                    }
-                    else
-                    {
-                        flag2 = false;
-                    }
+					if (i > l)
+					{
+						d0 = (double)l + 1.0D;
+					}
+					else if (i < l)
+					{
+						d0 = (double)l + 0.0D;
+					}
+					else
+					{
+						flag2 = false;
+					}
 
-                    if (j > i1)
-                    {
-                        d1 = (double)i1 + 1.0D;
-                    }
-                    else if (j < i1)
-                    {
-                        d1 = (double)i1 + 0.0D;
-                    }
-                    else
-                    {
-                        flag = false;
-                    }
+					if (j > i1)
+					{
+						d1 = (double)i1 + 1.0D;
+					}
+					else if (j < i1)
+					{
+						d1 = (double)i1 + 0.0D;
+					}
+					else
+					{
+						flag = false;
+					}
 
-                    if (k > j1)
-                    {
-                        d2 = (double)j1 + 1.0D;
-                    }
-                    else if (k < j1)
-                    {
-                        d2 = (double)j1 + 0.0D;
-                    }
-                    else
-                    {
-                        flag1 = false;
-                    }
+					if (k > j1)
+					{
+						d2 = (double)j1 + 1.0D;
+					}
+					else if (k < j1)
+					{
+						d2 = (double)j1 + 0.0D;
+					}
+					else
+					{
+						flag1 = false;
+					}
 
-                    double d3 = 999.0D;
-                    double d4 = 999.0D;
-                    double d5 = 999.0D;
-                    double d6 = vec32.x - vec31.x;
-                    double d7 = vec32.y - vec31.y;
-                    double d8 = vec32.z - vec31.z;
+					double d3 = 999.0D;
+					double d4 = 999.0D;
+					double d5 = 999.0D;
+					double d6 = vec32.x - vec31.x;
+					double d7 = vec32.y - vec31.y;
+					double d8 = vec32.z - vec31.z;
 
-                    if (flag2)
-                    {
-                        d3 = (d0 - vec31.x) / d6;
-                    }
+					if (flag2)
+					{
+						d3 = (d0 - vec31.x) / d6;
+					}
 
-                    if (flag)
-                    {
-                        d4 = (d1 - vec31.y) / d7;
-                    }
+					if (flag)
+					{
+						d4 = (d1 - vec31.y) / d7;
+					}
 
-                    if (flag1)
-                    {
-                        d5 = (d2 - vec31.z) / d8;
-                    }
+					if (flag1)
+					{
+						d5 = (d2 - vec31.z) / d8;
+					}
 
-                    if (d3 == -0.0D)
-                    {
-                        d3 = -1.0E-4D;
-                    }
+					if (d3 == -0.0D)
+					{
+						d3 = -1.0E-4D;
+					}
 
-                    if (d4 == -0.0D)
-                    {
-                        d4 = -1.0E-4D;
-                    }
+					if (d4 == -0.0D)
+					{
+						d4 = -1.0E-4D;
+					}
 
-                    if (d5 == -0.0D)
-                    {
-                        d5 = -1.0E-4D;
-                    }
+					if (d5 == -0.0D)
+					{
+						d5 = -1.0E-4D;
+					}
 
-                    EnumFacing enumfacing;
+					EnumFacing enumfacing;
 
-                    if (d3 < d4 && d3 < d5)
-                    {
-                        enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
-                        vec31 = new Vec3d(d0, vec31.y + d7 * d3, vec31.z + d8 * d3);
-                    }
-                    else if (d4 < d5)
-                    {
-                        enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
-                        vec31 = new Vec3d(vec31.x + d6 * d4, d1, vec31.z + d8 * d4);
-                    }
-                    else
-                    {
-                        enumfacing = k > j1 ? EnumFacing.NORTH : EnumFacing.SOUTH;
-                        vec31 = new Vec3d(vec31.x + d6 * d5, vec31.y + d7 * d5, d2);
-                    }
+					if (d3 < d4 && d3 < d5)
+					{
+						enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
+						vec31 = new Vec3d(d0, vec31.y + d7 * d3, vec31.z + d8 * d3);
+					}
+					else if (d4 < d5)
+					{
+						enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
+						vec31 = new Vec3d(vec31.x + d6 * d4, d1, vec31.z + d8 * d4);
+					}
+					else
+					{
+						enumfacing = k > j1 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+						vec31 = new Vec3d(vec31.x + d6 * d5, vec31.y + d7 * d5, d2);
+					}
 
-                    l = MathHelper.floor(vec31.x) - (enumfacing == EnumFacing.EAST ? 1 : 0);
-                    i1 = MathHelper.floor(vec31.y) - (enumfacing == EnumFacing.UP ? 1 : 0);
-                    j1 = MathHelper.floor(vec31.z) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
-                    blockpos = new BlockPos(l, i1, j1);
-                    IBlockState iblockstate1 = world.getBlockState(blockpos);
-                    Block block1 = iblockstate1.getBlock();
+					l = MathHelper.floor(vec31.x) - (enumfacing == EnumFacing.EAST ? 1 : 0);
+					i1 = MathHelper.floor(vec31.y) - (enumfacing == EnumFacing.UP ? 1 : 0);
+					j1 = MathHelper.floor(vec31.z) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
+					blockpos = new BlockPos(l, i1, j1);
+					IBlockState iblockstate1 = world.getBlockState(blockpos);
+					Block block1 = iblockstate1.getBlock();
 
-                    if (!ignoreBlockWithoutBoundingBox || iblockstate1.getMaterial() == Material.PORTAL || iblockstate1.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB)
-                    {
-                        if (block1.canCollideCheck(iblockstate1, stopOnLiquid))
-                        {
-                            RayTraceResult raytraceresult1 = iblockstate1.collisionRayTrace(world, blockpos, vec31, vec32);
+					if (!ignoreBlockWithoutBoundingBox || iblockstate1.getMaterial() == Material.PORTAL || iblockstate1.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB)
+					{
+						if (block1.canCollideCheck(iblockstate1, stopOnLiquid))
+						{
+							RayTraceResult raytraceresult1 = iblockstate1.collisionRayTrace(world, blockpos, vec31, vec32);
 
-                            if (raytraceresult1 != null && 
-                            		!EntityHelper.shouldIgnoreBlock(iblockstate1.getBlock())) // added
-                            {
-                                return raytraceresult1;
-                            }
-                        }
-                        else
-                        {
-                            raytraceresult2 = new RayTraceResult(RayTraceResult.Type.MISS, vec31, enumfacing, blockpos);
-                        }
-                    }
-                }
+							if (raytraceresult1 != null && 
+									!EntityHelper.shouldIgnoreBlock(iblockstate1.getBlock())) // added
+							{
+								return raytraceresult1;
+							}
+						}
+						else
+						{
+							raytraceresult2 = new RayTraceResult(RayTraceResult.Type.MISS, vec31, enumfacing, blockpos);
+						}
+					}
+				}
 
-                return returnLastUncollidableBlock ? raytraceresult2 : null;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else
-        {
-            return null;
-        }
-    }
+				return returnLastUncollidableBlock ? raytraceresult2 : null;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
 
 }

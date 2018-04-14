@@ -61,7 +61,6 @@ import twopiradians.minewatch.packet.SPacketSimple;
 
 public class ItemReaperShotgun extends ItemMWWeapon {
 
-	public static HashMap<EntityPlayer, Boolean> wraithViewBobbing = Maps.newHashMap(); // TODO remove
 	public static final Handler WRAITH = new Handler(Identifier.REAPER_WRAITH, false) {
 		@Override
 		@SideOnly(Side.CLIENT)

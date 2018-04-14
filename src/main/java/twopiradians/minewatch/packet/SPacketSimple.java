@@ -33,6 +33,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
+import twopiradians.minewatch.client.attachment.AttachmentManager.Type;
 import twopiradians.minewatch.client.gui.display.GuiDisplay;
 import twopiradians.minewatch.client.gui.tab.GuiTab;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
@@ -963,16 +965,14 @@ public class SPacketSimple implements IMessage {
 								RankManager.clientRanks.add(rank);
 					}
 					// Sombra's hack
-					else if (packet.type == 61 && entity != null) {
+					else if (packet.type == 61 && entity instanceof EntityLivingBase) {
 						if (packet.bool)
 							TickHandler.register(true, ItemSombraMachinePistol.HACK.setEntity(entity).setEntityLiving(null).setTicks(10));
 						else {
 							TickHandler.unregister(true, TickHandler.getHandler(entity, Identifier.SOMBRA_HACK));
 							// entity2 hacked
 							if (entity2 instanceof EntityLivingBase) {
-								TickHandler.interrupt(entity2);
-								TickHandler.register(true, RenderManager.MESSAGES.setEntity(entity2).setTicks(120).setString(TextFormatting.DARK_RED+""+TextFormatting.ITALIC+""+TextFormatting.BOLD+"HACKED").setNumber(MessageTypes.TOP.ordinal()));
-								TickHandler.register(true, ItemSombraMachinePistol.HACKED.setEntity(entity2).setTicks(120)); 
+								ItemSombraMachinePistol.hackEntity((EntityLivingBase) entity, (EntityLivingBase)entity2);
 							}
 						}
 					}
@@ -1150,6 +1150,22 @@ public class SPacketSimple implements IMessage {
 								TickHandler.getHandler(entity, Identifier.REAPER_WRAITH),
 								TickHandler.getHandler(entity, Identifier.INVULNERABLE),
 								TickHandler.getHandler(entity, Identifier.VIEW_BOBBING));
+					}
+					// Sombra's ult
+					else if (packet.type == 87 && entity instanceof EntityLivingBase) {
+						TickHandler.register(true, ItemSombraMachinePistol.ULTIMATE.setEntity(player).setTicks((int) packet.x),
+								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks((int) packet.x),
+								UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks((int) packet.x),
+								Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x));
+						AttachmentManager.addAttachments((EntityLivingBase)entity, Type.SOMBRA_ULTIMATE_DOME);
+						entity.onGround = false;
+						entity.move(MoverType.PLAYER, 0, 2d, 0);
+						boolean friendly = !EntityHelper.shouldHit(entity, Minecraft.getMinecraft().getRenderViewEntity(), false);
+						int color = friendly ? 0xDC89FE : 0xFF6666;
+						int colorFade = friendly ? 0xEEF0F4 : 0xAF6666;
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_ULTIMATE_0, entity.world, entity, color, colorFade, 5, 18, 15, 34, 0, 0);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_ULTIMATE_0, entity.world, entity, color, colorFade, 5, 18, 15, 34, 0, 0);
+						Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, entity, color, color, 0.8f, 18, 20, 45, 0, 0);
 					}
 				}
 			});

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Maps;
+import com.ibm.icu.impl.ICUService.Key;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -20,9 +21,11 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
@@ -308,6 +311,17 @@ public class Keys {
 			return mc.gameSettings.keyBindAttack.getKeyCode() == -100 ||
 					mc.gameSettings.keyBindAttack.getKeyCode() == -99 ||
 					mc.gameSettings.keyBindAttack.getKeyCode() == -98;
+		}
+
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void keyEvents(KeyInputEvent event) {
+			Minecraft mc = Minecraft.getMinecraft();
+
+			// undo hidegui if hero_information keybind is pressed
+			if (KeyBind.HERO_INFORMATION.keyBind.isPressed() && KeyBind.HERO_INFORMATION.keyBind.getKeyCode() == 59)
+				mc.gameSettings.hideGUI = !mc.gameSettings.hideGUI;
+
 		}
 
 	}

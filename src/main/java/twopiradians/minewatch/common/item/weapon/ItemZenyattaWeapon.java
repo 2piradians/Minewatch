@@ -264,6 +264,10 @@ public class ItemZenyattaWeapon extends ItemMWWeapon {
 
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+		// stop if cooldown (mainly for when reloading)
+		if (this.hasCooldown(player))
+			player.stopActiveHand();
+		
 		// prevent speed reduction
 		if (!player.isRiding() && player instanceof EntityPlayer) 
 			player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 0, 8, false, false));

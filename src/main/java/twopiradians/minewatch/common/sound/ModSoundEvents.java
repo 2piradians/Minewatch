@@ -241,6 +241,9 @@ public enum ModSoundEvents {
 	SOMBRA_HACK_DURING,
 	SOMBRA_HACK_COMPLETE,
 	SOMBRA_HACK_VOICE,
+	SOMBRA_ULT,
+	SOMBRA_ULTIMATE_0,
+	SOMBRA_ULTIMATE_1,
 	DOOMFIST_PUNCH_CHARGE_VOICE,
 	DOOMFIST_PUNCH_CHARGE,
 	DOOMFIST_PUNCH_DURING_VOICE,
@@ -360,7 +363,7 @@ public enum ModSoundEvents {
 	 * attenuationType: 0 = none, 1 = linear*/
 	@Nullable
 	public Object playFollowingSound(Entity entity, float volume, float pitch, boolean repeat, int attenuationType, @Nullable ArrayList<EntityPlayer> players) {
-		// Minewatch.logger.info(this.name()); // debug
+		//Minewatch.logger.info(this.name()); // debug
 		if (entity != null && this.shouldPlay(entity)) {
 			// ultimate sound adjustment
 			if (this.isUltimate && attenuationType == 1) {

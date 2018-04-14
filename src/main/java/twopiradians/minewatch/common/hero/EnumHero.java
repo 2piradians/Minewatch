@@ -278,7 +278,7 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Jester", "Junkrat Fool", "GEDEE", "http://www.minecraftskins.com/skin/11885436/junkrat-fool/")),
 	SOMBRA("Sombra", Type.OFFENSE, false, false,  
 			200, 0, 0, 1250,
-			new Ability(KeyBind.ULTIMATE, false, false),
+			new Ability(KeyBind.ULTIMATE, true, false),
 			new Ability(KeyBind.RMB, true, false), 
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, true), 

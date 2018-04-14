@@ -2,6 +2,8 @@ package twopiradians.minewatch.client.render.entity;
 
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -12,11 +14,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.model.IModel;
+import twopiradians.minewatch.client.attachment.Attachment;
+import twopiradians.minewatch.client.render.EntityOBJModel;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityWidowmakerMine;
 import twopiradians.minewatch.common.util.EntityHelper;
 
-public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
+public class RenderWidowmakerMine extends EntityOBJModel<EntityWidowmakerMine> {
 
 	public RenderWidowmakerMine(RenderManager renderManager) {
 		super(renderManager);
@@ -44,7 +48,7 @@ public class RenderWidowmakerMine extends RenderOBJModel<EntityWidowmakerMine> {
 	}
 
 	@Override
-	protected boolean preRender(EntityWidowmakerMine entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {		
+	protected boolean preRender(EntityWidowmakerMine entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks, @Nullable Attachment att) {		
 		// rotate / position based on attached block
 		if (entity.facing != null) {
 			Vec3i vec = entity.facing.getDirectionVec();

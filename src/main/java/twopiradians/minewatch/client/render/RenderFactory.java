@@ -1,10 +1,11 @@
-package twopiradians.minewatch.client.render.entity;
+package twopiradians.minewatch.client.render;
 
 import java.awt.Color;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
+import twopiradians.minewatch.client.render.entity.RenderHanzoArrow;
 
 public class RenderFactory implements IRenderFactory {
 

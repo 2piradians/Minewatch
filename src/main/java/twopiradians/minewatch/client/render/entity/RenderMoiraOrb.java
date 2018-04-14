@@ -16,6 +16,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.render.RenderSimple;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityMoiraOrb;
 import twopiradians.minewatch.common.util.EntityHelper;

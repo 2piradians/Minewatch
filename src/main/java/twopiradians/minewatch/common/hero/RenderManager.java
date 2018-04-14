@@ -510,12 +510,15 @@ public class RenderManager {
 							String text = ability.keybind.getKeyName();
 							if ("LMENU".equalsIgnoreCase(text))
 								text = "LALT";
+							text = TextFormatting.BOLD+text;
 							int textWidth = mc.fontRenderer.getStringWidth(text);
-							GlStateManager.scale(0.25d, 0.25d, 1);
+							GlStateManager.scale(0.2d, 0.25d, 1);
 							GlStateManager.rotate(4.5f, 0, 0, 1);
 							// keybind text
 							if (ability.showKeybind(player)) 
-								mc.fontRenderer.drawString(text, 3-i*36-textWidth/2, 43+i*3, 0);
+								mc.fontRenderer.drawString(text, 4-i*45-textWidth/2, 44.5f+i*3, 0, false);
+							GlStateManager.scale(1d/0.2d, 1d/0.25d, 1); // undo custom scale
+							GlStateManager.scale(0.25d, 0.25d, 1); // rescale with normal
 							// multi-use number
 							if (ability.maxUses > 0)
 								mc.fontRenderer.drawString(String.valueOf(ability.getUses(player)), 16-i*36, -8+i*3, 0);

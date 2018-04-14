@@ -12,6 +12,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
@@ -89,7 +90,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 			if (!this.renderingEnchantment) // renders black if used while rendering enchanted armor
 				GlStateManager.enableBlendProfile(Profile.PLAYER_SKIN);
-			
+
 			super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
 			if (!this.renderingEnchantment)
@@ -128,7 +129,7 @@ public class ModelMWArmor extends ModelPlayer {
 
 		this.renderingEnchantment = false;
 	}
-	
+
 	@Override
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) { }
 

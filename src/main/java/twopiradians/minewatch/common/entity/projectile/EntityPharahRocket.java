@@ -118,13 +118,13 @@ public class EntityPharahRocket extends EntityMW {
 			}
 		}
 		else if (type == Type.NORMAL) {
-			EntityHelper.spawnTrailParticles(this, 18, 0.09d, 0xCDCDC4, 0xCDCDC4, 0.7f, 9, 1); 
+			EntityHelper.spawnTrailParticles(this, 5, 0.09d, 0xCDCDC4, 0xCDCDC4, 0.9f, 14, 1); 
 			if (!this.firstUpdate) 
-				EntityHelper.spawnTrailParticles(this, 18, 0.05d, 0xFDF36A, 0xDC9D6A, 1.3f, 2, 1);
+				EntityHelper.spawnTrailParticles(this, 3, 0.05d, 0xFDF36A, 0xDC9D6A, 1.5f, 2, 1);
 		}
-		else if (type == Type.ULTIMATE && (this.ticksExisted > 2 || getThrower() != Minewatch.proxy.getClientPlayer())) {
-			EntityHelper.spawnTrailParticles(this, 8, 0.09d, 0xCDCDC4, 0xCDCDC4, 0.4f, 9, 1); 
-			EntityHelper.spawnTrailParticles(this, 8, 0.05d, 0xFDF36A, 0xDC9D6A, 0.7f, 2, 1);
+		else if (type == Type.ULTIMATE && (this.ticksExisted > 1 || getThrower() != Minewatch.proxy.getClientPlayer())) {
+			EntityHelper.spawnTrailParticles(this, 2, 0.04d, 0xCDCDC4, 0xCDCDC4, 0.6f, 9, 1); 
+			EntityHelper.spawnTrailParticles(this, 2, 0.05d, 0xFDF36A, 0xDC9D6A, 0.7f, 2, 1);
 		}
 	}
 

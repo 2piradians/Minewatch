@@ -5,8 +5,13 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
+import org.lwjgl.input.Keyboard;
 
+import com.google.common.collect.Maps;
+import com.ibm.icu.impl.ICUService.Key;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +23,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -126,55 +132,74 @@ public class SetManager {
 		return fullSet ? hero : null;
 	}
 
-	public static void onSetChanged(EntityPlayer player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
+	/**Called when set changed, first logging in, or hero spawned*/
+	public static void onSetChanged(EntityLivingBase player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
 		EventManager.onEvent(Type.CHANGE_SET, player);
+		AttachmentManager.onSetChanged(player, prevHero, newHero);
 
-		// update entitiesWearingSets
-		if (newHero == null)
-			SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());
-		else
-			SetManager.entitiesWearingSets(player.world.isRemote).put(player.getPersistentID(), newHero);
+		if (player instanceof EntityPlayer) {
+			// TODO config option
+			if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
+				Minecraft mc = Minecraft.getMinecraft();
+				// no new hero - reset sneak back to LSHIFT
+				if (newHero == null) {
+					mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LSHIFT);
+					KeyBinding.resetKeyBindingArrayAndHash();
+				}
+				// new hero - rebind sneak to LCTRL
+				else if (mc.gameSettings.keyBindSneak.getKeyCode() == KeyBind.ABILITY_1.keyBind.getKeyCode()) {
+					mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LCONTROL);
+					KeyBinding.resetKeyBindingArrayAndHash();
+				}
+			}
+			
+			// update entitiesWearingSets
+			if (newHero == null)
+				SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());
+			else
+				SetManager.entitiesWearingSets(player.world.isRemote).put(player.getPersistentID(), newHero);
 
-		if (newHero != null) {
-			// play selection sound - plays twice in MP - both on clientside so cooldown should handle
-			if (newHero.selectSound != null && !player.world.isRemote && player instanceof EntityPlayerMP)
-				Minewatch.network.sendTo(new SPacketSimple(50, true, player, newHero.ordinal(), 0, 0), (EntityPlayerMP) player);
+			if (newHero != null) {
+				// play selection sound - plays twice in MP - both on clientside so cooldown should handle
+				if (newHero.selectSound != null && !player.world.isRemote && player instanceof EntityPlayerMP)
+					Minewatch.network.sendTo(new SPacketSimple(50, true, (EntityPlayer)player, newHero.ordinal(), 0, 0), (EntityPlayerMP) player);
 
-			// reset keybinds, reset ultimate charge, reset charge, kill entitylivingbasemw, and update lastWornSets
-			if (prevHero != newHero) {
-				for (KeyBind key : Keys.KeyBind.values()) 
-					if (key.getCooldown(player) > 0)
-						key.setCooldown(player, 0, true);
-				SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
-				UltimateManager.setCharge(player, 0, true);
-				ChargeManager.setCurrentCharge(player, ChargeManager.getMaxCharge(newHero), false);
-				// kill old entities
-				if (prevHero != null)
-					for (Ability ability : new Ability[] {prevHero.ability1, prevHero.ability2, prevHero.ability3}) {
-						Entity entity = ability.entities.get(player);
-						if (entity instanceof EntityLivingBaseMW) {
-							entity.setDead();
-							ability.entities.remove(player);
+				// reset keybinds, reset ultimate charge, reset charge, kill entitylivingbasemw, and update lastWornSets
+				if (prevHero != newHero) {
+					for (KeyBind key : Keys.KeyBind.values()) 
+						if (key.getCooldown(player) > 0)
+							key.setCooldown(player, 0, true);
+					SetManager.lastWornSets(player.world.isRemote).put(player.getPersistentID(), newHero);
+					UltimateManager.setCharge(player, 0, true);
+					ChargeManager.setCurrentCharge(player, ChargeManager.getMaxCharge(newHero), false);
+					// kill old entities
+					if (prevHero != null)
+						for (Ability ability : new Ability[] {prevHero.ability1, prevHero.ability2, prevHero.ability3}) {
+							Entity entity = ability.entities.get(player);
+							if (entity instanceof EntityLivingBaseMW) {
+								entity.setDead();
+								ability.entities.remove(player);
+							}
 						}
-					}
+				}
+
+				// remove temp shields/armor
+				if (!player.world.isRemote && prevHero != null && newHero != prevHero) {
+					for (HealthManager.Type type : HealthManager.Type.values())
+						HealthManager.removeHealth(player, type, newHero, 9999);
+				}
 			}
 
-			// remove temp shields/armor
-			if (!player.world.isRemote && prevHero != null && newHero != prevHero) {
-				for (HealthManager.Type type : HealthManager.Type.values())
-					HealthManager.removeHealth(player, type, newHero, 9999);
-			}
+			// set step height (needed to sync stepHeight to server for .collidedHorizontally to work)
+			player.stepHeight = newHero != null && Config.stepAssist ? 1 : 0.6f;
+
+			// Lucio's view bobbing
+			if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer())
+				if (newHero == EnumHero.LUCIO)
+					TickHandler.register(true, Handlers.VIEW_BOBBING.setEntity(player).setBoolean(false).setTicks(999999));
+				else 
+					TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.VIEW_BOBBING));
 		}
-
-		// set step height (needed to sync stepHeight to server for .collidedHorizontally to work)
-		player.stepHeight = newHero != null && Config.stepAssist ? 1 : 0.6f;
-
-		// Lucio's view bobbing
-		if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer())
-			if (newHero == EnumHero.LUCIO)
-				TickHandler.register(true, Handlers.VIEW_BOBBING.setEntity(player).setBoolean(false).setTicks(999999));
-			else 
-				TickHandler.unregister(true, TickHandler.getHandler(player, Identifier.VIEW_BOBBING));
 	}
 
 	/**Heal entity to full - for when set switched / respawned*/

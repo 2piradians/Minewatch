@@ -62,11 +62,6 @@ public class ItemPharahWeapon extends ItemMWWeapon {
 			ModSoundEvents.PHARAH_ULT.stopFollowingSound(entity);
 			return super.onClientRemove();
 		}
-		@Override
-		public Handler onServerRemove() {
-
-			return super.onServerRemove();
-		}
 	};
 
 	public static final Handler JET = new Handler(Identifier.PHARAH_JET, true) {

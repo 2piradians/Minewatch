@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.render.entity;
+package twopiradians.minewatch.client.render;
 
 import java.awt.Color;
 

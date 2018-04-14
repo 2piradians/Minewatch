@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,12 +21,14 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;
 import twopiradians.minewatch.common.entity.hero.EntityHero;
 import twopiradians.minewatch.common.entity.projectile.EntityJunkratGrenade;
+import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.item.weapon.ItemPharahWeapon;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -47,6 +51,15 @@ public class PassiveManager {
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
 		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation
 			return;
+
+		// saturation TODO config option
+		if (!world.isRemote && (entity.getActivePotionEffect(MobEffects.SATURATION) == null || 
+				entity.getActivePotionEffect(MobEffects.SATURATION).getDuration() <= 10))
+			entity.addPotionEffect(new PotionEffect(MobEffects.SATURATION, 10, 0, true, false));
+
+		// attachment onUpdate
+		if (entity.world.isRemote)
+			AttachmentManager.onUpdate(entity);
 
 		boolean hacked = TickHandler.hasHandler(entity, Identifier.SOMBRA_HACKED);
 

@@ -35,9 +35,12 @@ import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIHurtByTarget;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAIMoveToHealthPack;
 import twopiradians.minewatch.common.entity.hero.ai.EntityHeroAINearestAttackableTarget;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.EventManager;
 import twopiradians.minewatch.common.hero.HealthManager;
 import twopiradians.minewatch.common.hero.PassiveManager;
+import twopiradians.minewatch.common.hero.SetManager;
 import twopiradians.minewatch.common.hero.UltimateManager;
+import twopiradians.minewatch.common.hero.EventManager.Type;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -126,6 +129,10 @@ public class EntityHero extends EntityMob {
 		// stop doing things when dead
 		if (!this.isEntityAlive() || hero == null)
 			return;
+		
+		// event
+		if (this.firstUpdate)
+			SetManager.onSetChanged(this, null, hero);
 
 		// make body follow head
 		if (this.getHeldItemMainhand() != null && 

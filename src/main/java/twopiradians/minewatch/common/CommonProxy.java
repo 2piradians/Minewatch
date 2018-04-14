@@ -86,7 +86,7 @@ public class CommonProxy {
 		REINHARDT_CHARGE, SOMBRA_HACK, SOMBRA_HACK_MESH(1, 4, 0), SOMBRA_HACK_NUMBERS,
 		DOOMFIST_PUNCH_0, DOOMFIST_PUNCH_1, DOOMFIST_PUNCH_2, DOOMFIST_PUNCH_3, 
 		DOOMFIST_SLAM_0(false, true), DOOMFIST_SLAM_1, DOOMFIST_SLAM_2,
-		DEATH_BLOCK, PUSH_BLOCK;
+		DEATH_BLOCK, PUSH_BLOCK, SOMBRA_ULTIMATE_0;
 
 		public HashMap<UUID, Integer> particleEntities = Maps.newHashMap();
 		/**List of particles with a facing - because they are rendered separately*/
@@ -343,4 +343,10 @@ public class CommonProxy {
 	public boolean isSinglePlayer() {
 		return false;
 	}
+
+	public int getParticleSettings() {
+		return 2;
+	}
+
+	public void attachmentOnSetChanged(EntityLivingBase player, EnumHero prevHero, EnumHero newHero) {} // TODO remove
 }

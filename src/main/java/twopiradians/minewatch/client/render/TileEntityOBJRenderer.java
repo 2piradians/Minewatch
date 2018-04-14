@@ -1,4 +1,4 @@
-package twopiradians.minewatch.client.render.tileentity;
+package twopiradians.minewatch.client.render;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +52,6 @@ public abstract class TileEntityOBJRenderer<T extends TileEntity> extends TileEn
 	protected abstract void postRender(T te, int model, BufferBuilder buffer, double x, double y, double z, float partialTicks);
 	protected int getColor(int i, T entity) {return -1;}
 
-	
 	@Override
 	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		if (this.bakedModels == null) {

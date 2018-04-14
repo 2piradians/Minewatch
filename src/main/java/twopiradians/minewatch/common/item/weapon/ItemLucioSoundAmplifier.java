@@ -193,13 +193,14 @@ public class ItemLucioSoundAmplifier extends ItemMWWeapon {
 			for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, player.getEntityBoundingBox().grow(7))) 
 				if (EntityHelper.shouldHit(player, entity, false) && EntityHelper.isInFieldOfVision(player, entity, 90) &&
 						!EntityHelper.shouldIgnoreEntity(entity)) {
-					double distance = player.getDistanceToEntity(entity);
+					float distance = player.getDistanceToEntity(entity);
 					Vec3d look = player.getLookVec().scale(2);
-					Vec3d base = player.getLookVec().scale(player instanceof EntityHero ? 3 : 2);
+					Vec3d base = player.getLookVec().scale(player instanceof EntityHero ? 1.5d : 1.5d);
 					base = new Vec3d(base.x, base.y * 1.5d, base.z);
-					entity.motionX += (Math.abs(motionX)*look.x+base.x) * (8-distance) / 8f;
-					entity.motionY += (Math.abs(motionY+0.08d)*look.y+base.y+0.08d) * (8-distance) / 8f;
-					entity.motionZ += (Math.abs(motionZ)*look.z+base.z) * (8-distance) / 8f;
+					float multiplier = (8f-distance) / 8f;
+					entity.motionX += (Math.abs(motionX)*look.x+base.x) * multiplier;
+					entity.motionY += (Math.abs(motionY+0.08d)*look.y+base.y) * multiplier;
+					entity.motionZ += (Math.abs(motionZ)*look.z+base.z) * multiplier;
 					entity.velocityChanged = true;
 					entity.onGround = false;
 					entity.isAirBorne = true;

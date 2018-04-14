@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
+import twopiradians.minewatch.client.render.RenderSimple;
 import twopiradians.minewatch.common.entity.projectile.EntityGenjiShuriken;
 import twopiradians.minewatch.common.item.ModItems;
 

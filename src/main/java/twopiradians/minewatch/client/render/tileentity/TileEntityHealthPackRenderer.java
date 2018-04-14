@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
+import twopiradians.minewatch.client.render.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
 import twopiradians.minewatch.common.tileentity.TileEntityHealthPack;

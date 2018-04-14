@@ -28,7 +28,7 @@ import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
+import twopiradians.minewatch.client.render.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.item.IChangingModel;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;

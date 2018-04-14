@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.key.Keys;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.common.Minewatch;
@@ -40,6 +41,10 @@ public class EventManager {
 	public static void onEvent(Type type, EntityLivingBase entity) {		
 		EnumHero hero = SetManager.getWornSet(entity);
 
+		// remove attachments
+		if (entity.world.isRemote)
+		AttachmentManager.attachments.remove(entity);
+		
 		// clean up passives
 		PassiveManager.playersClimbing.remove(entity);
 		PassiveManager.playersHovering.remove(entity);
@@ -47,7 +52,7 @@ public class EventManager {
 		PassiveManager.playersFlying.remove(entity);
 		PassiveManager.playersWallRiding.remove(entity);
 		PassiveManager.prevWall.remove(entity);
-		if (hero != null && (type == Type.DISCONNECT || type == Type.CHANGE_SET))
+		if (!entity.world.isRemote && hero != null && (type == Type.DISCONNECT || type == Type.CHANGE_SET))
 			for (Ability ability : new Ability[] {hero.ability1, hero.ability2, hero.ability3}) {
 				Entity entity2 = ability.entities.get(entity);
 				if (entity2 != null) {

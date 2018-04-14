@@ -1643,5 +1643,23 @@
 		"sounds": [
 			"minewatch:lucio_riding_stop_1"
 		]
+	},
+	"sombra_ult": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_ult"
+		]
+	},
+	"sombra_ultimate_0": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_ultimate_0"
+		]
+	},
+	"sombra_ultimate_1": {
+	"category": "player",
+		"sounds": [
+			"minewatch:sombra_ultimate_1"
+		]
 	}
 }

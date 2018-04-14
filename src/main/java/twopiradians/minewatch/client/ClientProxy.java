@@ -59,19 +59,22 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSpawn;
 import twopiradians.minewatch.client.gui.teamStick.GuiTeamStick;
 import twopiradians.minewatch.client.gui.wildCard.GuiWildCard;
+import twopiradians.minewatch.client.key.KeyBindingMW;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
 import twopiradians.minewatch.client.model.BakedMWItem;
 import twopiradians.minewatch.client.particle.ParticleCustom;
 import twopiradians.minewatch.client.particle.ParticleHanzoSonic;
 import twopiradians.minewatch.client.particle.ParticleReaperTeleport;
 import twopiradians.minewatch.client.particle.ParticleTrail;
+import twopiradians.minewatch.client.render.RenderFactory;
+import twopiradians.minewatch.client.render.TileEntityOBJRenderer;
 import twopiradians.minewatch.client.render.entity.RenderAnaGrenade;
-import twopiradians.minewatch.client.render.entity.RenderFactory;
 import twopiradians.minewatch.client.render.entity.RenderGenjiShuriken;
 import twopiradians.minewatch.client.render.entity.RenderHero;
 import twopiradians.minewatch.client.render.entity.RenderJunkratGrenade;
@@ -93,7 +96,6 @@ import twopiradians.minewatch.client.render.entity.RenderWidowmakerHook;
 import twopiradians.minewatch.client.render.entity.RenderWidowmakerMine;
 import twopiradians.minewatch.client.render.entity.RenderZenyattaOrb;
 import twopiradians.minewatch.client.render.tileentity.TileEntityHealthPackRenderer;
-import twopiradians.minewatch.client.render.tileentity.TileEntityOBJRenderer;
 import twopiradians.minewatch.common.CommonProxy;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.block.ModBlocks;
@@ -221,12 +223,12 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private void createKeybinds() {
-		KeyBind.HERO_INFORMATION.keyBind = new KeyBinding("Hero Information", Keyboard.KEY_GRAVE, Minewatch.MODNAME);
-		KeyBind.RELOAD.keyBind = new KeyBinding("Reload", Keyboard.KEY_R, Minewatch.MODNAME);
-		KeyBind.ABILITY_1.keyBind = new KeyBinding("Ability 1", Keyboard.KEY_LMENU, Minewatch.MODNAME);
-		KeyBind.ABILITY_2.keyBind = new KeyBinding("Ability 2", Keyboard.KEY_C, Minewatch.MODNAME);
-		KeyBind.ULTIMATE.keyBind = new KeyBinding("Ultimate", Keyboard.KEY_Z, Minewatch.MODNAME);	
-		KeyBind.CHANGE_HERO.keyBind = new KeyBinding("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME);
+		KeyBind.HERO_INFORMATION.keyBind = new KeyBindingMW("Hero Information", Keyboard.KEY_F1, Minewatch.MODNAME, true, false);
+		KeyBind.RELOAD.keyBind = new KeyBindingMW("Reload", Keyboard.KEY_R, Minewatch.MODNAME, false, true);
+		KeyBind.ABILITY_1.keyBind = new KeyBindingMW("Ability 1", Keyboard.KEY_LSHIFT, Minewatch.MODNAME, true, true);
+		KeyBind.ABILITY_2.keyBind = new KeyBindingMW("Ability 2", Keyboard.KEY_E, Minewatch.MODNAME, true, true);
+		KeyBind.ULTIMATE.keyBind = new KeyBindingMW("Ultimate", Keyboard.KEY_Q, Minewatch.MODNAME, true, true);	
+		KeyBind.CHANGE_HERO.keyBind = new KeyBindingMW("Change Hero at Team Spawn", Keyboard.KEY_H, Minewatch.MODNAME, false, false);
 	}
 
 	private void registerColoredItems() {
@@ -384,6 +386,7 @@ public class ClientProxy extends CommonProxy {
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/roadhog_chain"));
 		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "entity/pharah_rocket"));
 		UltimateManager.ready = event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "gui/ultimate_ready"));
+		event.getMap().registerSprite(new ResourceLocation(Minewatch.MODID, "attachment/sombra_ultimate_dome"));
 	}
 
 	@Override
@@ -588,5 +591,16 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public boolean isSinglePlayer() {
 		return Minecraft.getMinecraft().isSingleplayer();
+	}
+	
+	@Override
+	public int getParticleSettings() {
+		return Minecraft.getMinecraft().gameSettings.particleSetting;
+	}
+	
+	@Override
+	public void attachmentOnSetChanged(EntityLivingBase player, EnumHero prevHero, EnumHero newHero) {
+		if (player.world.isRemote)
+			AttachmentManager.onSetChanged(player, prevHero, newHero);
 	}
 }

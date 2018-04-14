@@ -1,15 +1,19 @@
 package twopiradians.minewatch.client.render.entity;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
+import twopiradians.minewatch.client.attachment.Attachment;
+import twopiradians.minewatch.client.render.EntityOBJModel;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.projectile.EntityLucioSonic;
 import twopiradians.minewatch.common.util.EntityHelper;
 
-public class RenderLucioSonic extends RenderOBJModel<EntityLucioSonic> { 
+public class RenderLucioSonic extends EntityOBJModel<EntityLucioSonic> { 
 
 	public RenderLucioSonic(RenderManager renderManager) {
 		super(renderManager);
@@ -29,7 +33,7 @@ public class RenderLucioSonic extends RenderOBJModel<EntityLucioSonic> {
 	}
 
 	@Override
-	protected boolean preRender(EntityLucioSonic entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {
+	protected boolean preRender(EntityLucioSonic entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks, @Nullable Attachment att) {
 		GlStateManager.translate(0, -entity.height/2d, 0);
 		GlStateManager.rotate(90, 1, 0, 0);
 		double scale = 0.5d;

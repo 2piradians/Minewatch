@@ -1,15 +1,19 @@
 package twopiradians.minewatch.client.render.entity;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
+import twopiradians.minewatch.client.attachment.Attachment;
+import twopiradians.minewatch.client.render.EntityOBJModel;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.ability.EntityJunkratMine;
 
-public class RenderJunkratMine extends RenderOBJModel<EntityJunkratMine> {
+public class RenderJunkratMine extends EntityOBJModel<EntityJunkratMine> {
 
 	public RenderJunkratMine(RenderManager renderManager) {
 		super(renderManager);
@@ -23,7 +27,7 @@ public class RenderJunkratMine extends RenderOBJModel<EntityJunkratMine> {
 	}
 
 	@Override
-	protected boolean preRender(EntityJunkratMine entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks) {	
+	protected boolean preRender(EntityJunkratMine entity, int model, BufferBuilder buffer, double x, double y, double z, float entityYaw, float partialTicks, @Nullable Attachment att) {	
 		// rotate / position based on attached block
 		if (entity.facing != null) {
 			Vec3i vec = entity.facing.getDirectionVec();

@@ -1661,5 +1661,11 @@
 		"sounds": [
 			"minewatch:sombra_ultimate_1"
 		]
+	},
+	"roadhog_ultimate": {
+	"category": "player",
+		"sounds": [
+			"minewatch:roadhog_ultimate"
+		]
 	}
 }

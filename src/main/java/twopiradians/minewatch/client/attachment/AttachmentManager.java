@@ -8,13 +8,10 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.hero.EnumHero;
-import twopiradians.minewatch.common.util.EntityHelper;
 
 @Mod.EventBusSubscriber
 public class AttachmentManager {

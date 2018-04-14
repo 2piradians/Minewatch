@@ -12,7 +12,6 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.gui.display.EntityGuiPlayer;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.config.Config;

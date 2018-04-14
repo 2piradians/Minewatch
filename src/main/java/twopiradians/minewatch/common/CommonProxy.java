@@ -348,5 +348,5 @@ public class CommonProxy {
 		return 2;
 	}
 
-	public void attachmentOnSetChanged(EntityLivingBase player, EnumHero prevHero, EnumHero newHero) {} // TODO remove
+	public void onSetChanged(EntityLivingBase player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {}
 }

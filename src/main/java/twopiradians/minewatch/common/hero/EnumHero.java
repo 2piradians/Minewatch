@@ -347,7 +347,7 @@ public enum EnumHero {
 			new Skin(Skin.Type.LEGENDARY, "Blackhand", "Doomfist [Blackhand]", "MeoWero", "https://www.planetminecraft.com/skin/doomfist-blackhand/")),
 	ROADHOG("Roadhog", Type.TANK, false, false,  
 			600, 0, 0, 2000,
-			new Ability(KeyBind.ULTIMATE, false, false),
+			new Ability(KeyBind.ULTIMATE, true, false),
 			new Ability(KeyBind.ABILITY_2, true, false), 
 			new Ability(KeyBind.ABILITY_1, true, false), 
 			new Ability(KeyBind.NONE, false, false), 

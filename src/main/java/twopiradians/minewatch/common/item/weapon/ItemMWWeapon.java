@@ -128,7 +128,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	}
 
 	public void reload(Entity player) {
-		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player)) {
+		if (player != null && !player.world.isRemote && getCurrentAmmo(player) < getMaxAmmo(player) && 
+				!TickHandler.hasHandler(player, Identifier.ABILITY_USING)) {
 			this.setCooldown(player, reloadTime, true);
 			this.setCurrentAmmo(player, 0, EnumHand.values());
 			if (hero.reloadSound != null)
@@ -454,8 +455,8 @@ public abstract class ItemMWWeapon extends Item implements IChangingModel {
 	/**Called when client player is wearing set and holding weapon in mainhand*/
 	@SideOnly(Side.CLIENT)
 	public void renderWorldLast(RenderWorldLastEvent event, EntityPlayerSP player) {
-		// auto-sprint TODO config option
-		if (player.moveForward > 0)
+		// auto-sprint
+		if (Config.autoSprint && player.moveForward > 0)
 			player.setSprinting(true);
 	}
 

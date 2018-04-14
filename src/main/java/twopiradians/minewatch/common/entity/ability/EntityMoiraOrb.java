@@ -19,7 +19,6 @@ import twopiradians.minewatch.common.util.EntityHelper;
 public class EntityMoiraOrb extends EntityMW {
 
 	private static final DataParameter<Boolean> HEAL = EntityDataManager.<Boolean>createKey(EntityMoiraOrb.class, DataSerializers.BOOLEAN);
-	// TEST damage/heal on server
 	public CopyOnWriteArrayList<EntityLivingBase> tethered = new CopyOnWriteArrayList<EntityLivingBase>();
 	public int chargeClient = 80;
 	public int chargeServer = 80;

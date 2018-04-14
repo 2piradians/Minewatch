@@ -5,13 +5,8 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.input.Keyboard;
-
 import com.google.common.collect.Maps;
-import com.ibm.icu.impl.ICUService.Key;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -137,22 +132,9 @@ public class SetManager {
 		EventManager.onEvent(Type.CHANGE_SET, player);
 		AttachmentManager.onSetChanged(player, prevHero, newHero);
 
+		Minewatch.proxy.onSetChanged(player, prevHero, newHero);
+		
 		if (player instanceof EntityPlayer) {
-			// TODO config option
-			if (player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
-				Minecraft mc = Minecraft.getMinecraft();
-				// no new hero - reset sneak back to LSHIFT
-				if (newHero == null) {
-					mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LSHIFT);
-					KeyBinding.resetKeyBindingArrayAndHash();
-				}
-				// new hero - rebind sneak to LCTRL
-				else if (mc.gameSettings.keyBindSneak.getKeyCode() == KeyBind.ABILITY_1.keyBind.getKeyCode()) {
-					mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LCONTROL);
-					KeyBinding.resetKeyBindingArrayAndHash();
-				}
-			}
-			
 			// update entitiesWearingSets
 			if (newHero == null)
 				SetManager.entitiesWearingSets(player.world.isRemote).remove(player.getPersistentID());

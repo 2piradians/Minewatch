@@ -121,9 +121,7 @@ public abstract class EntityMW extends Entity implements IThrowableEntity {
 
 	/**Should this result trigger onImpact*/
 	protected boolean isValidImpact(RayTraceResult result, boolean nearest) {
-		return result != null && result.typeOfHit != RayTraceResult.Type.MISS /*&& // TEST commented out for ana grenade impact friendly on friendly teammate
-				(result.typeOfHit != RayTraceResult.Type.ENTITY || 
-				(EntityHelper.shouldHit(getThrower(), result.entityHit, isFriendly)))*/ && nearest;
+		return result != null && result.typeOfHit != RayTraceResult.Type.MISS && nearest;
 	}
 
 	/**Called on impact - normally used to move to hit position of the RayTraceResult and kill on server*/

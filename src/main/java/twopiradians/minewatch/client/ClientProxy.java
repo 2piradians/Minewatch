@@ -59,7 +59,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import twopiradians.minewatch.client.attachment.AttachmentManager;
 import twopiradians.minewatch.client.gui.heroSelect.GuiHeroSelect;
 import twopiradians.minewatch.client.gui.tab.InventoryTab;
 import twopiradians.minewatch.client.gui.teamBlocks.GuiTeamSpawn;
@@ -599,8 +598,23 @@ public class ClientProxy extends CommonProxy {
 	}
 	
 	@Override
-	public void attachmentOnSetChanged(EntityLivingBase player, EnumHero prevHero, EnumHero newHero) {
-		if (player.world.isRemote)
-			AttachmentManager.onSetChanged(player, prevHero, newHero);
+	public void onSetChanged(EntityLivingBase player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
+		// reassign sneak 
+		if (Config.reassignSneak && player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
+			Minecraft mc = Minecraft.getMinecraft();
+			// no new hero - reset sneak back to LSHIFT
+			if (newHero == null && 
+					mc.gameSettings.keyBindSneak.getKeyCode() == Keyboard.KEY_LCONTROL &&
+					KeyBind.ABILITY_1.keyBind.getKeyCode() == Keyboard.KEY_LSHIFT) {
+				mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LSHIFT);
+				KeyBinding.resetKeyBindingArrayAndHash();
+			}
+			// new hero - rebind sneak to LCTRL
+			else if (newHero != null && 
+					mc.gameSettings.keyBindSneak.getKeyCode() == KeyBind.ABILITY_1.keyBind.getKeyCode()) {
+				mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LCONTROL);
+				KeyBinding.resetKeyBindingArrayAndHash();
+			}
+		}
 	}
 }

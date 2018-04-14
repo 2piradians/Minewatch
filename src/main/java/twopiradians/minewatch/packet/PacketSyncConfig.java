@@ -15,6 +15,7 @@ import twopiradians.minewatch.common.config.Config;
 
 public class PacketSyncConfig implements IMessage {
 
+	// SERVERSIDE
 	private boolean preventFallDamage;
 	private boolean allowGunWarnings;
 	private boolean projectilesCauseKnockback;
@@ -38,7 +39,8 @@ public class PacketSyncConfig implements IMessage {
 	private double ultimateChargeNormal;
 	private double ultimateChargeDamage;
 	private boolean lowerGravity;
-
+	private boolean saturation;
+	// team blocks
 	private boolean customDeathScreen;
 	private int respawnTime;
 	private boolean allowHeroRespawn;
@@ -46,7 +48,7 @@ public class PacketSyncConfig implements IMessage {
 	private boolean allowPlayerRespawn;
 	private boolean mobRespawnRandomHero;
 	private boolean heroSelectClearMWItems;
-
+	// hero mobs
 	private boolean heroMobsDespawn;
 	private boolean mobRandomSkins;
 	private int mobSpawn;
@@ -92,6 +94,7 @@ public class PacketSyncConfig implements IMessage {
 		this.ultimateChargeNormal = Config.ultimateChargeNormal;
 		this.ultimateChargeDamage = Config.ultimateChargeDamage;
 		this.lowerGravity = Config.lowerGravity;
+		this.saturation = Config.saturation;
 
 		this.customDeathScreen = Config.customDeathScreen;
 		this.respawnTime = Config.respawnTime;
@@ -144,6 +147,7 @@ public class PacketSyncConfig implements IMessage {
 		this.ultimateChargeNormal = buf.readDouble();
 		this.ultimateChargeDamage = buf.readDouble();
 		this.lowerGravity = buf.readBoolean();
+		this.saturation = buf.readBoolean();
 		
 		this.customDeathScreen = buf.readBoolean();
 		this.respawnTime = buf.readInt();
@@ -196,6 +200,7 @@ public class PacketSyncConfig implements IMessage {
 		buf.writeDouble(this.ultimateChargeNormal);
 		buf.writeDouble(this.ultimateChargeDamage);
 		buf.writeBoolean(this.lowerGravity);
+		buf.writeBoolean(this.saturation);
 
 		buf.writeBoolean(this.customDeathScreen);
 		buf.writeInt(this.respawnTime);
@@ -247,6 +252,7 @@ public class PacketSyncConfig implements IMessage {
 		Config.ultimateChargeNormal = this.ultimateChargeNormal;
 		Config.ultimateChargeDamage = this.ultimateChargeDamage;
 		Config.lowerGravity = this.lowerGravity;
+		Config.saturation = this.saturation;
 
 		Config.customDeathScreen = this.customDeathScreen;
 		Config.respawnTime = this.respawnTime;

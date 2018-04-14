@@ -20,7 +20,7 @@ public class EntityRoadhogScrap extends EntityMW {
 	public EntityRoadhogScrap(World worldIn, EntityLivingBase throwerIn, int hand) {
 		super(worldIn, throwerIn, hand);
 		this.setSize(0.23f, 0.23f);
-		this.lifetime = 2;
+		this.lifetime = worldIn.isRemote ? 3 : 2;
 		this.setNoGravity(true);
 	}
 
@@ -40,9 +40,10 @@ public class EntityRoadhogScrap extends EntityMW {
 			}
 			else {
 				for (int i=0; i<25; ++i) {
-					EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, getThrower(), -1);
-					EntityHelper.setAim(projectile, getThrower(), this.rotationPitch, this.rotationYaw, 60, 19F, null, 10, 0, true, true);
-					projectile.setLocationAndAngles(this.posX, this.posY, this.posZ, projectile.rotationYaw, projectile.rotationPitch);
+					EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, getThrower(), 2, false);
+					EntityHelper.setAim(projectile, getThrower(), this.rotationPitch+(world.rand.nextFloat()-0.5f)*15f, this.rotationYaw+(world.rand.nextFloat()-0.5f)*15f, 60, 0, null, 0, 0, 0, true, false);
+					projectile.setPosition(posX, posY, posZ);
+					EntityHelper.setPosition(projectile, posX, posY, posZ);
 					world.spawnEntity(projectile);
 				}
 				ModSoundEvents.ROADHOG_SHOOT_EXPLODE.playSound(this, 3.0f, 1.0f);

@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Maps;
-import com.ibm.icu.impl.ICUService.Key;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -21,7 +20,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

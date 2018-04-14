@@ -1156,7 +1156,7 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemSombraMachinePistol.ULTIMATE.setEntity(player).setTicks((int) packet.x),
 								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks((int) packet.x),
 								UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks((int) packet.x),
-								Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x));
+								Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.SOMBRA.ultimate));
 						AttachmentManager.addAttachments((EntityLivingBase)entity, Type.SOMBRA_ULTIMATE_DOME);
 						entity.onGround = false;
 						entity.move(MoverType.PLAYER, 0, 2d, 0);
@@ -1166,6 +1166,12 @@ public class SPacketSimple implements IMessage {
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_ULTIMATE_0, entity.world, entity, color, colorFade, 5, 18, 15, 34, 0, 0);
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.SOMBRA_ULTIMATE_0, entity.world, entity, color, colorFade, 5, 18, 15, 34, 0, 0);
 						Minewatch.proxy.spawnParticlesCustom(EnumParticle.CIRCLE, entity.world, entity, color, color, 0.8f, 18, 20, 45, 0, 0);
+					}
+					// Roadhog's ult
+					else if (packet.type == 88 && entity instanceof EntityLivingBase) {
+						TickHandler.register(true, ItemRoadhogWeapon.ULTIMATE.setEntity(entity).setTicks((int) packet.x),
+								UltimateManager.PREVENT_CHARGE.setEntity(entity).setTicks((int) packet.x),
+								Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.ROADHOG.ultimate));
 					}
 				}
 			});

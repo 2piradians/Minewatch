@@ -123,13 +123,14 @@ public class UltimateManager {
 				amount += playerChargeClient;
 		}
 
-		setCharge(entity, amount, syncToClient);
+		if (!TickHandler.hasHandler(entity, Identifier.ULTIMATE_PREVENT_CHARGE))
+			setCharge(entity, amount, syncToClient);
 	}
 
 	/**Set ultimate charge for an entity - amount should be scaled*/
 	public static void setCharge(Entity entity, float amount, boolean syncToClient) {
 		boolean hasUlt = getCurrentCharge(entity) >= getMaxCharge(entity);
-		
+
 		if (entity instanceof EntityHero)
 			((EntityHero)entity).ultCharge = amount;
 		else if (entity instanceof EntityPlayer) {
@@ -143,7 +144,7 @@ public class UltimateManager {
 				playerChargeClient = amount;
 			}
 		}
-		
+
 		// charged sound
 		if (!hasUlt && entity instanceof EntityPlayerMP && getCurrentCharge(entity) >= getMaxCharge(entity))
 			ModSoundEvents.ULTIMATE_CHARGED.playFollowingSound(entity, 1, 1, false, true, false, false);
@@ -152,7 +153,7 @@ public class UltimateManager {
 	/**Handles ultimate charge for attacks / abilities / healing - see https://overwatch.gamepedia.com/Ultimate_ability*/
 	public static void handleAbilityCharge(Entity actualThrower, Entity damageSource, float amount, AttackType type) {
 		EnumHero hero = SetManager.getWornSet(actualThrower);
-		if (hero != null && !TickHandler.hasHandler(actualThrower, Identifier.ULTIMATE_PREVENT_CHARGE)) {
+		if (hero != null) {
 			// specific hero / ability modifiers
 			switch(hero) {
 			case LUCIO:

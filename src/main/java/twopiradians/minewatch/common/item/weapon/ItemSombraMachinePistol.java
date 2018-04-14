@@ -746,7 +746,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			TickHandler.register(false, ULTIMATE.setEntity(player).setTicks(15),
 					Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks(ticks),
 					UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks(ticks),
-					Ability.ABILITY_USING.setEntity(player).setTicks(ticks));
+					Ability.ABILITY_USING.setEntity(player).setTicks(ticks).setAbility(hero.ultimate));
 			Minewatch.network.sendToDimension(new SPacketSimple(87, player, false, ticks, 0, 0), player.world.provider.getDimension());
 
 			// hack entities

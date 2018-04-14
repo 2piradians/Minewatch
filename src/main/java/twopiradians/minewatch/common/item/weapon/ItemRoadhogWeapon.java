@@ -1,5 +1,8 @@
 package twopiradians.minewatch.common.item.weapon;
 
+import java.util.ArrayList;
+
+import javax.annotation.Nullable;
 import javax.vecmath.Vector2f;
 
 import org.lwjgl.opengl.GL11;
@@ -18,6 +21,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -34,6 +38,7 @@ import twopiradians.minewatch.common.entity.ability.EntityRoadhogScrap;
 import twopiradians.minewatch.common.entity.projectile.EntityRoadhogBullet;
 import twopiradians.minewatch.common.hero.Ability;
 import twopiradians.minewatch.common.hero.EnumHero;
+import twopiradians.minewatch.common.hero.UltimateManager;
 import twopiradians.minewatch.common.item.ModItems;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -46,6 +51,38 @@ import twopiradians.minewatch.packet.SPacketSimple;
 public class ItemRoadhogWeapon extends ItemMWWeapon {
 
 	private static final ResourceLocation CHAIN = new ResourceLocation(Minewatch.MODID, "textures/entity/roadhog_chain.png");
+	public static final Handler ULTIMATE = new Handler(Identifier.ROADHOG_ULTIMATE, true) {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean onClientTick() {
+			entity.rotationPitch -= 0.35f;
+			return super.onClientTick();
+		}
+		@Override
+		public boolean onServerTick() {
+			entity.rotationPitch -= 0.35f;
+			entityLiving.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 5, 3, true, false));
+			if (this.ticksLeft < this.initialTicks-10) 
+				for (int i=0; i<12; ++i) {
+					EntityRoadhogBullet projectile = new EntityRoadhogBullet(entity.world, entityLiving, 0, true);
+					EntityHelper.setAim(projectile, entityLiving, entity.rotationPitch, entityLiving.rotationYawHead+(entity.world.rand.nextFloat()-0.5f)*55f, 60, 6, null, 30, 0, 0.5f, false, true);
+					entity.world.spawnEntity(projectile);
+				}
+			return super.onServerTick();
+		}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Handler onClientRemove() {
+			return super.onClientRemove();
+		}
+		@Override
+		public Handler onServerRemove() {
+			EnumHero.ROADHOG.weapon.setCooldown(entity, 20);
+			if (this.ticksLeft > 0)
+				ModSoundEvents.ROADHOG_ULTIMATE.stopFollowingSound(entity);
+			return super.onServerRemove();
+		}
+	};
 	public static final Handler HEALING = new Handler(Identifier.ROADHOG_HEALING, true) {
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -136,6 +173,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 	public ItemRoadhogWeapon() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
+		this.saveEntityToNBT = true;
 	}
 
 	@Override
@@ -143,7 +181,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 		// primary fire
 		if (!world.isRemote && this.canUse(player, true, hand, false) && !TickHandler.hasHandler(player, Identifier.ROADHOG_HEALING)) {
 			for (int i=0; i<25; ++i) {
-				EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, player, hand.ordinal());
+				EntityRoadhogBullet projectile = new EntityRoadhogBullet(world, player, hand.ordinal(), false);
 				EntityHelper.setAim(projectile, player, player.rotationPitch, player.rotationYawHead, 60, 19F, hand, 10, 0.31f, true, true);
 				world.spawnEntity(projectile);
 			}
@@ -225,6 +263,14 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			float percent = 1f - handler.ticksLeft / 25f;
 			GlStateManager.color((255f-67f*percent)/255f, (255f-102f*percent)/255f, (255f-201f*percent)/255f);
 		}
+		
+		// ultimate
+		//if (TickHandler.hasHandler(entity, Identifier.ROADHOG_ULTIMATE)) {
+			model.bipedLeftArmwear.rotateAngleX = 5;
+			model.bipedLeftArm.rotateAngleX = 5;
+			model.bipedLeftArmwear.rotateAngleY = -0.2f;
+			model.bipedLeftArm.rotateAngleY = -0.2f;
+		//}
 
 		return false;
 	}
@@ -232,8 +278,17 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
-		return hand == EnumHand.OFF_HAND &&
-				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
+		// ultimate
+		//if (hand == EnumHand.OFF_HAND &&
+		//				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_ULTIMATE && handler.entityLiving == Minecraft.getMinecraft().player, true)) {
+		GlStateManager.translate(0.0f, -1.25f, 0);	
+		GlStateManager.rotate(-90, 0, 0, 1);
+		GlStateManager.rotate(MathHelper.sin(player.ticksExisted/1f)*5f, 0, 3, 1);
+			return hand == EnumHand.OFF_HAND;
+		//}
+		
+		//return hand == EnumHand.OFF_HAND &&
+		//		TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
 	}
 
 	@SubscribeEvent(priority=EventPriority.LOWEST)
@@ -307,5 +362,31 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			}
 		}
 	}
+	
+	@Override
+	public void onUltimate(ItemStack stack, World world, EntityLivingBase player) {
+		ModSoundEvents.ROADHOG_ULTIMATE.playFollowingSound(player, 1, 1);
+		
+		TickHandler.register(false, ULTIMATE.setEntity(player).setTicks(120),
+				UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks(120),
+				Ability.ABILITY_USING.setEntity(player).setTicks(120).setAbility(hero.ultimate));
+		Minewatch.network.sendToDimension(new SPacketSimple(88, player, false, 120, 0, 0), player.world.provider.getDimension());
+
+		super.onUltimate(stack, world, player);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {
+		locs.add("_ulting");
+		return super.getAllModelLocations(locs);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getModelLocation(ItemStack stack, @Nullable EntityLivingBase entity) {
+		boolean ulting = TickHandler.hasHandler(entity, Identifier.ROADHOG_ULTIMATE);
+		return ulting ? "_ulting" : "";
+	}	
 
 }

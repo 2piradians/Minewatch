@@ -50,6 +50,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Rotations;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IThrowableEntity;
 import twopiradians.minewatch.client.key.Keys.KeyBind;
@@ -204,7 +205,7 @@ public class EntityHelper {
 	public static void setAim(Entity entity, EntityLivingBase shooter, @Nullable Entity target, float pitch, float yaw, float metersPerSecond, float inaccuracy, @Nullable EnumHand hand, float verticalAdjust, float horizontalAdjust, float distance, boolean ignoreHeroInaccuracy, boolean differentClientServerPos) {
 		boolean friendly = isFriendly(entity);
 		// server pos w/o adjustments to shoot from center of player
-		Vec3d vecS = getShootingPos(shooter, pitch, yaw, null, 0, 0, 0);
+		Vec3d vecS = getShootingPos(shooter, pitch, yaw, null, verticalAdjust, 0, 0);
 		Vec3d vecC = getShootingPos(shooter, pitch, yaw, hand, verticalAdjust, horizontalAdjust, distance);
 		if (!differentClientServerPos)
 			vecS = vecC;
@@ -292,23 +293,9 @@ public class EntityHelper {
 			((EntityMW)entity).hitscan = true;
 
 		// send velocity to client
-		DataParameter<Rotations> dataVel = getVelocityParameter(entity);
-		if (dataVel != null)
-			entity.getDataManager().set(dataVel, new Rotations((float)scaledVelocityC.x, (float)scaledVelocityC.y, (float)scaledVelocityC.z));
-		else
-			Minewatch.logger.error("Missing velocity parameter for: "+entity);
-
+		setVelocity(entity, scaledVelocityC.x, scaledVelocityC.y, scaledVelocityC.z);
 		// send position to client
-		DataParameter<NBTTagCompound> dataPos = getPositionParameter(entity);
-		if (dataPos != null) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setDouble("x", vecC.x);
-			nbt.setDouble("y", vecC.y);
-			nbt.setDouble("z", vecC.z);
-			entity.getDataManager().set(dataPos, nbt);
-		}
-		else
-			Minewatch.logger.error("Missing position parameter for: "+entity);
+		setPosition(entity, vecC.x, vecC.y, vecC.z);
 
 		Vec3d vec = entity.world.isRemote ? vecC : vecS;
 		entity.setLocationAndAngles(vec.x, vec.y, vec.z, entity.rotationYaw, entity.rotationPitch);
@@ -319,14 +306,39 @@ public class EntityHelper {
 		EntityHelper.setRotations(entity);
 	}
 
-	/**Get DataParemeter for setting velocity for entity*/
+	/**Set velocity for MW entities*/
+	public static void setVelocity(Entity entity, double motionX, double motionY, double motionZ) {
+		// send velocity to client
+		DataParameter<Rotations> dataVel = getVelocityParameter(entity);
+		if (dataVel != null)
+			entity.getDataManager().set(dataVel, new Rotations((float)motionX, (float)motionY, (float)motionZ));
+		else
+			Minewatch.logger.error("Missing velocity parameter for: "+entity);
+	}
+
+	/**Set position for MW entities*/
+	public static void setPosition(Entity entity, double x, double y, double z) {
+		// send position to client
+		DataParameter<NBTTagCompound> dataPos = getPositionParameter(entity);
+		if (dataPos != null) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setDouble("x", x);
+			nbt.setDouble("y", y);
+			nbt.setDouble("z", z);
+			entity.getDataManager().set(dataPos, nbt);
+		}
+		else
+			Minewatch.logger.error("Missing position parameter for: "+entity);
+	}
+
+	/**Get DataParameter for setting velocity for entity*/
 	public static DataParameter<NBTTagCompound> getPositionParameter(Entity entity) {
 		return entity instanceof EntityMW ? EntityMW.POSITION_CLIENT :
 			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.POSITION_CLIENT : 
 				entity instanceof EntityHanzoArrow ? EntityHanzoArrow.POSITION_CLIENT : null;
 	}
 
-	/**Get DataParemeter for setting velocity for entity*/
+	/**Get DataParameter for setting velocity for entity*/
 	public static DataParameter<Rotations> getVelocityParameter(Entity entity) {
 		return entity instanceof EntityMW ? EntityMW.VELOCITY_CLIENT : 
 			entity instanceof EntityLivingBaseMW ? EntityLivingBaseMW.VELOCITY_CLIENT : 
@@ -810,8 +822,12 @@ public class EntityHelper {
 			double nearestDistance = Double.MAX_VALUE;
 			for (RayTraceResult result : results)
 				if (result != null && result.hitVec != null) {
-					double distance = entity.getDistanceSq(result.hitVec.x, result.hitVec.y, result.hitVec.z);
-					if (distance < nearestDistance) {
+					Vec3d entityPos = entity.getPositionVector();
+					Vec3d targetPos = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
+					if (result.typeOfHit == Type.ENTITY) // use closest pos - otherwise result uses base of entity
+						targetPos = EntityHelper.getClosestPointOnBoundingBox(entityPos, entity.getLookVec(), result.entityHit);
+					double distance = entityPos.distanceTo(targetPos);
+					if (distance < nearestDistance) { 
 						nearest = result;
 						nearestDistance = distance;
 					}

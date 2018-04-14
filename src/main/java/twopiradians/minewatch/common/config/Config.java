@@ -54,6 +54,8 @@ public class Config {
 	private static final String[] SPAWN_FREQ_OPTIONS = new String[] {"Never", "Rarely", "Uncommonly", "Commonly"};
 
 	public static Configuration config;
+	
+	// CLIENTSIDE
 	public static boolean useObjModels;
 	public static boolean customCrosshairs;
 	public static double guiScale;
@@ -64,7 +66,10 @@ public class Config {
 	public static boolean hideHotbar;
 	public static double scopedSensitivityMultiplier;
 	public static boolean disableAimAssist;
+	public static boolean reassignSneak;
+	public static boolean autoSprint;
 
+	// SERVERSIDE
 	public static int tokenDropRate;
 	public static int wildCardRate;
 	public static boolean allowGunWarnings;
@@ -90,7 +95,9 @@ public class Config {
 	public static double ultimateChargeNormal;
 	public static double ultimateChargeDamage;
 	public static boolean lowerGravity;
+	public static boolean saturation;
 
+	// team blocks
 	public static boolean customDeathScreen;
 	public static int respawnTime; // in ticks
 	public static boolean allowHeroRespawn;
@@ -99,6 +106,7 @@ public class Config {
 	public static boolean mobRespawnRandomHero;
 	public static boolean heroSelectClearMWItems;
 
+	// hero mobs
 	public static boolean mobRandomSkins;
 	public static int mobSpawn;
 	public static int mobSpawnFreq;
@@ -198,6 +206,12 @@ public class Config {
 		
 		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Disable Aim Assist", false, "Should aim assist be disabled (if you don't like the server's aim assist)?");
 		disableAimAssist = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Reassign Sneak Keybind", true, "Should the sneak keybind be reassigned to LCTRL while wearing a Minewatch armor set (so ABILITY 1 can use LSHIFT)?");
+		reassignSneak = prop.getBoolean();
+		
+		prop = config.get(Config.CATEGORY_CLIENT_SIDE, "Auto-Sprint", true, "Should you automatically sprint while wearing a full Minewatch set and holding a Minewatch weapon?");
+		autoSprint = prop.getBoolean();
 
 		// SERVER-SIDE (make sure all new options are synced with command) ======================================================================================
 
@@ -343,6 +357,12 @@ public class Config {
 				prop.set(lowerGravity);
 			else
 				lowerGravity = prop.getBoolean();
+			
+			prop = config.get(Config.CATEGORY_SERVER_SIDE, "Saturation", false, "Should players be given saturation when wearing a full set of Minewatch armor?");
+			if (overriding)
+				prop.set(saturation);
+			else
+				saturation = prop.getBoolean();
 
 			// Team Block options ======================================================================================
 

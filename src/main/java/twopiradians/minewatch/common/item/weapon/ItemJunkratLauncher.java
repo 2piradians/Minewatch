@@ -2,6 +2,7 @@ package twopiradians.minewatch.common.item.weapon;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -52,7 +53,10 @@ public class ItemJunkratLauncher extends ItemMWWeapon {
 			if (!world.isRemote && (player.getHeldItemOffhand() == null || player.getHeldItemOffhand().isEmpty()) && 
 					hero.ability2.entities.containsKey(entity) && 
 					hero.ability2.entities.get(entity).isEntityAlive()) 
-				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
+				if (player instanceof EntityPlayer) 
+					((EntityPlayer)player).inventory.offHandInventory.set(0, new ItemStack(ModItems.junkrat_trigger));
+				else
+					player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.junkrat_trigger));
 
 			// trigger mine
 			if (!world.isRemote && Keys.KeyBind.RMB.isKeyDown(player) &&

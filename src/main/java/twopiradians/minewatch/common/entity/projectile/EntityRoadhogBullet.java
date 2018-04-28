@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import twopiradians.minewatch.common.CommonProxy.EnumParticle;
 import twopiradians.minewatch.common.Minewatch;
 import twopiradians.minewatch.common.entity.EntityMW;
-import twopiradians.minewatch.common.entity.projectile.EntityPharahRocket.Type;
 import twopiradians.minewatch.common.util.EntityHelper;
 
 public class EntityRoadhogBullet extends EntityMW {

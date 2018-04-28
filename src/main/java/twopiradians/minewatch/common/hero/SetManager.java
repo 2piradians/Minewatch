@@ -44,6 +44,8 @@ public class SetManager {
 	private static HashMap<UUID, EnumHero> lastWornSetsClient = Maps.newHashMap();
 	/**List of players' last known full sets worn (for knowing when to reset cooldowns)*/
 	private static HashMap<UUID, EnumHero> lastWornSetsServer = Maps.newHashMap();
+	/**If client player currently has run reassigned (or should, if it's disabled)*/
+	private static boolean prevReassign;
 
 	private static HashMap<UUID, EnumHero> entitiesWearingSets(boolean isRemote) {
 		return isRemote ? entitiesWearingSetsClient : entitiesWearingSetsServer;
@@ -88,6 +90,15 @@ public class SetManager {
 			EnumHero hero = updateSets(event.player);
 			if (hero != null)
 				PassiveManager.onUpdate(event.player.world, event.player, hero);
+			// update run keybind reassigning
+			if (event.player.world.isRemote && event.player == Minewatch.proxy.getClientPlayer()) {
+				boolean reassign = hero != null && event.player.getHeldItemMainhand() != null && 
+						event.player.getHeldItemMainhand().getItem() == hero.weapon;
+				if (reassign != prevReassign) {
+					Minewatch.proxy.reassignRunKeybind(reassign);
+					prevReassign = reassign;
+				}
+			}
 		}
 	}
 
@@ -133,7 +144,7 @@ public class SetManager {
 		AttachmentManager.onSetChanged(player, prevHero, newHero);
 
 		Minewatch.proxy.onSetChanged(player, prevHero, newHero);
-		
+
 		if (player instanceof EntityPlayer) {
 			// update entitiesWearingSets
 			if (newHero == null)

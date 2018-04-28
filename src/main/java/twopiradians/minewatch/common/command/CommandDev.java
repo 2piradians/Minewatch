@@ -26,7 +26,6 @@ import twopiradians.minewatch.common.hero.RankManager;
 import twopiradians.minewatch.common.hero.RankManager.Rank;
 import twopiradians.minewatch.common.item.armor.ItemMWArmor;
 import twopiradians.minewatch.common.item.weapon.ItemMWWeapon;
-import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.util.TickHandler;
 import twopiradians.minewatch.packet.SPacketSimple;
 
@@ -97,8 +96,8 @@ public class CommandDev implements ICommand {
 			sender.sendMessage(new TextComponentString("Server handlers: "+TickHandler.getHandlersString(false)));
 			Minewatch.network.sendTo(new SPacketSimple(78), player);
 		}
-		else if (args.length == 1 && args[0].equalsIgnoreCase("sounds")) {
-			sender.sendMessage(new TextComponentString("Sounds: "+FollowingSound.sounds));
+		else if (args.length == 1 && args[0].equalsIgnoreCase("sounds")) { 
+			Minewatch.network.sendTo(new SPacketSimple(89), player);
 		}
 		else if (args.length == 1 && args[0].equalsIgnoreCase("facingParticles")) {
 			for (EnumParticle particle : EnumParticle.values()) {

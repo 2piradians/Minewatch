@@ -46,7 +46,7 @@ public class PassiveManager {
 
 	/**Called once per tick for (all) players and heroes wearing a full set*/
 	public static void onUpdate(World world, EntityLivingBase entity, EnumHero hero) {
-		if (!entity.isEntityAlive()) // TODO hurt sound effects and overlay and health animation
+		if (!entity.isEntityAlive()) // TODO (eventually?) hurt sound effects and overlay and health animation
 			return;
 
 		// saturation

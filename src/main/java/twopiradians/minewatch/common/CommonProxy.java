@@ -131,8 +131,8 @@ public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		Minewatch.logger = event.getModLog();
 		Minewatch.configFile = event.getSuggestedConfigurationFile();
-		Config.preInit(Minewatch.configFile);
 		registerPackets();
+		Config.preInit(Minewatch.configFile);
 		registerEventListeners();
 		ModEntities.registerEntities();
 	}
@@ -349,4 +349,6 @@ public class CommonProxy {
 	}
 
 	public void onSetChanged(EntityLivingBase player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {}
+
+	public void reassignRunKeybind(boolean reassign) {}
 }

@@ -467,7 +467,10 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 					TickHandler.register(false, HACK.setEntity(player).setEntityLiving(null).setTicks(10));
 					Minewatch.network.sendToDimension(new SPacketSimple(61, player, true), world.provider.getDimension());
 				}
-				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.sombra_hack));
+				if (player instanceof EntityPlayer) 
+					((EntityPlayer)player).inventory.offHandInventory.set(0, new ItemStack(ModItems.sombra_hack));
+				else
+					player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.sombra_hack));
 			}
 
 			// passive
@@ -766,7 +769,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			// hack health packs
 			for (BlockPos pos : TileEntityHealthPack.healthPackPositions)
 				if (EntityHelper.getDistance(new Vec3d(pos), player) <= 15 &&
-						EntityHelper.canBeSeen(player.world, player.getLookVec(), new Vec3d(pos)))
+				EntityHelper.canBeSeen(player.world, player.getLookVec(), new Vec3d(pos)))
 					hackHealthPack(player, pos);
 
 			super.onUltimate(stack, world, player);

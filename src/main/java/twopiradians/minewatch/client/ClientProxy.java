@@ -259,27 +259,27 @@ public class ClientProxy extends CommonProxy {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(Minewatch.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 
-		@Mod.EventBusSubscriber(Side.CLIENT)
-		public static class RegistrationHandler {
+	@Mod.EventBusSubscriber(Side.CLIENT)
+	public static class RegistrationHandler {
 
-			@SubscribeEvent
-			public static void registerWeaponRenders(ModelRegistryEvent event) { 	
-				for (IChangingModel item : ModItems.changingModelItems) {
-					String loc = Minewatch.MODID+":" + item.getItem().getUnlocalizedName().substring(5);
-					for (String modelLoc : item.getAllModelLocations(new ArrayList<String>())) {
-						ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc, "inventory"));
-						ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc+"_3d", "inventory"));
-					}
-					ModelLoader.setCustomMeshDefinition(item.getItem(), new ItemMeshDefinition() {
-						@Override
-						public ModelResourceLocation getModelLocation(ItemStack stack) {
-							return new ModelResourceLocation(loc + 
-									item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack)) + 
-									(Config.useObjModels ? "_3d" : ""), "inventory");
-						}
-					});
+		@SubscribeEvent
+		public static void registerWeaponRenders(ModelRegistryEvent event) { 	
+			for (IChangingModel item : ModItems.changingModelItems) {
+				String loc = Minewatch.MODID+":" + item.getItem().getUnlocalizedName().substring(5);
+				for (String modelLoc : item.getAllModelLocations(new ArrayList<String>())) {
+					ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc, "inventory"));
+					ModelBakery.registerItemVariants(item.getItem(), new ModelResourceLocation(loc+modelLoc+"_3d", "inventory"));
 				}
+				ModelLoader.setCustomMeshDefinition(item.getItem(), new ItemMeshDefinition() {
+					@Override
+					public ModelResourceLocation getModelLocation(ItemStack stack) {
+						return new ModelResourceLocation(loc + 
+								item.getModelLocation(stack, ItemMWWeapon.getEntity(Minecraft.getMinecraft().world, stack)) + 
+								(Config.useObjModels ? "_3d" : ""), "inventory");
+					}
+				});
 			}
+		}
 	}
 
 	private void registerEntityRenders() {
@@ -581,36 +581,41 @@ public class ClientProxy extends CommonProxy {
 		if (entity != null)
 			Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(entity.getPosition().add(-100, -100, -100), entity.getPosition().add(100, 100, 100));
 	}
-	
+
 	@Override
 	public void setThirdPersonView(int mode) {
 		Minecraft.getMinecraft().gameSettings.thirdPersonView = mode;
 	}
-	
+
 	@Override
 	public boolean isSinglePlayer() {
 		return Minecraft.getMinecraft().isSingleplayer();
 	}
-	
+
 	@Override
 	public int getParticleSettings() {
 		return Minecraft.getMinecraft().gameSettings.particleSetting;
 	}
-	
+
 	@Override
 	public void onSetChanged(EntityLivingBase player, @Nullable EnumHero prevHero, @Nullable EnumHero newHero) {
+
+	}
+
+	@Override
+	public void reassignRunKeybind(boolean reassign) {
 		// reassign sneak 
-		if (Config.reassignSneak && player.world.isRemote && player == Minewatch.proxy.getClientPlayer()) {
+		if (Config.reassignSneak) {
 			Minecraft mc = Minecraft.getMinecraft();
-			// no new hero - reset sneak back to LSHIFT
-			if (newHero == null && 
+			// reset sneak back to LSHIFT
+			if (!reassign && 
 					mc.gameSettings.keyBindSneak.getKeyCode() == Keyboard.KEY_LCONTROL &&
 					KeyBind.ABILITY_1.keyBind.getKeyCode() == Keyboard.KEY_LSHIFT) {
 				mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LSHIFT);
 				KeyBinding.resetKeyBindingArrayAndHash();
 			}
-			// new hero - rebind sneak to LCTRL
-			else if (newHero != null && 
+			// rebind sneak to LCTRL
+			else if (reassign && 
 					mc.gameSettings.keyBindSneak.getKeyCode() == KeyBind.ABILITY_1.keyBind.getKeyCode()) {
 				mc.gameSettings.setOptionKeyBinding(mc.gameSettings.keyBindSneak, Keyboard.KEY_LCONTROL);
 				KeyBinding.resetKeyBindingArrayAndHash();

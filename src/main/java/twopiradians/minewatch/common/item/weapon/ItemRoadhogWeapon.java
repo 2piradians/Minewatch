@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
@@ -169,7 +170,7 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			return super.onServerRemove();
 		}
 	};
-	
+
 	public ItemRoadhogWeapon() {
 		super(30);
 		MinecraftForge.EVENT_BUS.register(this);
@@ -240,7 +241,10 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 				TickHandler.register(false, HEALING.setEntity(player).setTicks(36),
 						Ability.ABILITY_USING.setEntity(player).setTicks(36).setAbility(hero.ability1));
 				Minewatch.network.sendToDimension(new SPacketSimple(74, player, true), world.provider.getDimension());
-				player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.roadhog_health));
+				if (player instanceof EntityPlayer) 
+					((EntityPlayer)player).inventory.offHandInventory.set(0, new ItemStack(ModItems.roadhog_health));
+				else
+					player.setHeldItem(EnumHand.OFF_HAND, new ItemStack(ModItems.roadhog_health));
 			}
 		}
 	}	
@@ -263,32 +267,32 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			float percent = 1f - handler.ticksLeft / 25f;
 			GlStateManager.color((255f-67f*percent)/255f, (255f-102f*percent)/255f, (255f-201f*percent)/255f);
 		}
-		
+
 		// ultimate
-		//if (TickHandler.hasHandler(entity, Identifier.ROADHOG_ULTIMATE)) {
-			model.bipedLeftArmwear.rotateAngleX = 5;
-			model.bipedLeftArm.rotateAngleX = 5;
-			model.bipedLeftArmwear.rotateAngleY = -0.2f;
-			model.bipedLeftArm.rotateAngleY = -0.2f;
-		//}
+		if (TickHandler.hasHandler(entity, Identifier.ROADHOG_ULTIMATE)) {
+			model.bipedLeftArmwear.rotateAngleX = 5+MathHelper.sin(entity.ticksExisted/1f)*0.1f;
+			model.bipedLeftArm.rotateAngleX = 5+MathHelper.sin(entity.ticksExisted/1f)*0.1f;
+			model.bipedLeftArmwear.rotateAngleY = 0.4f;
+			model.bipedLeftArm.rotateAngleY = 0.4f;
+		}
 
 		return false;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) {
+	public boolean shouldRenderHand(AbstractClientPlayer player, EnumHand hand) { 
 		// ultimate
-		//if (hand == EnumHand.OFF_HAND &&
-		//				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_ULTIMATE && handler.entityLiving == Minecraft.getMinecraft().player, true)) {
-		GlStateManager.translate(0.0f, -1.25f, 0);	
-		GlStateManager.rotate(-90, 0, 0, 1);
-		GlStateManager.rotate(MathHelper.sin(player.ticksExisted/1f)*5f, 0, 3, 1);
+		if (hand == EnumHand.OFF_HAND &&
+				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_ULTIMATE && handler.entityLiving == Minecraft.getMinecraft().player, true)) {
+			GlStateManager.translate(0.45f, -1.25f, 0);	
+			GlStateManager.rotate(-90, 0, 0, 1);
+			GlStateManager.rotate(MathHelper.sin(player.ticksExisted/1f)*3f, 0, 3, 1);
 			return hand == EnumHand.OFF_HAND;
-		//}
-		
-		//return hand == EnumHand.OFF_HAND &&
-		//		TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
+		}
+
+		return hand == EnumHand.OFF_HAND &&
+				TickHandler.hasHandler(handler -> handler.identifier == Identifier.ROADHOG_HOOKING && handler.entityLiving == Minecraft.getMinecraft().player, true);
 	}
 
 	@SubscribeEvent(priority=EventPriority.LOWEST)
@@ -362,19 +366,19 @@ public class ItemRoadhogWeapon extends ItemMWWeapon {
 			}
 		}
 	}
-	
+
 	@Override
 	public void onUltimate(ItemStack stack, World world, EntityLivingBase player) {
 		ModSoundEvents.ROADHOG_ULTIMATE.playFollowingSound(player, 1, 1);
-		
+
 		TickHandler.register(false, ULTIMATE.setEntity(player).setTicks(120),
 				UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks(120),
 				Ability.ABILITY_USING.setEntity(player).setTicks(120).setAbility(hero.ultimate));
 		Minewatch.network.sendToDimension(new SPacketSimple(88, player, false, 120, 0, 0), player.world.provider.getDimension());
 
 		super.onUltimate(stack, world, player);
-	}
-	
+	} 
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<String> getAllModelLocations(ArrayList<String> locs) {

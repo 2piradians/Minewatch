@@ -81,6 +81,7 @@ import twopiradians.minewatch.common.item.weapon.ItemTracerPistol;
 import twopiradians.minewatch.common.item.weapon.ItemWidowmakerRifle;
 import twopiradians.minewatch.common.item.weapon.ItemZenyattaWeapon;
 import twopiradians.minewatch.common.potion.ModPotions;
+import twopiradians.minewatch.common.sound.FollowingSound;
 import twopiradians.minewatch.common.sound.ModSoundEvents;
 import twopiradians.minewatch.common.tileentity.TileEntityTeam;
 import twopiradians.minewatch.common.util.EntityHelper;
@@ -1172,6 +1173,10 @@ public class SPacketSimple implements IMessage {
 						TickHandler.register(true, ItemRoadhogWeapon.ULTIMATE.setEntity(entity).setTicks((int) packet.x),
 								UltimateManager.PREVENT_CHARGE.setEntity(entity).setTicks((int) packet.x),
 								Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.ROADHOG.ultimate));
+					}
+					// print following sounds
+					else if (packet.type == 89) {
+						player.sendMessage(new TextComponentString("Sounds: "+FollowingSound.sounds));
 					}
 				}
 			});

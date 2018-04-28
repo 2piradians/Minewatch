@@ -254,6 +254,10 @@ gui.team_block.button.selected_team=Equipp selecionado.
 gui.team_block.button.video_demonstration=Demostracion
 gui.team_block.button.ok=Aceptar
 
+gui.team_spawn.button.spawn_radius=Area
+gui.team_spawn.button.spawn_radius.desc=El area alrededor de este bloque es donde los jugadores y entidades pueden aparecer, ser curados, y acceder al selector de heroes.
+gui.team_spawn.button.heal.desc=Los jugadores y entidades se pueden curar en esta area cuando este activado.
+gui.team_spawn.button.change_hero.desc=Los jugadores y entidades se pueden cambiar de heroe en esta area cuando este activado.
 gui.team_spawn.button.activate_deactivate.desc=Jugadores y entitades se genereran en su generador de equipo
 gui.team_spawn.button.activate.desc=Solo un generador de equipo puede ser activado a la vez, por equipo
 gui.team_spawn.button.deactivate.desc=Solo un generador de equipo puede ser desactivado a la vez, por equipo

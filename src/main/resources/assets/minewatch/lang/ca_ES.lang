@@ -254,6 +254,10 @@ gui.team_block.button.selected_team=Equip sel·leccionat.
 gui.team_block.button.video_demonstration=Demostracio
 gui.team_block.button.ok=D'Acord
 
+gui.team_spawn.button.spawn_radius=Area
+gui.team_spawn.button.spawn_radius.desc=El area al voltant d'aquest bloc es on els jugadors i entitats poden aparéixer, ser curats, i poden accedir al sel·lector d'herois
+gui.team_spawn.button.heal.desc=Els jugadors i entitats poden ser curats en aquesta area quan esta activat
+gui.team_spawn.button.change_hero.desc=Els jugadors i entitats poden cambiar d'heroi en aquesta area quan esta activat
 gui.team_spawn.button.activate_deactivate.desc=Jugadors i entitats es genererán en el seu generador d'equip
 gui.team_spawn.button.activate.desc=Nomes un generador d'equip pot ser activat a la vegada, per equip
 gui.team_spawn.button.deactivate.desc=Nomes un generador d'equip pot ser desactivat a la vegada, per equip

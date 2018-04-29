@@ -756,7 +756,7 @@ public class ItemSombraMachinePistol extends ItemMWWeapon {
 			for (EntityLivingBase entity : world.getEntitiesWithinAABB(EntityLivingBase.class, player.getEntityBoundingBox().grow(15)))
 				if (entity != player && !EntityHelper.shouldIgnoreEntity(entity, false, false) && 
 				EntityHelper.getDistance(player.getPositionVector(), entity) <= 15 && EntityHelper.shouldHit(player, entity, false) &&
-				EntityHelper.canEntityBeSeen(player.getLookVec(), entity)) {
+				EntityHelper.canEntityBeSeen(EntityHelper.getPositionEyes(player), entity)) {
 					hackEntity(player, entity);
 					EnumHero hero = SetManager.getWornSet(entity);
 					if (hero != null) {

@@ -1154,10 +1154,10 @@ public class SPacketSimple implements IMessage {
 					}
 					// Sombra's ult
 					else if (packet.type == 87 && entity instanceof EntityLivingBase) {
-						TickHandler.register(true, ItemSombraMachinePistol.ULTIMATE.setEntity(player).setTicks((int) packet.x),
-								Handlers.PREVENT_MOVEMENT.setEntity(player).setTicks((int) packet.x),
-								UltimateManager.PREVENT_CHARGE.setEntity(player).setTicks((int) packet.x),
-								Ability.ABILITY_USING.setEntity(player).setTicks((int) packet.x).setAbility(EnumHero.SOMBRA.ultimate));
+						TickHandler.register(true, ItemSombraMachinePistol.ULTIMATE.setEntity(entity).setTicks((int) packet.x),
+								Handlers.PREVENT_MOVEMENT.setEntity(entity).setTicks((int) packet.x),
+								UltimateManager.PREVENT_CHARGE.setEntity(entity).setTicks((int) packet.x),
+								Ability.ABILITY_USING.setEntity(entity).setTicks((int) packet.x).setAbility(EnumHero.SOMBRA.ultimate));
 						AttachmentManager.addAttachments((EntityLivingBase)entity, Type.SOMBRA_ULTIMATE_DOME);
 						entity.onGround = false;
 						entity.move(MoverType.PLAYER, 0, 2d, 0);

@@ -8,15 +8,15 @@ config.client-side.hero_skins=Apariencias de los Heroes
 config.server-side.hero_mobs=Heroes mobiles
 config.server-side.team_blocks=Bloques de Equipo
 
-command.hero.desc=te equipa a ti/a la persona destinataria con la armadura i el arma del heroe.
+command.hero.desc=te equipa a ti/a la persona destinataria con la armadura y el arma del heroe.
 command.sync.desc=sincroniza tu configuracion con el servidor (en multijugador)
 command.team_spawn.desc=activa/desactiva el punto de aparicion
-command.reset.desc=el comando maestri para "reiniciar" las partidas de Minewatch, actualmente mata i hace respawn a las entidades que reaparecen en los generadores de equipos.
-command.lobby.desc=elimina el equip, nateja el inventari i et fa regenerar.
+command.reset.desc=el comando maestro para "reiniciar" las partidas de Minewatch, actualmente mata i hace respawn a las entidades que reaparecen en los generadores de equipos.
+command.lobby.desc=elimina el equipo, limpia el inventario y te hace regenerar.
 
 effect.frozen=Congelado
 
-tile.health_pack_small.name=Paquete de curacion pequeÒa
+tile.health_pack_small.name=Paquete de curacion peque√±a
 tile.health_pack_large.name=Paquete de curacion grande
 tile.health_pack.desc=Te regenera cuando pasas por encima y tarda un rato en recargarse
 tile.team_spawn.name=Generador de equipos
@@ -57,7 +57,7 @@ item.ana_helmet.name=Casco de Ana
 item.ana_chestplate.name=Peto de Ana
 item.ana_leggings.name=Grebas de Ana
 item.ana_boots.name=Botas de Ana
-item.ana_weapon.name=Rifle BiÛtico de Ana
+item.ana_weapon.name=Rifle Bi√≥tico de Ana
 
 item.genji_token.name=Ficha de Genji
 item.genji_helmet.name=Casco de Genji
@@ -196,7 +196,7 @@ entity.mccree_bullet.name=Bala de McCree
 entity.mccree_stun.name=Granada encegadora de McCree
 entity.soldier76_hero.name=Soldado: 76
 entity.soldier76_bullet.name=Bala de Soldado: 76
-entity.soldier76_helix_rocket.name=Cohete Helix de Soldado: 76
+entity.soldier76_helix_rocket.name=Cohete h√©lice de Soldado: 76
 entity.soldier76_heal.name=Campo biotico de Soldado: 76
 entity.bastion_hero.name=Bastion
 entity.bastion_bullet.name=Bala de Bastion
@@ -250,7 +250,7 @@ gui.team_block.button.name.desc=Esto nombre es usado con comandos
 gui.team_block.button.activate_deactivate=Activar / Desactivar...
 gui.team_block.button.activate=Activado
 gui.team_block.button.deactivate=Desactivado
-gui.team_block.button.selected_team=Equipp selecionado.
+gui.team_block.button.selected_team=Equipo selecionado.
 gui.team_block.button.video_demonstration=Demostracion
 gui.team_block.button.ok=Aceptar
 

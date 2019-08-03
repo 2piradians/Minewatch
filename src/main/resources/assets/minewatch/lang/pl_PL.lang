@@ -1,0 +1,276 @@
+itemGroup.tabMinewatch=Zakładka Minewatch
+itemGroup.tabMinewatchArmorWeapons=Pancerze i bronie Minewatch
+itemGroup.tabMinewatchMapMaking=Narzędzia mapotwórcze Minewatch
+
+config.server-side=Po stronie serwera
+config.client-side=Po stronie klienta
+config.client-side.hero_skins=Skórki bohaterów
+config.server-side.hero_mobs=Bohaterowie jako moby
+config.server-side.team_blocks=Bloki zarządzające drużynami
+
+command.hero.desc=wyposaża cię/cel w pancerz i bronie danego bohatera
+command.sync.desc=synchronizuje twoje ustawienia ze serwerzem (w trybie wieloosobowym)
+command.team_spawn.desc=aktywuje/deaktywuje drużynowe odradzanie się
+command.ult.desc=przyznaje celowi wyznaczony procent jego/jej superzdolności
+command.reset.desc="resetuje" minigry Minewatch, obecnie zabójstwa i odrodzone byty w drużynach
+command.lobby.desc=usuwa drużyny, czyści ekwipunek i odradza cię
+
+effect.frozen=Zamieć
+
+tile.health_pack_small.name=Mała apteczka
+tile.health_pack_large.name=Duża apteczka
+tile.health_pack.desc=Gdy w to wejdziesz, będziesz czasowo leczony/a.
+tile.team_spawn.name=Punkt odrodzenia
+tile.team_spawn.desc=Blok, na którym gracze i moby się odradzają.
+tile.death_block.name=Punkt śmierci
+tile.death_block.desc1=Zabija graczy i mobów (w trybach przetrwania i przygody), którzy go dotkną
+tile.death_block.desc2=Może zostać użyty do naśladowania śmiertelnych granic map.
+tile.push_block.name=Punkt ślizgu
+tile.push_block.desc1=Blok, z którego gracze i moby ześlizgują się.
+tile.push_block.desc2=Moża zostać użyty do naśladowania niedostępnych dachów.
+
+item.wild_card_token.name=Żeton dowolnego wyboru
+item.team_stick.name=Patyk zarządzajacy drużynami
+item.hero_token.desc=Umieść w stole rzemieślniczym z żelazną zbroją, by stworzyć pancerz lub sam żeton, by stworzyć broń dla postaci %s.
+item.hero_token_wildCard.desc=Kliknij PPM, by wybrać wymienić na dowolny żeton.
+
+item.reaper_token.name=Żeton na Żniwiarza
+item.reaper_helmet.name=Hełm Żniwiarza
+item.reaper_chestplate.name=Napierśnik Żniwiarza
+item.reaper_leggings.name=Spodnie Żniwiarza
+item.reaper_boots.name=Buty Żniwiarza
+item.reaper_weapon.name=Piekielne strzelby Żniwiarza
+
+item.hanzo_token.name=Żeton na Hanzo
+item.hanzo_helmet.name=Hełm Hanzo
+item.hanzo_chestplate.name=Napierśnik Hanzo
+item.hanzo_leggings.name=Spodnie Hanzo
+item.hanzo_boots.name=Buty Hanzo
+item.hanzo_weapon.name=Łuk burzy Hanzo
+
+item.reinhardt_token.name=Żeton na Reinharda
+item.reinhardt_helmet.name=Hełm Reinharda
+item.reinhardt_chestplate.name=Napierśnik Reinharda
+item.reinhardt_leggings.name=Spodnie Reinharda
+item.reinhardt_boots.name=Buty Reinharda
+item.reinhardt_weapon.name=Młot rakietowy Reinharda
+
+item.ana_token.name=Żeton na Anę
+item.ana_helmet.name=Hełm Any
+item.ana_chestplate.name=Napierśnik Any
+item.ana_leggings.name=Spodnie Any
+item.ana_boots.name=Buty Any
+item.ana_weapon.name=Karabin biotyczny Any
+
+item.genji_token.name=Żeton na Genjiego
+item.genji_helmet.name=Hełm Genjiego
+item.genji_chestplate.name=Napierśnik Genjiego
+item.genji_leggings.name=Spodnie Genjiego
+item.genji_boots.name=Buty Genjiego
+item.genji_weapon.name=Shurikeny Genjiego
+item.genji_shuriken_single.name=Shuriken Genjiego
+
+item.tracer_token.name=Żeton na Smugę
+item.tracer_helmet.name=Hełm Smugi
+item.tracer_chestplate.name=Napierśnik Smugi
+item.tracer_leggings.name=Spodnie Smugi
+item.tracer_boots.name=Buty Smugi
+item.tracer_weapon.name=Pistolet pulsacyjny Smugi
+
+item.mccree_token.name=Żeton na McCree'ego
+item.mccree_helmet.name=Hełm McCree'ego
+item.mccree_chestplate.name=Napierśnik McCree'ego
+item.mccree_leggings.name=Spodnie McCree'ego
+item.mccree_boots.name=Buty McCree'ego
+item.mccree_weapon.name=Rozjemca McCree'ego
+
+item.soldier76_token.name=Żeton na Żołnierza-76
+item.soldier76_helmet.name=Hełm Żołnierza-76
+item.soldier76_chestplate.name=Napierśnik Żołnierza-76
+item.soldier76_leggings.name=Spodnie Żołnierza-76
+item.soldier76_boots.name=Buty Żołnierza-76
+item.soldier76_weapon.name=Ciężki karabin pulsacyjny Żołnierza-76
+
+item.mei_token.name=Żeton Mei
+item.mei_helmet.name=Hełm Mei
+item.mei_chestplate.name=Napierśnik Mei
+item.mei_leggings.name=Spodnie Mei
+item.mei_boots.name=Buty Mei
+item.mei_weapon.name=Miotacz endotermiczny Mei
+
+item.bastion_token.name=Żeton na Bastiona
+item.bastion_helmet.name=Hełm Bastiona
+item.bastion_chestplate.name=Napierśnik Bastiona
+item.bastion_leggings.name=Spodnie Bastiona
+item.bastion_boots.name=Buty Bastiona
+item.bastion_weapon.name=Pistolet maszynowy Bastiona
+
+item.widowmaker_token.name=Żeton na Trupią Wdowę
+item.widowmaker_helmet.name=Hełm Trupiej Wdowy
+item.widowmaker_chestplate.name=Napierśnik Trupiej Wdowy
+item.widowmaker_leggings.name=Spodnie Trupiej Wdowy
+item.widowmaker_boots.name=Buty Trupiej Wdowy
+item.widowmaker_weapon.name=Pocałunek wdowy
+
+item.mercy_token.name=Żeton na Łaskę
+item.mercy_helmet.name=Hełm Łaski
+item.mercy_chestplate.name=Napierśnik Łaski
+item.mercy_leggings.name=Spodnie Łaski
+item.mercy_boots.name=Buty Łaski
+item.mercy_weapon.name=Broń Łaski
+
+item.junkrat_token.name=Żeton na Złomiarza
+item.junkrat_helmet.name=Hełm Złomiarza
+item.junkrat_chestplate.name=Napierśnik Złomiarza
+item.junkrat_leggings.name=Spodnie Złomiarza
+item.junkrat_boots.name=Buty Złomiarza
+item.junkrat_weapon.name=Granatnik Złomiarza
+item.junkrat_trigger.name=Zapalnik min ogłuszających Złomiarza
+
+item.sombra_token.name=Żeton na Sombrę
+item.sombra_helmet.name=Hełm Sombry
+item.sombra_chestplate.name=Napierśnik Sombry
+item.sombra_leggings.name=Spodnie Sombry
+item.sombra_boots.name=Buty Sombry
+item.sombra_weapon.name=Pistolet maszynowy Sombry
+item.sombra_hack.name=Hakowanie Sombry
+
+item.lucio_token.name=Żeton na Lúcio
+item.lucio_helmet.name=Hełm Lúcio
+item.lucio_chestplate.name=Napierśnik Lúcio
+item.lucio_leggings.name=Spodnie Lúcio
+item.lucio_boots.name=Buty Lúcio
+item.lucio_weapon.name=Wzmacniacz Lúcio
+
+item.zenyatta_token.name=Żeton na Zenyattę
+item.zenyatta_helmet.name=Hełm Zenyatty
+item.zenyatta_chestplate.name=Napierśnik Zenyatty
+item.zenyatta_leggings.name=Spodnie Zenyatty
+item.zenyatta_boots.name=Buty Zenyatty
+item.zenyatta_weapon.name=Kula rozdarcia Zenyatty
+
+item.moira_token.name=Żeton na Moirę
+item.moira_helmet.name=Hełm Moiry
+item.moira_chestplate.name=Napierśnik Moiry
+item.moira_leggings.name=Spodnie Moiry
+item.moira_boots.name=Buty Moiry
+item.moira_weapon.name=Biotyczny chwyt Moiry
+
+item.doomfist_token.name=Żeton na Pieść Zagłady
+item.doomfist_helmet.name=Hełm Pięści Zagłady
+item.doomfist_chestplate.name=Napierśnik Pięści Zagłady
+item.doomfist_leggings.name=Spodnie Pięści Zagłady
+item.doomfist_boots.name=Buty Pięści Zagłady
+item.doomfist_weapon.name=Rękawica Pięści Zagłady
+
+item.roadhog_token.name=Żeton na Wieprza
+item.roadhog_helmet.name=Hełm Wieprza
+item.roadhog_chestplate.name=Napierśnik Wieprza
+item.roadhog_leggings.name=Spodnie Wieprza
+item.roadhog_boots.name=Buty Wieprza
+item.roadhog_weapon.name=Szmelcownica Wieprza
+item.roadhog_health.name=Odspanij Wieprza
+
+item.pharah_token.name=Żeton na Farę
+item.pharah_helmet.name=Hełm Fary
+item.pharah_chestplate.name=Napierśnik Fary
+item.pharah_leggings.name=Spodnie Fary
+item.pharah_boots.name=Buty Fary
+item.pharah_weapon.name=Wyrzutnia rakiet Fary
+
+entity.random_hero.name=Losowy bohater
+entity.hanzo_hero.name=Hanzo
+entity.hanzo_arrow.name=Strzała Hanzo
+entity.hanzo_sonic_arrow.name=Strzała soniczna Hanzo
+entity.hanzo_scatter_arrow.name=Strzała rozpryskowa Hanzo
+entity.reaper_hero.name=Żniwiarza
+entity.reaper_bullet.name=Nabój Żniwiarza
+entity.ana_hero.name=Ana
+entity.ana_bullet.name=Nabój Ana
+entity.ana_sleep_dart.name=Strzałka usypiająca Any
+entity.ana_grenade.name=Granat biotyczny Any
+entity.genji_hero.name=Genji
+entity.genji_shuriken.name=Shurikeny Genjiego
+entity.genji_shuriken_single.name=Shuriken Genjiego
+entity.tracer_hero.name=Smuga
+entity.tracer_bullet.name=Nabój Smugi
+entity.mccree_hero.name=McCree
+entity.mccree_bullet.name=Nabój McCree'ego
+entity.mccree_stun.name=Granat błyskowy McCree'ego
+entity.soldier76_hero.name=Żołnierz-76
+entity.soldier76_bullet.name=Nabój Żołnierza-76
+entity.soldier76_helix_rocket.name=Rakiety Helix Żołnierza-76
+entity.soldier76_heal.name=Pole biotyczne Żołnierza-76
+entity.bastion_hero.name=Bastion
+entity.bastion_bullet.name=Nabój Bastiona
+entity.mei_hero.name=Mei
+entity.mei_blast.name=Zamrażanie Mei
+entity.mei_icicle.name=Sopel Mei
+entity.mei_crystal.name=Kriostaza Mei
+entity.mercy_hero.name=Łaska
+entity.mercy_bullet.name=Nabój Łaski
+entity.mercy_beam.name=Strumień Łaski
+entity.junkrat_hero.name=Złomiarz
+entity.junkrat_grenade.name=Granat Złomiarza
+entity.junkrat_trap.name=Potrzask Złomiarza
+entity.junkrat_mine.name=Mina ogłuszajaca Złomiarza
+entity.widowmaker_hero.name=Trupia Wdowa
+entity.widowmaker_bullet.name=Nabój Trupiej Wdowy
+entity.widowmaker_mine.name=Jadowita mina Trupiej Wdowy
+entity.widowmaker_hook.name=Kotwiczka Trupiej Wdowy
+entity.sombra_hero.name=Sombra
+entity.sombra_bullet.name=Nabój Sombry
+entity.sombra_translocator.name=Translokator Sombry
+entity.reinhardt_hero.name=Reinhardt
+entity.reinhardt_strike.name=Ogniste uderzenia Reinharda
+entity.lucio_hero.name=Lúcio
+entity.lucio_sonic.name=Wzmacniacz Lúcio
+entity.zenyatta_hero.name=Zenyatta
+entity.zenyatta_orb.name=Kula rozdarcia Zenyatty
+entity.moira_hero.name=Moira
+entity.moira_heal_energy.name=Energia biotyczna Moiry
+entity.moira_orb.name=Kula biotyczna Moiry
+entity.doomfist_hero.name=Pięść Zagłady
+entity.doomfist_bullet.name=Nabój Pięści Zagłady
+entity.roadhog_hero.name=Wieprzu
+entity.roadhog_scrap.name=Złom Wieprza
+entity.roadhog_hook.name=Hak Wieprza
+entity.pharah_hero.name=Fara
+entity.pharah_rocket.name=Rakieta Fary
+
+command.reset.success=Minigra Minewatch została zresetowana przez moderatora.
+command.reset.unrecognized_flags=Nierozpoznane flagi
+
+overlay.eliminated_by=Zabójca:
+overlay.assist=Asysta
+overlay.eliminated=Likwidujesz:
+overlay.death_spectating=Powtórka
+overlay.respawn_in=Odrodzenie za
+overlay.change_hero=Wciśnij %s, aby zmienić bohatera
+
+gui.team_block.button.name=Nazwa
+gui.team_block.button.name.desc=Ta nazwa jest używana przez polecenia.
+gui.team_block.button.options=Ustawienia
+gui.team_block.button.active=Aktywne
+gui.team_block.button.inactive=Nieaktywne
+gui.team_block.button.activate_deactivate=Aktywne / Deaktywuj
+gui.team_block.button.selected_team=Wybrano drużynę
+gui.team_block.button.video_demonstration=Wizualna demonstacja
+gui.team_block.button.ok=Potwierdzam
+
+gui.team_spawn.button.spawn_radius=Promień
+gui.team_spawn.button.spawn_radius.desc=Promień wokół tego bloku wskazuje miejsce, w którym gracze i moby mogą się leczyć, odrodzić i wybrać bohatera.
+gui.team_spawn.button.heal.desc=Gracze i moby w tym promieniu powinni być leczeni, gdy jest to aktywne
+gui.team_spawn.button.change_hero.desc=Gracze i moby powinni móc zmienić bohatera, gdy jest to aktywne
+gui.team_spawn.button.activate.desc=Gracze i moby będą odradzać się na aktywnym punkie odrodzenia ich drużyny
+gui.team_spawn.button.deactivate.desc=Gracze i moby będą odradzać się na aktywnym punkcie odrodzenia ich drużyny
+gui.team_spawn.button.selected_team.desc=Wybierz drużynę, w której chcesz się odradzać
+gui.team_spawn.question_mark_description_0=Gracze i moby będą odradzać się na aktywnych punkie odrodzenia ich drużyny. Kierunek, w którym się odrodzą wskazuje strzałka. Będą także leczeni i mieć dostęp do zmiany bohatera.
+gui.team_spawn.question_mark_description_1=Punkty odrodzenia mogą być aktywowane/deaktywowane przy użyciu polecenia jak:
+gui.team_spawn.status.players_heroes_team=Gracze i moby w
+gui.team_spawn.status.players_heroes_all=Wszyscy gracze i moby (w drużynie)
+gui.team_spawn.status.players_heroes_none=Nic
+gui.team_spawn.status.will_spawn=będą odradzać się tutaj
+
+gui.hero_select.select=Wybierz
+gui.hero_select.select_hero=Wybierz bohatera
